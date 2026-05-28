@@ -179,6 +179,42 @@
     </fieldset>
   </section>
 
+  <section id="section-select" data-testid="section-select">
+    <h2>Select</h2>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:0.5rem;">
+      <select class="hc-select" aria-label="Country" data-testid="sel-default">
+        <option value="">Choose a country…</option>
+        <option value="jp">Japan</option>
+        <option value="us">United States</option>
+        <option value="gb">United Kingdom</option>
+      </select>
+
+      <select class="hc-select" aria-label="Required field"
+              data-variant="error" aria-invalid="true"
+              data-testid="sel-error">
+        <option value="">Select…</option>
+        <option>Required field</option>
+      </select>
+
+      <select class="hc-select" aria-label="Validated value"
+              data-variant="success" data-testid="sel-success">
+        <option>Validated value</option>
+      </select>
+
+      <select class="hc-select" aria-label="Disabled" disabled data-testid="sel-disabled">
+        <option>Disabled select</option>
+      </select>
+
+      <select class="hc-select" aria-label="Small size" data-size="sm" data-testid="sel-sm">
+        <option>Small</option>
+      </select>
+
+      <select class="hc-select" aria-label="Large size" data-size="lg" data-testid="sel-lg">
+        <option>Large</option>
+      </select>
+    </div>
+  </section>
+
   <section id="section-breadcrumb" data-testid="section-breadcrumb">
     <h2>Breadcrumb</h2>
 

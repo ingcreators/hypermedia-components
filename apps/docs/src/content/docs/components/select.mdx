@@ -1,0 +1,177 @@
+---
+title: Select
+description: Native <select> with full styling on the closed state and the OS / browser picker for the dropdown — pure CSS, no JavaScript.
+---
+
+`hc-select` styles a native `<select>` element. The underlying
+element keeps every native behaviour — keyboard navigation, form
+submission, the OS native picker on mobile, screen-reader semantics
+— while the closed state is fully restyled to match the rest of the
+HC form-control family.
+
+## Browser baseline
+
+Works in every browser that supports `<select>` (every browser). The
+expanded dropdown stays browser-native, which keeps the experience
+consistent with the user's platform.
+
+A modern follow-up — [`appearance: base-select`](https://developer.chrome.com/blog/a-customizable-select)
+(Chromium 135+, Firefox / Safari pending) — will eventually let you
+style the dropdown picker too. The stylesheet leaves that as a
+no-op so the component looks identical everywhere; opt in per-instance
+with `style="appearance: base-select"` if you want the experimental
+path on supporting browsers.
+
+## Basic example
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:18rem;">
+  <select class="hc-select" aria-label="Country">
+    <option value="">Choose a country…</option>
+    <option value="jp">Japan</option>
+    <option value="us">United States</option>
+    <option value="gb">United Kingdom</option>
+  </select>
+</div>
+
+```html
+<select class="hc-select" name="country">
+  <option value="">Choose a country…</option>
+  <option value="jp">Japan</option>
+  <option value="us">United States</option>
+  <option value="gb">United Kingdom</option>
+</select>
+```
+
+Pair with [`hc-field`](/hypermedia-components/components/field/) to
+get a visible label and helper text on top of the select.
+
+## Variants
+
+`data-variant` accepts `success`, `warning`, and `error` for
+non-default border colours. The default (omitted) variant uses the
+neutral border.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:18rem;">
+  <select class="hc-select" aria-label="Default">
+    <option>Default border</option>
+  </select>
+  <select class="hc-select" data-variant="success" aria-label="Success">
+    <option>Success</option>
+  </select>
+  <select class="hc-select" data-variant="warning" aria-label="Warning">
+    <option>Warning</option>
+  </select>
+  <select class="hc-select" data-variant="error" aria-label="Error" aria-invalid="true">
+    <option>Error</option>
+  </select>
+</div>
+
+```html
+<select class="hc-select" data-variant="error" aria-invalid="true">…</select>
+```
+
+Set `aria-invalid="true"` together with `data-variant="error"` so
+assistive tech also recognises the field as invalid.
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`. Sizes follow the
+same `--hc-control-*` scale as `hc-button` / `hc-input`, so
+`data-density="compact"` shrinks them consistently with the other
+controls.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:18rem;">
+  <select class="hc-select" data-size="sm" aria-label="Small">
+    <option>Small</option>
+  </select>
+  <select class="hc-select" aria-label="Default">
+    <option>Default</option>
+  </select>
+  <select class="hc-select" data-size="lg" aria-label="Large">
+    <option>Large</option>
+  </select>
+</div>
+
+## Disabled
+
+Use the native `disabled` attribute when the control should not be
+interactive at all. `aria-disabled="true"` is the focusable variant
+for the rare case the control must remain in the tab order.
+
+<div class="hc-preview not-content" style="max-inline-size:18rem;">
+  <select class="hc-select" disabled aria-label="Disabled">
+    <option>Disabled select</option>
+  </select>
+</div>
+
+## htmx usage
+
+`hc-select` participates in form submissions like any native
+`<select>`. For instant filters, listen to `change`:
+
+```html
+<select class="hc-select"
+        name="status"
+        data-hx-get="/items"
+        data-hx-trigger="change"
+        data-hx-target="#items"
+        data-hx-include="this">
+  <option value="">Any status</option>
+  <option value="open">Open</option>
+  <option value="closed">Closed</option>
+</select>
+```
+
+For server-side validation feedback, return the select with
+`aria-invalid="true"` and a paired `hc-field` message.
+
+## Accessibility
+
+- Always associate the select with a label. The easiest pattern is
+  to put it inside an `hc-field` with a `<label for>`. Use
+  `aria-label` only when no visible label is appropriate (e.g. a
+  toolbar select).
+- The first option is the visible default — use a placeholder like
+  `<option value="">Choose…</option>` when nothing is preselected so
+  the empty value is distinguishable from a real choice on the
+  server.
+- The native `<select>` already handles `Enter` / `Space` /
+  `Arrow` keys. Do not add custom keyboard handlers; you would only
+  conflict with the browser's built-in behaviour.
+- The chevron is drawn via `background-image` with a hardcoded
+  neutral stroke colour, mirroring the convention used by
+  `hc-checkbox` / `hc-radio`. It is purely decorative — screen
+  readers do not announce it.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `select.height` / `padding-x` | Sizing (inherits density via `--hc-control-*`). |
+| `select.radius` / `font-size` / `bg` / `fg` / `border` | Surface, text, and resting border. |
+| `select.focus-border` | Border when focused. |
+| `select.invalid-border` / `success-border` / `warning-border` | Variant borders. |
+| `select.disabled-bg` | Background when disabled. |
+| `select.chevron-size` | Chevron icon dimension. |
+| `select.sm.*` / `lg.*` | Dedicated sm / lg overrides. |
+
+## CSS variables
+
+```text
+--hc-select-height | -padding-x | -radius | -font-size
+--hc-select-bg | -fg | -border
+--hc-select-focus-border | -invalid-border | -success-border | -warning-border
+--hc-select-disabled-bg
+--hc-select-chevron-size
+--hc-select-sm-height | -sm-padding-x | -sm-font-size
+--hc-select-lg-height | -lg-padding-x | -lg-font-size
+--hc-color-focus-ring (inherited from data-color)
+```
+
+## Related
+
+- [Input](/hypermedia-components/components/input/) — text and textarea sibling sharing the same control scale.
+- [Field](/hypermedia-components/components/field/) — label + helper text wrapper.
+- [Checkbox](/hypermedia-components/components/checkbox/) / [Radio](/hypermedia-components/components/radio/) — boolean / single-pick form controls.

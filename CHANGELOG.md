@@ -22,6 +22,31 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-select` component — pure CSS skin over a native `<select>`,
+  no JavaScript behavior. The underlying element keeps every
+  native behaviour (keyboard, form submission, the OS picker on
+  mobile, screen-reader semantics); only the closed state is
+  restyled via `appearance: none` and an embedded SVG chevron so
+  it matches `hc-button` / `hc-input`. Same axes as the other form
+  controls: `data-variant="success" | "warning" | "error"` for
+  border-colour cues, `data-size="sm" | "md" | "lg"` driven from the
+  shared `--hc-control-*` scale, and `:disabled` / `aria-invalid`
+  states. The dropdown picker itself stays browser-native — modern
+  `appearance: base-select` (Chromium 135+) is left as an opt-in
+  per-instance override so behaviour stays consistent in every
+  browser. The chevron uses a hardcoded neutral stroke colour
+  matching the SVG convention `hc-checkbox` / `hc-radio` already
+  use. New `select.{height, padding-x, radius, font-size, bg, fg,
+  border, focus-border, invalid-border, success-border,
+  warning-border, disabled-bg, chevron-size, sm.*, lg.*}` tokens,
+  all `{ref}` so the overlay machinery handles theming. The
+  `hc-input` docstring was scoped to `<input>` / `<textarea>` only
+  to remove the misleading note about applying it to `<select>` —
+  pre-alpha and no consumers yet, so the API correction lands here
+  rather than as a follow-up. Playwright spec (8 cases) covers
+  chevron SVG render, focus ring, error / success variant
+  borders, disabled state, sm / lg sizing, native `change` event
+  firing (form integration), and an axe-core scan.
 - `hc-breadcrumb` component — pure CSS, no JavaScript behavior.
   Semantic skeleton is `<nav aria-label="...">` → `<ol>` → `<li>`
   with `<a class="hc-breadcrumb__link">` for steps and

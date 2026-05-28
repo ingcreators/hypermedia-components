@@ -1,6 +1,8 @@
-/* hc-input — semantic input/select/textarea component.
+/* hc-input — semantic text input / textarea component.
  *
- * Apply `.hc-input` to <input>, <select>, or <textarea>. Size via
+ * Apply `.hc-input` to <input> or <textarea>. Use `.hc-select` on a
+ * native <select> instead — it adds appearance: none plus a chevron
+ * indicator that .hc-input does not provide. Size via
  * `data-size="sm|lg"`. Invalid via the standard `aria-invalid="true"`.
  */
 @layer hc.components {
