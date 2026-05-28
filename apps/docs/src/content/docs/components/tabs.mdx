@@ -1,0 +1,247 @@
+---
+title: Tabs
+description: Accessible tab panels following the WAI-ARIA APG pattern, with progressive enhancement for browser find-in-page and an optional URL-routed variant.
+---
+
+`hc-tabs` ships two markup patterns under the same classnames and visual
+style:
+
+| Pattern | When | Markup | Needs JS? |
+| --- | --- | --- | --- |
+| **App-state** | A single page swaps panels without changing the URL. | `<div role="tablist">` + `<button role="tab">` + `<div role="tabpanel">` | Yes — `installTabs()` wires roving tabindex, arrow keys, and panel toggling. |
+| **URL-routed** | Each tab is its own URL or query parameter. | `<nav>` + `<a href>` with `aria-current="page"` | No — the browser's native link semantics already handle keyboard and focus. |
+
+The app-state pattern follows the [WAI-ARIA APG Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/) and uses
+**manual activation by default** so panels can lazy-load over htmx
+without firing a request on every arrow key.
+
+## App-state tabs
+
+<div class="hc-preview not-content">
+  <div class="hc-tabs">
+    <div class="hc-tabs__list" role="tablist" aria-label="Account preview">
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-tab-general" aria-controls="doc-panel-general"
+              aria-selected="true" tabindex="0">General</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-tab-billing" aria-controls="doc-panel-billing"
+              aria-selected="false" tabindex="-1">Billing</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-tab-team" aria-controls="doc-panel-team"
+              aria-selected="false" tabindex="-1">Team</button>
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-panel-general" aria-labelledby="doc-tab-general"
+         tabindex="0">
+      General account settings.
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-panel-billing" aria-labelledby="doc-tab-billing"
+         tabindex="0" hidden="until-found">
+      Billing details.
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-panel-team" aria-labelledby="doc-tab-team"
+         tabindex="0" hidden="until-found">
+      Team members.
+    </div>
+  </div>
+</div>
+
+```html
+<div class="hc-tabs">
+  <div class="hc-tabs__list" role="tablist" aria-label="Account">
+    <button type="button" class="hc-tabs__tab" role="tab"
+            id="tab-general" aria-controls="panel-general"
+            aria-selected="true" tabindex="0">General</button>
+    <button type="button" class="hc-tabs__tab" role="tab"
+            id="tab-billing" aria-controls="panel-billing"
+            aria-selected="false" tabindex="-1">Billing</button>
+  </div>
+
+  <div class="hc-tabs__panel" role="tabpanel"
+       id="panel-general" aria-labelledby="tab-general"
+       tabindex="0">
+    General settings panel.
+  </div>
+  <div class="hc-tabs__panel" role="tabpanel"
+       id="panel-billing" aria-labelledby="tab-billing"
+       tabindex="0" hidden="until-found">
+    Billing details panel.
+  </div>
+</div>
+```
+
+```js
+import { installTabs } from '@hypermedia-components/core';
+installTabs();
+```
+
+### Activation mode
+
+By default the behavior uses **manual activation** — arrow keys move
+focus, and the user confirms with `Enter` or `Space`. This is the
+right default when panels lazy-load (htmx, IntersectionObserver) since
+focus alone does not trigger a request.
+
+To activate panels as soon as the tab receives focus, opt in with
+`data-activation="automatic"`:
+
+```html
+<div class="hc-tabs" data-activation="automatic">…</div>
+```
+
+### Variants
+
+<div class="hc-preview not-content">
+  <div class="hc-tabs" data-variant="pill">
+    <div class="hc-tabs__list" role="tablist" aria-label="View preview">
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-pill-day" aria-controls="doc-pill-panel-day"
+              aria-selected="true" tabindex="0">Day</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-pill-week" aria-controls="doc-pill-panel-week"
+              aria-selected="false" tabindex="-1">Week</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-pill-month" aria-controls="doc-pill-panel-month"
+              aria-selected="false" tabindex="-1">Month</button>
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-pill-panel-day" aria-labelledby="doc-pill-day"
+         tabindex="0">Day view.</div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-pill-panel-week" aria-labelledby="doc-pill-week"
+         tabindex="0" hidden="until-found">Week view.</div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-pill-panel-month" aria-labelledby="doc-pill-month"
+         tabindex="0" hidden="until-found">Month view.</div>
+  </div>
+</div>
+
+```html
+<div class="hc-tabs" data-variant="pill">…</div>
+```
+
+| `data-variant` | Style |
+| -------------- | ----- |
+| `default`      | Underline indicator on the active tab. |
+| `pill`         | Filled background on the active tab; the list drops its baseline. |
+
+### Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`. The default size
+also follows `data-density`, so dense layouts shrink without per-tab
+work.
+
+```html
+<div class="hc-tabs" data-size="sm">…</div>
+```
+
+## URL-routed tabs
+
+When each tab is its own route, drop the ARIA tab roles and let the
+browser treat the markup as ordinary navigation. `aria-current="page"`
+marks the active tab; `installTabs()` ignores this variant.
+
+<div class="hc-preview not-content">
+  <div class="hc-tabs">
+    <nav class="hc-tabs__list" aria-label="Documentation preview">
+      <a class="hc-tabs__tab" href="#overview" aria-current="page">Overview</a>
+      <a class="hc-tabs__tab" href="#api">API</a>
+      <a class="hc-tabs__tab" href="#changelog">Changelog</a>
+    </nav>
+  </div>
+</div>
+
+```html
+<div class="hc-tabs">
+  <nav class="hc-tabs__list" aria-label="Documentation">
+    <a class="hc-tabs__tab" href="/docs/overview" aria-current="page">Overview</a>
+    <a class="hc-tabs__tab" href="/docs/api">API</a>
+    <a class="hc-tabs__tab" href="/docs/changelog">Changelog</a>
+  </nav>
+</div>
+```
+
+## htmx usage
+
+A panel can fetch its content the first time it becomes active by
+listening for `hc:tabactivated` — the event the behavior dispatches
+when a panel is revealed.
+
+```html
+<div class="hc-tabs__panel" role="tabpanel"
+     id="panel-billing" aria-labelledby="tab-billing"
+     tabindex="0" hidden="until-found"
+     data-hx-get="/account/billing"
+     data-hx-trigger="hc:tabactivated once"
+     data-hx-target="this"
+     data-hx-swap="innerHTML">
+  <hc-spinner></hc-spinner>
+</div>
+```
+
+## Find-in-page
+
+Inactive panels carry `hidden="until-found"` so the browser's Ctrl+F
+can search them. When the user's query matches text inside a hidden
+panel the browser fires `beforematch`; the behavior catches it and
+auto-switches to the owning tab so the match is visible. Browsers
+without [`hidden="until-found"`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/hidden)
+treat the attribute as a plain `hidden`.
+
+## Accessibility
+
+- The app-state pattern follows the WAI-ARIA APG. Roles: `tablist`,
+  `tab`, `tabpanel`.
+- Each tab needs `aria-controls` pointing at its panel; each panel
+  needs `aria-labelledby` pointing back at its tab.
+- The active tab carries `aria-selected="true"` and `tabindex="0"`;
+  inactive tabs carry `aria-selected="false"` and `tabindex="-1"`
+  (roving tabindex pattern). Disabled tabs use `aria-disabled="true"`
+  and are skipped by arrow navigation.
+- The tablist must have an accessible name. Use `aria-label` or
+  `aria-labelledby` on the `[role="tablist"]` element.
+- Panels are programmatically focusable (`tabindex="0"`) so keyboard
+  users can `Tab` into their content directly.
+- The URL-routed variant inherits all navigation accessibility from
+  `<nav>` + `<a>`. Do not add ARIA tab roles to it — that would
+  conflict with the navigation pattern.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path                            | Purpose                                  |
+| ------------------------------------- | ---------------------------------------- |
+| `tabs.list.gap` / `list.border`       | Gap between tabs and bottom border.      |
+| `tabs.tab.height` / `padding-x`       | Inherits `--hc-control-*` (density).     |
+| `tabs.tab.fg` / `hover-fg` / `hover-bg` / `active-fg` | Tab text and hover surface. |
+| `tabs.tab.indicator` / `indicator-size` | Active-state underline.                |
+| `tabs.tab.disabled-fg`                | Tab text when `aria-disabled="true"`.    |
+| `tabs.pill.active-bg` / `active-fg`   | Filled background for `data-variant="pill"`. |
+| `tabs.panel.padding-y` / `focus-ring` | Panel breathing room and focus outline.  |
+| `tabs.sm.*` / `tabs.lg.*`             | Dedicated sm / lg overrides.             |
+
+## CSS variables
+
+```text
+--hc-tabs-list-gap | -list-border
+--hc-tabs-tab-height | -padding-x | -font-size | -font-weight | -radius
+--hc-tabs-tab-fg | -hover-fg | -hover-bg | -active-fg
+--hc-tabs-tab-indicator | -indicator-size
+--hc-tabs-tab-disabled-fg
+--hc-tabs-pill-active-bg | -pill-active-fg
+--hc-tabs-panel-padding-y | -panel-focus-ring
+--hc-tabs-sm-tab-height | -sm-tab-padding-x | -sm-tab-font-size
+--hc-tabs-lg-tab-height | -lg-tab-padding-x | -lg-tab-font-size
+--hc-control-height (inherited from data-density)
+--hc-color-action-primary-bg | -primary-fg (inherited from data-color)
+--hc-color-focus-ring
+```
+
+## Related
+
+- [Dialog](/hypermedia-components/components/dialog/) — modal alternative for grouping content that should not stay visible.
+- [Popover](/hypermedia-components/components/popover/) — transient sibling.
+- [Toolbar](/hypermedia-components/components/toolbar/) — horizontal action cluster (often paired with tabs).

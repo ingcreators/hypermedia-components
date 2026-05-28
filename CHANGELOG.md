@@ -22,6 +22,26 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-tabs` component + `installTabs` behavior. Two markup patterns
+  share the same classnames and visual style: an **app-state** variant
+  (`<div role="tablist">` + `<button role="tab">` + `<div role="tabpanel">`)
+  following the WAI-ARIA APG tabs pattern, and a **URL-routed** variant
+  (`<nav>` + `<a href>` with `aria-current="page"`) that needs no JS.
+  Variants: `default` (underline) / `pill`. Sizes: `sm` / `md` / `lg`,
+  inheriting `--hc-control-*` from `data-density`. Active indicator
+  references `--hc-color-action-primary-bg` so the colour theme cascades
+  through `data-color`. `installTabs()` defaults to **manual activation**
+  (APG-recommended when panels are htmx-loaded), with
+  `data-activation="automatic"` to opt into focus-driven activation.
+  Inactive panels carry `hidden="until-found"` so the browser's
+  find-in-page can reveal them; the behavior listens for `beforematch`
+  and auto-switches to the owning tab. When a panel becomes active, an
+  `hc:tabactivated` event is dispatched on the panel (bubbles) so htmx
+  can wire `hx-trigger="hc:tabactivated once"` for lazy loading. New
+  Vitest spec (12 cases) and Playwright spec (6 cases incl. an axe-core
+  a11y scan) cover keyboard navigation, manual vs automatic activation,
+  disabled-tab skipping, `beforematch`, and the URL-routed variant being
+  ignored by the behavior.
 - `plans/hc-next-phase-plan-v0.5-en.md` — next-phase plan covering
   release readiness for `0.0.1-alpha.0`, MVP polish (form controls,
   density modes, hyperscript story), quality work (visual regression,

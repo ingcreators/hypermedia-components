@@ -1,0 +1,142 @@
+/* hc-tabs — accessible tab panels.
+ *
+ * Two supported patterns share the same classnames so the visual style
+ * is identical:
+ *
+ *   1. App-state tabs (default). Follows the WAI-ARIA APG tabs
+ *      pattern. installTabs() wires roving tabindex, arrow keys and
+ *      panel toggling.
+ *
+ *        <div class="hc-tabs">
+ *          <div class="hc-tabs__list" role="tablist" aria-label="…">
+ *            <button class="hc-tabs__tab" role="tab" …>…</button>
+ *          </div>
+ *          <div class="hc-tabs__panel" role="tabpanel" …>…</div>
+ *        </div>
+ *
+ *   2. URL-routed tabs. No ARIA tab roles — the markup is plain
+ *      navigation and the browser handles keyboard / focus. The
+ *      active link uses aria-current="page".
+ *
+ *        <nav class="hc-tabs__list" aria-label="…">
+ *          <a class="hc-tabs__tab" href="?tab=billing"
+ *             aria-current="page">Billing</a>
+ *        </nav>
+ *
+ * Variants: default (underline) | pill   (data-variant on .hc-tabs)
+ * Sizes:    sm | md (default) | lg       (data-size  on .hc-tabs)
+ * Density and colour theme are inherited from the nearest data-density
+ * / data-color ancestor via --hc-control-* and --hc-color-action-*.
+ */
+@layer hc.components {
+  .hc-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hc-space-3);
+  }
+
+  .hc-tabs__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--hc-tabs-list-gap);
+    border-block-end: 1px solid var(--hc-tabs-list-border);
+  }
+
+  .hc-tabs__tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--hc-tabs-tab-height);
+    padding-inline: var(--hc-tabs-tab-padding-x);
+    border: 0;
+    border-radius: var(--hc-tabs-tab-radius) var(--hc-tabs-tab-radius) 0 0;
+    background: transparent;
+    color: var(--hc-tabs-tab-fg);
+    font-family: inherit;
+    font-size: var(--hc-tabs-tab-font-size);
+    font-weight: var(--hc-tabs-tab-font-weight);
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition:
+      color 120ms ease,
+      background-color 120ms ease,
+      box-shadow 120ms ease;
+  }
+
+  .hc-tabs__tab:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--hc-tabs-tab-hover-fg);
+    background: var(--hc-tabs-tab-hover-bg);
+  }
+
+  .hc-tabs__tab:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  /* Active state. ARIA tabs use aria-selected; URL-routed tabs use
+   * aria-current. Both share the same indicator. */
+  .hc-tabs__tab[aria-selected="true"],
+  .hc-tabs__tab[aria-current="page"],
+  .hc-tabs__tab[aria-current="true"] {
+    color: var(--hc-tabs-tab-active-fg);
+    box-shadow:
+      inset 0 calc(var(--hc-tabs-tab-indicator-size) * -1) 0 0
+      var(--hc-tabs-tab-indicator);
+  }
+
+  /* Pill variant — filled active background, list loses its baseline. */
+  .hc-tabs[data-variant="pill"] > .hc-tabs__list {
+    border-block-end: 0;
+  }
+
+  .hc-tabs[data-variant="pill"] .hc-tabs__tab {
+    border-radius: var(--hc-tabs-tab-radius);
+  }
+
+  .hc-tabs[data-variant="pill"] .hc-tabs__tab[aria-selected="true"],
+  .hc-tabs[data-variant="pill"] .hc-tabs__tab[aria-current="page"],
+  .hc-tabs[data-variant="pill"] .hc-tabs__tab[aria-current="true"] {
+    background: var(--hc-tabs-pill-active-bg);
+    color: var(--hc-tabs-pill-active-fg);
+    box-shadow: none;
+  }
+
+  /* Sizes */
+  .hc-tabs[data-size="sm"] .hc-tabs__tab {
+    min-block-size: var(--hc-tabs-sm-tab-height);
+    padding-inline: var(--hc-tabs-sm-tab-padding-x);
+    font-size: var(--hc-tabs-sm-tab-font-size);
+  }
+
+  .hc-tabs[data-size="lg"] .hc-tabs__tab {
+    min-block-size: var(--hc-tabs-lg-tab-height);
+    padding-inline: var(--hc-tabs-lg-tab-padding-x);
+    font-size: var(--hc-tabs-lg-tab-font-size);
+  }
+
+  /* Disabled */
+  .hc-tabs__tab:disabled,
+  .hc-tabs__tab[aria-disabled="true"] {
+    color: var(--hc-tabs-tab-disabled-fg);
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+
+  /* Panels. The browser hides [hidden] and [hidden="until-found"]
+   * automatically — we only style the visible state. Panels are
+   * programmatically focusable via tabindex="0" so the focus ring
+   * needs styling. */
+  .hc-tabs__panel {
+    padding-block: var(--hc-tabs-panel-padding-y);
+  }
+
+  .hc-tabs__panel:focus-visible {
+    outline: 2px solid var(--hc-tabs-panel-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--hc-tabs-tab-radius);
+  }
+}

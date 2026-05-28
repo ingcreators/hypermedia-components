@@ -179,6 +179,90 @@
     </fieldset>
   </section>
 
+  <section id="section-tabs" data-testid="section-tabs">
+    <h2>Tabs</h2>
+
+    <h3>App-state (default, underline)</h3>
+    <div class="hc-tabs" data-testid="tabs-app">
+      <div class="hc-tabs__list" role="tablist" aria-label="Account">
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="tab-general" aria-controls="panel-general"
+                aria-selected="true" tabindex="0"
+                data-testid="tab-general">General</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="tab-billing" aria-controls="panel-billing"
+                aria-selected="false" tabindex="-1"
+                data-testid="tab-billing">Billing</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="tab-team" aria-controls="panel-team"
+                aria-selected="false" tabindex="-1"
+                data-testid="tab-team">Members</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="tab-archive" aria-controls="panel-archive"
+                aria-selected="false" tabindex="-1"
+                aria-disabled="true"
+                data-testid="tab-archive">Archive</button>
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="panel-general" aria-labelledby="tab-general" tabindex="0"
+           data-testid="panel-general">
+        General settings panel — searchable token GENERAL_TOKEN_123.
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="panel-billing" aria-labelledby="tab-billing" tabindex="0"
+           hidden="until-found" data-testid="panel-billing">
+        Billing details — searchable token BILLING_TOKEN_456.
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="panel-team" aria-labelledby="tab-team" tabindex="0"
+           hidden="until-found" data-testid="panel-team">
+        Team members.
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="panel-archive" aria-labelledby="tab-archive" tabindex="0"
+           hidden="until-found" data-testid="panel-archive">
+        Archived items.
+      </div>
+    </div>
+
+    <h3>Pill variant + size sm</h3>
+    <div class="hc-tabs" data-variant="pill" data-size="sm"
+         data-testid="tabs-pill">
+      <div class="hc-tabs__list" role="tablist" aria-label="View">
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="tab-pill-day" aria-controls="panel-pill-day"
+                aria-selected="true" tabindex="0"
+                data-testid="tab-pill-day">Day</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="tab-pill-week" aria-controls="panel-pill-week"
+                aria-selected="false" tabindex="-1"
+                data-testid="tab-pill-week">Week</button>
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="panel-pill-day" aria-labelledby="tab-pill-day" tabindex="0">
+        Day view.
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="panel-pill-week" aria-labelledby="tab-pill-week" tabindex="0"
+           hidden="until-found">
+        Week view.
+      </div>
+    </div>
+
+    <h3>URL-routed variant (no JS)</h3>
+    <div class="hc-tabs">
+      <nav class="hc-tabs__list" aria-label="Documentation"
+           data-testid="tabs-url-list">
+        <a class="hc-tabs__tab" href="#" aria-current="page"
+           data-testid="link-overview">Overview</a>
+        <a class="hc-tabs__tab" href="#"
+           data-testid="link-api">API</a>
+        <a class="hc-tabs__tab" href="#"
+           data-testid="link-changelog">Changelog</a>
+      </nav>
+    </div>
+  </section>
+
   <section id="section-macros" data-testid="section-macros">
     <h2>Macros</h2>
 
