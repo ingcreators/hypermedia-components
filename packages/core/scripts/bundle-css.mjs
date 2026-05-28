@@ -40,6 +40,7 @@ const COMPONENTS = [
   'hc-tabs.css',
   'hc-menu.css',
   'hc-tooltip.css',
+  'hc-accordion.css',
 ];
 
 async function read(file) {

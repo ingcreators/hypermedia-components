@@ -270,6 +270,27 @@
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
     }
   },
+  "accordion": {
+    "item": {
+      "border-color":         { "$type": "color",     "$value": "{semantic.color.border}" }
+    },
+    "trigger": {
+      "padding-x":            { "$type": "dimension",  "$value": "0" },
+      "padding-y":            { "$type": "dimension",  "$value": "{primitive.space.3}" },
+      "gap":                  { "$type": "dimension",  "$value": "{primitive.space.2}" },
+      "font-weight":          { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
+      "fg":                   { "$type": "color",      "$value": "{semantic.color.text}" },
+      "hover-fg":             { "$type": "color",      "$value": "{semantic.color.text}" }
+    },
+    "icon": {
+      "size":                 { "$type": "dimension",  "$value": "1rem" },
+      "transition-duration":  { "$type": "duration",   "$value": "150ms" }
+    },
+    "content": {
+      "padding-block-end":    { "$type": "dimension",  "$value": "{primitive.space.3}" },
+      "fg":                   { "$type": "color",      "$value": "{semantic.color.text-muted}" }
+    }
+  },
   "tooltip": {
     "bg":        { "$type": "color",     "$value": "{primitive.color.gray.900}" },
     "fg":        { "$type": "color",     "$value": "{primitive.color.white}" },

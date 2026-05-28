@@ -22,6 +22,28 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-accordion` component — pure CSS, no JavaScript behavior.
+  Skins the native `<details>` / `<summary>` elements: keyboard
+  handling, the `open` attribute, and the `toggle` event all come
+  for free from the browser. The single-open ("exclusive") variant
+  is expressed declaratively via the
+  [`<details name="...">` attribute](https://developer.mozilla.org/docs/Web/HTML/Element/details#name)
+  — same `name` value on every item makes the browser enforce
+  single-open semantics with zero JS (Chrome 120+, Firefox 130+,
+  Safari 17.2+). Omit `name` for the independent multi-open variant.
+  Components in scope: `.hc-accordion` (vertical container),
+  `.hc-accordion__item` (the `<details>`), `.hc-accordion__trigger`
+  (the `<summary>` with the default disclosure marker hidden),
+  `.hc-accordion__icon` (chevron rotated 180° when `[open]`, with
+  `prefers-reduced-motion` respect), `.hc-accordion__content`.
+  Lazy htmx pattern documented:
+  `data-hx-trigger="toggle once[target.open]"` fires exactly once,
+  the first time an item opens. New tokens
+  `accordion.{item.border-color, trigger.*, icon.*, content.*}`,
+  all `{ref}` so the overlay machinery carries `data-color`
+  through. Playwright spec (7 cases) covers click + keyboard
+  toggling, exclusive vs independent variants, chevron rotation,
+  and an axe-core a11y scan.
 - `hc-tooltip` component + `installTooltip` behavior. Short, transient
   text label bound to a trigger via `aria-describedby`. Built on the
   HTML `popover` attribute and CSS Anchor Positioning, same baseline
