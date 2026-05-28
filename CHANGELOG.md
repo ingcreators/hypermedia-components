@@ -142,6 +142,35 @@ Security    — security-relevant changes
 
 ### Added
 
+- `data-size="sm|md|lg"` on `hc-checkbox` and `hc-radio` — same
+  vocabulary the button / input already speak, so every form
+  control now sizes consistently. `sm = 0.875rem` (14 px), `md =
+  1.125rem` (18 px, default), `lg = 1.375rem` (22 px). Independent
+  of `data-density`: density only adjusts the `md` default; an
+  explicit `sm` or `lg` stays fixed across density tiers so a
+  deliberately-larger CTA-style checkbox doesn't shrink with a
+  dense form around it.
+- `data-variant="warning"` on `hc-checkbox` and `hc-radio` —
+  completes the semantic intent trio `success / warning / danger`
+  that the badge / alert / toast components already speak. Useful
+  for forms where a checkbox represents a risky-but-allowed option
+  ("Enable destructive backups"). Uses `semantic.color.warning`
+  (amber.600) as the checked fill.
+- New docs page `tokens/variants.mdx` — canonical cross-component
+  matrix of every `data-variant` and `data-size` HC understands,
+  with a written rationale for the deliberate asymmetries (e.g.
+  buttons have no `success` variant, checkboxes have no `ghost`
+  variant) so the matrix's gaps read as design choices rather than
+  oversights.
+
+### Changed
+
+- `hc-checkbox` and `hc-radio` variant fills now reference the
+  semantic colour tokens (`semantic.color.{success,warning,danger}`)
+  directly rather than mixing primitive references and
+  `semantic.color.action.danger.*`. Same emitted values; the
+  refactor harmonises the token-graph shape so future colour
+  customisation is uniform across the three variants.
 - Density coverage extended to **table cells** and **checkbox /
   radio glyphs**. Previously a `data-density="compact"` or `"dense"`
   shrank buttons / inputs / container paddings but tables stayed

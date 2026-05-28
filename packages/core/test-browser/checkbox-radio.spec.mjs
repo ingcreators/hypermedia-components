@@ -61,6 +61,31 @@ test.describe('hc-checkbox', () => {
       .poll(() => cb.evaluate((el) => getComputedStyle(el).backgroundColor))
       .toMatch(/rgba?\(\s*220,\s*38,\s*38/);
   });
+
+  test('data-variant="warning" uses the warning checked colour', async ({ page }) => {
+    const cb = page.getByTestId('cb-warning');
+    await cb.check();
+
+    // amber.600 = #d97706 = rgb(217, 119, 6).
+    await expect
+      .poll(() => cb.evaluate((el) => getComputedStyle(el).backgroundColor))
+      .toMatch(/rgba?\(\s*217,\s*119,\s*6/);
+  });
+
+  test('data-size="sm" / "lg" render at the dedicated sm / lg sizes', async ({ page }) => {
+    const sm = page.getByTestId('cb-sm');
+    const lg = page.getByTestId('cb-lg');
+
+    const smW = await sm.evaluate((el) => el.getBoundingClientRect().width);
+    const lgW = await lg.evaluate((el) => el.getBoundingClientRect().width);
+
+    // sm = 0.875rem = 14 px; lg = 1.375rem = 22 px (at the docs' 16 px root).
+    expect(smW).toBeGreaterThanOrEqual(13);
+    expect(smW).toBeLessThanOrEqual(15);
+    expect(lgW).toBeGreaterThanOrEqual(21);
+    expect(lgW).toBeLessThanOrEqual(23);
+    expect(lgW - smW).toBeGreaterThan(5);
+  });
 });
 
 test.describe('hc-radio', () => {
@@ -101,6 +126,28 @@ test.describe('hc-radio', () => {
 
     await page.getByText('Team', { exact: true }).click();
     await expect(team).toBeChecked();
+  });
+
+  test('data-variant="warning" radio uses the warning checked colour', async ({ page }) => {
+    const warning = page.getByTestId('radio-warning');
+    await expect(warning).toBeChecked();
+
+    await expect
+      .poll(() => warning.evaluate((el) => getComputedStyle(el).backgroundColor))
+      .toMatch(/rgba?\(\s*217,\s*119,\s*6/);
+  });
+
+  test('data-size="sm" / "lg" render the radio at sm / lg sizes', async ({ page }) => {
+    const sm = page.getByTestId('radio-sm');
+    const lg = page.getByTestId('radio-lg');
+
+    const smW = await sm.evaluate((el) => el.getBoundingClientRect().width);
+    const lgW = await lg.evaluate((el) => el.getBoundingClientRect().width);
+
+    expect(smW).toBeGreaterThanOrEqual(13);
+    expect(smW).toBeLessThanOrEqual(15);
+    expect(lgW).toBeGreaterThanOrEqual(21);
+    expect(lgW).toBeLessThanOrEqual(23);
   });
 
   test('checked radio renders the SVG inner dot via background-image', async ({ page }) => {

@@ -1,0 +1,84 @@
+---
+title: Variants and sizes
+description: A cross-component matrix of every `data-variant` and `data-size` HC understands, with the rationale for the asymmetries.
+---
+
+`data-variant` and `data-size` are the two attribute axes HC components use to express emphasis and footprint. This page is the canonical matrix — what each value means on each component, and **why the matrix is not symmetric**.
+
+## Matrix
+
+`✓` = supported. `—` = not applicable / not supported. `(default)` = the implicit value when the attribute is omitted.
+
+| Component        | _omitted_                | `primary`  | `secondary` | `success`  | `warning`  | `danger`   | `ghost`    | `data-size` |
+| ---------------- | ------------------------ | ---------- | ----------- | ---------- | ---------- | ---------- | ---------- | ----------- |
+| [Button](/hypermedia-components/components/button/) | (default) outlined neutral | ✓ themed fill | ✓ neutral fill | — | — | ✓ red fill | ✓ transparent | `sm` / `md` / `lg` |
+| [Input](/hypermedia-components/components/input/)   | (default) standard rendering | — | — | — | — | via `aria-invalid` | — | `sm` / `md` / `lg` |
+| [Checkbox](/hypermedia-components/components/checkbox/) | (default) themed primary fill on `:checked` | — | — | ✓ green fill | ✓ amber fill | ✓ red fill | — | `sm` / `md` / `lg` |
+| [Radio](/hypermedia-components/components/radio/)   | (default) themed primary fill on `:checked` | — | — | ✓ green fill | ✓ amber fill | ✓ red fill | — | `sm` / `md` / `lg` |
+| [Badge](/hypermedia-components/components/badge/)   | (default) neutral | — | — | ✓ green     | ✓ amber    | ✓ red      | — | — |
+| [Alert](/hypermedia-components/components/alert/)   | _required_ | — | — | ✓ green     | ✓ amber    | ✓ red      | — | — |
+| [Toast](/hypermedia-components/recipes/toast/)      | `info` default | — | — | ✓ green     | ✓ amber    | ✓ red      | — | — |
+
+## Why the matrix is asymmetric
+
+The variants serve **different purposes on different components**, and the matrix reflects that intentionally.
+
+### Action components (Button)
+
+Variants describe a **fill style** — how loud the button should be:
+
+- (default) = outlined neutral — the standard quiet action
+- `primary` = themed fill — the headline CTA
+- `secondary` = neutral fill — a second-tier CTA that ranks below `primary` but above `default`
+- `danger` = red fill — destructive action (pair with a confirm UI)
+- `ghost` = transparent — minimal emphasis, e.g. icon buttons inside a toolbar
+
+There is intentionally no `data-variant="success"` button or `data-variant="warning"` button. "Click here to succeed" is not a thing users want to read — success / warning are **states** that messages describe, not actions users take. The danger variant is the one exception because the action itself is destructive and the button text should warn.
+
+### Form controls (Checkbox, Radio)
+
+Variants describe a **semantic intent** of the option itself:
+
+- (default) = themed primary — a normal selectable option
+- `success` = green — selecting this commits a confirmed / safe choice
+- `warning` = amber — selecting this is risky or needs caution
+- `danger` = red — selecting this is destructive or expressly opted-in
+
+There is no `secondary` / `ghost` for checkbox or radio: a checkbox has a single visual fill style (the `:checked` glyph), not multiple fill styles like a button. There is no `primary` either — the implicit default already _is_ the primary themed action. Adding `data-variant="primary"` as an alias would be redundant.
+
+### Notification components (Badge, Alert, Toast)
+
+Variants describe the **information class**:
+
+- (default / `info`) = neutral / blue informational
+- `success` = green
+- `warning` = amber
+- `danger` = red
+
+No `primary` / `secondary` / `ghost`: these surfaces communicate state, not user actions, so the action-style variants don't apply.
+
+### Input
+
+`hc-input` has no `data-variant`. The accessible hook is the standard `aria-invalid="true"` attribute, which switches the border to the danger colour and pairs with `aria-describedby` for the message. The `hc-field` wrapper carries `data-invalid="true"` to coordinate the surrounding label and message colours.
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg` on every component where a meaningful size choice exists. The four supported components — button, input, checkbox, radio — all share the same vocabulary.
+
+| Component | `sm`        | `md` (default) | `lg`        | Notes |
+| --------- | ----------- | -------------- | ----------- | ----- |
+| Button    | 32 px tall  | 40 px tall     | 48 px tall  | Density adjusts the `md` default; `sm` / `lg` stay fixed. |
+| Input     | 32 px tall  | 40 px tall     | 48 px tall  | Same as button — they read from `--hc-control-*` on `md`. |
+| Checkbox  | 0.875 rem (14 px) | 1.125 rem (18 px) | 1.375 rem (22 px) | Density adjusts the `md` default; `sm` / `lg` stay fixed. |
+| Radio     | 0.875 rem (14 px) | 1.125 rem (18 px) | 1.375 rem (22 px) | Same. |
+
+**Sizes are independent of density.** When a control opts in with `data-size="sm"`, it stays at the explicit `sm` value regardless of the surrounding `data-density`. Density only changes what `md` (the default) resolves to. This way:
+
+- A dense data-entry form full of `<input class="hc-input">` shrinks to 28 px because density says so.
+- The single `<button class="hc-button" data-size="lg">Save</button>` at the bottom of that form still stays 48 px tall, because the author intentionally asked for a larger CTA.
+
+## Related
+
+- [Density](/hypermedia-components/tokens/density/) — orthogonal axis for layout tightness.
+- [Color themes](/hypermedia-components/tokens/themes/) — orthogonal axis for accent palette.
+- Every individual component page documents its own subset of these in context.

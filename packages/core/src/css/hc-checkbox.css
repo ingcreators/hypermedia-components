@@ -59,10 +59,28 @@
     border-color: var(--hc-checkbox-success-checked-border);
   }
 
+  .hc-checkbox[data-variant="warning"]:checked,
+  .hc-checkbox[data-variant="warning"]:indeterminate {
+    background-color: var(--hc-checkbox-warning-checked-bg);
+    border-color: var(--hc-checkbox-warning-checked-border);
+  }
+
   .hc-checkbox[data-variant="danger"]:checked,
   .hc-checkbox[data-variant="danger"]:indeterminate {
     background-color: var(--hc-checkbox-danger-checked-bg);
     border-color: var(--hc-checkbox-danger-checked-border);
+  }
+
+  /* Sizes — independent of density. `data-size` sets dedicated vars
+   * so density only changes the default size. */
+  .hc-checkbox[data-size="sm"] {
+    inline-size: var(--hc-checkbox-sm-size);
+    block-size: var(--hc-checkbox-sm-size);
+  }
+
+  .hc-checkbox[data-size="lg"] {
+    inline-size: var(--hc-checkbox-lg-size);
+    block-size: var(--hc-checkbox-lg-size);
   }
 
   /* Invalid (the accessibility hook). Border switches; if also checked,
