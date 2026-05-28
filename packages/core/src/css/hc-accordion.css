@@ -1,0 +1,109 @@
+/* hc-accordion — collapsible section group.
+ *
+ * Pure CSS: leans on native `<details>` / `<summary>` for keyboard
+ * handling and the `open` attribute, and on the modern
+ * `<details name="...">` grouping attribute to express the
+ * single-open ("exclusive") variant declaratively — no JS needed.
+ *
+ *   Independent (multi-open):
+ *     <div class="hc-accordion">
+ *       <details class="hc-accordion__item">…</details>
+ *       <details class="hc-accordion__item">…</details>
+ *     </div>
+ *
+ *   Exclusive (single-open): same `name` on every item.
+ *     <div class="hc-accordion">
+ *       <details class="hc-accordion__item" name="faq">…</details>
+ *       <details class="hc-accordion__item" name="faq">…</details>
+ *     </div>
+ *
+ * `<details name="...">` is supported in Chrome 120+, Firefox 130+,
+ * Safari 17.2+ — every browser that supports `popover` already
+ * supports it as well.
+ *
+ * htmx lazy load: native `toggle` event with the open filter:
+ *
+ *   <details class="hc-accordion__item"
+ *            data-hx-get="/lazy"
+ *            data-hx-trigger="toggle once[target.open]"
+ *            data-hx-target="find .hc-accordion__content">
+ *     <summary class="hc-accordion__trigger">…</summary>
+ *     <div class="hc-accordion__content"><hc-spinner></hc-spinner></div>
+ *   </details>
+ */
+@layer hc.components {
+  .hc-accordion {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hc-accordion__item {
+    border-block-end: 1px solid var(--hc-accordion-item-border-color);
+  }
+
+  .hc-accordion__item:first-of-type {
+    border-block-start: 1px solid var(--hc-accordion-item-border-color);
+  }
+
+  /* Reset the default disclosure marker on summary. We provide our
+   * own chevron via .hc-accordion__icon so it can animate. */
+  .hc-accordion__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--hc-accordion-trigger-gap);
+    padding-block: var(--hc-accordion-trigger-padding-y);
+    padding-inline: var(--hc-accordion-trigger-padding-x);
+    color: var(--hc-accordion-trigger-fg);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: var(--hc-accordion-trigger-font-weight);
+    line-height: 1.4;
+    text-align: start;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  /* WebKit-specific reset for the default triangle. */
+  .hc-accordion__trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .hc-accordion__trigger:hover {
+    color: var(--hc-accordion-trigger-hover-fg);
+  }
+
+  .hc-accordion__trigger:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .hc-accordion__icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-accordion-icon-size);
+    block-size: var(--hc-accordion-icon-size);
+    transition: rotate var(--hc-accordion-icon-transition-duration) ease;
+  }
+
+  /* Rotate the chevron when the item is open. Driven entirely by
+   * the native [open] attribute the browser flips on toggle. */
+  .hc-accordion__item[open] > .hc-accordion__trigger .hc-accordion__icon {
+    rotate: 180deg;
+  }
+
+  /* Respect users who prefer not to see motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .hc-accordion__icon {
+      transition-duration: 0ms;
+    }
+  }
+
+  .hc-accordion__content {
+    padding-block-end: var(--hc-accordion-content-padding-block-end);
+    color: var(--hc-accordion-content-fg);
+  }
+}

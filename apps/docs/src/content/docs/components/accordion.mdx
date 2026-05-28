@@ -1,0 +1,174 @@
+---
+title: Accordion
+description: Collapsible section group built entirely on native <details> / <summary> and the modern name attribute — no JavaScript required.
+---
+
+`hc-accordion` is a pure CSS skin over the native `<details>` /
+`<summary>` element. Keyboard handling, the `open` attribute, and
+the `toggle` event are all provided by the browser. The
+[`<details name="...">` attribute](https://developer.mozilla.org/docs/Web/HTML/Element/details#name)
+expresses the single-open ("exclusive") variant declaratively, so no
+JS is needed to enforce the "only one item open at a time" rule.
+
+## Browser baseline
+
+| Feature | Required version |
+| --- | --- |
+| `<details>` / `<summary>` | every browser |
+| `<details name="...">` exclusive grouping | Chrome 120+, Firefox 130+, Safari 17.2+ |
+
+## Exclusive accordion (single-open)
+
+Give every `<details>` in the group the **same `name` value** and
+the browser enforces single-open semantics.
+
+<div class="hc-preview not-content">
+  <div class="hc-accordion">
+    <details class="hc-accordion__item" name="doc-faq">
+      <summary class="hc-accordion__trigger">
+        What is Hypermedia Components?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        A semantic CSS + htmx UI kit for hypermedia applications.
+      </div>
+    </details>
+    <details class="hc-accordion__item" name="doc-faq">
+      <summary class="hc-accordion__trigger">
+        How do I install it?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        <code>pnpm add @hypermedia-components/core</code>
+      </div>
+    </details>
+    <details class="hc-accordion__item" name="doc-faq">
+      <summary class="hc-accordion__trigger">
+        Does it require JavaScript?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        Most components are CSS only. This page does not import a behavior.
+      </div>
+    </details>
+  </div>
+</div>
+
+```html
+<div class="hc-accordion">
+  <details class="hc-accordion__item" name="faq">
+    <summary class="hc-accordion__trigger">
+      What is Hypermedia Components?
+      <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </summary>
+    <div class="hc-accordion__content">
+      A semantic CSS + htmx UI kit for hypermedia applications.
+    </div>
+  </details>
+
+  <details class="hc-accordion__item" name="faq">
+    <summary class="hc-accordion__trigger">
+      How do I install it?
+      <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </summary>
+    <div class="hc-accordion__content">
+      <code>pnpm add @hypermedia-components/core</code>
+    </div>
+  </details>
+</div>
+```
+
+## Independent (multi-open)
+
+Omit `name` and each item operates independently — multiple may be
+open at once.
+
+```html
+<div class="hc-accordion">
+  <details class="hc-accordion__item">…</details>
+  <details class="hc-accordion__item">…</details>
+</div>
+```
+
+## htmx lazy loading
+
+`<details>` fires the native `toggle` event when its `open` state
+changes. htmx's `[target.open]` filter restricts the trigger to the
+"becoming open" case, and `once` makes the request happen exactly
+the first time.
+
+```html
+<details class="hc-accordion__item"
+         data-hx-get="/account/billing"
+         data-hx-trigger="toggle once[target.open]"
+         data-hx-target="find .hc-accordion__content"
+         data-hx-swap="innerHTML">
+  <summary class="hc-accordion__trigger">
+    Billing details
+    <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">…</svg>
+  </summary>
+  <div class="hc-accordion__content">
+    <hc-spinner></hc-spinner>
+  </div>
+</details>
+```
+
+## Accessibility
+
+- `<summary>` is keyboard-focusable and toggles the disclosure on
+  `Enter` and `Space` — both handled by the browser.
+- Use a meaningful heading inside the summary if the accordion is
+  structurally important. The summary itself reports as a button to
+  assistive tech; the contained text is the accessible name.
+- We replace the default disclosure marker with an inline SVG
+  chevron so it inherits `color` and `font-size`. Setting
+  `aria-hidden="true"` on the icon prevents it being announced.
+- The chevron animation respects `prefers-reduced-motion: reduce` —
+  transition duration drops to 0 ms when the user has indicated they
+  prefer reduced motion.
+- Do not nest interactive controls inside `<summary>` (a known
+  cross-browser accessibility footgun). Put any extra controls in
+  the content panel instead.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `accordion.item.border-color` | Divider between items and the top edge of the first one. |
+| `accordion.trigger.padding-x` / `padding-y` / `gap` | Summary layout. |
+| `accordion.trigger.font-weight` / `fg` / `hover-fg` | Summary text. |
+| `accordion.icon.size` / `transition-duration` | Chevron dimensions and rotation timing. |
+| `accordion.content.padding-block-end` / `fg` | Body padding and colour. |
+
+## CSS variables
+
+```text
+--hc-accordion-item-border-color
+--hc-accordion-trigger-padding-x | -padding-y | -gap
+--hc-accordion-trigger-font-weight | -fg | -hover-fg
+--hc-accordion-icon-size | -transition-duration
+--hc-accordion-content-padding-block-end | -fg
+--hc-color-focus-ring   (inherited from data-color)
+```
+
+## Related
+
+- [Tabs](/hypermedia-components/components/tabs/) — when only one section should be visible at a time and switching them is the primary action.
+- [Card](/hypermedia-components/components/card/) — when sections are always visible.

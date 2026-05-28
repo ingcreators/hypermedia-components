@@ -179,6 +179,72 @@
     </fieldset>
   </section>
 
+  <section id="section-accordion" data-testid="section-accordion">
+    <h2>Accordion (exclusive)</h2>
+    <div class="hc-accordion" data-testid="accordion-exclusive">
+      <details class="hc-accordion__item" name="faq" data-testid="acc-q1">
+        <summary class="hc-accordion__trigger" data-testid="acc-q1-summary">
+          What is Hypermedia Components?
+          <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="hc-accordion__content" data-testid="acc-q1-content">
+          A semantic CSS + htmx UI kit for hypermedia applications.
+        </div>
+      </details>
+      <details class="hc-accordion__item" name="faq" data-testid="acc-q2">
+        <summary class="hc-accordion__trigger" data-testid="acc-q2-summary">
+          How do I install it?
+          <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="hc-accordion__content" data-testid="acc-q2-content">
+          pnpm add @hypermedia-components/core
+        </div>
+      </details>
+      <details class="hc-accordion__item" name="faq" data-testid="acc-q3">
+        <summary class="hc-accordion__trigger" data-testid="acc-q3-summary">
+          Does it require JavaScript?
+          <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="hc-accordion__content" data-testid="acc-q3-content">
+          Most components are CSS only; behaviours augment when needed.
+        </div>
+      </details>
+    </div>
+
+    <h3>Accordion (independent / multi-open)</h3>
+    <div class="hc-accordion" data-testid="accordion-multi">
+      <details class="hc-accordion__item" data-testid="acc-m1">
+        <summary class="hc-accordion__trigger" data-testid="acc-m1-summary">
+          Feature A
+          <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="hc-accordion__content">Description of A.</div>
+      </details>
+      <details class="hc-accordion__item" data-testid="acc-m2">
+        <summary class="hc-accordion__trigger" data-testid="acc-m2-summary">
+          Feature B
+          <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="hc-accordion__content">Description of B.</div>
+      </details>
+    </div>
+  </section>
+
   <section id="section-tooltip" data-testid="section-tooltip">
     <h2>Tooltip</h2>
     <div style="display:flex; gap:1rem; align-items:center;">

@@ -206,6 +206,39 @@
   </section>
 
   <section>
+    <h2>Accordion (component — no JS required)</h2>
+    <div class="hc-accordion">
+      <details class="hc-accordion__item" name="example-faq">
+        <summary class="hc-accordion__trigger">
+          What is Hypermedia Components?
+          <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="hc-accordion__content">
+          A semantic CSS + htmx UI kit for hypermedia applications.
+        </div>
+      </details>
+      <details class="hc-accordion__item" name="example-faq">
+        <summary class="hc-accordion__trigger">
+          How do I install it?
+          <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="hc-accordion__content">
+          <code>pnpm add @hypermedia-components/core</code>
+        </div>
+      </details>
+    </div>
+    <p class="small">Single-open via the <code>name</code> attribute on every
+      <code>&lt;details&gt;</code> — pure native HTML. Omit it for independent
+      multi-open items.</p>
+  </section>
+
+  <section>
     <h2>Tooltip (component + behavior)</h2>
     <div style="display:flex; gap:1rem; align-items:center;">
       <button class="hc-button" type="button" aria-describedby="example-save-tip">
