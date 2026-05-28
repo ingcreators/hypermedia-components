@@ -31,7 +31,9 @@
     "src/tokens"
   ],
   "scripts": {
-    "build": "echo \"TODO: token + CSS bundle build\" && exit 0",
+    "build": "pnpm run build:tokens && pnpm run build:css",
+    "build:tokens": "node scripts/build-tokens.mjs",
+    "build:css": "node scripts/bundle-css.mjs",
     "test": "echo \"TODO: tests\" && exit 0",
     "lint": "echo \"TODO: lint\" && exit 0"
   },

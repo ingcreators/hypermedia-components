@@ -1,0 +1,7 @@
+/* Declare the cascade-layer order used by Hypermedia Components.
+ *
+ * Layers are declared once here so that downstream applications can opt-in
+ * to the same ordering by importing this file before any per-layer file.
+ * Plan §10.1 source of truth.
+ */
+@layer hc.tokens, hc.base, hc.components, hc.recipes, hc.utilities;

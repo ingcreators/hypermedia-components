@@ -1,0 +1,10 @@
+{
+  "$description": "Dark theme overrides. Emitted under [data-theme=\"dark\"].",
+  "color": {
+    "bg":         { "$type": "color", "$value": "{primitive.color.gray.900}" },
+    "surface":    { "$type": "color", "$value": "{primitive.color.gray.800}" },
+    "text":       { "$type": "color", "$value": "{primitive.color.gray.100}" },
+    "text-muted": { "$type": "color", "$value": "{primitive.color.gray.400}" },
+    "border":     { "$type": "color", "$value": "{primitive.color.gray.700}" }
+  }
+}

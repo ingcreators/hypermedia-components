@@ -34,6 +34,7 @@ export default defineConfig({
         { label: 'Reference', autogenerate: { directory: 'reference' } },
       ],
       customCss: [
+        '@hypermedia-components/core/css',
         './src/styles/custom.css',
         './src/styles/preview.css',
       ],

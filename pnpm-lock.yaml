@@ -13,6 +13,9 @@ importers:
       '@astrojs/starlight':
         specifier: ^0.32.5
         version: 0.32.6(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3))
+      '@hypermedia-components/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       astro:
         specifier: ^5.5.5
         version: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3)

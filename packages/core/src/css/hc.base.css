@@ -1,0 +1,25 @@
+/* Minimal base normalization. Only what components actually rely on. */
+@layer hc.base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  body {
+    margin: 0;
+    background: var(--hc-color-bg);
+    color: var(--hc-color-text);
+    font-family: var(--hc-font-family-sans);
+    font-size: var(--hc-font-size-md);
+    line-height: 1.5;
+  }
+}

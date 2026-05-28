@@ -1,0 +1,56 @@
+{
+  "$description": "UI meaning. Emitted under :root and [data-theme=\"light\"].",
+  "color": {
+    "bg":          { "$type": "color", "$value": "{primitive.color.gray.50}" },
+    "surface":     { "$type": "color", "$value": "{primitive.color.white}" },
+    "text":        { "$type": "color", "$value": "{primitive.color.gray.900}" },
+    "text-muted":  { "$type": "color", "$value": "{primitive.color.gray.600}" },
+    "border":      { "$type": "color", "$value": "{primitive.color.gray.300}" },
+    "focus-ring":  { "$type": "color", "$value": "{primitive.color.blue.500}" },
+    "action": {
+      "primary": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.blue.600}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.white}" },
+        "border": { "$type": "color", "$value": "{primitive.color.blue.600}" }
+      },
+      "primary-hover": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.blue.700}" },
+        "border": { "$type": "color", "$value": "{primitive.color.blue.700}" }
+      },
+      "danger": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.red.600}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.white}" },
+        "border": { "$type": "color", "$value": "{primitive.color.red.600}" }
+      },
+      "danger-hover": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.red.700}" },
+        "border": { "$type": "color", "$value": "{primitive.color.red.700}" }
+      }
+    }
+  },
+  "control": {
+    "height":     { "$type": "dimension", "$value": "{primitive.size.control.md}" },
+    "padding-x":  { "$type": "dimension", "$value": "{primitive.space.4}" },
+    "radius":     { "$type": "dimension", "$value": "{primitive.radius.md}" }
+  },
+  "space": {
+    "1": { "$type": "dimension", "$value": "{primitive.space.1}" },
+    "2": { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "3": { "$type": "dimension", "$value": "{primitive.space.3}" },
+    "4": { "$type": "dimension", "$value": "{primitive.space.4}" },
+    "5": { "$type": "dimension", "$value": "{primitive.space.5}" },
+    "6": { "$type": "dimension", "$value": "{primitive.space.6}" },
+    "8": { "$type": "dimension", "$value": "{primitive.space.8}" }
+  },
+  "font": {
+    "family-sans": { "$type": "fontFamily", "$value": "{primitive.font.family.sans}" },
+    "size-sm":     { "$type": "dimension",  "$value": "{primitive.font.size.sm}" },
+    "size-md":     { "$type": "dimension",  "$value": "{primitive.font.size.md}" },
+    "size-lg":     { "$type": "dimension",  "$value": "{primitive.font.size.lg}" },
+    "weight-medium":   { "$type": "fontWeight", "$value": "{primitive.font.weight.medium}" },
+    "weight-semibold": { "$type": "fontWeight", "$value": "{primitive.font.weight.semibold}" }
+  },
+  "opacity": {
+    "disabled": { "$type": "number", "$value": "0.5" }
+  }
+}

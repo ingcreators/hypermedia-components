@@ -1,0 +1,109 @@
+/* hc-button — semantic button component.
+ *
+ * Primary API: <button class="hc-button" data-variant="..." data-size="...">.
+ * Variants:  default | primary | danger | ghost
+ * Sizes:     sm | md (default) | lg
+ * States:    :hover, :focus-visible, :disabled / [aria-disabled="true"],
+ *            [data-loading="true"]
+ *
+ * All styling is driven by --hc-button-* / --hc-color-* custom properties
+ * generated from DTCG tokens. See hc.tokens.css.
+ */
+@layer hc.components {
+  .hc-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--hc-space-2);
+
+    min-block-size: var(--hc-button-height);
+    padding-inline: var(--hc-button-padding-x);
+    border: 1px solid var(--hc-button-default-border);
+    border-radius: var(--hc-button-radius);
+
+    background: var(--hc-button-default-bg);
+    color: var(--hc-button-default-fg);
+
+    font-family: inherit;
+    font-size: var(--hc-button-font-size);
+    font-weight: var(--hc-button-font-weight);
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      color 120ms ease,
+      box-shadow 120ms ease;
+  }
+
+  .hc-button:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--hc-button-default-hover-bg);
+  }
+
+  .hc-button:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Variants */
+  .hc-button[data-variant="primary"] {
+    background: var(--hc-button-primary-bg);
+    color: var(--hc-button-primary-fg);
+    border-color: var(--hc-button-primary-border);
+  }
+
+  .hc-button[data-variant="primary"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--hc-button-primary-hover-bg);
+    border-color: var(--hc-button-primary-hover-border);
+  }
+
+  .hc-button[data-variant="danger"] {
+    background: var(--hc-button-danger-bg);
+    color: var(--hc-button-danger-fg);
+    border-color: var(--hc-button-danger-border);
+  }
+
+  .hc-button[data-variant="danger"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--hc-button-danger-hover-bg);
+    border-color: var(--hc-button-danger-hover-border);
+  }
+
+  .hc-button[data-variant="ghost"] {
+    background: var(--hc-button-ghost-bg);
+    color: var(--hc-button-ghost-fg);
+    border-color: var(--hc-button-ghost-border);
+  }
+
+  .hc-button[data-variant="ghost"]:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--hc-button-ghost-hover-bg);
+  }
+
+  /* Sizes */
+  .hc-button[data-size="sm"] {
+    min-block-size: var(--hc-button-sm-height);
+    padding-inline: var(--hc-button-sm-padding-x);
+    font-size: var(--hc-button-sm-font-size);
+  }
+
+  .hc-button[data-size="lg"] {
+    min-block-size: var(--hc-button-lg-height);
+    padding-inline: var(--hc-button-lg-padding-x);
+    font-size: var(--hc-button-lg-font-size);
+  }
+
+  /* Disabled */
+  .hc-button:disabled,
+  .hc-button[aria-disabled="true"] {
+    opacity: var(--hc-opacity-disabled);
+    cursor: not-allowed;
+  }
+
+  /* Loading state — owned by behaviors / htmx; styled here. */
+  .hc-button[data-loading="true"] {
+    cursor: progress;
+  }
+}
