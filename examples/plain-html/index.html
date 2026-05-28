@@ -206,6 +206,27 @@
   </section>
 
   <section>
+    <h2>Breadcrumb (component — no JS required)</h2>
+    <nav class="hc-breadcrumb" aria-label="Example breadcrumb"
+         style="--hc-breadcrumb-separator: '›'">
+      <ol class="hc-breadcrumb__list">
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#">Home</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#">Docs</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <span class="hc-breadcrumb__current" aria-current="page">Components</span>
+        </li>
+      </ol>
+    </nav>
+    <p class="small">Standard <code>&lt;nav&gt;</code>+<code>&lt;ol&gt;</code> markup
+      with <code>aria-current="page"</code>; the chevron is a per-instance
+      <code>--hc-breadcrumb-separator</code> override.</p>
+  </section>
+
+  <section>
     <h2>Accordion (component — no JS required)</h2>
     <div class="hc-accordion">
       <details class="hc-accordion__item" name="example-faq">
