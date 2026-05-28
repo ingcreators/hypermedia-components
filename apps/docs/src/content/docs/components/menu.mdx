@@ -1,0 +1,168 @@
+---
+title: Menu
+description: Accessible dropdown menu following the WAI-ARIA APG menu pattern, built on the native popover attribute and CSS Anchor Positioning.
+---
+
+`hc-menu` styles a native `popover` as a WAI-ARIA action menu. The
+trigger is a normal button; the `popovertarget` attribute connects
+the two without any JS, and `installMenu()` adds the
+keyboard pattern, ARIA wiring, and a `hc:menuselect` event.
+
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+When Anchor Positioning is missing, `installMenu()` falls back to
+positioning the menu via `getBoundingClientRect` on the popover's
+`beforetoggle` event. The menu still opens, dismisses, and behaves
+correctly everywhere `popover` is supported.
+
+## Basic example
+
+<div class="hc-preview not-content">
+  <button class="hc-button" type="button" popovertarget="doc-account-menu" id="doc-account-trigger">
+    Account
+  </button>
+
+  <div class="hc-menu" id="doc-account-menu" popover role="menu" aria-labelledby="doc-account-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
+    <button class="hc-menu__item" role="menuitem" type="button" aria-disabled="true">Archived</button>
+    <hr class="hc-menu__separator" />
+    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Sign out</button>
+  </div>
+</div>
+
+```html
+<button class="hc-button"
+        type="button"
+        popovertarget="account-menu"
+        id="account-trigger">
+  Account
+</button>
+
+<div class="hc-menu"
+     id="account-menu"
+     popover
+     role="menu"
+     aria-labelledby="account-trigger">
+  <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
+  <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
+  <hr class="hc-menu__separator">
+  <button class="hc-menu__item" role="menuitem" type="button"
+          data-variant="error">Sign out</button>
+</div>
+```
+
+```js
+import { installMenu } from '@hypermedia-components/core';
+installMenu();
+```
+
+## What `installMenu()` does
+
+- Wires ARIA on the trigger: `aria-haspopup="menu"`, `aria-expanded`
+  (kept in sync via the popover `toggle` event), `aria-controls`.
+- Adds `autofocus` to the first enabled menu item so the browser's
+  popover algorithm focuses it on open — no JS race against the
+  browser's own focus management.
+- Injects matching `anchor-name` (on the trigger) and
+  `position-anchor` (on the menu) so the menu lands directly under
+  the trigger via CSS Anchor Positioning.
+- Implements the APG keyboard pattern:
+  - `ArrowDown` / `ArrowUp` move focus through enabled items,
+    wrapping at the edges.
+  - `Home` / `End` jump to the first / last enabled item.
+  - Single-letter keys jump to the next item starting with that
+    letter (type-ahead).
+  - `Tab` closes the menu so focus continues to the next
+    tab-stop after the trigger.
+  - `Escape` and outside click are handled natively by `popover`.
+- Skips items marked with `disabled` or `aria-disabled="true"`.
+- On menuitem click, dispatches a bubbling `hc:menuselect`
+  custom event whose `detail` carries `{ item, menu, trigger }`,
+  then closes the menu via `hidePopover()`.
+
+## Destructive items
+
+Mirroring shadcn's destructive variant, `data-variant="error"` on a
+menu item recolours its text via `--hc-menu-item-error-fg`.
+
+```html
+<button class="hc-menu__item" role="menuitem" type="button"
+        data-variant="error">
+  Delete
+</button>
+```
+
+## htmx integration
+
+A menu item can fire an htmx request via the `hc:menuselect` event.
+The behavior closes the menu after dispatching, so subsequent network
+work happens with focus restored to the trigger (popover's default).
+
+```html
+<div class="hc-menu" id="row-menu" popover role="menu"
+     aria-labelledby="row-menu-trigger"
+     data-hx-target="closest tr"
+     data-hx-trigger="hc:menuselect"
+     data-hx-include="this">
+  <button class="hc-menu__item" role="menuitem" type="button"
+          data-hx-delete="/items/42">Delete row</button>
+</div>
+```
+
+For a richer pattern (a confirm dialog before the actual request), pair
+each menu item with [`hc-confirm-action`](/hypermedia-components/recipes/confirm-action/).
+
+## Accessibility
+
+- Always associate the menu with its trigger using `aria-labelledby`
+  pointing at the trigger's `id`.
+- Every menu item needs `role="menuitem"`. Use a real `<button>` (or
+  `<a>` for navigation menus) so the item is reachable without
+  `tabindex`.
+- Disable items by either the native `disabled` attribute or
+  `aria-disabled="true"`. Both are skipped by arrow navigation and
+  ignored by `hc:menuselect` clicks.
+- Don't override the focus outline. The active item receives the
+  same focus background via `:focus-visible`.
+- `menuitemcheckbox` / `menuitemradio` / submenus are not in the
+  MVP. Use the `hc:menuselect` event handler to manage state
+  externally for now.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `menu.bg` / `fg` / `border` / `radius` | Menu surface. |
+| `menu.padding-block` | Vertical padding around the item list. |
+| `menu.min-width` / `max-width` | Surface constraints. |
+| `menu.offset` | Distance between trigger and menu (Anchor Positioning). |
+| `menu.item.padding-x` / `padding-y` / `font-size` / `gap` | Item layout. |
+| `menu.item.fg` / `hover-bg` / `focus-bg` / `disabled-fg` | Item states. |
+| `menu.item.error-fg` | `data-variant="error"` foreground. |
+| `menu.separator.color` / `margin-y` | `<hr class="hc-menu__separator">`. |
+
+## CSS variables
+
+```text
+--hc-menu-bg | -fg | -border | -radius | -padding-block
+--hc-menu-min-width | -max-width | -offset
+--hc-menu-item-padding-x | -padding-y | -font-size | -gap
+--hc-menu-item-fg | -hover-bg | -focus-bg | -disabled-fg
+--hc-menu-item-error-fg
+--hc-menu-separator-color | -margin-y
+--hc-color-focus-ring   (inherited from data-color)
+```
+
+## Related
+
+- [Popover](/hypermedia-components/components/popover/) — bare popover surface without the menu pattern.
+- [Dialog](/hypermedia-components/components/dialog/) — modal alternative for richer flows.
+- [Toolbar](/hypermedia-components/components/toolbar/) — horizontal action cluster often paired with a menu trigger.

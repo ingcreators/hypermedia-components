@@ -16,6 +16,7 @@ import {
   installClosePopover,
   installRemoteDialog,
   installTabs,
+  installMenu,
   version,
 } from '@hypermedia-components/core';
 
@@ -26,6 +27,7 @@ import {
   installClosePopover as installClosePopoverFromBehaviors,
   installRemoteDialog as installRemoteDialogFromBehaviors,
   installTabs as installTabsFromBehaviors,
+  installMenu as installMenuFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -40,12 +42,14 @@ const uninstallers: Array<() => void> = [
   installClosePopover(document),
   installRemoteDialog(),
   installTabs(document),
+  installMenu(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
   installClosePopoverFromBehaviors(),
   installRemoteDialogFromBehaviors(),
   installTabsFromBehaviors(),
+  installMenuFromBehaviors(),
 ];
 
 // `version` is a string literal export.
