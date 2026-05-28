@@ -1,0 +1,107 @@
+---
+title: Request action
+description: A button that sends an htmx request and shows a spinner while in flight.
+---
+
+`request-action` is the simplest htmx pattern with first-class loading
+feedback. The button stays a normal `<button>`; htmx owns the request;
+a sibling `.hc-spinner` (marked as an `htmx-indicator`) shows progress.
+
+## Basic usage
+
+```html
+<span class="hc-action">
+  <button
+    class="hc-button"
+    data-variant="primary"
+    type="button"
+    data-hx-post="/items"
+    data-hx-target="#items"
+    data-hx-swap="outerHTML"
+    data-hx-disabled-elt="this"
+    data-hx-indicator="closest .hc-action">
+    Save
+  </button>
+
+  <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+</span>
+```
+
+What happens:
+
+1. The user clicks **Save**.
+2. htmx adds `.htmx-request` to the `<button>` and (via
+   `data-hx-indicator`) to the surrounding `.hc-action` wrapper.
+3. `data-hx-disabled-elt="this"` disables the button for the duration
+   of the request — htmx adds and removes `disabled` automatically.
+4. The wrapper switches to `cursor: progress` and the spinner fades in
+   (`hc.htmx.css` styles `.htmx-indicator`).
+5. The server returns HTML for the target area; htmx swaps it in.
+
+## Pieces
+
+- **`.hc-action`** — an inline-flex wrapper that colocates the control
+  and its indicator. While the wrapper contains an `.htmx-request`
+  descendant, its cursor switches to `progress`.
+- **`.hc-spinner`** — a small CSS-only spinner sized by
+  `--hc-spinner-size`. It inherits `currentColor`, so the indicator
+  color matches the surrounding text.
+- **`.htmx-indicator`** — htmx convention. Indicators are hidden by
+  default and shown while `.htmx-request` is present on the indicator
+  itself or an ancestor.
+- **`data-hx-disabled-elt="this"`** — htmx attribute that adds the
+  `disabled` attribute to the button for the duration of the request.
+  This prevents double-submits without any custom JavaScript.
+
+## Server response contract
+
+- **On success** — return HTML for the `data-hx-target`. The default
+  swap mode is `innerHTML`; this recipe uses `outerHTML` so the
+  responding fragment replaces the target itself.
+- **For a toast** — include an `HX-Trigger` header (see the
+  [toast recipe](/hypermedia-components/recipes/toast/) when shipped):
+
+  ```text
+  HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}
+  ```
+
+- **On error** — return a 4xx/5xx with body HTML; use `HX-Reswap` or
+  `HX-Retarget` to redirect the swap to a flash region if needed.
+
+## Accessibility
+
+- The spinner is purely decorative — `aria-hidden="true"` keeps it out
+  of the accessibility tree. The button text remains the announceable
+  name.
+- For long-running requests, consider pairing this recipe with a
+  status region (`aria-live="polite"`) elsewhere on the page so screen
+  reader users know when the action completes.
+- `data-hx-disabled-elt="this"` adds the native `disabled` attribute,
+  which removes the button from the tab order while the request is in
+  flight. This is appropriate for short-lived requests; for longer
+  ones, prefer `aria-disabled="true"` so users can still focus the
+  control.
+
+## Progressive enhancement
+
+Without htmx, the button does nothing. To keep the action working
+without JavaScript, wrap the button in a real form:
+
+```html
+<form method="post" action="/items">
+  <button class="hc-button" data-variant="primary" type="submit">
+    Save
+  </button>
+</form>
+```
+
+The htmx attributes can sit on the form itself instead of the button,
+so the same markup works whether htmx is loaded or not.
+
+## Related
+
+- [Button](/hypermedia-components/components/button/) — the control.
+- [Spinner](/hypermedia-components/components/) — the indicator (small,
+  CSS-only).
+- [Confirm action](/hypermedia-components/recipes/confirm-action/) —
+  add a confirmation step in front of this recipe.

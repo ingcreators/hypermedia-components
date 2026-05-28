@@ -8,6 +8,10 @@ build/
 .astro/
 .cache/
 
+# Test output
+test-results/
+playwright-report/
+
 # Logs
 *.log
 npm-debug.log*

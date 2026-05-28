@@ -15,15 +15,12 @@
     align-items: center;
     justify-content: center;
     gap: var(--hc-space-2);
-
     min-block-size: var(--hc-button-height);
     padding-inline: var(--hc-button-padding-x);
     border: 1px solid var(--hc-button-default-border);
     border-radius: var(--hc-button-radius);
-
     background: var(--hc-button-default-bg);
     color: var(--hc-button-default-fg);
-
     font-family: inherit;
     font-size: var(--hc-button-font-size);
     font-weight: var(--hc-button-font-weight);
@@ -32,7 +29,6 @@
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
-
     transition:
       background-color 120ms ease,
       border-color 120ms ease,
@@ -40,7 +36,7 @@
       box-shadow 120ms ease;
   }
 
-  .hc-button:hover:not(:disabled):not([aria-disabled="true"]) {
+  .hc-button:hover:not(:disabled, [aria-disabled="true"]) {
     background: var(--hc-button-default-hover-bg);
   }
 
@@ -56,7 +52,7 @@
     border-color: var(--hc-button-primary-border);
   }
 
-  .hc-button[data-variant="primary"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  .hc-button[data-variant="primary"]:hover:not(:disabled, [aria-disabled="true"]) {
     background: var(--hc-button-primary-hover-bg);
     border-color: var(--hc-button-primary-hover-border);
   }
@@ -67,7 +63,7 @@
     border-color: var(--hc-button-danger-border);
   }
 
-  .hc-button[data-variant="danger"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  .hc-button[data-variant="danger"]:hover:not(:disabled, [aria-disabled="true"]) {
     background: var(--hc-button-danger-hover-bg);
     border-color: var(--hc-button-danger-hover-border);
   }
@@ -78,7 +74,7 @@
     border-color: var(--hc-button-ghost-border);
   }
 
-  .hc-button[data-variant="ghost"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  .hc-button[data-variant="ghost"]:hover:not(:disabled, [aria-disabled="true"]) {
     background: var(--hc-button-ghost-hover-bg);
   }
 

@@ -1,0 +1,70 @@
+/* hc-input — semantic input/select/textarea component.
+ *
+ * Apply `.hc-input` to <input>, <select>, or <textarea>. Size via
+ * `data-size="sm|lg"`. Invalid via the standard `aria-invalid="true"`.
+ */
+@layer hc.components {
+  .hc-input {
+    display: block;
+    inline-size: 100%;
+    min-block-size: var(--hc-input-height);
+    padding-inline: var(--hc-input-padding-x);
+    padding-block: 0;
+    border: 1px solid var(--hc-input-border);
+    border-radius: var(--hc-input-radius);
+    background: var(--hc-input-bg);
+    color: var(--hc-input-fg);
+    font-family: inherit;
+    font-size: var(--hc-input-font-size);
+    line-height: 1.5;
+    transition:
+      border-color 120ms ease,
+      box-shadow 120ms ease,
+      background-color 120ms ease;
+  }
+
+  textarea.hc-input {
+    min-block-size: calc(var(--hc-input-height) * 2);
+    padding-block: var(--hc-space-2);
+    resize: vertical;
+  }
+
+  .hc-input::placeholder {
+    color: var(--hc-input-placeholder);
+    opacity: 1;
+  }
+
+  .hc-input:focus-visible {
+    outline: none;
+    border-color: var(--hc-input-focus-border);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  .hc-input[aria-invalid="true"] {
+    border-color: var(--hc-input-invalid-border);
+  }
+
+  .hc-input[aria-invalid="true"]:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-danger) 30%, transparent);
+  }
+
+  .hc-input:disabled,
+  .hc-input[aria-disabled="true"] {
+    background: var(--hc-input-disabled-bg);
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+
+  /* Sizes */
+  .hc-input[data-size="sm"] {
+    min-block-size: var(--hc-input-sm-height);
+    padding-inline: var(--hc-input-sm-padding-x);
+    font-size: var(--hc-input-sm-font-size);
+  }
+
+  .hc-input[data-size="lg"] {
+    min-block-size: var(--hc-input-lg-height);
+    padding-inline: var(--hc-input-lg-padding-x);
+    font-size: var(--hc-input-lg-font-size);
+  }
+}

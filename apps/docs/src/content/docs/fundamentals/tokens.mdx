@@ -1,0 +1,123 @@
+---
+title: Tokens
+description: DTCG token layers — primitive, semantic, component, theme — and how they map to --hc-* CSS custom properties.
+---
+
+Visual decisions in Hypermedia Components live in DTCG-shaped JSON
+files and are emitted as `--hc-*` CSS custom properties. The CSS
+component layer reads variables; it never hard-codes hex values or
+pixel sizes.
+
+## Layers
+
+There are four token layers, each with a single purpose:
+
+```text
+1. Primitive  → raw values: color scales, spacing, radii, font sizes.
+2. Semantic   → UI meaning: bg, surface, text, border, action.primary.
+3. Component  → component values: button height, input border, card radius.
+4. Theme / density → light / dark, comfortable / compact / dense.
+```
+
+Component CSS consumes **component** or **semantic** variables —
+never primitives directly. Primitives stay anonymous; promote them by
+giving them meaning at the semantic layer.
+
+## Source layout
+
+```text
+packages/core/src/tokens/
+  primitive.tokens.json      ← values only, not emitted as CSS vars
+  semantic.tokens.json       ← :root, [data-theme="light"]
+  component.tokens.json      ← :root
+  theme.dark.tokens.json     ← [data-theme="dark"]
+```
+
+A small build script ([`scripts/build-tokens.mjs`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/scripts/build-tokens.mjs))
+resolves `{group.path}` references across layers and emits
+`dist/hc.tokens.css` wrapped in `@layer hc.tokens`.
+
+## DTCG reference syntax
+
+A token is a leaf with `$type` and `$value`. References use curly
+braces and a dot-separated path from the file namespace.
+
+```json
+{
+  "color": {
+    "bg": {
+      "$type": "color",
+      "$value": "{primitive.color.gray.50}"
+    }
+  }
+}
+```
+
+Resolution is recursive — a semantic token can reference a primitive,
+a component token can reference a semantic token, and so on.
+
+## Variable naming
+
+The output variable name drops the file's top-level namespace and
+joins the remaining JSON path with hyphens, prefixed by `--hc-`:
+
+| JSON path                                  | CSS variable                       |
+| ------------------------------------------ | ---------------------------------- |
+| `semantic.color.bg`                        | `--hc-color-bg`                    |
+| `semantic.color.action.primary.bg`         | `--hc-color-action-primary-bg`     |
+| `component.button.primary.bg`              | `--hc-button-primary-bg`           |
+| `component.field.label-font-size`          | `--hc-field-label-font-size`       |
+
+## Light and dark
+
+Light defaults live in `semantic.tokens.json` under
+`:root, [data-theme="light"]`. Dark overrides live in
+`theme.dark.tokens.json` under `[data-theme="dark"]`.
+
+To switch themes, set the attribute on `<html>` or `<body>`:
+
+```html
+<html data-theme="dark">…</html>
+```
+
+Density modes (`comfortable`, `compact`, `dense`) follow the same
+attribute pattern (`data-density="compact"`) but are not yet shipped in
+the MVP.
+
+## Consumer overrides
+
+Because everything is a CSS custom property, downstream applications
+can override at any scope without forking the source tokens.
+
+```css
+/* App-wide: rounder buttons, purple primary */
+:root {
+  --hc-button-radius: 999px;
+  --hc-button-primary-bg: #6d28d9;
+  --hc-button-primary-hover-bg: #5b21b6;
+}
+
+/* Per-region: compact controls inside a sidebar */
+.app-sidebar {
+  --hc-control-height: 32px;
+}
+```
+
+This is the recommended way to theme HC — do not edit
+`@hypermedia-components/core` source CSS directly.
+
+## What is _not_ in tokens
+
+- Layout primitives (margins, grid gaps in a specific feature).
+- One-off illustration colors.
+- Page-specific styling.
+
+Tokens are for **decisions reused across components**. A value used
+once does not need to be a token.
+
+## Related
+
+- [Naming](/hypermedia-components/fundamentals/naming/) — how CSS
+  variables, classes, and attributes are named.
+- [Button](/hypermedia-components/components/button/) — example of a
+  component fully driven by component tokens.

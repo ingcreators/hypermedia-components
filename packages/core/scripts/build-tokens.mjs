@@ -15,24 +15,13 @@
 //       -> --hc-button-primary-bg
 // - primitive.tokens.json is loaded for reference resolution only; its
 //   values are not emitted.
+//
+// The transformation is exported as buildTokensCss({ sources, trees })
+// for testing; the CLI block at the bottom wires it up to disk I/O.
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
-
-const here = dirname(fileURLToPath(import.meta.url));
-const pkgRoot = resolve(here, '..');
-const tokensDir = join(pkgRoot, 'src', 'tokens');
-const distDir = join(pkgRoot, 'dist');
-
-// Files and their output selectors. `emit: false` means values are loaded
-// into the resolution table but never written to CSS.
-const SOURCES = [
-  { namespace: 'primitive', file: 'primitive.tokens.json', emit: false },
-  { namespace: 'semantic',  file: 'semantic.tokens.json',  selector: ':root, [data-theme="light"]' },
-  { namespace: 'component', file: 'component.tokens.json', selector: ':root' },
-  { namespace: 'theme.dark', file: 'theme.dark.tokens.json', selector: '[data-theme="dark"]' },
-];
 
 const REF_RE = /^\{([^}]+)\}$/;
 
@@ -95,17 +84,22 @@ function emitBlock(selector, lines) {
   return `${selector} {\n${lines.map((l) => '  ' + l).join('\n')}\n}\n`;
 }
 
-async function main() {
-  const trees = {};
-  for (const src of SOURCES) {
-    const text = await readFile(join(tokensDir, src.file), 'utf8');
-    trees[src.namespace] = JSON.parse(text);
-  }
-
-  const table = indexTokens(SOURCES, trees);
+/**
+ * Build the hc.tokens.css text from in-memory token trees.
+ *
+ * @param {Object} opts
+ * @param {Array<{namespace: string, selector?: string, emit?: boolean}>} opts.sources
+ *   Ordered list of token layers. Sources with `emit: false` only feed
+ *   reference resolution; their values are never written.
+ * @param {Record<string, unknown>} opts.trees
+ *   Parsed token trees keyed by namespace.
+ * @returns {{ css: string, varCount: number, blockCount: number }}
+ */
+export function buildTokensCss({ sources, trees }) {
+  const table = indexTokens(sources, trees);
 
   const blocks = [];
-  for (const src of SOURCES) {
+  for (const src of sources) {
     if (src.emit === false) continue;
     const lines = [];
     walkLeaves(trees[src.namespace], [], (path, leaf) => {
@@ -125,15 +119,51 @@ async function main() {
     blocks.map((b) => b.replace(/^/gm, '  ').replace(/^ {2}$/gm, '')).join('\n') +
     '}\n';
 
-  await mkdir(distDir, { recursive: true });
-  const outPath = join(distDir, 'hc.tokens.css');
-  await writeFile(outPath, css, 'utf8');
-
   const varCount = blocks.reduce((n, b) => n + (b.match(/--hc-/g)?.length ?? 0), 0);
-  console.log(`hc.tokens.css written (${varCount} vars across ${blocks.length} blocks)`);
+  return { css, varCount, blockCount: blocks.length };
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// CLI default. Files and their output selectors. `emit: false` means
+// values are loaded into the resolution table but never written to CSS.
+export const DEFAULT_SOURCES = [
+  { namespace: 'primitive', file: 'primitive.tokens.json', emit: false },
+  { namespace: 'semantic',  file: 'semantic.tokens.json',  selector: ':root, [data-theme="light"]' },
+  { namespace: 'component', file: 'component.tokens.json', selector: ':root' },
+  { namespace: 'theme.dark', file: 'theme.dark.tokens.json', selector: '[data-theme="dark"]' },
+];
+
+async function main() {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const pkgRoot = resolve(here, '..');
+  const tokensDir = join(pkgRoot, 'src', 'tokens');
+  const distDir = join(pkgRoot, 'dist');
+
+  const trees = {};
+  for (const src of DEFAULT_SOURCES) {
+    const text = await readFile(join(tokensDir, src.file), 'utf8');
+    trees[src.namespace] = JSON.parse(text);
+  }
+
+  const { css, varCount, blockCount } = buildTokensCss({
+    sources: DEFAULT_SOURCES,
+    trees,
+  });
+
+  await mkdir(distDir, { recursive: true });
+  await writeFile(join(distDir, 'hc.tokens.css'), css, 'utf8');
+
+  console.log(`hc.tokens.css written (${varCount} vars across ${blockCount} blocks)`);
+}
+
+// Run main only when invoked as a script (not when imported by tests).
+const invokedAsScript =
+  typeof process !== 'undefined' &&
+  process.argv[1] &&
+  fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+
+if (invokedAsScript) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

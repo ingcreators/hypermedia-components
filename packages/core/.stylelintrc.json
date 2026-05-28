@@ -1,0 +1,26 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "selector-class-pattern": [
+      "^(hc|htmx)-[a-z0-9]+(__[a-z0-9-]+)?(-[a-z0-9-]+)?$",
+      {
+        "message": "Class names must use the hc- (or htmx-) prefix and kebab-case, optionally with a __part suffix."
+      }
+    ],
+    "custom-property-pattern": [
+      "^hc-[a-z0-9-]+$",
+      { "message": "Custom properties must use the --hc-* convention." }
+    ],
+    "selector-not-notation": "complex",
+    "selector-pseudo-class-no-unknown": [
+      true,
+      { "ignorePseudoClasses": ["popover-open", "modal"] }
+    ],
+    "declaration-block-no-redundant-longhand-properties": null,
+    "no-descending-specificity": null,
+    "at-rule-no-deprecated": [true, { "ignoreAtRules": ["layer"] }],
+    "alpha-value-notation": "number",
+    "color-function-notation": "legacy",
+    "value-keyword-case": ["lower", { "ignoreKeywords": ["currentColor"] }]
+  }
+}

@@ -1,0 +1,95 @@
+---
+title: Popover
+description: Lightweight floating panel built on the standard popover attribute.
+---
+
+`hc-popover` styles the native `popover` attribute. The browser handles
+open/close, top-layer rendering, light-dismiss, and Escape-to-close —
+no JavaScript required.
+
+## Basic HTML
+
+<div class="hc-preview" style="display:flex;gap:.5rem;align-items:flex-start;min-height:9rem;">
+  <button class="hc-button" type="button" popovertarget="demo-popover">
+    Open popover
+  </button>
+
+  <div id="demo-popover" class="hc-popover" popover>
+    <p>A short, focused message. The browser closes me on Escape or by clicking outside.</p>
+  </div>
+</div>
+
+```html
+<button class="hc-button" type="button" popovertarget="filter-popover">
+  Filter
+</button>
+
+<div id="filter-popover" class="hc-popover" popover>
+  <p>Choose filters here.</p>
+</div>
+```
+
+The `popover` attribute defaults to `popover="auto"`, which means:
+
+- Light-dismiss on outside click.
+- Escape-to-close.
+- Only one `auto` popover is open at a time.
+
+For a popover that ignores light-dismiss, use `popover="manual"` and
+close it yourself with `element.hidePopover()`.
+
+## With htmx
+
+A popover can host an htmx-driven form. To close the popover after a
+successful request, add the `hc-close-popover-on-success` behavior
+hook (planned).
+
+```html
+<form
+  class="hc-form"
+  data-hx-get="/items"
+  data-hx-target="#results"
+  data-hc-close-popover-on-success>
+  …
+</form>
+```
+
+The behavior listens for `htmx:afterRequest`, checks for success, and
+calls `closest('[popover]').hidePopover()`.
+
+## Accessibility
+
+- A popover is **not** automatically a menu. Setting
+  `role="menu"` and providing arrow-key navigation are separate
+  concerns documented elsewhere.
+- The trigger (the element with `popovertarget`) gets focus back when
+  the popover closes — this is browser behavior.
+- For tooltip-like popovers triggered by hover or focus, use the
+  `[popovertargetaction="show"]` attribute family or a custom hover
+  handler. Hover-only tooltips are not accessible to keyboard users by
+  themselves.
+- The popover's accessible name comes from its content; if the popover
+  has no visible title, add `aria-label`.
+
+## Theming tokens
+
+| Token path          | Purpose                  |
+| ------------------- | ------------------------ |
+| `popover.bg` / `-fg` / `-border` | Surface colors. |
+| `popover.radius`    | Border radius.           |
+| `popover.padding`   | Inner padding.           |
+| `popover.min-width` / `-max-width` | Size bounds. |
+
+## CSS variables
+
+```text
+--hc-popover-bg | -fg | -border
+--hc-popover-radius | -padding
+--hc-popover-min-width | -max-width
+```
+
+## Related
+
+- [Dialog](/hypermedia-components/components/dialog/) (planned) — modal
+  variant for confirmation flows.
+- `filter-popover` recipe (planned) — popover + form + htmx.

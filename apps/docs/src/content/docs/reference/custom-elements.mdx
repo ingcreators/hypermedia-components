@@ -1,0 +1,59 @@
+---
+title: Custom elements
+description: The optional Light DOM macros shipped by @hypermedia-components/core/macros.
+---
+
+Hypermedia Components ships a small set of optional Light DOM macros
+under `@hypermedia-components/core/macros`. Each macro is a custom
+element that, on `connectedCallback`, replaces its own children with
+the expanded HTML for a documented recipe and then calls
+`htmx.process(this)` so htmx picks up the new attributes.
+
+> Macros are **always optional**. The documented contract is the
+> expanded HTML on the recipe page. If a macro's attribute surface
+> does not cover a need, copy the expanded HTML and customize.
+
+## Loading
+
+```js
+// Auto-registers all shipped macros via customElements.define.
+import '@hypermedia-components/core/macros';
+```
+
+Registration is idempotent. Re-importing in another bundle is safe.
+
+## Available macros
+
+| Element                | Documented in                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `<hc-confirm-action>`  | [Confirm action recipe → Macro form](/hypermedia-components/recipes/confirm-action/#macro-form) |
+| `<hc-live-search>`     | [Live search recipe → Macro form](/hypermedia-components/recipes/live-search/#macro-form) |
+
+## Contract
+
+Every shipped macro:
+
+1. Uses the `hc-` prefix.
+2. Stays in Light DOM — no Shadow DOM.
+3. Expands to semantic `hc-*` classes and `data-hx-*` / `data-hc-*`
+   attributes.
+4. Sets `dataset.hcUpgraded = "true"` so upgrades are idempotent.
+5. Calls `htmx.process(this)` if htmx is loaded; otherwise the
+   expansion still succeeds and any later `htmx.process()` call picks
+   the attributes up.
+6. Builds the expanded DOM with `createElement` + `setAttribute`,
+   never by interpolating attribute values into HTML strings. Macro
+   inputs come from authors; do not let them double as XSS vectors.
+
+## Authoring guidance
+
+When you reach for a macro, decide based on these tradeoffs:
+
+| Use the macro when…                                 | Skip it when…                                          |
+| --------------------------------------------------- | ------------------------------------------------------ |
+| Markup is repeated many times with the same shape.  | You need a one-off behavior the macro does not expose. |
+| The team prefers compact templates.                 | A reviewer should see exactly what htmx is doing.      |
+| The expanded HTML is large and noisy.               | You want server templates to remain framework-agnostic. |
+
+Either choice is valid. Mixing macro form for "common" patterns and
+expanded HTML for "interesting" ones is the most common middle path.

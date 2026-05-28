@@ -1,0 +1,189 @@
+---
+title: Confirm action
+description: Show a confirmation dialog before sending a destructive htmx request.
+---
+
+`confirm-action` adds a modal confirmation step in front of a
+destructive htmx request. The button stays a normal `<button>`; htmx
+remains the sole owner of the network request; a small behavior shim
+opens the dialog and re-emits a `confirmed` event when the user accepts.
+
+## Basic usage
+
+Add `data-hc-confirm` to any element that issues an htmx request, and
+gate the htmx trigger on `confirmed`:
+
+```html
+<button
+  class="hc-button"
+  data-variant="danger"
+  data-hc-confirm="Delete this item?"
+  data-hx-delete="/items/123"
+  data-hx-trigger="confirmed"
+  data-hx-target="closest tr"
+  data-hx-swap="outerHTML">
+  Delete
+</button>
+```
+
+What happens:
+
+1. The user clicks the button.
+2. The behavior intercepts the click and shows the shared confirm
+   dialog. The original click is suppressed; htmx does not fire yet.
+3. If the user confirms, the behavior dispatches a bubbling `confirmed`
+   event on the original button.
+4. htmx, listening via `data-hx-trigger="confirmed"`, sends the request.
+5. The server returns HTML for the target area (and optionally
+   `HX-Trigger` events).
+
+If the user cancels, no event is dispatched and nothing happens.
+
+## Customizing the dialog
+
+The message comes from `data-hc-confirm`. The remaining attributes are
+optional:
+
+| Attribute                   | Default                         |
+| --------------------------- | ------------------------------- |
+| `data-hc-confirm`           | _(required)_ dialog body text   |
+| `data-hc-confirm-title`     | `Confirm`                       |
+| `data-hc-confirm-label`     | `Confirm`                       |
+| `data-hc-cancel-label`      | `Cancel`                        |
+| `data-hc-confirm-variant`   | source's `data-variant`, else `primary` |
+
+```html
+<button
+  class="hc-button"
+  data-variant="danger"
+  data-hc-confirm="Permanently delete invoice #123? This cannot be undone."
+  data-hc-confirm-title="Delete invoice"
+  data-hc-confirm-label="Delete"
+  data-hc-cancel-label="Keep"
+  data-hx-delete="/invoices/123"
+  data-hx-trigger="confirmed"
+  data-hx-target="closest tr">
+  Delete
+</button>
+```
+
+## Expanded HTML
+
+Wrapping the button in `.hc-action` with an htmx indicator gives the
+full destructive-action experience from plan §24:
+
+```html
+<span class="hc-action">
+  <button
+    class="hc-button"
+    data-variant="danger"
+    type="button"
+    data-hc-confirm="Delete this item?"
+    data-hx-delete="/items/123"
+    data-hx-trigger="confirmed"
+    data-hx-target="closest tr"
+    data-hx-swap="outerHTML"
+    data-hx-disabled-elt="this"
+    data-hx-indicator="closest .hc-action">
+    Delete
+  </button>
+  <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+</span>
+```
+
+## Macro form
+
+If you import `@hypermedia-components/core/macros`, you can write the
+same pattern as a single custom element:
+
+```html
+<hc-confirm-action
+  method="delete"
+  action="/items/123"
+  target="closest tr"
+  swap="outerHTML"
+  variant="danger"
+  message="Delete this item?"
+  confirm-label="Delete"
+  cancel-label="Keep">
+  Delete
+</hc-confirm-action>
+```
+
+The element runs once on `connectedCallback` and replaces its
+children with the expanded HTML shown above, then calls
+`htmx.process(this)` so htmx picks up the new attributes. The
+upgrade is idempotent — re-attaching the element does not re-expand
+it.
+
+Attributes:
+
+| Attribute        | Default                    | Maps to                          |
+| ---------------- | -------------------------- | -------------------------------- |
+| `action`         | _(required)_               | URL for the htmx request         |
+| `method`         | `post`                     | `data-hx-{method}`               |
+| `target`         | _(omitted)_                | `data-hx-target`                 |
+| `swap`           | `outerHTML`                | `data-hx-swap`                   |
+| `variant`        | _(omitted)_                | `data-variant` on the button     |
+| `message`        | `Continue?`                | `data-hc-confirm`                |
+| `title`          | _(omitted)_                | `data-hc-confirm-title`          |
+| `confirm-label`  | _(omitted)_                | `data-hc-confirm-label`          |
+| `cancel-label`   | _(omitted)_                | `data-hc-cancel-label`           |
+| `disabled-elt`   | `this`                     | `data-hx-disabled-elt`           |
+| `indicator`      | `closest .hc-action`       | `data-hx-indicator`              |
+| `no-spinner`     | _(boolean)_                | Omit `.hc-spinner` if set        |
+
+The macro is **optional** — the documented contract is the expanded
+HTML. If you need to step outside the macro's attribute surface
+(custom button content, an extra wrapper class, …), copy the
+expanded HTML and edit it directly.
+
+## Server response contract
+
+The server's response is whatever the htmx attributes specify — the
+confirm behavior does not change the request shape.
+
+For a row-level delete:
+
+- **On success:** return HTML for the target area, or an empty body
+  with a status that lets htmx swap nothing. The recipe above swaps
+  `outerHTML` of the closest `<tr>`, so the server returns the new row
+  HTML (or nothing if the row is gone).
+- **For a toast notification:** include
+  `HX-Trigger: {"hc:toast":{"message":"Deleted","variant":"success"}}`
+  in the response headers.
+- **On validation failure:** return a 4xx with HTML describing the
+  failure, or use `HX-Reswap` / `HX-Retarget` to steer the swap.
+
+## Accessibility notes
+
+- The shared dialog uses the standard `<dialog>` element opened via
+  `showModal()`. The browser handles focus trapping, Escape-to-close,
+  and `inert` for content behind the dialog.
+- The dialog declares `aria-labelledby` (title) and `aria-describedby`
+  (message), so screen readers announce both on open.
+- Focus moves to the **Cancel** button by default — destructive actions
+  must require explicit confirmation, not a stray Enter keypress.
+- The original button keeps its native `<button>` semantics. Use a
+  visible, descriptive label (`Delete`, `Discard changes`) rather than
+  an icon alone.
+
+## Progressive enhancement
+
+Without the behavior loaded, the button still works:
+
+- Without htmx, the button performs no action — exactly as the markup
+  describes. A safer non-JS fallback is to put the button inside a
+  `<form method="post" action="/items/123/delete">`; submission will
+  still go through, just without the confirmation step.
+- Without `hc.behaviors.js`, the click bubbles normally. htmx sees no
+  `confirmed` event and does nothing. Adding a `<noscript>` notice or
+  rendering a fully server-side confirmation page is the recommended
+  graceful degradation.
+
+## Related
+
+- [Button](/hypermedia-components/components/button/) — the visual
+  surface for the action.
+- `request-action` recipe — the non-confirming version with spinner.
+- `live-search` recipe — uses the same htmx trigger model.

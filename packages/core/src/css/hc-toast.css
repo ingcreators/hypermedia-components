@@ -1,0 +1,64 @@
+/* hc-toast — transient notification.
+ * hc-toast-region — stacking container, typically anchored to a corner.
+ *
+ * Variants on .hc-toast via data-variant: info (default) | success | warning | danger
+ * The region uses position: fixed by default and stacks vertically.
+ * Set role="region" and aria-label="Notifications" on the host element.
+ */
+@layer hc.components {
+  .hc-toast-region {
+    position: fixed;
+    inset-block-end: var(--hc-toast-region-inset);
+    inset-inline-end: var(--hc-toast-region-inset);
+    display: flex;
+    flex-direction: column;
+    gap: var(--hc-toast-region-gap);
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .hc-toast-region > * {
+    pointer-events: auto;
+  }
+
+  .hc-toast {
+    display: grid;
+    gap: var(--hc-toast-gap);
+    min-inline-size: var(--hc-toast-min-width);
+    max-inline-size: var(--hc-toast-max-width);
+    padding-block: var(--hc-toast-padding-y);
+    padding-inline: var(--hc-toast-padding-x);
+    border-radius: var(--hc-toast-radius);
+    border: 1px solid var(--hc-toast-info-border);
+    background: var(--hc-toast-info-bg);
+    color: var(--hc-toast-info-fg);
+    box-shadow: 0 4px 12px rgb(0, 0, 0, 0.08);
+  }
+
+  .hc-toast[data-variant="success"] {
+    background: var(--hc-toast-success-bg);
+    color: var(--hc-toast-success-fg);
+    border-color: var(--hc-toast-success-border);
+  }
+
+  .hc-toast[data-variant="warning"] {
+    background: var(--hc-toast-warning-bg);
+    color: var(--hc-toast-warning-fg);
+    border-color: var(--hc-toast-warning-border);
+  }
+
+  .hc-toast[data-variant="danger"] {
+    background: var(--hc-toast-danger-bg);
+    color: var(--hc-toast-danger-fg);
+    border-color: var(--hc-toast-danger-border);
+  }
+
+  .hc-toast__title {
+    font-weight: var(--hc-font-weight-semibold);
+    line-height: 1.3;
+  }
+
+  .hc-toast__body {
+    line-height: 1.5;
+  }
+}

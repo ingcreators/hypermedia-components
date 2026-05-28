@@ -1,0 +1,134 @@
+---
+title: Table
+description: Semantic data table with hoverable rows and a quiet header band.
+---
+
+`hc-table` is a class applied to a standard `<table>`. Use proper
+`<thead>` / `<tbody>` / `<th scope="col">` / `<td>` structure so the
+table is announceable to assistive tech.
+
+## Basic HTML
+
+<div class="hc-preview">
+  <table class="hc-table">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Status</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Order #123</td>
+        <td><span class="hc-badge" data-variant="success">Active</span></td>
+        <td><button class="hc-button" data-size="sm">View</button></td>
+      </tr>
+      <tr>
+        <td>Order #124</td>
+        <td><span class="hc-badge" data-variant="warning">Pending</span></td>
+        <td><button class="hc-button" data-size="sm">View</button></td>
+      </tr>
+      <tr>
+        <td>Order #125</td>
+        <td><span class="hc-badge">Draft</span></td>
+        <td><button class="hc-button" data-size="sm">View</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+```html
+<table class="hc-table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Status</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Order #123</td>
+      <td><span class="hc-badge" data-variant="success">Active</span></td>
+      <td><button class="hc-button" data-size="sm">View</button></td>
+    </tr>
+  </tbody>
+</table>
+```
+
+## Density
+
+`data-density="compact"` reduces vertical padding for data-dense lists.
+
+```html
+<table class="hc-table" data-density="compact">
+  …
+</table>
+```
+
+## htmx usage
+
+For inline row updates, swap the `<tr>` itself.
+
+```html
+<tr id="item-123">
+  <td>Order #123</td>
+  <td><span class="hc-badge" data-variant="success">Active</span></td>
+  <td>
+    <button
+      class="hc-button"
+      data-variant="danger"
+      data-hc-confirm="Delete this item?"
+      data-hx-delete="/items/123"
+      data-hx-trigger="confirmed"
+      data-hx-target="closest tr"
+      data-hx-swap="outerHTML">
+      Delete
+    </button>
+  </td>
+</tr>
+```
+
+This is the exact pattern from plan §24. See the
+[confirm-action recipe](/hypermedia-components/recipes/confirm-action/).
+
+## Accessibility
+
+- Always provide `<thead>` and `<th scope="col">` for column headers.
+  When a row has a row header, use `<th scope="row">` on the first cell.
+- Wrap action buttons in cells with descriptive labels — avoid
+  icon-only buttons unless they include `aria-label`.
+- For long tables, do **not** apply `display: block` on `<table>`,
+  `<thead>`, or `<tbody>` for responsiveness; that breaks screen reader
+  semantics. Wrap the table in a horizontally scrollable container
+  instead.
+
+## Theming tokens
+
+| Token path             | Purpose                       |
+| ---------------------- | ----------------------------- |
+| `table.border`         | Cell separator color.         |
+| `table.fg`             | Body text color.              |
+| `table.font-size`      | Body font size.               |
+| `table.header-bg`      | Header row background.        |
+| `table.header-fg`      | Header text color.            |
+| `table.header-weight`  | Header font weight.           |
+| `table.row-hover-bg`   | Row hover background.         |
+| `table.cell-padding-x` | Inline cell padding.          |
+| `table.cell-padding-y` | Block cell padding.           |
+
+## CSS variables
+
+```text
+--hc-table-border | -fg | -font-size
+--hc-table-header-bg | -header-fg | -header-weight
+--hc-table-row-hover-bg
+--hc-table-cell-padding-x | -cell-padding-y
+```
+
+## Related
+
+- [Badge](/hypermedia-components/components/badge/) — status indicators
+  inside cells.
+- [Button](/hypermedia-components/components/button/) — row actions.

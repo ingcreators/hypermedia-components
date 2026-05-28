@@ -19,8 +19,23 @@ const distDir = join(pkgRoot, 'dist');
 const LAYER_DECL = join(srcCssDir, 'hc.layers.css');
 const TOKENS_CSS = join(distDir, 'hc.tokens.css');
 const BASE_CSS   = join(srcCssDir, 'hc.base.css');
+const HTMX_CSS   = join(srcCssDir, 'hc.htmx.css');
 
-const COMPONENTS = ['hc-button.css'];
+const COMPONENTS = [
+  'hc-button.css',
+  'hc-input.css',
+  'hc-field.css',
+  'hc-spinner.css',
+  'hc-dialog.css',
+  'hc-popover.css',
+  'hc-card.css',
+  'hc-table.css',
+  'hc-badge.css',
+  'hc-alert.css',
+  'hc-toast.css',
+  'hc-toolbar.css',
+  'hc-pagination.css',
+];
 
 async function read(file) {
   return readFile(file, 'utf8');
@@ -37,13 +52,15 @@ async function main() {
   for (const c of COMPONENTS) {
     parts.push(await read(join(srcCssDir, c)));
   }
+  parts.push(await read(HTMX_CSS));
 
   const bundle = parts.join('\n') + '\n';
   await writeFile(join(distDir, 'hc.css'), bundle, 'utf8');
 
-  // Also expose hc.base.css and per-component files at dist root so the
-  // package "exports" map can point at them later.
+  // Also expose hc.base.css, hc.htmx.css, and per-component files at
+  // dist root so the package "exports" map can point at them later.
   await copyFile(BASE_CSS, join(distDir, 'hc.base.css'));
+  await copyFile(HTMX_CSS, join(distDir, 'hc.htmx.css'));
   for (const c of COMPONENTS) {
     await copyFile(join(srcCssDir, c), join(distDir, c));
   }

@@ -1,0 +1,27 @@
+/* hc-spinner — minimal CSS-only loading indicator.
+ *
+ * Sized via --hc-spinner-size; color follows currentColor so it inherits
+ * from its container. Paired with htmx's .htmx-indicator class for
+ * request-driven visibility.
+ */
+@layer hc.components {
+  .hc-spinner {
+    display: inline-block;
+    inline-size: var(--hc-spinner-size);
+    block-size: var(--hc-spinner-size);
+    border-radius: 50%;
+    border: var(--hc-spinner-border-width) solid var(--hc-spinner-track-color);
+    border-block-start-color: var(--hc-spinner-indicator-color);
+    animation: hc-spinner-spin 720ms linear infinite;
+  }
+
+  @keyframes hc-spinner-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-spinner {
+      animation-duration: 2.4s;
+    }
+  }
+}

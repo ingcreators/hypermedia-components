@@ -1,6 +1,74 @@
 ---
 title: Integrations
-description: Using Hypermedia Components with plain HTML, htmx, Thymeleaf, Django, Rails, Go, and Razor.
+description: How to wire Hypermedia Components into popular server-rendered template engines.
 ---
 
-Integration pages show how to render the same patterns from each server-side template engine.
+Hypermedia Components is a template-engine-agnostic UI kit. The
+documentation pages in this section show how to wire it into the
+most common server-rendered stacks. Every guide covers the same five
+concerns:
+
+1. **Asset loading** — where to put `hc.css`, `hc.behaviors.js`, and
+   the optional `macros/index.js` in the framework's static-file
+   layout.
+2. **Rendering components** — idiomatic snippets for repeated UI
+   shapes (`hc-field`, `hc-button`, table rows).
+3. **HTML fragments** — how a controller / handler / view returns a
+   chunk of HTML for an htmx swap.
+4. **HX-Trigger toasts** — how the server fires the `hc:toast` event
+   via the `HX-Trigger` response header.
+5. **CSRF integration** — how to hand the framework's CSRF token to
+   every htmx request.
+
+## Guides
+
+- [Thymeleaf (Spring Boot)](/hypermedia-components/integrations/thymeleaf/)
+- [Django](/hypermedia-components/integrations/django/)
+- [Rails](/hypermedia-components/integrations/rails/)
+- [Go](/hypermedia-components/integrations/go/) — `html/template` + `net/http`
+- [Razor (ASP.NET Core)](/hypermedia-components/integrations/razor/)
+
+## Shared conventions
+
+A few conventions repeat across every guide. They are worth
+internalizing once:
+
+### Detect htmx with the `HX-Request` header
+
+Every htmx request sets `HX-Request: true`. Handlers branch on this
+header to return either the full page or just a fragment.
+
+```text
+GET /items
+HX-Request: true           → return rows fragment
+                no header  → return full page (with layout + chrome)
+```
+
+### Empty bodies are valid
+
+Many destructive endpoints return an empty body plus an
+`HX-Trigger` header:
+
+```text
+HTTP/1.1 200 OK
+HX-Trigger: {"hc:toast":{"message":"Deleted.","variant":"success"}}
+
+(empty body)
+```
+
+The client swap is `outerHTML` on the deleted row, so htmx removes
+the row regardless of body content.
+
+### `data-hx-*` over `hx-*`
+
+The HC documentation prefers `data-hx-*` because it is valid HTML5
+syntax, plays nice with template engines, and survives most linters.
+htmx also accepts `hx-*` if your stack prefers brevity — the choice
+is per-project, not per-component.
+
+### CSRF travels in a request header
+
+Hooking `htmx:configRequest` once in the layout is the cleanest
+pattern. The handler reads a `<meta>` tag the server rendered and
+forwards the token as the framework expects (`X-CSRFToken`,
+`X-CSRF-Token`, `RequestVerificationToken`, …).

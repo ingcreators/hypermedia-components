@@ -1,0 +1,232 @@
+---
+title: Thymeleaf (Spring Boot)
+description: Use Hypermedia Components from Spring Boot + Thymeleaf templates, return HTML fragments from controllers, and trigger toasts via response headers.
+---
+
+This guide covers Spring Boot with Thymeleaf. The same patterns apply
+to vanilla Spring MVC.
+
+## Project layout
+
+Hypermedia Components ships static assets — drop them under
+`src/main/resources/static/` or pull them from a CDN. The example
+below uses a local copy under `static/assets/hc/`.
+
+```text
+src/main/resources/
+  static/
+    assets/
+      hc/
+        hc.css
+        hc.behaviors.js
+        macros/
+          index.js
+          confirm-action.js
+          live-search.js
+      htmx.min.js
+  templates/
+    layout.html
+    fragments/
+      _toast-region.html
+    items/
+      list.html
+      _row.html
+```
+
+## Base layout
+
+A `layout.html` that loads HC + htmx and reserves the toast region.
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${title} ?: 'My app'">My app</title>
+
+  <link rel="stylesheet" th:href="@{/assets/hc/hc.css}">
+  <script defer th:src="@{/assets/htmx.min.js}"></script>
+  <script type="module" th:src="@{/assets/hc/hc.behaviors.js}"></script>
+  <script type="module" th:src="@{/assets/hc/macros/index.js}"></script>
+
+  <!-- htmx + Spring Security CSRF -->
+  <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
+</head>
+<body>
+  <main th:replace="${~{::content}}">…</main>
+
+  <div
+    class="hc-toast-region"
+    data-hc-toast-region
+    role="region"
+    aria-label="Notifications"></div>
+
+  <script>
+    // Hand the CSRF token to htmx so every request carries it.
+    document.body.addEventListener('htmx:configRequest', (e) => {
+      const token  = document.querySelector('meta[name="_csrf"]')?.content;
+      const header = document.querySelector('meta[name="_csrf_header"]')?.content;
+      if (token && header) e.detail.headers[header] = token;
+    });
+  </script>
+</body>
+</html>
+```
+
+## Rendering components
+
+Thymeleaf fragments compose well with HC's part-class naming.
+
+```html
+<!-- fragments/_field.html -->
+<div th:fragment="field(name, label, value, message, invalid)"
+     class="hc-field"
+     th:attr="data-invalid=${invalid} ? 'true' : null">
+  <label class="hc-field__label" th:for="${name}" th:text="${label}"></label>
+  <input
+    th:id="${name}"
+    th:name="${name}"
+    th:value="${value}"
+    class="hc-input"
+    th:attr="aria-invalid=${invalid} ? 'true' : null,
+             aria-describedby=${invalid} ? ${name} + '-error' : null">
+  <p th:if="${message}"
+     th:id="${name} + '-error'"
+     class="hc-field__message"
+     th:text="${message}"></p>
+</div>
+```
+
+Use it from a page:
+
+```html
+<form th:action="@{/users}" method="post"
+      data-hx-post="@{/users}"
+      data-hx-target="this"
+      data-hx-swap="outerHTML">
+  <div th:replace="~{fragments/_field :: field('email', 'Email', ${form.email}, ${errors.email}, ${errors.email != null})}"></div>
+  <button class="hc-button" data-variant="primary" type="submit">Create</button>
+</form>
+```
+
+## Returning HTML fragments
+
+For htmx swaps the controller returns the **inner** template fragment
+— not the whole page. Use Thymeleaf's `::` fragment selector via the
+`ViewName::fragmentName` convention or render the fragment directly.
+
+```java
+@PostMapping("/items")
+public String createItem(@ModelAttribute("form") ItemForm form, Model model) {
+  Item item = itemService.create(form);
+  model.addAttribute("item", item);
+  return "items/list :: row"; // renders <tr th:fragment="row(item)">…</tr>
+}
+```
+
+`_row.html`:
+
+```html
+<tr th:fragment="row(item)" th:id="'item-' + ${item.id}">
+  <td th:text="${item.name}"></td>
+  <td>
+    <span class="hc-badge" th:attr="data-variant=${item.status}"
+          th:text="${item.statusLabel}"></span>
+  </td>
+  <td>
+    <span class="hc-action">
+      <button
+        class="hc-button"
+        data-size="sm"
+        data-variant="danger"
+        type="button"
+        th:attr="data-hc-confirm='Delete ' + ${item.name} + '?',
+                 data-hx-delete=@{/items/{id}(id=${item.id})},
+                 data-hx-trigger='confirmed',
+                 data-hx-target='closest tr',
+                 data-hx-swap='outerHTML',
+                 data-hx-disabled-elt='this',
+                 data-hx-indicator='closest .hc-action'">
+        Delete
+      </button>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </span>
+  </td>
+</tr>
+```
+
+## Toasts via HX-Trigger
+
+Use `ResponseEntity` (or set headers via `HttpServletResponse`) to add
+an `HX-Trigger` header that the toast behavior listens for.
+
+```java
+@DeleteMapping("/items/{id}")
+public ResponseEntity<String> deleteItem(@PathVariable Long id) {
+  Item removed = itemService.delete(id);
+
+  String trigger = """
+      {"hc:toast":{"message":"Deleted \\"%s\\".","variant":"success"}}
+      """.formatted(removed.getName());
+
+  return ResponseEntity.ok()
+      .header("HX-Trigger", trigger)
+      .body(""); // empty body; htmx removes the row via outerHTML swap
+}
+```
+
+For multiple events in one response:
+
+```java
+.header("HX-Trigger", """
+    {"hc:toast":{"message":"Saved","variant":"success"}, "items:refresh":true}
+    """)
+```
+
+## CSRF with Spring Security
+
+The base layout above injects the CSRF token into every htmx request
+via the `htmx:configRequest` event. This works with the default
+`CsrfFilter`. If you use `CookieCsrfTokenRepository`:
+
+```java
+http.csrf(csrf -> csrf.csrfTokenRepository(
+    CookieCsrfTokenRepository.withHttpOnlyFalse()));
+```
+
+And in the layout switch the JS to read the cookie instead of the
+meta tags.
+
+## Detecting htmx requests
+
+Controllers often return a fragment for htmx requests and a full
+page for direct loads. Detect with the `HX-Request` header:
+
+```java
+@GetMapping("/items")
+public String listItems(@RequestHeader(value = "HX-Request",
+                                        required = false) String htmx,
+                        Model model) {
+  model.addAttribute("items", itemService.findAll());
+  return Boolean.parseBoolean(htmx) ? "items/list :: rows" : "items/list";
+}
+```
+
+## Tips
+
+- **Webjars** — `org.webjars:htmx.org` and similar webjars work, but
+  serving the HC assets from your own static folder usually wins on
+  cache control.
+- **Layout dialect** — if you use
+  [thymeleaf-layout-dialect](https://github.com/ultraq/thymeleaf-layout-dialect),
+  `layout:decorate` plus `layout:fragment="content"` slots in fine.
+- **Empty bodies** — many destructive endpoints return an empty body
+  with `HX-Trigger`. Spring's `ResponseEntity<Void>` works:
+  `return ResponseEntity.ok().header("HX-Trigger", "…").build();`
+
+## Related
+
+- [Recipes → confirm-action](/hypermedia-components/recipes/confirm-action/)
+- [Recipes → request-action](/hypermedia-components/recipes/request-action/)
+- [Recipes → toast](/hypermedia-components/recipes/toast/)

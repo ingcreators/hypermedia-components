@@ -1,0 +1,149 @@
+---
+title: Data region
+description: A self-refreshing region that pulls fresh HTML from the server on a schedule or on demand.
+---
+
+A **data region** is a piece of UI that owns its own refresh
+lifecycle. It loads once on page render and then keeps itself up to
+date by polling, by listening for events, or by combining both. The
+component is just an htmx-driven container — no behavior helper
+needed.
+
+## Polling on a schedule
+
+```html
+<section id="orders-summary"
+         data-hx-get="/orders/summary"
+         data-hx-trigger="load, every 10s"
+         data-hx-swap="innerHTML">
+  <p class="hc-field__message">Loading…</p>
+</section>
+```
+
+Pieces:
+
+- `data-hx-trigger="load, every 10s"` — render once on page load,
+  then again every 10 seconds.
+- `data-hx-swap="innerHTML"` — replace the container's contents only;
+  the container itself (with its triggers) stays put.
+
+Always design the polled endpoint to be **cheap** — a fast COUNT
+query or a denormalized read model — and **idempotent**.
+
+## Event-driven refresh
+
+Pair polling with an htmx custom event so server actions can ask the
+region to refresh immediately:
+
+```html
+<section id="orders-summary"
+         data-hx-get="/orders/summary"
+         data-hx-trigger="load, every 30s, orders:refresh from:body"
+         data-hx-swap="innerHTML">
+  …
+</section>
+```
+
+The server fires the event via `HX-Trigger` on any write endpoint:
+
+```text
+HTTP/1.1 200 OK
+HX-Trigger: {"hc:toast":{"message":"Created"},"orders:refresh":true}
+```
+
+`from:body` listens for the event on `document.body`, which is where
+htmx dispatches `HX-Trigger` events.
+
+## Reveal-driven (lazy initial load)
+
+For data regions below the fold, defer the initial fetch until the
+region scrolls into view:
+
+```html
+<section id="invoices-summary"
+         data-hx-get="/invoices/summary"
+         data-hx-trigger="intersect once, every 30s"
+         data-hx-swap="innerHTML">
+  <p class="hc-field__message">Loading when visible…</p>
+</section>
+```
+
+- `intersect once` fires when the element enters the viewport, once.
+- The subsequent `every 30s` only starts ticking after the first
+  fetch.
+
+## Server response contract
+
+The server returns **only the inner content** of the region:
+
+```html
+<!-- GET /orders/summary -->
+<dl class="hc-stack">
+  <div>
+    <dt>Open orders</dt>
+    <dd>14</dd>
+  </div>
+  <div>
+    <dt>Awaiting payment</dt>
+    <dd>3</dd>
+  </div>
+</dl>
+```
+
+Return the same content for both htmx (`HX-Request: true`) and
+full-page loads. Caching can be tuned with standard `Cache-Control`
+headers; htmx respects them.
+
+## Indicators
+
+Wrap a spinner in `htmx-indicator` if the polling endpoint is slow
+enough that flickering content matters:
+
+```html
+<section id="status">
+  <header>
+    <h2>Sync status</h2>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </header>
+  <div
+    data-hx-get="/status"
+    data-hx-trigger="load, every 5s"
+    data-hx-target="#status-body"
+    data-hx-swap="innerHTML"
+    data-hx-indicator="closest header .hc-spinner">
+    <div id="status-body">…</div>
+  </div>
+</section>
+```
+
+## Accessibility
+
+- Mark the region with `aria-live="polite"` when the user benefits
+  from being told about changes (e.g. counters), or `aria-live="off"`
+  if updates are noisy and decorative.
+- Do **not** move focus on each refresh. Polling that hijacks focus
+  is hostile to keyboard users and screen readers alike.
+- Show an explicit empty state when the data set becomes empty so
+  assistive tech does not encounter a silently empty section.
+
+## Progressive enhancement
+
+- Without JavaScript, the region renders its initial server-side
+  contents and never refreshes. Render reasonable defaults inside the
+  section instead of leaving it blank.
+- Without htmx, the section behaves as plain HTML.
+
+## Tips
+
+- **Background tabs throttle timers.** Browsers slow down polling in
+  inactive tabs; do not rely on `every 5s` for real-time accuracy.
+- **Sync points.** Pair polling with SSE or WebSockets when sub-second
+  freshness matters. The data region recipe stays the same — only the
+  trigger changes.
+- **Cost.** Per-second polling at scale is expensive. Prefer
+  event-driven refresh (`from:body`) once you have a backplane.
+
+## Related
+
+- [Live search recipe](/hypermedia-components/recipes/live-search/) — for user-driven updates rather than time-driven.
+- [Toast recipe](/hypermedia-components/recipes/toast/) — pair with `HX-Trigger` for cross-region notifications.

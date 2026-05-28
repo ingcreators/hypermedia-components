@@ -1,0 +1,161 @@
+---
+title: Lazy panel
+description: A panel that defers its content fetch until first reveal — tab activation, intersection, or accordion expand.
+---
+
+A **lazy panel** is a region whose content is not fetched at initial
+page render. It loads the first time the panel becomes relevant —
+when an `<details>` opens, when a tab activates, or when the panel
+scrolls into view. The pattern is purely htmx attributes; no behavior
+helper is needed.
+
+## On intersection (in-viewport)
+
+The simplest trigger: load when the user scrolls the panel into view.
+
+```html
+<section
+  data-hx-get="/dashboards/usage"
+  data-hx-trigger="intersect once"
+  data-hx-swap="innerHTML">
+  <p class="hc-field__message">Loading when visible…</p>
+</section>
+```
+
+- `intersect once` uses IntersectionObserver under the hood.
+- Add `intersect once threshold:0.25` to wait until the panel is 25%
+  visible.
+
+## On `<details>` open (accordion)
+
+Inside a native `<details>` element, listen for the toggle event:
+
+```html
+<details>
+  <summary>Advanced settings</summary>
+  <div
+    data-hx-get="/settings/advanced"
+    data-hx-trigger="toggle from:closest details once"
+    data-hx-swap="innerHTML">
+    <p class="hc-field__message">Loading…</p>
+  </div>
+</details>
+```
+
+- `from:closest details` listens for the event on the ancestor
+  `<details>` element.
+- `once` ensures the panel never re-fetches after the first open.
+- The user can collapse and re-expand without further requests.
+
+For an explicit refresh button inside the panel, add a separate
+button with its own htmx trigger.
+
+## On tab activation
+
+Tabs are a small custom dance. Apply the lazy pattern to the tab
+**panel**, not the tab control:
+
+```html
+<div role="tablist" aria-label="Reports">
+  <button role="tab" aria-controls="panel-overview" aria-selected="true"
+          data-tab-target="panel-overview">Overview</button>
+  <button role="tab" aria-controls="panel-revenue" aria-selected="false"
+          data-tab-target="panel-revenue">Revenue</button>
+</div>
+
+<section id="panel-overview" role="tabpanel"
+         data-hx-get="/reports/overview"
+         data-hx-trigger="load"
+         data-hx-swap="innerHTML">
+</section>
+
+<section id="panel-revenue" role="tabpanel" hidden
+         data-hx-get="/reports/revenue"
+         data-hx-trigger="reveal once"
+         data-hx-swap="innerHTML">
+</section>
+```
+
+The tab-switching JavaScript (whatever your stack uses) flips
+`aria-selected` and `hidden`. When a tab becomes visible (`hidden`
+removed), htmx's `reveal` event fires — once.
+
+## Indicators
+
+Lazy panels almost always benefit from a visible loading indicator
+because the user actively triggered the fetch.
+
+```html
+<section
+  data-hx-get="/reports/revenue"
+  data-hx-trigger="intersect once"
+  data-hx-swap="innerHTML"
+  data-hx-indicator="this">
+  <div class="hc-action">
+    <p class="hc-field__message">Loading…</p>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </div>
+</section>
+```
+
+The `data-hx-indicator="this"` self-target keeps the spinner visible
+until the swap settles. Once the response lands, the placeholder
+content (including the spinner) is replaced.
+
+## Server response contract
+
+The endpoint returns the **inner HTML** of the panel:
+
+```html
+<!-- GET /reports/revenue -->
+<dl class="hc-stack">
+  <div><dt>This month</dt><dd>$12,400</dd></div>
+  <div><dt>Last month</dt><dd>$10,900</dd></div>
+</dl>
+```
+
+For an error state, return a 200 with an alert fragment (htmx swaps
+2xx by default):
+
+```html
+<div class="hc-alert" data-variant="danger" role="alert">
+  <strong class="hc-alert__title">Could not load</strong>
+  <p class="hc-alert__body">Try again in a moment.</p>
+</div>
+```
+
+## Accessibility
+
+- Always render a meaningful placeholder so the panel is announced
+  even before the fetch lands. An empty `<section>` is invisible to
+  AT.
+- For tab panels, keep `role="tabpanel"` + `aria-labelledby` linked
+  to the tab even when the panel is empty.
+- For `<details>`-based panels, the native `<summary>` already
+  exposes the open/closed state. No ARIA needed.
+- Polling inside a hidden lazy panel is wasteful — gate refresh on
+  visibility (`from:closest details`, `intersect`, etc.) to avoid
+  fetching content the user never sees.
+
+## Progressive enhancement
+
+- Without JavaScript, the panel renders only its placeholder. Pick a
+  placeholder that is genuinely useful (a meaningful initial value,
+  or a link to a full-page version).
+- `<details>`-based panels degrade especially well: the native
+  open/close still works without htmx.
+
+## Tips
+
+- **Avoid `every Ns` inside a lazy panel** unless the user is
+  actively looking at it. Combine `intersect once` for the first load
+  with a separate event-driven refresh.
+- **Don't lazy-load above the fold.** If the panel is visible at page
+  load, the deferred fetch round-trip just adds latency.
+- **Cache responses.** Lazy panel endpoints often return content that
+  changes slowly; `Cache-Control: max-age=60` saves work.
+
+## Related
+
+- [Data region recipe](/hypermedia-components/recipes/data-region/) — eager + auto-refreshing sibling.
+- [Card component](/hypermedia-components/components/card/) — the usual visual wrapper for a lazy panel.

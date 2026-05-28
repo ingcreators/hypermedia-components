@@ -1,0 +1,12 @@
+{
+  "name": "@hypermedia-components/example-htmx",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Hypermedia Components driven by htmx — confirm, request, live-search, and toast recipes against a tiny Node API.",
+  "type": "module",
+  "scripts": {
+    "prestart": "pnpm --filter @hypermedia-components/core build",
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  }
+}

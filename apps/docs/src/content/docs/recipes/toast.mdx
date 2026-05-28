@@ -1,0 +1,136 @@
+---
+title: Toast
+description: Transient notification dispatched from the server (HX-Trigger) or the client (CustomEvent).
+---
+
+A toast is a short, time-limited notification that appears in a corner
+of the screen. The `installToast` behavior listens for `hc:toast`
+events on `document.body`, renders the toast into the page's toast
+region, and auto-dismisses it after a few seconds.
+
+## Markup
+
+The toast region is a single host element. Place it once near the end
+of `<body>`. If the region is missing, the behavior creates one
+automatically.
+
+```html
+<div
+  class="hc-toast-region"
+  data-hc-toast-region
+  role="region"
+  aria-label="Notifications">
+</div>
+```
+
+## Triggering a toast
+
+### From the client
+
+Dispatch a bubbling `hc:toast` event with a detail object:
+
+```js
+document.body.dispatchEvent(
+  new CustomEvent('hc:toast', {
+    bubbles: true,
+    detail: { message: 'Saved', variant: 'success' },
+  })
+);
+```
+
+### From the server (htmx)
+
+Return an `HX-Trigger` response header. htmx dispatches `hc:toast` on
+the body for you.
+
+```text
+HTTP/1.1 200 OK
+HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}
+```
+
+For multiple events in one response:
+
+```text
+HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}, "items:refresh":true}
+```
+
+## Detail shape
+
+| Field      | Type     | Default        | Notes                                   |
+| ---------- | -------- | -------------- | --------------------------------------- |
+| `message`  | string   | _(required)_   | The body text.                          |
+| `title`    | string   | _(omitted)_    | Bold one-liner above the message.       |
+| `variant`  | string   | `'info'`       | `info` / `success` / `warning` / `danger`. |
+| `duration` | number   | `4500`         | Milliseconds. `0` keeps the toast until removed manually. |
+
+`variant="danger"` also flips the toast to `role="alert"` /
+`aria-live="assertive"` so screen readers interrupt to announce it.
+Other variants use `role="status"` / `aria-live="polite"`.
+
+## Examples
+
+```js
+// Success
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: { message: 'Invoice sent.' },
+}));
+
+// Error, sticky until dismissed
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: {
+    title: 'Sync failed',
+    message: 'Could not reach the server. Retrying…',
+    variant: 'danger',
+    duration: 0,
+  },
+}));
+```
+
+From a server-side handler:
+
+```python
+# Django
+from django.http import HttpResponse
+import json
+
+def delete_item(request, id):
+    item = get_object_or_404(Item, pk=id)
+    item.delete()
+    return HttpResponse('', headers={
+        'HX-Trigger': json.dumps({
+            'hc:toast': {'message': 'Deleted.', 'variant': 'success'},
+        }),
+    })
+```
+
+## Accessibility
+
+- `info` / `success` / `warning` use `role="status"` (polite) so they
+  do not interrupt the user's flow.
+- `danger` uses `role="alert"` (assertive) so failures are announced
+  immediately. Reserve this for genuine errors.
+- The region itself is a labeled `region` landmark — assistive tech
+  can navigate to it.
+- Toasts disappear automatically; do not put critical information
+  here that the user must act on. Confirmations of completed actions
+  are the canonical use case.
+
+## Progressive enhancement
+
+Without `hc.behaviors.js`, the `hc:toast` event is dispatched but no
+listener exists; nothing renders. The HTTP response itself is still
+valid — `HX-Trigger` is a no-op for plain `fetch()` calls.
+
+For applications that must communicate confirmation without
+JavaScript, server-render a flash message inside the page (an
+[`hc-alert`](/hypermedia-components/components/alert/) is the right
+component) and remove it from the next response.
+
+## Related
+
+- [Alert](/hypermedia-components/components/alert/) — block-level
+  inline notice; permanent until the page reloads.
+- [Confirm action](/hypermedia-components/recipes/confirm-action/) —
+  often paired with a toast on success.

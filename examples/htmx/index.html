@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hypermedia Components — htmx</title>
+
+  <link rel="stylesheet" href="/hc.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+
+  <style>
+    body { padding: 2rem; max-inline-size: 56rem; margin: 0 auto; }
+    header { margin-block-end: 2rem; }
+    h1 { margin: 0 0 .25rem; font-size: 1.5rem; }
+    h2 { margin-block: 2rem 1rem; font-size: 1.125rem; }
+    .small { font-size: 0.875rem; color: var(--hc-color-text-muted); }
+    .row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Hypermedia Components — htmx</h1>
+    <p class="small">
+      End-to-end demo of the <code>confirm-action</code>,
+      <code>request-action</code>, <code>live-search</code>, and
+      <code>toast</code> recipes. The server is a 100-line Node script
+      with in-memory state.
+    </p>
+  </header>
+
+  <!-- Toast region. The behavior creates one automatically if absent;
+       declaring it here pins it where we want. -->
+  <div
+    class="hc-toast-region"
+    data-hc-toast-region
+    role="region"
+    aria-label="Notifications"></div>
+
+  <section>
+    <h2>Live search</h2>
+    <form action="/search" method="get" role="search" class="row" style="max-inline-size: 32rem;">
+      <input
+        class="hc-input"
+        type="search"
+        name="q"
+        placeholder="Filter items by name"
+        data-hx-get="/search"
+        data-hx-trigger="input changed delay:200ms, search"
+        data-hx-target="#items-tbody"
+        data-hx-swap="innerHTML"
+        data-hx-sync="closest form:replace">
+      <button class="hc-button" type="submit">Search</button>
+    </form>
+    <p class="small">Type to filter the table below. The form still works without JavaScript.</p>
+  </section>
+
+  <section>
+    <h2>Items</h2>
+    <table class="hc-table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Status</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody
+        id="items-tbody"
+        data-hx-get="/items"
+        data-hx-trigger="load"
+        data-hx-swap="innerHTML">
+        <tr><td colspan="3"><p class="hc-field__message">Loading…</p></td></tr>
+      </tbody>
+    </table>
+
+    <h2>Add an item (request-action)</h2>
+    <form
+      class="row"
+      data-hx-post="/items"
+      data-hx-target="#items-tbody"
+      data-hx-swap="beforeend">
+      <input
+        class="hc-input"
+        type="text"
+        name="name"
+        placeholder="New item name"
+        required
+        style="max-inline-size: 24rem;">
+      <span class="hc-action">
+        <button
+          class="hc-button"
+          data-variant="primary"
+          type="submit"
+          data-hx-disabled-elt="this"
+          data-hx-indicator="closest .hc-action">
+          Add
+        </button>
+        <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+      </span>
+    </form>
+    <p class="small">
+      Successful creation returns the new <code>&lt;tr&gt;</code> for
+      <code>beforeend</code> swap and triggers an
+      <code>HX-Trigger: hc:toast</code> response header.
+    </p>
+  </section>
+
+  <section>
+    <h2>Confirm action (per row)</h2>
+    <p class="small">
+      Each <strong>Delete</strong> button uses
+      <code>data-hc-confirm</code> + <code>data-hx-trigger="confirmed"</code>.
+      The behavior shows a modal dialog; on confirm it re-emits a
+      <code>confirmed</code> event so htmx fires the
+      <code>DELETE /items/:id</code> request.
+    </p>
+  </section>
+</body>
+</html>

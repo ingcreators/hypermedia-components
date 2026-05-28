@@ -7,6 +7,11 @@
     "text-muted":  { "$type": "color", "$value": "{primitive.color.gray.600}" },
     "border":      { "$type": "color", "$value": "{primitive.color.gray.300}" },
     "focus-ring":  { "$type": "color", "$value": "{primitive.color.blue.500}" },
+    "danger":      { "$type": "color", "$value": "{primitive.color.red.600}" },
+    "success":     { "$type": "color", "$value": "{primitive.color.green.600}" },
+    "warning":     { "$type": "color", "$value": "{primitive.color.amber.600}" },
+    "info":        { "$type": "color", "$value": "{primitive.color.blue.600}" },
+    "overlay":     { "$type": "color", "$value": "rgba(17, 24, 39, 0.5)" },
     "action": {
       "primary": {
         "bg":     { "$type": "color", "$value": "{primitive.color.blue.600}" },

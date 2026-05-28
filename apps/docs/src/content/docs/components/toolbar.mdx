@@ -1,0 +1,85 @@
+---
+title: Toolbar
+description: Horizontal grouping of related controls with consistent spacing and optional separators.
+---
+
+`hc-toolbar` is a layout primitive for grouping related controls
+horizontally. It does not own styling of the children — buttons and
+inputs inside a toolbar keep their normal appearance.
+
+## Basic HTML
+
+<div class="hc-preview">
+  <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
+    <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+    <hr role="separator" aria-orientation="vertical" />
+    <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
+    <span data-hc-spacer="true"></span>
+    <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
+  </div>
+</div>
+
+```html
+<div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
+  <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
+  <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
+  <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+
+  <hr role="separator" aria-orientation="vertical">
+
+  <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
+  <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
+
+  <span data-hc-spacer="true"></span>
+
+  <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
+</div>
+```
+
+## Anatomy
+
+- **Children** — usually buttons, but any focusable controls work.
+- **Separator** — `<hr role="separator" aria-orientation="vertical">`
+  draws a 1px vertical divider. It is purely visual; toolbars do not
+  require separators.
+- **Spacer** — `<span data-hc-spacer="true"></span>` expands to push
+  trailing children to the end (e.g. a save button at the right).
+
+## Accessibility
+
+- Apply `role="toolbar"` on the wrapper and **always** include an
+  `aria-label` describing what the toolbar controls (`"Editor
+  toolbar"`, `"Filter actions"`).
+- The native focus order — left to right, top to bottom — is usually
+  correct. If you need arrow-key navigation within the toolbar,
+  implement it explicitly; the component does not do it for you.
+- Buttons inside a toolbar are still standard buttons. Use clear
+  labels (and `aria-pressed="true"` for toggle buttons).
+
+## Theming tokens
+
+| Token path                          | Purpose                |
+| ----------------------------------- | ---------------------- |
+| `toolbar.gap`                       | Gap between children.  |
+| `toolbar.padding-x` / `-y`          | Inner padding.         |
+| `toolbar.bg` / `-border` / `-radius` | Surface styling.      |
+| `toolbar.separator`                 | Separator color.       |
+
+## CSS variables
+
+```text
+--hc-toolbar-gap
+--hc-toolbar-padding-x | -padding-y
+--hc-toolbar-bg | -border | -radius
+--hc-toolbar-separator
+```
+
+## Related
+
+- [Button](/hypermedia-components/components/button/) — the usual
+  toolbar child.
+- [Pagination](/hypermedia-components/components/pagination/) — a more
+  specific page-link grouping.

@@ -1,0 +1,26 @@
+/* hc-popover — styling for the standard `popover` attribute.
+ *
+ * Use with the native `popover` attribute and a `popovertarget`
+ * trigger. The :popover-open pseudo class targets the open state and
+ * positioning is the browser's responsibility.
+ */
+@layer hc.components {
+  .hc-popover {
+    margin: 0;
+    padding: var(--hc-popover-padding);
+    border: 1px solid var(--hc-popover-border);
+    border-radius: var(--hc-popover-radius);
+    background: var(--hc-popover-bg);
+    color: var(--hc-popover-fg);
+    min-inline-size: var(--hc-popover-min-width);
+    max-inline-size: var(--hc-popover-max-width);
+    box-shadow: 0 6px 20px rgb(0, 0, 0, 0.12);
+  }
+
+  /* Native popovers are display:none by default; the UA toggles to
+   * block on open. Our styles only need to apply when open. */
+  .hc-popover:not(:popover-open) {
+    /* Nothing — the UA hides it. Hook left intentionally empty so
+     * downstream styles can override safely. */
+  }
+}
