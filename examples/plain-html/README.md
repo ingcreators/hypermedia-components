@@ -43,7 +43,7 @@ node serve.mjs
 - **Inputs and fields** — `hc-input`, `hc-field`, valid and invalid
   states.
 - **Badges** — all variants.
-- **Alerts** — info / success / warning / danger.
+- **Alerts** — info / success / warning / error.
 - **Card** — header / body / footer parts.
 - **Table** — header band + row hover + status badges.
 - **Toolbar** — separator and spacer.

@@ -109,12 +109,12 @@ describe('installConfirm', () => {
     document.querySelector('.hc-confirm-dialog').close('cancel');
     explicit.remove();
 
-    const danger = placeButton({ 'data-variant': 'danger' });
-    dispatchClick(danger);
+    const error = placeButton({ 'data-variant': 'error' });
+    dispatchClick(error);
     okBtn = document.querySelector('[data-hc-confirm-ok]');
-    expect(okBtn.getAttribute('data-variant')).toBe('danger');
+    expect(okBtn.getAttribute('data-variant')).toBe('error');
     document.querySelector('.hc-confirm-dialog').close('cancel');
-    danger.remove();
+    error.remove();
 
     const plain = placeButton();
     dispatchClick(plain);

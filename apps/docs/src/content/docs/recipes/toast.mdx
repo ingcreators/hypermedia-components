@@ -60,10 +60,10 @@ HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}, "items:refresh"
 | ---------- | -------- | -------------- | --------------------------------------- |
 | `message`  | string   | _(required)_   | The body text.                          |
 | `title`    | string   | _(omitted)_    | Bold one-liner above the message.       |
-| `variant`  | string   | `'info'`       | `info` / `success` / `warning` / `danger`. |
+| `variant`  | string   | `'info'`       | `info` / `success` / `warning` / `error`. |
 | `duration` | number   | `4500`         | Milliseconds. `0` keeps the toast until removed manually. |
 
-`variant="danger"` also flips the toast to `role="alert"` /
+`variant="error"` also flips the toast to `role="alert"` /
 `aria-live="assertive"` so screen readers interrupt to announce it.
 Other variants use `role="status"` / `aria-live="polite"`.
 
@@ -82,7 +82,7 @@ document.body.dispatchEvent(new CustomEvent('hc:toast', {
   detail: {
     title: 'Sync failed',
     message: 'Could not reach the server. Retrying…',
-    variant: 'danger',
+    variant: 'error',
     duration: 0,
   },
 }));
@@ -109,7 +109,7 @@ def delete_item(request, id):
 
 - `info` / `success` / `warning` use `role="status"` (polite) so they
   do not interrupt the user's flow.
-- `danger` uses `role="alert"` (assertive) so failures are announced
+- `error` uses `role="alert"` (assertive) so failures are announced
   immediately. Reserve this for genuine errors.
 - The region itself is a labeled `region` landmark — assistive tech
   can navigate to it.

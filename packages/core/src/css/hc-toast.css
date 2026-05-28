@@ -1,7 +1,7 @@
 /* hc-toast — transient notification.
  * hc-toast-region — stacking container, typically anchored to a corner.
  *
- * Variants on .hc-toast via data-variant: info (default) | success | warning | danger
+ * Variants on .hc-toast via data-variant: info (default) | success | warning | error
  * The region uses position: fixed by default and stacks vertically.
  * Set role="region" and aria-label="Notifications" on the host element.
  */
@@ -47,10 +47,10 @@
     border-color: var(--hc-toast-warning-border);
   }
 
-  .hc-toast[data-variant="danger"] {
-    background: var(--hc-toast-danger-bg);
-    color: var(--hc-toast-danger-fg);
-    border-color: var(--hc-toast-danger-border);
+  .hc-toast[data-variant="error"] {
+    background: var(--hc-toast-error-bg);
+    color: var(--hc-toast-error-fg);
+    border-color: var(--hc-toast-error-border);
   }
 
   .hc-toast__title {

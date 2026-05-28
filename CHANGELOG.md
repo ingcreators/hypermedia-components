@@ -165,6 +165,36 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Breaking**: renamed the red severity variant from `danger` to
+  `error` across the whole design system. Aligns with Material UI /
+  Ant Design / Chakra / Carbon — the prevailing convention in
+  modern enterprise design systems where the severity ladder reads
+  `info → success → warning → error`. The previous `danger`
+  naming was Bootstrap-era and clashed with the surrounding
+  `warning` semantic. Touchpoints:
+  - All `data-variant="danger"` attribute values across button /
+    checkbox / radio / alert / badge / toast are now
+    `data-variant="error"`.
+  - All token paths `semantic.color.danger`,
+    `semantic.color.action.danger.*`,
+    `semantic.color.action.danger-hover.*`, plus component-layer
+    `button.danger.*`, `button.danger-hover.*`,
+    `checkbox.danger-checked-*`, `radio.danger-checked-*`,
+    `alert.danger.*`, `badge.danger.*`, `toast.danger.*` are
+    renamed by `danger → error`.
+  - All CSS custom properties `--hc-color-danger`,
+    `--hc-color-action-danger-*`, `--hc-{component}-danger-*` are
+    renamed accordingly.
+  - `installToast` checks `variant === 'error'` for
+    `role="alert"` / `aria-live="assertive"` (was `'danger'`).
+  - Docs (button / checkbox / radio / alert / badge / themes /
+    variants), recipes (`confirm-action`), examples, fixtures,
+    and Playwright specs are all updated.
+
+  Emitted CSS *values* (red.600 / red.700 / etc.) are unchanged —
+  every visual remains identical. This is a pure rename. Per the
+  project's pre-alpha "no back-compat constraints" directive we
+  did not ship a `danger` → `error` alias.
 - `hc-checkbox` and `hc-radio` variant fills now reference the
   semantic colour tokens (`semantic.color.{success,warning,danger}`)
   directly rather than mixing primitive references and

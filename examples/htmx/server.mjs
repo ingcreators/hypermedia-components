@@ -51,7 +51,7 @@ let nextId = 4;
 const items = [
   { id: 1, name: 'Acme widgets', status: 'success', statusLabel: 'Active' },
   { id: 2, name: 'Industrial sprockets', status: 'warning', statusLabel: 'Pending' },
-  { id: 3, name: 'Vintage cogs', status: 'danger', statusLabel: 'Failed' },
+  { id: 3, name: 'Vintage cogs', status: 'error', statusLabel: 'Failed' },
 ];
 
 function escape(value) {
@@ -73,7 +73,7 @@ function rowHtml(item) {
       <button
         class="hc-button"
         data-size="sm"
-        data-variant="danger"
+        data-variant="error"
         type="button"
         data-hc-confirm="Delete ${escape(item.name)}?"
         data-hx-delete="/items/${item.id}"
@@ -168,7 +168,7 @@ const server = createServer(async (req, res) => {
       return sendHtml(
         res,
         422,
-        `<tr><td colspan="3"><p class="hc-field__message" style="color: var(--hc-color-danger);">Name is required.</p></td></tr>`,
+        `<tr><td colspan="3"><p class="hc-field__message" style="color: var(--hc-color-error);">Name is required.</p></td></tr>`,
       );
     }
     const item = { id: nextId++, name: name.trim(), status: 'success', statusLabel: 'Active' };

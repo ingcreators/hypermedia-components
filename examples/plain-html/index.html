@@ -33,7 +33,7 @@
     <div class="row">
       <button class="hc-button">Default</button>
       <button class="hc-button" data-variant="primary">Save</button>
-      <button class="hc-button" data-variant="danger">Delete</button>
+      <button class="hc-button" data-variant="error">Delete</button>
       <button class="hc-button" data-variant="ghost">Ghost</button>
     </div>
     <div class="row">
@@ -82,7 +82,7 @@
       <span class="hc-badge" data-variant="info">In review</span>
       <span class="hc-badge" data-variant="success">Active</span>
       <span class="hc-badge" data-variant="warning">Pending</span>
-      <span class="hc-badge" data-variant="danger">Failed</span>
+      <span class="hc-badge" data-variant="error">Failed</span>
     </div>
   </section>
 
@@ -101,7 +101,7 @@
         <strong class="hc-alert__title">Heads up</strong>
         <p class="hc-alert__body">This will affect 3 connected systems.</p>
       </div>
-      <div class="hc-alert" data-variant="danger" role="alert">
+      <div class="hc-alert" data-variant="error" role="alert">
         <strong class="hc-alert__title">Something went wrong</strong>
         <p class="hc-alert__body">The server returned a 500.</p>
       </div>
@@ -211,7 +211,7 @@
       <button class="hc-button" id="toast-info">Info</button>
       <button class="hc-button" data-variant="primary" id="toast-success">Success</button>
       <button class="hc-button" id="toast-warning">Warning</button>
-      <button class="hc-button" data-variant="danger" id="toast-danger">Danger</button>
+      <button class="hc-button" data-variant="error" id="toast-error">Error</button>
     </div>
     <p class="small">Dispatches an <code>hc:toast</code> event; the auto-init behavior in
       <code>hc.behaviors.js</code> renders the toast and auto-dismisses it.</p>
@@ -231,7 +231,7 @@
     $('#toast-info').addEventListener('click',    () => toast({ message: 'Heads up — nothing exploded.' }));
     $('#toast-success').addEventListener('click', () => toast({ title: 'Saved', message: 'Your changes are saved.', variant: 'success' }));
     $('#toast-warning').addEventListener('click', () => toast({ message: 'Disk is 80% full.', variant: 'warning' }));
-    $('#toast-danger').addEventListener('click',  () => toast({ title: 'Sync failed', message: 'Could not reach the server.', variant: 'danger' }));
+    $('#toast-error').addEventListener('click',  () => toast({ title: 'Sync failed', message: 'Could not reach the server.', variant: 'error' }));
 
     // Theme toggle on the page chrome — flips data-theme on <html>.
     $('#theme-toggle').addEventListener('click', () => {

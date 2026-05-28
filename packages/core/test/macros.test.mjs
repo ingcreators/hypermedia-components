@@ -69,13 +69,13 @@ describe('<hc-confirm-action>', () => {
     const el = place(`
       <hc-confirm-action
         action="/x"
-        variant="danger"
+        variant="error"
         title="Delete"
         confirm-label="Yes, delete"
         cancel-label="Keep">Delete</hc-confirm-action>
     `);
     const btn = el.querySelector('button');
-    expect(btn.getAttribute('data-variant')).toBe('danger');
+    expect(btn.getAttribute('data-variant')).toBe('error');
     expect(btn.getAttribute('data-hc-confirm-title')).toBe('Delete');
     expect(btn.getAttribute('data-hc-confirm-label')).toBe('Yes, delete');
     expect(btn.getAttribute('data-hc-cancel-label')).toBe('Keep');

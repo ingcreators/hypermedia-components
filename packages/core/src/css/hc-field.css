@@ -32,7 +32,7 @@
   }
 
   /* When the field is marked invalid, force the contained input's
-   * border to the danger color too, even if aria-invalid is missing on
+   * border to the error color too, even if aria-invalid is missing on
    * the input itself (defensive — the recommended pattern still sets
    * aria-invalid="true" on the input for accessibility). */
   .hc-field[data-invalid="true"] .hc-input {

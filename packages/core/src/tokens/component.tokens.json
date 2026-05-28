@@ -32,14 +32,14 @@
       "bg":     { "$type": "color", "$value": "var(--hc-color-action-secondary-hover-bg)" },
       "border": { "$type": "color", "$value": "var(--hc-color-action-secondary-hover-border)" }
     },
-    "danger": {
-      "bg":     { "$type": "color", "$value": "{semantic.color.action.danger.bg}" },
-      "fg":     { "$type": "color", "$value": "{semantic.color.action.danger.fg}" },
-      "border": { "$type": "color", "$value": "{semantic.color.action.danger.border}" }
+    "error": {
+      "bg":     { "$type": "color", "$value": "{semantic.color.action.error.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.action.error.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.action.error.border}" }
     },
-    "danger-hover": {
-      "bg":     { "$type": "color", "$value": "{semantic.color.action.danger-hover.bg}" },
-      "border": { "$type": "color", "$value": "{semantic.color.action.danger-hover.border}" }
+    "error-hover": {
+      "bg":     { "$type": "color", "$value": "{semantic.color.action.error-hover.bg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.action.error-hover.border}" }
     },
     "ghost": {
       "bg":     { "$type": "color", "$value": "transparent" },
@@ -70,7 +70,7 @@
     "border":     { "$type": "color", "$value": "{semantic.color.border}" },
     "placeholder": { "$type": "color", "$value": "{semantic.color.text-muted}" },
     "focus-border": { "$type": "color", "$value": "var(--hc-color-focus-ring)" },
-    "invalid-border": { "$type": "color", "$value": "{semantic.color.danger}" },
+    "invalid-border": { "$type": "color", "$value": "{semantic.color.error}" },
     "disabled-bg": { "$type": "color", "$value": "{primitive.color.gray.100}" },
     "sm": {
       "height":    { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
@@ -95,9 +95,9 @@
     "success-checked-border": { "$type": "color", "$value": "{semantic.color.success}" },
     "warning-checked-bg":     { "$type": "color", "$value": "{semantic.color.warning}" },
     "warning-checked-border": { "$type": "color", "$value": "{semantic.color.warning}" },
-    "danger-checked-bg":      { "$type": "color", "$value": "{semantic.color.danger}" },
-    "danger-checked-border":  { "$type": "color", "$value": "{semantic.color.danger}" },
-    "invalid-border":   { "$type": "color",     "$value": "{semantic.color.danger}" },
+    "error-checked-bg":      { "$type": "color", "$value": "{semantic.color.error}" },
+    "error-checked-border":  { "$type": "color", "$value": "{semantic.color.error}" },
+    "invalid-border":   { "$type": "color",     "$value": "{semantic.color.error}" },
     "disabled-bg":      { "$type": "color",     "$value": "{primitive.color.gray.100}" },
     "label-gap":        { "$type": "dimension", "$value": "{semantic.space.2}" },
     "sm": {
@@ -118,9 +118,9 @@
     "success-checked-border": { "$type": "color", "$value": "{semantic.color.success}" },
     "warning-checked-bg":     { "$type": "color", "$value": "{semantic.color.warning}" },
     "warning-checked-border": { "$type": "color", "$value": "{semantic.color.warning}" },
-    "danger-checked-bg":      { "$type": "color", "$value": "{semantic.color.danger}" },
-    "danger-checked-border":  { "$type": "color", "$value": "{semantic.color.danger}" },
-    "invalid-border":   { "$type": "color",     "$value": "{semantic.color.danger}" },
+    "error-checked-bg":      { "$type": "color", "$value": "{semantic.color.error}" },
+    "error-checked-border":  { "$type": "color", "$value": "{semantic.color.error}" },
+    "invalid-border":   { "$type": "color",     "$value": "{semantic.color.error}" },
     "disabled-bg":      { "$type": "color",     "$value": "{primitive.color.gray.100}" },
     "label-gap":        { "$type": "dimension", "$value": "{semantic.space.2}" },
     "sm": {
@@ -137,7 +137,7 @@
     "label-font-size": { "$type": "dimension", "$value": "{semantic.font.size-sm}" },
     "message-color":  { "$type": "color",      "$value": "{semantic.color.text-muted}" },
     "message-font-size": { "$type": "dimension", "$value": "{semantic.font.size-sm}" },
-    "invalid-message-color": { "$type": "color", "$value": "{semantic.color.danger}" }
+    "invalid-message-color": { "$type": "color", "$value": "{semantic.color.error}" }
   },
   "spinner": {
     "size":         { "$type": "dimension", "$value": "1rem" },
@@ -200,7 +200,7 @@
       "fg":     { "$type": "color", "$value": "{primitive.color.amber.800}" },
       "border": { "$type": "color", "$value": "{primitive.color.amber.100}" }
     },
-    "danger":   {
+    "error":   {
       "bg":     { "$type": "color", "$value": "{primitive.color.red.50}" },
       "fg":     { "$type": "color", "$value": "{primitive.color.red.800}" },
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
@@ -264,7 +264,7 @@
       "fg":     { "$type": "color", "$value": "{primitive.color.amber.800}" },
       "border": { "$type": "color", "$value": "{primitive.color.amber.100}" }
     },
-    "danger":   {
+    "error":   {
       "bg":     { "$type": "color", "$value": "{primitive.color.red.50}" },
       "fg":     { "$type": "color", "$value": "{primitive.color.red.800}" },
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
@@ -292,7 +292,7 @@
       "fg":     { "$type": "color", "$value": "{primitive.color.amber.800}" },
       "border": { "$type": "color", "$value": "{primitive.color.amber.100}" }
     },
-    "danger":   {
+    "error":   {
       "bg":     { "$type": "color", "$value": "{primitive.color.red.50}" },
       "fg":     { "$type": "color", "$value": "{primitive.color.red.800}" },
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }

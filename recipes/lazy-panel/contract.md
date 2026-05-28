@@ -52,7 +52,7 @@ error message in the same slot, return the error body with
 HTTP/1.1 503 Service Unavailable
 HX-Reswap: innerHTML
 
-<p class="hc-alert" data-variant="danger" role="alert">
+<p class="hc-alert" data-variant="error" role="alert">
   Reports are temporarily unavailable. Refresh in a minute.
 </p>
 ```

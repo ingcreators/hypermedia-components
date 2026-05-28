@@ -51,7 +51,7 @@ visually across non-adjacent inputs.
 
 ## Variants
 
-`data-variant` accepts `success`, `warning`, and `danger` for
+`data-variant` accepts `success`, `warning`, and `error` for
 non-default fill colours when checked. The default (omitted) variant
 uses the active colour theme's primary fill.
 
@@ -69,8 +69,8 @@ uses the active colour theme's primary fill.
     Warning
   </label>
   <label class="hc-radio-label">
-    <input class="hc-radio" type="radio" name="variant-demo-danger" data-variant="danger" defaultChecked />
-    Danger
+    <input class="hc-radio" type="radio" name="variant-demo-error" data-variant="error" defaultChecked />
+    Error
   </label>
 </div>
 
@@ -78,7 +78,7 @@ uses the active colour theme's primary fill.
 <input class="hc-radio" type="radio" name="x" checked>
 <input class="hc-radio" type="radio" name="y" data-variant="success" checked>
 <input class="hc-radio" type="radio" name="z" data-variant="warning" checked>
-<input class="hc-radio" type="radio" name="w" data-variant="danger" checked>
+<input class="hc-radio" type="radio" name="w" data-variant="error" checked>
 ```
 
 ## Sizes
@@ -234,7 +234,7 @@ Component tokens (in `component.tokens.json`):
 | `radio.checked-bg` / `checked-border`     | Default-variant checked colours.     |
 | `radio.success-checked-bg` / `success-checked-border` | `data-variant="success"`. |
 | `radio.warning-checked-bg` / `warning-checked-border` | `data-variant="warning"`. |
-| `radio.danger-checked-bg` / `danger-checked-border` | `data-variant="danger"`.    |
+| `radio.error-checked-bg` / `error-checked-border` | `data-variant="error"`.    |
 | `radio.sm.size` / `lg.size`               | `data-size="sm"` / `"lg"` dedicated sizes. |
 | `radio.invalid-border`                    | Border when `aria-invalid="true"`.   |
 | `radio.disabled-bg`                       | Background when disabled.            |
@@ -249,13 +249,13 @@ Component tokens (in `component.tokens.json`):
 --hc-radio-checked-bg | -checked-border
 --hc-radio-success-checked-bg | -success-checked-border
 --hc-radio-warning-checked-bg | -warning-checked-border
---hc-radio-danger-checked-bg | -danger-checked-border
+--hc-radio-error-checked-bg | -error-checked-border
 --hc-radio-sm-size | -lg-size
 --hc-radio-invalid-border
 --hc-radio-disabled-bg
 --hc-radio-label-gap
 --hc-color-focus-ring
---hc-color-danger
+--hc-color-error
 ```
 
 ## Related

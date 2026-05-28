@@ -1,6 +1,6 @@
 /* hc-badge — small inline status indicator.
  *
- * Variants via data-variant: default | info | success | warning | danger
+ * Variants via data-variant: default | info | success | warning | error
  */
 @layer hc.components {
   .hc-badge {
@@ -37,9 +37,9 @@
     border-color: var(--hc-badge-warning-border);
   }
 
-  .hc-badge[data-variant="danger"] {
-    background: var(--hc-badge-danger-bg);
-    color: var(--hc-badge-danger-fg);
-    border-color: var(--hc-badge-danger-border);
+  .hc-badge[data-variant="error"] {
+    background: var(--hc-badge-error-bg);
+    color: var(--hc-badge-error-fg);
+    border-color: var(--hc-badge-error-border);
   }
 }

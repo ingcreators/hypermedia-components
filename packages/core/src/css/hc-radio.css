@@ -5,7 +5,7 @@
  * behaviour (Arrow keys move between members of a group); only the
  * rendering is replaced.
  *
- * Variants:  default (omitted) | success | danger  (via data-variant)
+ * Variants:  default (omitted) | success | error  (via data-variant)
  * States:    :checked, :focus-visible, :disabled, [aria-invalid]
  * Pairing:   `.hc-radio-label` wraps an input + text in an inline
  *            cluster so click on the label selects the input.
@@ -58,9 +58,9 @@
     border-color: var(--hc-radio-warning-checked-border);
   }
 
-  .hc-radio[data-variant="danger"]:checked {
-    background-color: var(--hc-radio-danger-checked-bg);
-    border-color: var(--hc-radio-danger-checked-border);
+  .hc-radio[data-variant="error"]:checked {
+    background-color: var(--hc-radio-error-checked-bg);
+    border-color: var(--hc-radio-error-checked-border);
   }
 
   /* Sizes — independent of density. `data-size` sets dedicated vars
@@ -82,7 +82,7 @@
   }
 
   .hc-radio[aria-invalid="true"]:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-danger) 30%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
   }
 
   /* Disabled */

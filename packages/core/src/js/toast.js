@@ -16,7 +16,7 @@
 //   {
 //     message: string,                     // required
 //     title?: string,
-//     variant?: 'info' | 'success' | 'warning' | 'danger',
+//     variant?: 'info' | 'success' | 'warning' | 'error',
 //     duration?: number,                   // ms; 0 = sticky
 //   }
 
@@ -37,7 +37,7 @@ function getOrCreateRegion(root) {
 
 function renderToast(ownerDocument, detail) {
   const variant = detail.variant || 'info';
-  const isUrgent = variant === 'danger';
+  const isUrgent = variant === 'error';
 
   const toast = ownerDocument.createElement('div');
   toast.className = 'hc-toast';
@@ -65,8 +65,8 @@ function renderToast(ownerDocument, detail) {
  * @typedef {Object} HcToastDetail
  * @property {string} message              Required body text.
  * @property {string} [title]              Optional bold one-liner above the message.
- * @property {'info'|'success'|'warning'|'danger'} [variant='info']
- *   Visual variant. `danger` is mapped to `role="alert"` /
+ * @property {'info'|'success'|'warning'|'error'} [variant='info']
+ *   Visual variant. `error` is mapped to `role="alert"` /
  *   `aria-live="assertive"` for assistive technology; other variants
  *   use `role="status"` / `aria-live="polite"`.
  * @property {number} [duration=4500]      Milliseconds until auto-dismiss. `0` keeps the toast indefinitely.

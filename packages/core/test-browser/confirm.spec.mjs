@@ -15,8 +15,8 @@ test.describe('confirm-action behavior', () => {
     await expect(dialog.locator('[data-hc-confirm-ok]')).toHaveText('Delete');
     await expect(dialog.locator('[data-hc-confirm-cancel]')).toHaveText('Keep');
 
-    // The OK button inherits the source's data-variant (danger here).
-    await expect(dialog.locator('[data-hc-confirm-ok]')).toHaveAttribute('data-variant', 'danger');
+    // The OK button inherits the source's data-variant (error here).
+    await expect(dialog.locator('[data-hc-confirm-ok]')).toHaveAttribute('data-variant', 'error');
   });
 
   test('focuses the Cancel button by default — safer for destructive actions', async ({ page }) => {

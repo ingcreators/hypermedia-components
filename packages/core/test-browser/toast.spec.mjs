@@ -24,10 +24,10 @@ test.describe('toast behavior', () => {
     await expect(toast.locator('.hc-toast__body')).toHaveText('Changes saved.');
   });
 
-  test('danger variant uses role="alert" / aria-live="assertive"', async ({ page }) => {
-    await page.getByTestId('toast-danger').click();
+  test('error variant uses role="alert" / aria-live="assertive"', async ({ page }) => {
+    await page.getByTestId('toast-error').click();
     const toast = page.locator('.hc-toast').first();
-    await expect(toast).toHaveAttribute('data-variant', 'danger');
+    await expect(toast).toHaveAttribute('data-variant', 'error');
     await expect(toast).toHaveAttribute('role', 'alert');
     await expect(toast).toHaveAttribute('aria-live', 'assertive');
   });

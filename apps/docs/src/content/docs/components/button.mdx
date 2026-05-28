@@ -13,7 +13,7 @@ markup stays close to plain HTML.
   <button class="hc-button">Default</button>
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="secondary">Secondary</button>
-  <button class="hc-button" data-variant="danger">Delete</button>
+  <button class="hc-button" data-variant="error">Delete</button>
   <button class="hc-button" data-variant="ghost">Ghost</button>
 </div>
 
@@ -21,21 +21,21 @@ markup stays close to plain HTML.
 <button class="hc-button">Default</button>
 <button class="hc-button" data-variant="primary">Save</button>
 <button class="hc-button" data-variant="secondary">Secondary</button>
-<button class="hc-button" data-variant="danger">Delete</button>
+<button class="hc-button" data-variant="error">Delete</button>
 <button class="hc-button" data-variant="ghost">Ghost</button>
 ```
 
 ## Variants
 
 `data-variant` accepts `default` (implicit), `primary`, `secondary`,
-`danger`, and `ghost`. Variants compose with sizes and states.
+`error`, and `ghost`. Variants compose with sizes and states.
 
 | Variant     | Purpose                                                         |
 | ----------- | --------------------------------------------------------------- |
 | _omitted_   | Neutral default action — outlined.                              |
 | `primary`   | The primary action on a page or in a dialog. Follows the active colour theme. |
 | `secondary` | A second filled action that ranks under `primary`. Neutral grey — intentionally **not** theme-tinted so primary stays distinct. |
-| `danger`    | Destructive action — pair with a confirm UI.                    |
+| `error`    | Destructive action — pair with a confirm UI.                    |
 | `ghost`     | Low-emphasis action; transparent background.                    |
 
 Visual hierarchy from highest to lowest emphasis:
@@ -102,7 +102,7 @@ A confirmation flow combines the button with the `confirm-action` recipe:
 ```html
 <button
   class="hc-button"
-  data-variant="danger"
+  data-variant="error"
   data-hc-confirm="Delete this item?"
   data-hx-delete="/items/123"
   data-hx-trigger="confirmed"
@@ -137,8 +137,8 @@ A confirmation flow combines the button with the `confirm-action` recipe:
 | `button.padding-x`            | Inline padding.                      |
 | `button.radius`               | Border radius.                       |
 | `button.font-size`            | Default font size.                   |
-| `button.{default,primary,danger,ghost}.{bg,fg,border}` | Per-variant colors. |
-| `button.{default,primary,danger,ghost}-hover.{bg,border}` | Per-variant hover colors. |
+| `button.{default,primary,error,ghost}.{bg,fg,border}` | Per-variant colors. |
+| `button.{default,primary,error,ghost}-hover.{bg,border}` | Per-variant hover colors. |
 | `button.{sm,lg}.{height,padding-x,font-size}` | Size-specific overrides. |
 
 Override at any level — primitive, semantic, or component — by setting
@@ -165,7 +165,7 @@ component:
 --hc-button-default-bg | -fg | -border | -hover-bg
 --hc-button-primary-bg   | -fg | -border | -hover-bg | -hover-border
 --hc-button-secondary-bg | -fg | -border | -hover-bg | -hover-border
---hc-button-danger-bg    | -fg | -border | -hover-bg | -hover-border
+--hc-button-error-bg    | -fg | -border | -hover-bg | -hover-border
 --hc-button-ghost-bg     | -fg | -border | -hover-bg
 --hc-button-sm-height | -padding-x | -font-size
 --hc-button-lg-height | -padding-x | -font-size

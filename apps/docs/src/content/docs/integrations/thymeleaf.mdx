@@ -139,7 +139,7 @@ public String createItem(@ModelAttribute("form") ItemForm form, Model model) {
       <button
         class="hc-button"
         data-size="sm"
-        data-variant="danger"
+        data-variant="error"
         type="button"
         th:attr="data-hc-confirm='Delete ' + ${item.name} + '?',
                  data-hx-delete=@{/items/{id}(id=${item.id})},
