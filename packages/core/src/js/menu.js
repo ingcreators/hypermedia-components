@@ -43,8 +43,23 @@ function triggerFor(menu) {
   );
 }
 
+// Items can live directly under .hc-menu *or* nested inside a
+// `<div role="group">` (used to scope `menuitemradio` siblings per
+// the WAI-ARIA spec, and to hang a `<span class="hc-menu__label">`
+// off of). Walk arbitrarily deep so keyboard navigation traverses
+// every reachable item in document order.
+const ITEM_ROLE_SELECTOR =
+  '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
+
 function itemsOf(menu) {
-  return Array.from(menu.querySelectorAll(':scope > [role="menuitem"]'));
+  return Array.from(menu.querySelectorAll(ITEM_ROLE_SELECTOR));
+}
+
+function radioGroupOf(item) {
+  // Nearest [role="group"] ancestor, stopping at the menu container.
+  // Falls back to the menu itself so a flat list of menuitemradio
+  // siblings still behaves as one group.
+  return item.closest('[role="group"]') ?? item.closest('.hc-menu');
 }
 
 function isEnabled(item) {
@@ -224,15 +239,42 @@ function attach(menu, detachers) {
   }
 
   function onClick(event) {
-    const item = event.target.closest('[role="menuitem"]');
+    const item = event.target.closest(ITEM_ROLE_SELECTOR);
     if (!item || !menu.contains(item) || !isEnabled(item)) return;
+
+    const role = item.getAttribute('role');
+    let checked;
+    if (role === 'menuitemcheckbox') {
+      // Toggle aria-checked. Items with no current value default to
+      // unchecked, so the first click reads as "becoming checked".
+      checked = item.getAttribute('aria-checked') !== 'true';
+      item.setAttribute('aria-checked', String(checked));
+    } else if (role === 'menuitemradio') {
+      // Select this radio and clear every sibling within the same
+      // [role="group"] (or .hc-menu when there is no explicit group).
+      checked = true;
+      const group = radioGroupOf(item);
+      if (group) {
+        for (const sib of group.querySelectorAll('[role="menuitemradio"]')) {
+          sib.setAttribute('aria-checked', sib === item ? 'true' : 'false');
+        }
+      } else {
+        item.setAttribute('aria-checked', 'true');
+      }
+    }
+
     menu.dispatchEvent(
       new CustomEvent('hc:menuselect', {
         bubbles: true,
-        detail: { item, menu, trigger },
+        detail: { item, menu, trigger, checked },
       }),
     );
-    menu.hidePopover();
+    // shadcn / Radix convention: plain menuitems close the menu;
+    // menuitemcheckbox / menuitemradio keep it open so users can
+    // toggle multiple choices without reopening.
+    if (role === 'menuitem') {
+      menu.hidePopover();
+    }
   }
 
   menu.addEventListener('toggle', onToggle);
