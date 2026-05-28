@@ -1,0 +1,42 @@
+<!-- Fully expanded HTML.
+
+  The page hosts a single corner-pinned region. Triggers can be the
+  server (HX-Trigger response header) or any client-side dispatcher;
+  the behavior renders toasts into the region and auto-dismisses
+  them according to the event detail. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/dist/hc.css">
+    <script type="module" src="/dist/hc.behaviors.js"></script>
+  </head>
+  <body>
+    <!-- Server-driven path: any response carrying this header dispatches
+         an `hc:toast` event on body, which the behavior picks up. -->
+    <!--
+      HTTP/1.1 200 OK
+      HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}
+    -->
+
+    <!-- Client-driven path: dispatch the same event from JS. -->
+    <button
+      class="hc-button"
+      type="button"
+      onclick="document.body.dispatchEvent(new CustomEvent('hc:toast', {
+        bubbles: true,
+        detail: { title: 'Sync failed', message: 'Could not reach the server.', variant: 'danger', duration: 0 }
+      }))">
+      Trigger danger toast
+    </button>
+
+    <!-- Single region, near the end of <body>. installToast lazy-creates
+         this element if it is missing, but rendering it explicitly avoids
+         a layout shift on the very first toast. -->
+    <div
+      class="hc-toast-region"
+      data-hc-toast-region
+      role="region"
+      aria-label="Notifications">
+    </div>
+  </body>
+</html>

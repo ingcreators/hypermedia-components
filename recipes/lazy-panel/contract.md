@@ -1,0 +1,67 @@
+# lazy-panel — server response contract
+
+Purpose: defer a region's content fetch until the user actually
+encounters it — scroll, accordion open, or tab activation. The
+recipe is purely htmx attributes; no behavior helper is needed.
+
+## Required client markup
+
+One of three trigger forms, all `once` so the fetch never repeats:
+
+| Trigger                                  | Activated by                           |
+| ---------------------------------------- | -------------------------------------- |
+| `intersect once`                         | The panel scrolls into the viewport.   |
+| `toggle from:closest details once`       | An ancestor `<details>` opens.         |
+| `reveal once`                            | The panel's `hidden` attribute is removed (tab activation). |
+
+Required attributes on the panel:
+
+- `data-hx-get="…"` — the URL that returns the panel content.
+- `data-hx-trigger="…"` — one of the forms above.
+- `data-hx-swap="innerHTML"` — replace the placeholder, keep the
+  wrapper.
+
+Optional:
+
+- `data-hx-indicator="this"` to fade in a spinner / skeleton while
+  the request is in flight (style via `.htmx-indicator`).
+
+## Server response
+
+Return the panel body HTML. No special headers required. If the
+panel needs cache headers (typical for dashboards), set them as
+usual:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cache-Control: private, max-age=60
+
+<div class="hc-card">
+  ...
+</div>
+```
+
+## Failure handling
+
+A 4xx/5xx leaves the placeholder in place by default. To show an
+error message in the same slot, return the error body with
+`HX-Reswap: innerHTML`:
+
+```http
+HTTP/1.1 503 Service Unavailable
+HX-Reswap: innerHTML
+
+<p class="hc-alert" data-variant="danger" role="alert">
+  Reports are temporarily unavailable. Refresh in a minute.
+</p>
+```
+
+## Combined with toast
+
+Server can also signal a toast in the same response by adding
+`HX-Trigger` — useful for non-fatal warnings ("data is stale").
+
+```http
+HX-Trigger: {"hc:toast":{"message":"Data may be up to 5 minutes old","variant":"warning"}}
+```

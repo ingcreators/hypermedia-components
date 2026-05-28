@@ -1,0 +1,68 @@
+<!-- Fully expanded HTML.
+
+  Three trigger variants for the same "load on first reveal" pattern.
+  Pick the one that matches how the panel becomes relevant. -->
+
+<!-- Variant 1 — on intersection (panel scrolls into view).
+     `intersect once threshold:0.25` waits until 25% is visible. -->
+<section
+  data-hx-get="/dashboards/usage"
+  data-hx-trigger="intersect once"
+  data-hx-swap="innerHTML"
+  data-hx-indicator="this">
+  <p class="hc-field__message">Loading when visible…</p>
+</section>
+
+<!-- Variant 2 — on <details> open (accordion).
+     `from:closest details` listens for the toggle on the ancestor.
+     `once` makes sure the fetch never repeats. -->
+<details>
+  <summary>Advanced settings</summary>
+  <div
+    data-hx-get="/settings/advanced"
+    data-hx-trigger="toggle from:closest details once"
+    data-hx-swap="innerHTML"
+    data-hx-indicator="this">
+    <p class="hc-field__message">Loading…</p>
+  </div>
+</details>
+
+<!-- Variant 3 — on tab activation.
+     The tablist owns the aria-selected / hidden flipping (any tab
+     library will do). The inactive tab panel uses `reveal once`,
+     which fires when its `hidden` attribute is removed. -->
+<div role="tablist" aria-label="Reports">
+  <button
+    role="tab"
+    aria-controls="panel-overview"
+    aria-selected="true"
+    data-tab-target="panel-overview">
+    Overview
+  </button>
+  <button
+    role="tab"
+    aria-controls="panel-revenue"
+    aria-selected="false"
+    data-tab-target="panel-revenue">
+    Revenue
+  </button>
+</div>
+
+<section
+  id="panel-overview"
+  role="tabpanel"
+  data-hx-get="/reports/overview"
+  data-hx-trigger="load"
+  data-hx-swap="innerHTML"
+  data-hx-indicator="this">
+</section>
+
+<section
+  id="panel-revenue"
+  role="tabpanel"
+  hidden
+  data-hx-get="/reports/revenue"
+  data-hx-trigger="reveal once"
+  data-hx-swap="innerHTML"
+  data-hx-indicator="this">
+</section>

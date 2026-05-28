@@ -5,7 +5,22 @@ Each subdirectory is one recipe and follows this contract:
 ```text
 recipe.html     Short recommended usage (with hc-* classes and data-hx-*).
 expanded.html   Fully expanded HTML — the copy-pasteable, framework-free form.
-contract.md    Server response contract: what HTML / HX-Trigger to return.
+contract.md     Server response contract: what HTML / HX-Trigger to return.
 ```
 
-Recipes are the source of truth for the `recipes/*` documentation pages.
+Recipes are the source of truth for the `apps/docs/src/content/docs/recipes/*`
+documentation pages.
+
+## Index
+
+| Recipe                                    | Purpose                                                                 |
+| ----------------------------------------- | ----------------------------------------------------------------------- |
+| [`request-action/`](request-action/)      | Button that sends an htmx request with a spinner.                       |
+| [`confirm-action/`](confirm-action/)      | Confirm with the user before sending an htmx request.                   |
+| [`live-search/`](live-search/)            | Input that streams results as the user types.                           |
+| [`toast/`](toast/)                        | Transient notification region driven by `hc:toast` events / HX-Trigger. |
+| [`remote-dialog/`](remote-dialog/)        | Server-rendered `<dialog>` shown via htmx swap.                         |
+| [`filter-popover/`](filter-popover/)      | Native `popover` element used as a filter sheet.                        |
+| [`data-region/`](data-region/)            | Container that re-fetches itself in response to application events.     |
+| [`inline-edit/`](inline-edit/)            | Display ↔ edit toggle that swaps the same DOM node each way.            |
+| [`lazy-panel/`](lazy-panel/)              | Panel whose content loads on first reveal (intersect / details / tab).  |
