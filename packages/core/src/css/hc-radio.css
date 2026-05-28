@@ -1,0 +1,92 @@
+/* hc-radio — semantic radio button component.
+ *
+ * Apply `.hc-radio` to a native <input type="radio">. The underlying
+ * input keeps its native semantics, name-based grouping, and keyboard
+ * behaviour (Arrow keys move between members of a group); only the
+ * rendering is replaced.
+ *
+ * Variants:  default (omitted) | success | danger  (via data-variant)
+ * States:    :checked, :focus-visible, :disabled, [aria-invalid]
+ * Pairing:   `.hc-radio-label` wraps an input + text in an inline
+ *            cluster so click on the label selects the input.
+ */
+@layer hc.components {
+  .hc-radio {
+    appearance: none;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--hc-radio-size);
+    block-size: var(--hc-radio-size);
+    margin: 0;
+    padding: 0;
+    border: var(--hc-radio-border-width) solid var(--hc-radio-border);
+    border-radius: 50%;
+    background-color: var(--hc-radio-bg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    color-scheme: light dark;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      box-shadow 120ms ease;
+    vertical-align: middle;
+  }
+
+  .hc-radio:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  /* Checked — default variant uses the action.primary fill with a
+   * white inner dot. */
+  .hc-radio:checked {
+    background-color: var(--hc-radio-checked-bg);
+    border-color: var(--hc-radio-checked-border);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='3' fill='%23ffffff'/></svg>");
+  }
+
+  /* Variants */
+  .hc-radio[data-variant="success"]:checked {
+    background-color: var(--hc-radio-success-checked-bg);
+    border-color: var(--hc-radio-success-checked-border);
+  }
+
+  .hc-radio[data-variant="danger"]:checked {
+    background-color: var(--hc-radio-danger-checked-bg);
+    border-color: var(--hc-radio-danger-checked-border);
+  }
+
+  /* Invalid (the accessibility hook). Border switches; pairs well with
+   * data-invalid on a wrapping hc-field. */
+  .hc-radio[aria-invalid="true"] {
+    border-color: var(--hc-radio-invalid-border);
+  }
+
+  .hc-radio[aria-invalid="true"]:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-danger) 30%, transparent);
+  }
+
+  /* Disabled */
+  .hc-radio:disabled,
+  .hc-radio[aria-disabled="true"] {
+    background-color: var(--hc-radio-disabled-bg);
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+
+  /* Label cluster: `<label class="hc-radio-label"><input class="hc-radio"> Text</label>` */
+  .hc-radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-radio-label-gap);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hc-radio-label:has(.hc-radio:disabled) {
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+}

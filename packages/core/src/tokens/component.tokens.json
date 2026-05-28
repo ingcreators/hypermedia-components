@@ -74,6 +74,37 @@
       "font-size": { "$type": "dimension", "$value": "{semantic.font.size-lg}" }
     }
   },
+  "checkbox": {
+    "size":             { "$type": "dimension", "$value": "1.125rem" },
+    "border-width":     { "$type": "dimension", "$value": "1px" },
+    "border":           { "$type": "color",     "$value": "{semantic.color.border}" },
+    "radius":           { "$type": "dimension", "$value": "{primitive.radius.sm}" },
+    "bg":               { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "checked-bg":       { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "checked-border":   { "$type": "color",     "$value": "{semantic.color.action.primary.border}" },
+    "success-checked-bg":     { "$type": "color", "$value": "{primitive.color.green.600}" },
+    "success-checked-border": { "$type": "color", "$value": "{primitive.color.green.600}" },
+    "danger-checked-bg":      { "$type": "color", "$value": "{semantic.color.action.danger.bg}" },
+    "danger-checked-border":  { "$type": "color", "$value": "{semantic.color.action.danger.border}" },
+    "invalid-border":   { "$type": "color",     "$value": "{semantic.color.danger}" },
+    "disabled-bg":      { "$type": "color",     "$value": "{primitive.color.gray.100}" },
+    "label-gap":        { "$type": "dimension", "$value": "{semantic.space.2}" }
+  },
+  "radio": {
+    "size":             { "$type": "dimension", "$value": "1.125rem" },
+    "border-width":     { "$type": "dimension", "$value": "1px" },
+    "border":           { "$type": "color",     "$value": "{semantic.color.border}" },
+    "bg":               { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "checked-bg":       { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "checked-border":   { "$type": "color",     "$value": "{semantic.color.action.primary.border}" },
+    "success-checked-bg":     { "$type": "color", "$value": "{primitive.color.green.600}" },
+    "success-checked-border": { "$type": "color", "$value": "{primitive.color.green.600}" },
+    "danger-checked-bg":      { "$type": "color", "$value": "{semantic.color.action.danger.bg}" },
+    "danger-checked-border":  { "$type": "color", "$value": "{semantic.color.action.danger.border}" },
+    "invalid-border":   { "$type": "color",     "$value": "{semantic.color.danger}" },
+    "disabled-bg":      { "$type": "color",     "$value": "{primitive.color.gray.100}" },
+    "label-gap":        { "$type": "dimension", "$value": "{semantic.space.2}" }
+  },
   "field": {
     "gap":            { "$type": "dimension",  "$value": "{semantic.space.2}" },
     "label-color":    { "$type": "color",      "$value": "{semantic.color.text}" },
