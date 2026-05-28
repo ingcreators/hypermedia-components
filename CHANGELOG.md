@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Changed
 
+- Density tokens now use the same shadcn-style leaf emission as the
+  colour themes (see next entry). `component.tokens.json` swaps
+  `var(--hc-control-height)` / `var(--hc-control-padding-x)`
+  literals for `{semantic.control.height}` /
+  `{semantic.control.padding-x}` references, so each
+  `[data-density]` block redeclares `--hc-button-height`,
+  `--hc-button-padding-x`, `--hc-input-height`,
+  `--hc-input-padding-x`, and `--hc-pagination-item-size` as resolved
+  leaf values. A nested `<div data-density="compact">` now actually
+  shrinks every control descendant; previously the var() chain was
+  frozen at `:root` (40 px) and the nested attribute had no effect.
+  Zero build-script changes — the overlay machinery added with the
+  colour-theme fix already classified `density.*` sources the same
+  way. Six new Playwright cases (`nested-density.spec.mjs`) cover
+  button + input across all three density tiers.
 - **Component-layer color tokens now emit as resolved leaf values per
   theme, mirroring shadcn / Radix Themes.** The old encoding placed
   `var(--hc-color-action-primary-bg)` literals inside the static
