@@ -1,0 +1,7 @@
+{
+  "$description": "Dense density. Emitted under [data-density=\"dense\"].",
+  "control": {
+    "height":    { "$type": "dimension", "$value": "{primitive.size.control.xs}" },
+    "padding-x": { "$type": "dimension", "$value": "{primitive.space.2}" }
+  }
+}

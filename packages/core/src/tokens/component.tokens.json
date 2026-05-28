@@ -1,8 +1,8 @@
 {
   "$description": "Component-level tokens. Emitted under :root.",
   "button": {
-    "height":     { "$type": "dimension", "$value": "{semantic.control.height}" },
-    "padding-x":  { "$type": "dimension", "$value": "{semantic.control.padding-x}" },
+    "height":     { "$type": "dimension", "$value": "var(--hc-control-height)" },
+    "padding-x":  { "$type": "dimension", "$value": "var(--hc-control-padding-x)" },
     "radius":     { "$type": "dimension", "$value": "{semantic.control.radius}" },
     "font-size":  { "$type": "dimension", "$value": "{semantic.font.size-md}" },
     "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
@@ -52,8 +52,8 @@
     }
   },
   "input": {
-    "height":     { "$type": "dimension", "$value": "{semantic.control.height}" },
-    "padding-x":  { "$type": "dimension", "$value": "{semantic.control.padding-x}" },
+    "height":     { "$type": "dimension", "$value": "var(--hc-control-height)" },
+    "padding-x":  { "$type": "dimension", "$value": "var(--hc-control-padding-x)" },
     "radius":     { "$type": "dimension", "$value": "{semantic.control.radius}" },
     "font-size":  { "$type": "dimension", "$value": "{semantic.font.size-md}" },
     "bg":         { "$type": "color", "$value": "{semantic.color.surface}" },

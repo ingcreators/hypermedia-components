@@ -1,0 +1,7 @@
+{
+  "$description": "Comfortable density (default). Emitted under :root and [data-density=\"comfortable\"].",
+  "control": {
+    "height":    { "$type": "dimension", "$value": "{primitive.size.control.md}" },
+    "padding-x": { "$type": "dimension", "$value": "{primitive.space.4}" }
+  }
+}

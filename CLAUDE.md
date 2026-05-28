@@ -46,7 +46,7 @@ explicit user approval.
 
 ## Implemented surface
 
-15 components · 236 `--hc-*` vars · 5 behaviors · 2 macros · 9 recipes · 42 docs pages · 5 integration guides · examples for plain-html + htmx · 73 Vitest tests · 41 Playwright tests (incl. 6 axe-core a11y scans).
+15 components · 242 `--hc-*` vars (3 density layers attribute-toggleable) · 5 behaviors · 2 macros · 9 recipes · 43 docs pages · 5 integration guides · examples for plain-html + htmx · 75 Vitest tests · 41 Playwright tests (incl. 6 axe-core a11y scans).
 
 For the full list of what is and is not built, see the
 [next-phase plan](plans/hc-next-phase-plan-v0.5-en.md).
@@ -121,3 +121,7 @@ Track 2 (MVP polish) progress:
   input via `appearance: none`; variants `default / success / danger`;
   Playwright covers Space toggle, arrow-key radio navigation, label
   click, variants, `aria-invalid`, disabled.
+- **§4.2** Density modes — merged. `data-density="comfortable|compact|dense"`
+  attribute swaps `--hc-control-height` / `--hc-control-padding-x`;
+  button and input pick it up via `var()` indirection without
+  per-component CSS changes.
