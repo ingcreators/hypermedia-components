@@ -53,9 +53,26 @@
     border-color: var(--hc-radio-success-checked-border);
   }
 
+  .hc-radio[data-variant="warning"]:checked {
+    background-color: var(--hc-radio-warning-checked-bg);
+    border-color: var(--hc-radio-warning-checked-border);
+  }
+
   .hc-radio[data-variant="danger"]:checked {
     background-color: var(--hc-radio-danger-checked-bg);
     border-color: var(--hc-radio-danger-checked-border);
+  }
+
+  /* Sizes — independent of density. `data-size` sets dedicated vars
+   * so density only changes the default size. */
+  .hc-radio[data-size="sm"] {
+    inline-size: var(--hc-radio-sm-size);
+    block-size: var(--hc-radio-sm-size);
+  }
+
+  .hc-radio[data-size="lg"] {
+    inline-size: var(--hc-radio-lg-size);
+    block-size: var(--hc-radio-lg-size);
   }
 
   /* Invalid (the accessibility hook). Border switches; pairs well with

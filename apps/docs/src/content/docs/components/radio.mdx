@@ -51,17 +51,22 @@ visually across non-adjacent inputs.
 
 ## Variants
 
-`data-variant` accepts `success` and `danger` for non-default fill
-colours when checked.
+`data-variant` accepts `success`, `warning`, and `danger` for
+non-default fill colours when checked. The default (omitted) variant
+uses the active colour theme's primary fill.
 
 <div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
   <label class="hc-radio-label">
     <input class="hc-radio" type="radio" name="variant-demo" defaultChecked />
-    Default
+    Default (themed)
   </label>
   <label class="hc-radio-label">
     <input class="hc-radio" type="radio" name="variant-demo-success" data-variant="success" defaultChecked />
     Success
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="variant-demo-warning" data-variant="warning" defaultChecked />
+    Warning
   </label>
   <label class="hc-radio-label">
     <input class="hc-radio" type="radio" name="variant-demo-danger" data-variant="danger" defaultChecked />
@@ -72,8 +77,42 @@ colours when checked.
 ```html
 <input class="hc-radio" type="radio" name="x" checked>
 <input class="hc-radio" type="radio" name="y" data-variant="success" checked>
-<input class="hc-radio" type="radio" name="z" data-variant="danger" checked>
+<input class="hc-radio" type="radio" name="z" data-variant="warning" checked>
+<input class="hc-radio" type="radio" name="w" data-variant="danger" checked>
 ```
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`. Independent of
+`data-density` — dedicated `--hc-radio-{sm,lg}-size` vars stay
+fixed across density tiers.
+
+<div class="hc-preview not-content" style="display:flex;align-items:center;gap:1rem;">
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="size-demo" data-size="sm" defaultChecked />
+    Small
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="size-demo-md" defaultChecked />
+    Default
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="size-demo-lg" data-size="lg" defaultChecked />
+    Large
+  </label>
+</div>
+
+```html
+<input class="hc-radio" type="radio" name="x" data-size="sm" checked>
+<input class="hc-radio" type="radio" name="y" checked>
+<input class="hc-radio" type="radio" name="z" data-size="lg" checked>
+```
+
+| `data-size` | Outer dimension |
+| ----------- | --------------- |
+| `sm`        | `0.875rem` (14 px) |
+| `md`        | `1.125rem` (18 px) — default |
+| `lg`        | `1.375rem` (22 px) |
 
 ## States
 
@@ -194,7 +233,9 @@ Component tokens (in `component.tokens.json`):
 | `radio.bg`                                | Background in the unchecked state.   |
 | `radio.checked-bg` / `checked-border`     | Default-variant checked colours.     |
 | `radio.success-checked-bg` / `success-checked-border` | `data-variant="success"`. |
+| `radio.warning-checked-bg` / `warning-checked-border` | `data-variant="warning"`. |
 | `radio.danger-checked-bg` / `danger-checked-border` | `data-variant="danger"`.    |
+| `radio.sm.size` / `lg.size`               | `data-size="sm"` / `"lg"` dedicated sizes. |
 | `radio.invalid-border`                    | Border when `aria-invalid="true"`.   |
 | `radio.disabled-bg`                       | Background when disabled.            |
 | `radio.label-gap`                         | Gap between the input and its text.  |
@@ -207,7 +248,9 @@ Component tokens (in `component.tokens.json`):
 --hc-radio-bg
 --hc-radio-checked-bg | -checked-border
 --hc-radio-success-checked-bg | -success-checked-border
+--hc-radio-warning-checked-bg | -warning-checked-border
 --hc-radio-danger-checked-bg | -danger-checked-border
+--hc-radio-sm-size | -lg-size
 --hc-radio-invalid-border
 --hc-radio-disabled-bg
 --hc-radio-label-gap

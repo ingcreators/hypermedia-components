@@ -40,17 +40,22 @@ element.
 
 ## Variants
 
-`data-variant` accepts `success` and `danger` for non-default check
-colours.
+`data-variant` accepts `success`, `warning`, and `danger` for
+non-default check colours. The default (omitted) variant uses the
+active colour theme's primary fill.
 
 <div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
   <label class="hc-checkbox-label">
     <input class="hc-checkbox" type="checkbox" defaultChecked />
-    Default
+    Default (themed)
   </label>
   <label class="hc-checkbox-label">
     <input class="hc-checkbox" type="checkbox" data-variant="success" defaultChecked />
     Success
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-variant="warning" defaultChecked />
+    Warning
   </label>
   <label class="hc-checkbox-label">
     <input class="hc-checkbox" type="checkbox" data-variant="danger" defaultChecked />
@@ -61,8 +66,44 @@ colours.
 ```html
 <input class="hc-checkbox" type="checkbox" checked>
 <input class="hc-checkbox" type="checkbox" data-variant="success" checked>
+<input class="hc-checkbox" type="checkbox" data-variant="warning" checked>
 <input class="hc-checkbox" type="checkbox" data-variant="danger" checked>
 ```
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`. Independent of
+`data-density` — sizes set dedicated `--hc-checkbox-{sm,lg}-size`
+vars rather than overriding the density-aware default size, so a
+control that opts in with `data-size="sm"` stays at 14 px on every
+density tier.
+
+<div class="hc-preview not-content" style="display:flex;align-items:center;gap:1rem;">
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-size="sm" defaultChecked />
+    Small
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" defaultChecked />
+    Default
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-size="lg" defaultChecked />
+    Large
+  </label>
+</div>
+
+```html
+<input class="hc-checkbox" type="checkbox" data-size="sm" checked>
+<input class="hc-checkbox" type="checkbox" checked>
+<input class="hc-checkbox" type="checkbox" data-size="lg" checked>
+```
+
+| `data-size` | Outer dimension |
+| ----------- | --------------- |
+| `sm`        | `0.875rem` (14 px) |
+| `md`        | `1.125rem` (18 px) — default |
+| `lg`        | `1.375rem` (22 px) |
 
 ## States
 
@@ -141,7 +182,9 @@ Component tokens (in `component.tokens.json`):
 | `checkbox.bg`                             | Background in the unchecked state.   |
 | `checkbox.checked-bg` / `checked-border`  | Default-variant checked colours.     |
 | `checkbox.success-checked-bg` / `success-checked-border` | `data-variant="success"`. |
+| `checkbox.warning-checked-bg` / `warning-checked-border` | `data-variant="warning"`. |
 | `checkbox.danger-checked-bg` / `danger-checked-border` | `data-variant="danger"`.   |
+| `checkbox.sm.size` / `lg.size`            | `data-size="sm"` / `"lg"` dedicated sizes. |
 | `checkbox.invalid-border`                 | Border when `aria-invalid="true"`.   |
 | `checkbox.disabled-bg`                    | Background when disabled.            |
 | `checkbox.label-gap`                      | Gap between the input and its text.  |
@@ -154,7 +197,9 @@ Component tokens (in `component.tokens.json`):
 --hc-checkbox-bg
 --hc-checkbox-checked-bg | -checked-border
 --hc-checkbox-success-checked-bg | -success-checked-border
+--hc-checkbox-warning-checked-bg | -warning-checked-border
 --hc-checkbox-danger-checked-bg | -danger-checked-border
+--hc-checkbox-sm-size | -lg-size
 --hc-checkbox-invalid-border
 --hc-checkbox-disabled-bg
 --hc-checkbox-label-gap
