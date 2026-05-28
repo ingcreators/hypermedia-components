@@ -20,6 +20,37 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- `hc-menu` component + `installMenu` behavior. WAI-ARIA APG action
+  menu pattern built on three modern web standards: the HTML
+  `popover` attribute (show/hide, light dismiss, native Escape), the
+  `popovertarget` button attribute (declarative trigger ⇄ menu
+  binding), and CSS Anchor Positioning (`anchor-name` /
+  `position-anchor` / `position-area` — menu lands directly under
+  the trigger). `installMenu()` wires the ARIA layer
+  (`aria-haspopup`, `aria-expanded` synchronised with the popover
+  `toggle` event, `aria-controls`), auto-assigns a unique anchor
+  name per `[popovertarget=<id>]` pair, and adds the APG keyboard
+  pattern: arrow keys / Home / End / type-ahead / Tab. Disabled
+  items (`disabled` or `aria-disabled="true"`) are skipped. The
+  first enabled menu item gets an `autofocus` attribute so the
+  browser's popover algorithm — not racing JS — focuses it on open.
+  On click, a bubbling `hc:menuselect` event carries
+  `{ item, menu, trigger }` and the menu closes via
+  `hidePopover()`. For browsers that lack CSS Anchor Positioning
+  (Chromium < 125, Safari < 26, Firefox < 147), the behavior
+  registers a `beforetoggle` handler that positions the menu via
+  `getBoundingClientRect`; the menu remains functional everywhere
+  `popover` is supported (Chromium 114+, Firefox 125+, Safari 17+).
+  `data-variant="error"` recolours destructive items via
+  `--hc-menu-item-error-fg`, mirroring shadcn's destructive
+  variant. Vitest spec (13 cases) covers idempotency, ARIA wiring,
+  anchor-name injection + JS positioning fallback, all keyboard
+  routes, `hc:menuselect` dispatch, and uninstall cleanup; Playwright
+  spec (10 cases incl. axe-core a11y scan) exercises the real
+  popover algorithm.
+
 ### Changed
 
 - Density tokens now use the same shadcn-style leaf emission as the

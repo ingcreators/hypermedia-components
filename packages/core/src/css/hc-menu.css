@@ -1,0 +1,96 @@
+/* hc-menu — accessible dropdown menu (action menu pattern).
+ *
+ * Built on three modern primitives:
+ *   - the HTML `popover` attribute for show / hide, light dismiss,
+ *     and `Escape` to close;
+ *   - `popovertarget` on the trigger button for declarative open;
+ *   - CSS Anchor Positioning to anchor the menu below its trigger.
+ *
+ * For browsers that lack CSS Anchor Positioning, `installMenu()`
+ * falls back to JS positioning via `getBoundingClientRect` —
+ * `popover` itself only requires Chromium 114 / Firefox 125 /
+ * Safari 17, so the menu still opens and dismisses correctly there.
+ *
+ * Markup (installMenu wires the ARIA attributes and anchor name):
+ *
+ *   <button popovertarget="user-menu" id="user-menu-trigger">…</button>
+ *
+ *   <div class="hc-menu" id="user-menu" popover role="menu"
+ *        aria-labelledby="user-menu-trigger">
+ *     <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
+ *     <hr class="hc-menu__separator">
+ *     <button class="hc-menu__item" role="menuitem" type="button"
+ *             data-variant="error">Sign out</button>
+ *   </div>
+ */
+@layer hc.components {
+  .hc-menu {
+    margin: 0;
+    padding-block: var(--hc-menu-padding-block);
+    padding-inline: 0;
+    border: 1px solid var(--hc-menu-border);
+    border-radius: var(--hc-menu-radius);
+    background: var(--hc-menu-bg);
+    color: var(--hc-menu-fg);
+    min-inline-size: var(--hc-menu-min-width);
+    max-inline-size: var(--hc-menu-max-width);
+    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.12);
+  }
+
+  /* Anchor Positioning path. installMenu injects the matching
+   * `anchor-name` on the trigger and `position-anchor` on the menu,
+   * so the only thing left here is the offset + placement. Browsers
+   * without support land in the JS fallback inside installMenu. */
+  @supports (anchor-name: --x) {
+    .hc-menu {
+      position-area: block-end span-inline-end;
+      margin-block-start: var(--hc-menu-offset);
+    }
+  }
+
+  .hc-menu__item {
+    display: flex;
+    align-items: center;
+    gap: var(--hc-menu-item-gap);
+    inline-size: 100%;
+    padding-block: var(--hc-menu-item-padding-y);
+    padding-inline: var(--hc-menu-item-padding-x);
+    border: 0;
+    background: transparent;
+    color: var(--hc-menu-item-fg);
+    font-family: inherit;
+    font-size: var(--hc-menu-item-font-size);
+    font-weight: inherit;
+    line-height: 1.25;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hc-menu__item:hover:not(:disabled, [aria-disabled="true"]),
+  .hc-menu__item:focus-visible {
+    outline: none;
+    background: var(--hc-menu-item-hover-bg);
+  }
+
+  /* Destructive items (sign out, delete, …). Mirrors shadcn's
+   * destructive variant on MenuItem. */
+  .hc-menu__item[data-variant="error"] {
+    color: var(--hc-menu-item-error-fg);
+  }
+
+  .hc-menu__item:disabled,
+  .hc-menu__item[aria-disabled="true"] {
+    color: var(--hc-menu-item-disabled-fg);
+    cursor: not-allowed;
+  }
+
+  .hc-menu__separator {
+    block-size: 1px;
+    margin-block: var(--hc-menu-separator-margin-y);
+    margin-inline: 0;
+    border: 0;
+    background: var(--hc-menu-separator-color);
+  }
+}

@@ -270,6 +270,31 @@
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
     }
   },
+  "menu": {
+    "bg":             { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "fg":             { "$type": "color",     "$value": "{semantic.color.text}" },
+    "border":         { "$type": "color",     "$value": "{semantic.color.border}" },
+    "radius":         { "$type": "dimension", "$value": "{primitive.radius.md}" },
+    "padding-block":  { "$type": "dimension", "$value": "{primitive.space.1}" },
+    "min-width":      { "$type": "dimension", "$value": "10rem" },
+    "max-width":      { "$type": "dimension", "$value": "20rem" },
+    "offset":         { "$type": "dimension", "$value": "{primitive.space.1}" },
+    "item": {
+      "padding-x":    { "$type": "dimension",  "$value": "{primitive.space.3}" },
+      "padding-y":    { "$type": "dimension",  "$value": "{primitive.space.2}" },
+      "font-size":    { "$type": "dimension",  "$value": "{semantic.font.size-sm}" },
+      "gap":          { "$type": "dimension",  "$value": "{primitive.space.2}" },
+      "fg":           { "$type": "color",      "$value": "{semantic.color.text}" },
+      "hover-bg":     { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
+      "focus-bg":     { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
+      "disabled-fg":  { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+      "error-fg":     { "$type": "color",      "$value": "{semantic.color.error}" }
+    },
+    "separator": {
+      "color":        { "$type": "color",     "$value": "{semantic.color.border}" },
+      "margin-y":     { "$type": "dimension", "$value": "{primitive.space.1}" }
+    }
+  },
   "tabs": {
     "list": {
       "gap":    { "$type": "dimension", "$value": "{primitive.space.1}" },

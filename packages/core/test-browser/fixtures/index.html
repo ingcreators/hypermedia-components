@@ -263,6 +263,44 @@
     </div>
   </section>
 
+  <section id="section-menu" data-testid="section-menu">
+    <h2>Menu</h2>
+
+    <div style="display:flex; gap:1rem; align-items:flex-start;">
+      <button class="hc-button"
+              type="button"
+              popovertarget="account-menu"
+              id="account-menu-trigger"
+              data-testid="menu-trigger">
+        Account
+      </button>
+
+      <div class="hc-menu"
+           id="account-menu"
+           popover
+           role="menu"
+           aria-labelledby="account-menu-trigger"
+           data-testid="menu">
+        <button class="hc-menu__item" role="menuitem" type="button" data-testid="menu-item-profile">Profile</button>
+        <button class="hc-menu__item" role="menuitem" type="button" data-testid="menu-item-billing">Billing</button>
+        <button class="hc-menu__item" role="menuitem" type="button" aria-disabled="true" data-testid="menu-item-archived">Archived</button>
+        <hr class="hc-menu__separator">
+        <button class="hc-menu__item" role="menuitem" type="button"
+                data-variant="error" data-testid="menu-item-signout">Sign out</button>
+      </div>
+
+      <output data-testid="menu-selected"></output>
+    </div>
+
+    <script type="module">
+      const out = document.querySelector('[data-testid="menu-selected"]');
+      document.querySelector('[data-testid="menu"]').addEventListener('hc:menuselect', (e) => {
+        out.textContent = e.detail.item.textContent.trim();
+        out.setAttribute('data-selected', e.detail.item.textContent.trim());
+      });
+    </script>
+  </section>
+
   <section id="section-macros" data-testid="section-macros">
     <h2>Macros</h2>
 

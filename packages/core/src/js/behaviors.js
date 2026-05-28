@@ -13,6 +13,7 @@ import { installCloseDialog } from './close-dialog.js';
 import { installClosePopover } from './close-popover.js';
 import { installRemoteDialog } from './remote-dialog.js';
 import { installTabs } from './tabs.js';
+import { installMenu } from './menu.js';
 
 function init() {
   installConfirm();
@@ -21,6 +22,7 @@ function init() {
   installClosePopover();
   installRemoteDialog();
   installTabs();
+  installMenu();
 }
 
 if (typeof document !== 'undefined') {
@@ -38,4 +40,5 @@ export {
   installClosePopover,
   installRemoteDialog,
   installTabs,
+  installMenu,
 };

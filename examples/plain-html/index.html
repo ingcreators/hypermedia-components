@@ -206,6 +206,31 @@
   </section>
 
   <section>
+    <h2>Menu (component + behavior)</h2>
+    <div style="display:flex; gap:1rem; align-items:flex-start;">
+      <button class="hc-button" type="button"
+              popovertarget="example-account-menu"
+              id="example-account-trigger">Account</button>
+      <div class="hc-menu" id="example-account-menu" popover role="menu"
+           aria-labelledby="example-account-trigger">
+        <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
+        <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
+        <button class="hc-menu__item" role="menuitem" type="button" aria-disabled="true">Archived</button>
+        <hr class="hc-menu__separator">
+        <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Sign out</button>
+      </div>
+      <output id="example-menu-out" class="small"></output>
+    </div>
+    <script type="module">
+      document.getElementById('example-account-menu').addEventListener('hc:menuselect', (e) => {
+        document.getElementById('example-menu-out').textContent = 'Selected: ' + e.detail.item.textContent.trim();
+      });
+    </script>
+    <p class="small">↑/↓ for navigation, Home/End for first/last,
+      type a letter for type-ahead, Esc to close.</p>
+  </section>
+
+  <section>
     <h2>Tabs (component + behavior)</h2>
     <div class="hc-tabs">
       <div class="hc-tabs__list" role="tablist" aria-label="Account settings">
