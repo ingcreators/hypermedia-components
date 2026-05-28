@@ -1,0 +1,220 @@
+---
+title: htmx
+description: Shared htmx configuration — version, attribute style, CSRF, response headers, and the events the Hypermedia Components behaviors listen to. Every framework guide references this page rather than repeating the same notes.
+---
+
+Hypermedia Components is built around [htmx](https://htmx.org).
+The framework guides cover server-side glue; this page collects the
+htmx-side concerns that are the same regardless of which template
+engine you use.
+
+## Loading htmx
+
+htmx is a single ~30 KB minified+gzipped file. Drop it in the page
+before any markup that uses `data-hx-*` attributes:
+
+```html
+<script defer src="/assets/htmx.min.js"></script>
+```
+
+Pin a major version when you copy a release; htmx 2.x is the line we
+target.
+
+## `data-hx-*` over `hx-*`
+
+The Hypermedia Components docs prefer `data-hx-*` (the HTML5-compliant
+form) over `hx-*`. Both work — htmx supports either — but
+`data-hx-*` survives strict linters, validates against the HTML spec,
+and tends to round-trip cleanly through template engines that escape
+custom attributes.
+
+```html
+<!-- Preferred -->
+<button data-hx-post="/items">Save</button>
+
+<!-- Also valid -->
+<button hx-post="/items">Save</button>
+```
+
+Pick one and stay consistent within a project. Mixing inside the same
+markup is fine for htmx but harder to grep.
+
+## Configuration via `htmx:configRequest`
+
+`htmx:configRequest` fires once per request, before htmx serializes
+the form data and headers. It is the single most useful hook — every
+framework guide uses it for CSRF, and you can layer additional
+headers (auth, locale, feature flags) the same way.
+
+```html
+<script>
+  document.body.addEventListener('htmx:configRequest', (event) => {
+    // CSRF — the framework rendered the token into a <meta> tag.
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta) {
+      event.detail.headers['X-CSRF-Token'] = csrfMeta.content;
+    }
+
+    // Locale, feature flag, anything else…
+    event.detail.headers['Accept-Language'] = document.documentElement.lang;
+  });
+</script>
+```
+
+The framework guides spell out the exact header name each backend
+expects (`X-CSRFToken` for Django, `X-CSRF-Token` for Rails,
+`RequestVerificationToken` for ASP.NET Core, `X-XSRF-TOKEN` for
+Spring Security, …). Pick the right one for your stack — the hook is
+the same.
+
+### Per-page or per-request overrides
+
+For a one-off override (a header that should only travel with one
+button), use the `hx-headers` attribute instead. It accepts a JSON
+object and merges into the configured headers.
+
+```html
+<button
+  class="hc-button"
+  data-hx-post="/items"
+  hx-headers='{"X-Source":"hero"}'>
+  Save
+</button>
+```
+
+## Detecting htmx server-side
+
+Every htmx request sets `HX-Request: true`. Handlers branch on it to
+return either a full page (browser navigation) or just a fragment
+(an htmx swap):
+
+```text
+GET /items
+  HX-Request: true  → return rows fragment
+  (no header)       → return full page with layout + chrome
+```
+
+Each framework has an idiomatic way to test for the header — see the
+framework guide for snippets.
+
+## Response headers htmx understands
+
+htmx watches the response for a handful of headers that change how it
+processes the swap. Hypermedia Components uses three regularly:
+
+### `HX-Trigger` — dispatch events into the page
+
+Returns a JSON map of event-name → detail. htmx dispatches each event
+on `<body>` after the swap completes. This is how
+[the toast recipe](/hypermedia-components/recipes/toast/) ships a
+notification without coupling to a DOM location:
+
+```text
+HTTP/1.1 200 OK
+HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}
+```
+
+Multiple events in one response are comma-separated entries inside
+the JSON object:
+
+```text
+HX-Trigger: {"hc:toast":{"message":"Saved"}, "items:refresh":true}
+```
+
+### `HX-Reswap` — change the swap strategy
+
+```text
+HTTP/1.1 422 Unprocessable Entity
+HX-Reswap: outerHTML
+```
+
+Useful for validation responses where the original swap was
+`innerHTML` but the new HTML is a complete replacement.
+
+### `HX-Retarget` — change where the swap lands
+
+```text
+HTTP/1.1 500 Internal Server Error
+HX-Retarget: #flash
+HX-Reswap: innerHTML
+```
+
+Redirect the swap to a flash region when the original target would
+have hidden the error.
+
+## Events the HC behaviors listen for
+
+If you build the docs site or read the source, you'll notice that the
+behaviors hook into a small set of htmx events:
+
+| Event                | Used by                | What it triggers                                  |
+| -------------------- | ---------------------- | -------------------------------------------------- |
+| `htmx:afterRequest`  | `installCloseDialog` / `installClosePopover` | Close the closest `<dialog>` / `[popover]` on a successful response. |
+| `htmx:afterSwap`     | `installRemoteDialog`  | Open a `<dialog>` that just appeared inside a `[data-hc-remote-dialog-root]`. |
+| `hc:toast`           | `installToast`         | Render a toast into the region. (Not an htmx event, but htmx is usually the dispatcher via `HX-Trigger`.) |
+
+You generally don't have to interact with these directly; they're
+listed here for debugging and for projects that want to plug in their
+own htmx middleware.
+
+## Empty bodies are valid
+
+Many destructive endpoints return an empty body plus an `HX-Trigger`
+header:
+
+```text
+HTTP/1.1 200 OK
+HX-Trigger: {"hc:toast":{"message":"Deleted.","variant":"success"}}
+
+(empty body)
+```
+
+The client swap is typically `outerHTML` on the deleted row, so htmx
+removes the row regardless of body content — the body would have
+nothing to swap in anyway.
+
+## Indicators
+
+`data-hx-indicator` points at an element that should switch on while
+the request is in flight. The HC convention pairs it with a
+`.hc-spinner.htmx-indicator` inside a `.hc-action` wrapper — see the
+[`request-action` recipe](/hypermedia-components/recipes/request-action/)
+for the canonical shape.
+
+```html
+<span class="hc-action">
+  <button
+    class="hc-button"
+    data-hx-post="/items"
+    data-hx-target="#items"
+    data-hx-disabled-elt="this"
+    data-hx-indicator="closest .hc-action">
+    Save
+  </button>
+  <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+</span>
+```
+
+`hc.htmx.css` styles `.htmx-indicator` (hidden by default) and
+`.htmx-request` (the in-flight state), so the wiring is purely
+declarative.
+
+## Disabling controls during requests
+
+`data-hx-disabled-elt="this"` adds the native `disabled` attribute
+during the request. It prevents double-submits without any custom JS
+and pairs naturally with the spinner pattern above. For destructive
+actions, combine it with `data-hc-confirm` (the
+[`confirm-action` recipe](/hypermedia-components/recipes/confirm-action/)).
+
+## Related
+
+- [Plain HTML](/hypermedia-components/integrations/) — the simplest
+  asset layout (linked from the integrations index).
+- [Hyperscript](/hypermedia-components/integrations/hyperscript/) —
+  optional scripting language that pairs with htmx the same way HC's
+  behaviors do.
+- Framework guides — Thymeleaf, Django, Rails, Go, Razor — each
+  inherits the conventions above and adds the language-specific glue.
+- [htmx documentation](https://htmx.org/docs/) — the upstream
+  reference for every attribute and header listed here.

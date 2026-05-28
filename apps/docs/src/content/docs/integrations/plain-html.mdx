@@ -1,0 +1,187 @@
+---
+title: Plain HTML
+description: The simplest possible setup — copy the dist files into your server's static folder and reference them from a single HTML file. No bundler, no template engine, no framework.
+---
+
+Hypermedia Components is a static UI kit at heart: a CSS file, a small
+JS module, and an optional macros entry. The framework guides cover
+the template-engine-specific glue; this page covers the bare minimum
+for a project that is just shipping HTML.
+
+## What you need
+
+```text
+hc.css                # the bundled CSS (≈ 37 KB)
+hc.behaviors.js       # the bundled JS behaviors (≈ 6 KB)
+macros/index.js       # optional — only if you use the <hc-confirm-action> custom elements
+htmx.min.js           # bring your own copy (≈ 30 KB minified+gzipped)
+```
+
+You can get the first three by `npm install @hypermedia-components/core`
+and copying from `node_modules/@hypermedia-components/core/dist/`, or
+by downloading them from the
+[GitHub Releases](https://github.com/ingcreators/hypermedia-components/releases)
+once an alpha tag ships. htmx is downloaded from
+[htmx.org](https://htmx.org/docs/#installing).
+
+## File layout
+
+Any layout works as long as the URLs in your `<link>` and `<script>`
+tags resolve. A common shape:
+
+```text
+public/                     # or wwwroot/, static/, etc.
+  index.html
+  assets/
+    hc/
+      hc.css
+      hc.behaviors.js
+      macros/
+        index.js
+        confirm-action.js
+        live-search.js
+    htmx.min.js
+```
+
+## Minimal layout file
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My app</title>
+  <link rel="stylesheet" href="/assets/hc/hc.css">
+  <script defer src="/assets/htmx.min.js"></script>
+  <script type="module" src="/assets/hc/hc.behaviors.js"></script>
+</head>
+<body>
+  <main>
+    <!-- your content -->
+  </main>
+
+  <!-- One toast region near the end of body. -->
+  <div class="hc-toast-region"
+       data-hc-toast-region
+       role="region"
+       aria-label="Notifications"></div>
+</body>
+</html>
+```
+
+That is the entire integration. `hc.behaviors.js` self-installs the
+five default behaviors on `DOMContentLoaded` so `[data-hc-confirm]`,
+`hc:toast` events, and the various `data-hc-close-*` /
+`data-hc-remote-dialog-root` attributes work without any additional
+wiring.
+
+## A runnable example
+
+Below is a complete page that renders a button, sends a `POST /items`
+on click, and shows a toast on success. Save it as `index.html`, put
+the listed assets under `/assets/`, and open it in a browser (you'll
+need a tiny static server — `python -m http.server`, `npx serve`, or
+similar — because htmx makes XHR requests and most browsers block
+those for `file://`).
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>HC + htmx demo</title>
+  <link rel="stylesheet" href="/assets/hc/hc.css">
+  <script defer src="/assets/htmx.min.js"></script>
+  <script type="module" src="/assets/hc/hc.behaviors.js"></script>
+</head>
+<body style="padding: 2rem; max-inline-size: 32rem; margin: 0 auto;">
+
+  <h1>Hello hypermedia</h1>
+
+  <span class="hc-action">
+    <button
+      class="hc-button"
+      data-variant="primary"
+      type="button"
+      data-hx-post="/items"
+      data-hx-target="#items"
+      data-hx-disabled-elt="this"
+      data-hx-indicator="closest .hc-action">
+      Save
+    </button>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </span>
+
+  <ul id="items" style="margin-block-start: 1.5rem;"></ul>
+
+  <div class="hc-toast-region"
+       data-hc-toast-region
+       role="region"
+       aria-label="Notifications"></div>
+
+</body>
+</html>
+```
+
+For a richer playground (every component, every recipe, htmx round
+trips), clone the repo and run the
+[`examples/plain-html/`](https://github.com/ingcreators/hypermedia-components/tree/main/examples/plain-html)
+project — it is the same shape as above but with every component on
+display.
+
+## Theme switching
+
+`hc.tokens.css` already declares light and dark variants. Toggle them
+by setting `data-theme` on the `<html>` element:
+
+```html
+<html lang="en" data-theme="dark">…</html>
+```
+
+```js
+// One-liner toggle.
+document.documentElement.dataset.theme =
+  document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+```
+
+Persist the choice in `localStorage` if you want it to stick across
+visits.
+
+## Density
+
+`data-density` controls compactness the same way `data-theme` controls
+colours:
+
+```html
+<html data-density="compact">…</html>
+```
+
+Comfortable is the default. See
+[Tokens → Density](/hypermedia-components/tokens/density/) for the
+values and live preview.
+
+## Without htmx
+
+You can use the CSS components without htmx and without the JS
+behaviors. Buttons, inputs, fields, dialogs, popovers, alerts, badges,
+toolbars, pagination, and tables all render correctly from just
+`hc.css`. The interactivity layer is opt-in.
+
+```html
+<link rel="stylesheet" href="/assets/hc/hc.css">
+
+<button class="hc-button" data-variant="primary">Save</button>
+<input class="hc-input" type="text" placeholder="Search…">
+```
+
+The
+[Components section](/hypermedia-components/components/button/)
+documents every CSS-only component.
+
+## Related
+
+- [htmx integration](/hypermedia-components/integrations/htmx/) — htmx-specific configuration shared by every framework guide.
+- [Hyperscript integration](/hypermedia-components/integrations/hyperscript/) — opt-in scripting language alternative.
+- [Recipes](/hypermedia-components/recipes/request-action/) — concrete copy-paste patterns for the most common UI flows.
+- Framework guides — [Thymeleaf](/hypermedia-components/integrations/thymeleaf/), [Django](/hypermedia-components/integrations/django/), [Rails](/hypermedia-components/integrations/rails/), [Go](/hypermedia-components/integrations/go/), [Razor](/hypermedia-components/integrations/razor/).
