@@ -22,6 +22,37 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-menu` stateful items — `role="menuitemcheckbox"` and
+  `role="menuitemradio"`. Mirrors shadcn's `DropdownMenuCheckboxItem`
+  / `DropdownMenuRadioItem`:
+  - **Checkbox**: click toggles `aria-checked` between `true` and
+    `false`; multiple may be checked at once. Menu stays open so
+    users can toggle several without reopening.
+  - **Radio**: click sets this item's `aria-checked="true"` and
+    every sibling within the same `[role="group"]` to `"false"`.
+    Falls back to the menu container as the group when no explicit
+    `<div role="group">` wrapper is present. Menu also stays open.
+  - **`hc:menuselect.detail.checked`** carries the new boolean
+    state for checkbox / radio clicks (undefined for plain
+    `menuitem`).
+  - New `<span class="hc-menu__label">` element styles a small
+    muted heading above a group, pairable with `aria-labelledby` on
+    the surrounding `<div role="group">`.
+  - When the menu contains any checkable item, every item in it
+    gets a reserved indicator column on the left via CSS `:has()`,
+    so plain `menuitem`s align with the check / dot marker — no
+    markup changes needed. Indicators are inline SVG via
+    `background-image`, same pattern as `hc-checkbox` / `hc-radio`.
+
+  Vitest spec adds 6 cases (checkbox toggle stays open, radio
+  mutual-exclusion within group, plain `menuitem` still closes,
+  `detail.checked` semantics, arrow nav across all three roles).
+  Playwright spec adds 3 cases incl. the `::before` SVG indicator
+  computed-style assertion. New tokens
+  `menu.item.indicator-size` and the `menu.label.*` block, both
+  written as `{primitive.*}` / `{semantic.*}` refs so the existing
+  overlay machinery handles theming.
+
 - `hc-menu` edge-aware collision flipping. Menus opened near a
   viewport edge now flip to stay inside it instead of getting
   clipped — the missing piece that kept the MVP menu out of

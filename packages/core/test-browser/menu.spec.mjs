@@ -142,6 +142,44 @@ test.describe('hc-menu', () => {
     });
   });
 
+  test.describe('menuitemcheckbox + menuitemradio', () => {
+    test('checkbox click toggles aria-checked and keeps the menu open', async ({ page }) => {
+      const trigger = page.getByTestId('view-menu-trigger');
+      const menu = page.getByTestId('view-menu');
+      const sidebar = page.getByTestId('view-sidebar');
+
+      await trigger.click();
+      await expect(menu).toBeVisible();
+      await expect(sidebar).toHaveAttribute('aria-checked', 'false');
+
+      await sidebar.click();
+      await expect(sidebar).toHaveAttribute('aria-checked', 'true');
+      await expect(menu).toBeVisible(); // still open
+    });
+
+    test('radio click selects this item and clears every sibling in the same group', async ({ page }) => {
+      await page.getByTestId('view-menu-trigger').click();
+      await page.getByTestId('view-compact').click();
+
+      await expect(page.getByTestId('view-comfortable')).toHaveAttribute('aria-checked', 'false');
+      await expect(page.getByTestId('view-compact')).toHaveAttribute('aria-checked', 'true');
+      await expect(page.getByTestId('view-dense')).toHaveAttribute('aria-checked', 'false');
+
+      // The unrelated checkbox group above is untouched.
+      await expect(page.getByTestId('view-toolbar')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    test('checked items render the SVG indicator via the ::before pseudo-element', async ({ page }) => {
+      await page.getByTestId('view-menu-trigger').click();
+      const toolbar = page.getByTestId('view-toolbar');
+      // background-image is set on `::before` when aria-checked="true".
+      const bg = await toolbar.evaluate((el) =>
+        getComputedStyle(el, '::before').backgroundImage,
+      );
+      expect(bg).toContain('svg');
+    });
+  });
+
   test('axe finds no violations in the menu section (open state)', async ({ page }) => {
     await page.getByTestId('menu-trigger').click();
     const results = await new AxeBuilder({ page })

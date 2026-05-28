@@ -288,7 +288,15 @@
       "hover-bg":     { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
       "focus-bg":     { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
       "disabled-fg":  { "$type": "color",      "$value": "{semantic.color.text-muted}" },
-      "error-fg":     { "$type": "color",      "$value": "{semantic.color.error}" }
+      "error-fg":     { "$type": "color",      "$value": "{semantic.color.error}" },
+      "indicator-size": { "$type": "dimension", "$value": "1rem" }
+    },
+    "label": {
+      "padding-x":    { "$type": "dimension",  "$value": "{primitive.space.3}" },
+      "padding-y":    { "$type": "dimension",  "$value": "{primitive.space.1}" },
+      "font-size":    { "$type": "dimension",  "$value": "{semantic.font.size-sm}" },
+      "font-weight":  { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
+      "fg":           { "$type": "color",      "$value": "{semantic.color.text-muted}" }
     },
     "separator": {
       "color":        { "$type": "color",     "$value": "{semantic.color.border}" },

@@ -132,6 +132,118 @@ describe('installMenu', () => {
     CSS.supports = origSupports;
   });
 
+  describe('menuitemcheckbox / menuitemradio', () => {
+    const CHECKABLE = `
+      <button id="trigger" type="button" popovertarget="m2">Open</button>
+      <div id="m2" class="hc-menu" popover role="menu" aria-labelledby="trigger">
+        <button id="cmd-refresh" class="hc-menu__item" role="menuitem" type="button">Refresh</button>
+        <hr class="hc-menu__separator">
+        <div role="group" aria-labelledby="show-label">
+          <span class="hc-menu__label" id="show-label">Show</span>
+          <button id="cb-toolbar" class="hc-menu__item" role="menuitemcheckbox" type="button" aria-checked="true">Toolbar</button>
+          <button id="cb-sidebar" class="hc-menu__item" role="menuitemcheckbox" type="button" aria-checked="false">Sidebar</button>
+        </div>
+        <hr class="hc-menu__separator">
+        <div role="group" aria-labelledby="dens-label">
+          <span class="hc-menu__label" id="dens-label">Density</span>
+          <button id="r-comfortable" class="hc-menu__item" role="menuitemradio" type="button" aria-checked="true">Comfortable</button>
+          <button id="r-compact" class="hc-menu__item" role="menuitemradio" type="button" aria-checked="false">Compact</button>
+          <button id="r-dense" class="hc-menu__item" role="menuitemradio" type="button" aria-checked="false">Dense</button>
+        </div>
+      </div>
+    `;
+
+    function click(el) {
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    }
+
+    it('checkbox click toggles aria-checked and does NOT close the menu', () => {
+      document.body.innerHTML = CHECKABLE;
+      uninstall = installMenu();
+      const menu = document.getElementById('m2');
+      const closed = vi.spyOn(menu, 'hidePopover');
+      const sidebar = document.getElementById('cb-sidebar');
+      const toolbar = document.getElementById('cb-toolbar');
+
+      // false → true
+      click(sidebar);
+      expect(sidebar.getAttribute('aria-checked')).toBe('true');
+      // true → false (independent of sidebar)
+      click(toolbar);
+      expect(toolbar.getAttribute('aria-checked')).toBe('false');
+      expect(sidebar.getAttribute('aria-checked')).toBe('true');
+
+      expect(closed).not.toHaveBeenCalled();
+    });
+
+    it('radio click selects this item and unselects every sibling in the same group', () => {
+      document.body.innerHTML = CHECKABLE;
+      uninstall = installMenu();
+      const comfortable = document.getElementById('r-comfortable');
+      const compact = document.getElementById('r-compact');
+      const dense = document.getElementById('r-dense');
+
+      click(compact);
+      expect(compact.getAttribute('aria-checked')).toBe('true');
+      expect(comfortable.getAttribute('aria-checked')).toBe('false');
+      expect(dense.getAttribute('aria-checked')).toBe('false');
+
+      // Does not touch the unrelated checkbox group above.
+      expect(document.getElementById('cb-toolbar').getAttribute('aria-checked')).toBe('true');
+    });
+
+    it('radio click does NOT close the menu', () => {
+      document.body.innerHTML = CHECKABLE;
+      uninstall = installMenu();
+      const menu = document.getElementById('m2');
+      const closed = vi.spyOn(menu, 'hidePopover');
+      click(document.getElementById('r-compact'));
+      expect(closed).not.toHaveBeenCalled();
+    });
+
+    it('plain menuitem click still closes the menu', () => {
+      document.body.innerHTML = CHECKABLE;
+      uninstall = installMenu();
+      const menu = document.getElementById('m2');
+      const closed = vi.spyOn(menu, 'hidePopover');
+      click(document.getElementById('cmd-refresh'));
+      expect(closed).toHaveBeenCalledTimes(1);
+    });
+
+    it('hc:menuselect detail carries the new checked state for checkbox / radio, undefined for menuitem', () => {
+      document.body.innerHTML = CHECKABLE;
+      uninstall = installMenu();
+
+      const events = [];
+      document.body.addEventListener('hc:menuselect', (e) => events.push(e.detail));
+
+      click(document.getElementById('cb-sidebar'));     // false → true
+      click(document.getElementById('cb-toolbar'));     // true → false
+      click(document.getElementById('r-compact'));      // → true
+      click(document.getElementById('cmd-refresh'));    // plain — no change
+
+      expect(events[0].checked).toBe(true);
+      expect(events[1].checked).toBe(false);
+      expect(events[2].checked).toBe(true);
+      expect(events[3].checked).toBeUndefined();
+    });
+
+    it('arrow key navigation traverses checkbox / radio items in document order', () => {
+      document.body.innerHTML = CHECKABLE;
+      uninstall = installMenu();
+      const menu = document.getElementById('m2');
+      menu.setAttribute('data-open-stub', '');
+
+      document.getElementById('cmd-refresh').focus();
+      press(menu, 'ArrowDown');
+      expect(document.activeElement.id).toBe('cb-toolbar');
+      press(menu, 'ArrowDown');
+      expect(document.activeElement.id).toBe('cb-sidebar');
+      press(menu, 'ArrowDown');
+      expect(document.activeElement.id).toBe('r-comfortable');
+    });
+  });
+
   describe('JS positioning fallback — collision flipping', () => {
     // Stub viewport + getBoundingClientRect to drive the fallback
     // through every flip combination. Mirrors the

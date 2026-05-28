@@ -86,6 +86,92 @@ installMenu();
   custom event whose `detail` carries `{ item, menu, trigger }`,
   then closes the menu via `hidePopover()`.
 
+## Stateful items (checkbox + radio)
+
+Two additional ARIA roles let menu items carry state instead of
+firing a one-shot action:
+
+- `role="menuitemcheckbox"` — independent on/off, multiple may be
+  checked at once. Click toggles `aria-checked`.
+- `role="menuitemradio"` — mutually exclusive within a group. Click
+  sets this item's `aria-checked="true"` and every sibling's to
+  `"false"`. The group boundary is the nearest `[role="group"]`
+  ancestor, falling back to the menu itself.
+
+Both keep the menu open on click (shadcn / Radix convention — users
+typically toggle multiple options without reopening). The
+`hc:menuselect` event still fires; its `detail.checked` carries the
+new boolean state.
+
+The `<span class="hc-menu__label">` element renders a small muted
+heading above a group; pair it with `aria-labelledby` on the
+surrounding `<div role="group">`.
+
+<div class="hc-preview not-content">
+  <button class="hc-button" type="button" popovertarget="doc-view-menu" id="doc-view-trigger">
+    View
+  </button>
+
+  <div class="hc-menu" id="doc-view-menu" popover role="menu" aria-labelledby="doc-view-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Refresh</button>
+    <hr class="hc-menu__separator" />
+    <div role="group" aria-labelledby="doc-view-show-label">
+      <span class="hc-menu__label" id="doc-view-show-label">Show</span>
+      <button class="hc-menu__item" role="menuitemcheckbox" type="button" aria-checked="true">Toolbar</button>
+      <button class="hc-menu__item" role="menuitemcheckbox" type="button" aria-checked="false">Sidebar</button>
+    </div>
+    <hr class="hc-menu__separator" />
+    <div role="group" aria-labelledby="doc-view-density-label">
+      <span class="hc-menu__label" id="doc-view-density-label">Density</span>
+      <button class="hc-menu__item" role="menuitemradio" type="button" aria-checked="true">Comfortable</button>
+      <button class="hc-menu__item" role="menuitemradio" type="button" aria-checked="false">Compact</button>
+      <button class="hc-menu__item" role="menuitemradio" type="button" aria-checked="false">Dense</button>
+    </div>
+  </div>
+</div>
+
+```html
+<div class="hc-menu" id="view-menu" popover role="menu"
+     aria-labelledby="view-menu-trigger">
+  <button class="hc-menu__item" role="menuitem" type="button">Refresh</button>
+
+  <hr class="hc-menu__separator">
+
+  <div role="group" aria-labelledby="view-show-label">
+    <span class="hc-menu__label" id="view-show-label">Show</span>
+    <button class="hc-menu__item" role="menuitemcheckbox" type="button"
+            aria-checked="true">Toolbar</button>
+    <button class="hc-menu__item" role="menuitemcheckbox" type="button"
+            aria-checked="false">Sidebar</button>
+  </div>
+
+  <hr class="hc-menu__separator">
+
+  <div role="group" aria-labelledby="view-density-label">
+    <span class="hc-menu__label" id="view-density-label">Density</span>
+    <button class="hc-menu__item" role="menuitemradio" type="button"
+            aria-checked="true">Comfortable</button>
+    <button class="hc-menu__item" role="menuitemradio" type="button"
+            aria-checked="false">Compact</button>
+    <button class="hc-menu__item" role="menuitemradio" type="button"
+            aria-checked="false">Dense</button>
+  </div>
+</div>
+```
+
+```js
+document.getElementById('view-menu').addEventListener('hc:menuselect', (e) => {
+  const { item, checked } = e.detail;
+  console.log(item.textContent.trim(), '→', checked);
+  // e.g. 'Sidebar → true'
+});
+```
+
+When the menu contains **any** checkbox or radio item, every item in
+the menu gets a reserved indicator column on the left so plain
+`menuitem`s align with the check / dot marker. The column is enabled
+purely via CSS `:has()` — no markup changes needed.
+
 ## Destructive items
 
 Mirroring shadcn's destructive variant, `data-variant="error"` on a
@@ -147,6 +233,8 @@ Component tokens (in `component.tokens.json`):
 | `menu.item.padding-x` / `padding-y` / `font-size` / `gap` | Item layout. |
 | `menu.item.fg` / `hover-bg` / `focus-bg` / `disabled-fg` | Item states. |
 | `menu.item.error-fg` | `data-variant="error"` foreground. |
+| `menu.item.indicator-size` | Size of the check / dot column. |
+| `menu.label.padding-x` / `padding-y` / `font-size` / `font-weight` / `fg` | `<span class="hc-menu__label">` group heading. |
 | `menu.separator.color` / `margin-y` | `<hr class="hc-menu__separator">`. |
 
 ## CSS variables
@@ -156,7 +244,8 @@ Component tokens (in `component.tokens.json`):
 --hc-menu-min-width | -max-width | -offset
 --hc-menu-item-padding-x | -padding-y | -font-size | -gap
 --hc-menu-item-fg | -hover-bg | -focus-bg | -disabled-fg
---hc-menu-item-error-fg
+--hc-menu-item-error-fg | -indicator-size
+--hc-menu-label-padding-x | -padding-y | -font-size | -font-weight | -fg
 --hc-menu-separator-color | -margin-y
 --hc-color-focus-ring   (inherited from data-color)
 ```

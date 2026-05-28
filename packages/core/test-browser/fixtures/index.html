@@ -179,6 +179,48 @@
     </fieldset>
   </section>
 
+  <section id="section-menu-stateful" data-testid="section-menu-stateful">
+    <h2>Menu (checkbox + radio)</h2>
+
+    <div style="display:flex; gap:1rem; align-items:flex-start;">
+      <button class="hc-button"
+              type="button"
+              popovertarget="view-menu"
+              id="view-menu-trigger"
+              data-testid="view-menu-trigger">
+        View
+      </button>
+
+      <div class="hc-menu"
+           id="view-menu"
+           popover
+           role="menu"
+           aria-labelledby="view-menu-trigger"
+           data-testid="view-menu">
+        <button class="hc-menu__item" role="menuitem" type="button"
+                data-testid="view-refresh">Refresh</button>
+        <hr class="hc-menu__separator">
+        <div role="group" aria-labelledby="view-show-label">
+          <span class="hc-menu__label" id="view-show-label">Show</span>
+          <button class="hc-menu__item" role="menuitemcheckbox" type="button"
+                  aria-checked="true" data-testid="view-toolbar">Toolbar</button>
+          <button class="hc-menu__item" role="menuitemcheckbox" type="button"
+                  aria-checked="false" data-testid="view-sidebar">Sidebar</button>
+        </div>
+        <hr class="hc-menu__separator">
+        <div role="group" aria-labelledby="view-density-label">
+          <span class="hc-menu__label" id="view-density-label">Density</span>
+          <button class="hc-menu__item" role="menuitemradio" type="button"
+                  aria-checked="true" data-testid="view-comfortable">Comfortable</button>
+          <button class="hc-menu__item" role="menuitemradio" type="button"
+                  aria-checked="false" data-testid="view-compact">Compact</button>
+          <button class="hc-menu__item" role="menuitemradio" type="button"
+                  aria-checked="false" data-testid="view-dense">Dense</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="section-tabs" data-testid="section-tabs">
     <h2>Tabs</h2>
 

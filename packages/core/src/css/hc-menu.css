@@ -59,6 +59,7 @@
   }
 
   .hc-menu__item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--hc-menu-item-gap);
@@ -76,6 +77,71 @@
     text-decoration: none;
     cursor: pointer;
     user-select: none;
+  }
+
+  /* When the menu contains any checkable item, reserve a left
+   * indicator column on every item so plain menuitems align with
+   * the checked / unchecked marker. `:has()` is supported in every
+   * browser that supports `popover`. */
+  .hc-menu:has([role="menuitemcheckbox"], [role="menuitemradio"]) .hc-menu__item {
+    padding-inline-start:
+      calc(
+        var(--hc-menu-item-padding-x)
+        + var(--hc-menu-item-indicator-size)
+        + var(--hc-menu-item-gap)
+      );
+  }
+
+  /* Indicator slot — empty for plain menuitems, filled with a check
+   * / dot when the role is menuitemcheckbox / menuitemradio AND
+   * aria-checked="true". Same `background-image` data-URI pattern
+   * used by hc-checkbox / hc-radio. */
+  .hc-menu__item[role="menuitemcheckbox"]::before,
+  .hc-menu__item[role="menuitemradio"]::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: var(--hc-menu-item-padding-x);
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    inline-size: var(--hc-menu-item-indicator-size);
+    block-size: var(--hc-menu-item-indicator-size);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hc-menu__item[role="menuitemcheckbox"][aria-checked="true"]::before {
+    opacity: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M3.5 8.5 L7 12 L12.5 5'/></svg>");
+  }
+
+  .hc-menu__item[role="menuitemradio"][aria-checked="true"]::before {
+    opacity: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='3' fill='currentColor'/></svg>");
+  }
+
+  /* Group label — a small muted heading above a cluster of items. */
+  .hc-menu__label {
+    display: block;
+    padding-block: var(--hc-menu-label-padding-y);
+    padding-inline: var(--hc-menu-label-padding-x);
+    color: var(--hc-menu-label-fg);
+    font-size: var(--hc-menu-label-font-size);
+    font-weight: var(--hc-menu-label-font-weight);
+    line-height: 1.25;
+  }
+
+  /* When the menu reserves an indicator column, push the label to
+   * match so it lines up with item text. */
+  .hc-menu:has([role="menuitemcheckbox"], [role="menuitemradio"]) .hc-menu__label {
+    padding-inline-start:
+      calc(
+        var(--hc-menu-label-padding-x)
+        + var(--hc-menu-item-indicator-size)
+        + var(--hc-menu-item-gap)
+      );
   }
 
   .hc-menu__item:hover:not(:disabled, [aria-disabled="true"]),
