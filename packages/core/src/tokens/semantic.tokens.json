@@ -32,6 +32,9 @@
         "bg":     { "$type": "color", "$value": "{primitive.color.gray.200}" },
         "border": { "$type": "color", "$value": "{primitive.color.gray.200}" }
       },
+      "primary-soft": {
+        "bg": { "$type": "color", "$value": "color-mix(in srgb, {primitive.color.blue.600} 12%, transparent)" }
+      },
       "error": {
         "bg":     { "$type": "color", "$value": "{primitive.color.red.600}" },
         "fg":     { "$type": "color", "$value": "{primitive.color.white}" },

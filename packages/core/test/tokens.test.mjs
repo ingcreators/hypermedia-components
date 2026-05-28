@@ -229,4 +229,87 @@ describe('buildTokensCss', () => {
     });
     expect(css).toContain('--hc-field-label-font-size: 0.875rem;');
   });
+
+  describe('runtime theme overlay (shadcn-style leaf emission)', () => {
+    // Re-emitting theme-dependent component leaves inside each
+    // [data-color] / [data-density] block is the fix for the CSS
+    // custom-property "eager substitution" trap: a component token
+    // like `--hc-button-primary-bg: var(--hc-color-action-primary-bg)`
+    // declared once on :root has its var() resolved at :root and is
+    // then inherited as a frozen colour, so a nested wrapper that
+    // redefines `--hc-color-action-primary-bg` cannot recolour
+    // buttons inside it. By emitting leaves in each themed block we
+    // sidestep var() indirection entirely — matches how shadcn / Radix
+    // emit `--card`, `--sidebar-primary`, etc.
+    const SOURCES_WITH_THEMES = [
+      { namespace: 'primitive', emit: false },
+      { namespace: 'semantic',  selector: ':root' },
+      { namespace: 'component', selector: ':root' },
+      { namespace: 'color.default', selector: ':root, [data-color="default"]' },
+      { namespace: 'color.indigo',  selector: '[data-color="indigo"]' },
+    ];
+
+    const TREES_WITH_THEMES = {
+      primitive: {
+        color: {
+          blue:   { '600': { $type: 'color', $value: '#2563eb' } },
+          indigo: { '600': { $type: 'color', $value: '#4f46e5' } },
+          gray:   { '100': { $type: 'color', $value: '#f3f4f6' }, '900': { $type: 'color', $value: '#111827' } },
+        },
+      },
+      semantic: {
+        color: {
+          action: {
+            primary:   { bg: { $type: 'color', $value: '{primitive.color.blue.600}' } },
+            secondary: { bg: { $type: 'color', $value: '{primitive.color.gray.100}' } },
+          },
+        },
+      },
+      component: {
+        button: {
+          primary:   { bg: { $type: 'color', $value: '{semantic.color.action.primary.bg}' } },
+          secondary: { bg: { $type: 'color', $value: '{semantic.color.action.secondary.bg}' } },
+        },
+      },
+      'color.default': {
+        color: { action: { primary: { bg: { $type: 'color', $value: '{primitive.color.blue.600}' } } } },
+      },
+      'color.indigo': {
+        color: { action: { primary: { bg: { $type: 'color', $value: '{primitive.color.indigo.600}' } } } },
+      },
+    };
+
+    it('emits a theme-dependent component leaf inside every [data-color] block with that theme resolved value', () => {
+      const { css } = buildTokensCss({ sources: SOURCES_WITH_THEMES, trees: TREES_WITH_THEMES });
+
+      // Default block resolves --hc-button-primary-bg through color.default → blue.
+      expect(css).toMatch(/:root, \[data-color="default"\]\s*\{[^}]*--hc-button-primary-bg:\s*#2563eb;/);
+      // Indigo block re-emits it with the indigo theme overlay applied.
+      expect(css).toMatch(/\[data-color="indigo"\]\s*\{[^}]*--hc-button-primary-bg:\s*#4f46e5;/);
+    });
+
+    it('does NOT emit theme-dependent leaves in the bare :root component block', () => {
+      const { css } = buildTokensCss({ sources: SOURCES_WITH_THEMES, trees: TREES_WITH_THEMES });
+      // Walk every selector block; ensure no plain :root block
+      // (without any data-color attribute) lists --hc-button-primary-bg.
+      const blocks = [...css.matchAll(/(?<selector>[^{}\n]+)\s*\{(?<body>[^}]*)\}/g)];
+      for (const { groups } of blocks) {
+        const selector = groups.selector.trim();
+        if (/data-color|data-density|data-theme/.test(selector)) continue;
+        expect(groups.body).not.toContain('--hc-button-primary-bg');
+      }
+      // The theme-independent component leaf still appears somewhere.
+      expect(css).toContain('--hc-button-secondary-bg: #f3f4f6;');
+    });
+
+    it('skips emitting non-themed component leaves inside themed blocks', () => {
+      const { css } = buildTokensCss({ sources: SOURCES_WITH_THEMES, trees: TREES_WITH_THEMES });
+      // The indigo block contains the themed primary bg…
+      const indigoBlock = css.match(/\[data-color="indigo"\]\s*\{[^}]+\}/)?.[0] ?? '';
+      expect(indigoBlock).toContain('--hc-button-primary-bg');
+      // …but not button.secondary (which doesn't depend on any colour
+      // theme key).
+      expect(indigoBlock).not.toContain('--hc-button-secondary-bg');
+    });
+  });
 });
