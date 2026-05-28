@@ -206,6 +206,24 @@
   </section>
 
   <section>
+    <h2>Tooltip (component + behavior)</h2>
+    <div style="display:flex; gap:1rem; align-items:center;">
+      <button class="hc-button" type="button" aria-describedby="example-save-tip">
+        <span aria-hidden="true">💾</span> Save
+      </button>
+      <div class="hc-tooltip" id="example-save-tip">Save document (Ctrl+S)</div>
+
+      <button class="hc-button" type="button" aria-describedby="example-delete-tip"
+              data-variant="error">
+        <span aria-hidden="true">🗑️</span> Delete
+      </button>
+      <div class="hc-tooltip" id="example-delete-tip">Move to trash</div>
+    </div>
+    <p class="small">Hover or focus the button. Tooltip shows after 300 ms on hover,
+      immediately on focus. Press Esc to dismiss while focused.</p>
+  </section>
+
+  <section>
     <h2>Menu (component + behavior)</h2>
     <div style="display:flex; gap:1rem; align-items:flex-start;">
       <button class="hc-button" type="button"

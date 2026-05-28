@@ -1,0 +1,139 @@
+---
+title: Tooltip
+description: Short, transient text label that appears on hover or focus, built on the native popover attribute and CSS Anchor Positioning.
+---
+
+`hc-tooltip` styles a `popover` element as a small label that
+describes its trigger. The trigger references the tooltip via
+`aria-describedby` so screen readers announce the description when
+the trigger receives focus; `installTooltip()` then handles the
+visual show / hide on hover, focus, and `Escape`.
+
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+Browsers without Anchor Positioning fall back to a
+`getBoundingClientRect`-based positioning hook so the tooltip still
+appears above the trigger. Tooltips remain functional everywhere
+`popover` is supported.
+
+We use `popover="manual"` rather than the newer
+[`popover="hint"`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover#hint)
+because Safari had no `hint` support as of 2026-05. `manual` + JS
+toggling matches the `hint` semantics — separate tooltips coexist
+without dismissing each other — in every browser that supports
+`popover` at all.
+
+## Basic example
+
+<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+  <button class="hc-button" type="button" aria-describedby="doc-save-tip">
+    <span aria-hidden="true">💾</span>
+    <span>Save</span>
+  </button>
+  <div class="hc-tooltip" id="doc-save-tip">Save document (Ctrl+S)</div>
+
+  <button class="hc-button" type="button" aria-describedby="doc-delete-tip" data-variant="error">
+    <span aria-hidden="true">🗑️</span>
+    <span>Delete</span>
+  </button>
+  <div class="hc-tooltip" id="doc-delete-tip">Move to trash</div>
+</div>
+
+```html
+<button class="hc-button" type="button" aria-describedby="save-tip">
+  <span aria-hidden="true">💾</span>
+  <span>Save</span>
+</button>
+
+<div class="hc-tooltip" id="save-tip">
+  Save document (Ctrl+S)
+</div>
+```
+
+```js
+import { installTooltip } from '@hypermedia-components/core';
+installTooltip();
+```
+
+## What `installTooltip()` does
+
+- Auto-attributes the tooltip element if the author has not:
+  `popover="manual"` (full JS control of show / hide) and
+  `role="tooltip"` (screen-reader semantics).
+- Wires every trigger that references the tooltip via
+  `aria-describedby` — one tooltip can serve multiple triggers.
+- Injects matching `anchor-name` (on the active trigger) and
+  `position-anchor` (on the tooltip) so the tooltip lands above the
+  trigger via CSS Anchor Positioning. Re-binds the anchor when a
+  different shared trigger is hovered / focused.
+- Show / hide timing:
+  - `mouseenter` → show after a **300 ms** delay (industry-standard
+    "intent to hover" threshold).
+  - `mouseleave` → hide after a **100 ms** grace period (cancels a
+    pending show if it fires during the delay).
+  - `focus` → show **immediately** (no delay for keyboard users —
+    APG guidance).
+  - `blur` → hide immediately.
+  - `Escape` while focused → hide without moving focus.
+
+## Use a real description, not the `title` attribute
+
+The browser's native tooltip rendered from the `title` attribute
+cannot be styled, behaves inconsistently across platforms, and does
+not appear on touch devices. Prefer the `hc-tooltip` +
+`aria-describedby` pattern. If you must keep a `title`, the behavior
+won't conflict — but the browser will render its own tooltip on top
+of yours, so remove it.
+
+## Accessibility
+
+- Always reference the tooltip from its trigger via
+  `aria-describedby="<tooltip-id>"`. Screen readers will announce the
+  tooltip text when the trigger gains focus, regardless of whether
+  the visual tooltip is currently rendered.
+- Tooltips are for **short text labels only**. If you need
+  interactive content (buttons, form fields), use
+  [Popover](/hypermedia-components/components/popover/) or
+  [Dialog](/hypermedia-components/components/dialog/) instead. The
+  tooltip surface is `pointer-events: none` so it cannot intercept
+  clicks.
+- The tooltip must remain reachable while the trigger keeps focus —
+  do not hide it on a timer. The behavior does not auto-dismiss
+  while focus is held; only `Escape`, `blur`, or `mouseleave` close
+  it.
+- Touch devices have no hover event. The behavior does not poly-fill
+  long-press → show; design with the assumption that the trigger's
+  accessible name carries the essential meaning, and the tooltip
+  augments it.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `tooltip.bg` / `fg` | Surface and text colour. Defaults to dark on light per the convention. |
+| `tooltip.radius` | Corner radius. |
+| `tooltip.padding-x` / `padding-y` | Inner padding. |
+| `tooltip.font-size` | Text size. |
+| `tooltip.max-width` | Cap before wrapping. |
+| `tooltip.offset` | Distance between the trigger and the tooltip. |
+
+## CSS variables
+
+```text
+--hc-tooltip-bg | -fg | -radius
+--hc-tooltip-padding-x | -padding-y | -font-size
+--hc-tooltip-max-width | -offset
+```
+
+## Related
+
+- [Popover](/hypermedia-components/components/popover/) — bare popover surface for richer transient content.
+- [Menu](/hypermedia-components/components/menu/) — action menu sharing the popover + anchor positioning architecture.
+- [Dialog](/hypermedia-components/components/dialog/) — modal alternative.

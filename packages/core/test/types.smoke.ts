@@ -17,6 +17,7 @@ import {
   installRemoteDialog,
   installTabs,
   installMenu,
+  installTooltip,
   version,
 } from '@hypermedia-components/core';
 
@@ -28,6 +29,7 @@ import {
   installRemoteDialog as installRemoteDialogFromBehaviors,
   installTabs as installTabsFromBehaviors,
   installMenu as installMenuFromBehaviors,
+  installTooltip as installTooltipFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -43,6 +45,7 @@ const uninstallers: Array<() => void> = [
   installRemoteDialog(),
   installTabs(document),
   installMenu(document),
+  installTooltip(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -50,6 +53,7 @@ const uninstallers: Array<() => void> = [
   installRemoteDialogFromBehaviors(),
   installTabsFromBehaviors(),
   installMenuFromBehaviors(),
+  installTooltipFromBehaviors(),
 ];
 
 // `version` is a string literal export.

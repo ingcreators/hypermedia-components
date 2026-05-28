@@ -179,6 +179,24 @@
     </fieldset>
   </section>
 
+  <section id="section-tooltip" data-testid="section-tooltip">
+    <h2>Tooltip</h2>
+    <div style="display:flex; gap:1rem; align-items:center;">
+      <button class="hc-button" type="button" aria-describedby="save-tip" data-testid="tt-save">
+        <span aria-hidden="true">💾</span>
+        <span>Save</span>
+      </button>
+      <div class="hc-tooltip" id="save-tip" data-testid="tt-save-tip">Save document</div>
+
+      <button class="hc-button" type="button" aria-describedby="del-tip"
+              data-variant="error" data-testid="tt-delete">
+        <span aria-hidden="true">🗑️</span>
+        <span>Delete</span>
+      </button>
+      <div class="hc-tooltip" id="del-tip" data-testid="tt-del-tip">Move to trash</div>
+    </div>
+  </section>
+
   <section id="section-menu-stateful" data-testid="section-menu-stateful">
     <h2>Menu (checkbox + radio)</h2>
 
