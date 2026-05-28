@@ -1,0 +1,56 @@
+/* hc-tooltip — short, transient text label for a trigger.
+ *
+ * Built on `popover="manual"` + CSS Anchor Positioning. The
+ * behavior (installTooltip) auto-sets `popover="manual"` and
+ * `role="tooltip"` on every `.hc-tooltip`, and toggles it via
+ * `showPopover()` / `hidePopover()` from hover and focus on
+ * triggers that reference the tooltip via `aria-describedby`.
+ *
+ * Markup:
+ *
+ *   <button class="hc-button" aria-describedby="save-tip">…</button>
+ *
+ *   <div class="hc-tooltip" id="save-tip">Save document</div>
+ *
+ * We deliberately avoid `popover="hint"` for now — its semantic is
+ * the right fit (does not close other auto popovers), but Safari
+ * had no support as of 2026-05. `popover="manual"` + JS toggling
+ * achieves the same coexistence in every browser that supports
+ * `popover` at all.
+ */
+@layer hc.components {
+  .hc-tooltip {
+    margin: 0;
+    padding-block: var(--hc-tooltip-padding-y);
+    padding-inline: var(--hc-tooltip-padding-x);
+    border: 0;
+    border-radius: var(--hc-tooltip-radius);
+    background: var(--hc-tooltip-bg);
+    color: var(--hc-tooltip-fg);
+    font-family: inherit;
+    font-size: var(--hc-tooltip-font-size);
+    line-height: 1.4;
+
+    /* Sized by content, capped by max-width. */
+    inline-size: max-content;
+    max-inline-size: var(--hc-tooltip-max-width);
+
+    /* Tooltips never participate in pointer events. The user's
+     * cursor stays on the trigger; if it crossed onto the tooltip
+     * mouseleave would fire on the trigger and the tooltip would
+     * dismiss itself out from under the pointer. */
+    pointer-events: none;
+  }
+
+  @supports (anchor-name: --x) {
+    .hc-tooltip {
+      /* Default placement: above the trigger. Matches shadcn's
+       * Tooltip default side. */
+      position-area: block-start;
+      margin-block-end: var(--hc-tooltip-offset);
+
+      /* Flip below if the tooltip would overflow the top edge. */
+      position-try-fallbacks: flip-block;
+    }
+  }
+}

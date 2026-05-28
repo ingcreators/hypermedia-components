@@ -39,6 +39,7 @@ const COMPONENTS = [
   'hc-pagination.css',
   'hc-tabs.css',
   'hc-menu.css',
+  'hc-tooltip.css',
 ];
 
 async function read(file) {

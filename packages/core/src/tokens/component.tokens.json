@@ -270,6 +270,16 @@
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
     }
   },
+  "tooltip": {
+    "bg":        { "$type": "color",     "$value": "{primitive.color.gray.900}" },
+    "fg":        { "$type": "color",     "$value": "{primitive.color.white}" },
+    "radius":    { "$type": "dimension", "$value": "{primitive.radius.sm}" },
+    "padding-x": { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "padding-y": { "$type": "dimension", "$value": "{primitive.space.1}" },
+    "font-size": { "$type": "dimension", "$value": "{semantic.font.size-sm}" },
+    "max-width": { "$type": "dimension", "$value": "20rem" },
+    "offset":    { "$type": "dimension", "$value": "{primitive.space.1}" }
+  },
   "menu": {
     "bg":             { "$type": "color",     "$value": "{semantic.color.surface}" },
     "fg":             { "$type": "color",     "$value": "{semantic.color.text}" },

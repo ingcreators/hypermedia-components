@@ -22,6 +22,38 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-tooltip` component + `installTooltip` behavior. Short, transient
+  text label bound to a trigger via `aria-describedby`. Built on the
+  HTML `popover` attribute and CSS Anchor Positioning, same baseline
+  as `hc-menu`. `installTooltip()` auto-sets `popover="manual"` and
+  `role="tooltip"` on every `.hc-tooltip`, wires every trigger
+  referenced via `aria-describedby` (one tooltip can serve multiple
+  triggers), and toggles the popover from:
+  - `mouseenter` → show after 300 ms (industry-standard intent-to-
+    hover threshold);
+  - `mouseleave` → hide after 100 ms grace period (cancels a pending
+    show if the cursor leaves during the delay);
+  - `focus` → show immediately (no delay for keyboard users, per
+    APG);
+  - `blur` → hide immediately;
+  - `Escape` while focused → hide without moving focus.
+
+  We chose `popover="manual"` over the newer `popover="hint"` because
+  Safari had no `hint` support as of 2026-05; `manual` + JS toggling
+  achieves the same coexistence semantics (separate tooltips don't
+  dismiss each other) everywhere `popover` is supported. CSS Anchor
+  Positioning anchors the tooltip above the trigger by default with
+  a `flip-block` fallback; browsers without anchor support get a JS
+  `getBoundingClientRect` positioning hook that mirrors the same
+  placement. The tooltip surface is `pointer-events: none` so it can
+  never intercept clicks. New tokens `tooltip.{bg,fg,radius,padding-x,
+  padding-y,font-size,max-width,offset}`, all `{ref}` so theming flows
+  through the overlay machinery. Vitest spec (13 cases) covers
+  idempotency, ARIA auto-attribution, all show / hide routes, delay
+  semantics with fake timers, Escape, shared-tooltip across multiple
+  triggers, and uninstall cleanup. Playwright spec (8 cases incl.
+  axe-core a11y scan) exercises the real popover algorithm and
+  asserts the anchored placement bounding box.
 - `hc-menu` stateful items — `role="menuitemcheckbox"` and
   `role="menuitemradio"`. Mirrors shadcn's `DropdownMenuCheckboxItem`
   / `DropdownMenuRadioItem`:
