@@ -1,0 +1,166 @@
+---
+title: Switch
+description: Native checkbox styled as an iOS-style toggle, with role="switch" for proper screen-reader semantics. Pure CSS, no JavaScript.
+---
+
+`hc-switch` is applied to a standard
+`<input type="checkbox" role="switch">`. The underlying input keeps
+every native behaviour — `Space` toggles, the value participates in
+form submission, screen readers announce it as a switch via the
+role override — and only the visual chrome is replaced via
+`appearance: none`.
+
+## Basic example
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" defaultChecked />
+    Email notifications
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" />
+    SMS notifications
+  </label>
+</div>
+
+```html
+<label class="hc-switch-label">
+  <input class="hc-switch" type="checkbox" role="switch" checked>
+  Email notifications
+</label>
+
+<label class="hc-switch-label">
+  <input class="hc-switch" type="checkbox" role="switch">
+  SMS notifications
+</label>
+```
+
+`.hc-switch-label` is an inline-flex helper that clusters the
+switch and its text so a click on the label toggles the input.
+
+## Variants
+
+`data-variant` accepts `success` and `error` for non-default
+checked-state tints. The default (omitted) variant uses the active
+colour theme's primary fill.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" defaultChecked />
+    Default (themed)
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-variant="success" defaultChecked />
+    Success
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-variant="error" defaultChecked />
+    Error
+  </label>
+</div>
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-size="sm" defaultChecked />
+    Small
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" defaultChecked />
+    Default
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-size="lg" defaultChecked />
+    Large
+  </label>
+</div>
+
+## States
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" />
+    Focus me with the keyboard to see the ring
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" disabled />
+    Disabled (off)
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" disabled defaultChecked />
+    Disabled (on)
+  </label>
+</div>
+
+## htmx usage
+
+The switch participates in form submission like any native
+checkbox. For instant toggles, listen to `change`:
+
+```html
+<label class="hc-switch-label">
+  <input
+    class="hc-switch"
+    type="checkbox"
+    role="switch"
+    name="notifications"
+    data-hx-post="/preferences/notifications"
+    data-hx-trigger="change">
+  Email notifications
+</label>
+```
+
+## Accessibility
+
+- Always pair the input with a label. Either wrap both in
+  `<label class="hc-switch-label">` or use a separate `<label for>`
+  associated by id.
+- `role="switch"` is **the** semantic role for a binary on/off toggle
+  — prefer it over a plain checkbox so screen readers announce
+  "switch, on/off" rather than "checkbox, checked/unchecked". The
+  underlying element stays an `<input type="checkbox">` for form
+  serialisation; the ARIA role override only changes how it's
+  announced.
+- Don't remove the focus outline. The component replaces the
+  default outline with a visible box-shadow ring driven by
+  `--hc-color-focus-ring`.
+- The thumb-slide transition respects `prefers-reduced-motion:
+  reduce` — motion is suppressed when the user has opted out.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `switch.width` / `height` | Track dimensions. |
+| `switch.thumb-size` | Diameter of the moving thumb. |
+| `switch.padding` | Gap between thumb and track edge. |
+| `switch.bg` / `thumb-bg` | Off-state colours. |
+| `switch.checked-bg` / `checked-border` | Default-variant on-state. |
+| `switch.success-checked-bg` / `error-checked-bg` | Variant on-state. |
+| `switch.disabled-bg` | Background when disabled. |
+| `switch.label-gap` | Gap between switch and its text. |
+| `switch.sm.*` / `lg.*` | Dedicated sm / lg overrides. |
+
+## CSS variables
+
+```text
+--hc-switch-width | -height | -thumb-size | -padding
+--hc-switch-border-width | -border
+--hc-switch-bg | -thumb-bg
+--hc-switch-checked-bg | -checked-border
+--hc-switch-success-checked-bg | -error-checked-bg
+--hc-switch-disabled-bg | -label-gap
+--hc-switch-sm-width | -sm-height | -sm-thumb-size
+--hc-switch-lg-width | -lg-height | -lg-thumb-size
+--hc-color-focus-ring (inherited from data-color)
+```
+
+## Related
+
+- [Checkbox](/hypermedia-components/components/checkbox/) — when the metaphor is "agree / opt-in" rather than "turn this on/off".
+- [Radio](/hypermedia-components/components/radio/) — single pick from a small fixed set.

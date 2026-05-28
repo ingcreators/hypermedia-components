@@ -22,6 +22,27 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-switch` component — pure CSS over a native
+  `<input type="checkbox" role="switch">`. The native input keeps
+  every accessible behaviour (Space toggles, form serialisation,
+  screen-reader announces "switch on/off" via the role override);
+  only the visual chrome is replaced via `appearance: none`. iOS-
+  style track with a `::before` thumb that slides on `:checked`
+  via CSS `translate`. Same axes as the other form controls —
+  `data-variant="success" | "error"` for checked-state tint,
+  `data-size="sm" | "md" | "lg"`, disabled state, focus-visible
+  ring driven by `--hc-color-focus-ring`. Thumb-slide transition
+  respects `prefers-reduced-motion: reduce`. New
+  `.hc-switch-label` cluster mirrors the
+  `.hc-checkbox-label` / `.hc-radio-label` pattern. Tokens
+  `switch.{width, height, thumb-size, padding, border-width,
+  border, bg, thumb-bg, checked-bg, checked-border,
+  success-checked-bg, error-checked-bg, disabled-bg, label-gap,
+  sm.*, lg.*}`, all `{ref}` so theming carries through the
+  overlay machinery. Playwright spec (9 cases) covers Space
+  toggle, label click, checked tint, disabled state, success /
+  error variant tints, sm vs lg sizing, native `change` event
+  firing, and an axe-core scan.
 - `hc-select` component — pure CSS skin over a native `<select>`,
   no JavaScript behavior. The underlying element keeps every
   native behaviour (keyboard, form submission, the OS picker on

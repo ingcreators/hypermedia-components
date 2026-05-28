@@ -1,0 +1,160 @@
+/* hc-switch — semantic toggle component.
+ *
+ * Apply `.hc-switch` to a native <input type="checkbox" role="switch">.
+ * The native checkbox keeps every accessible behaviour — Space
+ * toggles, the value participates in form submission, screen
+ * readers announce it as a switch via the role override — and only
+ * the visual chrome is replaced.
+ *
+ * Variants: data-variant="success" | "error" → checked-state tint.
+ * Sizes:    data-size="sm" | "md" (default) | "lg".
+ *
+ * Markup:
+ *   <label class="hc-switch-label">
+ *     <input class="hc-switch" type="checkbox" role="switch">
+ *     Enable notifications
+ *   </label>
+ */
+@layer hc.components {
+  .hc-switch {
+    appearance: none;
+    display: inline-block;
+    flex: none;
+    position: relative;
+    inline-size: var(--hc-switch-width);
+    block-size: var(--hc-switch-height);
+    margin: 0;
+    padding: 0;
+    border: var(--hc-switch-border-width) solid var(--hc-switch-border);
+    border-radius: 9999px;
+    background-color: var(--hc-switch-bg);
+    cursor: pointer;
+    vertical-align: middle;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      box-shadow 120ms ease;
+  }
+
+  /* Thumb — a circle that slides between the off and on positions. */
+  .hc-switch::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: var(--hc-switch-padding);
+    inline-size: var(--hc-switch-thumb-size);
+    block-size: var(--hc-switch-thumb-size);
+    background-color: var(--hc-switch-thumb-bg);
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgb(0, 0, 0, 0.15);
+    translate: 0 -50%;
+    transition: translate 120ms ease;
+  }
+
+  /* Slide the thumb to the inline-end on check. The travel distance
+   * is the track width minus the thumb width minus both paddings. */
+  .hc-switch:checked::before {
+    translate:
+      calc(
+        var(--hc-switch-width)
+        - var(--hc-switch-thumb-size)
+        - var(--hc-switch-padding) * 2
+        - var(--hc-switch-border-width) * 2
+      )
+      -50%;
+  }
+
+  .hc-switch:checked {
+    background-color: var(--hc-switch-checked-bg);
+    border-color: var(--hc-switch-checked-border);
+  }
+
+  .hc-switch:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  /* Variants */
+  .hc-switch[data-variant="success"]:checked {
+    background-color: var(--hc-switch-success-checked-bg);
+    border-color: var(--hc-switch-success-checked-bg);
+  }
+
+  .hc-switch[data-variant="error"]:checked {
+    background-color: var(--hc-switch-error-checked-bg);
+    border-color: var(--hc-switch-error-checked-bg);
+  }
+
+  /* Sizes */
+  .hc-switch[data-size="sm"] {
+    inline-size: var(--hc-switch-sm-width);
+    block-size: var(--hc-switch-sm-height);
+  }
+
+  .hc-switch[data-size="sm"]::before {
+    inline-size: var(--hc-switch-sm-thumb-size);
+    block-size: var(--hc-switch-sm-thumb-size);
+  }
+
+  .hc-switch[data-size="sm"]:checked::before {
+    translate:
+      calc(
+        var(--hc-switch-sm-width)
+        - var(--hc-switch-sm-thumb-size)
+        - var(--hc-switch-padding) * 2
+        - var(--hc-switch-border-width) * 2
+      )
+      -50%;
+  }
+
+  .hc-switch[data-size="lg"] {
+    inline-size: var(--hc-switch-lg-width);
+    block-size: var(--hc-switch-lg-height);
+  }
+
+  .hc-switch[data-size="lg"]::before {
+    inline-size: var(--hc-switch-lg-thumb-size);
+    block-size: var(--hc-switch-lg-thumb-size);
+  }
+
+  .hc-switch[data-size="lg"]:checked::before {
+    translate:
+      calc(
+        var(--hc-switch-lg-width)
+        - var(--hc-switch-lg-thumb-size)
+        - var(--hc-switch-padding) * 2
+        - var(--hc-switch-border-width) * 2
+      )
+      -50%;
+  }
+
+  /* Disabled */
+  .hc-switch:disabled,
+  .hc-switch[aria-disabled="true"] {
+    background-color: var(--hc-switch-disabled-bg);
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+
+  /* Respect reduced-motion preferences. */
+  @media (prefers-reduced-motion: reduce) {
+    .hc-switch,
+    .hc-switch::before {
+      transition-duration: 0ms;
+    }
+  }
+
+  /* Label cluster — wraps switch + text. */
+  .hc-switch-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-switch-label-gap);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hc-switch-label:has(.hc-switch:disabled) {
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+}
