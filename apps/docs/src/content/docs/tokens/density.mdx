@@ -1,31 +1,63 @@
 ---
 title: Density
-description: Switch all controls between comfortable, compact, and dense sizes via a single data-density attribute.
+description: Switch the whole UI between comfortable, compact, and dense sizing via a single data-density attribute. Controls shrink alongside container paddings and gaps so the layout stays balanced at every tier.
 ---
 
-The `data-density` attribute on `<html>` (or any ancestor) toggles the
-default control height and inline padding across the whole subtree.
-Controls that participate in density — currently
+The `data-density` attribute on `<html>` (or any ancestor) toggles
+control sizing **and** container paddings / gaps across the whole
+subtree. Plan §9.3 specifies the two control variables;
+Hypermedia Components extends the same attribute to a handful of
+container vars so the layout tightens or relaxes evenly — without
+that, buttons would shrink while cards and dialogs around them
+stayed roomy, and the result felt unbalanced.
+
+## Control sizing (plan §9.3)
+
+| Attribute                                 | `--hc-control-height` | `--hc-control-padding-x` |
+| ----------------------------------------- | --------------------- | ------------------------- |
+| *(none)* / `[data-density="comfortable"]` | `40px`                | `1rem` (16px)             |
+| `[data-density="compact"]`                | `32px`                | `0.75rem` (12px)          |
+| `[data-density="dense"]`                  | `28px`                | `0.5rem` (8px)            |
+
 [`hc-button`](/hypermedia-components/components/button/) and
-[`hc-input`](/hypermedia-components/components/input/) — reference
-`--hc-control-height` and `--hc-control-padding-x` through their own
-custom properties, so a single attribute change cascades to every
-control without re-rendering markup.
+[`hc-input`](/hypermedia-components/components/input/) reference these
+via `var()` indirection on their own custom properties, so the cascade
+flows: `data-density` → `--hc-control-*` → `--hc-button-*` /
+`--hc-input-*` → rendered control.
 
-## Values (plan §9.3)
+## Container sizing
 
-| Attribute                         | `--hc-control-height` | `--hc-control-padding-x` |
-| --------------------------------- | --------------------- | ------------------------- |
-| *(none)* / `[data-density="comfortable"]` | `40px`        | `1rem` (16px)             |
-| `[data-density="compact"]`        | `32px`                | `0.75rem` (12px)          |
-| `[data-density="dense"]`          | `28px`                | `0.5rem` (8px)            |
+The same density attribute also overrides container paddings and
+inter-element gaps. These vars belong to the component layer, but the
+density files emit the same names at higher-specificity selectors so
+the override cascades automatically:
 
-Comfortable is the default. The selector `:root, [data-density="comfortable"]`
-ensures the values apply unconditionally so an explicit
-`data-density="comfortable"` and the absence of the attribute behave
-identically.
+| Variable                                          | Comfortable | Compact | Dense |
+| ------------------------------------------------- | ----------- | -------- | ------ |
+| `--hc-field-gap`                                  | 8 px        | 6 px     | 4 px  |
+| `--hc-toolbar-gap` / `padding-y`                  | 8 px        | 6 px     | 4 px  |
+| `--hc-toolbar-padding-x`                          | 12 px       | 8 px     | 6 px  |
+| `--hc-card-padding`                               | 16 px       | 12 px    | 8 px  |
+| `--hc-dialog-padding`                             | 16 px       | 12 px    | 8 px  |
+| `--hc-dialog-gap`                                 | 12 px       | 8 px     | 6 px  |
+| `--hc-popover-padding`                            | 12 px       | 8 px     | 6 px  |
+| `--hc-alert-padding-block`                        | 12 px       | 8 px     | 6 px  |
+| `--hc-alert-padding-inline`                       | 16 px       | 12 px    | 8 px  |
+| `--hc-alert-gap`                                  | 8 px        | 6 px     | 4 px  |
+| `--hc-toast-padding-y`                            | 12 px       | 8 px     | 6 px  |
+| `--hc-toast-padding-x`                            | 16 px       | 12 px    | 8 px  |
+| `--hc-toast-gap`                                  | 8 px        | 6 px     | 4 px  |
 
-## Live preview
+Tokens not in the table (radii, font sizes, badge / pagination
+paddings, dialog max-width, etc.) are deliberately **not** density-
+aware. The intent is to tighten layout, not to restyle.
+
+Comfortable is the default. The selector
+`:root, [data-density="comfortable"]` ensures the values apply
+unconditionally so an explicit `data-density="comfortable"` and the
+absence of the attribute behave identically.
+
+## Live preview — controls
 
 The three previews below render the same `<button>` / `<input>` HTML
 inside containers carrying different `data-density` attributes.
@@ -54,10 +86,76 @@ inside containers carrying different `data-density` attributes.
   <input class="hc-input" type="text" placeholder="Type…" style="inline-size:14rem;" />
 </div>
 
+## Live preview — containers
+
+Cards, alerts, and toolbars also pick up the attribute. Note how the
+internal padding and gap tighten alongside the controls, keeping the
+visual rhythm proportional.
+
+### Comfortable (default)
+
+<div class="hc-preview not-content" data-density="comfortable" style="display:grid;gap:.75rem;">
+  <div class="hc-card">
+    <div class="hc-card__header">
+      <h3 class="hc-card__title" style="margin:0;">Plan summary</h3>
+    </div>
+    <div class="hc-card__body">
+      Three seats, monthly billing.
+    </div>
+    <div class="hc-card__footer">
+      <button class="hc-button">Cancel</button>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </div>
+  </div>
+  <div class="hc-alert" data-variant="warning">
+    <strong>Heads up.</strong> Two of three seats are unassigned.
+  </div>
+</div>
+
+### Compact
+
+<div class="hc-preview not-content" data-density="compact" style="display:grid;gap:.75rem;">
+  <div class="hc-card">
+    <div class="hc-card__header">
+      <h3 class="hc-card__title" style="margin:0;">Plan summary</h3>
+    </div>
+    <div class="hc-card__body">
+      Three seats, monthly billing.
+    </div>
+    <div class="hc-card__footer">
+      <button class="hc-button">Cancel</button>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </div>
+  </div>
+  <div class="hc-alert" data-variant="warning">
+    <strong>Heads up.</strong> Two of three seats are unassigned.
+  </div>
+</div>
+
+### Dense
+
+<div class="hc-preview not-content" data-density="dense" style="display:grid;gap:.75rem;">
+  <div class="hc-card">
+    <div class="hc-card__header">
+      <h3 class="hc-card__title" style="margin:0;">Plan summary</h3>
+    </div>
+    <div class="hc-card__body">
+      Three seats, monthly billing.
+    </div>
+    <div class="hc-card__footer">
+      <button class="hc-button">Cancel</button>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </div>
+  </div>
+  <div class="hc-alert" data-variant="warning">
+    <strong>Heads up.</strong> Two of three seats are unassigned.
+  </div>
+</div>
+
 ## Applying it to your page
 
 Set the attribute as high in the DOM as is useful. Most apps want it
-on `<html>` so the choice cascades to every control.
+on `<html>` so the choice cascades to every control:
 
 ```html
 <html data-density="compact">
@@ -65,35 +163,43 @@ on `<html>` so the choice cascades to every control.
 </html>
 ```
 
-For a single section of denser UI (e.g. a data table toolbar) attach
+For a single section of denser UI (e.g. a data-table toolbar) attach
 it locally:
 
 ```html
 <section data-density="dense">
-  <button class="hc-button">Edit</button>
-  <button class="hc-button">Delete</button>
+  <div class="hc-toolbar">
+    <button class="hc-button">Edit</button>
+    <button class="hc-button">Delete</button>
+  </div>
 </section>
 ```
 
 ## Why this works
 
-The token build emits component-level custom properties for
-height / padding-x as `var()` references:
+For the **control** tier (`--hc-button-*`, `--hc-input-*`), the token
+build emits component-level custom properties as `var()` references:
 
 ```css
 --hc-button-height: var(--hc-control-height);
 --hc-button-padding-x: var(--hc-control-padding-x);
---hc-input-height: var(--hc-control-height);
---hc-input-padding-x: var(--hc-control-padding-x);
 ```
 
 When `data-density="compact"` overrides `--hc-control-height` to
-`32px`, the indirection means every consumer recomputes at the new
+`32px`, every consumer of `--hc-button-height` resolves at the new
 value without explicit rules per component.
 
-Per-component customization still works — setting
-`--hc-button-height: 56px;` directly on a scope overrides the density
-fallback because the per-component property is later in the cascade.
+For the **container** tier (`--hc-card-padding`, `--hc-dialog-gap`,
+etc.), the density files emit the same variable names at higher-
+specificity selectors (`[data-density="compact"]`,
+`[data-density="dense"]`). The cascade picks the matching block over
+the component file's `:root` rule, so card / dialog / popover / alert
+/ toast / toolbar CSS reads the active density value automatically.
+
+Per-component customization still works at both tiers — setting
+`--hc-button-height: 56px;` or `--hc-card-padding: 0;` on a scope
+overrides the density value because the per-element declaration is
+more specific.
 
 ## Size variants are independent
 
@@ -105,17 +211,27 @@ control is a bigger CTA" vs. "the whole UI is laid out tightly."
 ## CSS variables
 
 ```text
---hc-control-height
---hc-control-padding-x
+--hc-control-height          --hc-card-padding
+--hc-control-padding-x       --hc-dialog-padding
+--hc-field-gap               --hc-dialog-gap
+--hc-toolbar-gap             --hc-popover-padding
+--hc-toolbar-padding-y       --hc-alert-padding-block
+--hc-toolbar-padding-x       --hc-alert-padding-inline
+                             --hc-alert-gap
+                             --hc-toast-padding-y
+                             --hc-toast-padding-x
+                             --hc-toast-gap
 ```
 
-These are emitted under `:root, [data-density="comfortable"]`,
-`[data-density="compact"]`, and `[data-density="dense"]`. Components
-reference them through their own `--hc-button-*` / `--hc-input-*`
-variables.
+All emitted under `:root, [data-density="comfortable"]`,
+`[data-density="compact"]`, and `[data-density="dense"]`.
 
 ## Related
 
 - [Tokens overview](/hypermedia-components/tokens/) — the four-layer model.
 - [Button](/hypermedia-components/components/button/) — density-aware.
 - [Input](/hypermedia-components/components/input/) — density-aware.
+- [Card](/hypermedia-components/components/card/) — density-aware padding.
+- [Dialog](/hypermedia-components/components/dialog/) — density-aware padding + gap.
+- [Alert](/hypermedia-components/components/alert/) — density-aware padding + gap.
+- [Toolbar](/hypermedia-components/components/toolbar/) — density-aware gap + padding.

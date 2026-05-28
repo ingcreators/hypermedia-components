@@ -1,7 +1,35 @@
 {
-  "$description": "Comfortable density (default). Emitted under :root and [data-density=\"comfortable\"].",
+  "$description": "Comfortable density (default). Emitted under :root and [data-density=\"comfortable\"]. Values here mirror each component's default — the explicit comfortable selector is still required so compact and dense, which override the same variable names, can be opted out of by setting data-density=\"comfortable\" on a subtree.",
   "control": {
     "height":    { "$type": "dimension", "$value": "{primitive.size.control.md}" },
     "padding-x": { "$type": "dimension", "$value": "{primitive.space.4}" }
+  },
+  "field": {
+    "gap": { "$type": "dimension", "$value": "{primitive.space.2}" }
+  },
+  "toolbar": {
+    "gap":       { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "padding-y": { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "padding-x": { "$type": "dimension", "$value": "{primitive.space.3}" }
+  },
+  "card": {
+    "padding": { "$type": "dimension", "$value": "{primitive.space.4}" }
+  },
+  "dialog": {
+    "padding": { "$type": "dimension", "$value": "{primitive.space.4}" },
+    "gap":     { "$type": "dimension", "$value": "{primitive.space.3}" }
+  },
+  "popover": {
+    "padding": { "$type": "dimension", "$value": "{primitive.space.3}" }
+  },
+  "alert": {
+    "padding-block":  { "$type": "dimension", "$value": "{primitive.space.3}" },
+    "padding-inline": { "$type": "dimension", "$value": "{primitive.space.4}" },
+    "gap":            { "$type": "dimension", "$value": "{primitive.space.2}" }
+  },
+  "toast": {
+    "padding-y": { "$type": "dimension", "$value": "{primitive.space.3}" },
+    "padding-x": { "$type": "dimension", "$value": "{primitive.space.4}" },
+    "gap":       { "$type": "dimension", "$value": "{primitive.space.2}" }
   }
 }
