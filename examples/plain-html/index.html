@@ -206,6 +206,41 @@
   </section>
 
   <section>
+    <h2>Tabs (component + behavior)</h2>
+    <div class="hc-tabs">
+      <div class="hc-tabs__list" role="tablist" aria-label="Account settings">
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="tab-general" aria-controls="panel-general"
+                aria-selected="true" tabindex="0">General</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="tab-billing" aria-controls="panel-billing"
+                aria-selected="false" tabindex="-1">Billing</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="tab-team" aria-controls="panel-team"
+                aria-selected="false" tabindex="-1">Team</button>
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="panel-general" aria-labelledby="tab-general" tabindex="0">
+        <p>General account settings. Arrow keys move focus; Enter / Space activate.</p>
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="panel-billing" aria-labelledby="tab-billing" tabindex="0"
+           hidden="until-found">
+        <p>Billing details. This panel is <code>hidden=&quot;until-found&quot;</code>, so Ctrl+F
+          can still search it.</p>
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="panel-team" aria-labelledby="tab-team" tabindex="0"
+           hidden="until-found">
+        <p>Team members and roles.</p>
+      </div>
+    </div>
+    <p class="small">Manual activation (default). Add
+      <code>data-activation=&quot;automatic&quot;</code> on the
+      <code>.hc-tabs</code> root to activate on focus.</p>
+  </section>
+
+  <section>
     <h2>Toast (behavior)</h2>
     <div class="row">
       <button class="hc-button" id="toast-info">Info</button>

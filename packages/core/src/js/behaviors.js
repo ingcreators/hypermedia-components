@@ -12,6 +12,7 @@ import { installToast } from './toast.js';
 import { installCloseDialog } from './close-dialog.js';
 import { installClosePopover } from './close-popover.js';
 import { installRemoteDialog } from './remote-dialog.js';
+import { installTabs } from './tabs.js';
 
 function init() {
   installConfirm();
@@ -19,6 +20,7 @@ function init() {
   installCloseDialog();
   installClosePopover();
   installRemoteDialog();
+  installTabs();
 }
 
 if (typeof document !== 'undefined') {
@@ -35,4 +37,5 @@ export {
   installCloseDialog,
   installClosePopover,
   installRemoteDialog,
+  installTabs,
 };

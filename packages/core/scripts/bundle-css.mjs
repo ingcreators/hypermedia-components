@@ -37,6 +37,7 @@ const COMPONENTS = [
   'hc-toast.css',
   'hc-toolbar.css',
   'hc-pagination.css',
+  'hc-tabs.css',
 ];
 
 async function read(file) {

@@ -270,6 +270,44 @@
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
     }
   },
+  "tabs": {
+    "list": {
+      "gap":    { "$type": "dimension", "$value": "{primitive.space.1}" },
+      "border": { "$type": "color",     "$value": "{semantic.color.border}" }
+    },
+    "tab": {
+      "height":         { "$type": "dimension",  "$value": "var(--hc-control-height)" },
+      "padding-x":      { "$type": "dimension",  "$value": "{primitive.space.4}" },
+      "font-size":      { "$type": "dimension",  "$value": "{semantic.font.size-md}" },
+      "font-weight":    { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
+      "radius":         { "$type": "dimension",  "$value": "{semantic.control.radius}" },
+      "fg":             { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+      "hover-fg":       { "$type": "color",      "$value": "{semantic.color.text}" },
+      "hover-bg":       { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
+      "active-fg":      { "$type": "color",      "$value": "{semantic.color.text}" },
+      "indicator":      { "$type": "color",      "$value": "var(--hc-color-action-primary-bg)" },
+      "indicator-size": { "$type": "dimension",  "$value": "2px" },
+      "disabled-fg":    { "$type": "color",      "$value": "{semantic.color.text-muted}" }
+    },
+    "pill": {
+      "active-bg": { "$type": "color", "$value": "var(--hc-color-action-primary-bg)" },
+      "active-fg": { "$type": "color", "$value": "var(--hc-color-action-primary-fg)" }
+    },
+    "panel": {
+      "padding-y":  { "$type": "dimension", "$value": "{semantic.space.4}" },
+      "focus-ring": { "$type": "color",     "$value": "var(--hc-color-focus-ring)" }
+    },
+    "sm": {
+      "tab-height":    { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
+      "tab-padding-x": { "$type": "dimension", "$value": "{primitive.space.3}" },
+      "tab-font-size": { "$type": "dimension", "$value": "{semantic.font.size-sm}" }
+    },
+    "lg": {
+      "tab-height":    { "$type": "dimension", "$value": "{primitive.size.control.lg}" },
+      "tab-padding-x": { "$type": "dimension", "$value": "{primitive.space.5}" },
+      "tab-font-size": { "$type": "dimension", "$value": "{semantic.font.size-lg}" }
+    }
+  },
   "alert": {
     "padding-block":  { "$type": "dimension", "$value": "{semantic.space.3}" },
     "padding-inline": { "$type": "dimension", "$value": "{semantic.space.4}" },
