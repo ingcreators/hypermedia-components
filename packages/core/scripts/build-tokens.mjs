@@ -119,7 +119,9 @@ export function buildTokensCss({ sources, trees }) {
     blocks.map((b) => b.replace(/^/gm, '  ').replace(/^ {2}$/gm, '')).join('\n') +
     '}\n';
 
-  const varCount = blocks.reduce((n, b) => n + (b.match(/--hc-/g)?.length ?? 0), 0);
+  // Count declarations only — `--hc-foo:` lines. Skip occurrences of
+  // `--hc-` inside `var()` references on the right-hand side.
+  const varCount = blocks.reduce((n, b) => n + (b.match(/--hc-[a-z0-9-]+:/g)?.length ?? 0), 0);
   return { css, varCount, blockCount: blocks.length };
 }
 
@@ -130,6 +132,13 @@ export const DEFAULT_SOURCES = [
   { namespace: 'semantic',  file: 'semantic.tokens.json',  selector: ':root, [data-theme="light"]' },
   { namespace: 'component', file: 'component.tokens.json', selector: ':root' },
   { namespace: 'theme.dark', file: 'theme.dark.tokens.json', selector: '[data-theme="dark"]' },
+  // Density layers override --hc-control-* at runtime via the
+  // data-density attribute. Components that should respond to density
+  // (button, input) reference --hc-control-* through a `var()`
+  // indirection in their own tokens — see component.tokens.json.
+  { namespace: 'density.comfortable', file: 'density.comfortable.tokens.json', selector: ':root, [data-density="comfortable"]' },
+  { namespace: 'density.compact',     file: 'density.compact.tokens.json',     selector: '[data-density="compact"]' },
+  { namespace: 'density.dense',       file: 'density.dense.tokens.json',       selector: '[data-density="dense"]' },
 ];
 
 async function main() {

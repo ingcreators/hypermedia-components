@@ -38,6 +38,21 @@ Security    — security-relevant changes
   checked via `pnpm --filter @hypermedia-components/core typecheck`.
   The new `unit` CI job step runs it after the build so a regression
   in the public type surface fails CI.
+- Density modes — closes v0.5 plan §4.2. New `data-density`
+  attribute (`comfortable` / `compact` / `dense`) on `<html>` or any
+  ancestor swaps `--hc-control-height` and `--hc-control-padding-x`
+  to the values laid out in plan §9.3 (40/16 px → 32/12 px → 28/8 px).
+  Three new token files under `packages/core/src/tokens/`
+  (`density.{comfortable,compact,dense}.tokens.json`); a new
+  `primitive.size.control.xs = 28px` entry; `build-tokens.mjs`
+  registers the three sources with their own selector blocks. Button
+  and input tokens now resolve their `height` / `padding-x` through
+  `var(--hc-control-*)` indirection so a single attribute change
+  cascades to every default-size control. Size variants
+  (`data-size="sm"|"lg"`) keep their own dedicated vars and are
+  unaffected. New docs page `tokens/density.mdx` with live preview;
+  two new Vitest assertions cover the density block emission and the
+  `var()` literal passthrough.
 - `hc-checkbox` and `hc-radio` — closes v0.5 plan §4.1. Applied to a
   native `<input type="checkbox">` / `<input type="radio">`, the
   components keep every native behaviour (Space toggles, arrow-key

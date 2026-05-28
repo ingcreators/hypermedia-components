@@ -62,6 +62,7 @@
   },
   "size": {
     "control": {
+      "xs": { "$type": "dimension", "$value": "28px" },
       "sm": { "$type": "dimension", "$value": "32px" },
       "md": { "$type": "dimension", "$value": "40px" },
       "lg": { "$type": "dimension", "$value": "48px" }

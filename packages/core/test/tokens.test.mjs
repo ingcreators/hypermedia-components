@@ -142,6 +142,82 @@ describe('buildTokensCss', () => {
     expect(css).toContain('--hc-color-overlay: rgba(17, 24, 39, 0.5);');
   });
 
+  it('emits each density layer as its own selector block', () => {
+    const { css, blockCount } = buildTokensCss({
+      sources: [
+        { namespace: 'primitive', emit: false },
+        { namespace: 'density.comfortable', selector: ':root, [data-density="comfortable"]' },
+        { namespace: 'density.compact',     selector: '[data-density="compact"]' },
+        { namespace: 'density.dense',       selector: '[data-density="dense"]' },
+      ],
+      trees: {
+        primitive: {
+          size: { control: {
+            xs: { $type: 'dimension', $value: '28px' },
+            sm: { $type: 'dimension', $value: '32px' },
+            md: { $type: 'dimension', $value: '40px' },
+          } },
+          space: {
+            2: { $type: 'dimension', $value: '0.5rem' },
+            3: { $type: 'dimension', $value: '0.75rem' },
+            4: { $type: 'dimension', $value: '1rem' },
+          },
+        },
+        'density.comfortable': {
+          control: {
+            height:      { $type: 'dimension', $value: '{primitive.size.control.md}' },
+            'padding-x': { $type: 'dimension', $value: '{primitive.space.4}' },
+          },
+        },
+        'density.compact': {
+          control: {
+            height:      { $type: 'dimension', $value: '{primitive.size.control.sm}' },
+            'padding-x': { $type: 'dimension', $value: '{primitive.space.3}' },
+          },
+        },
+        'density.dense': {
+          control: {
+            height:      { $type: 'dimension', $value: '{primitive.size.control.xs}' },
+            'padding-x': { $type: 'dimension', $value: '{primitive.space.2}' },
+          },
+        },
+      },
+    });
+
+    expect(blockCount).toBe(3);
+    expect(css).toContain(':root, [data-density="comfortable"] {');
+    expect(css).toContain('[data-density="compact"] {');
+    expect(css).toContain('[data-density="dense"] {');
+
+    // Each block defines the two control vars at the plan §9.3 values.
+    expect(css).toMatch(/\[data-density="comfortable"\]\s*\{[^}]*--hc-control-height:\s*40px;/);
+    expect(css).toMatch(/\[data-density="compact"\]\s*\{[^}]*--hc-control-height:\s*32px;/);
+    expect(css).toMatch(/\[data-density="dense"\]\s*\{[^}]*--hc-control-height:\s*28px;/);
+    expect(css).toMatch(/\[data-density="comfortable"\]\s*\{[^}]*--hc-control-padding-x:\s*1rem;/);
+    expect(css).toMatch(/\[data-density="compact"\]\s*\{[^}]*--hc-control-padding-x:\s*0\.75rem;/);
+    expect(css).toMatch(/\[data-density="dense"\]\s*\{[^}]*--hc-control-padding-x:\s*0\.5rem;/);
+  });
+
+  it('passes through literal var() values without resolving them', () => {
+    // Component-level tokens use `var(--hc-control-*)` literals to
+    // pick up the active density at runtime instead of baking in the
+    // semantic.control.* value at build time.
+    const { css } = buildTokensCss({
+      sources: [{ namespace: 'component', selector: ':root' }],
+      trees: {
+        component: {
+          button: {
+            height:      { $type: 'dimension', $value: 'var(--hc-control-height)' },
+            'padding-x': { $type: 'dimension', $value: 'var(--hc-control-padding-x)' },
+          },
+        },
+      },
+    });
+
+    expect(css).toContain('--hc-button-height: var(--hc-control-height);');
+    expect(css).toContain('--hc-button-padding-x: var(--hc-control-padding-x);');
+  });
+
   it('joins nested JSON paths with hyphens', () => {
     const { css } = buildTokensCss({
       sources: [{ namespace: 'component', selector: ':root' }],

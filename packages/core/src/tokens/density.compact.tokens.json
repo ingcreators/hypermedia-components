@@ -1,0 +1,7 @@
+{
+  "$description": "Compact density. Emitted under [data-density=\"compact\"].",
+  "control": {
+    "height":    { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
+    "padding-x": { "$type": "dimension", "$value": "{primitive.space.3}" }
+  }
+}
