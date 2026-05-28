@@ -140,6 +140,24 @@ Security    — security-relevant changes
     create, build / deploy commands, custom domain attach, Worker
     Route, rollback).
 
+### Changed
+
+- Density now scales container paddings and gaps in addition to
+  control sizes, so the whole layout tightens or relaxes evenly
+  instead of leaving the buttons compact while cards and dialogs
+  around them stayed roomy. The three density token files
+  (`density.{comfortable,compact,dense}.tokens.json`) now also
+  override `--hc-field-gap`, `--hc-toolbar-{gap,padding-y,padding-x}`,
+  `--hc-card-padding`, `--hc-dialog-{padding,gap}`,
+  `--hc-popover-padding`, `--hc-alert-{padding-block,padding-inline,gap}`,
+  and `--hc-toast-{padding-y,padding-x,gap}`. Cascade flows the same
+  way as the existing control vars — density files emit the same
+  variable names at higher-specificity selectors so the override
+  picks up automatically with no component-CSS changes. Total tokens
+  emitted grew from 242 to 284 vars across the six selector blocks.
+  `tokens/density.mdx` gains a container-tier preview (card +
+  alert) at all three densities and a value table for the new vars.
+
 ### Fixed
 
 - Docs preview alignment — every `<div class="hc-preview">` wrapper
