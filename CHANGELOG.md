@@ -53,6 +53,23 @@ Security    — security-relevant changes
   unaffected. New docs page `tokens/density.mdx` with live preview;
   two new Vitest assertions cover the density block emission and the
   `var()` literal passthrough.
+- Meta-integration pages — closes v0.5 plan §4.5. Two new docs pages
+  round out the integrations section so the framework guides have a
+  shared ground truth to link back to:
+  - `apps/docs/src/content/docs/integrations/plain-html.mdx` — the
+    simplest possible setup (copy dist files into a static folder,
+    no template engine, no bundler), including a runnable minimal
+    layout, theme / density toggles, and the "without htmx" CSS-only
+    use case.
+  - `apps/docs/src/content/docs/integrations/htmx.mdx` — the
+    htmx-side conventions every framework guide currently repeats
+    (htmx version, `data-hx-*` vs `hx-*`, `htmx:configRequest`
+    hook for CSRF and arbitrary headers, `HX-Trigger` / `HX-Reswap`
+    / `HX-Retarget` responses, the events the HC behaviors listen
+    for, indicators, disabling controls during requests).
+  - `integrations/index.mdx` now groups guides into "Foundations",
+    "Server-side template engines", and "Client-side companions" so
+    these foundational pages are the first thing a new reader sees.
 - Hyperscript story — closes v0.5 plan §4.3. New
   `apps/docs/src/content/docs/integrations/hyperscript.mdx` page
   explains how to mount `_hyperscript` alongside Hypermedia
