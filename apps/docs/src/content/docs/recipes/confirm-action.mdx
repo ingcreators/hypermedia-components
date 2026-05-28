@@ -138,6 +138,49 @@ HTML. If you need to step outside the macro's attribute surface
 (custom button content, an extra wrapper class, …), copy the
 expanded HTML and edit it directly.
 
+## Hyperscript alternative
+
+If you prefer to keep the orchestration next to the markup, the same
+flow can be expressed in [_hyperscript](https://hyperscript.org)
+instead of relying on `installConfirm()`. Drop the `data-hc-confirm`
+attribute, write the confirm step inline, and dispatch the same
+`confirmed` event that htmx already listens for:
+
+```html
+<button
+  class="hc-button"
+  data-variant="danger"
+  data-hx-delete="/items/123"
+  data-hx-trigger="confirmed"
+  data-hx-target="closest tr"
+  data-hx-swap="outerHTML"
+  _="on click
+       if confirm('Delete this item?')
+         send confirmed to me
+       end">
+  Delete
+</button>
+```
+
+`confirm(...)` here is the browser's blocking primitive, which is
+unstyled and not always desirable for destructive actions. To reuse
+the shared `<dialog class="hc-confirm-dialog">` markup from a single
+page-level element, see the
+[hyperscript integration page](/hypermedia-components/integrations/hyperscript/#confirm-action).
+
+When to prefer this form:
+
+- The confirm step is genuinely one-off (a single delete button in
+  the page chrome) and you don't want to import `installConfirm`.
+- You already include `_hyperscript` for other reasons.
+
+When to stick with vanilla:
+
+- Several elements need the same confirm flow — one
+  `installConfirm()` call covers all of them.
+- You want the shared styled dialog without rendering the markup
+  yourself.
+
 ## Server response contract
 
 The server's response is whatever the htmx attributes specify — the

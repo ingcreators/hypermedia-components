@@ -1,0 +1,275 @@
+---
+title: Hyperscript
+description: Use _hyperscript as an opt-in alternative to the vanilla installXxx behaviors. Hypermedia Components stays JS-first by default; this guide shows the equivalent _hyperscript snippets when they suit you better.
+---
+
+[_hyperscript](https://hyperscript.org) is an event-oriented scripting
+language inspired by HyperTalk. It is small, easy to read inline in
+markup, and pairs cleanly with htmx. Hypermedia Components does **not**
+require it — the vanilla behaviors in `@hypermedia-components/core` are
+the default — but every behavior has a natural _hyperscript equivalent
+if you prefer to keep the logic next to the markup.
+
+Use this page as a translation reference: copy a snippet, paste it
+into an existing `_=` attribute (or a `<script type="text/hyperscript">`
+block), and skip the matching `installXxx()` call.
+
+## Asset loading
+
+Add `_hyperscript` after htmx and before any markup that uses `_=`
+attributes.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/assets/hc.css">
+
+    <script defer src="https://unpkg.com/htmx.org@2"></script>
+    <script defer src="https://unpkg.com/hyperscript.org@0.9"></script>
+
+    <!-- Only the bits of HC you still want. See "Mixing approaches" below. -->
+    <script type="module" src="/assets/hc.behaviors.js"></script>
+  </head>
+  <body>
+    ...
+  </body>
+</html>
+```
+
+`_hyperscript` self-installs at `DOMContentLoaded`. There is no
+configuration step.
+
+## Philosophy
+
+The vanilla `installXxx` behaviors and the _hyperscript snippets below
+do the same thing — intercept events, talk to native DOM APIs, never
+wrap `fetch()`. The choice is ergonomic:
+
+- **Vanilla wins** when the same behavior shows up on many elements
+  (one `installConfirm()` call, every `[data-hc-confirm]` is handled),
+  when you want JSDoc / TypeScript types on the helper, or when the
+  logic outgrows a one-liner.
+- **_hyperscript wins** when the logic is local to a single element,
+  when you want the markup to read like prose, or when you cannot
+  ship a bundle that includes `hc.behaviors.js`.
+
+Both compose with htmx the same way: dispatch an event, let htmx
+listen for it via `data-hx-trigger`.
+
+## Mixing approaches
+
+You do not have to choose globally. Drop the `installXxx` you are
+replacing — keep the others. For example, to replace just the confirm
+behavior with inline _hyperscript while keeping the vanilla toast
+region, import the individual installers:
+
+```js
+import {
+  installToast,
+  installCloseDialog,
+  installClosePopover,
+  installRemoteDialog,
+} from '@hypermedia-components/core';
+
+installToast();
+installCloseDialog();
+installClosePopover();
+installRemoteDialog();
+// installConfirm() intentionally skipped — _hyperscript handles confirm inline.
+```
+
+The `@hypermedia-components/core/behaviors` auto-init entry installs
+all five at once. Skip that import when you are picking and choosing.
+
+## Equivalents
+
+### Confirm action
+
+Vanilla — driven by `installConfirm()`:
+
+```html
+<button
+  class="hc-button"
+  data-variant="danger"
+  data-hc-confirm="Delete this item?"
+  data-hx-delete="/items/123"
+  data-hx-trigger="confirmed"
+  data-hx-target="closest tr">
+  Delete
+</button>
+```
+
+_hyperscript — handle the confirmation inline; htmx still listens for
+`confirmed`:
+
+```html
+<button
+  class="hc-button"
+  data-variant="danger"
+  data-hx-delete="/items/123"
+  data-hx-trigger="confirmed"
+  data-hx-target="closest tr"
+  _="on click
+       if confirm('Delete this item?')
+         send confirmed to me
+       end">
+  Delete
+</button>
+```
+
+`confirm(...)` is the browser primitive — synchronous, blocking, and
+not styleable. To use the shared `<dialog class="hc-confirm-dialog">`
+markup instead, render it once in the page and target it by id:
+
+```html
+<dialog id="confirm-dialog" class="hc-dialog hc-confirm-dialog"
+        aria-labelledby="confirm-title" aria-describedby="confirm-message">
+  <header class="hc-dialog__header">
+    <h2 class="hc-dialog__title" id="confirm-title">Confirm</h2>
+  </header>
+  <div class="hc-dialog__body" id="confirm-message">Are you sure?</div>
+  <footer class="hc-dialog__footer">
+    <button class="hc-button" type="button"
+            _="on click call closest <dialog/> then call it.close('cancel')">
+      Cancel
+    </button>
+    <button class="hc-button" type="button" data-variant="primary"
+            _="on click call closest <dialog/> then call it.close('confirm')">
+      Confirm
+    </button>
+  </footer>
+</dialog>
+
+<button
+  class="hc-button"
+  data-variant="danger"
+  data-hx-delete="/items/123"
+  data-hx-trigger="confirmed"
+  data-hx-target="closest tr"
+  _="on click
+       set #confirm-message.textContent to 'Delete this item?'
+       call #confirm-dialog.showModal()
+       wait for close from #confirm-dialog
+       if #confirm-dialog.returnValue is 'confirm'
+         send confirmed to me
+       end">
+  Delete
+</button>
+```
+
+The _hyperscript variant gives you the same a11y story
+(`<dialog showModal>` handles focus trapping and Escape), but you
+write the orchestration in the script attribute instead of relying on
+a shared installed behavior. See
+[the confirm-action recipe](/hypermedia-components/recipes/confirm-action/#hyperscript-alternative)
+for the same example in context.
+
+### Toast trigger (client-side)
+
+Vanilla — dispatch on `document.body`, let `installToast()` render:
+
+```js
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: { message: 'Saved', variant: 'success' },
+}));
+```
+
+_hyperscript — same dispatch, no helper:
+
+```html
+<button
+  class="hc-button"
+  _="on click send hc:toast(message:'Saved', variant:'success') to <body/>">
+  Save
+</button>
+```
+
+`installToast()` still has to be running somewhere to actually render
+the toast. _hyperscript only replaces the call site, not the
+listener.
+
+### Close dialog after a successful request
+
+Vanilla — `installCloseDialog()` watches `htmx:afterRequest` for any
+ancestor with `data-hc-close-dialog-on-success`:
+
+```html
+<form
+  data-hx-post="/items"
+  data-hx-target="closest dialog"
+  data-hx-swap="outerHTML"
+  data-hc-close-dialog-on-success>
+  ...
+</form>
+```
+
+_hyperscript — listen on the same event, scoped to this element:
+
+```html
+<form
+  data-hx-post="/items"
+  data-hx-target="closest dialog"
+  data-hx-swap="outerHTML"
+  _="on htmx:afterRequest
+       if event.detail.successful
+         call closest <dialog/> then call it.close()
+       end">
+  ...
+</form>
+```
+
+### Close popover after a successful request
+
+```html
+<form
+  data-hx-get="/items"
+  data-hx-target="#results"
+  _="on htmx:afterRequest
+       if event.detail.successful
+         call closest <[popover]/> then call it.hidePopover()
+       end">
+  ...
+</form>
+```
+
+### Remote dialog (open a server-rendered dialog after swap)
+
+Vanilla — `installRemoteDialog()` watches `htmx:afterSwap` on any
+`[data-hc-remote-dialog-root]`:
+
+```html
+<div id="dialog-root" data-hc-remote-dialog-root></div>
+```
+
+_hyperscript — same idea, inline:
+
+```html
+<div
+  id="dialog-root"
+  _="on htmx:afterSwap
+       set dlg to my.querySelector('dialog')
+       if dlg and not dlg.open then dlg.showModal()">
+</div>
+```
+
+## When not to use _hyperscript
+
+- **You ship a bundle anyway.** If your build already produces a
+  modules bundle, the vanilla behaviors compose with it for free.
+  Pulling in `_hyperscript` for half a kilobyte of orchestration is
+  not a great tradeoff.
+- **The behavior is shared across many elements.** A single
+  `installConfirm()` covers every `[data-hc-confirm]` on the page.
+  Inlining the same _hyperscript on every button is repetition.
+- **You want types or unit tests.** The vanilla helpers expose JSDoc
+  and ship with `.d.ts`. _hyperscript is a string in an attribute;
+  type-aware tooling will not look inside it.
+
+## Related
+
+- [Plain HTML](/hypermedia-components/integrations/) — minimal setup.
+- [Confirm action recipe](/hypermedia-components/recipes/confirm-action/) — vanilla and _hyperscript forms side by side.
+- _hyperscript [Reference](https://hyperscript.org/reference/) — the language docs.
