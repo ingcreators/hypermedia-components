@@ -12,13 +12,13 @@ importers:
     dependencies:
       '@astrojs/starlight':
         specifier: ^0.32.5
-        version: 0.32.6(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3))
+        version: 0.32.6(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3))
       '@hypermedia-components/core':
         specifier: workspace:*
         version: link:../../packages/core
       astro:
         specifier: ^5.5.5
-        version: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3)
+        version: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3)
       sharp:
         specifier: ^0.34.1
         version: 0.34.5
@@ -45,10 +45,13 @@ importers:
         version: 29.1.1
       stylelint:
         specifier: ^17.12.0
-        version: 17.12.0(typescript@5.9.3)
+        version: 17.12.0(typescript@6.0.3)
       stylelint-config-standard:
         specifier: ^40.0.0
-        version: 40.0.0(stylelint@17.12.0(typescript@5.9.3))
+        version: 40.0.0(stylelint@17.12.0(typescript@6.0.3))
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
       vitest:
         specifier: ^4.1.7
         version: 4.1.7(@types/node@24.12.4)(jsdom@29.1.1)(vite@6.4.2(@types/node@24.12.4))
@@ -2644,8 +2647,8 @@ packages:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -3026,12 +3029,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@4.3.14(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3))':
+  '@astrojs/mdx@4.3.14(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3))':
     dependencies:
       '@astrojs/markdown-remark': 6.3.11
       '@mdx-js/mdx': 3.1.1
       acorn: 8.16.0
-      astro: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3)
+      astro: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3)
       es-module-lexer: 1.7.0
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.5
@@ -3055,16 +3058,16 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 4.4.3
 
-  '@astrojs/starlight@0.32.6(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3))':
+  '@astrojs/starlight@0.32.6(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3))':
     dependencies:
-      '@astrojs/mdx': 4.3.14(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3))
+      '@astrojs/mdx': 4.3.14(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3))
       '@astrojs/sitemap': 3.7.3
       '@pagefind/default-ui': 1.5.2
       '@types/hast': 3.0.4
       '@types/js-yaml': 4.0.9
       '@types/mdast': 4.0.4
-      astro: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3)
-      astro-expressive-code: 0.40.2(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3))
+      astro: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3)
+      astro-expressive-code: 0.40.2(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3))
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.3
       hast-util-select: 6.0.4
@@ -3900,12 +3903,12 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro-expressive-code@0.40.2(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3)):
+  astro-expressive-code@0.40.2(astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3)):
     dependencies:
-      astro: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3)
+      astro: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3)
       rehype-expressive-code: 0.40.2
 
-  astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@5.9.3):
+  astro@5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3):
     dependencies:
       '@astrojs/compiler': 2.13.1
       '@astrojs/internal-helpers': 0.7.6
@@ -3956,7 +3959,7 @@ snapshots:
       svgo: 4.0.1
       tinyexec: 1.2.2
       tinyglobby: 0.2.16
-      tsconfck: 3.1.6(typescript@5.9.3)
+      tsconfck: 3.1.6(typescript@6.0.3)
       ultrahtml: 1.6.0
       unifont: 0.7.4
       unist-util-visit: 5.1.0
@@ -3969,7 +3972,7 @@ snapshots:
       yocto-spinner: 0.2.3
       zod: 3.25.76
       zod-to-json-schema: 3.25.2(zod@3.25.76)
-      zod-to-ts: 1.2.0(typescript@5.9.3)(zod@3.25.76)
+      zod-to-ts: 1.2.0(typescript@6.0.3)(zod@3.25.76)
     optionalDependencies:
       sharp: 0.34.5
     transitivePeerDependencies:
@@ -4108,14 +4111,14 @@ snapshots:
 
   cookie@1.1.1: {}
 
-  cosmiconfig@9.0.1(typescript@5.9.3):
+  cosmiconfig@9.0.1(typescript@6.0.3):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
       js-yaml: 4.1.1
       parse-json: 5.2.0
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.3
 
   cross-spawn@7.0.6:
     dependencies:
@@ -5942,16 +5945,16 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.7
 
-  stylelint-config-recommended@18.0.0(stylelint@17.12.0(typescript@5.9.3)):
+  stylelint-config-recommended@18.0.0(stylelint@17.12.0(typescript@6.0.3)):
     dependencies:
-      stylelint: 17.12.0(typescript@5.9.3)
+      stylelint: 17.12.0(typescript@6.0.3)
 
-  stylelint-config-standard@40.0.0(stylelint@17.12.0(typescript@5.9.3)):
+  stylelint-config-standard@40.0.0(stylelint@17.12.0(typescript@6.0.3)):
     dependencies:
-      stylelint: 17.12.0(typescript@5.9.3)
-      stylelint-config-recommended: 18.0.0(stylelint@17.12.0(typescript@5.9.3))
+      stylelint: 17.12.0(typescript@6.0.3)
+      stylelint-config-recommended: 18.0.0(stylelint@17.12.0(typescript@6.0.3))
 
-  stylelint@17.12.0(typescript@5.9.3):
+  stylelint@17.12.0(typescript@6.0.3):
     dependencies:
       '@csstools/css-calc': 3.2.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
@@ -5961,7 +5964,7 @@ snapshots:
       '@csstools/selector-resolve-nested': 4.0.0(postcss-selector-parser@7.1.1)
       '@csstools/selector-specificity': 6.0.0(postcss-selector-parser@7.1.1)
       colord: 2.9.3
-      cosmiconfig: 9.0.1(typescript@5.9.3)
+      cosmiconfig: 9.0.1(typescript@6.0.3)
       css-functions-list: 3.3.3
       css-tree: 3.2.1
       debug: 4.4.3
@@ -6056,9 +6059,9 @@ snapshots:
 
   trough@2.2.0: {}
 
-  tsconfck@3.1.6(typescript@5.9.3):
+  tsconfck@3.1.6(typescript@6.0.3):
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.3
 
   tslib@2.8.1:
     optional: true
@@ -6069,7 +6072,7 @@ snapshots:
 
   type-fest@4.41.0: {}
 
-  typescript@5.9.3: {}
+  typescript@6.0.3: {}
 
   ufo@1.6.4: {}
 
@@ -6292,9 +6295,9 @@ snapshots:
     dependencies:
       zod: 3.25.76
 
-  zod-to-ts@1.2.0(typescript@5.9.3)(zod@3.25.76):
+  zod-to-ts@1.2.0(typescript@6.0.3)(zod@3.25.76):
     dependencies:
-      typescript: 5.9.3
+      typescript: 6.0.3
       zod: 3.25.76
 
   zod@3.25.76: {}

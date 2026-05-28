@@ -26,6 +26,18 @@ Security    — security-relevant changes
   release readiness for `0.0.1-alpha.0`, MVP polish (form controls,
   density modes, hyperscript story), quality work (visual regression,
   build optimization), and a P3 backlog.
+- TypeScript declarations (`.d.ts`) generated from JSDoc and shipped
+  alongside the runtime modules. `packages/core/tsconfig.json` drives
+  `tsc --emitDeclarationOnly --allowJs` into a staging directory; the
+  existing `bundle-js.mjs` flattens the result so each entry in the
+  `exports` map (`.`, `./behaviors`, `./macros`) has a sibling
+  `.d.ts`. The `exports` map now declares `types` for `./behaviors`
+  and `./macros` as well.
+- `packages/core/test/types.smoke.ts` + `tsconfig.smoke.json` — a
+  TypeScript smoke test that imports every public entry and is
+  checked via `pnpm --filter @hypermedia-components/core typecheck`.
+  The new `unit` CI job step runs it after the build so a regression
+  in the public type surface fails CI.
 
 ### Changed
 
@@ -33,6 +45,9 @@ Security    — security-relevant changes
   plans, lists the implemented surface, documents the lint / test /
   test:browser / examples commands, and points at Track 1 as the
   next concrete move.
+- `packages/core` `build` script now runs `build:types` (tsc) before
+  `build:js` so the bundler can copy the freshly emitted declarations
+  into `dist/`. `typescript` is a new `devDependency`.
 
 ---
 
