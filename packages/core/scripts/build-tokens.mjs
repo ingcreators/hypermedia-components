@@ -76,6 +76,83 @@ function resolveValue(raw, table, stack = []) {
   });
 }
 
+/**
+ * Collect every reference key reachable from `raw`, transitively through
+ * the table. Used to classify component leaves as theme-independent
+ * (no deps on themed semantic keys) vs theme-dependent.
+ */
+function collectDeps(raw, table, stack = [], deps = new Set()) {
+  const fullMatch = raw.match(REF_RE);
+  if (fullMatch) {
+    const ref = fullMatch[1];
+    deps.add(ref);
+    if (stack.includes(ref)) return deps;
+    const target = table.get(ref);
+    if (target != null) collectDeps(target, table, [...stack, ref], deps);
+    return deps;
+  }
+  for (const m of raw.matchAll(/\{([^}]+)\}/g)) {
+    const ref = m[1];
+    deps.add(ref);
+    if (stack.includes(ref)) continue;
+    const target = table.get(ref);
+    if (target != null) collectDeps(target, table, [...stack, ref], deps);
+  }
+  return deps;
+}
+
+/**
+ * For a runtime-themed source like `color.indigo`, build a resolution
+ * table that re-routes every `semantic.<path>` key the source overrides
+ * to that source's own value. Used to compute the leaf value of a
+ * theme-dependent component token *as if that theme were active*.
+ *
+ * Implementation: copy the base table, then for every leaf in the
+ * theme tree, set table[`semantic.<leaf-path>`] = leaf's `$value`.
+ */
+function tableWithThemeOverlay(baseTable, themeNamespace, trees) {
+  const overlay = new Map(baseTable);
+  walkLeaves(trees[themeNamespace], [], (path, leaf) => {
+    overlay.set(['semantic', ...path].join('.'), String(leaf.$value));
+  });
+  return overlay;
+}
+
+/**
+ * Index every `semantic.<path>` that any runtime-themed source (a
+ * `color.*` or `density.*` namespace) redefines. Component-layer
+ * leaves whose resolution depends on any of these keys cannot be
+ * baked into the static `:root { component }` block — their value
+ * changes when a runtime theme is applied to a nested wrapper, so we
+ * emit them inside each themed block instead.
+ *
+ * Returns: { themedAll: Set<key>, themedBySource: Map<namespace, Set<key>> }
+ *  - themedAll: union across all themed sources, used when classifying
+ *    component leaves for the `:root { component }` block.
+ *  - themedBySource: per-namespace set so each themed block knows
+ *    which component leaves it must additionally emit.
+ */
+function indexThemedKeys(sources, trees) {
+  const themedAll = new Set();
+  const themedBySource = new Map();
+  for (const src of sources) {
+    if (!src.namespace.startsWith('color.') && !src.namespace.startsWith('density.')) continue;
+    const keys = new Set();
+    walkLeaves(trees[src.namespace], [], (path) => {
+      const key = ['semantic', ...path].join('.');
+      keys.add(key);
+      themedAll.add(key);
+    });
+    themedBySource.set(src.namespace, keys);
+  }
+  return { themedAll, themedBySource };
+}
+
+function depsIntersect(deps, set) {
+  for (const d of deps) if (set.has(d)) return true;
+  return false;
+}
+
 function cssVarName(jsonPath) {
   return '--hc-' + jsonPath.join('-');
 }
@@ -97,16 +174,59 @@ function emitBlock(selector, lines) {
  */
 export function buildTokensCss({ sources, trees }) {
   const table = indexTokens(sources, trees);
+  const { themedAll, themedBySource } = indexThemedKeys(sources, trees);
+
+  // Pre-classify component leaves: those whose resolution path touches
+  // any themed semantic key cannot be baked once on :root — they must
+  // be redeclared inside each runtime-themed block with that theme's
+  // resolved leaf value. Mirrors how shadcn/Radix Themes emit
+  // component-scoped tokens (e.g. --card, --sidebar-primary) as plain
+  // leaf values in every theme variant.
+  const componentLeaves = []; // [{ path, value, deps }]
+  if (trees.component) {
+    walkLeaves(trees.component, [], (path, leaf) => {
+      const raw = String(leaf.$value);
+      const deps = collectDeps(raw, table);
+      componentLeaves.push({ path, raw, deps });
+    });
+  }
 
   const blocks = [];
   for (const src of sources) {
     if (src.emit === false) continue;
     const lines = [];
-    walkLeaves(trees[src.namespace], [], (path, leaf) => {
-      const name = cssVarName(path);
-      const value = resolveValue(String(leaf.$value), table);
-      lines.push(`${name}: ${value};`);
-    });
+
+    if (src.namespace === 'component') {
+      // Only theme-independent component leaves on the static `:root`
+      // block. Theme-dependent ones are re-emitted per themed block
+      // below.
+      for (const { path, raw, deps } of componentLeaves) {
+        const isThemed = depsIntersect(deps, themedAll);
+        if (isThemed) continue;
+        lines.push(`${cssVarName(path)}: ${resolveValue(raw, table)};`);
+      }
+    } else if (themedBySource.has(src.namespace)) {
+      // Themed sources (color.X / density.X). First emit the source's
+      // own overrides, then append every component leaf whose
+      // resolution depends on the *paths this source controls*. That
+      // way `color.indigo` redeclares --hc-button-primary-bg etc., but
+      // does not touch density-scoped component vars and vice-versa.
+      walkLeaves(trees[src.namespace], [], (path, leaf) => {
+        lines.push(`${cssVarName(path)}: ${resolveValue(String(leaf.$value), table)};`);
+      });
+      const ownedKeys = themedBySource.get(src.namespace);
+      const themeTable = tableWithThemeOverlay(table, src.namespace, trees);
+      for (const { path, raw, deps } of componentLeaves) {
+        if (!depsIntersect(deps, ownedKeys)) continue;
+        lines.push(`${cssVarName(path)}: ${resolveValue(raw, themeTable)};`);
+      }
+    } else {
+      // Plain non-themed sources (semantic, theme.dark, …) — unchanged.
+      walkLeaves(trees[src.namespace], [], (path, leaf) => {
+        lines.push(`${cssVarName(path)}: ${resolveValue(String(leaf.$value), table)};`);
+      });
+    }
+
     if (lines.length === 0) continue;
     blocks.push(emitBlock(src.selector, lines));
   }

@@ -15,22 +15,22 @@
       "bg": { "$type": "color", "$value": "{primitive.color.gray.100}" }
     },
     "primary": {
-      "bg":     { "$type": "color", "$value": "var(--hc-color-action-primary-bg)" },
-      "fg":     { "$type": "color", "$value": "var(--hc-color-action-primary-fg)" },
-      "border": { "$type": "color", "$value": "var(--hc-color-action-primary-border)" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.action.primary.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.action.primary.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.action.primary.border}" }
     },
     "primary-hover": {
-      "bg":     { "$type": "color", "$value": "var(--hc-color-action-primary-hover-bg)" },
-      "border": { "$type": "color", "$value": "var(--hc-color-action-primary-hover-border)" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.action.primary-hover.bg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.action.primary-hover.border}" }
     },
     "secondary": {
-      "bg":     { "$type": "color", "$value": "var(--hc-color-action-secondary-bg)" },
-      "fg":     { "$type": "color", "$value": "var(--hc-color-action-secondary-fg)" },
-      "border": { "$type": "color", "$value": "var(--hc-color-action-secondary-border)" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.action.secondary.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.action.secondary.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.action.secondary.border}" }
     },
     "secondary-hover": {
-      "bg":     { "$type": "color", "$value": "var(--hc-color-action-secondary-hover-bg)" },
-      "border": { "$type": "color", "$value": "var(--hc-color-action-secondary-hover-border)" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.action.secondary-hover.bg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.action.secondary-hover.border}" }
     },
     "error": {
       "bg":     { "$type": "color", "$value": "{semantic.color.action.error.bg}" },
@@ -47,7 +47,7 @@
       "border": { "$type": "color", "$value": "transparent" }
     },
     "ghost-hover": {
-      "bg": { "$type": "color", "$value": "var(--hc-color-action-primary-soft-bg)" }
+      "bg": { "$type": "color", "$value": "{semantic.color.action.primary-soft.bg}" }
     },
     "sm": {
       "height":     { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
@@ -69,7 +69,7 @@
     "fg":         { "$type": "color", "$value": "{semantic.color.text}" },
     "border":     { "$type": "color", "$value": "{semantic.color.border}" },
     "placeholder": { "$type": "color", "$value": "{semantic.color.text-muted}" },
-    "focus-border": { "$type": "color", "$value": "var(--hc-color-focus-ring)" },
+    "focus-border": { "$type": "color", "$value": "{semantic.color.focus-ring}" },
     "invalid-border": { "$type": "color", "$value": "{semantic.color.error}" },
     "disabled-bg": { "$type": "color", "$value": "{primitive.color.gray.100}" },
     "sm": {
@@ -89,8 +89,8 @@
     "border":           { "$type": "color",     "$value": "{semantic.color.border}" },
     "radius":           { "$type": "dimension", "$value": "{primitive.radius.sm}" },
     "bg":               { "$type": "color",     "$value": "{semantic.color.surface}" },
-    "checked-bg":       { "$type": "color",     "$value": "var(--hc-color-action-primary-bg)" },
-    "checked-border":   { "$type": "color",     "$value": "var(--hc-color-action-primary-border)" },
+    "checked-bg":       { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "checked-border":   { "$type": "color",     "$value": "{semantic.color.action.primary.border}" },
     "success-checked-bg":     { "$type": "color", "$value": "{semantic.color.success}" },
     "success-checked-border": { "$type": "color", "$value": "{semantic.color.success}" },
     "warning-checked-bg":     { "$type": "color", "$value": "{semantic.color.warning}" },
@@ -112,8 +112,8 @@
     "border-width":     { "$type": "dimension", "$value": "1px" },
     "border":           { "$type": "color",     "$value": "{semantic.color.border}" },
     "bg":               { "$type": "color",     "$value": "{semantic.color.surface}" },
-    "checked-bg":       { "$type": "color",     "$value": "var(--hc-color-action-primary-bg)" },
-    "checked-border":   { "$type": "color",     "$value": "var(--hc-color-action-primary-border)" },
+    "checked-bg":       { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "checked-border":   { "$type": "color",     "$value": "{semantic.color.action.primary.border}" },
     "success-checked-bg":     { "$type": "color", "$value": "{semantic.color.success}" },
     "success-checked-border": { "$type": "color", "$value": "{semantic.color.success}" },
     "warning-checked-bg":     { "$type": "color", "$value": "{semantic.color.warning}" },
@@ -235,9 +235,9 @@
     "fg":           { "$type": "color",      "$value": "{semantic.color.text}" },
     "border":       { "$type": "color",      "$value": "transparent" },
     "hover-bg":     { "$type": "color",      "$value": "{primitive.color.gray.100}" },
-    "current-bg":   { "$type": "color",      "$value": "var(--hc-color-action-primary-bg)" },
-    "current-fg":   { "$type": "color",      "$value": "var(--hc-color-action-primary-fg)" },
-    "current-border": { "$type": "color",    "$value": "var(--hc-color-action-primary-border)" },
+    "current-bg":   { "$type": "color",      "$value": "{semantic.color.action.primary.bg}" },
+    "current-fg":   { "$type": "color",      "$value": "{semantic.color.action.primary.fg}" },
+    "current-border": { "$type": "color",    "$value": "{semantic.color.action.primary.border}" },
     "disabled-fg":  { "$type": "color",      "$value": "{semantic.color.text-muted}" }
   },
   "toast": {
@@ -285,17 +285,17 @@
       "hover-fg":       { "$type": "color",      "$value": "{semantic.color.text}" },
       "hover-bg":       { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
       "active-fg":      { "$type": "color",      "$value": "{semantic.color.text}" },
-      "indicator":      { "$type": "color",      "$value": "var(--hc-color-action-primary-bg)" },
+      "indicator":      { "$type": "color",      "$value": "{semantic.color.action.primary.bg}" },
       "indicator-size": { "$type": "dimension",  "$value": "2px" },
       "disabled-fg":    { "$type": "color",      "$value": "{semantic.color.text-muted}" }
     },
     "pill": {
-      "active-bg": { "$type": "color", "$value": "var(--hc-color-action-primary-bg)" },
-      "active-fg": { "$type": "color", "$value": "var(--hc-color-action-primary-fg)" }
+      "active-bg": { "$type": "color", "$value": "{semantic.color.action.primary.bg}" },
+      "active-fg": { "$type": "color", "$value": "{semantic.color.action.primary.fg}" }
     },
     "panel": {
       "padding-y":  { "$type": "dimension", "$value": "{semantic.space.4}" },
-      "focus-ring": { "$type": "color",     "$value": "var(--hc-color-focus-ring)" }
+      "focus-ring": { "$type": "color",     "$value": "{semantic.color.focus-ring}" }
     },
     "sm": {
       "tab-height":    { "$type": "dimension", "$value": "{primitive.size.control.sm}" },

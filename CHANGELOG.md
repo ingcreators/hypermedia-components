@@ -20,6 +20,49 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Changed
+
+- **Component-layer color tokens now emit as resolved leaf values per
+  theme, mirroring shadcn / Radix Themes.** The old encoding placed
+  `var(--hc-color-action-primary-bg)` literals inside the static
+  `:root { component }` block. CSS custom properties resolve `var()`
+  at the *declaring* element's computed-value time, so a nested
+  `<div data-color="indigo">` could recolour `--hc-color-action-primary-bg`
+  but every consumer (`--hc-button-primary-bg`, `--hc-checkbox-checked-bg`,
+  `--hc-tabs-tab-indicator`, `--hc-input-focus-border`, …) had already
+  baked the `:root`-level value and stayed blue. The same issue
+  affected the v0.4 themes-page preview.
+
+  Two coordinated changes:
+
+  - `packages/core/src/tokens/component.tokens.json` — every
+    `"$value": "var(--hc-color-action-*)"` and `"var(--hc-color-focus-ring)"`
+    now uses the canonical `{semantic.color.action.*}` /
+    `{semantic.color.focus-ring}` reference syntax. Also adds
+    `semantic.color.action.primary-soft.bg` to `semantic.tokens.json`
+    so the reference resolves at the semantic layer (previously it
+    only existed under `color.*` files).
+  - `packages/core/scripts/build-tokens.mjs` — new theme-overlay
+    emission. Detects every semantic key that any runtime-themed
+    source (`color.*`, `density.*`) redefines, classifies component
+    leaves as theme-independent vs theme-dependent based on whether
+    their resolution touches those keys, and emits theme-dependent
+    leaves *inside each themed block* with that theme's resolved
+    value. The `:root { component }` block only carries
+    theme-independent leaves.
+
+  Result: each `[data-color]` block now redeclares
+  `--hc-button-primary-bg`, `--hc-checkbox-checked-bg`,
+  `--hc-tabs-tab-indicator`, etc. as leaf colours — the shadcn
+  pattern. Nested wrappers therefore cascade correctly and consumers
+  can still override an individual `--hc-button-primary-bg` in any
+  scope without touching the semantic layer.
+
+  Token count climbed from 416 to 489 (~+18 KB raw on the unminified
+  bundle). Three new Vitest cases cover the new emission rule, and a
+  new Playwright `nested-theme.spec.mjs` (15 cases) probes computed
+  styles across all five themes × three primitives.
+
 ### Fixed
 
 - Docs site previews now actually behave on click and keyboard. The
