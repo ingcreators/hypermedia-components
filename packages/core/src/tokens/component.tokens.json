@@ -15,13 +15,13 @@
       "bg": { "$type": "color", "$value": "{primitive.color.gray.100}" }
     },
     "primary": {
-      "bg":     { "$type": "color", "$value": "{semantic.color.action.primary.bg}" },
-      "fg":     { "$type": "color", "$value": "{semantic.color.action.primary.fg}" },
-      "border": { "$type": "color", "$value": "{semantic.color.action.primary.border}" }
+      "bg":     { "$type": "color", "$value": "var(--hc-color-action-primary-bg)" },
+      "fg":     { "$type": "color", "$value": "var(--hc-color-action-primary-fg)" },
+      "border": { "$type": "color", "$value": "var(--hc-color-action-primary-border)" }
     },
     "primary-hover": {
-      "bg":     { "$type": "color", "$value": "{semantic.color.action.primary-hover.bg}" },
-      "border": { "$type": "color", "$value": "{semantic.color.action.primary-hover.border}" }
+      "bg":     { "$type": "color", "$value": "var(--hc-color-action-primary-hover-bg)" },
+      "border": { "$type": "color", "$value": "var(--hc-color-action-primary-hover-border)" }
     },
     "danger": {
       "bg":     { "$type": "color", "$value": "{semantic.color.action.danger.bg}" },
@@ -80,8 +80,8 @@
     "border":           { "$type": "color",     "$value": "{semantic.color.border}" },
     "radius":           { "$type": "dimension", "$value": "{primitive.radius.sm}" },
     "bg":               { "$type": "color",     "$value": "{semantic.color.surface}" },
-    "checked-bg":       { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
-    "checked-border":   { "$type": "color",     "$value": "{semantic.color.action.primary.border}" },
+    "checked-bg":       { "$type": "color",     "$value": "var(--hc-color-action-primary-bg)" },
+    "checked-border":   { "$type": "color",     "$value": "var(--hc-color-action-primary-border)" },
     "success-checked-bg":     { "$type": "color", "$value": "{primitive.color.green.600}" },
     "success-checked-border": { "$type": "color", "$value": "{primitive.color.green.600}" },
     "danger-checked-bg":      { "$type": "color", "$value": "{semantic.color.action.danger.bg}" },
@@ -95,8 +95,8 @@
     "border-width":     { "$type": "dimension", "$value": "1px" },
     "border":           { "$type": "color",     "$value": "{semantic.color.border}" },
     "bg":               { "$type": "color",     "$value": "{semantic.color.surface}" },
-    "checked-bg":       { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
-    "checked-border":   { "$type": "color",     "$value": "{semantic.color.action.primary.border}" },
+    "checked-bg":       { "$type": "color",     "$value": "var(--hc-color-action-primary-bg)" },
+    "checked-border":   { "$type": "color",     "$value": "var(--hc-color-action-primary-border)" },
     "success-checked-bg":     { "$type": "color", "$value": "{primitive.color.green.600}" },
     "success-checked-border": { "$type": "color", "$value": "{primitive.color.green.600}" },
     "danger-checked-bg":      { "$type": "color", "$value": "{semantic.color.action.danger.bg}" },
@@ -210,9 +210,9 @@
     "fg":           { "$type": "color",      "$value": "{semantic.color.text}" },
     "border":       { "$type": "color",      "$value": "transparent" },
     "hover-bg":     { "$type": "color",      "$value": "{primitive.color.gray.100}" },
-    "current-bg":   { "$type": "color",      "$value": "{semantic.color.action.primary.bg}" },
-    "current-fg":   { "$type": "color",      "$value": "{semantic.color.action.primary.fg}" },
-    "current-border": { "$type": "color",    "$value": "{semantic.color.action.primary.border}" },
+    "current-bg":   { "$type": "color",      "$value": "var(--hc-color-action-primary-bg)" },
+    "current-fg":   { "$type": "color",      "$value": "var(--hc-color-action-primary-fg)" },
+    "current-border": { "$type": "color",    "$value": "var(--hc-color-action-primary-border)" },
     "disabled-fg":  { "$type": "color",      "$value": "{semantic.color.text-muted}" }
   },
   "toast": {

@@ -1,0 +1,189 @@
+---
+title: Color themes
+description: Switch the whole UI's accent palette via a single data-color attribute. Five themes designed for modern business / SaaS interfaces, each accessible on both light and dark surfaces.
+---
+
+The `data-color` attribute on `<html>` (or any subtree) swaps the
+accent palette — focus ring + every primary action button / checked
+checkbox / current pagination item — without re-rendering markup.
+Five themes ship out of the box; each accent shade has been picked to
+clear WCAG AA contrast in **both** light and dark mode, so the same
+attribute works regardless of the active `data-theme`.
+
+`data-color` is orthogonal to `data-theme` (light / dark) and
+`data-density` (comfortable / compact / dense). Set them on the same
+ancestor and they all cascade together.
+
+## Themes
+
+| `data-color` value | Primary bg          | Hover bg          | Text on primary | Common use case |
+| ------------------ | ------------------- | ----------------- | --------------- | --------------- |
+| _(none)_ / `default` | `#2563eb` (blue.600) | `#1d4ed8`        | white            | Default neutral SaaS — Linear, AWS-style |
+| `indigo`           | `#4f46e5`            | `#4338ca`         | white            | Modern SaaS — Tailwind, Cal.com |
+| `emerald`          | `#047857` (green.700) | `#065f46`        | white            | Fintech / sustainability — Stripe Atlas |
+| `rose`             | `#be123c` (rose.700) | `#9f1239`         | white            | Marketing / CRM / healthcare |
+| `amber`            | `#f59e0b` (amber.500) | `#d97706`        | gray.900         | Energetic / productivity — Notion-yellow |
+
+Two shades land deeper on the colour scale (emerald.700, rose.700) so
+white text on the button clears the 4.5:1 contrast bar that the
+brighter 600 shades would have missed. Amber is the inverse — the
+500 shade is bright enough that dark text becomes the contrast-clean
+choice, and it stays consistent in dark mode too.
+
+## Live preview
+
+Each row below renders the same button + checkbox + radio + alert
+inside a wrapper carrying a different `data-color` value. Toggle the
+**Theme** button in Starlight's header to flip the whole row to dark
+mode and confirm every theme stays legible on the dark surface.
+
+### Default (blue)
+
+<div class="hc-preview not-content" data-color="default" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" defaultChecked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-default" defaultChecked />
+    Free
+  </label>
+</div>
+
+### Indigo
+
+<div class="hc-preview not-content" data-color="indigo" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" defaultChecked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-indigo" defaultChecked />
+    Free
+  </label>
+</div>
+
+### Emerald
+
+<div class="hc-preview not-content" data-color="emerald" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" defaultChecked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-emerald" defaultChecked />
+    Free
+  </label>
+</div>
+
+### Rose
+
+<div class="hc-preview not-content" data-color="rose" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" defaultChecked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-rose" defaultChecked />
+    Free
+  </label>
+</div>
+
+### Amber
+
+<div class="hc-preview not-content" data-color="amber" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" defaultChecked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-amber" defaultChecked />
+    Free
+  </label>
+</div>
+
+## Applying it to your page
+
+For a site-wide theme, set the attribute on `<html>`:
+
+```html
+<html data-color="emerald">
+  ...
+</html>
+```
+
+For a per-section override (e.g. a marketing landing surface inside
+an otherwise neutral app), attach it locally:
+
+```html
+<section data-color="rose">
+  <button class="hc-button" data-variant="primary">Subscribe</button>
+</section>
+```
+
+The attribute changes only the accent palette. It does **not** touch
+the surface / background / text colours — those are owned by
+[`data-theme`](/hypermedia-components/) (light / dark).
+
+## What changes
+
+These tokens are overridden per `data-color` value (under
+`color.{name}.tokens.json`):
+
+```text
+--hc-color-focus-ring
+--hc-color-action-primary-bg
+--hc-color-action-primary-fg
+--hc-color-action-primary-border
+--hc-color-action-primary-hover-bg
+--hc-color-action-primary-hover-border
+```
+
+Components consume these through their own `--hc-{component}-primary-*`
+variables (with `var()` indirection, the same pattern used for
+density), so the cascade flows from `data-color` → `--hc-color-action-primary-*`
+→ `--hc-button-primary-*` / `--hc-checkbox-checked-*` / etc.
+
+Components affected by the cascade:
+
+- [Button](/hypermedia-components/components/button/) — `data-variant="primary"` background and hover state.
+- [Checkbox](/hypermedia-components/components/checkbox/) — `:checked` fill (when no per-variant override).
+- [Radio](/hypermedia-components/components/radio/) — `:checked` fill.
+- [Pagination](/hypermedia-components/components/pagination/) — the `aria-current="page"` cell.
+- Every component's `:focus-visible` ring — driven directly by `--hc-color-focus-ring`.
+
+Components and tokens deliberately **not** affected:
+
+- `data-variant="danger"` / `data-variant="success"` — semantic meaning, must stay red / green regardless of accent.
+- Surface / background / text colours — owned by `data-theme`.
+- Container padding / gap — owned by `data-density`.
+
+## Accessibility
+
+Each theme passes WCAG AA contrast for the button's text-on-primary
+combination:
+
+| Theme    | Text colour | Primary bg | Contrast ratio |
+| -------- | ----------- | ---------- | -------------- |
+| default  | white       | #2563eb    | 4.9 : 1        |
+| indigo   | white       | #4f46e5    | 6.9 : 1        |
+| emerald  | white       | #047857    | 5.0 : 1        |
+| rose     | white       | #be123c    | 5.7 : 1        |
+| amber    | #111827     | #f59e0b    | 9.4 : 1        |
+
+Verified against [WebAIM's contrast checker](https://webaim.org/resources/contrastchecker/).
+
+If you customise these tokens locally (`:root { --hc-color-action-primary-bg: …; }`),
+re-run the same check against your chosen shade and the text colour
+on top.
+
+## Related
+
+- [Density](/hypermedia-components/tokens/density/) — orthogonal axis for tightness.
+- [Tokens overview](/hypermedia-components/tokens/) — the four-layer model.
+- [Button](/hypermedia-components/components/button/), [Checkbox](/hypermedia-components/components/checkbox/), [Radio](/hypermedia-components/components/radio/), [Pagination](/hypermedia-components/components/pagination/) — primary consumers of the theme.

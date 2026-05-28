@@ -1,0 +1,17 @@
+{
+  "$description": "Default colour theme — blue. Emitted under :root and [data-color=\"default\"]. Values mirror semantic.color.action.primary / focus-ring so explicit data-color=\"default\" matches the unset state.",
+  "color": {
+    "focus-ring": { "$type": "color", "$value": "{primitive.color.blue.500}" },
+    "action": {
+      "primary": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.blue.600}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.white}" },
+        "border": { "$type": "color", "$value": "{primitive.color.blue.600}" }
+      },
+      "primary-hover": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.blue.700}" },
+        "border": { "$type": "color", "$value": "{primitive.color.blue.700}" }
+      }
+    }
+  }
+}

@@ -142,6 +142,30 @@ Security    — security-relevant changes
 
 ### Changed
 
+- Color themes — five accent palettes (default / indigo / emerald /
+  rose / amber) selectable via a `data-color` attribute on `<html>`
+  or any subtree. Each theme overrides only the accent variables
+  (`--hc-color-focus-ring`, `--hc-color-action-primary-*`,
+  `--hc-color-action-primary-hover-*`); surface / background / text
+  colours stay under the existing `data-theme` (light / dark) axis,
+  and container spacing stays under `data-density`. The three axes
+  cascade independently. The button / checkbox / radio / pagination
+  component tokens now resolve their primary-action vars through
+  `var(--hc-color-action-primary-*)` (the same indirection pattern
+  density uses) so the swap propagates without component-CSS edits.
+  - Five new files under `packages/core/src/tokens/`
+    (`color.{default,indigo,emerald,rose,amber}.tokens.json`).
+  - `primitive.tokens.json` gains `indigo` and `rose` scales plus
+    the missing `green.500` and `amber.500` shades.
+  - Each theme's primary shade is verified to clear WCAG AA
+    contrast (≥ 4.5:1) for text-on-primary in both light and dark
+    mode — emerald and rose use the `.700` shade, amber pairs the
+    bright `.500` with dark text.
+  - New docs page `tokens/themes.mdx` with a live preview row per
+    theme and the full contrast table.
+  - Starlight docs site picker — second `<select>` next to the
+    existing density picker, persists to `localStorage['hc-color']`,
+    pre-applied by the FOUC head script.
 - Density now scales container paddings and gaps in addition to
   control sizes, so the whole layout tightens or relaxes evenly
   instead of leaving the buttons compact while cards and dialogs

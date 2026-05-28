@@ -139,6 +139,16 @@ export const DEFAULT_SOURCES = [
   { namespace: 'density.comfortable', file: 'density.comfortable.tokens.json', selector: ':root, [data-density="comfortable"]' },
   { namespace: 'density.compact',     file: 'density.compact.tokens.json',     selector: '[data-density="compact"]' },
   { namespace: 'density.dense',       file: 'density.dense.tokens.json',       selector: '[data-density="dense"]' },
+  // Colour themes override the accent palette (focus ring + action.primary).
+  // The default theme is emitted under both :root and [data-color="default"]
+  // so an explicit attribute behaves the same as the unset state. Each
+  // theme's accent shade is chosen for WCAG-AA contrast on both light
+  // and dark surfaces — no per-mode variants needed.
+  { namespace: 'color.default', file: 'color.default.tokens.json', selector: ':root, [data-color="default"]' },
+  { namespace: 'color.indigo',  file: 'color.indigo.tokens.json',  selector: '[data-color="indigo"]' },
+  { namespace: 'color.emerald', file: 'color.emerald.tokens.json', selector: '[data-color="emerald"]' },
+  { namespace: 'color.rose',    file: 'color.rose.tokens.json',    selector: '[data-color="rose"]' },
+  { namespace: 'color.amber',   file: 'color.amber.tokens.json',   selector: '[data-color="amber"]' },
 ];
 
 async function main() {

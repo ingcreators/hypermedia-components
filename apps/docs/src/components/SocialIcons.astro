@@ -2,23 +2,34 @@
 // Starlight `SocialIcons` override.
 //
 // Renders Starlight's default icons (the GitHub link from
-// `social: {github: ...}` in astro.config.mjs) and appends a density
-// picker so visitors can preview every component / recipe at any of
-// the three Hypermedia Components densities. The choice is persisted
-// to localStorage; an inline head script (see astro.config.mjs)
-// applies it before first paint so there is no flash of comfortable
-// content for repeat visitors.
+// `social: {github: ...}` in astro.config.mjs) and appends two
+// pickers so visitors can preview every component / recipe at any
+// of the Hypermedia Components density tiers and colour themes.
+// Both choices are persisted to localStorage; an inline head script
+// (see astro.config.mjs) applies them before first paint so there
+// is no flash for repeat visitors.
 //
-// Theme switching (dark / light) already flows from Starlight's own
-// theme select: both Starlight and HC tokens read `data-theme` on
-// `<html>`, so the cascade is automatic — no extra wiring needed.
+// Light / dark theme switching is owned by Starlight's own picker:
+// both Starlight and HC tokens read `data-theme` on `<html>`, so
+// the cascade is automatic — no extra wiring needed.
 import Default from '@astrojs/starlight/components/SocialIcons.astro';
 ---
 
 <Default><slot /></Default>
 
-<label class="hc-density" aria-label="Density">
-  <span class="hc-density__label">Density</span>
+<label class="hc-picker" aria-label="Colour theme">
+  <span class="hc-picker__label">Color</span>
+  <select id="hc-color-select" aria-label="Colour theme">
+    <option value="default">Default</option>
+    <option value="indigo">Indigo</option>
+    <option value="emerald">Emerald</option>
+    <option value="rose">Rose</option>
+    <option value="amber">Amber</option>
+  </select>
+</label>
+
+<label class="hc-picker" aria-label="Density">
+  <span class="hc-picker__label">Density</span>
   <select id="hc-density-select" aria-label="Density">
     <option value="comfortable">Comfortable</option>
     <option value="compact">Compact</option>
@@ -27,44 +38,48 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
 </label>
 
 <script>
-  const STORAGE_KEY = 'hc-density';
-  const VALUES = ['comfortable', 'compact', 'dense'];
+  /** @type {Array<{ key: string, attr: string, values: string[], fallback: string, id: string }>} */
+  const PICKERS = [
+    { key: 'hc-density', attr: 'data-density', values: ['comfortable', 'compact', 'dense'], fallback: 'comfortable', id: 'hc-density-select' },
+    { key: 'hc-color',   attr: 'data-color',   values: ['default', 'indigo', 'emerald', 'rose', 'amber'], fallback: 'default', id: 'hc-color-select' },
+  ];
 
-  function read() {
-    try {
-      const v = localStorage.getItem(STORAGE_KEY);
-      return VALUES.includes(v) ? v : 'comfortable';
-    } catch {
-      return 'comfortable';
+  for (const p of PICKERS) {
+    /** @returns {string} */
+    const read = () => {
+      try {
+        const v = localStorage.getItem(p.key);
+        return p.values.includes(v) ? v : p.fallback;
+      } catch {
+        return p.fallback;
+      }
+    };
+
+    /** @param {string} v */
+    const apply = (v) => document.documentElement.setAttribute(p.attr, v);
+
+    const init = () => {
+      const current = read();
+      apply(current);
+      const select = document.getElementById(p.id);
+      if (!(select instanceof HTMLSelectElement)) return;
+      select.value = current;
+      select.addEventListener('change', () => {
+        apply(select.value);
+        try { localStorage.setItem(p.key, select.value); } catch {}
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+      init();
     }
-  }
-
-  function apply(value) {
-    document.documentElement.setAttribute('data-density', value);
-  }
-
-  function init() {
-    const current = read();
-    apply(current);
-
-    const select = document.getElementById('hc-density-select');
-    if (!(select instanceof HTMLSelectElement)) return;
-    select.value = current;
-    select.addEventListener('change', () => {
-      apply(select.value);
-      try { localStorage.setItem(STORAGE_KEY, select.value); } catch {}
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
-  } else {
-    init();
   }
 </script>
 
 <style>
-  .hc-density {
+  .hc-picker {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -73,19 +88,20 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
     color: var(--sl-color-gray-2);
   }
 
-  .hc-density__label {
-    /* Hide the visible label on narrow viewports — the select has
+  .hc-picker__label {
+    /* Hide the visible label on narrow viewports — each select has
        its own aria-label, so AT users still get the affordance. */
     display: none;
   }
 
-  @media (min-width: 50rem) {
-    .hc-density__label {
+  @media (min-width: 64rem) {
+    .hc-picker__label {
       display: inline;
     }
   }
 
-  #hc-density-select {
+  #hc-density-select,
+  #hc-color-select {
     appearance: auto;
     font: inherit;
     padding: 0.25rem 0.4rem;
@@ -96,7 +112,8 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
     cursor: pointer;
   }
 
-  #hc-density-select:focus-visible {
+  #hc-density-select:focus-visible,
+  #hc-color-select:focus-visible {
     outline: 2px solid var(--sl-color-text-accent);
     outline-offset: 1px;
   }

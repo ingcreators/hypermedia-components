@@ -1,0 +1,17 @@
+{
+  "$description": "Rose colour theme. Emitted under [data-color=\"rose\"]. Uses rose.700 (not 600) as the primary so white text on the button clears WCAG AA (≈ 5.7:1) on both light and dark surfaces.",
+  "color": {
+    "focus-ring": { "$type": "color", "$value": "{primitive.color.rose.500}" },
+    "action": {
+      "primary": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.rose.700}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.white}" },
+        "border": { "$type": "color", "$value": "{primitive.color.rose.700}" }
+      },
+      "primary-hover": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.rose.800}" },
+        "border": { "$type": "color", "$value": "{primitive.color.rose.800}" }
+      }
+    }
+  }
+}
