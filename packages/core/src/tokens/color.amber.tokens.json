@@ -1,0 +1,17 @@
+{
+  "$description": "Amber colour theme. Emitted under [data-color=\"amber\"]. Bright orange-amber; uses gray.900 text (not white) on the button for clear AA contrast (amber.500 + gray.900 = ≈ 9.4:1).",
+  "color": {
+    "focus-ring": { "$type": "color", "$value": "{primitive.color.amber.500}" },
+    "action": {
+      "primary": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.amber.500}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.gray.900}" },
+        "border": { "$type": "color", "$value": "{primitive.color.amber.500}" }
+      },
+      "primary-hover": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.amber.600}" },
+        "border": { "$type": "color", "$value": "{primitive.color.amber.600}" }
+      }
+    }
+  }
+}

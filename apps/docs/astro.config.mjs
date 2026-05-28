@@ -38,10 +38,10 @@ export default defineConfig({
         './src/styles/custom.css',
         './src/styles/preview.css',
       ],
-      // Pre-apply the saved Hypermedia Components density (if any)
-      // before first paint, so repeat visitors don't see a flash of
-      // the comfortable default. Mirrors how Starlight pre-applies
-      // its own theme.
+      // Pre-apply the saved Hypermedia Components density and colour
+      // theme (if any) before first paint so repeat visitors don't see
+      // a flash of the comfortable / default state. Mirrors how
+      // Starlight pre-applies its own light/dark theme.
       head: [
         {
           tag: 'script',
@@ -53,14 +53,20 @@ export default defineConfig({
                   document.documentElement.setAttribute('data-density', d);
                 }
               } catch (e) {}
+              try {
+                var c = localStorage.getItem('hc-color');
+                if (c === 'default' || c === 'indigo' || c === 'emerald' || c === 'rose' || c === 'amber') {
+                  document.documentElement.setAttribute('data-color', c);
+                }
+              } catch (e) {}
             })();
           `.trim(),
         },
       ],
-      // Override SocialIcons to add a density picker next to Starlight's
-      // theme selector. Theme switching (Starlight ↔ HC) needs no
-      // override — both read the same `data-theme` attribute on
-      // <html>.
+      // Override SocialIcons to add density + colour theme pickers
+      // next to Starlight's light/dark switcher. Light/dark sync
+      // needs no override — both Starlight and HC read the same
+      // `data-theme` attribute on <html>.
       components: {
         SocialIcons: './src/components/SocialIcons.astro',
       },

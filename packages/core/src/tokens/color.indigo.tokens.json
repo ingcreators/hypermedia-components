@@ -1,0 +1,17 @@
+{
+  "$description": "Indigo colour theme. Emitted under [data-color=\"indigo\"]. Purple-leaning blue; works on both light and dark backgrounds with white text on primary (indigo.600 + white = ≈ 6.9:1, AA-clean).",
+  "color": {
+    "focus-ring": { "$type": "color", "$value": "{primitive.color.indigo.500}" },
+    "action": {
+      "primary": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.indigo.600}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.white}" },
+        "border": { "$type": "color", "$value": "{primitive.color.indigo.600}" }
+      },
+      "primary-hover": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.indigo.700}" },
+        "border": { "$type": "color", "$value": "{primitive.color.indigo.700}" }
+      }
+    }
+  }
+}
