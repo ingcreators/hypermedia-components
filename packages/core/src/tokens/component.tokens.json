@@ -38,7 +38,7 @@
       "border": { "$type": "color", "$value": "transparent" }
     },
     "ghost-hover": {
-      "bg": { "$type": "color", "$value": "{primitive.color.gray.100}" }
+      "bg": { "$type": "color", "$value": "var(--hc-color-action-primary-soft-bg)" }
     },
     "sm": {
       "height":     { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
@@ -60,7 +60,7 @@
     "fg":         { "$type": "color", "$value": "{semantic.color.text}" },
     "border":     { "$type": "color", "$value": "{semantic.color.border}" },
     "placeholder": { "$type": "color", "$value": "{semantic.color.text-muted}" },
-    "focus-border": { "$type": "color", "$value": "{semantic.color.focus-ring}" },
+    "focus-border": { "$type": "color", "$value": "var(--hc-color-focus-ring)" },
     "invalid-border": { "$type": "color", "$value": "{semantic.color.danger}" },
     "disabled-bg": { "$type": "color", "$value": "{primitive.color.gray.100}" },
     "sm": {

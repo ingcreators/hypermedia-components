@@ -142,6 +142,32 @@ Security    — security-relevant changes
 
 ### Changed
 
+- Color themes now reach further than just the primary action — the
+  same `data-color` attribute also drives the **input focus border**,
+  the **ghost button hover background**, and the **text ::selection
+  highlight**. Three high-traffic interaction surfaces that used to
+  stay a neutral grey / hard-coded blue regardless of theme now
+  follow the active palette.
+  - Added `--hc-color-action-primary-soft-bg` to every
+    `color.{theme}.tokens.json` — a 12 % (18 % for amber) tint of
+    the theme primary produced via `color-mix(... transparent)`. The
+    transparency means the same value blends naturally on both light
+    and dark surfaces; no per-mode variant required.
+  - `component.tokens.json` swaps two more values to `var()`
+    indirection:
+    - `input.focus-border` → `var(--hc-color-focus-ring)` (previous
+      build baked semantic.color.focus-ring as `#3b82f6`, so the
+      input focus outline stayed blue even on indigo / emerald /
+      rose / amber).
+    - `button.ghost-hover.bg` → `var(--hc-color-action-primary-soft-bg)`
+      (was a hard-coded `gray.100`).
+  - `hc.base.css` adds a global `::selection { background-color:
+    var(--hc-color-action-primary-soft-bg) }` rule so text-selection
+    on any HC page becomes a low-key brand cue.
+  - The themes docs page (`tokens/themes.mdx`) now exercises the
+    full set in every per-theme preview row — primary button + ghost
+    button + input + checkbox + radio + a snippet of selectable text
+    — so you can see all five touchpoints at a glance.
 - Color themes — five accent palettes (default / indigo / emerald /
   rose / amber) selectable via a `data-color` attribute on `<html>`
   or any subtree. Each theme overrides only the accent variables

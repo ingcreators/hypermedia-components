@@ -37,10 +37,18 @@ inside a wrapper carrying a different `data-color` value. Toggle the
 **Theme** button in Starlight's header to flip the whole row to dark
 mode and confirm every theme stays legible on the dark surface.
 
+Each row exercises the full set of theme-aware surfaces: a primary
+button, a ghost button (hover it to see the soft tint), an input
+(focus it to see the themed border + ring), a checked checkbox, and
+a checked radio. Selecting the helper text inside any row shows the
+themed `::selection` highlight.
+
 ### Default (blue)
 
 <div class="hc-preview not-content" data-color="default" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" defaultValue="focus me" style="inline-size:9rem;" />
   <label class="hc-checkbox-label">
     <input class="hc-checkbox" type="checkbox" defaultChecked />
     Notify me
@@ -49,12 +57,15 @@ mode and confirm every theme stays legible on the dark surface.
     <input class="hc-radio" type="radio" name="t-default" defaultChecked />
     Free
   </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
 ### Indigo
 
 <div class="hc-preview not-content" data-color="indigo" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" defaultValue="focus me" style="inline-size:9rem;" />
   <label class="hc-checkbox-label">
     <input class="hc-checkbox" type="checkbox" defaultChecked />
     Notify me
@@ -63,12 +74,15 @@ mode and confirm every theme stays legible on the dark surface.
     <input class="hc-radio" type="radio" name="t-indigo" defaultChecked />
     Free
   </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
 ### Emerald
 
 <div class="hc-preview not-content" data-color="emerald" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" defaultValue="focus me" style="inline-size:9rem;" />
   <label class="hc-checkbox-label">
     <input class="hc-checkbox" type="checkbox" defaultChecked />
     Notify me
@@ -77,12 +91,15 @@ mode and confirm every theme stays legible on the dark surface.
     <input class="hc-radio" type="radio" name="t-emerald" defaultChecked />
     Free
   </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
 ### Rose
 
 <div class="hc-preview not-content" data-color="rose" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" defaultValue="focus me" style="inline-size:9rem;" />
   <label class="hc-checkbox-label">
     <input class="hc-checkbox" type="checkbox" defaultChecked />
     Notify me
@@ -91,12 +108,15 @@ mode and confirm every theme stays legible on the dark surface.
     <input class="hc-radio" type="radio" name="t-rose" defaultChecked />
     Free
   </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
 ### Amber
 
 <div class="hc-preview not-content" data-color="amber" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" defaultValue="focus me" style="inline-size:9rem;" />
   <label class="hc-checkbox-label">
     <input class="hc-checkbox" type="checkbox" defaultChecked />
     Notify me
@@ -105,6 +125,7 @@ mode and confirm every theme stays legible on the dark surface.
     <input class="hc-radio" type="radio" name="t-amber" defaultChecked />
     Free
   </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
 ## Applying it to your page
@@ -142,20 +163,30 @@ These tokens are overridden per `data-color` value (under
 --hc-color-action-primary-border
 --hc-color-action-primary-hover-bg
 --hc-color-action-primary-hover-border
+--hc-color-action-primary-soft-bg
 ```
 
-Components consume these through their own `--hc-{component}-primary-*`
-variables (with `var()` indirection, the same pattern used for
-density), so the cascade flows from `data-color` → `--hc-color-action-primary-*`
-→ `--hc-button-primary-*` / `--hc-checkbox-checked-*` / etc.
+`primary-soft-bg` is a 12 % (18 % for amber) tint of the theme's
+primary colour generated with `color-mix()` and `transparent`, so the
+same value blends correctly on both light and dark surfaces — no
+per-mode variant required.
 
-Components affected by the cascade:
+Components consume these through their own `--hc-{component}-*`
+variables (with `var()` indirection, the same pattern used for
+density), so the cascade flows from `data-color` →
+`--hc-color-action-primary-*` → `--hc-button-primary-*` /
+`--hc-input-focus-border` / `--hc-checkbox-checked-*` / etc.
+
+Components and surfaces affected by the cascade:
 
 - [Button](/hypermedia-components/components/button/) — `data-variant="primary"` background and hover state.
+- [Button](/hypermedia-components/components/button/) — `data-variant="ghost"` **hover** background now picks up the theme tint instead of a neutral grey.
+- [Input](/hypermedia-components/components/input/) — the `:focus-visible` border colour follows the theme's focus-ring shade.
 - [Checkbox](/hypermedia-components/components/checkbox/) — `:checked` fill (when no per-variant override).
 - [Radio](/hypermedia-components/components/radio/) — `:checked` fill.
 - [Pagination](/hypermedia-components/components/pagination/) — the `aria-current="page"` cell.
 - Every component's `:focus-visible` ring — driven directly by `--hc-color-focus-ring`.
+- `::selection` — text-selection highlight uses `primary-soft-bg`, so highlighting any prose on the page becomes a low-key brand cue.
 
 Components and tokens deliberately **not** affected:
 
