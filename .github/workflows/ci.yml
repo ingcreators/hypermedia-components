@@ -49,6 +49,9 @@ jobs:
       - name: Build packages/core
         run: pnpm --filter @hypermedia-components/core build
 
+      - name: Type-check public surface
+        run: pnpm --filter @hypermedia-components/core typecheck
+
       - name: Run Vitest
         run: pnpm --filter @hypermedia-components/core test
 

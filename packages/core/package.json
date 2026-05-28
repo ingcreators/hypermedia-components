@@ -22,8 +22,14 @@
     "./tokens.css": "./dist/hc.tokens.css",
     "./theme.css": "./dist/hc.theme.css",
     "./htmx.css": "./dist/hc.htmx.css",
-    "./macros": "./dist/macros/index.js",
-    "./behaviors": "./dist/hc.behaviors.js",
+    "./macros": {
+      "types": "./dist/macros/index.d.ts",
+      "import": "./dist/macros/index.js"
+    },
+    "./behaviors": {
+      "types": "./dist/hc.behaviors.d.ts",
+      "import": "./dist/hc.behaviors.js"
+    },
     "./tokens/*": "./src/tokens/*"
   },
   "files": [
@@ -31,10 +37,12 @@
     "src/tokens"
   ],
   "scripts": {
-    "build": "pnpm run build:tokens && pnpm run build:css && pnpm run build:js",
+    "build": "pnpm run build:tokens && pnpm run build:css && pnpm run build:types && pnpm run build:js",
     "build:tokens": "node scripts/build-tokens.mjs",
     "build:css": "node scripts/bundle-css.mjs",
+    "build:types": "tsc -p tsconfig.json",
     "build:js": "node scripts/bundle-js.mjs",
+    "typecheck": "tsc -p tsconfig.smoke.json --noEmit",
     "test": "vitest run",
     "test:browser": "pnpm run build && playwright test",
     "lint": "pnpm run lint:js && pnpm run lint:css",
@@ -59,6 +67,7 @@
     "jsdom": "^29.1.1",
     "stylelint": "^17.12.0",
     "stylelint-config-standard": "^40.0.0",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.7"
   }
 }

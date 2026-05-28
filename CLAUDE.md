@@ -83,7 +83,7 @@ cd examples/htmx       && pnpm start    # :4323
 `.github/workflows/ci.yml` runs four parallel jobs on every push and PR:
 
 - **lint** — ESLint + Stylelint
-- **unit** — Vitest (jsdom)
+- **unit** — Vitest (jsdom) + `tsc --noEmit` smoke test of the public type surface
 - **docs** — Astro build (uploads `apps/docs/dist` as artifact)
 - **browser** — Playwright + Chromium (cached browser binaries; uploads report + traces on failure)
 
@@ -99,6 +99,12 @@ All four must be green before merging.
 ## Current focus
 
 The next-phase plan ([`plans/hc-next-phase-plan-v0.5-en.md`](plans/hc-next-phase-plan-v0.5-en.md))
-groups remaining work into four tracks. The natural first move is
-**Track 1 (release readiness)**: types or remove the broken
-`exports.types` entry, then cut `0.0.1-alpha.0`.
+groups remaining work into four tracks. Track 1 (release readiness)
+progress so far:
+
+- **§3.1** types — resolved. `packages/core` emits `.d.ts` from JSDoc
+  via `tsc --emitDeclarationOnly --allowJs`; the smoke test runs in
+  the unit CI job.
+- **§3.2** release workflow dry-run — pending.
+- **§3.3** Cloudflare deployment — pending.
+- **§3.4** cut `0.0.1-alpha.0` — pending §3.2 and §3.3.

@@ -2,14 +2,20 @@
 // Copy ES modules from src/js and src/macros to dist with the names
 // listed in the package "exports" map. No bundling, no transpiling —
 // the source is already plain ESM that runs in modern browsers and Node.
+//
+// Also copies the matching .d.ts declarations emitted by `tsc` into
+// dist/.types/ (see ../tsconfig.json) to the same flattened locations,
+// so each runtime module ships with a sibling type definition.
 
-import { copyFile, mkdir } from 'node:fs/promises';
+import { copyFile, mkdir, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
+import { existsSync } from 'node:fs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = resolve(here, '..');
 const distDir = join(pkgRoot, 'dist');
+const typesStaging = join(distDir, '.types');
 
 // [source-relative-to-pkgRoot, dist-relative-to-distDir]
 const FILES = [
@@ -29,13 +35,48 @@ const FILES = [
   ['src/macros/live-search.js',    'macros/live-search.js'],
 ];
 
+function srcToTypesPath(srcRel) {
+  // src/js/foo.js  → dist/.types/js/foo.d.ts
+  // src/macros/bar.js → dist/.types/macros/bar.d.ts
+  return join(typesStaging, srcRel.replace(/^src\//, '').replace(/\.js$/, '.d.ts'));
+}
+
+function distToTypesPath(distRel) {
+  // index.js → index.d.ts; macros/index.js → macros/index.d.ts
+  return distRel.replace(/\.js$/, '.d.ts');
+}
+
 async function main() {
   await mkdir(distDir, { recursive: true });
   await mkdir(join(distDir, 'macros'), { recursive: true });
+
+  let jsCopied = 0;
+  let dtsCopied = 0;
   for (const [from, to] of FILES) {
     await copyFile(join(pkgRoot, from), join(distDir, to));
+    jsCopied += 1;
+
+    const fromDts = srcToTypesPath(from);
+    if (existsSync(fromDts)) {
+      await copyFile(fromDts, join(distDir, distToTypesPath(to)));
+      dtsCopied += 1;
+    }
   }
-  console.log(`copied ${FILES.length} JS module(s) to dist/`);
+
+  // Tidy up the tsc staging directory once its contents have been
+  // flattened into dist/. Leaving it would publish duplicated d.ts
+  // files under dist/.types/.
+  if (existsSync(typesStaging)) {
+    await rm(typesStaging, { recursive: true, force: true });
+  }
+
+  if (dtsCopied === 0) {
+    console.log(
+      `copied ${jsCopied} JS module(s) to dist/ (no .d.ts found — run \`pnpm run build:types\` first)`,
+    );
+  } else {
+    console.log(`copied ${jsCopied} JS module(s) and ${dtsCopied} .d.ts file(s) to dist/`);
+  }
 }
 
 main().catch((err) => {
