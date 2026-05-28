@@ -85,6 +85,63 @@ test.describe('hc-menu', () => {
     expect(mBox.y).toBeLessThan(tBox.y + tBox.height + 16);
   });
 
+  test.describe('collision flipping', () => {
+    // Mount a fresh menu next to a trigger positioned right at the
+    // chosen viewport edge, so the browser must engage one of the
+    // `position-try-fallbacks` (flip-block / flip-inline / both).
+    async function mountEdgeMenu(page, { id, top, left }) {
+      await page.evaluate(({ id, top, left }) => {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = `position:fixed;top:${top}px;left:${left}px;`;
+        wrap.innerHTML = `
+          <button class="hc-button" type="button" popovertarget="${id}-menu"
+                  id="${id}-trigger" data-testid="${id}-trigger">Open</button>
+          <div class="hc-menu" id="${id}-menu" popover role="menu"
+               aria-labelledby="${id}-trigger" data-testid="${id}-menu"
+               style="min-inline-size:160px;">
+            <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
+            <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
+            <button class="hc-menu__item" role="menuitem" type="button">Team</button>
+            <button class="hc-menu__item" role="menuitem" type="button">Sign out</button>
+          </div>`;
+        document.body.appendChild(wrap);
+      }, { id, top, left });
+    }
+
+    test('flips block-direction when there is no room below the trigger', async ({ page }) => {
+      const vp = page.viewportSize();
+      // Place the trigger near the bottom of the viewport so the
+      // menu (≥ 150 px tall) cannot fit below.
+      await mountEdgeMenu(page, { id: 'bottom-edge', top: vp.height - 60, left: 200 });
+      const trigger = page.getByTestId('bottom-edge-trigger');
+      const menu = page.getByTestId('bottom-edge-menu');
+
+      await trigger.click();
+      const tBox = await trigger.boundingBox();
+      const mBox = await menu.boundingBox();
+      // Menu top is above the trigger top — the block-axis flipped.
+      expect(mBox.y + mBox.height).toBeLessThanOrEqual(tBox.y + 2);
+    });
+
+    test('flips inline-direction when there is no room to the inline-end', async ({ page }) => {
+      const vp = page.viewportSize();
+      // Place the trigger near the right edge so the menu (≥ 160 px
+      // wide) cannot fit to the right.
+      await mountEdgeMenu(page, { id: 'right-edge', top: 100, left: vp.width - 100 });
+      const trigger = page.getByTestId('right-edge-trigger');
+      const menu = page.getByTestId('right-edge-menu');
+
+      await trigger.click();
+      const tBox = await trigger.boundingBox();
+      const mBox = await menu.boundingBox();
+      // Menu right edge aligned with trigger right edge (flip-inline);
+      // menu's x is far to the left of the trigger's x.
+      expect(mBox.x).toBeLessThan(tBox.x);
+      // And the whole menu stays inside the viewport.
+      expect(mBox.x + mBox.width).toBeLessThanOrEqual(vp.width + 1);
+    });
+  });
+
   test('axe finds no violations in the menu section (open state)', async ({ page }) => {
     await page.getByTestId('menu-trigger').click();
     const results = await new AxeBuilder({ page })

@@ -22,6 +22,27 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-menu` edge-aware collision flipping. Menus opened near a
+  viewport edge now flip to stay inside it instead of getting
+  clipped — the missing piece that kept the MVP menu out of
+  production use. Two coordinated paths:
+  - **CSS Anchor Positioning** (Chromium 128+, Firefox 147+, Safari
+    26+): adds `position-try-fallbacks: flip-block, flip-inline,
+    flip-block flip-inline;` to `hc-menu.css`. The browser tries the
+    primary `block-end span-inline-end` placement first, then flips
+    block / inline / both when overflow would occur. Zero JS, same
+    behaviour shadcn ships via Radix's `collisionPadding`.
+  - **JS positioning fallback** (Chromium 114-127, Safari 17-25,
+    Firefox 125-146): extends `positionViaFallback` in `menu.js`
+    with the equivalent measurement-based flip logic. Each branch
+    mirrors the CSS path 1:1 so the user-visible behaviour stays
+    consistent across modern and older browsers.
+  Four new Vitest cases drive the JS path through all four flip
+  combinations (no-flip, flip-block, flip-inline, flip-both) by
+  stubbing the viewport and trigger / menu bounding rects. Two new
+  Playwright cases mount edge-positioned triggers and assert the
+  resulting menu bbox stays inside the viewport (the live test
+  runs in Chromium ≥ 125 which exercises the CSS path).
 - `hc-menu` component + `installMenu` behavior. WAI-ARIA APG action
   menu pattern built on three modern web standards: the HTML
   `popover` attribute (show/hide, light dismiss, native Escape), the
