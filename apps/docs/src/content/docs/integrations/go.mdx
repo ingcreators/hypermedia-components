@@ -1,0 +1,244 @@
+---
+title: Go
+description: Use Hypermedia Components from Go — net/http, html/template, and fragment responses with HX-Trigger headers.
+---
+
+This guide pairs Hypermedia Components with Go's standard library
+(`net/http` + `html/template`) and htmx. The patterns also work with
+chi, gorilla/mux, and any router that exposes the standard
+`http.ResponseWriter` / `*http.Request` pair.
+
+## Asset loading
+
+Put the HC dist files under a `static/` directory served by
+`http.FileServer`.
+
+```text
+static/
+  assets/
+    hc/
+      hc.css
+      hc.behaviors.js
+      macros/
+        index.js
+        confirm-action.js
+        live-search.js
+    htmx.min.js
+templates/
+  layout.html
+  items/
+    list.html
+    row.html
+```
+
+```go
+package main
+
+import (
+    "net/http"
+)
+
+func main() {
+    fs := http.FileServer(http.Dir("static"))
+    http.Handle("/static/", http.StripPrefix("/static/", fs))
+    http.HandleFunc("/items", listItems)
+    http.HandleFunc("/items/", itemHandler) // /items/{id}
+    http.ListenAndServe(":8080", nil)
+}
+```
+
+## Templates
+
+`html/template` auto-escapes attribute values, which is exactly what
+Hypermedia Components needs. Compose pages from a layout + named
+blocks.
+
+```go
+// templates/layout.html
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{.Title}}</title>
+  <link rel="stylesheet" href="/static/assets/hc/hc.css">
+  <script defer src="/static/assets/htmx.min.js"></script>
+  <script type="module" src="/static/assets/hc/hc.behaviors.js"></script>
+  <script type="module" src="/static/assets/hc/macros/index.js"></script>
+</head>
+<body>
+  {{template "content" .}}
+
+  <div class="hc-toast-region" data-hc-toast-region role="region" aria-label="Notifications"></div>
+</body>
+</html>
+{{end}}
+```
+
+A row partial reused by both the full list and per-row swaps:
+
+```html
+{{define "row"}}
+<tr id="item-{{.ID}}">
+  <td>{{.Name}}</td>
+  <td><span class="hc-badge" data-variant="{{.Status}}">{{.StatusLabel}}</span></td>
+  <td>
+    <span class="hc-action">
+      <button
+        class="hc-button"
+        data-size="sm"
+        data-variant="danger"
+        type="button"
+        data-hc-confirm="Delete {{.Name}}?"
+        data-hx-delete="/items/{{.ID}}"
+        data-hx-trigger="confirmed"
+        data-hx-target="closest tr"
+        data-hx-swap="outerHTML"
+        data-hx-disabled-elt="this"
+        data-hx-indicator="closest .hc-action">
+        Delete
+      </button>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </span>
+  </td>
+</tr>
+{{end}}
+```
+
+`html/template`'s contextual escaping means `{{.Name}}` is safe in
+attribute values too — no manual escaping needed.
+
+## Handlers and fragments
+
+Pre-parse templates once at startup:
+
+```go
+var tpl = template.Must(template.ParseGlob("templates/**/*.html"))
+```
+
+A handler that returns a single row for an htmx POST:
+
+```go
+func createItem(w http.ResponseWriter, r *http.Request) {
+    if err := r.ParseForm(); err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    name := strings.TrimSpace(r.FormValue("name"))
+    if name == "" {
+        w.WriteHeader(http.StatusUnprocessableEntity)
+        fmt.Fprintf(w, `<tr><td colspan="3"><p class="hc-field__message" style="color: var(--hc-color-danger);">Name is required.</p></td></tr>`)
+        return
+    }
+    item := store.Create(name)
+
+    w.Header().Set("HX-Trigger", `{"hc:toast":{"message":"Added.","variant":"success"}}`)
+    w.WriteHeader(http.StatusCreated)
+    _ = tpl.ExecuteTemplate(w, "row", item)
+}
+```
+
+A handler that returns nothing but fires a toast:
+
+```go
+func deleteItem(w http.ResponseWriter, r *http.Request) {
+    id := pathID(r) // your router's id extraction
+    item, ok := store.Delete(id)
+    if !ok {
+        http.NotFound(w, r)
+        return
+    }
+    trigger := map[string]any{
+        "hc:toast": map[string]string{
+            "message": fmt.Sprintf("Deleted %q.", item.Name),
+            "variant": "success",
+        },
+    }
+    payload, _ := json.Marshal(trigger)
+    w.Header().Set("HX-Trigger", string(payload))
+    // empty body — htmx removes the row via outerHTML swap
+}
+```
+
+## Toasts via HX-Trigger
+
+A small helper formats the JSON payload safely:
+
+```go
+func HxTrigger(w http.ResponseWriter, events map[string]any) {
+    if existing := w.Header().Get("HX-Trigger"); existing != "" {
+        var current map[string]any
+        if json.Unmarshal([]byte(existing), &current) == nil {
+            for k, v := range events {
+                current[k] = v
+            }
+            events = current
+        }
+    }
+    if b, err := json.Marshal(events); err == nil {
+        w.Header().Set("HX-Trigger", string(b))
+    }
+}
+```
+
+Then in handlers:
+
+```go
+HxTrigger(w, map[string]any{
+    "hc:toast": map[string]string{"message": "Saved.", "variant": "success"},
+})
+```
+
+## Detecting htmx requests
+
+```go
+func isHTMX(r *http.Request) bool {
+    return r.Header.Get("HX-Request") == "true"
+}
+
+func listItems(w http.ResponseWriter, r *http.Request) {
+    items := store.All()
+    if isHTMX(r) {
+        _ = tpl.ExecuteTemplate(w, "rows", items)
+        return
+    }
+    _ = tpl.ExecuteTemplate(w, "list", items)
+}
+```
+
+## CSRF tips
+
+`html/template` does not ship CSRF; pick a middleware (e.g.
+[`gorilla/csrf`](https://github.com/gorilla/csrf)) and forward the
+token to htmx in the layout:
+
+```html
+<meta name="csrf-token" content="{{.CSRFToken}}">
+<script>
+  document.body.addEventListener("htmx:configRequest", (e) => {
+    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (token) e.detail.headers["X-CSRF-Token"] = token;
+  });
+</script>
+```
+
+Pass the token into the template data from your middleware
+(`gorilla/csrf` exposes `csrf.Token(r)`).
+
+## Tips
+
+- **`embed.FS`** — embed templates and static assets into the binary
+  with `//go:embed templates/* static/*` and serve from
+  `http.FS(embedFS)`. Keeps deploys to a single file.
+- **`text/template` vs `html/template`** — always use
+  `html/template` for HC fragments; the contextual escaping is what
+  keeps attribute interpolation safe.
+- **Streaming swaps** — for long-running searches, return chunked
+  fragments; htmx supports out-of-band swaps via
+  `hx-swap-oob="true"` on returned elements.
+
+## Related
+
+- [Recipes → confirm-action](/hypermedia-components/recipes/confirm-action/)
+- [Recipes → live-search](/hypermedia-components/recipes/live-search/)
+- [Examples → htmx](https://github.com/ingcreators/hypermedia-components/tree/main/examples/htmx) — the bundled example uses a Node http server with the same handler shape.

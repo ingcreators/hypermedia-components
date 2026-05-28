@@ -1,0 +1,41 @@
+/* hc.htmx.css — styling for htmx request lifecycle.
+ *
+ * htmx adds class names to elements during a request:
+ *   .htmx-request    on the requesting element and its target
+ *   .htmx-indicator  on opt-in indicators
+ *
+ * This file styles indicators and the .hc-action wrapper used by the
+ * request-action recipe. It does not wrap fetch() — htmx remains the
+ * sole owner of network behavior.
+ */
+@layer hc.recipes {
+  /* Indicators are hidden by default and shown while a request is in
+   * flight. htmx sets .htmx-request on the indicator itself when
+   * data-hx-indicator points at this element, or on an ancestor when
+   * the indicator descends from a requesting element. */
+  .htmx-indicator {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 120ms ease;
+  }
+
+  .htmx-request .htmx-indicator,
+  .htmx-request.htmx-indicator {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Wrapper used by the request-action recipe to colocate a control and
+   * its spinner. While the descendant control is htmx-requesting, the
+   * wrapper switches to a progress cursor. */
+  .hc-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-space-2);
+  }
+
+  .hc-action.htmx-request,
+  .hc-action:has(.htmx-request) {
+    cursor: progress;
+  }
+}

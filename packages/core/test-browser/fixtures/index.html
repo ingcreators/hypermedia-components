@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>HC browser-test fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+  <script type="module" src="/macros/index.js"></script>
+  <style>
+    body { padding: 1.5rem; max-inline-size: 56rem; margin: 0 auto; }
+    section { margin-block-end: 1.5rem; padding-block-end: 1rem; border-block-end: 1px dashed var(--hc-color-border); }
+    section:last-child { border-block-end: none; }
+    h2 { font-size: 1rem; margin: 0 0 .5rem; }
+    .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>Hypermedia Components — browser test fixture</h1>
+
+  <section id="section-dialog" data-testid="section-dialog">
+    <h2>Dialog</h2>
+    <div class="row">
+      <button class="hc-button" data-variant="primary" id="open-dialog" data-testid="open-dialog">
+        Open dialog
+      </button>
+    </div>
+    <dialog class="hc-dialog" id="demo-dialog" data-testid="demo-dialog">
+      <header class="hc-dialog__header">
+        <h2 class="hc-dialog__title" id="demo-dialog-title">Demo dialog</h2>
+      </header>
+      <div class="hc-dialog__body">
+        <p>Hello from a real &lt;dialog&gt;.</p>
+        <input class="hc-input" type="text" placeholder="Focus target" data-testid="dialog-input">
+      </div>
+      <footer class="hc-dialog__footer">
+        <button class="hc-button" id="close-dialog" data-testid="close-dialog">Close</button>
+      </footer>
+    </dialog>
+    <script type="module">
+      const dialog = document.getElementById('demo-dialog');
+      document.getElementById('open-dialog').addEventListener('click', () => dialog.showModal());
+      document.getElementById('close-dialog').addEventListener('click', () => dialog.close());
+    </script>
+  </section>
+
+  <section id="section-popover" data-testid="section-popover">
+    <h2>Popover</h2>
+    <div class="row">
+      <button class="hc-button" type="button" popovertarget="demo-popover" data-testid="open-popover">
+        Open popover
+      </button>
+      <span data-testid="outside-popover">outside</span>
+    </div>
+    <div id="demo-popover" class="hc-popover" popover data-testid="demo-popover">
+      <p>Popover body.</p>
+      <button class="hc-button" data-size="sm" data-testid="close-popover" popovertarget="demo-popover" popovertargetaction="hide">
+        Close
+      </button>
+    </div>
+  </section>
+
+  <section id="section-confirm" data-testid="section-confirm">
+    <h2>Confirm action</h2>
+    <div class="row">
+      <button
+        class="hc-button"
+        data-variant="danger"
+        data-hc-confirm="Delete item 42?"
+        data-hc-confirm-title="Delete?"
+        data-hc-confirm-label="Delete"
+        data-hc-cancel-label="Keep"
+        data-testid="trigger-confirm">
+        Delete
+      </button>
+      <output data-testid="confirm-result"></output>
+    </div>
+    <script type="module">
+      const trigger = document.querySelector('[data-testid="trigger-confirm"]');
+      const out = document.querySelector('[data-testid="confirm-result"]');
+      trigger.addEventListener('confirmed', () => {
+        out.textContent = 'confirmed';
+        out.setAttribute('data-confirmed', 'true');
+      });
+    </script>
+  </section>
+
+  <section id="section-toast" data-testid="section-toast">
+    <h2>Toast</h2>
+    <div class="row">
+      <button class="hc-button" id="toast-success" data-testid="toast-success">Success</button>
+      <button class="hc-button" data-variant="danger" id="toast-danger" data-testid="toast-danger">Danger</button>
+      <button class="hc-button" id="toast-quick" data-testid="toast-quick">Quick (200ms)</button>
+      <button class="hc-button" id="toast-sticky" data-testid="toast-sticky">Sticky</button>
+    </div>
+    <script type="module">
+      const fire = (detail) =>
+        document.body.dispatchEvent(new CustomEvent('hc:toast', { bubbles: true, detail }));
+
+      document.querySelector('[data-testid="toast-success"]')
+        .addEventListener('click', () => fire({ title: 'Saved', message: 'Changes saved.', variant: 'success' }));
+      document.querySelector('[data-testid="toast-danger"]')
+        .addEventListener('click', () => fire({ message: 'Boom.', variant: 'danger' }));
+      document.querySelector('[data-testid="toast-quick"]')
+        .addEventListener('click', () => fire({ message: 'Quick toast', duration: 200 }));
+      document.querySelector('[data-testid="toast-sticky"]')
+        .addEventListener('click', () => fire({ message: 'Sticky toast', duration: 0 }));
+    </script>
+  </section>
+
+  <section id="section-macros" data-testid="section-macros">
+    <h2>Macros</h2>
+
+    <h3>&lt;hc-confirm-action&gt;</h3>
+    <hc-confirm-action
+      data-testid="macro-confirm"
+      method="delete"
+      action="/items/99"
+      target="closest tr"
+      variant="danger"
+      message="Macro delete?">
+      Delete via macro
+    </hc-confirm-action>
+
+    <h3>&lt;hc-live-search&gt;</h3>
+    <hc-live-search
+      data-testid="macro-search"
+      action="/search"
+      target="#macro-results"
+      label="Find items"
+      delay="150ms"
+      submit-label="Find">
+    </hc-live-search>
+    <div id="macro-results"></div>
+  </section>
+</body>
+</html>

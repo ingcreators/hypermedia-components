@@ -1,0 +1,143 @@
+---
+title: Field
+description: Wraps a label, control, and help/error message into a single, validation-aware unit.
+---
+
+`hc-field` is a thin composition class that groups a label, a control,
+and an optional help or error message. Validity is expressed with the
+standard `aria-invalid` attribute on the input, plus
+`data-invalid="true"` on the wrapper so the message and border colors
+update together.
+
+## Basic HTML
+
+<div class="hc-preview" style="max-width:24rem;">
+  <div class="hc-field">
+    <label class="hc-field__label" htmlFor="email-1">Email</label>
+    <input id="email-1" class="hc-input" name="email" type="email" />
+    <p class="hc-field__message">Use your work email.</p>
+  </div>
+</div>
+
+```html
+<div class="hc-field">
+  <label class="hc-field__label" for="email">Email</label>
+  <input id="email" class="hc-input" name="email" type="email">
+  <p class="hc-field__message">Use your work email.</p>
+</div>
+```
+
+## Invalid state
+
+<div class="hc-preview" style="max-width:24rem;">
+  <div class="hc-field" data-invalid="true">
+    <label class="hc-field__label" htmlFor="email-2">Email</label>
+    <input
+      id="email-2"
+      class="hc-input"
+      name="email"
+      type="email"
+      aria-invalid="true"
+      aria-describedby="email-2-error"
+      defaultValue="not-an-email"
+    />
+    <p id="email-2-error" class="hc-field__message">Enter a valid email address.</p>
+  </div>
+</div>
+
+```html
+<div class="hc-field" data-invalid="true">
+  <label class="hc-field__label" for="email">Email</label>
+  <input
+    id="email"
+    class="hc-input"
+    name="email"
+    type="email"
+    aria-invalid="true"
+    aria-describedby="email-error">
+  <p id="email-error" class="hc-field__message">
+    Enter a valid email address.
+  </p>
+</div>
+```
+
+Two attributes work together:
+
+- `data-invalid="true"` on the wrapper switches the message color and
+  reinforces the input border. It is a visual hook.
+- `aria-invalid="true"` on the input is the accessibility signal, and
+  `aria-describedby` points at the error message.
+
+A server-rendered form should set both atomically when validation fails.
+
+## htmx usage
+
+For server-side validation, return the entire field from the server and
+swap it back in place. Setting `data-invalid` and `aria-invalid` on the
+returned HTML automatically restyles the field.
+
+```html
+<form
+  class="hc-form"
+  data-hx-post="/users"
+  data-hx-target="this"
+  data-hx-swap="outerHTML">
+  <div class="hc-field" id="email-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input id="email" class="hc-input" name="email" type="email">
+    <p class="hc-field__message">Use your work email.</p>
+  </div>
+
+  <button class="hc-button" data-variant="primary" type="submit">
+    Create account
+  </button>
+</form>
+```
+
+The server returns the same `<form>` (or just the failing
+`<div class="hc-field" id="email-field" data-invalid="true">…`) with
+the appropriate attributes and a descriptive message.
+
+## Accessibility
+
+- The `<label>` must reference the input's `id` via `for`. Implicit
+  labels (wrapping the input in `<label>`) are also valid but harder to
+  style; the explicit form is recommended.
+- For invalid fields, set `aria-invalid="true"` and use
+  `aria-describedby` to point at the message element so screen readers
+  announce the error.
+- The message uses `--hc-field-message-color` for help text and
+  `--hc-field-invalid-message-color` for errors — both meet WCAG AA
+  contrast against `--hc-color-surface` at the default tokens.
+- Do not rely on color alone. The error message text itself is the
+  primary accessibility signal.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path                            | Purpose                       |
+| ------------------------------------- | ----------------------------- |
+| `field.gap`                           | Vertical spacing.             |
+| `field.label-color`                   | Label color.                  |
+| `field.label-weight`                  | Label font weight.            |
+| `field.label-font-size`               | Label font size.              |
+| `field.message-color`                 | Help text color.              |
+| `field.message-font-size`             | Help text font size.          |
+| `field.invalid-message-color`         | Error message color.          |
+
+## CSS variables
+
+```text
+--hc-field-gap
+--hc-field-label-color | -weight | -font-size
+--hc-field-message-color | -font-size
+--hc-field-invalid-message-color
+```
+
+## Related
+
+- [Input](/hypermedia-components/components/input/) — the control inside
+  the field.
+- [Button](/hypermedia-components/components/button/) — submits the form
+  that the field belongs to.

@@ -1,0 +1,41 @@
+/* hc-field — composes a label, control, and help/error message.
+ *
+ * Structure (plan §11.3):
+ *   <div class="hc-field" [data-invalid="true"]>
+ *     <label class="hc-field__label" for="...">…</label>
+ *     <input class="hc-input" id="..." aria-describedby="...">
+ *     <p class="hc-field__message" id="...">…</p>
+ *   </div>
+ */
+@layer hc.components {
+  .hc-field {
+    display: grid;
+    gap: var(--hc-field-gap);
+  }
+
+  .hc-field__label {
+    color: var(--hc-field-label-color);
+    font-size: var(--hc-field-label-font-size);
+    font-weight: var(--hc-field-label-weight);
+    line-height: 1.4;
+  }
+
+  .hc-field__message {
+    margin: 0;
+    color: var(--hc-field-message-color);
+    font-size: var(--hc-field-message-font-size);
+    line-height: 1.4;
+  }
+
+  .hc-field[data-invalid="true"] .hc-field__message {
+    color: var(--hc-field-invalid-message-color);
+  }
+
+  /* When the field is marked invalid, force the contained input's
+   * border to the danger color too, even if aria-invalid is missing on
+   * the input itself (defensive — the recommended pattern still sets
+   * aria-invalid="true" on the input for accessibility). */
+  .hc-field[data-invalid="true"] .hc-input {
+    border-color: var(--hc-input-invalid-border);
+  }
+}

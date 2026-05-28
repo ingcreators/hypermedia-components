@@ -1,0 +1,88 @@
+---
+title: Card
+description: Generic container with optional header, body, and footer parts.
+---
+
+`hc-card` is a thin container with a border, a subtle radius, and
+optional header/body/footer parts. It is a layout primitive — not
+something that owns interaction or state.
+
+## Basic HTML
+
+<div class="hc-preview" style="max-width:28rem;">
+  <article class="hc-card">
+    <header class="hc-card__header">Order #123</header>
+    <div class="hc-card__body">
+      <p>Two items, shipping on Friday.</p>
+    </div>
+    <footer class="hc-card__footer">
+      <button class="hc-button" data-size="sm">View</button>
+    </footer>
+  </article>
+</div>
+
+```html
+<article class="hc-card">
+  <header class="hc-card__header">Order #123</header>
+  <div class="hc-card__body">
+    <p>Two items, shipping on Friday.</p>
+  </div>
+  <footer class="hc-card__footer">
+    <button class="hc-button" data-size="sm">View</button>
+  </footer>
+</article>
+```
+
+Parts are optional. A card with only `.hc-card__body` is fine, and so
+is a card with no parts at all — direct children get the same padding
+as the body so plain content still looks right.
+
+## Variations
+
+```html
+<article class="hc-card">
+  <div class="hc-card__body">
+    <h3>Heads up</h3>
+    <p>A card without an explicit header still works.</p>
+  </div>
+</article>
+```
+
+For card grids, pair `hc-card` with the layout primitive of your choice
+(CSS grid, the `hc-stack` utility, or any flex container). The card
+itself does not impose horizontal spacing.
+
+## Accessibility
+
+- Use the most accurate landmark element for the card root:
+  - `<article>` for a self-contained piece of content;
+  - `<section>` for a thematic grouping within a page;
+  - `<div>` when no landmark semantics apply.
+- A card's heading should match the page's heading hierarchy. Do not
+  skip levels just because the card is small.
+
+## Theming tokens
+
+| Token path           | Purpose                       |
+| -------------------- | ----------------------------- |
+| `card.bg`            | Background color.             |
+| `card.fg`            | Foreground color.             |
+| `card.border`        | Outer border color.           |
+| `card.header-border` | Divider between parts.        |
+| `card.radius`        | Border radius.                |
+| `card.padding`       | Padding for each card part.   |
+
+## CSS variables
+
+```text
+--hc-card-bg | -fg | -border | -header-border
+--hc-card-radius
+--hc-card-padding
+```
+
+## Related
+
+- [Table](/hypermedia-components/components/table/) — for tabular data
+  inside or outside a card.
+- [Alert](/hypermedia-components/components/alert/) — for prominent
+  messages.

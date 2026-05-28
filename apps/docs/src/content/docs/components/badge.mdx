@@ -1,0 +1,73 @@
+---
+title: Badge
+description: Small inline status indicator with variant colors.
+---
+
+`hc-badge` is a compact inline pill used to surface status next to a
+label. Variants are switched with `data-variant`.
+
+## Basic HTML
+
+<div class="hc-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+  <span class="hc-badge">Draft</span>
+  <span class="hc-badge" data-variant="info">In review</span>
+  <span class="hc-badge" data-variant="success">Active</span>
+  <span class="hc-badge" data-variant="warning">Pending</span>
+  <span class="hc-badge" data-variant="danger">Failed</span>
+</div>
+
+```html
+<span class="hc-badge">Draft</span>
+<span class="hc-badge" data-variant="info">In review</span>
+<span class="hc-badge" data-variant="success">Active</span>
+<span class="hc-badge" data-variant="warning">Pending</span>
+<span class="hc-badge" data-variant="danger">Failed</span>
+```
+
+## Variants
+
+| Variant   | Use for                                  |
+| --------- | ---------------------------------------- |
+| _omitted_ | Neutral / unknown status.                |
+| `info`    | Informational state (e.g. "In review"). |
+| `success` | Healthy / completed state.               |
+| `warning` | Needs attention soon.                    |
+| `danger`  | Failed / error state.                    |
+
+## Accessibility
+
+- A badge is a visual signal — the text inside is the accessible name.
+  Avoid icon-only badges; if you need one, include visually-hidden text.
+- Color should not be the only differentiator. The variant **labels**
+  (`Active`, `Failed`, …) carry the meaning. The color reinforces it.
+- For announceable state changes (e.g. an order moving from "Pending"
+  to "Failed"), put the badge inside a region with `aria-live="polite"`
+  rather than relying on the badge itself.
+
+## Theming tokens
+
+| Token path                | Purpose                  |
+| ------------------------- | ------------------------ |
+| `badge.padding-x` / `-y`  | Inline / block padding.  |
+| `badge.radius`            | Border radius.           |
+| `badge.font-size`         | Font size.               |
+| `badge.font-weight`       | Font weight.             |
+| `badge.{variant}.{bg,fg,border}` | Per-variant colors. |
+
+## CSS variables
+
+```text
+--hc-badge-padding-x | -padding-y | -radius | -font-size | -font-weight
+--hc-badge-default-bg | -fg | -border
+--hc-badge-info-bg    | -fg | -border
+--hc-badge-success-bg | -fg | -border
+--hc-badge-warning-bg | -fg | -border
+--hc-badge-danger-bg  | -fg | -border
+```
+
+## Related
+
+- [Alert](/hypermedia-components/components/alert/) — for prominent,
+  block-level notices.
+- [Table](/hypermedia-components/components/table/) — common host for
+  badges in a status column.

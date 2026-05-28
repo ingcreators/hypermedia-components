@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hypermedia Components — plain HTML</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+  <style>
+    /* Page chrome — not part of @hypermedia-components/core. */
+    body { padding: 2rem; max-inline-size: 64rem; margin: 0 auto; }
+    header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-block-end: 2rem; }
+    h1 { margin: 0; font-size: 1.5rem; }
+    h2 { margin-block: 2rem 1rem; font-size: 1.125rem; }
+    section { display: grid; gap: 0.75rem; }
+    .row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .grid { display: grid; gap: 0.75rem; }
+    .small { font-size: 0.875rem; color: var(--hc-color-text-muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Hypermedia Components — plain HTML</h1>
+    <div class="row">
+      <button class="hc-button" data-size="sm" data-variant="ghost" id="theme-toggle">
+        Toggle theme
+      </button>
+    </div>
+  </header>
+
+  <section>
+    <h2>Buttons</h2>
+    <div class="row">
+      <button class="hc-button">Default</button>
+      <button class="hc-button" data-variant="primary">Save</button>
+      <button class="hc-button" data-variant="danger">Delete</button>
+      <button class="hc-button" data-variant="ghost">Ghost</button>
+    </div>
+    <div class="row">
+      <button class="hc-button" data-size="sm">Small</button>
+      <button class="hc-button">Default</button>
+      <button class="hc-button" data-size="lg">Large</button>
+    </div>
+    <div class="row">
+      <button class="hc-button" data-variant="primary" disabled>Disabled</button>
+      <button class="hc-button" data-variant="primary" aria-disabled="true">aria-disabled</button>
+      <button class="hc-button" data-variant="primary" data-loading="true">Saving…</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Inputs and fields</h2>
+    <div class="grid" style="max-inline-size: 24rem;">
+      <input class="hc-input" type="text" placeholder="Search">
+      <select class="hc-input">
+        <option>One</option>
+        <option>Two</option>
+      </select>
+      <textarea class="hc-input" rows="3" placeholder="Notes…"></textarea>
+
+      <div class="hc-field">
+        <label class="hc-field__label" for="email">Email</label>
+        <input id="email" class="hc-input" name="email" type="email">
+        <p class="hc-field__message">Use your work email.</p>
+      </div>
+
+      <div class="hc-field" data-invalid="true">
+        <label class="hc-field__label" for="email-bad">Email</label>
+        <input id="email-bad" class="hc-input" name="email"
+               value="not-an-email"
+               aria-invalid="true"
+               aria-describedby="email-bad-error">
+        <p id="email-bad-error" class="hc-field__message">Enter a valid email address.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Badges</h2>
+    <div class="row">
+      <span class="hc-badge">Draft</span>
+      <span class="hc-badge" data-variant="info">In review</span>
+      <span class="hc-badge" data-variant="success">Active</span>
+      <span class="hc-badge" data-variant="warning">Pending</span>
+      <span class="hc-badge" data-variant="danger">Failed</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Alerts</h2>
+    <div class="grid" style="max-inline-size: 36rem;">
+      <div class="hc-alert" role="status">
+        <strong class="hc-alert__title">Tip</strong>
+        <p class="hc-alert__body">Press <kbd>Ctrl</kbd>+<kbd>K</kbd> to open the command bar.</p>
+      </div>
+      <div class="hc-alert" data-variant="success" role="status">
+        <strong class="hc-alert__title">Saved</strong>
+        <p class="hc-alert__body">Your changes are saved.</p>
+      </div>
+      <div class="hc-alert" data-variant="warning" role="status">
+        <strong class="hc-alert__title">Heads up</strong>
+        <p class="hc-alert__body">This will affect 3 connected systems.</p>
+      </div>
+      <div class="hc-alert" data-variant="danger" role="alert">
+        <strong class="hc-alert__title">Something went wrong</strong>
+        <p class="hc-alert__body">The server returned a 500.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Card</h2>
+    <article class="hc-card" style="max-inline-size: 28rem;">
+      <header class="hc-card__header">Order #123</header>
+      <div class="hc-card__body">
+        <p>Two items, shipping on Friday.</p>
+      </div>
+      <footer class="hc-card__footer">
+        <button class="hc-button" data-size="sm">View</button>
+      </footer>
+    </article>
+  </section>
+
+  <section>
+    <h2>Table</h2>
+    <table class="hc-table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Status</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Order #123</td>
+          <td><span class="hc-badge" data-variant="success">Active</span></td>
+          <td><button class="hc-button" data-size="sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Order #124</td>
+          <td><span class="hc-badge" data-variant="warning">Pending</span></td>
+          <td><button class="hc-button" data-size="sm">View</button></td>
+        </tr>
+        <tr>
+          <td>Order #125</td>
+          <td><span class="hc-badge">Draft</span></td>
+          <td><button class="hc-button" data-size="sm">View</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Toolbar</h2>
+    <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
+      <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
+      <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
+      <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+      <hr role="separator" aria-orientation="vertical">
+      <button class="hc-button" data-size="sm" data-variant="ghost">Bullets</button>
+      <span data-hc-spacer="true"></span>
+      <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pagination</h2>
+    <nav class="hc-pagination" aria-label="Pagination">
+      <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
+      <a class="hc-pagination__item" href="#">1</a>
+      <a class="hc-pagination__item" aria-current="page" href="#">2</a>
+      <a class="hc-pagination__item" href="#">3</a>
+      <a class="hc-pagination__item" href="#">4</a>
+      <a class="hc-pagination__item" href="#">Next ›</a>
+    </nav>
+  </section>
+
+  <section>
+    <h2>Dialog</h2>
+    <div class="row">
+      <button class="hc-button" data-variant="primary" id="open-dialog">Open dialog</button>
+    </div>
+    <dialog class="hc-dialog" id="demo-dialog">
+      <header class="hc-dialog__header">
+        <h2 class="hc-dialog__title">Confirm something</h2>
+      </header>
+      <div class="hc-dialog__body">
+        <p>This is a standard <code>&lt;dialog&gt;</code> opened with <code>showModal()</code>.</p>
+      </div>
+      <footer class="hc-dialog__footer">
+        <button class="hc-button" id="close-dialog" type="button">Cancel</button>
+        <button class="hc-button" data-variant="primary" id="close-dialog-2" type="button">OK</button>
+      </footer>
+    </dialog>
+  </section>
+
+  <section>
+    <h2>Popover</h2>
+    <div class="row">
+      <button class="hc-button" type="button" popovertarget="demo-popover">Open popover</button>
+    </div>
+    <div id="demo-popover" class="hc-popover" popover>
+      <p>A short, focused message. The browser closes me on Escape or by clicking outside.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Toast (behavior)</h2>
+    <div class="row">
+      <button class="hc-button" id="toast-info">Info</button>
+      <button class="hc-button" data-variant="primary" id="toast-success">Success</button>
+      <button class="hc-button" id="toast-warning">Warning</button>
+      <button class="hc-button" data-variant="danger" id="toast-danger">Danger</button>
+    </div>
+    <p class="small">Dispatches an <code>hc:toast</code> event; the auto-init behavior in
+      <code>hc.behaviors.js</code> renders the toast and auto-dismisses it.</p>
+  </section>
+
+  <script type="module">
+    // Behaviors auto-install via /hc.behaviors.js. Wire up the buttons.
+    const $ = (sel) => document.querySelector(sel);
+
+    $('#open-dialog').addEventListener('click', () => $('#demo-dialog').showModal());
+    $('#close-dialog').addEventListener('click', () => $('#demo-dialog').close());
+    $('#close-dialog-2').addEventListener('click', () => $('#demo-dialog').close());
+
+    const toast = (detail) =>
+      document.body.dispatchEvent(new CustomEvent('hc:toast', { bubbles: true, detail }));
+
+    $('#toast-info').addEventListener('click',    () => toast({ message: 'Heads up — nothing exploded.' }));
+    $('#toast-success').addEventListener('click', () => toast({ title: 'Saved', message: 'Your changes are saved.', variant: 'success' }));
+    $('#toast-warning').addEventListener('click', () => toast({ message: 'Disk is 80% full.', variant: 'warning' }));
+    $('#toast-danger').addEventListener('click',  () => toast({ title: 'Sync failed', message: 'Could not reach the server.', variant: 'danger' }));
+
+    // Theme toggle on the page chrome — flips data-theme on <html>.
+    $('#theme-toggle').addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+    });
+  </script>
+</body>
+</html>

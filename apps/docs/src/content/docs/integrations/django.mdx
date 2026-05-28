@@ -1,0 +1,254 @@
+---
+title: Django
+description: Use Hypermedia Components from Django templates, return HTML fragments from views, and trigger toasts via the HX-Trigger response header.
+---
+
+This guide pairs Hypermedia Components with Django + htmx. The
+optional [`django-htmx`](https://django-htmx.readthedocs.io/) package
+adds nice request-side helpers; everything below works without it
+too.
+
+## Asset loading
+
+Drop the HC dist files into your static directory and reference them
+from `base.html`.
+
+```text
+static/
+  assets/
+    hc/
+      hc.css
+      hc.behaviors.js
+      macros/
+        index.js
+        confirm-action.js
+        live-search.js
+    htmx.min.js
+```
+
+```html
+{# templates/base.html #}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}My app{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'assets/hc/hc.css' %}">
+  <script defer src="{% static 'assets/htmx.min.js' %}"></script>
+  <script type="module" src="{% static 'assets/hc/hc.behaviors.js' %}"></script>
+  <script type="module" src="{% static 'assets/hc/macros/index.js' %}"></script>
+</head>
+<body
+  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+  {% block content %}{% endblock %}
+
+  <div class="hc-toast-region"
+       data-hc-toast-region
+       role="region"
+       aria-label="Notifications"></div>
+</body>
+</html>
+```
+
+The `hx-headers` attribute on `<body>` makes every htmx request carry
+the CSRF token Django expects. The token comes from the `{% csrf_token %}`
+context processor (enabled by default in new projects).
+
+## Rendering components
+
+Reusable template snippets compose well with HC's part classes. A
+simple field include:
+
+```html
+{# templates/components/_field.html #}
+<div class="hc-field"{% if invalid %} data-invalid="true"{% endif %}>
+  <label class="hc-field__label" for="{{ name }}">{{ label }}</label>
+  <input
+    id="{{ name }}"
+    name="{{ name }}"
+    value="{{ value|default_if_none:'' }}"
+    class="hc-input"
+    {% if invalid %}
+      aria-invalid="true"
+      aria-describedby="{{ name }}-error"
+    {% endif %}>
+  {% if message %}
+    <p id="{{ name }}-error" class="hc-field__message">{{ message }}</p>
+  {% endif %}
+</div>
+```
+
+Used from a page:
+
+```html
+<form
+  method="post" action="{% url 'users:create' %}"
+  data-hx-post="{% url 'users:create' %}"
+  data-hx-target="this"
+  data-hx-swap="outerHTML">
+  {% include 'components/_field.html' with name='email' label='Email' value=form.email.value message=form.email.errors|first invalid=form.email.errors %}
+  <button class="hc-button" data-variant="primary" type="submit">Create</button>
+</form>
+```
+
+### Styling Django forms
+
+To apply `hc-input` to a Django form widget without writing custom
+HTML, set the attribute in the form class:
+
+```python
+class UserForm(forms.Form):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'hc-input'})
+    )
+```
+
+Or, with the `{% django-widget-tweaks %}` library, in the template:
+
+```html
+{% load widget_tweaks %}
+{{ form.email|add_class:"hc-input"|attr:"aria-invalid:true" }}
+```
+
+## Returning HTML fragments
+
+For htmx requests, return only the fragment for the target region.
+Use a dedicated template per fragment, or branch on `request.htmx`.
+
+```python
+# views.py
+from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+
+
+def list_items(request):
+    items = Item.objects.all()
+    template = 'items/_rows.html' if request.htmx else 'items/list.html'
+    return render(request, template, {'items': items})
+
+
+def delete_item(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    item.delete()
+    return HttpResponse(
+        '',
+        headers={
+            'HX-Trigger': json.dumps({
+                'hc:toast': {
+                    'message': f'Deleted "{item.name}".',
+                    'variant': 'success',
+                },
+            }),
+        },
+    )
+```
+
+`items/_rows.html`:
+
+```html
+{% for item in items %}
+  <tr id="item-{{ item.id }}">
+    <td>{{ item.name }}</td>
+    <td>
+      <span class="hc-badge" data-variant="{{ item.status }}">
+        {{ item.get_status_display }}
+      </span>
+    </td>
+    <td>
+      <span class="hc-action">
+        <button
+          class="hc-button"
+          data-size="sm"
+          data-variant="danger"
+          type="button"
+          data-hc-confirm="Delete {{ item.name }}?"
+          data-hx-delete="{% url 'items:delete' item.id %}"
+          data-hx-trigger="confirmed"
+          data-hx-target="closest tr"
+          data-hx-swap="outerHTML"
+          data-hx-disabled-elt="this"
+          data-hx-indicator="closest .hc-action">
+          Delete
+        </button>
+        <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+      </span>
+    </td>
+  </tr>
+{% endfor %}
+```
+
+## Toasts via HX-Trigger
+
+Use the `HX-Trigger` response header for client-side notifications.
+The toast behavior is the documented listener for `hc:toast`.
+
+```python
+import json
+from django.http import HttpResponse
+
+
+def save_item(request):
+    # …mutate state…
+    return HttpResponse(
+        rendered_fragment,
+        headers={
+            'HX-Trigger': json.dumps({
+                'hc:toast': {'message': 'Saved.', 'variant': 'success'},
+            }),
+        },
+    )
+```
+
+A small helper avoids repeating the JSON encoding:
+
+```python
+def hx_trigger(response, events):
+    response['HX-Trigger'] = json.dumps(events)
+    return response
+```
+
+## CSRF tips
+
+- Django requires a CSRF token on POST / PUT / PATCH / DELETE. The
+  `hx-headers` attribute in `base.html` sends it on every htmx
+  request.
+- If your htmx setup uses cookies for state, the
+  `CSRF_COOKIE_HTTPONLY = False` setting lets a `getCsrfToken()` JS
+  helper read it directly — useful if you set `hx-headers` per
+  element rather than on `<body>`.
+- For DELETE and PATCH, Django needs the standard `X-CSRFToken`
+  header even though there is no form body. `hx-headers` covers this.
+
+## Detecting htmx
+
+The `django-htmx` middleware adds `request.htmx` (truthy on htmx
+requests), `request.htmx.boosted`, and request headers as attributes.
+Without the middleware, check the header yourself:
+
+```python
+def list_items(request):
+    is_htmx = request.headers.get('HX-Request') == 'true'
+    template = 'items/_rows.html' if is_htmx else 'items/list.html'
+    return render(request, template, {'items': Item.objects.all()})
+```
+
+## Tips
+
+- **`whitenoise`** — set `STATIC_ROOT` and `STATICFILES_STORAGE` so
+  hashed asset URLs work in production. HC assets are static and
+  benefit from cache busting.
+- **`form.as_p` defaults** — the bundled form rendering does not
+  emit `hc-input`. Either render fields by hand or use widget attrs
+  / widget-tweaks to inject the class.
+- **`HX-Trigger-After-Settle`** — for events that should fire only
+  after htmx finishes settling DOM changes, use the
+  `HX-Trigger-After-Settle` header instead of `HX-Trigger`.
+
+## Related
+
+- [Recipes → confirm-action](/hypermedia-components/recipes/confirm-action/)
+- [Recipes → live-search](/hypermedia-components/recipes/live-search/)
+- [Recipes → toast](/hypermedia-components/recipes/toast/)

@@ -1,0 +1,32 @@
+/* hc-card — generic container with optional header / body / footer parts. */
+@layer hc.components {
+  .hc-card {
+    display: block;
+    background: var(--hc-card-bg);
+    color: var(--hc-card-fg);
+    border: 1px solid var(--hc-card-border);
+    border-radius: var(--hc-card-radius);
+    overflow: hidden;
+  }
+
+  .hc-card > *:not(.hc-card__header, .hc-card__body, .hc-card__footer) {
+    /* Bare cards (no parts) get padding directly on the root via .hc-card__body
+     * — but if a consumer puts plain content inside, still pad it. */
+    padding: var(--hc-card-padding);
+  }
+
+  .hc-card__header,
+  .hc-card__body,
+  .hc-card__footer {
+    padding: var(--hc-card-padding);
+  }
+
+  .hc-card__header {
+    border-block-end: 1px solid var(--hc-card-header-border);
+    font-weight: var(--hc-font-weight-semibold);
+  }
+
+  .hc-card__footer {
+    border-block-start: 1px solid var(--hc-card-header-border);
+  }
+}

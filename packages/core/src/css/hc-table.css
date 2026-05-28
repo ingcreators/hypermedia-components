@@ -1,0 +1,40 @@
+/* hc-table — semantic data table. Apply to a standard <table>. */
+@layer hc.components {
+  .hc-table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    color: var(--hc-table-fg);
+    font-size: var(--hc-table-font-size);
+    line-height: 1.5;
+  }
+
+  .hc-table th,
+  .hc-table td {
+    padding: var(--hc-table-cell-padding-y) var(--hc-table-cell-padding-x);
+    border-block-end: 1px solid var(--hc-table-border);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .hc-table thead th {
+    background: var(--hc-table-header-bg);
+    color: var(--hc-table-header-fg);
+    font-weight: var(--hc-table-header-weight);
+  }
+
+  .hc-table tbody tr:hover {
+    background: var(--hc-table-row-hover-bg);
+  }
+
+  /* Last-row border is provided by the surrounding container (card, etc.)
+   * or absent at the table's natural end. */
+  .hc-table tbody tr:last-child > * {
+    border-block-end: none;
+  }
+
+  /* Optional density modifier on the table element. */
+  .hc-table[data-density="compact"] th,
+  .hc-table[data-density="compact"] td {
+    padding-block: var(--hc-space-1);
+  }
+}

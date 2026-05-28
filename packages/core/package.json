@@ -22,7 +22,7 @@
     "./tokens.css": "./dist/hc.tokens.css",
     "./theme.css": "./dist/hc.theme.css",
     "./htmx.css": "./dist/hc.htmx.css",
-    "./macros": "./dist/hc.macros.js",
+    "./macros": "./dist/macros/index.js",
     "./behaviors": "./dist/hc.behaviors.js",
     "./tokens/*": "./src/tokens/*"
   },
@@ -31,9 +31,15 @@
     "src/tokens"
   ],
   "scripts": {
-    "build": "echo \"TODO: token + CSS bundle build\" && exit 0",
-    "test": "echo \"TODO: tests\" && exit 0",
-    "lint": "echo \"TODO: lint\" && exit 0"
+    "build": "pnpm run build:tokens && pnpm run build:css && pnpm run build:js",
+    "build:tokens": "node scripts/build-tokens.mjs",
+    "build:css": "node scripts/bundle-css.mjs",
+    "build:js": "node scripts/bundle-js.mjs",
+    "test": "vitest run",
+    "test:browser": "pnpm run build && playwright test",
+    "lint": "pnpm run lint:js && pnpm run lint:css",
+    "lint:js": "eslint .",
+    "lint:css": "stylelint \"src/css/**/*.css\""
   },
   "keywords": [
     "hypermedia",
@@ -43,5 +49,16 @@
     "design-tokens",
     "dtcg",
     "light-dom"
-  ]
+  ],
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.60.0",
+    "eslint": "^10.4.0",
+    "globals": "^17.6.0",
+    "jsdom": "^29.1.1",
+    "stylelint": "^17.12.0",
+    "stylelint-config-standard": "^40.0.0",
+    "vitest": "^4.1.7"
+  }
 }

@@ -1,0 +1,162 @@
+---
+title: Live search
+description: An input that issues a debounced htmx request as the user types and replaces a results region.
+---
+
+Live search is a search input wired to htmx so the results region
+updates as the user types. The form still works without JavaScript —
+htmx attributes hang off a real `<form action="/items" method="get">`.
+
+## Expanded HTML
+
+```html
+<form class="hc-search" action="/items" method="get" role="search">
+  <input
+    class="hc-input"
+    type="search"
+    name="q"
+    placeholder="Search"
+    data-hx-get="/items"
+    data-hx-trigger="input changed delay:300ms, search"
+    data-hx-target="#results"
+    data-hx-swap="innerHTML"
+    data-hx-sync="closest form:replace">
+
+  <button class="hc-button" type="submit">Search</button>
+</form>
+
+<div id="results" aria-live="polite"></div>
+```
+
+## How it works
+
+| Attribute                                         | Effect                                                         |
+| ------------------------------------------------- | -------------------------------------------------------------- |
+| `data-hx-get="/items"`                            | GET the search endpoint.                                       |
+| `data-hx-trigger="input changed delay:300ms, search"` | Fire 300ms after the user stops typing, **or** immediately on the native `search` event. |
+| `data-hx-target="#results"`                       | Replace the results container.                                 |
+| `data-hx-swap="innerHTML"`                        | Swap the inner HTML of the target.                             |
+| `data-hx-sync="closest form:replace"`             | If a new request starts while one is in flight, cancel the old one. |
+
+The form itself stays valid:
+
+- `<form action="/items" method="get">` works without JavaScript — the
+  submit button posts the same `q` parameter to the same URL.
+- `type="search"` provides the native clear button and the `search`
+  event that htmx listens for.
+- `role="search"` exposes the form as a search landmark to assistive
+  tech.
+
+## Macro form
+
+If you import `@hypermedia-components/core/macros`, you can write the
+same form as a single custom element:
+
+```html
+<hc-live-search
+  action="/items"
+  target="#results"
+  name="q"
+  placeholder="Search items"
+  label="Search items"
+  delay="200ms"
+  submit-label="Search">
+</hc-live-search>
+
+<div id="results" aria-live="polite"></div>
+```
+
+`<hc-live-search>` replaces its children with the expanded form on
+`connectedCallback`. The macro does **not** create the results
+container — it only emits the search form so you can place results
+wherever the page wants.
+
+Attributes:
+
+| Attribute      | Default        | Notes                                                         |
+| -------------- | -------------- | ------------------------------------------------------------- |
+| `action`       | _(required)_   | Search endpoint; becomes both `<form action>` and `data-hx-get`. |
+| `target`       | _(required)_   | `data-hx-target` selector for the results container.          |
+| `name`         | `q`            | Query parameter name on the input.                            |
+| `placeholder`  | `Search`       | Input placeholder.                                            |
+| `label`        | _(omitted)_    | Visible `<label>` text. If omitted, the input gets an `aria-label` instead. |
+| `aria-label`   | `Search`       | Fallback aria-label when no visible label.                    |
+| `delay`        | `300ms`        | htmx debounce delay (substituted into `data-hx-trigger`).      |
+| `submit-label` | `Search`       | Submit-button text.                                           |
+| `swap`         | `innerHTML`    | `data-hx-swap` mode.                                          |
+| `no-submit`    | _(boolean)_    | Omit the submit button.                                       |
+
+The macro is **optional** — for any customization beyond these
+attributes, copy the expanded HTML below and edit it directly.
+
+## Server response contract
+
+The server should return **only the inner HTML of `#results`** — not
+the surrounding `<div>`.
+
+```html
+<!-- /items?q=foo -->
+<ul class="hc-list">
+  <li><a href="/items/1">Item one</a></li>
+  <li><a href="/items/2">Item two</a></li>
+</ul>
+```
+
+For the empty state, return explicit empty-state markup so the user
+knows the search ran:
+
+```html
+<!-- /items?q=zzz -->
+<p class="hc-field__message">No results for "zzz".</p>
+```
+
+Return the same HTML when a non-htmx request comes in (full page load
+after submitting the form without JavaScript). Servers can detect htmx
+requests via the `HX-Request: true` header and decide whether to wrap
+the response in a full page layout or send the fragment only.
+
+## Loading indicator
+
+To show a spinner while the search runs, add an htmx indicator that
+points at the results region:
+
+```html
+<div id="results" aria-live="polite" aria-busy="false">
+  <!-- htmx sets aria-busy="true" via data-hx-busy on a wrapper if you want -->
+</div>
+
+<span class="hc-spinner htmx-indicator" id="search-spinner" aria-hidden="true"></span>
+```
+
+Add `data-hx-indicator="#search-spinner"` to the input.
+
+## Accessibility
+
+- `role="search"` on the `<form>` exposes the search landmark.
+- `aria-live="polite"` on `#results` announces the new result count
+  (or empty state) without interrupting the user's typing.
+- The native `type="search"` input is the right primitive — it brings
+  the clear button, IME-friendly behavior, and the `search` event for
+  Enter / form submission.
+- Avoid moving focus into the results list automatically. Keyboard
+  users should stay in the input; if you provide keyboard navigation
+  into results, document the keys clearly.
+
+## Progressive enhancement
+
+- Without JavaScript, the form submits to `action="/items"` and the
+  server renders a full results page.
+- With htmx, the same submit endpoint returns the results fragment.
+- With JavaScript but htmx not yet loaded (e.g. deferred loading),
+  the form still submits normally on Enter.
+
+The trick is that **the htmx attributes never replace the form's
+fundamentals**. `action` and `method` stay intact; htmx augments.
+
+## Related
+
+- [Input](/hypermedia-components/components/input/) — the control.
+- [Field](/hypermedia-components/components/field/) — pair an input
+  with a label when you need one.
+- [Request action](/hypermedia-components/recipes/request-action/) —
+  general htmx-with-spinner pattern.

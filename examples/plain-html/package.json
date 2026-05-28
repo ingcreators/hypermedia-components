@@ -1,0 +1,12 @@
+{
+  "name": "@hypermedia-components/example-plain-html",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Static-HTML showcase of Hypermedia Components CSS and behaviors.",
+  "type": "module",
+  "scripts": {
+    "prestart": "pnpm --filter @hypermedia-components/core build",
+    "start": "node serve.mjs",
+    "dev": "node serve.mjs"
+  }
+}

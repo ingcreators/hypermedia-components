@@ -1,0 +1,274 @@
+---
+title: Rails
+description: Use Hypermedia Components from Ruby on Rails — Propshaft / Importmap asset pipeline, ERB partials, and HTML-fragment controllers.
+---
+
+This guide pairs Hypermedia Components with Rails 7+ (Propshaft +
+Importmap) and htmx. The patterns translate to Sprockets-based apps.
+
+## Asset loading
+
+Put the HC dist files under `app/assets/builds/hc/` (Propshaft) or
+`vendor/javascript/` (Importmap). The example below uses Propshaft:
+
+```text
+app/assets/builds/hc/
+  hc.css
+  hc.behaviors.js
+  macros/
+    index.js
+    confirm-action.js
+    live-search.js
+vendor/javascript/
+  htmx.min.js
+```
+
+Pin htmx via Importmap, or simply reference it from `vendor`:
+
+```ruby
+# config/importmap.rb
+pin "htmx",           to: "htmx.min.js"
+pin "hc",             to: "hc/hc.behaviors.js"
+pin "hc-macros",      to: "hc/macros/index.js"
+```
+
+`app/views/layouts/application.html.erb`:
+
+```erb
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= content_for(:title) || "My app" %></title>
+  <%= csrf_meta_tags %>
+
+  <%= stylesheet_link_tag "hc/hc.css" %>
+  <%= javascript_importmap_tags %>
+  <script type="module">
+    import "htmx"
+    import "hc"
+    import "hc-macros"
+  </script>
+</head>
+<body>
+  <%= yield %>
+
+  <div class="hc-toast-region"
+       data-hc-toast-region
+       role="region"
+       aria-label="Notifications"></div>
+
+  <script>
+    // Hand the CSRF token to htmx so every request carries it.
+    document.body.addEventListener("htmx:configRequest", (e) => {
+      const token = document.querySelector('meta[name="csrf-token"]')?.content
+      if (token) e.detail.headers["X-CSRF-Token"] = token
+    })
+  </script>
+</body>
+</html>
+```
+
+## Rendering components
+
+Rails partials map naturally to HC's part-class shape.
+
+```erb
+<%# app/views/shared/_field.html.erb %>
+<%# locals: (name:, label:, value: nil, message: nil, invalid: false) %>
+
+<div class="hc-field"<%= " data-invalid=\"true\"".html_safe if invalid %>>
+  <%= label_tag name, label, class: "hc-field__label" %>
+  <%= text_field_tag name, value,
+        class: "hc-input",
+        aria: invalid ? { invalid: true, describedby: "#{name}-error" } : {} %>
+  <% if message.present? %>
+    <p id="<%= name %>-error" class="hc-field__message"><%= message %></p>
+  <% end %>
+</div>
+```
+
+Use it from a form:
+
+```erb
+<%= form_with url: users_path, method: :post,
+              data: { hx_post: users_path, hx_target: "this", hx_swap: "outerHTML" } do %>
+  <%= render "shared/field",
+        name: "email",
+        label: "Email",
+        value: @user.email,
+        message: @user.errors[:email].first,
+        invalid: @user.errors[:email].any? %>
+
+  <button class="hc-button" data-variant="primary" type="submit">Create</button>
+<% end %>
+```
+
+### `form_with` helpers and HC classes
+
+To add `hc-input` to standard form helpers, pass `class:` explicitly:
+
+```erb
+<%= form.email_field :email, class: "hc-input" %>
+<%= form.select :status, statuses_for_select, {}, class: "hc-input" %>
+```
+
+For repeatable styling, wrap the helpers in a view helper:
+
+```ruby
+# app/helpers/hc_form_helper.rb
+module HcFormHelper
+  def hc_email_field(form, attr, **opts)
+    form.email_field(attr, { class: "hc-input" }.merge(opts))
+  end
+end
+```
+
+## Returning HTML fragments
+
+For htmx swaps the controller renders a partial directly.
+
+```ruby
+# app/controllers/items_controller.rb
+class ItemsController < ApplicationController
+  def create
+    @item = Item.new(item_params)
+    if @item.save
+      response.headers["HX-Trigger"] = {
+        "hc:toast" => { message: %(Saved "#{@item.name}"), variant: "success" }
+      }.to_json
+      render partial: "items/row", locals: { item: @item }, status: :created
+    else
+      render partial: "items/form", locals: { item: @item }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    item = Item.find(params[:id])
+    item.destroy
+    response.headers["HX-Trigger"] = {
+      "hc:toast" => { message: %(Deleted "#{item.name}"), variant: "success" }
+    }.to_json
+    head :ok # empty body — htmx removes the row via outerHTML swap
+  end
+end
+```
+
+`app/views/items/_row.html.erb`:
+
+```erb
+<tr id="item-<%= item.id %>">
+  <td><%= item.name %></td>
+  <td>
+    <span class="hc-badge" data-variant="<%= item.status %>">
+      <%= item.status_label %>
+    </span>
+  </td>
+  <td>
+    <span class="hc-action">
+      <%= button_tag "Delete",
+            type: "button",
+            class: "hc-button",
+            data: {
+              size: "sm",
+              variant: "danger",
+              hc_confirm: "Delete #{item.name}?",
+              hx_delete: item_path(item),
+              hx_trigger: "confirmed",
+              hx_target: "closest tr",
+              hx_swap: "outerHTML",
+              hx_disabled_elt: "this",
+              hx_indicator: "closest .hc-action",
+            } %>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </span>
+  </td>
+</tr>
+```
+
+Rails converts `data: { hc_confirm: "..." }` into `data-hc-confirm="..."` —
+underscores become hyphens, which matches HC's attribute convention
+exactly.
+
+## Toasts via HX-Trigger
+
+A small concern keeps controllers tidy:
+
+```ruby
+# app/controllers/concerns/hx_triggers.rb
+module HxTriggers
+  extend ActiveSupport::Concern
+
+  def hx_trigger(events)
+    response.headers["HX-Trigger"] =
+      (existing_hx_trigger || {}).merge(events.stringify_keys).to_json
+  end
+
+  private
+
+  def existing_hx_trigger
+    raw = response.headers["HX-Trigger"]
+    raw ? JSON.parse(raw) : {}
+  rescue JSON::ParserError
+    {}
+  end
+end
+```
+
+```ruby
+class ItemsController < ApplicationController
+  include HxTriggers
+
+  def create
+    # …
+    hx_trigger("hc:toast" => { message: "Saved.", variant: "success" })
+    render partial: "items/row", locals: { item: @item }, status: :created
+  end
+end
+```
+
+## CSRF tips
+
+- `csrf_meta_tags` in the layout plus the
+  `htmx:configRequest` listener (see the layout snippet above) covers
+  every htmx verb.
+- For PUT / PATCH / DELETE from forms, Rails normally smuggles
+  `_method` in a hidden input — but htmx requests use the real verb
+  via `data-hx-{verb}`. The `X-CSRF-Token` header still validates
+  correctly.
+- For SPA-style cross-origin htmx calls, configure `protect_from_forgery
+  with: :null_session` or skip the check on specific actions.
+
+## Detecting htmx
+
+```ruby
+class ItemsController < ApplicationController
+  def index
+    @items = Item.all
+    if request.headers["HX-Request"] == "true"
+      render partial: "items/rows", locals: { items: @items }
+    else
+      render :index
+    end
+  end
+end
+```
+
+A common pattern is to extract a `respond_to_htmx` helper.
+
+## Tips
+
+- **Importmap vs Propshaft** — both work. The example above uses
+  Importmap for JS pins and Propshaft for the CSS file. Sprockets is
+  fine too if you precompile `hc.css`.
+- **Hotwire alongside** — Hypermedia Components can coexist with
+  Hotwire (Turbo + Stimulus). HC handles styling and small behaviors;
+  Hotwire / htmx are orthogonal transport choices.
+- **Form errors** — pair `errors.full_messages_for(:email)` (or
+  `errors[:email]`) with `data-invalid="true"` on the wrapper and
+  `aria-invalid="true"` on the input.
+
+## Related
+
+- [Recipes → confirm-action](/hypermedia-components/recipes/confirm-action/)
+- [Recipes → request-action](/hypermedia-components/recipes/request-action/)
+- [Recipes → toast](/hypermedia-components/recipes/toast/)

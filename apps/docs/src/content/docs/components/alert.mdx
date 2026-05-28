@@ -1,0 +1,111 @@
+---
+title: Alert
+description: Block-level notice or status message with variant colors.
+---
+
+`hc-alert` is a block-level notice meant to draw the reader's attention
+to a piece of information. Variants are switched with `data-variant`.
+
+## Basic HTML
+
+<div class="hc-preview" style="display:grid;gap:.75rem;max-width:36rem;">
+  <div class="hc-alert" role="status">
+    <strong class="hc-alert__title">Tip</strong>
+    <p class="hc-alert__body">You can press <kbd>Ctrl</kbd>+<kbd>K</kbd> to open the command bar.</p>
+  </div>
+  <div class="hc-alert" data-variant="success" role="status">
+    <strong class="hc-alert__title">Saved</strong>
+    <p class="hc-alert__body">Your changes are saved.</p>
+  </div>
+  <div class="hc-alert" data-variant="warning" role="status">
+    <strong class="hc-alert__title">Heads up</strong>
+    <p class="hc-alert__body">This action will affect 3 connected systems.</p>
+  </div>
+  <div class="hc-alert" data-variant="danger" role="alert">
+    <strong class="hc-alert__title">Something went wrong</strong>
+    <p class="hc-alert__body">The server returned a 500. Please try again.</p>
+  </div>
+</div>
+
+```html
+<div class="hc-alert" role="status">
+  <strong class="hc-alert__title">Tip</strong>
+  <p class="hc-alert__body">You can press Ctrl+K to open the command bar.</p>
+</div>
+
+<div class="hc-alert" data-variant="danger" role="alert">
+  <strong class="hc-alert__title">Something went wrong</strong>
+  <p class="hc-alert__body">The server returned a 500. Please try again.</p>
+</div>
+```
+
+## Variants
+
+| Variant     | Use for                                |
+| ----------- | -------------------------------------- |
+| _omitted_   | Informational notice (default blue).   |
+| `success`   | Confirmation of a completed action.    |
+| `warning`   | A caution before a non-destructive action. |
+| `danger`    | Error, failure, or destructive warning.|
+
+## Accessibility
+
+- Choose the **role** based on urgency:
+  - `role="status"` (or `aria-live="polite"`) for non-urgent updates —
+    they are announced after the screen reader finishes whatever it was
+    saying.
+  - `role="alert"` (or `aria-live="assertive"`) for errors and urgent
+    failures — they interrupt the screen reader.
+- The component does not set the role for you because the right role
+  depends on context. Be explicit at the call site.
+- Color alone must not carry the meaning. Include a short
+  `.hc-alert__title` so the kind of alert is announced as text.
+
+## htmx usage
+
+A common server-side pattern returns a `hc-alert` fragment for a
+target region after a request. The behavior is identical to swapping
+any other HTML — alerts have no JavaScript of their own.
+
+```html
+<button
+  class="hc-button"
+  data-hx-post="/items"
+  data-hx-target="#flash"
+  data-hx-swap="innerHTML">
+  Save
+</button>
+
+<div id="flash" aria-live="polite"></div>
+```
+
+For ephemeral notifications across pages, use the
+[toast recipe](/hypermedia-components/recipes/) (planned) which is
+triggered by an `HX-Trigger` response header.
+
+## Theming tokens
+
+| Token path                       | Purpose                       |
+| -------------------------------- | ----------------------------- |
+| `alert.padding-block` / `-inline` | Padding.                     |
+| `alert.radius`                   | Border radius.                |
+| `alert.gap`                      | Gap between title and body.   |
+| `alert.border-width`             | Border thickness.             |
+| `alert.title-weight`             | Title font weight.            |
+| `alert.{variant}.{bg,fg,border}` | Per-variant colors.           |
+
+## CSS variables
+
+```text
+--hc-alert-padding-block | -padding-inline | -radius | -gap | -border-width
+--hc-alert-title-weight
+--hc-alert-info-bg    | -fg | -border
+--hc-alert-success-bg | -fg | -border
+--hc-alert-warning-bg | -fg | -border
+--hc-alert-danger-bg  | -fg | -border
+```
+
+## Related
+
+- [Badge](/hypermedia-components/components/badge/) — for inline status.
+- `toast` recipe (planned) — for transient cross-page notifications.

@@ -1,0 +1,171 @@
+---
+title: Button
+description: Semantic button component with variants, sizes, and htmx-friendly request states.
+---
+
+`hc-button` is a thin semantic class applied to the standard `<button>`
+element. Variants and sizes are switched with `data-*` attributes so the
+markup stays close to plain HTML.
+
+## Basic HTML
+
+<div class="hc-preview hc-cluster" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button">Default</button>
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="danger">Delete</button>
+  <button class="hc-button" data-variant="ghost">Ghost</button>
+</div>
+
+```html
+<button class="hc-button">Default</button>
+<button class="hc-button" data-variant="primary">Save</button>
+<button class="hc-button" data-variant="danger">Delete</button>
+<button class="hc-button" data-variant="ghost">Ghost</button>
+```
+
+## Variants
+
+`data-variant` accepts `default` (implicit), `primary`, `danger`, and
+`ghost`. Variants compose with sizes and states.
+
+| Variant   | Purpose                                       |
+| --------- | --------------------------------------------- |
+| _omitted_ | Neutral default action.                       |
+| `primary` | The primary action on a page or in a dialog.  |
+| `danger`  | Destructive action — pair with a confirm UI.  |
+| `ghost`   | Low-emphasis action; transparent background.  |
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`.
+
+<div class="hc-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-size="sm">Small</button>
+  <button class="hc-button">Default</button>
+  <button class="hc-button" data-size="lg">Large</button>
+</div>
+
+```html
+<button class="hc-button" data-size="sm">Small</button>
+<button class="hc-button">Default</button>
+<button class="hc-button" data-size="lg">Large</button>
+```
+
+## States
+
+State belongs in HTML attributes — not modifier classes. The component
+styles `:disabled`, `[aria-disabled="true"]`, `:focus-visible`, and
+`[data-loading="true"]` directly.
+
+<div class="hc-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary" disabled>Disabled</button>
+  <button class="hc-button" data-variant="primary" aria-disabled="true">aria-disabled</button>
+  <button class="hc-button" data-variant="primary" data-loading="true">Saving…</button>
+</div>
+
+```html
+<button class="hc-button" data-variant="primary" disabled>Disabled</button>
+<button class="hc-button" data-variant="primary" aria-disabled="true">aria-disabled</button>
+<button class="hc-button" data-variant="primary" data-loading="true">Saving…</button>
+```
+
+Use `disabled` when the action genuinely cannot be invoked. Use
+`aria-disabled="true"` when the control must remain focusable (for
+example, so a screen-reader user can read why it is unavailable).
+
+## With htmx
+
+`hc-button` is a normal `<button>`, so any htmx attribute works on it.
+The primary documentation uses `data-hx-*` so examples stay valid HTML
+and play well with template engines.
+
+```html
+<button
+  class="hc-button"
+  data-variant="primary"
+  data-hx-post="/items"
+  data-hx-target="#items"
+  data-hx-swap="outerHTML">
+  Save
+</button>
+```
+
+A confirmation flow combines the button with the `confirm-action` recipe:
+
+```html
+<button
+  class="hc-button"
+  data-variant="danger"
+  data-hc-confirm="Delete this item?"
+  data-hx-delete="/items/123"
+  data-hx-trigger="confirmed"
+  data-hx-target="closest tr">
+  Delete
+</button>
+```
+
+## Accessibility
+
+- Always use the native `<button>` element. Do not apply `hc-button` to a
+  `<div>` or `<span>`.
+- Provide a visible, descriptive label. Icon-only buttons need
+  `aria-label` or visually-hidden text.
+- Focus is visualized through `:focus-visible` and the
+  `--hc-color-focus-ring` token. Do not remove the outline without
+  providing an equally clear alternative.
+- The `disabled` attribute removes the button from the tab order. Use
+  `aria-disabled="true"` instead when the control should remain
+  focusable.
+- For destructive actions, pair the button with a confirmation dialog so
+  the action is not invoked accidentally.
+
+## Theming tokens
+
+`hc-button` reads from these component tokens (defined in
+`component.tokens.json`):
+
+| Token path                    | Purpose                              |
+| ----------------------------- | ------------------------------------ |
+| `button.height`               | Default block size.                  |
+| `button.padding-x`            | Inline padding.                      |
+| `button.radius`               | Border radius.                       |
+| `button.font-size`            | Default font size.                   |
+| `button.{default,primary,danger,ghost}.{bg,fg,border}` | Per-variant colors. |
+| `button.{default,primary,danger,ghost}-hover.{bg,border}` | Per-variant hover colors. |
+| `button.{sm,lg}.{height,padding-x,font-size}` | Size-specific overrides. |
+
+Override at any level — primitive, semantic, or component — by setting
+the corresponding `--hc-*` custom property on a scope.
+
+```css
+:root {
+  --hc-button-radius: 999px;             /* fully rounded */
+  --hc-button-primary-bg: #6d28d9;       /* purple primary */
+}
+```
+
+## CSS variables
+
+The generated `--hc-*` custom properties consumed directly by this
+component:
+
+```text
+--hc-button-height
+--hc-button-padding-x
+--hc-button-radius
+--hc-button-font-size
+--hc-button-font-weight
+--hc-button-default-bg | -fg | -border | -hover-bg
+--hc-button-primary-bg | -fg | -border | -hover-bg | -hover-border
+--hc-button-danger-bg  | -fg | -border | -hover-bg | -hover-border
+--hc-button-ghost-bg   | -fg | -border | -hover-bg
+--hc-button-sm-height | -padding-x | -font-size
+--hc-button-lg-height | -padding-x | -font-size
+--hc-color-focus-ring
+--hc-opacity-disabled
+```
+
+## Related recipes
+
+- `request-action` — wraps a button with a spinner and disabled state.
+- `confirm-action` — destructive action with a confirm dialog.

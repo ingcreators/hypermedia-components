@@ -1,0 +1,283 @@
+---
+title: Razor (ASP.NET Core)
+description: Use Hypermedia Components from ASP.NET Core Razor Pages or MVC — static files, partial views, tag helpers, and PartialView responses with HX-Trigger headers.
+---
+
+This guide covers ASP.NET Core 8+ with Razor Pages or MVC. The
+patterns also work with Blazor Server when you want to mix server-
+rendered fragments and htmx-driven swaps inside Blazor pages.
+
+## Asset loading
+
+Drop the HC dist files under `wwwroot/`. Static files are served by
+`UseStaticFiles()` (enabled by default in new templates).
+
+```text
+wwwroot/
+  assets/
+    hc/
+      hc.css
+      hc.behaviors.js
+      macros/
+        index.js
+        confirm-action.js
+        live-search.js
+    htmx.min.js
+Pages/Shared/
+  _Layout.cshtml
+  _ToastRegion.cshtml
+```
+
+`Pages/Shared/_Layout.cshtml`:
+
+```razor
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>@(ViewData["Title"] ?? "My app")</title>
+
+    <link rel="stylesheet" href="~/assets/hc/hc.css" asp-append-version="true">
+    <script defer src="~/assets/htmx.min.js" asp-append-version="true"></script>
+    <script type="module" src="~/assets/hc/hc.behaviors.js" asp-append-version="true"></script>
+    <script type="module" src="~/assets/hc/macros/index.js" asp-append-version="true"></script>
+
+    @* Antiforgery token for htmx requests *@
+    <meta name="request-verification-token"
+          content="@Antiforgery.GetAndStoreTokens(Context).RequestToken">
+</head>
+<body>
+    @RenderBody()
+
+    <partial name="_ToastRegion" />
+
+    <script>
+      document.body.addEventListener("htmx:configRequest", (e) => {
+        const token = document.querySelector('meta[name="request-verification-token"]')?.content;
+        if (token) e.detail.headers["RequestVerificationToken"] = token;
+      });
+    </script>
+</body>
+</html>
+```
+
+The `asp-append-version` tag helper appends a cache-busting hash —
+critical for the HC CSS bundle.
+
+Inject `IAntiforgery` once in `_ViewImports.cshtml`:
+
+```razor
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+```
+
+## Rendering components
+
+Razor partial views map naturally to HC's part-class shape.
+
+```razor
+@* Pages/Shared/_Field.cshtml *@
+@model FieldModel
+
+<div class="hc-field" data-invalid="@(Model.Invalid ? "true" : null)">
+    <label class="hc-field__label" for="@Model.Name">@Model.Label</label>
+    <input
+        id="@Model.Name"
+        name="@Model.Name"
+        value="@Model.Value"
+        class="hc-input"
+        aria-invalid="@(Model.Invalid ? "true" : null)"
+        aria-describedby="@(Model.Invalid ? $"{Model.Name}-error" : null)" />
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <p id="@($"{Model.Name}-error")" class="hc-field__message">@Model.Message</p>
+    }
+</div>
+```
+
+```razor
+public record FieldModel(string Name, string Label,
+                          string Value, string Message, bool Invalid);
+```
+
+Use it from a page:
+
+```razor
+@page
+@model CreateUserModel
+
+<form method="post"
+      data-hx-post asp-page="Create"
+      data-hx-target="this"
+      data-hx-swap="outerHTML">
+    <partial name="_Field" model="@(new FieldModel(
+        Name: "email",
+        Label: "Email",
+        Value: Model.Email,
+        Message: ModelState["Email"]?.Errors.FirstOrDefault()?.ErrorMessage,
+        Invalid: !ModelState.IsValid && ModelState["Email"]?.Errors.Count > 0))" />
+
+    <button class="hc-button" data-variant="primary" type="submit">Create</button>
+</form>
+```
+
+## Returning HTML fragments
+
+For htmx swaps return a `PartialViewResult`:
+
+```csharp
+// Pages/Items/Index.cshtml.cs
+public class IndexModel : PageModel
+{
+    private readonly IItemStore _store;
+
+    public IndexModel(IItemStore store) => _store = store;
+
+    public IList<Item> Items { get; private set; } = new List<Item>();
+
+    public IActionResult OnGet()
+    {
+        Items = _store.All();
+        if (Request.Headers["HX-Request"] == "true")
+        {
+            return Partial("_Rows", Items);
+        }
+        return Page();
+    }
+
+    public IActionResult OnPostDelete(int id)
+    {
+        if (!_store.TryDelete(id, out var item))
+        {
+            return NotFound();
+        }
+        Response.Headers["HX-Trigger"] = JsonSerializer.Serialize(new
+        {
+            hcToast = new { message = $"Deleted \"{item.Name}\".", variant = "success" },
+        });
+        // map the property name to "hc:toast" via custom converter,
+        // or build the JSON by hand (next example).
+        return new EmptyResult();
+    }
+}
+```
+
+`Pages/Items/_Rows.cshtml`:
+
+```razor
+@model IEnumerable<Item>
+
+@foreach (var item in Model)
+{
+    <tr id="item-@item.Id">
+        <td>@item.Name</td>
+        <td>
+            <span class="hc-badge" data-variant="@item.Status">@item.StatusLabel</span>
+        </td>
+        <td>
+            <span class="hc-action">
+                <button
+                    class="hc-button"
+                    data-size="sm"
+                    data-variant="danger"
+                    type="button"
+                    data-hc-confirm="Delete @item.Name?"
+                    data-hx-delete="/items/@item.Id"
+                    data-hx-trigger="confirmed"
+                    data-hx-target="closest tr"
+                    data-hx-swap="outerHTML"
+                    data-hx-disabled-elt="this"
+                    data-hx-indicator="closest .hc-action">
+                    Delete
+                </button>
+                <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+            </span>
+        </td>
+    </tr>
+}
+```
+
+## Toasts via HX-Trigger
+
+`System.Text.Json` cannot emit `"hc:toast"` (colon) directly from a
+property name. Build the JSON literally or use `JsonObject`:
+
+```csharp
+using System.Text.Json.Nodes;
+
+public static class HxTriggerExtensions
+{
+    public static void HxTrigger(this HttpResponse response,
+                                  string @event, object detail)
+    {
+        var existing = response.Headers["HX-Trigger"].ToString();
+        var node = string.IsNullOrEmpty(existing)
+            ? new JsonObject()
+            : JsonNode.Parse(existing)!.AsObject();
+        node[@event] = JsonSerializer.SerializeToNode(detail);
+        response.Headers["HX-Trigger"] = node.ToJsonString();
+    }
+}
+```
+
+In a handler:
+
+```csharp
+Response.HxTrigger("hc:toast", new {
+    message = "Saved.", variant = "success"
+});
+```
+
+## Antiforgery / CSRF
+
+ASP.NET Core's antiforgery system uses the
+`RequestVerificationToken` header for htmx requests. The
+`_Layout.cshtml` snippet above:
+
+1. Renders the token into a `<meta>` tag.
+2. Forwards it to htmx via `htmx:configRequest`.
+
+For Razor Pages, antiforgery is **on by default** for POST handlers.
+You do not need `[ValidateAntiForgeryToken]` in most cases — the
+framework wires it for you. For MVC controllers, add the attribute
+to `POST` / `PUT` / `DELETE` actions.
+
+## Detecting htmx
+
+```csharp
+public bool IsHtmx => Request.Headers["HX-Request"] == "true";
+```
+
+A custom attribute or filter can short-circuit non-htmx requests to
+return a full page:
+
+```csharp
+public class HtmxOnlyAttribute : ActionFilterAttribute
+{
+    public override void OnActionExecuting(ActionExecutingContext ctx)
+    {
+        if (ctx.HttpContext.Request.Headers["HX-Request"] != "true")
+        {
+            ctx.Result = new RedirectToActionResult("Index", "Home", null);
+        }
+    }
+}
+```
+
+## Tips
+
+- **Tag helpers** — HC sticks to `data-*` attributes so it composes
+  with ASP.NET tag helpers (`asp-for`, `asp-validation-for`) without
+  conflict.
+- **Validation summary** — pair Razor's `<span asp-validation-for>`
+  with `data-invalid="true"` on the `.hc-field` wrapper to keep
+  visual and assistive cues in sync.
+- **Blazor Server** — when mixing Blazor and htmx, render HC
+  components via `MarkupString` for server-rendered chunks and avoid
+  cross-wiring Blazor's diff with htmx swaps inside the same DOM
+  subtree.
+
+## Related
+
+- [Recipes → confirm-action](/hypermedia-components/recipes/confirm-action/)
+- [Recipes → request-action](/hypermedia-components/recipes/request-action/)
+- [Recipes → toast](/hypermedia-components/recipes/toast/)

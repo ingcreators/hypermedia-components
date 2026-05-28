@@ -1,0 +1,140 @@
+---
+title: Naming
+description: How Hypermedia Components names CSS classes, data attributes, custom elements, custom properties, and events.
+---
+
+A consistent naming system makes the project predictable from the
+outside. Every public surface uses the `hc-` prefix.
+
+## The hc- prefix
+
+```text
+CSS classes:           hc-button, hc-field, hc-card
+Custom elements:       hc-confirm-action, hc-live-search
+Data attributes:       data-hc-confirm, data-hc-close-dialog-on-success
+CSS custom properties: --hc-color-bg, --hc-button-height
+Events:                hc:toast, hc:confirm, hc:close-dialog
+```
+
+The prefix is short, unambiguous, and easy to grep.
+
+## CSS classes
+
+Component classes are component-oriented, not utility-oriented.
+
+```text
+hc-button
+hc-input
+hc-field
+hc-card
+hc-alert
+hc-badge
+hc-table
+hc-dialog
+hc-popover
+hc-toolbar
+hc-pagination
+```
+
+When a component has stable internal structure, use part-like child
+classes (BEM-style `__` separator, no modifier classes):
+
+```text
+hc-card__header
+hc-card__body
+hc-card__footer
+hc-dialog__title
+hc-field__label
+hc-field__message
+```
+
+### Variants and sizes — not modifier classes
+
+Variant and size axes live on `data-*` attributes, not on extra class
+names. This keeps markup short, makes the variant set legible, and lets
+servers update visual state by changing a single attribute.
+
+```html
+<button class="hc-button" data-variant="primary" data-size="sm">
+  Save
+</button>
+```
+
+Avoid:
+
+```html
+<button class="hc-button hc-button--primary hc-button--sm">Save</button>
+```
+
+Recommended variant names (where they apply):
+
+```text
+default · primary · secondary · danger · warning · success · ghost · link
+```
+
+Recommended size names:
+
+```text
+sm · md · lg
+```
+
+## Data attributes
+
+Two families:
+
+- `data-hc-*` — Hypermedia Components behavior hooks. Examples:
+  `data-hc-confirm`, `data-hc-close-dialog-on-success`.
+- `data-hx-*` — htmx attributes. Hypermedia Components docs always
+  prefer the `data-hx-*` form over the shorter `hx-*` because it is
+  valid HTML5 syntax and more friendly to template engines.
+
+Keep behavior attributes **explicit and readable**. Do not invent a
+single opaque DSL like `data-hc="delete item confirm toast reload"` —
+each behavior gets its own attribute with a self-evident value.
+
+## Custom elements
+
+Macros (optional) use the same `hc-` prefix and are kebab-case:
+
+```text
+<hc-confirm-action>
+<hc-live-search>
+<hc-remote-dialog>
+```
+
+Every macro must document its [expanded HTML](/hypermedia-components/recipes/confirm-action/#expanded-html)
+so consumers can copy it verbatim and customize.
+
+## CSS custom properties
+
+Custom properties are generated from DTCG tokens and named after the
+**JSON path** without the file's namespace.
+
+```text
+semantic.color.bg                   → --hc-color-bg
+component.button.primary.bg         → --hc-button-primary-bg
+component.field.label-font-size     → --hc-field-label-font-size
+```
+
+See [Tokens](/hypermedia-components/fundamentals/tokens/) for the layer
+strategy.
+
+## Events
+
+Custom events dispatched by behaviors use a colon-separated namespace:
+
+```text
+hc:toast        — display a transient toast
+hc:confirm      — internal confirm-dialog lifecycle
+hc:close-dialog — close the nearest dialog
+```
+
+Custom events bubble by default so listeners can be attached high in
+the tree (typically on `document.body`).
+
+## Things that look similar but are not part of HC
+
+- htmx classes — `htmx-request`, `htmx-indicator`. These are added by
+  htmx and styled by `hc.htmx.css`. HC does not own the names.
+- Browser-native attributes — `disabled`, `aria-invalid`, `popover`.
+  HC styles these directly so consumers do not need a shadow modifier.

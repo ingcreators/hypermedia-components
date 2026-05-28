@@ -4,14 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "pnpm --filter @hypermedia-components/core build",
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "pnpm --filter @hypermedia-components/core build",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.32.5",
+    "@hypermedia-components/core": "workspace:*",
     "astro": "^5.5.5",
     "sharp": "^0.34.1"
   }

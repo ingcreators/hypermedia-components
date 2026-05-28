@@ -1,0 +1,45 @@
+/* hc-badge — small inline status indicator.
+ *
+ * Variants via data-variant: default | info | success | warning | danger
+ */
+@layer hc.components {
+  .hc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-space-1);
+    padding-inline: var(--hc-badge-padding-x);
+    padding-block: var(--hc-badge-padding-y);
+    border: 1px solid var(--hc-badge-default-border);
+    border-radius: var(--hc-badge-radius);
+    background: var(--hc-badge-default-bg);
+    color: var(--hc-badge-default-fg);
+    font-size: var(--hc-badge-font-size);
+    font-weight: var(--hc-badge-font-weight);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .hc-badge[data-variant="info"] {
+    background: var(--hc-badge-info-bg);
+    color: var(--hc-badge-info-fg);
+    border-color: var(--hc-badge-info-border);
+  }
+
+  .hc-badge[data-variant="success"] {
+    background: var(--hc-badge-success-bg);
+    color: var(--hc-badge-success-fg);
+    border-color: var(--hc-badge-success-border);
+  }
+
+  .hc-badge[data-variant="warning"] {
+    background: var(--hc-badge-warning-bg);
+    color: var(--hc-badge-warning-fg);
+    border-color: var(--hc-badge-warning-border);
+  }
+
+  .hc-badge[data-variant="danger"] {
+    background: var(--hc-badge-danger-bg);
+    color: var(--hc-badge-danger-fg);
+    border-color: var(--hc-badge-danger-border);
+  }
+}

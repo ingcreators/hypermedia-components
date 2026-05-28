@@ -1,0 +1,134 @@
+---
+title: Dialog
+description: Minimal styling for the standard <dialog> element. Modal flows use showModal(), non-modal use show().
+---
+
+`hc-dialog` is a thin class applied to the standard `<dialog>`
+element. The browser owns the modal lifecycle — focus trap,
+Escape-to-close, `inert` background, top-layer rendering — and the
+component adds only the visual surface.
+
+## Basic HTML
+
+```html
+<button class="hc-button" data-variant="primary" id="open">Open</button>
+
+<dialog class="hc-dialog" id="my-dialog">
+  <header class="hc-dialog__header">
+    <h2 class="hc-dialog__title">Confirm something</h2>
+  </header>
+
+  <div class="hc-dialog__body">
+    <p>Body content.</p>
+  </div>
+
+  <footer class="hc-dialog__footer">
+    <button class="hc-button" id="close">Cancel</button>
+    <button class="hc-button" data-variant="primary">OK</button>
+  </footer>
+</dialog>
+
+<script>
+  document.getElementById('open').addEventListener('click',
+    () => document.getElementById('my-dialog').showModal());
+  document.getElementById('close').addEventListener('click',
+    () => document.getElementById('my-dialog').close());
+</script>
+```
+
+## Parts
+
+| Part                  | Purpose                                 |
+| --------------------- | --------------------------------------- |
+| `.hc-dialog`          | Root `<dialog>` element.                |
+| `.hc-dialog__header`  | Title row, with a bottom divider.       |
+| `.hc-dialog__title`   | Heading inside the header.              |
+| `.hc-dialog__body`    | Main content area.                      |
+| `.hc-dialog__footer`  | Action row, right-aligned, top divider. |
+
+The parts are conventional — you can omit any of them.
+
+## Open and close
+
+Use the native methods:
+
+```js
+dialog.showModal();   // modal, with focus trap and ::backdrop
+dialog.show();        // non-modal, no backdrop
+dialog.close();       // close (modal or non-modal)
+dialog.close('confirm'); // close and set returnValue
+```
+
+Listen for the `close` event to react to dismissal:
+
+```js
+dialog.addEventListener('close', () => {
+  if (dialog.returnValue === 'confirm') {
+    // user accepted
+  }
+});
+```
+
+## With htmx
+
+For modals whose body comes from the server, see the
+[Remote dialog recipe](/hypermedia-components/recipes/remote-dialog/).
+For a pre-flight confirmation step (no round trip until accepted),
+see [Confirm action](/hypermedia-components/recipes/confirm-action/).
+
+For a form inside a dialog that should close on success, opt in with
+`data-hc-close-dialog-on-success`:
+
+```html
+<form
+  class="hc-form"
+  data-hx-post="/items"
+  data-hx-target="closest dialog"
+  data-hx-swap="outerHTML"
+  data-hc-close-dialog-on-success>
+  …
+</form>
+```
+
+The behavior listens for `htmx:afterRequest`, checks for success,
+and calls `dialog.close()` on the closest `<dialog>` ancestor.
+
+## Accessibility
+
+- Use the native `<dialog>` element. Do **not** simulate a dialog
+  with a `<div role="dialog">` unless you genuinely cannot use
+  `showModal()`.
+- The browser handles focus trap and Escape automatically when the
+  dialog is opened via `showModal()`.
+- Label the dialog. Either:
+  - Set `aria-labelledby` on the dialog pointing at the title id, or
+  - Place the title before any focusable element so it is read on
+    open.
+- For destructive confirms, focus the Cancel button on open — never
+  the destructive action.
+
+## Theming tokens
+
+| Token path              | Purpose                       |
+| ----------------------- | ----------------------------- |
+| `dialog.bg` / `-fg`     | Surface colors.               |
+| `dialog.border`         | Border around the dialog.     |
+| `dialog.radius`         | Border radius.                |
+| `dialog.padding`        | Padding for each part.        |
+| `dialog.gap`            | Gap between footer buttons.   |
+| `dialog.max-width`      | Maximum inline size.          |
+| `dialog.backdrop`       | `::backdrop` color.           |
+
+## CSS variables
+
+```text
+--hc-dialog-bg | -fg | -border
+--hc-dialog-radius | -padding | -gap | -max-width
+--hc-dialog-backdrop
+```
+
+## Related
+
+- [Popover component](/hypermedia-components/components/popover/) — non-modal sibling.
+- [Confirm action recipe](/hypermedia-components/recipes/confirm-action/)
+- [Remote dialog recipe](/hypermedia-components/recipes/remote-dialog/)

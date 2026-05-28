@@ -1,0 +1,34 @@
+/* hc-toolbar — horizontal cluster of related controls.
+ *
+ * Wrap with role="toolbar" and optionally aria-label. Children are
+ * usually buttons, separators (<hr>), or other controls. The toolbar
+ * is a layout primitive — it does not impose its own visual style on
+ * children, only the spacing between them.
+ */
+@layer hc.components {
+  .hc-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--hc-toolbar-gap);
+    padding-block: var(--hc-toolbar-padding-y);
+    padding-inline: var(--hc-toolbar-padding-x);
+    background: var(--hc-toolbar-bg);
+    border: 1px solid var(--hc-toolbar-border);
+    border-radius: var(--hc-toolbar-radius);
+  }
+
+  /* Vertical separator. Apply to <hr role="separator" aria-orientation="vertical"> */
+  .hc-toolbar > hr {
+    margin: 0;
+    border: none;
+    inline-size: 1px;
+    align-self: stretch;
+    background: var(--hc-toolbar-separator);
+  }
+
+  /* Push-right helper: any child with data-hc-spacer="true" expands. */
+  .hc-toolbar > [data-hc-spacer="true"] {
+    flex: 1;
+  }
+}

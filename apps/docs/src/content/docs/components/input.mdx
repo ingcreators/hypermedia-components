@@ -1,0 +1,135 @@
+---
+title: Input
+description: Semantic input class that applies to standard input, select, and textarea elements.
+---
+
+`hc-input` is applied to the standard `<input>`, `<select>`, and
+`<textarea>` elements. State (`disabled`, `aria-invalid`) lives on the
+element itself, exactly as in plain HTML.
+
+## Basic HTML
+
+<div class="hc-preview" style="display:grid;gap:.75rem;max-width:24rem;">
+  <input class="hc-input" type="text" placeholder="Your name" />
+  <input class="hc-input" type="email" placeholder="you@example.com" />
+  <select class="hc-input">
+    <option>One</option>
+    <option>Two</option>
+    <option>Three</option>
+  </select>
+  <textarea class="hc-input" rows="3" placeholder="Notes…"></textarea>
+</div>
+
+```html
+<input class="hc-input" type="text" placeholder="Your name">
+<input class="hc-input" type="email" placeholder="you@example.com">
+
+<select class="hc-input">
+  <option>One</option>
+  <option>Two</option>
+  <option>Three</option>
+</select>
+
+<textarea class="hc-input" rows="3" placeholder="Notes…"></textarea>
+```
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`.
+
+<div class="hc-preview" style="display:grid;gap:.5rem;max-width:24rem;">
+  <input class="hc-input" data-size="sm" placeholder="Small" />
+  <input class="hc-input" placeholder="Default" />
+  <input class="hc-input" data-size="lg" placeholder="Large" />
+</div>
+
+```html
+<input class="hc-input" data-size="sm" placeholder="Small">
+<input class="hc-input" placeholder="Default">
+<input class="hc-input" data-size="lg" placeholder="Large">
+```
+
+## States
+
+<div class="hc-preview" style="display:grid;gap:.5rem;max-width:24rem;">
+  <input class="hc-input" placeholder="Focus me to see the ring" />
+  <input class="hc-input" aria-invalid="true" defaultValue="not-an-email" />
+  <input class="hc-input" disabled defaultValue="Disabled value" />
+</div>
+
+```html
+<input class="hc-input" aria-invalid="true" value="not-an-email">
+<input class="hc-input" disabled value="Disabled value">
+```
+
+The `aria-invalid="true"` attribute switches the border to the danger
+color and changes the focus-ring color. Pair it with a message via
+[`hc-field`](/hypermedia-components/components/field/).
+
+## htmx usage
+
+`hc-input` works with htmx like any other input. The `live-search`
+recipe wires the input to send a request as the user types.
+
+```html
+<input
+  class="hc-input"
+  type="search"
+  name="q"
+  placeholder="Search"
+  data-hx-get="/items"
+  data-hx-trigger="input changed delay:300ms, search"
+  data-hx-target="#results"
+  data-hx-swap="innerHTML">
+```
+
+## Accessibility
+
+- Always associate inputs with a label. Use `<label for="...">` linked to
+  the input's `id`, or wrap the input in a `<label>` element.
+- For validation errors, set `aria-invalid="true"` on the input and
+  reference the message with `aria-describedby`.
+- Do not remove the focus outline. The component replaces the default
+  outline with a visible border + box-shadow ring driven by
+  `--hc-color-focus-ring`.
+- Prefer the native `disabled` attribute when the input must not be
+  interactive. Use `aria-disabled="true"` only when the control must
+  remain focusable.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path                              | Purpose                       |
+| --------------------------------------- | ----------------------------- |
+| `input.height` / `input.padding-x`      | Default size.                 |
+| `input.radius`                          | Border radius.                |
+| `input.bg` / `input.fg`                 | Default colors.               |
+| `input.border` / `input.focus-border`   | Border in normal/focus state. |
+| `input.invalid-border`                  | Border when `aria-invalid`.   |
+| `input.placeholder`                     | Placeholder color.            |
+| `input.disabled-bg`                     | Background when disabled.     |
+| `input.{sm,lg}.{height,padding-x,font-size}` | Size-specific overrides. |
+
+## CSS variables
+
+```text
+--hc-input-height
+--hc-input-padding-x
+--hc-input-radius
+--hc-input-font-size
+--hc-input-bg | -fg | -border | -placeholder
+--hc-input-focus-border
+--hc-input-invalid-border
+--hc-input-disabled-bg
+--hc-input-sm-height | -padding-x | -font-size
+--hc-input-lg-height | -padding-x | -font-size
+--hc-color-focus-ring
+--hc-color-danger
+```
+
+## Related
+
+- [Field](/hypermedia-components/components/field/) — pairs an input
+  with a label and message.
+- `live-search` recipe — input + htmx debounce + result region.

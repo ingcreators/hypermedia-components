@@ -1,0 +1,120 @@
+---
+title: Filter popover
+description: A popover containing a form that updates a results region and closes itself after a successful request.
+---
+
+`filter-popover` pairs the native popover with an htmx form that
+filters a results region. When the user clicks **Apply**, htmx swaps
+the results and the `installClosePopover` behavior dismisses the
+popover.
+
+## Basic usage
+
+```html
+<button class="hc-button" type="button" popovertarget="status-filter">
+  Status
+</button>
+
+<div id="status-filter" class="hc-popover" popover>
+  <form
+    class="hc-form"
+    data-hx-get="/items"
+    data-hx-include="this"
+    data-hx-target="#items-tbody"
+    data-hx-swap="innerHTML"
+    data-hx-push-url="true"
+    data-hc-close-popover-on-success>
+
+    <fieldset>
+      <legend>Status</legend>
+      <label><input type="checkbox" name="status" value="active"> Active</label>
+      <label><input type="checkbox" name="status" value="pending"> Pending</label>
+      <label><input type="checkbox" name="status" value="failed"> Failed</label>
+    </fieldset>
+
+    <div class="hc-toolbar">
+      <button class="hc-button" data-size="sm" type="reset">Reset</button>
+      <span data-hc-spacer="true"></span>
+      <button class="hc-button" data-size="sm" data-variant="primary"
+              type="submit">Apply</button>
+    </div>
+  </form>
+</div>
+
+<table class="hc-table">
+  <thead>…</thead>
+  <tbody id="items-tbody" data-hx-get="/items" data-hx-trigger="load"></tbody>
+</table>
+```
+
+## What happens
+
+1. The user clicks **Status** → browser opens the popover
+   (`popovertarget` + `popover=auto`).
+2. The user toggles checkboxes and clicks **Apply**.
+3. The form has `data-hc-close-popover-on-success` and
+   `data-hx-get="/items"`. htmx submits a GET with the form data and
+   swaps the response into `#items-tbody`.
+4. `htmx:afterRequest` fires. The `installClosePopover` behavior sees
+   the opt-in attribute, the request was successful, and calls
+   `hidePopover()` on the closest `[popover]`.
+5. `data-hx-push-url="true"` updates the URL so the filter survives
+   page reloads and is shareable.
+
+Cancel by simply clicking outside (popover's native light-dismiss)
+or pressing Escape — no JavaScript hook needed.
+
+## Server response contract
+
+`GET /items?status=active&status=pending` returns the table body
+fragment:
+
+```html
+<tr id="item-12">…</tr>
+<tr id="item-15">…</tr>
+…
+```
+
+For the empty state, return explicit empty-state markup so the user
+knows the filter ran:
+
+```html
+<tr>
+  <td colspan="3">
+    <p class="hc-field__message">No items match this filter.</p>
+  </td>
+</tr>
+```
+
+For toast feedback on the apply itself (rarely needed for filters),
+include an `HX-Trigger: {"hc:toast":{…}}` header.
+
+## Accessibility
+
+- The popover is opened by a real `<button>` with
+  `popovertarget`. The browser handles focus, light-dismiss, and
+  Escape.
+- A popover is **not** automatically a menu. Setting `role="menu"`
+  on this filter form would be incorrect — it is a form. Leave the
+  default role.
+- Provide a visible `<legend>` for each fieldset. Checkbox-style
+  filters with `aria-label` instead of legends are harder to scan.
+- `aria-current` on the trigger (e.g. "Status: 2 selected") is a nice
+  affordance once the popover closes; render the count server-side
+  from the filter state.
+
+## Progressive enhancement
+
+- Without JavaScript, the popover is just a plain `<div>` — visible
+  in the page. Add `[popover]:not(:popover-open) { display: none; }`
+  in your reset, and consider a non-JS fallback: a full-page filter
+  form at a separate URL.
+- Without `hc.behaviors.js`, the htmx swap still happens but the
+  popover stays open. That is benign — the user can dismiss it
+  manually.
+
+## Related
+
+- [Popover component](/hypermedia-components/components/popover/)
+- [Live search recipe](/hypermedia-components/recipes/live-search/) — the same htmx pattern without a popover wrapper.
+- [Toast recipe](/hypermedia-components/recipes/toast/) — for "Saved filter" feedback.

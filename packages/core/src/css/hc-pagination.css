@@ -1,0 +1,64 @@
+/* hc-pagination — semantic page-link list.
+ *
+ * Structure (recommended):
+ *   <nav class="hc-pagination" aria-label="Pagination">
+ *     <a class="hc-pagination__item" data-hc-rel="prev" href="…">Previous</a>
+ *     <a class="hc-pagination__item" href="…">1</a>
+ *     <a class="hc-pagination__item" aria-current="page" href="…">2</a>
+ *     <a class="hc-pagination__item" href="…">3</a>
+ *     <a class="hc-pagination__item" data-hc-rel="next" href="…">Next</a>
+ *   </nav>
+ *
+ * The current page is marked with aria-current="page" — that single
+ * attribute drives both the visual and the assistive-tech signal.
+ */
+@layer hc.components {
+  .hc-pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-pagination-gap);
+  }
+
+  .hc-pagination__item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: var(--hc-pagination-item-size);
+    min-block-size: var(--hc-pagination-item-size);
+    padding-inline: var(--hc-pagination-padding-x);
+    background: var(--hc-pagination-bg);
+    color: var(--hc-pagination-fg);
+    border: 1px solid var(--hc-pagination-border);
+    border-radius: var(--hc-pagination-radius);
+    font-size: var(--hc-pagination-font-size);
+    font-weight: var(--hc-pagination-font-weight);
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  .hc-pagination__item:hover:not([aria-current="page"], [aria-disabled="true"]) {
+    background: var(--hc-pagination-hover-bg);
+  }
+
+  .hc-pagination__item:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .hc-pagination__item[aria-current="page"] {
+    background: var(--hc-pagination-current-bg);
+    color: var(--hc-pagination-current-fg);
+    border-color: var(--hc-pagination-current-border);
+    pointer-events: none;
+  }
+
+  .hc-pagination__item[aria-disabled="true"] {
+    color: var(--hc-pagination-disabled-fg);
+    pointer-events: none;
+  }
+}

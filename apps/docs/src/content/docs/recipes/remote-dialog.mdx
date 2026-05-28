@@ -1,0 +1,129 @@
+---
+title: Remote dialog
+description: Fetch an entire dialog (markup + form) from the server, open it, and close it automatically on success.
+---
+
+`remote-dialog` is the canonical pattern for **server-owned** modal
+flows: the trigger button fetches a complete `<dialog>` fragment from
+the server, the `installRemoteDialog` behavior opens it, and
+`installCloseDialog` closes it again when the form inside submits
+successfully.
+
+## Basic usage
+
+A trigger and a host element:
+
+```html
+<button
+  class="hc-button"
+  data-hx-get="/items/123/edit"
+  data-hx-target="#dialog-root"
+  data-hx-swap="innerHTML">
+  Edit
+</button>
+
+<div id="dialog-root" data-hc-remote-dialog-root></div>
+```
+
+The host element has two markers:
+
+- `id="dialog-root"` — htmx swap target.
+- `data-hc-remote-dialog-root` — opt-in for the
+  `installRemoteDialog` behavior.
+
+The server returns a complete dialog:
+
+```html
+<!-- GET /items/123/edit -->
+<dialog class="hc-dialog">
+  <header class="hc-dialog__header">
+    <h2 class="hc-dialog__title">Edit item</h2>
+  </header>
+
+  <form
+    class="hc-form"
+    data-hx-post="/items/123"
+    data-hx-target="closest dialog"
+    data-hx-swap="outerHTML"
+    data-hc-close-dialog-on-success>
+    <div class="hc-dialog__body">
+      <div class="hc-field">
+        <label class="hc-field__label" for="name">Name</label>
+        <input id="name" class="hc-input" name="name" value="Acme">
+      </div>
+    </div>
+
+    <footer class="hc-dialog__footer">
+      <button class="hc-button" type="button"
+              onclick="this.closest('dialog').close()">Cancel</button>
+      <button class="hc-button" data-variant="primary" type="submit">Save</button>
+    </footer>
+  </form>
+</dialog>
+```
+
+## What happens
+
+1. The user clicks **Edit**. htmx sends `GET /items/123/edit`.
+2. htmx swaps the response into `#dialog-root` (innerHTML).
+3. `htmx:afterSwap` fires on `#dialog-root`. The
+   `installRemoteDialog` behavior sees
+   `data-hc-remote-dialog-root` on the target, finds the first
+   `<dialog>` descendant, and calls `showModal()`.
+4. The user edits and submits the form. The form has
+   `data-hx-post="/items/123"` plus
+   `data-hc-close-dialog-on-success`.
+5. The server returns either the updated row HTML (swapped into
+   `closest dialog` — replacing the dialog) or a 4xx with the form
+   re-rendered with validation errors (still inside the dialog).
+6. On 2xx, `installCloseDialog` sees the success and calls
+   `dialog.close()`. The dialog disappears.
+
+If the swap into the dialog already replaces the dialog element
+itself (the `closest dialog` target with `outerHTML` does that),
+`installCloseDialog` is a no-op for that request — the dialog is
+already gone.
+
+## Server response contract
+
+| When                      | Return                                                    |
+| ------------------------- | --------------------------------------------------------- |
+| Initial trigger (GET)     | A full `<dialog class="hc-dialog">…</dialog>` fragment.  |
+| Successful submit (POST)  | The updated content for the **page target** (e.g. the row), via the dialog's `data-hx-target` / `data-hx-swap`. |
+| Validation failure (4xx)  | The form re-rendered with `data-invalid="true"` and `aria-invalid="true"` on the bad fields. The dialog stays open because `installCloseDialog` only closes on 2xx. |
+
+For server-driven toast feedback include an `HX-Trigger` header on
+the success response:
+
+```text
+HX-Trigger: {"hc:toast":{"message":"Saved.","variant":"success"}}
+```
+
+## Accessibility
+
+- The dialog uses the native `<dialog>` element with `showModal()`.
+  The browser handles focus trap, Escape-to-close, and inert
+  background.
+- Declare a labeled title (`#dialog-title`) and either:
+  - Set `aria-labelledby="dialog-title"` on the `<dialog>`, or
+  - Make the title the first focusable element so AT picks it up.
+- The Cancel button should *also* close the dialog. The recipe above
+  uses an inline `onclick` for brevity; in a real app prefer a small
+  helper that listens for `click` on `[data-hc-dismiss-dialog]`.
+
+## Progressive enhancement
+
+- Without htmx, `<button data-hx-get="…">` does nothing. To keep the
+  Edit action working without JavaScript, render the button inside an
+  `<a href="/items/123/edit">` link that loads a full-page edit
+  screen. The htmx attributes can still live on the link; htmx
+  intercepts when present, and the anchor's `href` is the fallback.
+- Without `hc.behaviors.js`, the dialog fragment lands in the page
+  but does not auto-open. Add a final `<script>showThis.showModal()</script>`
+  block to the server response, or fall back to inline rendering.
+
+## Related
+
+- [Dialog component](/hypermedia-components/components/dialog/)
+- [Confirm action recipe](/hypermedia-components/recipes/confirm-action/) — pre-flight confirm without the round trip.
+- [Filter popover recipe](/hypermedia-components/recipes/filter-popover/) — non-modal sibling.

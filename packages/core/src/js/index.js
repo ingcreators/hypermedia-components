@@ -1,14 +1,13 @@
-// @hypermedia-components/core behaviors entry point.
+// @hypermedia-components/core — main JS entry.
 //
-// Behaviors are small, framework-agnostic helpers that observe Light DOM
-// events (clicks, htmx:afterRequest, ...) and never wrap fetch().
-//
-// Planned behaviors:
-//   - confirm   (data-hc-confirm)
-//   - toast     (hc:toast event)
-//   - closeDialog   (data-hc-close-dialog-on-success)
-//   - closePopover  (data-hc-close-popover-on-success)
-//
-// This file is a scaffold; individual behaviors will be added in future PRs.
+// Named exports only; no side effects. Use this entry when you want
+// explicit control over which behaviors are installed. For zero-config
+// auto-init, import "@hypermedia-components/core/behaviors" instead.
+
+export { installConfirm } from './confirm.js';
+export { installToast } from './toast.js';
+export { installCloseDialog } from './close-dialog.js';
+export { installClosePopover } from './close-popover.js';
+export { installRemoteDialog } from './remote-dialog.js';
 
 export const version = '0.0.0';
