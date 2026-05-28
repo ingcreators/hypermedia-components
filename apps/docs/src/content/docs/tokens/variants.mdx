@@ -72,10 +72,17 @@ No `primary` / `secondary` / `ghost`: these surfaces communicate state, not user
 | Checkbox  | 0.875 rem (14 px) | 1.125 rem (18 px) | 1.375 rem (22 px) | Density adjusts the `md` default; `sm` / `lg` stay fixed. |
 | Radio     | 0.875 rem (14 px) | 1.125 rem (18 px) | 1.375 rem (22 px) | Same. |
 
-**Sizes are independent of density.** When a control opts in with `data-size="sm"`, it stays at the explicit `sm` value regardless of the surrounding `data-density`. Density only changes what `md` (the default) resolves to. This way:
+**Sizes shift with density.** The whole `sm → md → lg` scale moves together when `data-density` changes — `sm` represents *"smaller than the default"* at every tier, not a fixed pixel value. This way the relative ordering `sm < md < lg` always holds.
 
-- A dense data-entry form full of `<input class="hc-input">` shrinks to 28 px because density says so.
-- The single `<button class="hc-button" data-size="lg">Save</button>` at the bottom of that form still stays 48 px tall, because the author intentionally asked for a larger CTA.
+For example, on a button:
+
+| `data-density` | `sm`  | `md` (default) | `lg`  |
+| -------------- | ----- | --------------- | ----- |
+| comfortable    | 32 px | 40 px           | 48 px |
+| compact        | 28 px | 32 px           | 40 px |
+| dense          | 24 px | 28 px           | 32 px |
+
+See the [Density](/hypermedia-components/tokens/density/) page for the full table covering input, checkbox, and radio.
 
 ## Related
 
