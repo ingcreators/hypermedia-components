@@ -315,6 +315,25 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- Density inverted the `sm / md / lg` button + input ordering at the
+  `dense` tier. Earlier PRs scaled `md` (the default) with density
+  but kept `sm` and `lg` at fixed primitive values, on the theory
+  that "explicit `data-size` should be absolute, not relative."
+  Under `data-density="dense"` that produced `md = 28 px` while
+  `sm` stayed at `32 px` — the default ended up *smaller* than
+  `sm`, which is obviously wrong. The whole size scale now shifts
+  together so `sm < md < lg` holds at every density tier. New
+  density-tier values:
+  - **Button / input height** (`sm` / `md` / `lg`):
+    32/40/48 (comfortable) → 28/32/40 (compact) → 24/28/32 (dense).
+  - **Button / input padding-x**:
+    12/16/20 (comfortable) → 8/12/16 (compact) → 6/8/12 (dense).
+  - **Checkbox / radio size**:
+    14/18/22 (comfortable) → 12/16/20 (compact) → 12/14/18 (dense).
+  - `tokens/density.mdx` and `tokens/variants.mdx` updated to
+    explain the relative-emphasis interpretation.
+
+
 - Docs preview alignment — every `<div class="hc-preview">` wrapper
   in the component / token / recipe docs now also carries Starlight's
   `not-content` class so its descendants are excluded from the prose

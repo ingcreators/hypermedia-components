@@ -61,6 +61,29 @@ target (14 px) is at the edge of comfortable click sizing — fine
 for keyboard-driven data-entry UIs on the desktop, but pair with
 larger surrounding controls if your audience includes touch users.
 
+The `sm` and `lg` size variants shift in lockstep with the density
+tier so the relative ordering `sm < md < lg` is preserved at every
+density. The exact values:
+
+| Component  | Density       | `sm`     | `md` (default) | `lg`     |
+| ---------- | ------------- | -------- | --------------- | -------- |
+| Button     | comfortable   | 32 px    | 40 px           | 48 px    |
+| / Input    | compact       | 28 px    | 32 px           | 40 px    |
+| height     | dense         | 24 px    | 28 px           | 32 px    |
+| Button     | comfortable   | 12 px    | 16 px           | 20 px    |
+| / Input    | compact       | 8 px     | 12 px           | 16 px    |
+| padding-x  | dense         | 6 px     | 8 px            | 12 px    |
+| Checkbox   | comfortable   | 14 px    | 18 px           | 22 px    |
+| / Radio    | compact       | 12 px    | 16 px           | 20 px    |
+| size       | dense         | 12 px    | 14 px           | 18 px    |
+
+Earlier iterations kept `sm` and `lg` fixed across density tiers
+under the theory that "explicit `data-size` should be absolute, not
+relative." That produced inversions: at `dense` density, the
+default `md` button dropped to 28 px while `sm` stayed at 32 px,
+breaking the size ordering. The current behaviour treats
+`sm / md / lg` as **relative emphasis** within the active density.
+
 Comfortable is the default. The selector
 `:root, [data-density="comfortable"]` ensures the values apply
 unconditionally so an explicit `data-density="comfortable"` and the
