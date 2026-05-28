@@ -1,0 +1,21 @@
+---
+// Starlight `Head` override.
+//
+// Imports `@hypermedia-components/core/behaviors` — the auto-init
+// entry that calls every installer (`installConfirm`, `installToast`,
+// `installCloseDialog`, `installClosePopover`, `installRemoteDialog`,
+// `installTabs`) once the document is ready. This lets interactive
+// docs previews actually behave on click / keyboard, not just look
+// right.
+//
+// The CSS bundle is already wired via `customCss` in astro.config.mjs;
+// this override does the same for the behaviors bundle. Both resolve
+// through the pnpm workspace, so no npm publish is required.
+import Default from '@astrojs/starlight/components/Head.astro';
+---
+
+<Default><slot /></Default>
+
+<script>
+  import '@hypermedia-components/core/behaviors';
+</script>
