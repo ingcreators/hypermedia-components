@@ -47,10 +47,19 @@ the override cascades automatically:
 | `--hc-toast-padding-y`                            | 12 px       | 8 px     | 6 px  |
 | `--hc-toast-padding-x`                            | 16 px       | 12 px    | 8 px  |
 | `--hc-toast-gap`                                  | 8 px        | 6 px     | 4 px  |
+| `--hc-table-cell-padding-y`                       | 8 px        | 6 px     | 4 px  |
+| `--hc-table-cell-padding-x`                       | 12 px       | 8 px     | 6 px  |
+| `--hc-checkbox-size`                              | 18 px       | 16 px    | 14 px |
+| `--hc-radio-size`                                 | 18 px       | 16 px    | 14 px |
 
 Tokens not in the table (radii, font sizes, badge / pagination
 paddings, dialog max-width, etc.) are deliberately **not** density-
 aware. The intent is to tighten layout, not to restyle.
+
+Checkbox / radio sizes step from `18 → 16 → 14 px`. The dense
+target (14 px) is at the edge of comfortable click sizing — fine
+for keyboard-driven data-entry UIs on the desktop, but pair with
+larger surrounding controls if your audience includes touch users.
 
 Comfortable is the default. The selector
 `:root, [data-density="comfortable"]` ensures the values apply
@@ -149,6 +158,99 @@ visual rhythm proportional.
   </div>
   <div class="hc-alert" data-variant="warning">
     <strong>Heads up.</strong> Two of three seats are unassigned.
+  </div>
+</div>
+
+## Live preview — table and form controls
+
+Where density really earns its keep: data tables get noticeably
+tighter, and the checkbox / radio glyphs shrink with the surrounding
+controls so the form retains its visual rhythm.
+
+### Comfortable (default)
+
+<div class="hc-preview not-content" data-density="comfortable" style="display:grid;gap:.75rem;">
+  <table class="hc-table">
+    <thead>
+      <tr><th>Member</th><th>Role</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Akira Suzuki</td><td>Editor</td><td>Active</td></tr>
+      <tr><td>Mika Tanaka</td><td>Reader</td><td>Pending</td></tr>
+      <tr><td>Yuki Sato</td><td>Owner</td><td>Active</td></tr>
+    </tbody>
+  </table>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" defaultChecked />
+      Notify on changes
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-comfortable" defaultChecked />
+      Free
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-comfortable" />
+      Pro
+    </label>
+  </div>
+</div>
+
+### Compact
+
+<div class="hc-preview not-content" data-density="compact" style="display:grid;gap:.75rem;">
+  <table class="hc-table">
+    <thead>
+      <tr><th>Member</th><th>Role</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Akira Suzuki</td><td>Editor</td><td>Active</td></tr>
+      <tr><td>Mika Tanaka</td><td>Reader</td><td>Pending</td></tr>
+      <tr><td>Yuki Sato</td><td>Owner</td><td>Active</td></tr>
+    </tbody>
+  </table>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" defaultChecked />
+      Notify on changes
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-compact" defaultChecked />
+      Free
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-compact" />
+      Pro
+    </label>
+  </div>
+</div>
+
+### Dense
+
+<div class="hc-preview not-content" data-density="dense" style="display:grid;gap:.75rem;">
+  <table class="hc-table">
+    <thead>
+      <tr><th>Member</th><th>Role</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Akira Suzuki</td><td>Editor</td><td>Active</td></tr>
+      <tr><td>Mika Tanaka</td><td>Reader</td><td>Pending</td></tr>
+      <tr><td>Yuki Sato</td><td>Owner</td><td>Active</td></tr>
+    </tbody>
+  </table>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" defaultChecked />
+      Notify on changes
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-dense" defaultChecked />
+      Free
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-dense" />
+      Pro
+    </label>
   </div>
 </div>
 
