@@ -4,27 +4,28 @@ Project: **Hypermedia Components** (ingcreators)
 Prefix: `hc-` · npm scope: `@hypermedia-components` · Docs: Astro Starlight · Deploy: Cloudflare Pages
 User communication language: **Japanese**.
 
-## Authoritative plan
+## Authoritative plans
 
-The v0.4 implementation plan is the source of truth for naming, repo
-structure, design principles, component/recipe APIs, roadmap, and
-release strategy:
+Two plan documents live under `plans/`. Read the relevant section
+before suggesting structural changes (directory layout, naming, API
+shape, docs IA, package boundaries); deviations from the plans need
+explicit user approval.
 
-→ [plans/hc-hypermedia-components-implementation-plan-v0.4-en.md](plans/hc-hypermedia-components-implementation-plan-v0.4-en.md)
-
-Before suggesting structural changes (directory layout, naming, API
-shape, docs IA, package boundaries), read the relevant plan section
-first. Deviations from the plan need explicit user approval.
+| Plan | Scope |
+| --- | --- |
+| [`plans/hc-hypermedia-components-implementation-plan-v0.4-en.md`](plans/hc-hypermedia-components-implementation-plan-v0.4-en.md) | Original v0.4 plan — design principles, naming, MVP component list, DoDs, recipe contracts. Implemented and merged in PR #1. |
+| [`plans/hc-next-phase-plan-v0.5-en.md`](plans/hc-next-phase-plan-v0.5-en.md) | Next-phase plan — release readiness for `0.0.1-alpha.0`, MVP polish, quality work, P3 backlog. |
 
 ## Repository layout
 
 | Path | Purpose |
 | --- | --- |
 | `apps/docs/` | Astro Starlight documentation site (`pnpm docs:dev`). |
-| `packages/core/` | `@hypermedia-components/core` — `src/{css,js,macros,tokens}/`. |
-| `recipes/<name>/` | `recipe.html`, `expanded.html`, `contract.md` per recipe. |
-| `examples/<framework>/` | Runnable usage examples per template engine. |
+| `packages/core/` | `@hypermedia-components/core` — `src/{css,js,macros,tokens}/`, `scripts/`, `test/`, `test-browser/`. |
+| `recipes/<name>/` | `recipe.html` / `expanded.html` / `contract.md` source-format scaffolds (most still empty — see v0.5 plan). |
+| `examples/<framework>/` | Runnable usage examples (`plain-html/`, `htmx/` — others scaffolded). |
 | `plans/` | Implementation plans and design documents. |
+| `.github/workflows/` | `ci.yml` (lint / unit / docs / browser) + `release.yml`. |
 
 ## Project conventions
 
@@ -34,27 +35,70 @@ first. Deviations from the plan need explicit user approval.
 - **Semantic classes** + `data-variant` / `data-size` (not utility-first CSS).
 - **State in HTML attributes** (`aria-*`, `data-*`, native disabled/invalid).
 - **Behaviors stay small.** htmx owns network requests; behaviors never wrap `fetch()`.
-- **DTCG tokens** are the visual source of truth → generated `--hc-*` custom properties.
-- **Macros are optional.** Every macro must document its expanded HTML.
+- **Behaviors return uninstallers** and are idempotent across `installXxx()` calls.
+- **DTCG tokens** are the visual source of truth → generated `--hc-*` custom properties (drop the file namespace; e.g. `component.button.primary.bg` → `--hc-button-primary-bg`).
+- **Macros are optional.** Every macro must document its expanded HTML and never become the only documented way to use a pattern.
 
-## Component DoD (plan §17.3)
+## Definitions of Done
 
-CSS API · variants · states · CSS variables · accessibility notes · ≥1 docs example · uses token references · docs site builds.
+- **Component** (plan §17.3): CSS API · variants · states · CSS variables · accessibility notes · ≥1 docs example · uses token references · docs site builds.
+- **Recipe** (plan §17.4): Basic HTML · htmx version · optional `data-hc-*` shorthand · optional macro · expanded HTML · server response contract · progressive enhancement · accessibility notes · tests for behaviors.
 
-## Recipe DoD (plan §17.4)
+## Implemented surface (post PR #1)
 
-Basic HTML · htmx version · optional `data-hc-*` shorthand · optional macro · expanded HTML · server response contract · progressive enhancement · accessibility notes · tests for behaviors.
+13 components · 209 `--hc-*` vars · 5 behaviors · 2 macros · 9 recipes · 40 docs pages · 5 integration guides · examples for plain-html + htmx · 73 Vitest tests · 31 Playwright tests (incl. 6 axe-core a11y scans).
+
+For the full list of what is and is not built, see the
+[next-phase plan](plans/hc-next-phase-plan-v0.5-en.md).
 
 ## Development
 
 ```bash
-pnpm install
-pnpm docs:dev      # http://localhost:4321/hypermedia-components/
-pnpm docs:build
+pnpm install --frozen-lockfile
+
+# Local dev
+pnpm -w run docs:dev       # http://localhost:4321/hypermedia-components/
+
+# Build
+pnpm --filter @hypermedia-components/core build
+pnpm -w run docs:build
+
+# Lint
+pnpm --filter @hypermedia-components/core lint          # ESLint + Stylelint
+
+# Tests
+pnpm --filter @hypermedia-components/core test          # Vitest + jsdom
+pnpm --filter @hypermedia-components/core test:browser  # Playwright + axe
+# First run only: pnpm --filter @hypermedia-components/core exec playwright install chromium
+
+# Runnable examples
+cd examples/plain-html && pnpm start    # :4322
+cd examples/htmx       && pnpm start    # :4323
 ```
 
-CI: `.github/workflows/ci.yml` runs `pnpm install --frozen-lockfile`, `pnpm -r build`, `pnpm -r test`.
+**Runtime**: Node.js 24 (active LTS). Root `engines.node = ">=24"`.
 
-## Current status (scaffold)
+## CI
 
-Skeleton only. Component CSS, token build script, behaviors, and macros are not yet implemented. The natural next step is the minimal vertical slice (plan §24): tokens → `hc.tokens.css` → `hc-button` + `hc-field` CSS → `hc.htmx.css` → `confirm` behavior → first real component docs page.
+`.github/workflows/ci.yml` runs four parallel jobs on every push and PR:
+
+- **lint** — ESLint + Stylelint
+- **unit** — Vitest (jsdom)
+- **docs** — Astro build (uploads `apps/docs/dist` as artifact)
+- **browser** — Playwright + Chromium (cached browser binaries; uploads report + traces on failure)
+
+All four must be green before merging.
+
+## Workflow conventions
+
+- Conventional Commit prefixes (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`).
+- Update `CHANGELOG.md` under **Unreleased** for any user-visible change.
+- PR template in `.github/PULL_REQUEST_TEMPLATE.md` has the §21.4 checklist.
+- See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full contributor guide.
+
+## Current focus
+
+The next-phase plan ([`plans/hc-next-phase-plan-v0.5-en.md`](plans/hc-next-phase-plan-v0.5-en.md))
+groups remaining work into four tracks. The natural first move is
+**Track 1 (release readiness)**: types or remove the broken
+`exports.types` entry, then cut `0.0.1-alpha.0`.

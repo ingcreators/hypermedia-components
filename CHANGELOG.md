@@ -20,8 +20,26 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
-This is the first substantial release after the initial scaffold —
-everything below is new since the v0.4 plan landed.
+### Added
+
+- `plans/hc-next-phase-plan-v0.5-en.md` — next-phase plan covering
+  release readiness for `0.0.1-alpha.0`, MVP polish (form controls,
+  density modes, hyperscript story), quality work (visual regression,
+  build optimization), and a P3 backlog.
+
+### Changed
+
+- `CLAUDE.md` refreshed for the post-v0.4 state — references both
+  plans, lists the implemented surface, documents the lint / test /
+  test:browser / examples commands, and points at Track 1 as the
+  next concrete move.
+
+---
+
+## [Unreleased — v0.4 implementation]
+
+Merged in PR #1 (squash commit `be72271`, 2026-05-28). The list below
+is preserved verbatim for the eventual `0.0.1-alpha.0` release notes.
 
 ### Added
 
