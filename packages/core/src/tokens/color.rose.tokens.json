@@ -11,6 +11,9 @@
       "primary-hover": {
         "bg":     { "$type": "color", "$value": "{primitive.color.rose.800}" },
         "border": { "$type": "color", "$value": "{primitive.color.rose.800}" }
+      },
+      "primary-soft": {
+        "bg": { "$type": "color", "$value": "color-mix(in srgb, {primitive.color.rose.700} 12%, transparent)" }
       }
     }
   }
