@@ -206,6 +206,28 @@
   </section>
 
   <section>
+    <h2>Select (component — no JS required)</h2>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:.5rem;max-inline-size:18rem;">
+      <select class="hc-select" name="country" aria-label="Country">
+        <option value="">Choose a country…</option>
+        <option value="jp">Japan</option>
+        <option value="us">United States</option>
+        <option value="gb">United Kingdom</option>
+      </select>
+      <select class="hc-select" aria-label="Error variant"
+              data-variant="error" aria-invalid="true">
+        <option>Required field</option>
+      </select>
+      <select class="hc-select" aria-label="Disabled" disabled>
+        <option>Disabled</option>
+      </select>
+    </div>
+    <p class="small">Native <code>&lt;select&gt;</code> with
+      <code>appearance: none</code> + a styled chevron. The dropdown
+      itself stays browser-native.</p>
+  </section>
+
+  <section>
     <h2>Breadcrumb (component — no JS required)</h2>
     <nav class="hc-breadcrumb" aria-label="Example breadcrumb"
          style="--hc-breadcrumb-separator: '›'">
