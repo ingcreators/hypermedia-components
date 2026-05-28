@@ -1,0 +1,17 @@
+<!-- Fully expanded HTML. -->
+<form class="hc-search" action="/items" method="get" role="search">
+  <input
+    class="hc-input"
+    type="search"
+    name="q"
+    placeholder="Search"
+    data-hx-get="/items"
+    data-hx-trigger="input changed delay:300ms, search"
+    data-hx-target="#results"
+    data-hx-swap="innerHTML"
+    data-hx-sync="closest form:replace">
+
+  <button class="hc-button" type="submit">Search</button>
+</form>
+
+<div id="results"></div>

@@ -1,0 +1,4 @@
+/* Site-wide custom CSS. Override Starlight design tokens here. */
+:root {
+  --sl-font: system-ui, -apple-system, "Segoe UI", sans-serif;
+}

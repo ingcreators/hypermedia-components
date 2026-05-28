@@ -1,0 +1,17 @@
+<!-- Short recommended usage. -->
+<button class="hc-button" type="button" popovertarget="filter-popover">
+  Filter
+</button>
+
+<div id="filter-popover" class="hc-popover" popover>
+  <form
+    class="hc-form"
+    data-hx-get="/items"
+    data-hx-target="#results"
+    data-hc-close-popover-on-success>
+    <!-- filter fields here -->
+    <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+  </form>
+</div>
+
+<div id="results"></div>

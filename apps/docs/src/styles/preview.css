@@ -1,0 +1,7 @@
+/* Styles used inside live component previews on documentation pages. */
+.hc-preview {
+  padding: 1rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  background: var(--sl-color-bg);
+}

@@ -1,0 +1,18 @@
+<!-- Fully expanded HTML — what the server returns inside #dialog-root. -->
+<dialog class="hc-dialog">
+  <header class="hc-dialog__header">
+    <h2 class="hc-dialog__title">Edit item</h2>
+  </header>
+
+  <form
+    class="hc-form"
+    data-hx-post="/items/123"
+    data-hx-target="closest dialog"
+    data-hx-swap="outerHTML">
+    <!-- form fields here -->
+    <footer class="hc-dialog__footer">
+      <button class="hc-button" type="button">Cancel</button>
+      <button class="hc-button" data-variant="primary" type="submit">Save</button>
+    </footer>
+  </form>
+</dialog>

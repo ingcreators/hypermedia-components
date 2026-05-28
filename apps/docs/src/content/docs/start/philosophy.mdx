@@ -1,0 +1,13 @@
+---
+title: Philosophy
+description: Design principles for Hypermedia Components.
+---
+
+1. **Standard HTML first** — native `button`, `input`, `dialog`, `popover` are the primary API.
+2. **Light DOM first** — no Shadow DOM; htmx attributes and forms work normally.
+3. **Semantic classes** — `hc-button` over long utility lists.
+4. **State in HTML attributes** — `data-*`, `aria-*`, native attributes drive styling.
+5. **htmx owns network behavior** — behaviors do not wrap `fetch()`.
+6. **Behaviors stay small** — confirm, toast, close dialog, focus management.
+7. **DTCG tokens are the visual source of truth** — CSS consumes custom properties.
+8. **Macros are optional** — every macro documents its expanded HTML.

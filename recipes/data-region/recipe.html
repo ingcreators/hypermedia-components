@@ -1,0 +1,9 @@
+<!-- Short recommended usage. A named region that the server can refresh. -->
+<section
+  id="items"
+  class="hc-data-region"
+  data-hx-get="/items"
+  data-hx-trigger="load, items:changed from:body"
+  data-hx-swap="outerHTML">
+  <!-- server-rendered list goes here -->
+</section>

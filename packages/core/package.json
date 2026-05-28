@@ -1,0 +1,47 @@
+{
+  "name": "@hypermedia-components/core",
+  "version": "0.0.0",
+  "description": "Semantic components and recipes for hypermedia applications.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ingcreators/hypermedia-components.git",
+    "directory": "packages/core"
+  },
+  "type": "module",
+  "sideEffects": [
+    "*.css",
+    "dist/**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./css": "./dist/hc.css",
+    "./tokens.css": "./dist/hc.tokens.css",
+    "./theme.css": "./dist/hc.theme.css",
+    "./htmx.css": "./dist/hc.htmx.css",
+    "./macros": "./dist/hc.macros.js",
+    "./behaviors": "./dist/hc.behaviors.js",
+    "./tokens/*": "./src/tokens/*"
+  },
+  "files": [
+    "dist",
+    "src/tokens"
+  ],
+  "scripts": {
+    "build": "echo \"TODO: token + CSS bundle build\" && exit 0",
+    "test": "echo \"TODO: tests\" && exit 0",
+    "lint": "echo \"TODO: lint\" && exit 0"
+  },
+  "keywords": [
+    "hypermedia",
+    "components",
+    "htmx",
+    "css",
+    "design-tokens",
+    "dtcg",
+    "light-dom"
+  ]
+}

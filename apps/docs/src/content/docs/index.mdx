@@ -1,0 +1,32 @@
+---
+title: Hypermedia Components
+description: Semantic components and recipes for hypermedia applications.
+template: splash
+hero:
+  tagline: Semantic components and recipes for hypermedia applications.
+  actions:
+    - text: Get started
+      link: /hypermedia-components/start/introduction/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/ingcreators/hypermedia-components
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+  <Card title="Standard HTML first" icon="document">
+    Native elements like `button`, `dialog`, `popover` are the primary building blocks.
+  </Card>
+  <Card title="Light DOM" icon="open-book">
+    No Shadow DOM. htmx attributes, form behavior, and progressive enhancement work as expected.
+  </Card>
+  <Card title="DTCG tokens" icon="setting">
+    Themes, density, and component values come from token files exported as CSS custom properties.
+  </Card>
+  <Card title="htmx-friendly recipes" icon="rocket">
+    Confirm action, live search, remote dialog, filter popover — with documented server contracts.
+  </Card>
+</CardGrid>

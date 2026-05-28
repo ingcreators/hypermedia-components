@@ -1,0 +1,18 @@
+---
+title: Quick start
+description: A minimal page that demonstrates the project identity.
+---
+
+```html
+<link rel="stylesheet" href="/assets/hc/hc.css">
+<script src="/assets/htmx.min.js"></script>
+<script type="module" src="/assets/hc/hc.behaviors.js"></script>
+
+<button
+  class="hc-button"
+  data-variant="primary"
+  data-hx-post="/items"
+  data-hx-target="#items">
+  Save
+</button>
+```
