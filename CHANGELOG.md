@@ -20,6 +20,25 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- Docs site previews now actually behave on click and keyboard. The
+  Starlight site loaded `@hypermedia-components/core/css` but never
+  loaded the behaviors bundle, so interactive previews
+  (`installTabs`, `installConfirm`, …) silently did nothing. Two
+  changes:
+  - `packages/core/package.json` `sideEffects` now lists
+    `dist/hc.behaviors.js` and `src/js/behaviors.js`. The previous
+    declaration only covered CSS files, so bundlers tree-shook the
+    `import '@hypermedia-components/core/behaviors'` side-effect
+    import — including the auto-init `DOMContentLoaded` listener.
+    Every consumer that imports the auto-init entry benefits from
+    this fix, not just our docs site.
+  - `apps/docs/src/components/Head.astro` is a Starlight Head
+    override that imports `@hypermedia-components/core/behaviors`.
+    Resolved through the pnpm workspace, so no npm publish is
+    required.
+
 ### Added
 
 - `hc-tabs` component + `installTabs` behavior. Two markup patterns

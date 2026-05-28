@@ -11,7 +11,9 @@
   "type": "module",
   "sideEffects": [
     "*.css",
-    "dist/**/*.css"
+    "dist/**/*.css",
+    "./dist/hc.behaviors.js",
+    "./src/js/behaviors.js"
   ],
   "exports": {
     ".": {

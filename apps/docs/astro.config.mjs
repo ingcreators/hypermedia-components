@@ -69,6 +69,7 @@ export default defineConfig({
       // `data-theme` attribute on <html>.
       components: {
         SocialIcons: './src/components/SocialIcons.astro',
+        Head: './src/components/Head.astro',
       },
     }),
   ],
