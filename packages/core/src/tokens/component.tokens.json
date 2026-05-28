@@ -270,6 +270,19 @@
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
     }
   },
+  "breadcrumb": {
+    "gap":           { "$type": "dimension",  "$value": "{primitive.space.2}" },
+    "font-size":     { "$type": "dimension",  "$value": "{semantic.font.size-sm}" },
+    "separator-fg":  { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+    "link": {
+      "fg":          { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+      "hover-fg":    { "$type": "color",      "$value": "{semantic.color.text}" }
+    },
+    "current": {
+      "fg":          { "$type": "color",      "$value": "{semantic.color.text}" },
+      "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" }
+    }
+  },
   "accordion": {
     "item": {
       "border-color":         { "$type": "color",     "$value": "{semantic.color.border}" }

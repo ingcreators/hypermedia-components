@@ -22,6 +22,29 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-breadcrumb` component — pure CSS, no JavaScript behavior.
+  Semantic skeleton is `<nav aria-label="...">` → `<ol>` → `<li>`
+  with `<a class="hc-breadcrumb__link">` for steps and
+  `<span class="hc-breadcrumb__current" aria-current="page">` for
+  the active page (deliberately not a link). Separators are
+  injected via CSS `::before` on every item except the first,
+  with `--hc-breadcrumb-separator` as the per-instance override
+  hook — set any `content` value (a quoted string, escaped Unicode,
+  or an `url()` SVG) in an `style="..."` or scoped stylesheet.
+  Default glyph is `/`. Modern browsers exclude pseudo-content
+  from the accessibility tree by default, so no extra
+  `aria-hidden` work is needed for the separator. Optional
+  `.hc-breadcrumb__ellipsis` styles a middle-truncation marker;
+  an interactive "expand to dropdown" variant is deferred (a
+  separate `installBreadcrumbExpand` behavior was sketched in the
+  roadmap). New tokens
+  `breadcrumb.{gap, font-size, separator-fg, link.fg, link.hover-fg,
+  current.fg, current.font-weight}`, all `{ref}` so theming
+  carries through. Playwright spec (6 cases) covers landmark
+  semantics, the `aria-current` contract, default vs override
+  separator glyph via `::before` computed-style, the ellipsis
+  `aria-hidden` marker, and an axe-core scan.
+
 - `hc-accordion` component — pure CSS, no JavaScript behavior.
   Skins the native `<details>` / `<summary>` elements: keyboard
   handling, the `open` attribute, and the `toggle` event all come

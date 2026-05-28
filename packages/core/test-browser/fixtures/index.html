@@ -179,6 +179,60 @@
     </fieldset>
   </section>
 
+  <section id="section-breadcrumb" data-testid="section-breadcrumb">
+    <h2>Breadcrumb</h2>
+
+    <h3>Default ("/" separator)</h3>
+    <nav class="hc-breadcrumb" aria-label="Default breadcrumb" data-testid="bc-default">
+      <ol class="hc-breadcrumb__list">
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#" data-testid="bc-home">Home</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#" data-testid="bc-docs">Docs</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <span class="hc-breadcrumb__current" aria-current="page" data-testid="bc-current">Components</span>
+        </li>
+      </ol>
+    </nav>
+
+    <h3>Chevron separator (per-instance override)</h3>
+    <nav class="hc-breadcrumb" aria-label="Chevron breadcrumb"
+         style="--hc-breadcrumb-separator: '›'"
+         data-testid="bc-chevron">
+      <ol class="hc-breadcrumb__list">
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#">Account</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#">Settings</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <span class="hc-breadcrumb__current" aria-current="page">Profile</span>
+        </li>
+      </ol>
+    </nav>
+
+    <h3>With middle ellipsis (long trail)</h3>
+    <nav class="hc-breadcrumb" aria-label="Long breadcrumb" data-testid="bc-long">
+      <ol class="hc-breadcrumb__list">
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#">Home</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <span class="hc-breadcrumb__ellipsis" aria-hidden="true" data-testid="bc-ellipsis">…</span>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#">Tabs</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <span class="hc-breadcrumb__current" aria-current="page">Variants</span>
+        </li>
+      </ol>
+    </nav>
+  </section>
+
   <section id="section-accordion" data-testid="section-accordion">
     <h2>Accordion (exclusive)</h2>
     <div class="hc-accordion" data-testid="accordion-exclusive">

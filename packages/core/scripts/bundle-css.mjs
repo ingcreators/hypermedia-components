@@ -41,6 +41,7 @@ const COMPONENTS = [
   'hc-menu.css',
   'hc-tooltip.css',
   'hc-accordion.css',
+  'hc-breadcrumb.css',
 ];
 
 async function read(file) {

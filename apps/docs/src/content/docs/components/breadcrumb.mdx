@@ -1,0 +1,161 @@
+---
+title: Breadcrumb
+description: Navigation trail from the site root to the current page — pure CSS, semantic HTML, no JavaScript.
+---
+
+`hc-breadcrumb` is a pure CSS skin over a standard `<nav>` →
+`<ol>` → `<li>` structure with `aria-current="page"` on the active
+step. Separators are injected via CSS `::before` so the markup
+stays free of decorative noise — screen readers ignore generated
+content by default.
+
+## Basic example
+
+<div class="hc-preview not-content">
+  <nav class="hc-breadcrumb" aria-label="Doc breadcrumb">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Home</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Docs</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Components</span>
+      </li>
+    </ol>
+  </nav>
+</div>
+
+```html
+<nav class="hc-breadcrumb" aria-label="Breadcrumb">
+  <ol class="hc-breadcrumb__list">
+    <li class="hc-breadcrumb__item">
+      <a class="hc-breadcrumb__link" href="/">Home</a>
+    </li>
+    <li class="hc-breadcrumb__item">
+      <a class="hc-breadcrumb__link" href="/docs">Docs</a>
+    </li>
+    <li class="hc-breadcrumb__item">
+      <span class="hc-breadcrumb__current" aria-current="page">Components</span>
+    </li>
+  </ol>
+</nav>
+```
+
+## Custom separator
+
+Override `--hc-breadcrumb-separator` globally (in a stylesheet) or
+per-instance (inline style) to swap the glyph.
+
+<div class="hc-preview not-content">
+  <nav class="hc-breadcrumb" aria-label="Chevron breadcrumb"
+       style="--hc-breadcrumb-separator: '›'">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Account</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Settings</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Profile</span>
+      </li>
+    </ol>
+  </nav>
+</div>
+
+```html
+<nav class="hc-breadcrumb" aria-label="Breadcrumb"
+     style="--hc-breadcrumb-separator: '›'">
+  …
+</nav>
+```
+
+Any CSS [`content`](https://developer.mozilla.org/docs/Web/CSS/content)
+value works — quoted strings, `attr()`, escaped Unicode, or an
+inline SVG `url()` for a fully bespoke marker.
+
+## Middle truncation
+
+For deep paths, collapse intermediate steps to an ellipsis. Mark
+the placeholder `aria-hidden="true"` so screen readers ignore it;
+keep the truncated steps reachable elsewhere (a navigation menu,
+the back-button, etc.).
+
+<div class="hc-preview not-content">
+  <nav class="hc-breadcrumb" aria-label="Long breadcrumb">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Home</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__ellipsis" aria-hidden="true">…</span>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Tabs</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Variants</span>
+      </li>
+    </ol>
+  </nav>
+</div>
+
+```html
+<li class="hc-breadcrumb__item">
+  <span class="hc-breadcrumb__ellipsis" aria-hidden="true">…</span>
+</li>
+```
+
+> An interactive ellipsis that expands the hidden steps into a
+> dropdown is a separate behaviour (`installBreadcrumbExpand`)
+> on the roadmap. The pure-CSS placeholder is enough for the common
+> case where users navigate via the parent menu instead.
+
+## Accessibility
+
+- The outer `<nav aria-label="Breadcrumb">` (or `aria-labelledby`)
+  gives the landmark a name so assistive tech can skip to or out of
+  it.
+- Use `<ol>`, not `<ul>` — the steps have a meaningful order.
+- The current page is **not** a link: render it as
+  `<span aria-current="page">` so it can still receive a visual
+  emphasis without misleading the user into clicking it.
+- Separator glyphs are inserted via CSS `::before`. Modern browsers
+  expose pseudo-content to the DOM but exclude it from the
+  accessibility tree by default — no `aria-hidden` needed on the
+  generated content.
+- Keep link focus outlines. The default sets `outline: 2px solid`
+  using `--hc-color-focus-ring` to match the rest of the system.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `breadcrumb.gap` | Space between items (and between item and separator). |
+| `breadcrumb.font-size` | Text size for the whole trail. |
+| `breadcrumb.separator-fg` | Colour of the injected separator glyph and the ellipsis. |
+| `breadcrumb.link.fg` / `hover-fg` | Inactive step colour, rest and hover. |
+| `breadcrumb.current.fg` / `font-weight` | Active step appearance. |
+
+The custom property `--hc-breadcrumb-separator` is the override
+hook for the separator glyph; it has no token entry because the
+value is a `content` string rather than a typed design value.
+
+## CSS variables
+
+```text
+--hc-breadcrumb-gap | -font-size | -separator-fg
+--hc-breadcrumb-link-fg | -link-hover-fg
+--hc-breadcrumb-current-fg | -current-font-weight
+--hc-breadcrumb-separator   (override hook, no default token)
+--hc-color-focus-ring       (inherited from data-color)
+```
+
+## Related
+
+- [Tabs](/hypermedia-components/components/tabs/) — for switching between sibling sections.
+- [Pagination](/hypermedia-components/components/pagination/) — for stepping through a sequence of pages.

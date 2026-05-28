@@ -1,0 +1,87 @@
+/* hc-breadcrumb — navigation trail.
+ *
+ * Pure CSS. The semantic skeleton is
+ *
+ *   <nav class="hc-breadcrumb" aria-label="Breadcrumb">
+ *     <ol class="hc-breadcrumb__list">
+ *       <li class="hc-breadcrumb__item">
+ *         <a class="hc-breadcrumb__link" href="/">Home</a>
+ *       </li>
+ *       <li class="hc-breadcrumb__item">
+ *         <span class="hc-breadcrumb__current" aria-current="page">…</span>
+ *       </li>
+ *     </ol>
+ *   </nav>
+ *
+ * `<ol>` (not `<ul>`) carries the "ordered steps" semantic. The
+ * current page is a `<span aria-current="page">`, never a link.
+ *
+ * Separators are injected via `::before` on every item except the
+ * first — no extra markup, screen readers ignore pseudo-content by
+ * default. Override the glyph globally or per instance:
+ *
+ *   <nav class="hc-breadcrumb" style="--hc-breadcrumb-separator: '›'">…</nav>
+ */
+@layer hc.components {
+  .hc-breadcrumb {
+    font-size: var(--hc-breadcrumb-font-size);
+  }
+
+  .hc-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--hc-breadcrumb-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hc-breadcrumb__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-breadcrumb-gap);
+  }
+
+  /* CSS-injected separator. Set --hc-breadcrumb-separator to any
+   * CSS `content` value to swap the glyph; defaults to "/". */
+  .hc-breadcrumb__item:not(:first-child)::before {
+    content: var(--hc-breadcrumb-separator, "/");
+    color: var(--hc-breadcrumb-separator-fg);
+
+    /* Pseudo-content is hidden from accessibility trees by default
+     * in every major browser — no aria-hidden needed. */
+    user-select: none;
+  }
+
+  .hc-breadcrumb__link {
+    color: var(--hc-breadcrumb-link-fg);
+    text-decoration: none;
+  }
+
+  .hc-breadcrumb__link:hover {
+    color: var(--hc-breadcrumb-link-hover-fg);
+    text-decoration: underline;
+  }
+
+  .hc-breadcrumb__link:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .hc-breadcrumb__current {
+    color: var(--hc-breadcrumb-current-fg);
+    font-weight: var(--hc-breadcrumb-current-font-weight);
+  }
+
+  /* Optional middle-truncation marker. Use a `<span>` rather than
+   * a `<button>` for the pure-CSS variant; a dropdown-to-expand
+   * pattern is on the roadmap as a separate behavior. */
+  .hc-breadcrumb__ellipsis {
+    display: inline-flex;
+    align-items: center;
+    color: var(--hc-breadcrumb-separator-fg);
+    user-select: none;
+  }
+}
