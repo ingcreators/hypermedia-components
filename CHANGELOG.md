@@ -53,6 +53,16 @@ Security    — security-relevant changes
   unaffected. New docs page `tokens/density.mdx` with live preview;
   two new Vitest assertions cover the density block emission and the
   `var()` literal passthrough.
+- Recipe source format — closes v0.5 plan §4.4. Every recipe under
+  `recipes/<name>/` now ships the canonical three-file set:
+  `recipe.html` (the short recommended snippet), `expanded.html`
+  (the fully copy-pasteable HTML with every htmx attribute spelled
+  out), and `contract.md` (server response shape — required
+  endpoints, response headers, failure handling). Filled in the
+  missing `recipes/request-action/recipe.html` and created the three
+  scaffolds that did not exist yet — `recipes/toast/`,
+  `recipes/inline-edit/`, `recipes/lazy-panel/`. `recipes/README.md`
+  now indexes all nine recipes.
 - `hc-checkbox` and `hc-radio` — closes v0.5 plan §4.1. Applied to a
   native `<input type="checkbox">` / `<input type="radio">`, the
   components keep every native behaviour (Space toggles, arrow-key

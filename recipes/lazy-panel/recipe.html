@@ -1,0 +1,11 @@
+<!-- Short recommended usage.
+
+  A region whose content is fetched on first reveal. `intersect once`
+  uses IntersectionObserver and only fires the first time the panel
+  enters the viewport. -->
+<section
+  data-hx-get="/dashboards/usage"
+  data-hx-trigger="intersect once"
+  data-hx-indicator="this">
+  <p class="hc-field__message">Loading when visible…</p>
+</section>
