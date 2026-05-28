@@ -31,5 +31,15 @@
     "padding-y": { "$type": "dimension", "$value": "{primitive.space.3}" },
     "padding-x": { "$type": "dimension", "$value": "{primitive.space.4}" },
     "gap":       { "$type": "dimension", "$value": "{primitive.space.2}" }
+  },
+  "table": {
+    "cell-padding-y": { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "cell-padding-x": { "$type": "dimension", "$value": "{primitive.space.3}" }
+  },
+  "checkbox": {
+    "size": { "$type": "dimension", "$value": "1.125rem" }
+  },
+  "radio": {
+    "size": { "$type": "dimension", "$value": "1.125rem" }
   }
 }

@@ -142,6 +142,25 @@ Security    — security-relevant changes
 
 ### Added
 
+- Density coverage extended to **table cells** and **checkbox /
+  radio glyphs**. Previously a `data-density="compact"` or `"dense"`
+  shrank buttons / inputs / container paddings but tables stayed
+  roomy and checkbox / radio glyphs stayed at 18 px regardless —
+  the layout felt half-tightened. Now:
+  - `--hc-table-cell-padding-y` scales 8 → 6 → 4 px and
+    `--hc-table-cell-padding-x` scales 12 → 8 → 6 px across the
+    three tiers. Data tables, where density helps most, finally
+    pick it up.
+  - `--hc-checkbox-size` / `--hc-radio-size` step 18 → 16 → 14 px
+    so the glyphs shrink in lockstep with the surrounding form
+    controls.
+  - Same direct-override pattern density already uses for control
+    sizes — no component CSS changes; the density token files emit
+    the same variable names at higher-specificity selectors and the
+    cascade does the rest.
+  - `tokens/density.mdx` gains a "Live preview — table and form
+    controls" group rendering a 3-row table + checkbox + radio at
+    each density tier, plus the new values in the variable table.
 - `data-variant="secondary"` on `hc-button` — a filled neutral CTA
   that ranks under `primary` but above the outlined `default`. Closes
   a shadcn-style theme-token gap: a primary fill plus a neutral
