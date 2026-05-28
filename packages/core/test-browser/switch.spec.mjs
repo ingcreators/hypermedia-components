@@ -1,0 +1,88 @@
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+});
+
+test.describe('hc-switch', () => {
+  test('Space toggles the underlying checkbox state', async ({ page }) => {
+    const sw = page.getByTestId('sw-default');
+    await expect(sw).not.toBeChecked();
+    await sw.focus();
+    await page.keyboard.press('Space');
+    await expect(sw).toBeChecked();
+    await page.keyboard.press('Space');
+    await expect(sw).not.toBeChecked();
+  });
+
+  test('clicking the wrapping label toggles the switch', async ({ page }) => {
+    const sw = page.getByTestId('sw-default');
+    await expect(sw).not.toBeChecked();
+    await page.getByText('Notifications', { exact: true }).click();
+    await expect(sw).toBeChecked();
+  });
+
+  test('checked switch fills the track with action-primary colour', async ({ page }) => {
+    const sw = page.getByTestId('sw-checked');
+    await expect(sw).toBeChecked();
+    // Action-primary defaults to blue.600 = rgb(37, 99, 235).
+    await expect
+      .poll(() => sw.evaluate((el) => getComputedStyle(el).backgroundColor))
+      .toMatch(/rgba?\(\s*37,\s*99,\s*235/);
+  });
+
+  test('disabled state lowers opacity and blocks clicks', async ({ page }) => {
+    const sw = page.getByTestId('sw-disabled');
+    await expect(sw).toBeDisabled();
+    const opacity = await sw.evaluate((el) => parseFloat(getComputedStyle(el).opacity));
+    expect(opacity).toBeLessThan(1);
+    await sw.click({ force: true });
+    await expect(sw).not.toBeChecked();
+  });
+
+  test('data-variant="success" tints the checked track green', async ({ page }) => {
+    const sw = page.getByTestId('sw-success');
+    // semantic.color.success → green.600 = rgb(5, 150, 105).
+    await expect
+      .poll(() => sw.evaluate((el) => getComputedStyle(el).backgroundColor))
+      .toMatch(/rgba?\(\s*5,\s*150,\s*105/);
+  });
+
+  test('data-variant="error" tints the checked track red', async ({ page }) => {
+    const sw = page.getByTestId('sw-error');
+    // semantic.color.error → red.600 = rgb(220, 38, 38).
+    await expect
+      .poll(() => sw.evaluate((el) => getComputedStyle(el).backgroundColor))
+      .toMatch(/rgba?\(\s*220,\s*38,\s*38/);
+  });
+
+  test('data-size="sm" / "lg" render with different widths', async ({ page }) => {
+    const sm = page.getByTestId('sw-sm');
+    const lg = page.getByTestId('sw-lg');
+    const smW = await sm.evaluate((el) => el.getBoundingClientRect().width);
+    const lgW = await lg.evaluate((el) => el.getBoundingClientRect().width);
+    expect(lgW).toBeGreaterThan(smW);
+  });
+
+  test('toggling fires the native change event (form integration)', async ({ page }) => {
+    const sw = page.getByTestId('sw-default');
+    await sw.evaluate((el) => {
+      el.dataset.changes = '0';
+      el.addEventListener('change', () => {
+        el.dataset.changes = String(Number(el.dataset.changes) + 1);
+      });
+    });
+    await sw.check();
+    await sw.uncheck();
+    const seen = await sw.evaluate((el) => el.dataset.changes);
+    expect(seen).toBe('2');
+  });
+
+  test('axe finds no violations in the switch section', async ({ page }) => {
+    const results = await new AxeBuilder({ page })
+      .include('#section-switch')
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
+});

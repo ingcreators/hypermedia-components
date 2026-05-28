@@ -132,6 +132,32 @@
       "size": { "$type": "dimension", "$value": "1.375rem" }
     }
   },
+  "switch": {
+    "width":           { "$type": "dimension", "$value": "2.25rem" },
+    "height":          { "$type": "dimension", "$value": "1.25rem" },
+    "thumb-size":      { "$type": "dimension", "$value": "0.875rem" },
+    "padding":         { "$type": "dimension", "$value": "0.1875rem" },
+    "border-width":    { "$type": "dimension", "$value": "1px" },
+    "border":          { "$type": "color",     "$value": "{semantic.color.border}" },
+    "bg":              { "$type": "color",     "$value": "{primitive.color.gray.200}" },
+    "thumb-bg":        { "$type": "color",     "$value": "{primitive.color.white}" },
+    "checked-bg":      { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "checked-border":  { "$type": "color",     "$value": "{semantic.color.action.primary.border}" },
+    "success-checked-bg": { "$type": "color",  "$value": "{semantic.color.success}" },
+    "error-checked-bg":   { "$type": "color",  "$value": "{semantic.color.error}" },
+    "disabled-bg":     { "$type": "color",     "$value": "{primitive.color.gray.100}" },
+    "label-gap":       { "$type": "dimension", "$value": "{semantic.space.2}" },
+    "sm": {
+      "width":      { "$type": "dimension", "$value": "1.75rem" },
+      "height":     { "$type": "dimension", "$value": "1rem" },
+      "thumb-size": { "$type": "dimension", "$value": "0.625rem" }
+    },
+    "lg": {
+      "width":      { "$type": "dimension", "$value": "2.75rem" },
+      "height":     { "$type": "dimension", "$value": "1.5rem" },
+      "thumb-size": { "$type": "dimension", "$value": "1.125rem" }
+    }
+  },
   "radio": {
     "size":             { "$type": "dimension", "$value": "1.125rem" },
     "border-width":     { "$type": "dimension", "$value": "1px" },
