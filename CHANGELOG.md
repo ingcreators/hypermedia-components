@@ -38,6 +38,25 @@ Security    — security-relevant changes
   checked via `pnpm --filter @hypermedia-components/core typecheck`.
   The new `unit` CI job step runs it after the build so a regression
   in the public type surface fails CI.
+- Cloudflare Workers (Static Assets) deployment prep for the docs
+  site:
+  - [`wrangler.jsonc`](wrangler.jsonc) — Worker config, points the
+    `ASSETS` binding at `apps/docs/dist`, `not_found_handling=404-page`,
+    `run_worker_first=true`.
+  - [`worker.mjs`](worker.mjs) — strips the
+    `/hypermedia-components` base path from incoming URLs before
+    forwarding to `env.ASSETS.fetch()`; redirects bare `/` to the
+    base path. The base-path handling has to live in JS because
+    Workers Static Assets `_redirects` does not honour `200`
+    (rewrite) status codes.
+  - [`apps/docs/public/_headers`](apps/docs/public/_headers) —
+    long-cache for fingerprinted `_astro/*` assets, revalidate for
+    HTML, baseline security headers (`X-Content-Type-Options`,
+    `Referrer-Policy`, `Permissions-Policy`).
+  - [`DEPLOYMENT.md`](DEPLOYMENT.md) — runbook for the unified
+    Cloudflare Workers + Static Assets dashboard flow (project
+    create, build / deploy commands, custom domain attach, Worker
+    Route, rollback).
 
 ### Changed
 

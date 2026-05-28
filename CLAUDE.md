@@ -95,6 +95,7 @@ All four must be green before merging.
 - Update `CHANGELOG.md` under **Unreleased** for any user-visible change.
 - PR template in `.github/PULL_REQUEST_TEMPLATE.md` has the §21.4 checklist.
 - See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full contributor guide.
+- See [`DEPLOYMENT.md`](DEPLOYMENT.md) for the Cloudflare Workers runbook (manual dashboard steps, build / deploy commands, custom domain attach, Worker Route).
 
 ## Current focus
 
@@ -106,5 +107,10 @@ progress so far:
   via `tsc --emitDeclarationOnly --allowJs`; the smoke test runs in
   the unit CI job.
 - **§3.2** release workflow dry-run — pending.
-- **§3.3** Cloudflare deployment — pending.
-- **§3.4** cut `0.0.1-alpha.0` — pending §3.2 and §3.3.
+- **§3.3** Cloudflare deployment — repo-side prep merged
+  ([`wrangler.jsonc`](wrangler.jsonc), [`worker.mjs`](worker.mjs),
+  [`apps/docs/public/_headers`](apps/docs/public/_headers),
+  [`DEPLOYMENT.md`](DEPLOYMENT.md)). Uses the unified Workers + Static
+  Assets flow (Cloudflare merged Pages into Workers). The Worker still
+  has to be provisioned in the dashboard.
+- **§3.4** cut `0.0.1-alpha.0` — pending §3.2 and §3.3 dashboard work.

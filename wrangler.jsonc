@@ -1,0 +1,20 @@
+// Cloudflare Worker config for the Hypermedia Components docs site.
+//
+// Deploys the Starlight build under apps/docs/dist via the Static
+// Assets binding, with worker.mjs handling the /hypermedia-components
+// base-path stripping (see worker.mjs for why).
+//
+// See DEPLOYMENT.md for the dashboard-side setup (project create,
+// build command, environment variables, custom domain attach).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hypermedia-components",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-05-28",
+  "assets": {
+    "directory": "./apps/docs/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": true
+  }
+}
