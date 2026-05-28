@@ -1,0 +1,103 @@
+---
+// Starlight `SocialIcons` override.
+//
+// Renders Starlight's default icons (the GitHub link from
+// `social: {github: ...}` in astro.config.mjs) and appends a density
+// picker so visitors can preview every component / recipe at any of
+// the three Hypermedia Components densities. The choice is persisted
+// to localStorage; an inline head script (see astro.config.mjs)
+// applies it before first paint so there is no flash of comfortable
+// content for repeat visitors.
+//
+// Theme switching (dark / light) already flows from Starlight's own
+// theme select: both Starlight and HC tokens read `data-theme` on
+// `<html>`, so the cascade is automatic — no extra wiring needed.
+import Default from '@astrojs/starlight/components/SocialIcons.astro';
+---
+
+<Default><slot /></Default>
+
+<label class="hc-density" aria-label="Density">
+  <span class="hc-density__label">Density</span>
+  <select id="hc-density-select" aria-label="Density">
+    <option value="comfortable">Comfortable</option>
+    <option value="compact">Compact</option>
+    <option value="dense">Dense</option>
+  </select>
+</label>
+
+<script>
+  const STORAGE_KEY = 'hc-density';
+  const VALUES = ['comfortable', 'compact', 'dense'];
+
+  function read() {
+    try {
+      const v = localStorage.getItem(STORAGE_KEY);
+      return VALUES.includes(v) ? v : 'comfortable';
+    } catch {
+      return 'comfortable';
+    }
+  }
+
+  function apply(value) {
+    document.documentElement.setAttribute('data-density', value);
+  }
+
+  function init() {
+    const current = read();
+    apply(current);
+
+    const select = document.getElementById('hc-density-select');
+    if (!(select instanceof HTMLSelectElement)) return;
+    select.value = current;
+    select.addEventListener('change', () => {
+      apply(select.value);
+      try { localStorage.setItem(STORAGE_KEY, select.value); } catch {}
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+</script>
+
+<style>
+  .hc-density {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-inline-start: 0.5rem;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-2);
+  }
+
+  .hc-density__label {
+    /* Hide the visible label on narrow viewports — the select has
+       its own aria-label, so AT users still get the affordance. */
+    display: none;
+  }
+
+  @media (min-width: 50rem) {
+    .hc-density__label {
+      display: inline;
+    }
+  }
+
+  #hc-density-select {
+    appearance: auto;
+    font: inherit;
+    padding: 0.25rem 0.4rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-text);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.25rem;
+    cursor: pointer;
+  }
+
+  #hc-density-select:focus-visible {
+    outline: 2px solid var(--sl-color-text-accent);
+    outline-offset: 1px;
+  }
+</style>
