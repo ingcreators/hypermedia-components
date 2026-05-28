@@ -44,9 +44,9 @@ explicit user approval.
 - **Component** (plan §17.3): CSS API · variants · states · CSS variables · accessibility notes · ≥1 docs example · uses token references · docs site builds.
 - **Recipe** (plan §17.4): Basic HTML · htmx version · optional `data-hc-*` shorthand · optional macro · expanded HTML · server response contract · progressive enhancement · accessibility notes · tests for behaviors.
 
-## Implemented surface (post PR #1)
+## Implemented surface
 
-13 components · 209 `--hc-*` vars · 5 behaviors · 2 macros · 9 recipes · 40 docs pages · 5 integration guides · examples for plain-html + htmx · 73 Vitest tests · 31 Playwright tests (incl. 6 axe-core a11y scans).
+15 components · 236 `--hc-*` vars · 5 behaviors · 2 macros · 9 recipes · 42 docs pages · 5 integration guides · examples for plain-html + htmx · 73 Vitest tests · 41 Playwright tests (incl. 6 axe-core a11y scans).
 
 For the full list of what is and is not built, see the
 [next-phase plan](plans/hc-next-phase-plan-v0.5-en.md).
@@ -114,3 +114,10 @@ progress so far:
   Assets flow (Cloudflare merged Pages into Workers). The Worker still
   has to be provisioned in the dashboard.
 - **§3.4** cut `0.0.1-alpha.0` — pending §3.2 and §3.3 dashboard work.
+
+Track 2 (MVP polish) progress:
+
+- **§4.1** `hc-checkbox` / `hc-radio` — merged. Both wrap a native
+  input via `appearance: none`; variants `default / success / danger`;
+  Playwright covers Space toggle, arrow-key radio navigation, label
+  click, variants, `aria-invalid`, disabled.

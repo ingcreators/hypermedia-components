@@ -24,6 +24,8 @@ const HTMX_CSS   = join(srcCssDir, 'hc.htmx.css');
 const COMPONENTS = [
   'hc-button.css',
   'hc-input.css',
+  'hc-checkbox.css',
+  'hc-radio.css',
   'hc-field.css',
   'hc-spinner.css',
   'hc-dialog.css',

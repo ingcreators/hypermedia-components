@@ -1,0 +1,169 @@
+---
+title: Checkbox
+description: Semantic checkbox class that styles a native input[type=checkbox] while preserving its native semantics, keyboard behaviour, and form participation.
+---
+
+`hc-checkbox` is applied to a standard `<input type="checkbox">`. The
+underlying input keeps every native behaviour — `Space` toggles, the
+value/name participate in form submission, screen readers report it as
+a checkbox. Only the rendering is replaced via `appearance: none`.
+
+## Basic HTML
+
+<div class="hc-preview" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" defaultChecked />
+    Send me product updates
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" />
+    Subscribe to the newsletter
+  </label>
+</div>
+
+```html
+<label class="hc-checkbox-label">
+  <input class="hc-checkbox" type="checkbox" checked>
+  Send me product updates
+</label>
+
+<label class="hc-checkbox-label">
+  <input class="hc-checkbox" type="checkbox">
+  Subscribe to the newsletter
+</label>
+```
+
+`.hc-checkbox-label` is a thin inline-flex helper that clusters the
+input and its text and propagates click behaviour. You can also use a
+bare `<input class="hc-checkbox">` next to a separate `<label for>`
+element.
+
+## Variants
+
+`data-variant` accepts `success` and `danger` for non-default check
+colours.
+
+<div class="hc-preview" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" defaultChecked />
+    Default
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-variant="success" defaultChecked />
+    Success
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-variant="danger" defaultChecked />
+    Danger
+  </label>
+</div>
+
+```html
+<input class="hc-checkbox" type="checkbox" checked>
+<input class="hc-checkbox" type="checkbox" data-variant="success" checked>
+<input class="hc-checkbox" type="checkbox" data-variant="danger" checked>
+```
+
+## States
+
+<div class="hc-preview" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" />
+    Focus me to see the ring
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" aria-invalid="true" />
+    Required field (aria-invalid)
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" disabled />
+    Disabled (unchecked)
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" disabled defaultChecked />
+    Disabled (checked)
+  </label>
+</div>
+
+```html
+<input class="hc-checkbox" type="checkbox" aria-invalid="true">
+<input class="hc-checkbox" type="checkbox" disabled>
+<input class="hc-checkbox" type="checkbox" disabled checked>
+```
+
+The indeterminate state (set in JS via `input.indeterminate = true`)
+renders as a small horizontal bar in place of the check mark.
+
+## htmx usage
+
+`hc-checkbox` participates in form submissions like any native checkbox.
+For server-side validation feedback, return the input with
+`aria-invalid="true"` set; pair with [`hc-field`](/hypermedia-components/components/field/)
+to also restyle the surrounding message.
+
+```html
+<label class="hc-checkbox-label">
+  <input
+    class="hc-checkbox"
+    type="checkbox"
+    name="terms"
+    required
+    data-hx-post="/preferences/toggle"
+    data-hx-trigger="change">
+  I accept the terms
+</label>
+```
+
+## Accessibility
+
+- The component preserves the native `<input type="checkbox">`, so
+  assistive tech announces it correctly and `Space` toggles it.
+- Always associate the input with a label. The easiest pattern is to
+  wrap both in a `<label class="hc-checkbox-label">`. Otherwise use a
+  separate `<label for>` linked to the input's `id`.
+- For validation errors set `aria-invalid="true"` on the input. Pair
+  with `aria-describedby` if you have an error message.
+- Prefer the native `disabled` attribute when the control must not be
+  interactive. Use `aria-disabled="true"` only when it must remain
+  focusable.
+- Do not remove the focus outline. The component replaces the default
+  outline with a visible box-shadow ring driven by
+  `--hc-color-focus-ring`.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path                                | Purpose                              |
+| ----------------------------------------- | ------------------------------------ |
+| `checkbox.size`                           | Outer dimension (square).            |
+| `checkbox.border` / `border-width` / `radius` | Border in the unchecked state.   |
+| `checkbox.bg`                             | Background in the unchecked state.   |
+| `checkbox.checked-bg` / `checked-border`  | Default-variant checked colours.     |
+| `checkbox.success-checked-bg` / `success-checked-border` | `data-variant="success"`. |
+| `checkbox.danger-checked-bg` / `danger-checked-border` | `data-variant="danger"`.   |
+| `checkbox.invalid-border`                 | Border when `aria-invalid="true"`.   |
+| `checkbox.disabled-bg`                    | Background when disabled.            |
+| `checkbox.label-gap`                      | Gap between the input and its text.  |
+
+## CSS variables
+
+```text
+--hc-checkbox-size
+--hc-checkbox-border-width | -border | -radius
+--hc-checkbox-bg
+--hc-checkbox-checked-bg | -checked-border
+--hc-checkbox-success-checked-bg | -success-checked-border
+--hc-checkbox-danger-checked-bg | -danger-checked-border
+--hc-checkbox-invalid-border
+--hc-checkbox-disabled-bg
+--hc-checkbox-label-gap
+--hc-color-focus-ring
+--hc-color-danger
+```
+
+## Related
+
+- [Radio](/hypermedia-components/components/radio/) — single-select sibling.
+- [Field](/hypermedia-components/components/field/) — wraps a control with a label and message.
+- [Input](/hypermedia-components/components/input/) — text inputs and selects.

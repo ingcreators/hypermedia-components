@@ -38,6 +38,18 @@ Security    — security-relevant changes
   checked via `pnpm --filter @hypermedia-components/core typecheck`.
   The new `unit` CI job step runs it after the build so a regression
   in the public type surface fails CI.
+- `hc-checkbox` and `hc-radio` — closes v0.5 plan §4.1. Applied to a
+  native `<input type="checkbox">` / `<input type="radio">`, the
+  components keep every native behaviour (Space toggles, arrow-key
+  navigation within a same-name radio group, form participation,
+  assistive-tech announcements) and replace only the rendering via
+  `appearance: none`. `data-variant` accepts `success` / `danger`.
+  Checked state renders a white SVG glyph (check mark / inner dot)
+  via `background-image`. Pair with `.hc-checkbox-label` /
+  `.hc-radio-label` inline-flex wrappers, or with `hc-field` for
+  fieldset-style groups. Two new docs pages and 10 new Playwright
+  specs cover keyboard activation, label clicks, variants, invalid,
+  disabled.
 - Cloudflare Workers (Static Assets) deployment prep for the docs
   site:
   - [`wrangler.jsonc`](wrangler.jsonc) — Worker config, points the

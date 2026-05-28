@@ -1,0 +1,99 @@
+/* hc-checkbox — semantic checkbox component.
+ *
+ * Apply `.hc-checkbox` to a native <input type="checkbox">. The
+ * underlying input keeps its native semantics, value, name, and
+ * keyboard behaviour (Space toggles); only the rendering is replaced.
+ *
+ * Variants:  default (omitted) | success | danger  (via data-variant)
+ * States:    :checked, :focus-visible, :disabled, [aria-invalid]
+ * Pairing:   `.hc-checkbox-label` wraps an input + text in an inline
+ *            cluster so click on the label toggles the input.
+ */
+@layer hc.components {
+  .hc-checkbox {
+    appearance: none;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--hc-checkbox-size);
+    block-size: var(--hc-checkbox-size);
+    margin: 0;
+    padding: 0;
+    border: var(--hc-checkbox-border-width) solid var(--hc-checkbox-border);
+    border-radius: var(--hc-checkbox-radius);
+    background-color: var(--hc-checkbox-bg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    color-scheme: light dark;
+    cursor: pointer;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      box-shadow 120ms ease;
+    vertical-align: middle;
+  }
+
+  .hc-checkbox:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  /* Checked — default variant uses the action.primary fill. The check
+   * mark is a small inline SVG so it scales with the checkbox size. */
+  .hc-checkbox:checked {
+    background-color: var(--hc-checkbox-checked-bg);
+    border-color: var(--hc-checkbox-checked-border);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M3.5 8.5 L7 12 L12.5 5'/></svg>");
+  }
+
+  .hc-checkbox:indeterminate {
+    background-color: var(--hc-checkbox-checked-bg);
+    border-color: var(--hc-checkbox-checked-border);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' d='M3.5 8 L12.5 8'/></svg>");
+  }
+
+  /* Variants */
+  .hc-checkbox[data-variant="success"]:checked,
+  .hc-checkbox[data-variant="success"]:indeterminate {
+    background-color: var(--hc-checkbox-success-checked-bg);
+    border-color: var(--hc-checkbox-success-checked-border);
+  }
+
+  .hc-checkbox[data-variant="danger"]:checked,
+  .hc-checkbox[data-variant="danger"]:indeterminate {
+    background-color: var(--hc-checkbox-danger-checked-bg);
+    border-color: var(--hc-checkbox-danger-checked-border);
+  }
+
+  /* Invalid (the accessibility hook). Border switches; if also checked,
+   * the danger fill wins over the default fill. */
+  .hc-checkbox[aria-invalid="true"] {
+    border-color: var(--hc-checkbox-invalid-border);
+  }
+
+  .hc-checkbox[aria-invalid="true"]:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-danger) 30%, transparent);
+  }
+
+  /* Disabled */
+  .hc-checkbox:disabled,
+  .hc-checkbox[aria-disabled="true"] {
+    background-color: var(--hc-checkbox-disabled-bg);
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+
+  /* Label cluster: `<label class="hc-checkbox-label"><input class="hc-checkbox"> Text</label>` */
+  .hc-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-checkbox-label-gap);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hc-checkbox-label:has(.hc-checkbox:disabled) {
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+}

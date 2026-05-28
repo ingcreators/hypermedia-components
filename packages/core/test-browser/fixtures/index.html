@@ -107,6 +107,51 @@
     </script>
   </section>
 
+  <section id="section-checkbox" data-testid="section-checkbox">
+    <h2>Checkbox</h2>
+    <div class="row" style="flex-direction:column;align-items:flex-start;">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" data-testid="cb-default">
+        Default
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" checked data-testid="cb-checked">
+        Pre-checked
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" disabled data-testid="cb-disabled">
+        Disabled
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" aria-invalid="true" data-testid="cb-invalid">
+        Invalid
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" data-variant="danger" data-testid="cb-danger">
+        Danger variant
+      </label>
+    </div>
+  </section>
+
+  <section id="section-radio" data-testid="section-radio">
+    <h2>Radio group</h2>
+    <fieldset class="hc-field" style="border:0;padding:0;margin:0;">
+      <legend class="hc-field__label">Plan</legend>
+      <label class="hc-radio-label">
+        <input class="hc-radio" type="radio" name="plan-test" value="free" checked data-testid="radio-free">
+        Free
+      </label>
+      <label class="hc-radio-label">
+        <input class="hc-radio" type="radio" name="plan-test" value="pro" data-testid="radio-pro">
+        Pro
+      </label>
+      <label class="hc-radio-label">
+        <input class="hc-radio" type="radio" name="plan-test" value="team" data-testid="radio-team">
+        Team
+      </label>
+    </fieldset>
+  </section>
+
   <section id="section-macros" data-testid="section-macros">
     <h2>Macros</h2>
 

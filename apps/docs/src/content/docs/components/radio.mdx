@@ -1,0 +1,221 @@
+---
+title: Radio
+description: Semantic radio class that styles a native input[type=radio] while preserving its native grouping, keyboard behaviour, and form participation.
+---
+
+`hc-radio` is applied to a standard `<input type="radio">`. The
+underlying input keeps every native behaviour — arrow keys move between
+members of a group sharing the same `name`, the selected value
+participates in form submission, screen readers announce position
+("3 of 5") within the group. Only the rendering is replaced via
+`appearance: none`.
+
+## Basic HTML
+
+<div class="hc-preview" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan-demo-1" defaultChecked />
+    Free
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan-demo-1" />
+    Pro
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan-demo-1" />
+    Team
+  </label>
+</div>
+
+```html
+<label class="hc-radio-label">
+  <input class="hc-radio" type="radio" name="plan" value="free" checked>
+  Free
+</label>
+
+<label class="hc-radio-label">
+  <input class="hc-radio" type="radio" name="plan" value="pro">
+  Pro
+</label>
+
+<label class="hc-radio-label">
+  <input class="hc-radio" type="radio" name="plan" value="team">
+  Team
+</label>
+```
+
+Radios with the same `name` form a single-select group. Browser-native
+arrow-key navigation works automatically; you don't need to add
+`role="radiogroup"` or any roving-tabindex JS unless you want to group
+visually across non-adjacent inputs.
+
+## Variants
+
+`data-variant` accepts `success` and `danger` for non-default fill
+colours when checked.
+
+<div class="hc-preview" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="variant-demo" defaultChecked />
+    Default
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="variant-demo-success" data-variant="success" defaultChecked />
+    Success
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="variant-demo-danger" data-variant="danger" defaultChecked />
+    Danger
+  </label>
+</div>
+
+```html
+<input class="hc-radio" type="radio" name="x" checked>
+<input class="hc-radio" type="radio" name="y" data-variant="success" checked>
+<input class="hc-radio" type="radio" name="z" data-variant="danger" checked>
+```
+
+## States
+
+<div class="hc-preview" style="display:flex;flex-direction:column;gap:.5rem;">
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="state-demo" />
+    Focus me to see the ring
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="state-demo-invalid" aria-invalid="true" />
+    Required field (aria-invalid)
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="state-demo-disabled" disabled />
+    Disabled (unchecked)
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="state-demo-dischecked" disabled defaultChecked />
+    Disabled (checked)
+  </label>
+</div>
+
+```html
+<input class="hc-radio" type="radio" name="x" aria-invalid="true">
+<input class="hc-radio" type="radio" name="x" disabled>
+<input class="hc-radio" type="radio" name="x" disabled checked>
+```
+
+## Grouping with `hc-field`
+
+For form layout, wrap the group in [`hc-field`](/hypermedia-components/components/field/)
+to share a label and validation message across radios.
+
+<div class="hc-preview">
+  <fieldset class="hc-field" style="border:0;padding:0;margin:0;">
+    <legend class="hc-field__label">Notification frequency</legend>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="freq" defaultChecked />
+      Immediately
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="freq" />
+      Daily digest
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="freq" />
+      Weekly digest
+    </label>
+    <p class="hc-field__message">You can change this any time in settings.</p>
+  </fieldset>
+</div>
+
+```html
+<fieldset class="hc-field">
+  <legend class="hc-field__label">Notification frequency</legend>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="freq" value="now" checked>
+    Immediately
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="freq" value="daily">
+    Daily digest
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="freq" value="weekly">
+    Weekly digest
+  </label>
+  <p class="hc-field__message">You can change this any time in settings.</p>
+</fieldset>
+```
+
+`<fieldset>` + `<legend>` is the semantic primitive for grouping
+related radios; `hc-field` styles them consistently with other form
+patterns.
+
+## htmx usage
+
+A radio change can drive an htmx request like any other input.
+
+```html
+<label class="hc-radio-label">
+  <input
+    class="hc-radio"
+    type="radio"
+    name="layout"
+    value="grid"
+    data-hx-post="/prefs/layout"
+    data-hx-trigger="change">
+  Grid
+</label>
+```
+
+## Accessibility
+
+- The component preserves the native `<input type="radio">`, so
+  assistive tech announces it correctly, exposes the group's position,
+  and arrow keys move focus between members.
+- Group radios by giving them the same `name`. Visually grouping
+  matters too — wrap related radios in a `<fieldset>` with a
+  `<legend>`.
+- For validation errors set `aria-invalid="true"` on the relevant
+  inputs.
+- Prefer the native `disabled` attribute when a radio must not be
+  interactive. Use `aria-disabled="true"` only when it must remain
+  focusable.
+- Do not remove the focus outline. The component replaces the default
+  outline with a visible box-shadow ring driven by
+  `--hc-color-focus-ring`.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path                                | Purpose                              |
+| ----------------------------------------- | ------------------------------------ |
+| `radio.size`                              | Outer dimension (circle).            |
+| `radio.border` / `border-width`           | Border in the unchecked state.       |
+| `radio.bg`                                | Background in the unchecked state.   |
+| `radio.checked-bg` / `checked-border`     | Default-variant checked colours.     |
+| `radio.success-checked-bg` / `success-checked-border` | `data-variant="success"`. |
+| `radio.danger-checked-bg` / `danger-checked-border` | `data-variant="danger"`.    |
+| `radio.invalid-border`                    | Border when `aria-invalid="true"`.   |
+| `radio.disabled-bg`                       | Background when disabled.            |
+| `radio.label-gap`                         | Gap between the input and its text.  |
+
+## CSS variables
+
+```text
+--hc-radio-size
+--hc-radio-border-width | -border
+--hc-radio-bg
+--hc-radio-checked-bg | -checked-border
+--hc-radio-success-checked-bg | -success-checked-border
+--hc-radio-danger-checked-bg | -danger-checked-border
+--hc-radio-invalid-border
+--hc-radio-disabled-bg
+--hc-radio-label-gap
+--hc-color-focus-ring
+--hc-color-danger
+```
+
+## Related
+
+- [Checkbox](/hypermedia-components/components/checkbox/) — multi-select sibling.
+- [Field](/hypermedia-components/components/field/) — wraps a control with a label and message.
