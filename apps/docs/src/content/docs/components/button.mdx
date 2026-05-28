@@ -12,6 +12,7 @@ markup stays close to plain HTML.
 <div class="hc-preview not-content hc-cluster" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button">Default</button>
   <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="secondary">Secondary</button>
   <button class="hc-button" data-variant="danger">Delete</button>
   <button class="hc-button" data-variant="ghost">Ghost</button>
 </div>
@@ -19,21 +20,27 @@ markup stays close to plain HTML.
 ```html
 <button class="hc-button">Default</button>
 <button class="hc-button" data-variant="primary">Save</button>
+<button class="hc-button" data-variant="secondary">Secondary</button>
 <button class="hc-button" data-variant="danger">Delete</button>
 <button class="hc-button" data-variant="ghost">Ghost</button>
 ```
 
 ## Variants
 
-`data-variant` accepts `default` (implicit), `primary`, `danger`, and
-`ghost`. Variants compose with sizes and states.
+`data-variant` accepts `default` (implicit), `primary`, `secondary`,
+`danger`, and `ghost`. Variants compose with sizes and states.
 
-| Variant   | Purpose                                       |
-| --------- | --------------------------------------------- |
-| _omitted_ | Neutral default action.                       |
-| `primary` | The primary action on a page or in a dialog.  |
-| `danger`  | Destructive action — pair with a confirm UI.  |
-| `ghost`   | Low-emphasis action; transparent background.  |
+| Variant     | Purpose                                                         |
+| ----------- | --------------------------------------------------------------- |
+| _omitted_   | Neutral default action — outlined.                              |
+| `primary`   | The primary action on a page or in a dialog. Follows the active colour theme. |
+| `secondary` | A second filled action that ranks under `primary`. Neutral grey — intentionally **not** theme-tinted so primary stays distinct. |
+| `danger`    | Destructive action — pair with a confirm UI.                    |
+| `ghost`     | Low-emphasis action; transparent background.                    |
+
+Visual hierarchy from highest to lowest emphasis:
+
+`primary` (themed fill) → `secondary` (neutral fill) → `default` (outlined) → `ghost` (no surface).
 
 ## Sizes
 
@@ -156,9 +163,10 @@ component:
 --hc-button-font-size
 --hc-button-font-weight
 --hc-button-default-bg | -fg | -border | -hover-bg
---hc-button-primary-bg | -fg | -border | -hover-bg | -hover-border
---hc-button-danger-bg  | -fg | -border | -hover-bg | -hover-border
---hc-button-ghost-bg   | -fg | -border | -hover-bg
+--hc-button-primary-bg   | -fg | -border | -hover-bg | -hover-border
+--hc-button-secondary-bg | -fg | -border | -hover-bg | -hover-border
+--hc-button-danger-bg    | -fg | -border | -hover-bg | -hover-border
+--hc-button-ghost-bg     | -fg | -border | -hover-bg
 --hc-button-sm-height | -padding-x | -font-size
 --hc-button-lg-height | -padding-x | -font-size
 --hc-color-focus-ring

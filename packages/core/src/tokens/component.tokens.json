@@ -23,6 +23,15 @@
       "bg":     { "$type": "color", "$value": "var(--hc-color-action-primary-hover-bg)" },
       "border": { "$type": "color", "$value": "var(--hc-color-action-primary-hover-border)" }
     },
+    "secondary": {
+      "bg":     { "$type": "color", "$value": "var(--hc-color-action-secondary-bg)" },
+      "fg":     { "$type": "color", "$value": "var(--hc-color-action-secondary-fg)" },
+      "border": { "$type": "color", "$value": "var(--hc-color-action-secondary-border)" }
+    },
+    "secondary-hover": {
+      "bg":     { "$type": "color", "$value": "var(--hc-color-action-secondary-hover-bg)" },
+      "border": { "$type": "color", "$value": "var(--hc-color-action-secondary-hover-border)" }
+    },
     "danger": {
       "bg":     { "$type": "color", "$value": "{semantic.color.action.danger.bg}" },
       "fg":     { "$type": "color", "$value": "{semantic.color.action.danger.fg}" },

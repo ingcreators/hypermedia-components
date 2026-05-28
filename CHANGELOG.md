@@ -140,6 +140,33 @@ Security    — security-relevant changes
     create, build / deploy commands, custom domain attach, Worker
     Route, rollback).
 
+### Added
+
+- `data-variant="secondary"` on `hc-button` — a filled neutral CTA
+  that ranks under `primary` but above the outlined `default`. Closes
+  a shadcn-style theme-token gap: a primary fill plus a neutral
+  filled secondary is the standard SaaS / business-app two-tier
+  action pattern, and HC was previously missing the second tier.
+  - New semantic tokens `color.action.secondary.{bg,fg,border}` plus
+    `secondary-hover.{bg,border}` in `semantic.tokens.json`. Light
+    mode uses `gray.100` / `gray.900`; `theme.dark.tokens.json`
+    overrides to `gray.700` / `gray.100` so contrast stays clean on
+    dark surfaces.
+  - New semantic `color.muted-bg` token (aliased to the same neutral
+    grey) for subtle non-primary surfaces. Pairs with the existing
+    `--hc-color-text-muted` foreground.
+  - Component-level `button.secondary.*` / `button.secondary-hover.*`
+    tokens resolve via `var(--hc-color-action-secondary-*)` so the
+    light / dark cascade reaches the button automatically (same
+    indirection pattern density and the colour themes already use).
+  - Secondary is intentionally **not** theme-tinted — it stays a
+    neutral grey in every `data-color` so primary remains visually
+    distinct as the themed action. Documented in
+    `tokens/themes.mdx`.
+  - `hc-button.mdx` now shows the variant in the basic-HTML row and
+    the variants table, with a written hierarchy
+    (`primary > secondary > default > ghost`).
+
 ### Changed
 
 - Color themes now reach further than just the primary action — the

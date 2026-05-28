@@ -57,6 +57,17 @@
     border-color: var(--hc-button-primary-hover-border);
   }
 
+  .hc-button[data-variant="secondary"] {
+    background: var(--hc-button-secondary-bg);
+    color: var(--hc-button-secondary-fg);
+    border-color: var(--hc-button-secondary-border);
+  }
+
+  .hc-button[data-variant="secondary"]:hover:not(:disabled, [aria-disabled="true"]) {
+    background: var(--hc-button-secondary-hover-bg);
+    border-color: var(--hc-button-secondary-hover-border);
+  }
+
   .hc-button[data-variant="danger"] {
     background: var(--hc-button-danger-bg);
     color: var(--hc-button-danger-fg);

@@ -5,6 +5,18 @@
     "surface":    { "$type": "color", "$value": "{primitive.color.gray.800}" },
     "text":       { "$type": "color", "$value": "{primitive.color.gray.100}" },
     "text-muted": { "$type": "color", "$value": "{primitive.color.gray.400}" },
-    "border":     { "$type": "color", "$value": "{primitive.color.gray.700}" }
+    "border":     { "$type": "color", "$value": "{primitive.color.gray.700}" },
+    "muted-bg":   { "$type": "color", "$value": "{primitive.color.gray.700}" },
+    "action": {
+      "secondary": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.gray.700}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.gray.100}" },
+        "border": { "$type": "color", "$value": "{primitive.color.gray.700}" }
+      },
+      "secondary-hover": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.gray.600}" },
+        "border": { "$type": "color", "$value": "{primitive.color.gray.600}" }
+      }
+    }
   }
 }
