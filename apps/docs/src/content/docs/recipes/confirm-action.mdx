@@ -16,7 +16,7 @@ gate the htmx trigger on `confirmed`:
 ```html
 <button
   class="hc-button"
-  data-variant="danger"
+  data-variant="error"
   data-hc-confirm="Delete this item?"
   data-hx-delete="/items/123"
   data-hx-trigger="confirmed"
@@ -55,7 +55,7 @@ optional:
 ```html
 <button
   class="hc-button"
-  data-variant="danger"
+  data-variant="error"
   data-hc-confirm="Permanently delete invoice #123? This cannot be undone."
   data-hc-confirm-title="Delete invoice"
   data-hc-confirm-label="Delete"
@@ -76,7 +76,7 @@ full destructive-action experience from plan §24:
 <span class="hc-action">
   <button
     class="hc-button"
-    data-variant="danger"
+    data-variant="error"
     type="button"
     data-hc-confirm="Delete this item?"
     data-hx-delete="/items/123"
@@ -102,7 +102,7 @@ same pattern as a single custom element:
   action="/items/123"
   target="closest tr"
   swap="outerHTML"
-  variant="danger"
+  variant="error"
   message="Delete this item?"
   confirm-label="Delete"
   cancel-label="Keep">
@@ -149,7 +149,7 @@ attribute, write the confirm step inline, and dispatch the same
 ```html
 <button
   class="hc-button"
-  data-variant="danger"
+  data-variant="error"
   data-hx-delete="/items/123"
   data-hx-trigger="confirmed"
   data-hx-target="closest tr"

@@ -22,7 +22,7 @@ test.describe('<hc-confirm-action>', () => {
     await expect(button).toHaveAttribute('data-hx-target', 'closest tr');
     await expect(button).toHaveAttribute('data-hx-swap', 'outerHTML');
     await expect(button).toHaveAttribute('data-hc-confirm', 'Macro delete?');
-    await expect(button).toHaveAttribute('data-variant', 'danger');
+    await expect(button).toHaveAttribute('data-variant', 'error');
   });
 
   test('clicking the upgraded button opens the shared confirm dialog', async ({ page }) => {

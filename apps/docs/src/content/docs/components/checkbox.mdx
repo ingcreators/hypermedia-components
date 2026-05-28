@@ -40,7 +40,7 @@ element.
 
 ## Variants
 
-`data-variant` accepts `success`, `warning`, and `danger` for
+`data-variant` accepts `success`, `warning`, and `error` for
 non-default check colours. The default (omitted) variant uses the
 active colour theme's primary fill.
 
@@ -58,8 +58,8 @@ active colour theme's primary fill.
     Warning
   </label>
   <label class="hc-checkbox-label">
-    <input class="hc-checkbox" type="checkbox" data-variant="danger" defaultChecked />
-    Danger
+    <input class="hc-checkbox" type="checkbox" data-variant="error" defaultChecked />
+    Error
   </label>
 </div>
 
@@ -67,7 +67,7 @@ active colour theme's primary fill.
 <input class="hc-checkbox" type="checkbox" checked>
 <input class="hc-checkbox" type="checkbox" data-variant="success" checked>
 <input class="hc-checkbox" type="checkbox" data-variant="warning" checked>
-<input class="hc-checkbox" type="checkbox" data-variant="danger" checked>
+<input class="hc-checkbox" type="checkbox" data-variant="error" checked>
 ```
 
 ## Sizes
@@ -183,7 +183,7 @@ Component tokens (in `component.tokens.json`):
 | `checkbox.checked-bg` / `checked-border`  | Default-variant checked colours.     |
 | `checkbox.success-checked-bg` / `success-checked-border` | `data-variant="success"`. |
 | `checkbox.warning-checked-bg` / `warning-checked-border` | `data-variant="warning"`. |
-| `checkbox.danger-checked-bg` / `danger-checked-border` | `data-variant="danger"`.   |
+| `checkbox.error-checked-bg` / `error-checked-border` | `data-variant="error"`.   |
 | `checkbox.sm.size` / `lg.size`            | `data-size="sm"` / `"lg"` dedicated sizes. |
 | `checkbox.invalid-border`                 | Border when `aria-invalid="true"`.   |
 | `checkbox.disabled-bg`                    | Background when disabled.            |
@@ -198,13 +198,13 @@ Component tokens (in `component.tokens.json`):
 --hc-checkbox-checked-bg | -checked-border
 --hc-checkbox-success-checked-bg | -success-checked-border
 --hc-checkbox-warning-checked-bg | -warning-checked-border
---hc-checkbox-danger-checked-bg | -danger-checked-border
+--hc-checkbox-error-checked-bg | -error-checked-border
 --hc-checkbox-sm-size | -lg-size
 --hc-checkbox-invalid-border
 --hc-checkbox-disabled-bg
 --hc-checkbox-label-gap
 --hc-color-focus-ring
---hc-color-danger
+--hc-color-error
 ```
 
 ## Related

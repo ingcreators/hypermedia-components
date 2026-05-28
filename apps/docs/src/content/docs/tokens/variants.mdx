@@ -9,7 +9,7 @@ description: A cross-component matrix of every `data-variant` and `data-size` HC
 
 `✓` = supported. `—` = not applicable / not supported. `(default)` = the implicit value when the attribute is omitted.
 
-| Component        | _omitted_                | `primary`  | `secondary` | `success`  | `warning`  | `danger`   | `ghost`    | `data-size` |
+| Component        | _omitted_                | `primary`  | `secondary` | `success`  | `warning`  | `error`   | `ghost`    | `data-size` |
 | ---------------- | ------------------------ | ---------- | ----------- | ---------- | ---------- | ---------- | ---------- | ----------- |
 | [Button](/hypermedia-components/components/button/) | (default) outlined neutral | ✓ themed fill | ✓ neutral fill | — | — | ✓ red fill | ✓ transparent | `sm` / `md` / `lg` |
 | [Input](/hypermedia-components/components/input/)   | (default) standard rendering | — | — | — | — | via `aria-invalid` | — | `sm` / `md` / `lg` |
@@ -30,10 +30,10 @@ Variants describe a **fill style** — how loud the button should be:
 - (default) = outlined neutral — the standard quiet action
 - `primary` = themed fill — the headline CTA
 - `secondary` = neutral fill — a second-tier CTA that ranks below `primary` but above `default`
-- `danger` = red fill — destructive action (pair with a confirm UI)
+- `error` = red fill — destructive action (pair with a confirm UI)
 - `ghost` = transparent — minimal emphasis, e.g. icon buttons inside a toolbar
 
-There is intentionally no `data-variant="success"` button or `data-variant="warning"` button. "Click here to succeed" is not a thing users want to read — success / warning are **states** that messages describe, not actions users take. The danger variant is the one exception because the action itself is destructive and the button text should warn.
+There is intentionally no `data-variant="success"` button or `data-variant="warning"` button. "Click here to succeed" is not a thing users want to read — success / warning are **states** that messages describe, not actions users take. The error variant is the one exception because the action itself is destructive and the button text should warn.
 
 ### Form controls (Checkbox, Radio)
 
@@ -42,7 +42,7 @@ Variants describe a **semantic intent** of the option itself:
 - (default) = themed primary — a normal selectable option
 - `success` = green — selecting this commits a confirmed / safe choice
 - `warning` = amber — selecting this is risky or needs caution
-- `danger` = red — selecting this is destructive or expressly opted-in
+- `error` = red — selecting this is destructive or expressly opted-in
 
 There is no `secondary` / `ghost` for checkbox or radio: a checkbox has a single visual fill style (the `:checked` glyph), not multiple fill styles like a button. There is no `primary` either — the implicit default already _is_ the primary themed action. Adding `data-variant="primary"` as an alias would be redundant.
 
@@ -53,13 +53,13 @@ Variants describe the **information class**:
 - (default / `info`) = neutral / blue informational
 - `success` = green
 - `warning` = amber
-- `danger` = red
+- `error` = red
 
 No `primary` / `secondary` / `ghost`: these surfaces communicate state, not user actions, so the action-style variants don't apply.
 
 ### Input
 
-`hc-input` has no `data-variant`. The accessible hook is the standard `aria-invalid="true"` attribute, which switches the border to the danger colour and pairs with `aria-describedby` for the message. The `hc-field` wrapper carries `data-invalid="true"` to coordinate the surrounding label and message colours.
+`hc-input` has no `data-variant`. The accessible hook is the standard `aria-invalid="true"` attribute, which switches the border to the error colour and pairs with `aria-describedby` for the message. The `hc-field` wrapper carries `data-invalid="true"` to coordinate the surrounding label and message colours.
 
 ## Sizes
 

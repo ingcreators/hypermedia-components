@@ -4,7 +4,7 @@
  * underlying input keeps its native semantics, value, name, and
  * keyboard behaviour (Space toggles); only the rendering is replaced.
  *
- * Variants:  default (omitted) | success | danger  (via data-variant)
+ * Variants:  default (omitted) | success | error  (via data-variant)
  * States:    :checked, :focus-visible, :disabled, [aria-invalid]
  * Pairing:   `.hc-checkbox-label` wraps an input + text in an inline
  *            cluster so click on the label toggles the input.
@@ -65,10 +65,10 @@
     border-color: var(--hc-checkbox-warning-checked-border);
   }
 
-  .hc-checkbox[data-variant="danger"]:checked,
-  .hc-checkbox[data-variant="danger"]:indeterminate {
-    background-color: var(--hc-checkbox-danger-checked-bg);
-    border-color: var(--hc-checkbox-danger-checked-border);
+  .hc-checkbox[data-variant="error"]:checked,
+  .hc-checkbox[data-variant="error"]:indeterminate {
+    background-color: var(--hc-checkbox-error-checked-bg);
+    border-color: var(--hc-checkbox-error-checked-border);
   }
 
   /* Sizes — independent of density. `data-size` sets dedicated vars
@@ -84,13 +84,13 @@
   }
 
   /* Invalid (the accessibility hook). Border switches; if also checked,
-   * the danger fill wins over the default fill. */
+   * the error fill wins over the default fill. */
   .hc-checkbox[aria-invalid="true"] {
     border-color: var(--hc-checkbox-invalid-border);
   }
 
   .hc-checkbox[aria-invalid="true"]:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-danger) 30%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
   }
 
   /* Disabled */

@@ -44,10 +44,10 @@ The behavior listens for `hc:toast` on `document.body`, renders a
 | ---------- | ------ | ------------ | ---------------------------------------------- |
 | `message`  | string | _(required)_ | Body text.                                     |
 | `title`    | string | _(omitted)_  | Bold one-liner above the message.              |
-| `variant`  | string | `'info'`     | `info` / `success` / `warning` / `danger`.     |
+| `variant`  | string | `'info'`     | `info` / `success` / `warning` / `error`.     |
 | `duration` | number | `4500`       | Milliseconds. `0` keeps the toast indefinitely. |
 
-`variant="danger"` is mapped to `role="alert"` /
+`variant="error"` is mapped to `role="alert"` /
 `aria-live="assertive"` so screen readers interrupt to announce it.
 Other variants use `role="status"` / `aria-live="polite"`.
 
@@ -63,5 +63,5 @@ HX-Trigger: {"hc:toast":{"message":"Saved"}, "items:refresh":true}
 Sticky error toasts use `duration: 0`:
 
 ```text
-HX-Trigger: {"hc:toast":{"title":"Sync failed","message":"Could not reach the server","variant":"danger","duration":0}}
+HX-Trigger: {"hc:toast":{"title":"Sync failed","message":"Could not reach the server","variant":"error","duration":0}}
 ```

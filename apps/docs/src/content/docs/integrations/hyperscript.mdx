@@ -92,7 +92,7 @@ Vanilla — driven by `installConfirm()`:
 ```html
 <button
   class="hc-button"
-  data-variant="danger"
+  data-variant="error"
   data-hc-confirm="Delete this item?"
   data-hx-delete="/items/123"
   data-hx-trigger="confirmed"
@@ -107,7 +107,7 @@ _hyperscript — handle the confirmation inline; htmx still listens for
 ```html
 <button
   class="hc-button"
-  data-variant="danger"
+  data-variant="error"
   data-hx-delete="/items/123"
   data-hx-trigger="confirmed"
   data-hx-target="closest tr"
@@ -144,7 +144,7 @@ markup instead, render it once in the page and target it by id:
 
 <button
   class="hc-button"
-  data-variant="danger"
+  data-variant="error"
   data-hx-delete="/items/123"
   data-hx-trigger="confirmed"
   data-hx-target="closest tr"

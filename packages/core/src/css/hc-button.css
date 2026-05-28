@@ -1,7 +1,7 @@
 /* hc-button — semantic button component.
  *
  * Primary API: <button class="hc-button" data-variant="..." data-size="...">.
- * Variants:  default | primary | danger | ghost
+ * Variants:  default | primary | error | ghost
  * Sizes:     sm | md (default) | lg
  * States:    :hover, :focus-visible, :disabled / [aria-disabled="true"],
  *            [data-loading="true"]
@@ -68,15 +68,15 @@
     border-color: var(--hc-button-secondary-hover-border);
   }
 
-  .hc-button[data-variant="danger"] {
-    background: var(--hc-button-danger-bg);
-    color: var(--hc-button-danger-fg);
-    border-color: var(--hc-button-danger-border);
+  .hc-button[data-variant="error"] {
+    background: var(--hc-button-error-bg);
+    color: var(--hc-button-error-fg);
+    border-color: var(--hc-button-error-border);
   }
 
-  .hc-button[data-variant="danger"]:hover:not(:disabled, [aria-disabled="true"]) {
-    background: var(--hc-button-danger-hover-bg);
-    border-color: var(--hc-button-danger-hover-border);
+  .hc-button[data-variant="error"]:hover:not(:disabled, [aria-disabled="true"]) {
+    background: var(--hc-button-error-hover-bg);
+    border-color: var(--hc-button-error-hover-border);
   }
 
   .hc-button[data-variant="ghost"] {

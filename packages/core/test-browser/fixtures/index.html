@@ -64,7 +64,7 @@
     <div class="row">
       <button
         class="hc-button"
-        data-variant="danger"
+        data-variant="error"
         data-hc-confirm="Delete item 42?"
         data-hc-confirm-title="Delete?"
         data-hc-confirm-label="Delete"
@@ -88,7 +88,7 @@
     <h2>Toast</h2>
     <div class="row">
       <button class="hc-button" id="toast-success" data-testid="toast-success">Success</button>
-      <button class="hc-button" data-variant="danger" id="toast-danger" data-testid="toast-danger">Danger</button>
+      <button class="hc-button" data-variant="error" id="toast-error" data-testid="toast-error">Error</button>
       <button class="hc-button" id="toast-quick" data-testid="toast-quick">Quick (200ms)</button>
       <button class="hc-button" id="toast-sticky" data-testid="toast-sticky">Sticky</button>
     </div>
@@ -98,8 +98,8 @@
 
       document.querySelector('[data-testid="toast-success"]')
         .addEventListener('click', () => fire({ title: 'Saved', message: 'Changes saved.', variant: 'success' }));
-      document.querySelector('[data-testid="toast-danger"]')
-        .addEventListener('click', () => fire({ message: 'Boom.', variant: 'danger' }));
+      document.querySelector('[data-testid="toast-error"]')
+        .addEventListener('click', () => fire({ message: 'Boom.', variant: 'error' }));
       document.querySelector('[data-testid="toast-quick"]')
         .addEventListener('click', () => fire({ message: 'Quick toast', duration: 200 }));
       document.querySelector('[data-testid="toast-sticky"]')
@@ -127,8 +127,8 @@
         Invalid
       </label>
       <label class="hc-checkbox-label">
-        <input class="hc-checkbox" type="checkbox" data-variant="danger" data-testid="cb-danger">
-        Danger variant
+        <input class="hc-checkbox" type="checkbox" data-variant="error" data-testid="cb-error">
+        Error variant
       </label>
       <label class="hc-checkbox-label">
         <input class="hc-checkbox" type="checkbox" data-variant="warning" data-testid="cb-warning">
@@ -188,7 +188,7 @@
       method="delete"
       action="/items/99"
       target="closest tr"
-      variant="danger"
+      variant="error"
       message="Macro delete?">
       Delete via macro
     </hc-confirm-action>

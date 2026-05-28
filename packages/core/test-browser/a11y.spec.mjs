@@ -84,9 +84,9 @@ test.describe('a11y — toast visible', () => {
     expect(violationSummary(violations)).toEqual([]);
   });
 
-  test('no violations while a danger toast (role="alert") is showing', async ({ page }) => {
-    await page.getByTestId('toast-danger').click();
-    await expect(page.locator('.hc-toast[data-variant="danger"]')).toBeVisible();
+  test('no violations while a error toast (role="alert") is showing', async ({ page }) => {
+    await page.getByTestId('toast-error').click();
+    await expect(page.locator('.hc-toast[data-variant="error"]')).toBeVisible();
 
     const { violations } = await new AxeBuilder({ page })
       .withTags(WCAG_TAGS)

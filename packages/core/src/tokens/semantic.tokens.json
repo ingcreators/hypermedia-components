@@ -7,7 +7,7 @@
     "text-muted":  { "$type": "color", "$value": "{primitive.color.gray.600}" },
     "border":      { "$type": "color", "$value": "{primitive.color.gray.300}" },
     "focus-ring":  { "$type": "color", "$value": "{primitive.color.blue.500}" },
-    "danger":      { "$type": "color", "$value": "{primitive.color.red.600}" },
+    "error":      { "$type": "color", "$value": "{primitive.color.red.600}" },
     "success":     { "$type": "color", "$value": "{primitive.color.green.600}" },
     "warning":     { "$type": "color", "$value": "{primitive.color.amber.600}" },
     "info":        { "$type": "color", "$value": "{primitive.color.blue.600}" },
@@ -32,12 +32,12 @@
         "bg":     { "$type": "color", "$value": "{primitive.color.gray.200}" },
         "border": { "$type": "color", "$value": "{primitive.color.gray.200}" }
       },
-      "danger": {
+      "error": {
         "bg":     { "$type": "color", "$value": "{primitive.color.red.600}" },
         "fg":     { "$type": "color", "$value": "{primitive.color.white}" },
         "border": { "$type": "color", "$value": "{primitive.color.red.600}" }
       },
-      "danger-hover": {
+      "error-hover": {
         "bg":     { "$type": "color", "$value": "{primitive.color.red.700}" },
         "border": { "$type": "color", "$value": "{primitive.color.red.700}" }
       }

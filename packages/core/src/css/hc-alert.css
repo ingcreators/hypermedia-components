@@ -1,6 +1,6 @@
 /* hc-alert — block-level notice / status message.
  *
- * Variants via data-variant: info (default) | success | warning | danger
+ * Variants via data-variant: info (default) | success | warning | error
  * Optional parts: .hc-alert__title, .hc-alert__body
  *
  * Accessibility: set role="status" (or aria-live="polite") on the
@@ -46,9 +46,9 @@
     border-color: var(--hc-alert-warning-border);
   }
 
-  .hc-alert[data-variant="danger"] {
-    background: var(--hc-alert-danger-bg);
-    color: var(--hc-alert-danger-fg);
-    border-color: var(--hc-alert-danger-border);
+  .hc-alert[data-variant="error"] {
+    background: var(--hc-alert-error-bg);
+    color: var(--hc-alert-error-fg);
+    border-color: var(--hc-alert-error-border);
   }
 }

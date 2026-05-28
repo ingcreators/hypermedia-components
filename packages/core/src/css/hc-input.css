@@ -45,7 +45,7 @@
   }
 
   .hc-input[aria-invalid="true"]:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-danger) 30%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
   }
 
   .hc-input:disabled,

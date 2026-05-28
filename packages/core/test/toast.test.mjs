@@ -78,10 +78,10 @@ describe('installToast', () => {
     expect(toasts[1].getAttribute('data-variant')).toBe('warning');
   });
 
-  it('uses role="alert" / aria-live="assertive" for danger; role="status" / polite otherwise', () => {
+  it('uses role="alert" / aria-live="assertive" for error; role="status" / polite otherwise', () => {
     uninstall = installToast();
     dispatch({ message: 'A' });
-    dispatch({ message: 'B', variant: 'danger' });
+    dispatch({ message: 'B', variant: 'error' });
 
     const toasts = document.querySelectorAll('.hc-toast');
     expect(toasts[0].getAttribute('role')).toBe('status');

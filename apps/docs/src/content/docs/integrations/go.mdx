@@ -87,7 +87,7 @@ A row partial reused by both the full list and per-row swaps:
       <button
         class="hc-button"
         data-size="sm"
-        data-variant="danger"
+        data-variant="error"
         type="button"
         data-hc-confirm="Delete {{.Name}}?"
         data-hx-delete="/items/{{.ID}}"
@@ -127,7 +127,7 @@ func createItem(w http.ResponseWriter, r *http.Request) {
     name := strings.TrimSpace(r.FormValue("name"))
     if name == "" {
         w.WriteHeader(http.StatusUnprocessableEntity)
-        fmt.Fprintf(w, `<tr><td colspan="3"><p class="hc-field__message" style="color: var(--hc-color-danger);">Name is required.</p></td></tr>`)
+        fmt.Fprintf(w, `<tr><td colspan="3"><p class="hc-field__message" style="color: var(--hc-color-error);">Name is required.</p></td></tr>`)
         return
     }
     item := store.Create(name)

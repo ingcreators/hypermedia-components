@@ -162,7 +162,7 @@ def delete_item(request, item_id):
         <button
           class="hc-button"
           data-size="sm"
-          data-variant="danger"
+          data-variant="error"
           type="button"
           data-hc-confirm="Delete {{ item.name }}?"
           data-hx-delete="{% url 'items:delete' item.id %}"

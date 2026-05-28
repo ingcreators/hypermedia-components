@@ -24,9 +24,9 @@
       type="button"
       onclick="document.body.dispatchEvent(new CustomEvent('hc:toast', {
         bubbles: true,
-        detail: { title: 'Sync failed', message: 'Could not reach the server.', variant: 'danger', duration: 0 }
+        detail: { title: 'Sync failed', message: 'Could not reach the server.', variant: 'error', duration: 0 }
       }))">
-      Trigger danger toast
+      Trigger error toast
     </button>
 
     <!-- Single region, near the end of <body>. installToast lazy-creates

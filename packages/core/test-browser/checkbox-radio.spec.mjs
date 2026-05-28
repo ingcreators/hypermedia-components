@@ -44,15 +44,15 @@ test.describe('hc-checkbox', () => {
     await expect(cb).toBeDisabled();
   });
 
-  test('aria-invalid swaps the border to the danger colour', async ({ page }) => {
+  test('aria-invalid swaps the border to the error colour', async ({ page }) => {
     const cb = page.getByTestId('cb-invalid');
     const borderColor = await cb.evaluate((el) => getComputedStyle(el).borderColor);
-    // --hc-checkbox-invalid-border resolves to --hc-color-danger (red.600 #dc2626).
+    // --hc-checkbox-invalid-border resolves to --hc-color-error (red.600 #dc2626).
     expect(borderColor).toMatch(/rgba?\(\s*220,\s*38,\s*38/);
   });
 
-  test('data-variant="danger" uses the danger checked colour', async ({ page }) => {
-    const cb = page.getByTestId('cb-danger');
+  test('data-variant="error" uses the error checked colour', async ({ page }) => {
+    const cb = page.getByTestId('cb-error');
     await cb.check();
 
     // The element has a 120ms background-color transition. Poll until it
