@@ -9,7 +9,7 @@ markup stays close to plain HTML.
 
 ## Basic HTML
 
-<div class="hc-preview hc-cluster" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content hc-cluster" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button">Default</button>
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="danger">Delete</button>
@@ -39,7 +39,7 @@ markup stays close to plain HTML.
 
 `data-size` accepts `sm`, `md` (default), and `lg`.
 
-<div class="hc-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-size="sm">Small</button>
   <button class="hc-button">Default</button>
   <button class="hc-button" data-size="lg">Large</button>
@@ -57,7 +57,7 @@ State belongs in HTML attributes — not modifier classes. The component
 styles `:disabled`, `[aria-disabled="true"]`, `:focus-visible`, and
 `[data-loading="true"]` directly.
 
-<div class="hc-preview" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary" disabled>Disabled</button>
   <button class="hc-button" data-variant="primary" aria-disabled="true">aria-disabled</button>
   <button class="hc-button" data-variant="primary" data-loading="true">Saving…</button>

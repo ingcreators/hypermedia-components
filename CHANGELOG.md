@@ -140,6 +140,23 @@ Security    — security-relevant changes
     create, build / deploy commands, custom domain attach, Worker
     Route, rollback).
 
+### Fixed
+
+- Docs preview alignment — every `<div class="hc-preview">` wrapper
+  in the component / token / recipe docs now also carries Starlight's
+  `not-content` class so its descendants are excluded from the prose
+  layer. Without that opt-out, Starlight applied `margin-top: 1rem`
+  to every consecutive non-inline child of `.sl-markdown-content`,
+  which gave each button / input after the first one a taller outer
+  box and broke `align-items: center` inside the preview flex row
+  (visible on the Button page as Save / Delete / Ghost sitting ~8 px
+  below Default). `not-content` is Starlight's intended escape hatch
+  for non-prose regions, so this also keeps prose rules for link
+  colour, inline code background, heading colour, etc., from
+  bleeding into future previews. Updated 25 preview wrappers across
+  13 mdx files and documented the convention in
+  `apps/docs/src/styles/preview.css`.
+
 ### Changed
 
 - `CLAUDE.md` refreshed for the post-v0.4 state — references both

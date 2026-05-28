@@ -1,4 +1,24 @@
-/* Styles used inside live component previews on documentation pages. */
+/* Styles used inside live component previews on documentation pages.
+ *
+ * Authoring convention: always pair `hc-preview` with Starlight's
+ * `not-content` class on the wrapping element:
+ *
+ *   <div class="hc-preview not-content" style="display:flex;gap:.5rem;...">
+ *     <button class="hc-button">…</button>
+ *   </div>
+ *
+ * `not-content` is Starlight's official escape hatch. Every prose
+ * rule in `.sl-markdown-content` is written with a trailing
+ * `:not(:where(.not-content *))`, so adding the class excludes the
+ * wrapper's descendants from the entire prose layer — vertical
+ * rhythm (`margin-top: 1rem` between siblings), link colour, inline
+ * code background, heading colour, and the `display: block; max-width:
+ * 100%` image rule.
+ *
+ * Without `not-content` the prose vertical-rhythm rule offsets every
+ * sibling after the first inside a flex `align-items: center` row,
+ * which made the variant buttons on the Button page look misaligned.
+ */
 .hc-preview {
   padding: 1rem;
   border: 1px solid var(--sl-color-gray-5);

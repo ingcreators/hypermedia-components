@@ -12,7 +12,7 @@ participates in form submission, screen readers announce position
 
 ## Basic HTML
 
-<div class="hc-preview" style="display:flex;flex-direction:column;gap:.5rem;">
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
   <label class="hc-radio-label">
     <input class="hc-radio" type="radio" name="plan-demo-1" defaultChecked />
     Free
@@ -54,7 +54,7 @@ visually across non-adjacent inputs.
 `data-variant` accepts `success` and `danger` for non-default fill
 colours when checked.
 
-<div class="hc-preview" style="display:flex;flex-direction:column;gap:.5rem;">
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
   <label class="hc-radio-label">
     <input class="hc-radio" type="radio" name="variant-demo" defaultChecked />
     Default
@@ -77,7 +77,7 @@ colours when checked.
 
 ## States
 
-<div class="hc-preview" style="display:flex;flex-direction:column;gap:.5rem;">
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
   <label class="hc-radio-label">
     <input class="hc-radio" type="radio" name="state-demo" />
     Focus me to see the ring
@@ -107,7 +107,7 @@ colours when checked.
 For form layout, wrap the group in [`hc-field`](/hypermedia-components/components/field/)
 to share a label and validation message across radios.
 
-<div class="hc-preview">
+<div class="hc-preview not-content">
   <fieldset class="hc-field" style="border:0;padding:0;margin:0;">
     <legend class="hc-field__label">Notification frequency</legend>
     <label class="hc-radio-label">
