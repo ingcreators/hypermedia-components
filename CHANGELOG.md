@@ -53,6 +53,21 @@ Security    — security-relevant changes
   unaffected. New docs page `tokens/density.mdx` with live preview;
   two new Vitest assertions cover the density block emission and the
   `var()` literal passthrough.
+- Docs site theme + density sync — visitors can now toggle the
+  Hypermedia Components density (`comfortable` / `compact` / `dense`)
+  from a `<select>` next to Starlight's existing theme switcher, and
+  the dark / light toggle now propagates to every component preview
+  on the docs site automatically.
+  - Theme: Starlight already writes `data-theme` to `<html>` and HC
+    tokens listen for that exact attribute (`:root, [data-theme="light"]`
+    / `[data-theme="dark"]` selectors). No code change — the cascade
+    works because both sides use the same hook.
+  - Density: new `apps/docs/src/components/SocialIcons.astro`
+    overrides Starlight's `SocialIcons` slot to render the original
+    GitHub link plus a styled density `<select>`. The choice persists
+    to `localStorage['hc-density']` and is applied to `<html>` via
+    an inline FOUC-prevention script declared through Starlight's
+    `head` config in `apps/docs/astro.config.mjs`.
 - Meta-integration pages — closes v0.5 plan §4.5. Two new docs pages
   round out the integrations section so the framework guides have a
   shared ground truth to link back to:

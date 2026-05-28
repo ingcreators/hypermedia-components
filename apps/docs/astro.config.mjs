@@ -38,6 +38,32 @@ export default defineConfig({
         './src/styles/custom.css',
         './src/styles/preview.css',
       ],
+      // Pre-apply the saved Hypermedia Components density (if any)
+      // before first paint, so repeat visitors don't see a flash of
+      // the comfortable default. Mirrors how Starlight pre-applies
+      // its own theme.
+      head: [
+        {
+          tag: 'script',
+          content: `
+            (function () {
+              try {
+                var d = localStorage.getItem('hc-density');
+                if (d === 'comfortable' || d === 'compact' || d === 'dense') {
+                  document.documentElement.setAttribute('data-density', d);
+                }
+              } catch (e) {}
+            })();
+          `.trim(),
+        },
+      ],
+      // Override SocialIcons to add a density picker next to Starlight's
+      // theme selector. Theme switching (Starlight ↔ HC) needs no
+      // override — both read the same `data-theme` attribute on
+      // <html>.
+      components: {
+        SocialIcons: './src/components/SocialIcons.astro',
+      },
     }),
   ],
 });
