@@ -131,11 +131,38 @@ function attach(menu, detachers) {
   }
 
   function positionViaFallback() {
-    const r = trigger.getBoundingClientRect();
+    const t = trigger.getBoundingClientRect();
+    // The popover is already in the top layer by the time
+    // `beforetoggle → open` fires, so its rect is measurable.
+    const m = menu.getBoundingClientRect();
+    const view = menu.ownerDocument.defaultView;
+    const vw = view?.innerWidth ?? 0;
+    const vh = view?.innerHeight ?? 0;
+    const gap = 4;
+
+    // Primary placement: block-end span-inline-end (i.e. below the
+    // trigger, aligned to its inline-start edge). Mirrors the CSS
+    // `position-area: block-end span-inline-end` path so behaviour
+    // is consistent across the two branches.
+    let top = t.bottom + gap;
+    let left = t.left;
+
+    // flip-block: if the menu would overflow the viewport's bottom
+    // edge and there is room above the trigger, flip it.
+    if (top + m.height > vh && t.top - m.height - gap >= 0) {
+      top = t.top - m.height - gap;
+    }
+    // flip-inline: if the menu would overflow the viewport's
+    // inline-end edge, align it to the trigger's inline-end edge
+    // instead.
+    if (left + m.width > vw && t.right - m.width >= 0) {
+      left = t.right - m.width;
+    }
+
     Object.assign(menu.style, {
       position: 'fixed',
-      insetBlockStart: `${r.bottom + 4}px`,
-      insetInlineStart: `${r.left}px`,
+      insetBlockStart: `${top}px`,
+      insetInlineStart: `${left}px`,
       margin: '0',
     });
   }

@@ -45,6 +45,16 @@
     .hc-menu {
       position-area: block-end span-inline-end;
       margin-block-start: var(--hc-menu-offset);
+
+      /* Edge-aware fallbacks: the browser tries the primary
+       * placement first, then flips block / inline / both when the
+       * menu would overflow the viewport. Same behaviour Radix
+       * (collisionPadding) and shadcn (DropdownMenuContent) ship,
+       * but pure CSS, no measurement JS. */
+      position-try-fallbacks:
+        flip-block,
+        flip-inline,
+        flip-block flip-inline;
     }
   }
 

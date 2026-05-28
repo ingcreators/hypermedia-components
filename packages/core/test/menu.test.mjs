@@ -132,6 +132,98 @@ describe('installMenu', () => {
     CSS.supports = origSupports;
   });
 
+  describe('JS positioning fallback — collision flipping', () => {
+    // Stub viewport + getBoundingClientRect to drive the fallback
+    // through every flip combination. Mirrors the
+    // `position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline`
+    // CSS path used by browsers that support Anchor Positioning.
+    function setupFallback({ vw, vh, trigger, menu }) {
+      const origSupports = CSS.supports;
+      CSS.supports = () => false;
+      const origInnerW = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+      const origInnerH = Object.getOwnPropertyDescriptor(window, 'innerHeight');
+      Object.defineProperty(window, 'innerWidth', { value: vw, configurable: true });
+      Object.defineProperty(window, 'innerHeight', { value: vh, configurable: true });
+      const t = document.getElementById('trigger');
+      const m = document.getElementById('m1');
+      t.getBoundingClientRect = () => ({ ...trigger, right: trigger.left + trigger.width, bottom: trigger.top + trigger.height });
+      m.getBoundingClientRect = () => ({ ...menu, right: menu.left + menu.width, bottom: menu.top + menu.height });
+      return () => {
+        CSS.supports = origSupports;
+        if (origInnerW) Object.defineProperty(window, 'innerWidth', origInnerW);
+        if (origInnerH) Object.defineProperty(window, 'innerHeight', origInnerH);
+      };
+    }
+
+    function fireOpen(m) {
+      const evt = new Event('beforetoggle');
+      Object.defineProperty(evt, 'newState', { value: 'open' });
+      m.dispatchEvent(evt);
+    }
+
+    it('places the menu directly under the trigger when there is room (no flip)', () => {
+      document.body.innerHTML = SIMPLE;
+      const restore = setupFallback({
+        vw: 1024, vh: 768,
+        trigger: { top: 50, left: 100, width: 80, height: 32 },
+        menu:    { top: 0, left: 0, width: 160, height: 200 },
+      });
+      uninstall = installMenu();
+      const m = document.getElementById('m1');
+      fireOpen(m);
+      expect(m.style.insetBlockStart).toBe('86px');   // trigger.bottom + gap
+      expect(m.style.insetInlineStart).toBe('100px'); // trigger.left
+      restore();
+    });
+
+    it('flips block when the menu would overflow the viewport bottom', () => {
+      document.body.innerHTML = SIMPLE;
+      const restore = setupFallback({
+        vw: 1024, vh: 600,
+        trigger: { top: 500, left: 100, width: 80, height: 32 },  // bottom: 532
+        menu:    { top: 0, left: 0, width: 160, height: 200 },    // 532+200 > 600
+      });
+      uninstall = installMenu();
+      const m = document.getElementById('m1');
+      fireOpen(m);
+      // 500 - 200 - 4 = 296
+      expect(m.style.insetBlockStart).toBe('296px');
+      expect(m.style.insetInlineStart).toBe('100px');
+      restore();
+    });
+
+    it('flips inline when the menu would overflow the viewport inline-end', () => {
+      document.body.innerHTML = SIMPLE;
+      const restore = setupFallback({
+        vw: 600, vh: 768,
+        trigger: { top: 50, left: 500, width: 80, height: 32 },   // right: 580
+        menu:    { top: 0, left: 0, width: 160, height: 200 },    // 500+160 > 600
+      });
+      uninstall = installMenu();
+      const m = document.getElementById('m1');
+      fireOpen(m);
+      expect(m.style.insetBlockStart).toBe('86px');
+      // trigger.right - menu.width = 580 - 160 = 420
+      expect(m.style.insetInlineStart).toBe('420px');
+      restore();
+    });
+
+    it('flips block AND inline when the menu would overflow both axes', () => {
+      document.body.innerHTML = SIMPLE;
+      const restore = setupFallback({
+        vw: 600, vh: 600,
+        trigger: { top: 500, left: 500, width: 80, height: 32 },
+        menu:    { top: 0, left: 0, width: 160, height: 200 },
+      });
+      uninstall = installMenu();
+      const m = document.getElementById('m1');
+      fireOpen(m);
+      expect(m.style.insetBlockStart).toBe('296px');
+      expect(m.style.insetInlineStart).toBe('420px');
+      restore();
+    });
+  });
+
   it('ArrowDown / ArrowUp move focus within enabled menuitems and wrap', () => {
     document.body.innerHTML = SIMPLE;
     uninstall = installMenu();
