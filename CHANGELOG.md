@@ -53,6 +53,19 @@ Security    — security-relevant changes
   unaffected. New docs page `tokens/density.mdx` with live preview;
   two new Vitest assertions cover the density block emission and the
   `var()` literal passthrough.
+- Hyperscript story — closes v0.5 plan §4.3. New
+  `apps/docs/src/content/docs/integrations/hyperscript.mdx` page
+  explains how to mount `_hyperscript` alongside Hypermedia
+  Components and gives side-by-side equivalents for each behavior
+  (`installConfirm`, `installToast`, `installCloseDialog`,
+  `installClosePopover`, `installRemoteDialog`) so consumers can
+  pick the form that fits the surface — vanilla helper, _hyperscript
+  inline, or a mix. `recipes/confirm-action.mdx` gains a
+  "Hyperscript alternative" section that links to the integration
+  page and shows the same flow without `data-hc-confirm`. The
+  integrations index now groups guides into "server-side template
+  engines" and "client-side companions" so the new page slots in
+  cleanly.
 - Recipe source format — closes v0.5 plan §4.4. Every recipe under
   `recipes/<name>/` now ships the canonical three-file set:
   `recipe.html` (the short recommended snippet), `expanded.html`
