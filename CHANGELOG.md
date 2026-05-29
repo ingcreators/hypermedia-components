@@ -22,6 +22,41 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-multicombobox` component + `installMulticombobox` behavior.
+  Multi-select combobox with a tag-input control: selected values
+  render as inline chips inside a single visual surface, the
+  filter input sits next to them, the listbox carries
+  `aria-multiselectable="true"` and stays open after each pick.
+  Architectural primitives are the same as `hc-combobox` (WAI-ARIA
+  1.2 combobox, HTML `popover`, CSS Anchor Positioning,
+  `aria-activedescendant` highlight with DOM focus on the input)
+  plus tag chip + Backspace-removes-last-tag semantics.
+  `installMulticombobox()` seeds tags from any
+  `aria-selected="true"` options at install time (SSR-friendly),
+  wires the full keyboard contract (↓/↑/Home/End/Enter/Backspace/
+  Escape/Tab), runs the case-insensitive substring filter with a
+  `.hc-multicombobox__empty` placeholder, and toggles selection on
+  click + Enter without closing the listbox. Each tag is a focusable
+  `<button>` with `aria-label="Remove …"` so screen-reader users can
+  land on it and trigger removal. Optional form integration: setting
+  `data-name="X"` on the wrapper makes the behavior write one
+  `<input type="hidden" name="X" value="…">` per selected value, so
+  the form serialises like a native `<select multiple name="X">`.
+  Every state change dispatches `hc:multicomboboxchange` with
+  `detail.{values, added, removed, input}`. New
+  `multicombobox.{control, input, tag, listbox, option, empty-fg}`
+  tokens, all `{ref}`. Vitest spec (14 cases) covers idempotency,
+  SSR seeding, toggle semantics, Backspace-removes-tag (and the
+  with-text negative case), disabled-skip, filter, the change
+  event detail shape, Escape preserves selections, uninstall
+  cleanup, opt-in hidden-input creation only when `data-name` is
+  set, and MutationObserver pickup. Playwright spec (8 cases incl.
+  axe-core scan in the open state).
+
+  Out of scope (deferred): free-input create-on-Enter, drag
+  reorder, async loading helper, rich option rendering with
+  icons / descriptions.
+
 - `hc-combobox` component + `installCombobox` behavior. Accessible
   single-select with type-to-filter, following the WAI-ARIA 1.2
   combobox pattern: the `<input>` carries `role="combobox"` and the

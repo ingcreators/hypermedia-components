@@ -31,6 +31,7 @@ const FILES = [
   ['src/js/tooltip.js',       'tooltip.js'],
   ['src/js/slider.js',        'slider.js'],
   ['src/js/combobox.js',      'combobox.js'],
+  ['src/js/multicombobox.js', 'multicombobox.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
 
   // Macros — kept under dist/macros/ so the entry module's relative

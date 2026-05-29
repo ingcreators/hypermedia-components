@@ -1,0 +1,195 @@
+/* hc-multicombobox — multi-select combobox with tag input.
+ *
+ * tag-input pattern (shadcn / Linear / GitHub style): selected
+ * values render as inline chips inside a single visual control,
+ * filtered options live in a `<ul role="listbox" popover
+ * aria-multiselectable="true">`. The listbox stays open after each
+ * selection so the user can pick several without reopening.
+ *
+ * Markup:
+ *
+ *   <div class="hc-multicombobox" data-name="languages">
+ *     <div class="hc-multicombobox__control hc-input">
+ *       <span class="hc-multicombobox__tags" role="presentation"></span>
+ *       <input class="hc-multicombobox__input"
+ *              type="text"
+ *              role="combobox"
+ *              aria-controls="lang-list"
+ *              aria-haspopup="listbox"
+ *              aria-autocomplete="list"
+ *              aria-label="Languages">
+ *     </div>
+ *
+ *     <ul class="hc-multicombobox__listbox" id="lang-list"
+ *         role="listbox" aria-multiselectable="true" popover>
+ *       <li class="hc-multicombobox__option" role="option"
+ *           data-value="js">JavaScript</li>
+ *       <li class="hc-multicombobox__option" role="option"
+ *           data-value="py" aria-selected="true">Python</li>
+ *     </ul>
+ *   </div>
+ */
+@layer hc.components {
+  .hc-multicombobox {
+    position: relative;
+    display: block;
+  }
+
+  /* The visible control: tags + input share a single bordered
+   * surface (.hc-input gives us the focus ring + variant borders). */
+  .hc-multicombobox__control {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--hc-multicombobox-control-gap);
+    min-block-size: var(--hc-multicombobox-control-min-height);
+    padding-block: var(--hc-multicombobox-control-padding-y);
+    padding-inline: var(--hc-multicombobox-control-padding-x);
+    cursor: text;
+  }
+
+  .hc-multicombobox__tags {
+    display: contents;
+  }
+
+  .hc-multicombobox__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-multicombobox-tag-gap);
+    padding-block: var(--hc-multicombobox-tag-padding-y);
+    padding-inline: var(--hc-multicombobox-tag-padding-x);
+    border: 1px solid var(--hc-multicombobox-tag-border);
+    border-radius: var(--hc-multicombobox-tag-radius);
+    background: var(--hc-multicombobox-tag-bg);
+    color: var(--hc-multicombobox-tag-fg);
+    font-family: inherit;
+    font-size: var(--hc-multicombobox-tag-font-size);
+    line-height: 1.25;
+    cursor: default;
+  }
+
+  /* The × button at the end of a tag — itself a focusable button so
+   * keyboard users can land on a tag and press Enter/Space/Delete
+   * to remove it. */
+  .hc-multicombobox__tag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1em;
+    block-size: 1em;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--hc-multicombobox-tag-remove-fg);
+    font: inherit;
+    font-size: 1em;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .hc-multicombobox__tag-remove:hover,
+  .hc-multicombobox__tag-remove:focus-visible {
+    color: var(--hc-multicombobox-tag-remove-hover-fg);
+    outline: none;
+  }
+
+  .hc-multicombobox__input {
+    flex: 1 1 var(--hc-multicombobox-input-min-width);
+    min-inline-size: var(--hc-multicombobox-input-min-width);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--hc-multicombobox-input-fg);
+    font: inherit;
+    outline: none;
+  }
+
+  /* Listbox — mirrors hc-combobox styling. */
+  .hc-multicombobox__listbox {
+    margin: 0;
+    padding-block: var(--hc-multicombobox-listbox-padding-block);
+    padding-inline: 0;
+    border: 1px solid var(--hc-multicombobox-listbox-border);
+    border-radius: var(--hc-multicombobox-listbox-radius);
+    background: var(--hc-multicombobox-listbox-bg);
+    color: var(--hc-multicombobox-listbox-fg);
+    min-inline-size: var(--hc-multicombobox-listbox-min-width);
+    max-block-size: var(--hc-multicombobox-listbox-max-height);
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.12);
+    list-style: none;
+  }
+
+  @supports (anchor-name: --x) {
+    .hc-multicombobox__listbox {
+      position-area: block-end span-inline-end;
+      margin-block-start: var(--hc-multicombobox-listbox-offset);
+      position-try-fallbacks:
+        flip-block,
+        flip-inline,
+        flip-block flip-inline;
+    }
+  }
+
+  /* Reserve a left indicator column on every option so the check
+   * mark and unchecked rows align. */
+  .hc-multicombobox__option {
+    position: relative;
+    padding-block: var(--hc-multicombobox-option-padding-y);
+    padding-inline-end: var(--hc-multicombobox-option-padding-x);
+    padding-inline-start:
+      calc(
+        var(--hc-multicombobox-option-padding-x)
+        + var(--hc-multicombobox-option-indicator-size)
+        + var(--hc-multicombobox-tag-gap)
+      );
+    color: var(--hc-multicombobox-option-fg);
+    font-size: var(--hc-multicombobox-option-font-size);
+    line-height: 1.4;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hc-multicombobox__option:hover:not([aria-disabled="true"]) {
+    background: var(--hc-multicombobox-option-hover-bg);
+  }
+
+  .hc-multicombobox__option[data-active="true"] {
+    background: var(--hc-multicombobox-option-active-bg);
+  }
+
+  /* Selected check — only visible when aria-selected="true". */
+  .hc-multicombobox__option::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: var(--hc-multicombobox-option-padding-x);
+    inline-size: var(--hc-multicombobox-option-indicator-size);
+    block-size: var(--hc-multicombobox-option-indicator-size);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    opacity: 0;
+    pointer-events: none;
+    translate: 0 -50%;
+  }
+
+  .hc-multicombobox__option[aria-selected="true"]::before {
+    opacity: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M3.5 8.5 L7 12 L12.5 5'/></svg>");
+  }
+
+  .hc-multicombobox__option[aria-disabled="true"] {
+    color: var(--hc-multicombobox-option-disabled-fg);
+    cursor: not-allowed;
+  }
+
+  .hc-multicombobox__empty {
+    padding-block: var(--hc-multicombobox-option-padding-y);
+    padding-inline: var(--hc-multicombobox-option-padding-x);
+    color: var(--hc-multicombobox-empty-fg);
+    font-size: var(--hc-multicombobox-option-font-size);
+    font-style: italic;
+  }
+}

@@ -1,0 +1,183 @@
+---
+title: Multicombobox
+description: Multi-select combobox with tag input — type to filter, click to toggle, Backspace to remove the last tag. Built on popover + anchor positioning.
+---
+
+`hc-multicombobox` is a **multi-select** combobox with a tag-input
+control. Selected values render as inline chips inside a single
+visual surface, the filter input lives next to them, and the
+listbox carries `aria-multiselectable="true"` so it doesn't close
+after each pick.
+
+Same architectural primitives as
+[`hc-combobox`](/hypermedia-components/components/combobox/) —
+WAI-ARIA 1.2 combobox pattern, HTML `popover`, CSS Anchor
+Positioning, `aria-activedescendant` for the highlighted option
+while DOM focus stays on the input.
+
+## Basic example
+
+<div class="hc-preview not-content">
+  <div class="hc-multicombobox" style="max-inline-size:22rem;">
+    <div class="hc-multicombobox__control hc-input">
+      <span class="hc-multicombobox__tags"></span>
+      <input class="hc-multicombobox__input"
+             type="text"
+             role="combobox"
+             aria-controls="doc-mc-list"
+             aria-label="Languages" />
+    </div>
+    <ul class="hc-multicombobox__listbox" id="doc-mc-list" role="listbox">
+      <li class="hc-multicombobox__option" role="option" data-value="js">JavaScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="ts">TypeScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="py" aria-selected="true">Python</li>
+      <li class="hc-multicombobox__option" role="option" data-value="go">Go</li>
+      <li class="hc-multicombobox__option" role="option" data-value="rs"
+          aria-disabled="true">Rust (coming soon)</li>
+    </ul>
+  </div>
+</div>
+
+```html
+<div class="hc-multicombobox" data-name="languages">
+  <div class="hc-multicombobox__control hc-input">
+    <span class="hc-multicombobox__tags"></span>
+    <input class="hc-multicombobox__input"
+           type="text"
+           role="combobox"
+           aria-controls="lang-list"
+           aria-label="Languages">
+  </div>
+
+  <ul class="hc-multicombobox__listbox" id="lang-list" role="listbox">
+    <li class="hc-multicombobox__option" role="option" data-value="js">JavaScript</li>
+    <li class="hc-multicombobox__option" role="option" data-value="ts">TypeScript</li>
+    <li class="hc-multicombobox__option" role="option" data-value="py"
+        aria-selected="true">Python</li>
+    <li class="hc-multicombobox__option" role="option" data-value="go">Go</li>
+    <li class="hc-multicombobox__option" role="option" data-value="rs"
+        aria-disabled="true">Rust</li>
+  </ul>
+</div>
+```
+
+```js
+import { installMulticombobox } from '@hypermedia-components/core';
+installMulticombobox();
+```
+
+The pre-selected `aria-selected="true"` option becomes the
+seeded tag.
+
+## What `installMulticombobox()` does
+
+- **ARIA**: `aria-multiselectable="true"` on the listbox,
+  `aria-haspopup="listbox"`, `aria-autocomplete="list"`,
+  `aria-expanded`, `aria-controls` (if missing),
+  `aria-activedescendant` tracking the highlighted option.
+- **Anchor binding**: inline `anchor-name` on the input,
+  `position-anchor` on the listbox. JS positioning fallback for
+  browsers without CSS Anchor Positioning.
+- **Seeding**: every option with `aria-selected="true"` at install
+  time becomes a tag chip — keeps SSR-pre-selected state trivial.
+- **Filtering**: case-insensitive substring on each keystroke;
+  `.hc-multicombobox__empty` placeholder when nothing matches.
+- **Toggle selection**: click or Enter on a highlighted option
+  toggles its selected state. The listbox stays open so several
+  picks can be made without reopening.
+- **Tag removal**:
+  - Click the `×` button on a tag.
+  - Press `Backspace` while the input is empty to drop the last
+    tag (the standard tag-input convention).
+- **Form integration**: when the wrapper has `data-name="X"`, the
+  behavior writes one `<input type="hidden" name="X" value="…">`
+  per selected value inside the wrapper. The form serialises like
+  a native `<select multiple name="X">`.
+- **Events**: every state change dispatches
+  `hc:multicomboboxchange` on the input with
+  `detail.{values, added, removed, input}`.
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| `↓` / `↑` | Open the listbox / move the activedescendant. |
+| `Home` / `End` | First / last enabled visible option. |
+| `Enter` | Toggle the highlighted option. |
+| `Backspace` (input empty) | Remove the last tag. |
+| `Escape` | Close the listbox; selections preserved. |
+| `Tab` | Close the listbox; normal tab order. |
+
+## Form integration
+
+Set `data-name` on the wrapper for native form serialisation:
+
+```html
+<form action="/save" method="post">
+  <div class="hc-multicombobox" data-name="languages">…</div>
+  <button class="hc-button">Save</button>
+</form>
+```
+
+Submits as `languages=js&languages=ts&languages=py` — the same shape
+a native `<select multiple name="languages">` would produce. PHP /
+Rails / Python frameworks parse this without configuration.
+
+## htmx usage
+
+The change event carries the full state, so an htmx swap on every
+edit is one trigger declaration:
+
+```html
+<div class="hc-multicombobox"
+     data-name="languages"
+     data-hx-post="/profile/languages"
+     data-hx-trigger="hc:multicomboboxchange from:closest .hc-multicombobox"
+     data-hx-include="this"
+     data-hx-target="#status">
+  …
+</div>
+```
+
+## Accessibility
+
+- DOM focus stays on the input so the type-ahead anchor is
+  consistent — `aria-activedescendant` moves the *highlight*, not
+  the focus.
+- Each tag is a real focusable button with `aria-label="Remove …"`
+  so screen-reader users can land on it and trigger removal.
+- Mark unavailable rows with `aria-disabled="true"` rather than
+  `disabled` (`<li>` is not a form control).
+- The visible activedescendant highlight uses
+  `--hc-color-focus-ring` and follows `data-color` themes.
+
+## Out of scope (MVP)
+
+- **Free-input** create-on-Enter ("type a new tag") — a future
+  `data-allow-create="true"` opt-in.
+- **Drag-to-reorder** tags.
+- **Async option loading** — the docs above show the htmx swap
+  pattern; a built-in debounce / cancel helper is not bundled.
+- **Rich options** (icon + description) — the filter currently
+  matches `textContent`; richer layouts may need a `data-search`
+  escape hatch.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `multicombobox.control.padding-x` / `padding-y` / `gap` / `min-height` | Tag-input control box. |
+| `multicombobox.input.min-width` / `fg` | Inline text input. |
+| `multicombobox.tag.bg` / `fg` / `border` / `padding-x` / `padding-y` / `radius` / `font-size` / `gap` | Tag chip. |
+| `multicombobox.tag.remove-fg` / `remove-hover-fg` | × button. |
+| `multicombobox.listbox.*` | Mirror of the combobox listbox tokens. |
+| `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, check-color, disabled-fg, indicator-size}` | Option layout + check mark. |
+| `multicombobox.empty-fg` | "No matches" placeholder colour. |
+
+## Related
+
+- [Combobox](/hypermedia-components/components/combobox/) — single-select sibling.
+- [Select](/hypermedia-components/components/select/) — native single-select with the OS picker on mobile.
+- [Checkbox](/hypermedia-components/components/checkbox/) — fixed-list multi-select pattern when the options are short and always visible.
