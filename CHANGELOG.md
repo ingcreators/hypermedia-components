@@ -22,6 +22,34 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-skeleton` component — pure CSS loading placeholder, no
+  JavaScript. Apply `.hc-skeleton` to any element and size it from the
+  consumer side; the component supplies the surface colour, corner
+  radius, and animation. The base surface is `var(--hc-color-muted-bg)`
+  so it adapts to light / dark mode through the existing `data-theme`
+  cascade with no per-mode overrides. Two axes:
+  `data-animation="pulse" (default) | "wave" | "none"` — pulse fades
+  the block (shadcn's `animate-pulse`), wave sweeps a lighter highlight
+  band whose colour is derived from the base via `color-mix()` (so it
+  tracks the active theme), none is static; and
+  `data-shape="rect" (default) | "text" | "circle"` — rect uses the
+  medium radius, text is a `1em` line with a tighter radius, circle is
+  fully rounded with `aspect-ratio: 1` for avatar / icon slots. Both
+  animations collapse to a flat static block under
+  `prefers-reduced-motion: reduce`. New tokens
+  `skeleton.{bg, highlight, radius, text-radius, text-height,
+  pulse-duration, wave-duration}`. Recommended a11y pattern documented:
+  mark the loading region with `role="status"` + `aria-busy="true"` +
+  an accessible name rather than annotating each decorative block.
+  Playwright spec (8 cases) covers the muted base colour, the pulse /
+  wave / none animation-name swap, the circle / text shape radii, the
+  `prefers-reduced-motion` suppression (via `emulateMedia`), and an
+  axe-core scan.
+
+  Out of scope (deferred): row-count auto-generation helper,
+  image / table-specific presets, and a skeleton→content swap behavior
+  (the consumer drives the swap via htmx or a re-render).
+
 - `hc-datepicker` component — pure CSS skin over a native `<input>`
   whose `type` is `date`, `datetime-local`, `month`, or `time`. The
   native input keeps every accessible behaviour (keyboard
