@@ -14,5 +14,6 @@ export { installMenu } from './menu.js';
 export { installTooltip } from './tooltip.js';
 export { installSlider } from './slider.js';
 export { installCombobox } from './combobox.js';
+export { installMulticombobox } from './multicombobox.js';
 
 export const version = '0.0.0';

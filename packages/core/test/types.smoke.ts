@@ -20,6 +20,7 @@ import {
   installTooltip,
   installSlider,
   installCombobox,
+  installMulticombobox,
   version,
 } from '@hypermedia-components/core';
 
@@ -34,6 +35,7 @@ import {
   installTooltip as installTooltipFromBehaviors,
   installSlider as installSliderFromBehaviors,
   installCombobox as installComboboxFromBehaviors,
+  installMulticombobox as installMulticomboboxFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -52,6 +54,7 @@ const uninstallers: Array<() => void> = [
   installTooltip(document),
   installSlider(document),
   installCombobox(document),
+  installMulticombobox(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -62,6 +65,7 @@ const uninstallers: Array<() => void> = [
   installTooltipFromBehaviors(),
   installSliderFromBehaviors(),
   installComboboxFromBehaviors(),
+  installMulticomboboxFromBehaviors(),
 ];
 
 // `version` is a string literal export.

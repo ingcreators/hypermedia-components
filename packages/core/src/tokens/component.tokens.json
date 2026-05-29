@@ -132,6 +132,52 @@
       "size": { "$type": "dimension", "$value": "1.375rem" }
     }
   },
+  "multicombobox": {
+    "control": {
+      "padding-x":   { "$type": "dimension", "$value": "{primitive.space.2}" },
+      "padding-y":   { "$type": "dimension", "$value": "{primitive.space.1}" },
+      "gap":         { "$type": "dimension", "$value": "{primitive.space.1}" },
+      "min-height":  { "$type": "dimension", "$value": "var(--hc-control-height)" }
+    },
+    "input": {
+      "min-width":   { "$type": "dimension", "$value": "6rem" },
+      "fg":          { "$type": "color",     "$value": "{semantic.color.text}" }
+    },
+    "tag": {
+      "bg":          { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
+      "fg":          { "$type": "color",     "$value": "{semantic.color.text}" },
+      "border":      { "$type": "color",     "$value": "{semantic.color.border}" },
+      "padding-x":   { "$type": "dimension", "$value": "{primitive.space.2}" },
+      "padding-y":   { "$type": "dimension", "$value": "{primitive.space.1}" },
+      "radius":      { "$type": "dimension", "$value": "{primitive.radius.sm}" },
+      "gap":         { "$type": "dimension", "$value": "{primitive.space.1}" },
+      "font-size":   { "$type": "dimension", "$value": "{semantic.font.size-sm}" },
+      "remove-fg":   { "$type": "color",     "$value": "{semantic.color.text-muted}" },
+      "remove-hover-fg": { "$type": "color", "$value": "{semantic.color.error}" }
+    },
+    "listbox": {
+      "bg":            { "$type": "color",     "$value": "{semantic.color.surface}" },
+      "fg":            { "$type": "color",     "$value": "{semantic.color.text}" },
+      "border":        { "$type": "color",     "$value": "{semantic.color.border}" },
+      "radius":        { "$type": "dimension", "$value": "{primitive.radius.md}" },
+      "max-height":    { "$type": "dimension", "$value": "20rem" },
+      "padding-block": { "$type": "dimension", "$value": "{primitive.space.1}" },
+      "min-width":     { "$type": "dimension", "$value": "10rem" },
+      "offset":        { "$type": "dimension", "$value": "{primitive.space.1}" }
+    },
+    "option": {
+      "padding-x":     { "$type": "dimension", "$value": "{primitive.space.3}" },
+      "padding-y":     { "$type": "dimension", "$value": "{primitive.space.2}" },
+      "font-size":     { "$type": "dimension", "$value": "{semantic.font.size-sm}" },
+      "fg":            { "$type": "color",     "$value": "{semantic.color.text}" },
+      "hover-bg":      { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
+      "active-bg":     { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
+      "check-color":   { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+      "disabled-fg":   { "$type": "color",     "$value": "{semantic.color.text-muted}" },
+      "indicator-size": { "$type": "dimension", "$value": "1rem" }
+    },
+    "empty-fg": { "$type": "color", "$value": "{semantic.color.text-muted}" }
+  },
   "combobox": {
     "listbox": {
       "bg":            { "$type": "color",     "$value": "{semantic.color.surface}" },

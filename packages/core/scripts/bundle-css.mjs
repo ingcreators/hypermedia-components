@@ -30,6 +30,7 @@ const COMPONENTS = [
   'hc-switch.css',
   'hc-slider.css',
   'hc-combobox.css',
+  'hc-multicombobox.css',
   'hc-field.css',
   'hc-spinner.css',
   'hc-progress.css',

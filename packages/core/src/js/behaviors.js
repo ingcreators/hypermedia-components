@@ -17,6 +17,7 @@ import { installMenu } from './menu.js';
 import { installTooltip } from './tooltip.js';
 import { installSlider } from './slider.js';
 import { installCombobox } from './combobox.js';
+import { installMulticombobox } from './multicombobox.js';
 
 function init() {
   installConfirm();
@@ -29,6 +30,7 @@ function init() {
   installTooltip();
   installSlider();
   installCombobox();
+  installMulticombobox();
 }
 
 if (typeof document !== 'undefined') {
@@ -50,4 +52,5 @@ export {
   installTooltip,
   installSlider,
   installCombobox,
+  installMulticombobox,
 };

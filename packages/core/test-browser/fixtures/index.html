@@ -179,6 +179,44 @@
     </fieldset>
   </section>
 
+  <section id="section-multicombobox" data-testid="section-multicombobox">
+    <h2>Multicombobox</h2>
+    <div class="hc-multicombobox" data-name="languages" style="max-inline-size:22rem;"
+         data-testid="mc-wrap">
+      <div class="hc-multicombobox__control hc-input">
+        <span class="hc-multicombobox__tags" data-testid="mc-tags"></span>
+        <input class="hc-multicombobox__input"
+               type="text"
+               role="combobox"
+               aria-controls="mc-lang-list"
+               aria-label="Languages"
+               data-testid="mc-input">
+      </div>
+      <ul class="hc-multicombobox__listbox" id="mc-lang-list" role="listbox"
+          data-testid="mc-listbox">
+        <li id="mc-opt-js" class="hc-multicombobox__option" role="option" data-value="js"
+            data-testid="mc-opt-js">JavaScript</li>
+        <li id="mc-opt-ts" class="hc-multicombobox__option" role="option" data-value="ts"
+            data-testid="mc-opt-ts">TypeScript</li>
+        <li id="mc-opt-py" class="hc-multicombobox__option" role="option" data-value="py"
+            aria-selected="true" data-testid="mc-opt-py">Python</li>
+        <li id="mc-opt-go" class="hc-multicombobox__option" role="option" data-value="go"
+            data-testid="mc-opt-go">Go</li>
+        <li id="mc-opt-rs" class="hc-multicombobox__option" role="option" data-value="rs"
+            aria-disabled="true" data-testid="mc-opt-rs">Rust</li>
+      </ul>
+    </div>
+    <output data-testid="mc-state"></output>
+    <script type="module">
+      const wrap = document.querySelector('[data-testid="mc-wrap"]');
+      const out = document.querySelector('[data-testid="mc-state"]');
+      wrap.addEventListener('hc:multicomboboxchange', (e) => {
+        out.textContent = e.detail.values.join(',');
+        out.setAttribute('data-values', e.detail.values.join(','));
+      });
+    </script>
+  </section>
+
   <section id="section-combobox" data-testid="section-combobox">
     <h2>Combobox</h2>
     <div class="hc-combobox" style="max-inline-size:18rem;">
