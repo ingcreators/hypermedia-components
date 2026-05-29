@@ -328,6 +328,11 @@
     "pulse-duration": { "$type": "duration",  "$value": "1.5s" },
     "wave-duration":  { "$type": "duration",  "$value": "1.6s" }
   },
+  "separator": {
+    "color":   { "$type": "color",     "$value": "{semantic.color.border}" },
+    "size":    { "$type": "dimension", "$value": "1px" },
+    "spacing": { "$type": "dimension", "$value": "{semantic.space.4}" }
+  },
   "avatar": {
     "size":       { "$type": "dimension", "$value": "2.5rem" },
     "radius":     { "$type": "dimension", "$value": "9999px" },

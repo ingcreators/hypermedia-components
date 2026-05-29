@@ -22,6 +22,27 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-separator` component — pure CSS divider line, no JavaScript.
+  Apply `.hc-separator` to a native `<hr>`: the element already carries
+  the implicit `role="separator"` + `aria-orientation="horizontal"`
+  semantics, so the component only replaces the UA chrome with a single
+  hairline drawn from a token. `data-orientation="horizontal"`
+  (default) is a full-width line with block margin;
+  `data-orientation="vertical"` is an inline line that stretches to its
+  flex row's height (via `align-self: stretch`, with a `min-block-size`
+  fallback) and takes inline margin — for toolbars and link rows. Since
+  there is no HTML element for a vertical separator, the docs flag that
+  `aria-orientation="vertical"` must be added by hand to keep the
+  semantics right. New tokens `separator.{color, size, spacing}`
+  (`color` defaults to the border token). Playwright spec (5 cases):
+  the implicit separator role, the thin full-width horizontal line, the
+  taller-than-wide vertical line, the border-token colour, and an
+  axe-core scan.
+
+  Out of scope (deferred): a focusable resize splitter
+  (`aria-valuenow`), labelled separators, and a decorative
+  `role="none"` toggle.
+
 - `hc-toggle-group` component + `installToggleGroup` behavior. A
   connected row of two-state toggle buttons (shadcn `ToggleGroup`
   equivalent) with two selection modes selected by `data-type` on the
