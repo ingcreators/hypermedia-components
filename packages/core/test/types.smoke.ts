@@ -25,6 +25,7 @@ import {
   installHovercard,
   installToggleGroup,
   installContextMenu,
+  installCommand,
   version,
 } from '@hypermedia-components/core';
 
@@ -44,6 +45,7 @@ import {
   installHovercard as installHovercardFromBehaviors,
   installToggleGroup as installToggleGroupFromBehaviors,
   installContextMenu as installContextMenuFromBehaviors,
+  installCommand as installCommandFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -67,6 +69,7 @@ const uninstallers: Array<() => void> = [
   installHovercard(document),
   installToggleGroup(document),
   installContextMenu(document),
+  installCommand(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -82,6 +85,7 @@ const uninstallers: Array<() => void> = [
   installHovercardFromBehaviors(),
   installToggleGroupFromBehaviors(),
   installContextMenuFromBehaviors(),
+  installCommandFromBehaviors(),
 ];
 
 // `version` is a string literal export.

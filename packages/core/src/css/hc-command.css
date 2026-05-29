@@ -1,0 +1,162 @@
+/* hc-command — a command palette (⌘K launcher).
+ *
+ * The WAI-ARIA combobox pattern (input role="combobox" + listbox of
+ * options) applied as an action launcher: type to filter, arrow to
+ * highlight, Enter to run. `installCommand()` wires the filtering,
+ * `aria-activedescendant` keyboard navigation, selection event, and
+ * the ⌘K / Ctrl+K opener.
+ *
+ * Use it inline, or — for the classic palette — inside a native
+ * `<dialog class="hc-command-dialog">` so it gets focus trapping,
+ * Escape-to-close, and a backdrop for free.
+ *
+ *   <dialog class="hc-command-dialog" data-hc-command-hotkey="k">
+ *     <div class="hc-command">
+ *       <input class="hc-command__input" type="text" role="combobox" autofocus …>
+ *       <div class="hc-command__list" role="listbox" id="…">
+ *         <div class="hc-command__group" role="group" aria-labelledby="g1">
+ *           <div class="hc-command__group-heading" id="g1">Navigation</div>
+ *           <div class="hc-command__item" role="option" data-value="home">
+ *             <span>Go home</span>
+ *             <kbd class="hc-command__shortcut">G H</kbd>
+ *           </div>
+ *         </div>
+ *       </div>
+ *       <div class="hc-command__empty" hidden>No results.</div>
+ *     </div>
+ *   </dialog>
+ */
+@layer hc.components {
+  .hc-command {
+    display: flex;
+    flex-direction: column;
+    inline-size: 100%;
+    border: 1px solid var(--hc-command-border);
+    border-radius: var(--hc-command-radius);
+    background: var(--hc-command-bg);
+    color: var(--hc-command-fg);
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.12);
+  }
+
+  .hc-command__input {
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: var(--hc-command-input-height);
+    padding-inline: var(--hc-command-input-padding-x);
+    border: 0;
+    border-block-end: 1px solid var(--hc-command-border);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--hc-command-input-font-size);
+    outline: none;
+  }
+
+  .hc-command__input::placeholder {
+    color: var(--hc-command-placeholder-fg);
+  }
+
+  .hc-command__list {
+    margin: 0;
+    padding-block: var(--hc-command-list-padding-block);
+    padding-inline: 0;
+    max-block-size: var(--hc-command-list-max-height);
+    overflow-y: auto;
+  }
+
+  .hc-command__group[hidden] {
+    display: none;
+  }
+
+  .hc-command__group-heading {
+    display: block;
+    padding-block: var(--hc-command-heading-padding-y);
+    padding-inline: var(--hc-command-item-padding-x);
+    color: var(--hc-command-heading-fg);
+    font-size: var(--hc-command-heading-font-size);
+    font-weight: var(--hc-command-heading-font-weight);
+    line-height: 1.25;
+  }
+
+  .hc-command__item {
+    display: flex;
+    align-items: center;
+    gap: var(--hc-command-item-gap);
+    padding-block: var(--hc-command-item-padding-y);
+    padding-inline: var(--hc-command-item-padding-x);
+    color: var(--hc-command-item-fg);
+    font-size: var(--hc-command-item-font-size);
+    line-height: 1.4;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* The label is the first child; the shortcut (if any) is pushed to
+   * the inline-end edge. */
+  .hc-command__item > :first-child {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  .hc-command__item:hover:not([aria-disabled="true"]) {
+    background: var(--hc-command-item-hover-bg);
+  }
+
+  /* `aria-activedescendant` highlight — the row Enter would run. */
+  .hc-command__item[data-active="true"] {
+    background: var(--hc-command-item-active-bg);
+    color: var(--hc-command-item-active-fg);
+  }
+
+  .hc-command__item[aria-disabled="true"] {
+    color: var(--hc-command-item-disabled-fg);
+    cursor: not-allowed;
+  }
+
+  /* The filter sets the `hidden` attribute on non-matching items; the
+   * higher-specificity `display: flex` above would otherwise beat the
+   * UA `[hidden]` rule, so re-assert it here. */
+  .hc-command__item[hidden] {
+    display: none;
+  }
+
+  .hc-command__shortcut {
+    margin-inline-start: auto;
+    padding-inline: var(--hc-command-shortcut-padding-x);
+    color: var(--hc-command-shortcut-fg);
+    font-family: inherit;
+    font-size: var(--hc-command-shortcut-font-size);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .hc-command__empty {
+    padding-block: var(--hc-command-empty-padding-y);
+    padding-inline: var(--hc-command-item-padding-x);
+    color: var(--hc-command-empty-fg);
+    font-size: var(--hc-command-item-font-size);
+    text-align: center;
+  }
+
+  .hc-command__empty[hidden] {
+    display: none;
+  }
+
+  /* Dialog wrapper — a self-contained styled <dialog>. The inner
+   * .hc-command supplies the surface; the dialog only positions it
+   * near the top and paints the backdrop. */
+  .hc-command-dialog {
+    inline-size: min(92vw, var(--hc-command-dialog-width));
+    max-block-size: 80vh;
+    margin-block: var(--hc-command-dialog-offset) auto;
+    margin-inline: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .hc-command-dialog::backdrop {
+    background: var(--hc-command-backdrop);
+  }
+}

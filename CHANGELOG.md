@@ -22,6 +22,42 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-command` component + `installCommand` behavior. A command palette
+  (shadcn `Command` / `cmdk` equivalent): the WAI-ARIA combobox pattern
+  used as an action launcher. An `<input role="combobox">` filters a
+  `role="listbox"` of `role="option"` items grouped under `role="group"`
+  headings (the cmdk / Radix `<div>` structure — not `<ul>/<li>`, which
+  axe rejects `role="group"` on). `installCommand()` wires the
+  case-insensitive substring filter (matching each item's label, with
+  the `.hc-command__shortcut` text excluded), hides groups whose items
+  all filter out, toggles a `.hc-command__empty` state, and drives
+  `aria-activedescendant` keyboard navigation (`↓`/`↑` wrap and skip
+  disabled, `Home`/`End`, `Enter` runs the active item) with DOM focus
+  staying on the input. Selecting dispatches a bubbling
+  `hc:commandselect` (`detail { item, value, command }`, `value` from
+  `data-value`) and, inside a `<dialog>`, closes it. Optional ⌘K opener:
+  `data-hc-command-hotkey="k"` (any key, default `k`) on the dialog
+  toggles it with Cmd/Ctrl + key (`preventDefault` so the browser's own
+  shortcut doesn't also fire), focusing the input and resetting the
+  filter on open; the filter also resets on dialog `close`. Used inside
+  a native `<dialog class="hc-command-dialog">` it inherits focus
+  trapping, Escape-to-close, and a backdrop; works inline too. New
+  `command.*` tokens (surface, input, list, group heading, item +
+  `item-active-bg` highlight that tracks `data-color`, shortcut chip,
+  empty state, dialog width / offset / backdrop). Vitest spec (13
+  cases) covers initial highlight, label filter + group hide + empty
+  state, shortcut excluded from match, arrow wrap + disabled-skip,
+  Home/End, Enter select + event detail + dialog close, click select +
+  disabled no-op, ⌘K toggle + input focus, filter reset on close,
+  uninstall cleanup, MutationObserver pickup. Playwright spec (8 cases
+  incl. axe-core scan in the open state) covers ⌘K open + focus,
+  filtering + group hiding, empty state, Arrow+Enter and click select,
+  the shortcut chip, and Escape close.
+
+  Out of scope (deferred): async / server-supplied commands, nested
+  "pages", fuzzy ranking, recent / frequency ordering, multi-key
+  chords.
+
 - `hc-context-menu` — right-click / keyboard context menu built on the
   existing `hc-menu` surface (shadcn `ContextMenu` equivalent), via the
   new `installContextMenu` behavior. **No new CSS**: it reuses

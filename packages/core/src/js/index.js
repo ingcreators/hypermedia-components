@@ -19,5 +19,6 @@ export { installDrawer } from './drawer.js';
 export { installHovercard } from './hovercard.js';
 export { installToggleGroup } from './toggle-group.js';
 export { installContextMenu } from './context-menu.js';
+export { installCommand } from './command.js';
 
 export const version = '0.0.0';
