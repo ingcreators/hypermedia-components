@@ -18,6 +18,7 @@ const distDir = join(pkgRoot, 'dist');
 
 const LAYER_DECL = join(srcCssDir, 'hc.layers.css');
 const TOKENS_CSS = join(distDir, 'hc.tokens.css');
+const CORE_TOKENS_CSS = join(distDir, 'hc.tokens.core.css');
 const BASE_CSS   = join(srcCssDir, 'hc.base.css');
 const HTMX_CSS   = join(srcCssDir, 'hc.htmx.css');
 
@@ -81,6 +82,17 @@ async function main() {
 
   const bundle = parts.join('\n') + '\n';
   await writeFile(join(distDir, 'hc.css'), bundle, 'utf8');
+
+  // hc.core.css — the foundation for granular usage: layer declaration
+  // + core tokens (semantic + default density/colour + dark) + base.
+  // Load this once, then add only the per-component CSS files you use.
+  const coreParts = [
+    '/* @hypermedia-components/core — hc.core.css (granular foundation) */',
+    await read(LAYER_DECL),
+    await read(CORE_TOKENS_CSS),
+    await read(BASE_CSS),
+  ];
+  await writeFile(join(distDir, 'hc.core.css'), coreParts.join('\n') + '\n', 'utf8');
 
   // Also expose hc.base.css, hc.htmx.css, and per-component files at
   // dist root so the package "exports" map can point at them later.

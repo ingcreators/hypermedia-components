@@ -1,0 +1,130 @@
+---
+title: Bundle size & imports
+description: How big Hypermedia Components is, and the three ways to consume it — full bundle, granular (per-component) imports, or native ESM + import maps (CDN / Rails).
+---
+
+Hypermedia Components ships **plain ESM + CSS** with no required build
+step, and exposes three consumption shapes so you only pay for what you
+use.
+
+## Size baseline
+
+Measured with `gzip -9` (Brotli is typically ~15–20% smaller again).
+Minification mainly strips the source's doc comments, so it helps more
+than usual here.
+
+| Artifact | raw | gzip |
+| --- | --- | --- |
+| `css` — full bundle (tokens + base + every component) | 158 KB | 30.6 KB |
+| `css/min` — same, minified | 96 KB | **14.1 KB** |
+| `css/core` — layers + core tokens + base (granular foundation) | 27 KB | ~4.5 KB |
+| `css/core/min` | 22 KB | **4.0 KB** |
+| `behaviors` — all behaviors (loose ESM, auto-init) | 143 KB | 31.5 KB |
+| `behaviors/min` — bundled + minified, single file | 53 KB | **12.1 KB** |
+| `min` — named installers, bundled + minified | 53 KB | 12.0 KB |
+| a single component's CSS (e.g. `css/button`) | ~3.6 KB | ~1 KB |
+| a single token axis file (e.g. `tokens.color-indigo.css`) | ~1.4 KB | ~0.2 KB |
+
+**Everything, minified ≈ 26 KB gzip** (14 KB CSS + 12 KB JS). A typical
+app that uses a handful of components loads far less — see below.
+
+## 1. Full bundle (easiest)
+
+```js
+import '@hypermedia-components/core/css';        // or /css/min
+import '@hypermedia-components/core/behaviors';  // auto-installs everything
+```
+
+## 2. Granular — use only what you need (with a bundler)
+
+CSS isn't tree-shaken, so load the **core foundation once** (layers +
+tokens + base), then only the components you use. JS *is* tree-shaken:
+importing named installers from the root drops the rest.
+
+```js
+import '@hypermedia-components/core/css/core';    // once
+import '@hypermedia-components/core/css/button';
+import '@hypermedia-components/core/css/menu';
+
+import { installMenu } from '@hypermedia-components/core'; // only menu is bundled
+installMenu();
+```
+
+Per-component CSS files (`css/button`, `css/menu`, …) carry only their
+`@layer hc.components` rules and depend on `css/core` for the tokens and
+layer order. A 6-component app lands around **~20 KB gzip** total
+instead of the full ~26–62 KB.
+
+:::note[Why a shared core?]
+Semantic CSS shares one token set (`--hc-*`) and a single `@layer`
+order, so a component file can't be fully standalone — load `css/core`
+first. It's a fixed ~4 KB gzip cost that buys the whole theme system.
+:::
+
+## 3. Native ESM + import maps (CDN / no bundler)
+
+The library runs in the browser as-is. Import maps map bare specifiers
+to URLs — note they ignore the package `exports` map, so you reference
+the published `dist/` files directly.
+
+**Auto-install everything (no import map needed):**
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.min.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.behaviors.min.js"></script>
+```
+
+**Granular with an import map (only `menu` is fetched):**
+
+```html
+<script type="importmap">
+{ "imports": { "hc/": "https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/" } }
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.core.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc-menu.css">
+<script type="module">
+  import { installMenu } from 'hc/menu.js';
+  installMenu();
+</script>
+```
+
+### Rails (`importmap-rails`)
+
+Rails solves caching/immutability with the **asset pipeline's content
+digests** (each file gets a fingerprinted, immutable URL) plus
+`modulepreload` + HTTP/2 — not by bundling. Two practical paths:
+
+- **Easiest:** `pin "@hypermedia-components/core", to: ".../hc.behaviors.min.js"` (a single file the pipeline fingerprints cleanly), and load CSS with `stylesheet_link_tag "hc-button"`, `"hc-menu"`, … (each fingerprinted → fine-grained CSS caching).
+- **Fine-grained JS:** `bin/importmap pin @hypermedia-components/core` (JSPM vendors a resolvable form), or pin to a version-locked CDN.
+
+HC's per-component CSS shines here: CSS has no module graph, so Propshaft
+fingerprints each `hc-*.css` independently.
+
+## Theme-axis token files
+
+The token file splits per runtime axis, so you can ship (or author) only
+the colour / density axes you actually switch between:
+
+```
+hc.tokens.core.css            ← semantic + default colour/density + dark
+hc.tokens.color-indigo.css    ← only when you offer the indigo theme
+hc.tokens.density-compact.css ← only when you offer compact density
+…
+```
+
+`hc.tokens.css` (the full file) is just all of these concatenated. Each
+extra colour axis is ~0.2 KB gzip and each density tier ~0.15 KB, so
+dropping unused axes saves around **1 KB gzip** — small, but it's also
+the template for adding **your own** custom axis file (copy one and swap
+the values). Dropping an axis means losing its runtime switching.
+
+## A note on caching
+
+Smaller cache units (per-file) mean a change to one component doesn't
+bust the rest — **but only if URLs are per-file immutable** (content
+hashed). A version-pinned CDN changes every file's URL on each release,
+and a content-hashing bundler (or Rails' asset pipeline) actually gives
+the cleanest fine-grained caching. So "no bundler" doesn't by itself
+grant fine-grained caching; the **URL immutability strategy** decides
+it. First-load is usually faster bundled; repeat-visit caching favours
+per-file + immutable URLs.
