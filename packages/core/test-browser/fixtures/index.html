@@ -483,6 +483,37 @@
     </div>
   </section>
 
+  <section id="section-command" data-testid="section-command">
+    <h2>Command</h2>
+    <button type="button" id="cmd-open-btn" data-testid="cmd-open-btn"
+            onclick="document.getElementById('cmd-demo-dialog').showModal()">Open palette</button>
+    <dialog id="cmd-demo-dialog" class="hc-command-dialog" data-hc-command-hotkey="k"
+            data-testid="cmd-dialog">
+      <div class="hc-command" data-testid="cmd">
+        <input class="hc-command__input" type="text" role="combobox" autofocus
+               aria-label="Command menu" placeholder="Type a command…" data-testid="cmd-input">
+        <div class="hc-command__list" id="cmd-demo-list" role="listbox">
+          <div class="hc-command__group" role="group" aria-labelledby="cg-nav">
+            <div class="hc-command__group-heading" id="cg-nav">Navigation</div>
+            <div class="hc-command__item" role="option" data-value="home" data-testid="cmd-home">
+              <span>Go home</span><kbd class="hc-command__shortcut">G H</kbd>
+            </div>
+            <div class="hc-command__item" role="option" data-value="profile">
+              <span>Open profile</span>
+            </div>
+          </div>
+          <div class="hc-command__group" role="group" aria-labelledby="cg-act">
+            <div class="hc-command__group-heading" id="cg-act">Actions</div>
+            <div class="hc-command__item" role="option" data-value="new" data-testid="cmd-new">
+              <span>New document</span>
+            </div>
+          </div>
+        </div>
+        <div class="hc-command__empty" data-testid="cmd-empty" hidden>No results.</div>
+      </div>
+    </dialog>
+  </section>
+
   <section id="section-avatar" data-testid="section-avatar">
     <h2>Avatar</h2>
     <div class="row" style="gap:1rem;align-items:center;flex-wrap:wrap;">

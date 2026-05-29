@@ -22,6 +22,7 @@ import { installDrawer } from './drawer.js';
 import { installHovercard } from './hovercard.js';
 import { installToggleGroup } from './toggle-group.js';
 import { installContextMenu } from './context-menu.js';
+import { installCommand } from './command.js';
 
 function init() {
   installConfirm();
@@ -39,6 +40,7 @@ function init() {
   installHovercard();
   installToggleGroup();
   installContextMenu();
+  installCommand();
 }
 
 if (typeof document !== 'undefined') {
@@ -65,4 +67,5 @@ export {
   installHovercard,
   installToggleGroup,
   installContextMenu,
+  installCommand,
 };

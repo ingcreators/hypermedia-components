@@ -51,6 +51,7 @@ const COMPONENTS = [
   'hc-tabs.css',
   'hc-toggle-group.css',
   'hc-menu.css',
+  'hc-command.css',
   'hc-tooltip.css',
   'hc-hovercard.css',
   'hc-accordion.css',

@@ -1,0 +1,189 @@
+---
+title: Command
+description: A command palette (⌘K launcher) — type-to-filter list of actions in a dialog, with grouped results and keyboard navigation. WAI-ARIA combobox pattern.
+---
+
+`hc-command` is a command palette, the shadcn `Command` / `cmdk`
+equivalent. It is the WAI-ARIA combobox pattern used as an action
+launcher: type to filter a grouped list, arrow to highlight, Enter to
+run. `installCommand` wires the filtering, `aria-activedescendant`
+keyboard navigation, the selection event, and an optional ⌘K opener.
+
+Use it inside a native `<dialog>` for the classic centred palette — you
+get focus trapping, Escape-to-close, and a backdrop for free — or
+inline.
+
+## Demo
+
+<div class="hc-preview not-content">
+  <button type="button" class="hc-button" onclick="this.nextElementSibling.showModal()">
+    Open command palette
+  </button>
+  <dialog class="hc-command-dialog">
+    <div class="hc-command">
+      <input class="hc-command__input" type="text" role="combobox" autofocus
+             aria-label="Command menu" placeholder="Type a command…" />
+      <div class="hc-command__list" role="listbox">
+        <div class="hc-command__group" role="group" aria-labelledby="d-nav">
+          <div class="hc-command__group-heading" id="d-nav">Navigation</div>
+          <div class="hc-command__item" role="option" data-value="home"><span>Go home</span><kbd class="hc-command__shortcut">G H</kbd></div>
+          <div class="hc-command__item" role="option" data-value="profile"><span>Open profile</span><kbd class="hc-command__shortcut">G P</kbd></div>
+        </div>
+        <div class="hc-command__group" role="group" aria-labelledby="d-act">
+          <div class="hc-command__group-heading" id="d-act">Actions</div>
+          <div class="hc-command__item" role="option" data-value="new"><span>New document</span><kbd class="hc-command__shortcut">⌘ N</kbd></div>
+          <div class="hc-command__item" role="option" data-value="search"><span>Search files</span></div>
+        </div>
+      </div>
+      <div class="hc-command__empty" hidden>No results.</div>
+    </div>
+  </dialog>
+</div>
+
+## Markup
+
+```html
+<dialog class="hc-command-dialog" data-hc-command-hotkey="k">
+  <div class="hc-command">
+    <input class="hc-command__input" type="text" role="combobox" autofocus
+           aria-label="Command menu" placeholder="Type a command…">
+    <div class="hc-command__list" role="listbox">
+      <div class="hc-command__group" role="group" aria-labelledby="g-nav">
+        <div class="hc-command__group-heading" id="g-nav">Navigation</div>
+        <div class="hc-command__item" role="option" data-value="home">
+          <span>Go home</span>
+          <kbd class="hc-command__shortcut">G H</kbd>
+        </div>
+        <div class="hc-command__item" role="option" data-value="profile">
+          <span>Open profile</span>
+        </div>
+      </div>
+    </div>
+    <div class="hc-command__empty" hidden>No results.</div>
+  </div>
+</dialog>
+```
+
+The list uses `role="listbox"` with `role="option"` items grouped under
+`role="group"` headings (the cmdk / Radix structure). Each item's
+`data-value` is what the select event reports and what the filter
+matches against (the `.hc-command__shortcut` text is excluded from the
+match).
+
+## JavaScript
+
+```js
+import { installCommand } from '@hypermedia-components/core';
+installCommand(); // idempotent; returns an uninstaller
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs
+it automatically.
+
+## Opening with ⌘K
+
+Put `data-hc-command-hotkey="k"` on the `<dialog>` (any single key;
+default `k`) and the behavior toggles it with <kbd>⌘</kbd>/<kbd>Ctrl</kbd>
++ the key, focusing the input and resetting the filter on open:
+
+```html
+<dialog class="hc-command-dialog" data-hc-command-hotkey="k">…</dialog>
+```
+
+The handler calls `preventDefault()` so the browser's own
+<kbd>Ctrl</kbd>+<kbd>K</kbd> shortcut does not also fire. You can still
+open the dialog from a button with `dialog.showModal()` — `autofocus`
+on the input puts the cursor in the search box.
+
+:::note
+This docs demo opens from a button rather than ⌘K, because this site's
+search already binds <kbd>Ctrl</kbd>+<kbd>K</kbd>. Pick a hotkey that
+does not collide with the host app.
+:::
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| Type | Filter items; empty groups and their headings hide; an empty state shows when nothing matches. |
+| `↓` / `↑` | Move the highlight (wraps; skips disabled items). |
+| `Home` / `End` | First / last visible item. |
+| `Enter` | Run the highlighted item. |
+| `Escape` | Close (native `<dialog>`). |
+
+DOM focus stays on the input; the highlighted item is tracked with
+`aria-activedescendant`, per the WAI-ARIA combobox pattern.
+
+## The select event
+
+Running an item dispatches a bubbling `hc:commandselect` on the
+`.hc-command` root and (when inside a `<dialog>`) closes it:
+
+```js
+command.addEventListener('hc:commandselect', (e) => {
+  const { item, value } = e.detail; // value = item's data-value
+  routeTo(value);
+});
+```
+
+## htmx usage
+
+Run an action server-side straight off the event:
+
+```html
+<div class="hc-command"
+     data-hx-post="/commands/run"
+     data-hx-trigger="hc:commandselect"
+     data-hx-vals='js:{ command: event.detail.value }'>
+  …
+</div>
+```
+
+## Accessibility
+
+- The input is `role="combobox"` with `aria-expanded`,
+  `aria-controls`, and `aria-activedescendant`; the list is
+  `role="listbox"`, groups are `role="group"` with `aria-labelledby`
+  headings, items are `role="option"`.
+- Inside a `<dialog>` opened with `showModal()`, focus is trapped and
+  `Escape` closes — both native. Keep `autofocus` on the input so the
+  search field is ready on open.
+- Always give the input an accessible name (`aria-label` or a label).
+- Disabled items (`aria-disabled="true"`) are skipped by keyboard and
+  ignored on click.
+
+## Theming tokens
+
+| Token path | Purpose |
+| --- | --- |
+| `command.bg` / `fg` / `border` / `radius` | Palette surface. |
+| `command.input-*` / `placeholder-fg` | Search row. |
+| `command.list-max-height` / `list-padding-block` | Scrollable list. |
+| `command.heading-*` | Group headings. |
+| `command.item-*` | Item rows, including the `item-active-bg` highlight (tracks `data-color`). |
+| `command.shortcut-*` | Shortcut chips. |
+| `command.empty-*` | Empty state. |
+| `command.dialog-width` / `dialog-offset` / `backdrop` | The `.hc-command-dialog` wrapper. |
+
+## CSS variables
+
+```text
+--hc-command-bg | -fg | -border | -radius
+--hc-command-input-height | -input-padding-x | -input-font-size | -placeholder-fg
+--hc-command-list-padding-block | -list-max-height
+--hc-command-heading-fg | -heading-font-size | -heading-font-weight | -heading-padding-y
+--hc-command-item-padding-x | -item-padding-y | -item-gap | -item-font-size
+--hc-command-item-fg | -item-hover-bg | -item-active-bg | -item-active-fg | -item-disabled-fg
+--hc-command-shortcut-fg | -shortcut-font-size | -shortcut-padding-x
+--hc-command-empty-fg | -empty-padding-y
+--hc-command-dialog-width | -dialog-offset | -backdrop
+```
+
+## Related
+
+- [Combobox](/hypermedia-components/components/combobox/) — the same
+  type-to-filter pattern bound to a single form value.
+- [Menu](/hypermedia-components/components/menu/) — a dropdown action
+  menu from a trigger button.
+- [Dialog](/hypermedia-components/components/dialog/) — the native
+  `<dialog>` surface the palette sits in.
