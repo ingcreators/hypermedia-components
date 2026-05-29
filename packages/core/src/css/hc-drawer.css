@@ -1,0 +1,179 @@
+/* hc-drawer — sliding side / edge panel built on the native <dialog>.
+ *
+ *   <dialog class="hc-drawer" data-side="right" id="settings">
+ *     <header class="hc-drawer__header">…</header>
+ *     <div class="hc-drawer__body">…</div>
+ *     <footer class="hc-drawer__footer">…</footer>
+ *   </dialog>
+ *
+ * Open via `dialog.showModal()`. The native dialog handles focus
+ * trapping, Escape-to-close, and the ::backdrop layer; HC adds the
+ * edge positioning, slide-in / slide-out via `@starting-style` +
+ * `transition-behavior: allow-discrete`, and (through
+ * `installDrawer`) backdrop-click-to-close.
+ *
+ * Required animation primitives:
+ *   - `@starting-style`             — Chrome 117+, Firefox 129+, Safari 17.5+
+ *   - `transition-behavior: allow-discrete` + `display` transition
+ *
+ * Sides: data-side="right" (default) | "left" | "top" | "bottom"
+ *
+ * Use `<form method="dialog">` for close buttons — submitting the
+ * form closes the dialog with no JS.
+ */
+@layer hc.components {
+  .hc-drawer {
+    position: fixed;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--hc-drawer-border);
+    background: var(--hc-drawer-bg);
+    color: var(--hc-drawer-fg);
+    overflow: hidden;
+    box-shadow: 0 0 30px rgb(0, 0, 0, 0.2);
+
+    /* Default side = right. Specific sides override below. */
+    inset-block: 0;
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+    inline-size: 100%;
+    max-inline-size: var(--hc-drawer-side-max-width);
+    block-size: 100dvh;
+
+    /* Slide animation. The drawer is translated off-screen in the
+     * closed state and at @starting-style (entry frame), then slides
+     * in / out via the `display` + `overlay` discrete-property
+     * transition. */
+    translate: 100% 0;
+    transition:
+      translate var(--hc-drawer-duration) ease,
+      overlay var(--hc-drawer-duration) allow-discrete,
+      display var(--hc-drawer-duration) allow-discrete;
+  }
+
+  .hc-drawer[open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .hc-drawer[open] {
+      translate: 100% 0;
+    }
+  }
+
+  .hc-drawer::backdrop {
+    background: var(--hc-drawer-backdrop);
+    transition:
+      background var(--hc-drawer-duration) ease,
+      display var(--hc-drawer-duration) allow-discrete;
+  }
+
+  @starting-style {
+    .hc-drawer[open]::backdrop {
+      background: transparent;
+    }
+  }
+
+  /* Left side */
+  .hc-drawer[data-side="left"] {
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    translate: -100% 0;
+  }
+
+  .hc-drawer[data-side="left"][open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .hc-drawer[data-side="left"][open] {
+      translate: -100% 0;
+    }
+  }
+
+  /* Top side — width is 100 %, height is bounded. */
+  .hc-drawer[data-side="top"] {
+    inset-inline: 0;
+    inset-block-start: 0;
+    inset-block-end: auto;
+    inline-size: 100vw;
+    max-inline-size: 100vw;
+    block-size: auto;
+    max-block-size: var(--hc-drawer-vert-max-height);
+    translate: 0 -100%;
+  }
+
+  .hc-drawer[data-side="top"][open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .hc-drawer[data-side="top"][open] {
+      translate: 0 -100%;
+    }
+  }
+
+  /* Bottom side */
+  .hc-drawer[data-side="bottom"] {
+    inset-inline: 0;
+    inset-block-end: 0;
+    inset-block-start: auto;
+    inline-size: 100vw;
+    max-inline-size: 100vw;
+    block-size: auto;
+    max-block-size: var(--hc-drawer-vert-max-height);
+    translate: 0 100%;
+  }
+
+  .hc-drawer[data-side="bottom"][open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .hc-drawer[data-side="bottom"][open] {
+      translate: 0 100%;
+    }
+  }
+
+  /* Internal layout: header / body / footer share padding with the
+   * existing hc-dialog conventions. */
+  .hc-drawer__header,
+  .hc-drawer__body,
+  .hc-drawer__footer {
+    padding: var(--hc-drawer-padding);
+  }
+
+  .hc-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--hc-drawer-gap);
+    border-block-end: 1px solid var(--hc-drawer-border);
+  }
+
+  .hc-drawer__title {
+    margin: 0;
+    font-size: var(--hc-font-size-lg);
+    font-weight: var(--hc-font-weight-semibold);
+    line-height: 1.3;
+  }
+
+  .hc-drawer__body {
+    overflow-y: auto;
+  }
+
+  .hc-drawer__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--hc-drawer-gap);
+    border-block-start: 1px solid var(--hc-drawer-border);
+  }
+
+  /* Respect reduced-motion. */
+  @media (prefers-reduced-motion: reduce) {
+    .hc-drawer,
+    .hc-drawer::backdrop {
+      transition-duration: 0ms;
+    }
+  }
+}

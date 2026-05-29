@@ -22,6 +22,28 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-drawer` component + `installDrawer` behavior. Slide-in side
+  panel styled over the native `<dialog>` element. The native
+  dialog gives us focus trapping, `Escape`-to-close, and the
+  `::backdrop` layer; HC adds edge positioning (`data-side="right"`
+  default, plus `"left"`, `"top"`, `"bottom"`) and CSS-only slide
+  animation via `@starting-style` + `transition-behavior:
+  allow-discrete` on `display` + `overlay`. The slide animation
+  respects `prefers-reduced-motion: reduce`. `installDrawer()`
+  adds exactly one thing the platform does not give us: clicking
+  the backdrop (outside the drawer panel) closes it — detected via
+  `event.target === dialog`. Everything else stays native, so
+  `<form method="dialog">` close buttons need zero JS. Vitest spec
+  (5 cases) covers idempotency, backdrop-click closes, inside-body
+  click does NOT close, uninstall cleanup, and MutationObserver
+  pickup. Playwright spec (8 cases incl. axe-core scan in the
+  open state) checks both right and bottom anchors via bounding
+  boxes, the native dialog close affordances (Escape and the form
+  submit), and the backdrop-click behavior.
+
+  Out of scope (deferred): swipe-to-close gesture, resizable
+  drawers, stacked drawers, non-modal `show()` mode.
+
 - `hc-multicombobox` component + `installMulticombobox` behavior.
   Multi-select combobox with a tag-input control: selected values
   render as inline chips inside a single visual surface, the

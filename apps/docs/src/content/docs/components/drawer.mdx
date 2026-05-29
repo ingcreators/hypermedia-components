@@ -1,0 +1,197 @@
+---
+title: Drawer
+description: Slide-in side panel built on the native <dialog> element, with edge positioning and CSS-only slide animations via @starting-style.
+---
+
+`hc-drawer` styles a native `<dialog>` element as a panel that
+slides in from any edge of the viewport. The native dialog handles
+focus trapping, `Escape`-to-close, and the `::backdrop` layer for
+free; HC adds the edge positioning, the slide-in / slide-out
+animation, and (via `installDrawer`) the backdrop-click-to-close
+affordance users expect from a slide panel.
+
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| HTML `<dialog>` + `showModal()` | All evergreen browsers |
+| CSS `@starting-style` + `transition-behavior: allow-discrete` | Chrome 117+, Firefox 129+, Safari 17.5+ |
+
+The slide animation degrades gracefully — older browsers without
+`@starting-style` snap to the final position without the entry
+transition, but the drawer is still functional.
+
+## Basic example
+
+```html
+<button class="hc-button" type="button"
+        onclick="document.getElementById('settings-drawer').showModal()">
+  Open settings
+</button>
+
+<dialog class="hc-drawer" data-side="right" id="settings-drawer">
+  <header class="hc-drawer__header">
+    <h2 class="hc-drawer__title">Settings</h2>
+    <form method="dialog">
+      <button class="hc-button" data-variant="ghost" data-size="sm"
+              type="submit" aria-label="Close">×</button>
+    </form>
+  </header>
+
+  <div class="hc-drawer__body">
+    <p>Form fields, settings, anything.</p>
+  </div>
+
+  <footer class="hc-drawer__footer">
+    <form method="dialog">
+      <button class="hc-button" type="submit">Cancel</button>
+    </form>
+    <button class="hc-button" data-variant="primary">Save</button>
+  </footer>
+</dialog>
+```
+
+```js
+import { installDrawer } from '@hypermedia-components/core';
+installDrawer();
+```
+
+## Sides
+
+`data-side` accepts `right` (default), `left`, `top`, and `bottom`.
+Right/left drawers fill the viewport height and cap their width at
+`--hc-drawer-side-max-width`; top/bottom drawers fill the viewport
+width and cap their height at `--hc-drawer-vert-max-height`.
+
+```html
+<dialog class="hc-drawer" data-side="right">…</dialog>
+<dialog class="hc-drawer" data-side="left">…</dialog>
+<dialog class="hc-drawer" data-side="top">…</dialog>
+<dialog class="hc-drawer" data-side="bottom">…</dialog>
+```
+
+## Closing the drawer
+
+Three idiomatic patterns, in order of preference:
+
+### `<form method="dialog">` (no JS)
+
+A button inside a form whose `method="dialog"` closes the dialog on
+submit. Native, accessible, declarative.
+
+```html
+<form method="dialog">
+  <button class="hc-button" type="submit">Cancel</button>
+</form>
+```
+
+### Backdrop click (added by `installDrawer`)
+
+Clicking outside the drawer panel (on the `::backdrop` area) closes
+the dialog. The behavior detects this via `event.target === dialog`.
+
+### JS `.close()`
+
+```js
+document.getElementById('settings-drawer').close();
+```
+
+Useful from htmx response handlers — pair with
+[`installCloseDialog`](/hypermedia-components/recipes/remote-dialog/)
+for the htmx-success-closes-the-dialog pattern.
+
+## htmx usage
+
+Open the drawer in response to a server fetch and let htmx swap
+content into it:
+
+```html
+<button class="hc-button"
+        data-hx-get="/users/42/edit"
+        data-hx-target="#user-drawer .hc-drawer__body"
+        data-hx-swap="innerHTML"
+        onclick="document.getElementById('user-drawer').showModal()">
+  Edit user
+</button>
+
+<dialog class="hc-drawer" id="user-drawer" data-side="right">
+  <header class="hc-drawer__header">
+    <h2 class="hc-drawer__title">Edit user</h2>
+    <form method="dialog">
+      <button class="hc-button" data-variant="ghost" data-size="sm"
+              type="submit" aria-label="Close">×</button>
+    </form>
+  </header>
+
+  <div class="hc-drawer__body">
+    <hc-spinner></hc-spinner>
+  </div>
+</dialog>
+```
+
+For close-on-success after a form save:
+
+```html
+<form
+  data-hx-post="/users/42"
+  data-hx-target="this"
+  data-hc-close-dialog-on-success>
+  …
+</form>
+```
+
+The bundled `installCloseDialog` behavior closes the enclosing
+`<dialog>` on a successful htmx response. Same pattern as
+`hc-dialog`.
+
+## Accessibility
+
+- The native `<dialog>` already exposes the right role, focus trap,
+  and Escape semantics. Don't add `role="dialog"` or
+  `aria-modal="true"` — they are redundant and can confuse some
+  screen readers.
+- Always include a focusable element inside the drawer so focus
+  trapping has something to land on. A close button in the header
+  or a primary action in the footer is plenty.
+- Provide a visible close affordance. The `<form method="dialog">`
+  pattern shown above pairs the visible "×" button with a built-in
+  keyboard activation path (Enter / Space on the button).
+- Slide animations respect `prefers-reduced-motion: reduce` —
+  transition duration drops to 0 ms when the user has opted out.
+
+## Variants
+
+The drawer ships with one visual style intentionally — the surface
+follows the same conventions as `hc-dialog`, so applying the same
+theming tokens (light / dark / colour) Just Works. Variants like
+`data-variant="error"` for destructive flows can be modelled with
+content (a red header, an error alert at the top) rather than the
+container chrome.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `drawer.bg` / `fg` / `border` | Surface colours. |
+| `drawer.side-max-width` | Cap on the right / left drawer width. |
+| `drawer.vert-max-height` | Cap on the top / bottom drawer height. |
+| `drawer.padding` | Inner padding for header / body / footer. |
+| `drawer.gap` | Header / footer flex gap. |
+| `drawer.backdrop` | `::backdrop` background. |
+| `drawer.duration` | Slide animation duration. |
+
+## CSS variables
+
+```text
+--hc-drawer-bg | -fg | -border
+--hc-drawer-side-max-width | -vert-max-height
+--hc-drawer-padding | -gap
+--hc-drawer-backdrop | -duration
+```
+
+## Related
+
+- [Dialog](/hypermedia-components/components/dialog/) — centred modal sibling.
+- [Popover](/hypermedia-components/components/popover/) — for transient floating content.

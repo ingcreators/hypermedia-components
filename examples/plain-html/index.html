@@ -206,6 +206,40 @@
   </section>
 
   <section>
+    <h2>Drawer (component + behavior)</h2>
+    <div class="row">
+      <button class="hc-button" id="example-open-drawer">Open right drawer</button>
+    </div>
+    <dialog class="hc-drawer" data-side="right" id="example-drawer">
+      <header class="hc-drawer__header">
+        <h2 class="hc-drawer__title">Settings</h2>
+        <form method="dialog">
+          <button class="hc-button" data-variant="ghost" data-size="sm"
+                  type="submit" aria-label="Close">×</button>
+        </form>
+      </header>
+      <div class="hc-drawer__body">
+        <p>Native <code>&lt;dialog&gt;</code> + edge positioning + CSS
+          slide via <code>@starting-style</code>. The backdrop-click-to-close
+          comes from <code>installDrawer</code>, every other affordance
+          (focus trap, Esc, <code>&lt;form method="dialog"&gt;</code>) is
+          native.</p>
+      </div>
+      <footer class="hc-drawer__footer">
+        <form method="dialog">
+          <button class="hc-button" type="submit">Cancel</button>
+        </form>
+        <button class="hc-button" data-variant="primary">Save</button>
+      </footer>
+    </dialog>
+    <script type="module">
+      document.getElementById('example-open-drawer').addEventListener('click', () => {
+        document.getElementById('example-drawer').showModal();
+      });
+    </script>
+  </section>
+
+  <section>
     <h2>Multicombobox (component + behavior)</h2>
     <div class="hc-multicombobox" data-name="languages" style="max-inline-size:22rem;">
       <div class="hc-multicombobox__control hc-input">
