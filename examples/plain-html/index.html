@@ -206,6 +206,29 @@
   </section>
 
   <section>
+    <h2>Slider (component + behavior)</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:.75rem;max-inline-size:24rem;">
+      <label>
+        Volume
+        <input class="hc-slider" type="range" min="0" max="100" value="40">
+      </label>
+      <label>
+        Disk usage
+        <input class="hc-slider" type="range" min="0" max="100" value="80"
+               data-variant="error">
+      </label>
+      <label>
+        Disabled
+        <input class="hc-slider" type="range" min="0" max="100" value="50" disabled>
+      </label>
+    </div>
+    <p class="small">Native <code>&lt;input type="range"&gt;</code> with
+      <code>appearance: none</code> + per-vendor pseudo-elements.
+      <code>installSlider</code> syncs <code>--hc-slider-value</code> so the
+      WebKit gradient fill paints correctly.</p>
+  </section>
+
+  <section>
     <h2>Progress (component — no JS required)</h2>
     <div class="row" style="flex-direction:column;align-items:stretch;gap:.5rem;max-inline-size:24rem;">
       <progress class="hc-progress" value="40" max="100" aria-label="Upload"></progress>

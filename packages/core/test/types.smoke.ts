@@ -18,6 +18,7 @@ import {
   installTabs,
   installMenu,
   installTooltip,
+  installSlider,
   version,
 } from '@hypermedia-components/core';
 
@@ -30,6 +31,7 @@ import {
   installTabs as installTabsFromBehaviors,
   installMenu as installMenuFromBehaviors,
   installTooltip as installTooltipFromBehaviors,
+  installSlider as installSliderFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -46,6 +48,7 @@ const uninstallers: Array<() => void> = [
   installTabs(document),
   installMenu(document),
   installTooltip(document),
+  installSlider(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -54,6 +57,7 @@ const uninstallers: Array<() => void> = [
   installTabsFromBehaviors(),
   installMenuFromBehaviors(),
   installTooltipFromBehaviors(),
+  installSliderFromBehaviors(),
 ];
 
 // `version` is a string literal export.

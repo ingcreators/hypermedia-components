@@ -15,6 +15,7 @@ import { installRemoteDialog } from './remote-dialog.js';
 import { installTabs } from './tabs.js';
 import { installMenu } from './menu.js';
 import { installTooltip } from './tooltip.js';
+import { installSlider } from './slider.js';
 
 function init() {
   installConfirm();
@@ -25,6 +26,7 @@ function init() {
   installTabs();
   installMenu();
   installTooltip();
+  installSlider();
 }
 
 if (typeof document !== 'undefined') {
@@ -44,4 +46,5 @@ export {
   installTabs,
   installMenu,
   installTooltip,
+  installSlider,
 };
