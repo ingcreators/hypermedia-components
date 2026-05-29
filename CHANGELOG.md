@@ -22,6 +22,54 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-toggle-group` component + `installToggleGroup` behavior. A
+  connected row of two-state toggle buttons (shadcn `ToggleGroup`
+  equivalent) with two selection modes selected by `data-type` on the
+  group and reflected by the ARIA roles on the buttons:
+  - `data-type="single"` (default) — exclusive. Per the WAI-ARIA APG,
+    an exclusive set of toggles is a **radio group**, so the markup is
+    `role="radiogroup"` + `role="radio"` / `aria-checked`. Selection
+    follows focus (arrow keys move and select) and a click can never
+    empty the group (radio semantics).
+  - `data-type="multiple"` — independent toggles: `role="group"` +
+    `aria-pressed`. Arrow keys move focus only; Space / Enter / click
+    toggle the focused button on and off.
+
+  Both modes use a roving tabindex so the group is a single `Tab`
+  stop, wrap at the ends, and skip disabled buttons (`disabled` or
+  `aria-disabled="true"`). Space / Enter are left to the native
+  `<button>` (which synthesise a click), so the behavior only binds
+  Arrow / Home / End — no double-firing. Each change dispatches a
+  bubbling `hc:togglegroupchange` (`detail` carries `value` for single
+  or `values` + `pressed` for multiple, read from each button's
+  `data-value`). Optional form integration: `data-name="X"` makes the
+  behavior maintain hidden inputs (one for single, one per pressed
+  value for multiple) so the group serialises like a native control.
+
+  CSS is a connected segmented-control skin — shared inner borders
+  collapse to a hairline, outer corners round via `:first/:last-of-type`
+  (so the injected hidden-input `<span>` does not steal the last
+  toggle's radius), and the selected / pressed state lifts above its
+  neighbours with an accent background + border that track the active
+  `data-color` theme through `{semantic.color.action.primary-soft.bg}`
+  / `{...primary.border}`. Sizes `data-size="sm" | "md" | "lg"` draw
+  from the shared `--hc-control-*` scale (density-aware). New tokens
+  `toggle.{height, padding-x, radius, font-size, font-weight, fg, bg,
+  border, hover-bg, hover-fg, on-bg, on-fg, on-border, disabled-fg,
+  disabled-bg, sm.*, lg.*}`, all `{ref}` so the overlay machinery
+  handles theming. Vitest spec (14 cases) covers idempotency, single
+  roving-tabindex / exclusive select / no-op on already-checked /
+  arrow select+skip-disabled / Home / End, multiple toggle + arrow
+  moves focus only, the event detail shape, the `data-name` hidden
+  inputs for both modes, the `:last-of-type` invariant with the hidden
+  container present, uninstall cleanup, and MutationObserver pickup.
+  Playwright spec (9 cases incl. axe-core scan) exercises the roles,
+  keyboard, accent border, and sizing in a real browser.
+
+  Out of scope (deferred): vertical orientation (`data-orientation`),
+  a default/outline variant axis, and free deselect in single mode
+  (radio semantics intentionally keep the group non-empty).
+
 - `hc-skeleton` component — pure CSS loading placeholder, no
   JavaScript. Apply `.hc-skeleton` to any element and size it from the
   consumer side; the component supplies the surface colour, corner

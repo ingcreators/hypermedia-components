@@ -60,6 +60,33 @@
       "font-size":  { "$type": "dimension", "$value": "{semantic.font.size-lg}" }
     }
   },
+  "toggle": {
+    "height":      { "$type": "dimension",  "$value": "{semantic.control.height}" },
+    "padding-x":   { "$type": "dimension",  "$value": "{semantic.control.padding-x}" },
+    "radius":      { "$type": "dimension",  "$value": "{semantic.control.radius}" },
+    "font-size":   { "$type": "dimension",  "$value": "{semantic.font.size-md}" },
+    "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
+    "fg":          { "$type": "color",      "$value": "{semantic.color.text}" },
+    "bg":          { "$type": "color",      "$value": "{semantic.color.surface}" },
+    "border":      { "$type": "color",      "$value": "{semantic.color.border}" },
+    "hover-bg":    { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
+    "hover-fg":    { "$type": "color",      "$value": "{semantic.color.text}" },
+    "on-bg":       { "$type": "color",      "$value": "{semantic.color.action.primary-soft.bg}" },
+    "on-fg":       { "$type": "color",      "$value": "{semantic.color.text}" },
+    "on-border":   { "$type": "color",      "$value": "{semantic.color.action.primary.border}" },
+    "disabled-fg": { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+    "disabled-bg": { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
+    "sm": {
+      "height":    { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
+      "padding-x": { "$type": "dimension", "$value": "{primitive.space.3}" },
+      "font-size": { "$type": "dimension", "$value": "{semantic.font.size-sm}" }
+    },
+    "lg": {
+      "height":    { "$type": "dimension", "$value": "{primitive.size.control.lg}" },
+      "padding-x": { "$type": "dimension", "$value": "{primitive.space.5}" },
+      "font-size": { "$type": "dimension", "$value": "{semantic.font.size-lg}" }
+    }
+  },
   "input": {
     "height":     { "$type": "dimension", "$value": "{semantic.control.height}" },
     "padding-x":  { "$type": "dimension", "$value": "{semantic.control.padding-x}" },
