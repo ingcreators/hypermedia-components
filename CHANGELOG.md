@@ -22,6 +22,45 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-context-menu` — right-click / keyboard context menu built on the
+  existing `hc-menu` surface (shadcn `ContextMenu` equivalent), via the
+  new `installContextMenu` behavior. **No new CSS**: it reuses
+  `.hc-menu` and all its items / separators / labels / `menuitemcheckbox`
+  / `menuitemradio`, opening at the pointer instead of anchored to a
+  trigger. A region carries `data-hc-context-menu="<menu-id>"` pointing
+  at a `.hc-menu` popover. On `contextmenu` (right-click, long-press, or
+  the keyboard Menu key) the native menu is suppressed
+  (`preventDefault`) and the popover opens at the pointer, clamped to
+  the viewport. `Shift`+`F10` is handled separately via `keydown`
+  because — unlike the Menu key — it does not fire a `contextmenu`
+  event; it opens the menu at the focused element. Once open, navigation
+  (Arrow / Home / End / type-ahead / Tab) and selection
+  (`menuitemcheckbox` / `menuitemradio` toggling, the bubbling
+  `hc:menuselect` event) are shared with the dropdown menu; the event
+  detail adds `contextTarget` (the right-clicked element). Escape /
+  outside-click dismissal and focus restoration are the native
+  `popover` behaviour. Documented caveat: Firefox's Shift+right-click
+  bypasses the `contextmenu` event and shows the browser's own menu.
+
+  The shared menu interaction logic (item queries, roving-focus
+  movement, type-ahead, the keyboard handler, and the
+  checkbox / radio + `hc:menuselect` selection) was extracted from
+  `menu.js` into a new internal `menu-core.js` module that both
+  `installMenu` and `installContextMenu` consume, so the two surfaces
+  stay in lockstep. `installMenu`'s public behaviour is unchanged
+  (all 23 existing menu Vitest + 10 Playwright cases still pass).
+  Vitest spec (11 cases): idempotency, open + `preventDefault`, pointer
+  positioning, first-item focus, `Shift`+`F10` (and plain `F10` no-op),
+  arrow / End navigation with disabled-skip, menuitem select +
+  `contextTarget` detail + close, checkbox toggle keeps open, missing-id
+  no-op, uninstall cleanup, MutationObserver pickup. Playwright spec
+  (7 cases incl. axe-core scan in the open state) covers real
+  right-click, pointer coordinates, `Shift`+`F10` + Escape focus
+  restoration, keyboard nav, and selection.
+
+  Out of scope (deferred): nested submenus, stacked context menus,
+  touch long-press tuning.
+
 - `hc-separator` component — pure CSS divider line, no JavaScript.
   Apply `.hc-separator` to a native `<hr>`: the element already carries
   the implicit `role="separator"` + `aria-orientation="horizontal"`

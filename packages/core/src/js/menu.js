@@ -24,6 +24,14 @@
 // installMenu(root = document) returns an uninstaller. Repeated calls
 // on the same root return the same uninstaller.
 
+import {
+  ITEM_ROLE_SELECTOR,
+  itemsOf,
+  isEnabled,
+  handleMenuNavKeydown,
+  selectMenuItem,
+} from './menu-core.js';
+
 const INSTALL_KEY = '__hcMenuUninstall';
 
 function escapeAttr(s) {
@@ -41,72 +49,6 @@ function triggerFor(menu) {
   return menu.ownerDocument.querySelector(
     `[popovertarget="${escapeAttr(menu.id)}"]`,
   );
-}
-
-// Items can live directly under .hc-menu *or* nested inside a
-// `<div role="group">` (used to scope `menuitemradio` siblings per
-// the WAI-ARIA spec, and to hang a `<span class="hc-menu__label">`
-// off of). Walk arbitrarily deep so keyboard navigation traverses
-// every reachable item in document order.
-const ITEM_ROLE_SELECTOR =
-  '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
-
-function itemsOf(menu) {
-  return Array.from(menu.querySelectorAll(ITEM_ROLE_SELECTOR));
-}
-
-function radioGroupOf(item) {
-  // Nearest [role="group"] ancestor, stopping at the menu container.
-  // Falls back to the menu itself so a flat list of menuitemradio
-  // siblings still behaves as one group.
-  return item.closest('[role="group"]') ?? item.closest('.hc-menu');
-}
-
-function isEnabled(item) {
-  return !(
-    item.hasAttribute('disabled') ||
-    item.getAttribute('aria-disabled') === 'true'
-  );
-}
-
-function focusByIndex(menu, idx) {
-  const enabled = itemsOf(menu).filter(isEnabled);
-  if (enabled.length === 0) return;
-  const n = enabled.length;
-  enabled[((idx % n) + n) % n].focus();
-}
-
-function focusFirst(menu) {
-  focusByIndex(menu, 0);
-}
-
-function focusLast(menu) {
-  const n = itemsOf(menu).filter(isEnabled).length;
-  if (n > 0) focusByIndex(menu, n - 1);
-}
-
-function focusByOffset(menu, current, delta) {
-  const enabled = itemsOf(menu).filter(isEnabled);
-  if (enabled.length === 0) return;
-  const i = enabled.indexOf(current);
-  // If focus is elsewhere (e.g. the menu container), treat as
-  // "before first item" so ArrowDown goes to index 0.
-  const base = i === -1 ? (delta > 0 ? -1 : 0) : i;
-  focusByIndex(menu, base + delta);
-}
-
-function typeaheadStep(menu, current, ch) {
-  const enabled = itemsOf(menu).filter(isEnabled);
-  if (enabled.length === 0) return;
-  const i = enabled.indexOf(current);
-  const lower = ch.toLowerCase();
-  for (let off = 1; off <= enabled.length; off++) {
-    const idx = (i + off + enabled.length) % enabled.length;
-    if (enabled[idx].textContent.trim().toLowerCase().startsWith(lower)) {
-      enabled[idx].focus();
-      return;
-    }
-  }
 }
 
 function supportsAnchorPositioning() {
@@ -206,69 +148,14 @@ function attach(menu, detachers) {
 
   function onKeydown(event) {
     if (!menu.matches(':popover-open')) return;
-    const current = menu.ownerDocument.activeElement;
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        focusByOffset(menu, current, +1);
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        focusByOffset(menu, current, -1);
-        break;
-      case 'Home':
-        event.preventDefault();
-        focusFirst(menu);
-        break;
-      case 'End':
-        event.preventDefault();
-        focusLast(menu);
-        break;
-      case 'Tab':
-        // Tab closes the menu (APG). Native popover would not
-        // intercept; explicitly close so focus moves outside.
-        event.preventDefault();
-        menu.hidePopover();
-        break;
-      default:
-        if (event.key.length === 1 && /\S/.test(event.key) && !event.ctrlKey && !event.metaKey) {
-          typeaheadStep(menu, current, event.key);
-        }
-        break;
-    }
+    handleMenuNavKeydown(menu, event);
   }
 
   function onClick(event) {
     const item = event.target.closest(ITEM_ROLE_SELECTOR);
     if (!item || !menu.contains(item) || !isEnabled(item)) return;
 
-    const role = item.getAttribute('role');
-    let checked;
-    if (role === 'menuitemcheckbox') {
-      // Toggle aria-checked. Items with no current value default to
-      // unchecked, so the first click reads as "becoming checked".
-      checked = item.getAttribute('aria-checked') !== 'true';
-      item.setAttribute('aria-checked', String(checked));
-    } else if (role === 'menuitemradio') {
-      // Select this radio and clear every sibling within the same
-      // [role="group"] (or .hc-menu when there is no explicit group).
-      checked = true;
-      const group = radioGroupOf(item);
-      if (group) {
-        for (const sib of group.querySelectorAll('[role="menuitemradio"]')) {
-          sib.setAttribute('aria-checked', sib === item ? 'true' : 'false');
-        }
-      } else {
-        item.setAttribute('aria-checked', 'true');
-      }
-    }
-
-    menu.dispatchEvent(
-      new CustomEvent('hc:menuselect', {
-        bubbles: true,
-        detail: { item, menu, trigger, checked },
-      }),
-    );
+    const { role } = selectMenuItem(menu, item, { trigger });
     // shadcn / Radix convention: plain menuitems close the menu;
     // menuitemcheckbox / menuitemradio keep it open so users can
     // toggle multiple choices without reopening.
