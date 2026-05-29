@@ -83,6 +83,31 @@
       "font-size": { "$type": "dimension", "$value": "{semantic.font.size-lg}" }
     }
   },
+  "datepicker": {
+    "height":         { "$type": "dimension",  "$value": "{semantic.control.height}" },
+    "padding-x":      { "$type": "dimension",  "$value": "{semantic.control.padding-x}" },
+    "radius":         { "$type": "dimension",  "$value": "{semantic.control.radius}" },
+    "font-size":      { "$type": "dimension",  "$value": "{semantic.font.size-md}" },
+    "bg":             { "$type": "color",      "$value": "{semantic.color.surface}" },
+    "fg":             { "$type": "color",      "$value": "{semantic.color.text}" },
+    "border":         { "$type": "color",      "$value": "{semantic.color.border}" },
+    "focus-border":   { "$type": "color",      "$value": "{semantic.color.focus-ring}" },
+    "invalid-border": { "$type": "color",      "$value": "{semantic.color.error}" },
+    "success-border": { "$type": "color",      "$value": "{semantic.color.success}" },
+    "warning-border": { "$type": "color",      "$value": "{semantic.color.warning}" },
+    "disabled-bg":    { "$type": "color",      "$value": "{primitive.color.gray.100}" },
+    "icon-size":      { "$type": "dimension",  "$value": "1rem" },
+    "sm": {
+      "height":     { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
+      "padding-x":  { "$type": "dimension", "$value": "{primitive.space.3}" },
+      "font-size":  { "$type": "dimension", "$value": "{semantic.font.size-sm}" }
+    },
+    "lg": {
+      "height":     { "$type": "dimension", "$value": "{primitive.size.control.lg}" },
+      "padding-x":  { "$type": "dimension", "$value": "{primitive.space.5}" },
+      "font-size":  { "$type": "dimension", "$value": "{semantic.font.size-lg}" }
+    }
+  },
   "select": {
     "height":         { "$type": "dimension",  "$value": "var(--hc-control-height)" },
     "padding-x":      { "$type": "dimension",  "$value": "var(--hc-control-padding-x)" },

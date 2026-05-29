@@ -1,0 +1,147 @@
+---
+title: Date picker
+description: Native date / time input styled to match the HC form-control family, with the OS-native calendar popup preserved.
+---
+
+`hc-datepicker` styles a native `<input>` whose `type` is one of
+`date`, `datetime-local`, `month`, or `time`. The native input
+retains every accessible behaviour — keyboard navigation,
+locale-aware rendering, the OS-native calendar / time picker on
+mobile, form submission, `min` / `max` / `step` validation — and
+only the closed-state chrome is replaced via `appearance: none` and
+an embedded SVG icon.
+
+If you need a fully-bespoke calendar UI (custom highlighting,
+preset ranges, multi-month view), use a dedicated calendar library
+or wait for the `hc-calendar` follow-up. The native input is the
+right default for the vast majority of business forms.
+
+## Basic example
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:18rem;">
+  <input class="hc-datepicker" type="date" aria-label="Due date" />
+  <input class="hc-datepicker" type="datetime-local" aria-label="Starts at" />
+  <input class="hc-datepicker" type="time" aria-label="Time" />
+  <input class="hc-datepicker" type="month" aria-label="Reporting month" />
+</div>
+
+```html
+<input class="hc-datepicker" type="date"           name="due"        aria-label="Due date">
+<input class="hc-datepicker" type="datetime-local" name="starts_at"  aria-label="Starts at">
+<input class="hc-datepicker" type="time"           name="time"       aria-label="Time">
+<input class="hc-datepicker" type="month"          name="report_for" aria-label="Reporting month">
+```
+
+`type="time"` swaps the trailing icon to a clock; the other types
+all use a calendar glyph.
+
+## Variants
+
+Same axes as `hc-input` / `hc-select` — `data-variant` accepts
+`success`, `warning`, and `error` for border-colour cues.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:18rem;">
+  <input class="hc-datepicker" type="date" aria-label="Validated" data-variant="success" />
+  <input class="hc-datepicker" type="date" aria-label="Warning" data-variant="warning" />
+  <input class="hc-datepicker" type="date" aria-label="Error" data-variant="error" aria-invalid="true" />
+</div>
+
+Set `aria-invalid="true"` together with `data-variant="error"` so
+assistive tech also recognises the field as invalid.
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`. Sizes follow
+the same `--hc-control-*` scale as `hc-button` / `hc-input` /
+`hc-select`, so `data-density="compact"` shrinks consistently.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:18rem;">
+  <input class="hc-datepicker" type="date" data-size="sm" aria-label="Small" />
+  <input class="hc-datepicker" type="date" aria-label="Default" />
+  <input class="hc-datepicker" type="date" data-size="lg" aria-label="Large" />
+</div>
+
+## Range pickers
+
+A native `<input type="date">` is single-value. For ranges, place
+two inputs adjacent to each other and link their constraints in
+form validation.
+
+```html
+<fieldset class="hc-field">
+  <legend>Date range</legend>
+  <input class="hc-datepicker" type="date" name="from" aria-label="From"
+         id="range-from" max="2027-12-31">
+  <input class="hc-datepicker" type="date" name="to"   aria-label="To"
+         id="range-to"   min="2026-01-01">
+</fieldset>
+
+<script>
+  // Keep the two ends consistent.
+  const from = document.getElementById('range-from');
+  const to   = document.getElementById('range-to');
+  from.addEventListener('change', () => { if (from.value) to.min = from.value; });
+  to.addEventListener('change',   () => { if (to.value)   from.max = to.value; });
+</script>
+```
+
+## htmx usage
+
+The input participates in form submissions like any native input.
+For instant filtering on date change:
+
+```html
+<input class="hc-datepicker"
+       type="date"
+       name="due"
+       data-hx-get="/tasks"
+       data-hx-trigger="change"
+       data-hx-target="#tasks">
+```
+
+## Accessibility
+
+- Always associate the input with a label — wrap it in `hc-field`
+  with a `<label for>`, use `aria-label`, or use `aria-labelledby`.
+- The native input handles keyboard fully: ← / → moves between
+  year / month / day spinners, ↑ / ↓ changes the active spinner.
+  Do not add custom keyboard handlers; they conflict with the
+  built-in behaviour.
+- The icon is purely decorative — screen readers ignore the
+  `background-image`.
+- For business apps with localisation, the browser handles date
+  rendering in the user's locale automatically. The submitted value
+  is always ISO 8601 (`yyyy-mm-dd`) regardless of display locale.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `datepicker.height` / `padding-x` | Sizing (inherits density via `--hc-control-*`). |
+| `datepicker.radius` / `font-size` / `bg` / `fg` / `border` | Surface, text, resting border. |
+| `datepicker.focus-border` | Border when focused. |
+| `datepicker.invalid-border` / `success-border` / `warning-border` | Variant borders. |
+| `datepicker.disabled-bg` | Background when disabled. |
+| `datepicker.icon-size` | Calendar / clock icon dimension. |
+| `datepicker.sm.*` / `lg.*` | Dedicated sm / lg overrides. |
+
+## CSS variables
+
+```text
+--hc-datepicker-height | -padding-x | -radius | -font-size
+--hc-datepicker-bg | -fg | -border
+--hc-datepicker-focus-border | -invalid-border | -success-border | -warning-border
+--hc-datepicker-disabled-bg
+--hc-datepicker-icon-size
+--hc-datepicker-sm-height | -sm-padding-x | -sm-font-size
+--hc-datepicker-lg-height | -lg-padding-x | -lg-font-size
+--hc-color-focus-ring (inherited from data-color)
+```
+
+## Related
+
+- [Input](/hypermedia-components/components/input/) — text and textarea sibling sharing the same control scale.
+- [Select](/hypermedia-components/components/select/) — styled native `<select>` with the same chevron architecture.
+- [Field](/hypermedia-components/components/field/) — label + helper text wrapper.

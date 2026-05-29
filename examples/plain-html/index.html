@@ -383,6 +383,25 @@
   </section>
 
   <section>
+    <h2>Date picker (component — no JS required)</h2>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:.5rem;max-inline-size:18rem;">
+      <input class="hc-datepicker" type="date" name="due"
+             aria-label="Due date" value="2026-05-29">
+      <input class="hc-datepicker" type="datetime-local"
+             aria-label="Starts at" value="2026-05-29T09:00">
+      <input class="hc-datepicker" type="time"
+             aria-label="Reminder" value="14:30">
+      <input class="hc-datepicker" type="date"
+             aria-label="Validated" data-variant="success" value="2026-05-29">
+      <input class="hc-datepicker" type="date"
+             aria-label="Disabled" disabled value="2026-05-29">
+    </div>
+    <p class="small">Native <code>&lt;input type="date"&gt;</code> with
+      <code>appearance: none</code> + a styled calendar icon. The popup
+      stays browser-native, so mobile gets the OS picker.</p>
+  </section>
+
+  <section>
     <h2>Select (component — no JS required)</h2>
     <div class="row" style="flex-direction:column;align-items:flex-start;gap:.5rem;max-inline-size:18rem;">
       <select class="hc-select" name="country" aria-label="Country">

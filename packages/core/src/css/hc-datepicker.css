@@ -1,0 +1,146 @@
+/* hc-datepicker — semantic styling for a native date / time input.
+ *
+ * Apply `.hc-datepicker` to a native <input> whose type is one of:
+ *
+ *   <input class="hc-datepicker" type="date">
+ *   <input class="hc-datepicker" type="datetime-local">
+ *   <input class="hc-datepicker" type="month">
+ *   <input class="hc-datepicker" type="time">
+ *
+ * The native input retains every accessible behaviour — keyboard
+ * navigation across year / month / day spinners, the popup
+ * calendar / time wheel (OS-native on mobile), form submission,
+ * `min` / `max` / `step` validation, locale-aware rendering — and
+ * only the visual chrome is replaced via `appearance: none` plus an
+ * inline SVG icon embedded in the background.
+ *
+ * For range pickers, place two inputs adjacent to each other and
+ * link their `min` / `max` constraints in form-validation JS. A
+ * native single `<input>` is single-value; multi-range pickers are
+ * not in scope for this component.
+ *
+ * Variants: data-variant="success" | "warning" | "error" → border.
+ * Sizes:    data-size="sm" | "md" (default) | "lg".
+ */
+@layer hc.components {
+  .hc-datepicker {
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    min-block-size: var(--hc-datepicker-height);
+
+    /* Room on the inline-end for the icon. */
+    padding-block: 0;
+    padding-inline-start: var(--hc-datepicker-padding-x);
+    padding-inline-end:
+      calc(
+        var(--hc-datepicker-padding-x)
+        + var(--hc-datepicker-icon-size)
+        + var(--hc-space-2)
+      );
+    border: 1px solid var(--hc-datepicker-border);
+    border-radius: var(--hc-datepicker-radius);
+    background-color: var(--hc-datepicker-bg);
+
+    /* Calendar SVG. Stroke colour matches the gray-500 used by
+     * hc-select / hc-checkbox SVG markers. */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2.5' y='3.5' width='11' height='10' rx='1.5' fill='none' stroke='%236b7280' stroke-width='1.5'/><path d='M5 2 L5 5 M11 2 L11 5 M2.5 7 L13.5 7' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right var(--hc-datepicker-padding-x) center;
+    background-size: var(--hc-datepicker-icon-size) var(--hc-datepicker-icon-size);
+    color: var(--hc-datepicker-fg);
+    font-family: inherit;
+    font-size: var(--hc-datepicker-font-size);
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      border-color 120ms ease,
+      box-shadow 120ms ease,
+      background-color 120ms ease;
+  }
+
+  /* Time inputs get a clock icon instead of a calendar. */
+  .hc-datepicker[type="time"] {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='5.5' fill='none' stroke='%236b7280' stroke-width='1.5'/><path d='M8 5 L8 8 L10.5 9.5' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round'/></svg>");
+  }
+
+  /* Hide the WebKit / Chromium native indicator — clicks anywhere
+   * on the input still open the picker, our background icon stays
+   * visually consistent. */
+  .hc-datepicker::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  /* Hide the inner spin buttons on time / date inputs. */
+  .hc-datepicker::-webkit-inner-spin-button,
+  .hc-datepicker::-webkit-outer-spin-button {
+    appearance: none;
+  }
+
+  /* Hide the placeholder pseudo (the prompts like "yyyy-mm-dd") so
+   * an empty input does not show inconsistent UA copy. The visible
+   * affordance is the icon. */
+  .hc-datepicker::-webkit-datetime-edit-fields-wrapper {
+    color: var(--hc-datepicker-fg);
+  }
+
+  .hc-datepicker:focus-visible {
+    outline: none;
+    border-color: var(--hc-datepicker-focus-border);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  /* Variants — border-colour cues. Mirror hc-input / hc-select. */
+  .hc-datepicker[data-variant="success"] {
+    border-color: var(--hc-datepicker-success-border);
+  }
+
+  .hc-datepicker[data-variant="warning"] {
+    border-color: var(--hc-datepicker-warning-border);
+  }
+
+  .hc-datepicker[data-variant="error"] {
+    border-color: var(--hc-datepicker-invalid-border);
+  }
+
+  .hc-datepicker[aria-invalid="true"] {
+    border-color: var(--hc-datepicker-invalid-border);
+  }
+
+  .hc-datepicker[aria-invalid="true"]:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
+  }
+
+  .hc-datepicker:disabled,
+  .hc-datepicker[aria-disabled="true"] {
+    background-color: var(--hc-datepicker-disabled-bg);
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+
+  /* Sizes */
+  .hc-datepicker[data-size="sm"] {
+    min-block-size: var(--hc-datepicker-sm-height);
+    padding-inline-start: var(--hc-datepicker-sm-padding-x);
+    padding-inline-end:
+      calc(
+        var(--hc-datepicker-sm-padding-x)
+        + var(--hc-datepicker-icon-size)
+        + var(--hc-space-2)
+      );
+    font-size: var(--hc-datepicker-sm-font-size);
+  }
+
+  .hc-datepicker[data-size="lg"] {
+    min-block-size: var(--hc-datepicker-lg-height);
+    padding-inline-start: var(--hc-datepicker-lg-padding-x);
+    padding-inline-end:
+      calc(
+        var(--hc-datepicker-lg-padding-x)
+        + var(--hc-datepicker-icon-size)
+        + var(--hc-space-2)
+      );
+    font-size: var(--hc-datepicker-lg-font-size);
+  }
+}
