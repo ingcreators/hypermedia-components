@@ -30,6 +30,7 @@ const COMPONENTS = [
   'hc-switch.css',
   'hc-field.css',
   'hc-spinner.css',
+  'hc-progress.css',
   'hc-dialog.css',
   'hc-popover.css',
   'hc-card.css',

@@ -22,6 +22,26 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-progress` component — pure CSS skin over a native
+  `<progress>` element. The native element retains its
+  `role="progressbar"` semantics and `value` / `max` attribute
+  pair; only the visual chrome is replaced via `appearance: none`
+  and per-vendor pseudo-elements (`::-webkit-progress-bar`,
+  `::-webkit-progress-value`, `::-moz-progress-bar`). Determinate
+  mode (with `value`) shows a smooth fill transition between
+  states; indeterminate mode (no `value`) renders a CSS-only
+  sliding gradient via a keyframe animation that respects
+  `prefers-reduced-motion: reduce`. Variants:
+  `data-variant="success" | "warning" | "error"` recolour every
+  vendor pseudo. Sizes: `data-size="sm" | "md" | "lg"`. New
+  tokens `progress.{height, radius, bg, fill, success-fill,
+  warning-fill, error-fill, transition-duration,
+  indeterminate-duration, sm.height, lg.height}`, all `{ref}` so
+  theming flows through. Playwright spec (7 cases): native
+  progressbar semantics + value attributes, default fill colour
+  via `currentColor`, success / error variant fills, sm vs lg
+  heights, indeterminate animation-name assertion, and an
+  axe-core scan over seven labelled instances.
 - `hc-avatar` component — pure CSS, no JavaScript. Apply
   `.hc-avatar` to an `<img>` for a photo avatar or to a `<span>`
   for an initials fallback when no image is available; both share
