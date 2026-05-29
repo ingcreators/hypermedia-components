@@ -592,6 +592,11 @@
     "max-width": { "$type": "dimension", "$value": "20rem" },
     "offset":    { "$type": "dimension", "$value": "{primitive.space.1}" }
   },
+  "scroll-area": {
+    "thumb":       { "$type": "color", "$value": "{semantic.color.border}" },
+    "thumb-hover": { "$type": "color", "$value": "{semantic.color.text-muted}" },
+    "track":       { "$type": "color", "$value": "transparent" }
+  },
   "splitter": {
     "handle-size":       { "$type": "dimension", "$value": "0.625rem" },
     "handle-bg":         { "$type": "color",     "$value": "transparent" },

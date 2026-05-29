@@ -1,0 +1,98 @@
+---
+title: Scroll area
+description: A scrollable region with thin, themed scrollbars using the standard CSS Scrollbars module. Pure CSS, no JavaScript.
+---
+
+`hc-scroll-area` is a scrollable region with thin, theme-coloured
+scrollbars — the shadcn `ScrollArea` equivalent. It is **pure CSS**:
+it uses the standard CSS Scrollbars module (`scrollbar-width` +
+`scrollbar-color`, Baseline 2025), not the non-standard
+`::-webkit-scrollbar` pseudo-elements. No JavaScript, no overlay
+elements — the browser's own (now stylable) scrollbar does the work.
+
+## Basic usage
+
+Give the region a maximum size on its scroll axis. Add `tabindex="0"`
+so keyboard users can scroll it (see [Accessibility](#accessibility)).
+
+<div class="hc-preview not-content">
+  <div class="hc-scroll-area" tabindex="0" role="region" aria-label="Changelog" style="max-block-size:9rem;max-inline-size:20rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.75rem;">
+    <p style="margin-block-start:0">Scroll this region — the scrollbar is thin and themed.</p>
+    <p>Line two.</p><p>Line three.</p><p>Line four.</p><p>Line five.</p>
+    <p>Line six.</p><p>Line seven.</p><p style="margin-block-end:0">Line eight.</p>
+  </div>
+</div>
+
+```html
+<div class="hc-scroll-area" tabindex="0" role="region" aria-label="Changelog"
+     style="max-block-size:9rem">
+  …long content…
+</div>
+```
+
+## Orientation
+
+`data-orientation` chooses the scroll axis: `vertical` (default),
+`horizontal`, or `both`.
+
+<div class="hc-preview not-content">
+  <div class="hc-scroll-area" data-orientation="horizontal" tabindex="0" role="region" aria-label="Tags" style="max-inline-size:20rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.75rem;white-space:nowrap;">
+    <span>A very long single line of tags that overflows horizontally and scrolls sideways instead of wrapping onto multiple lines.</span>
+  </div>
+</div>
+
+```html
+<div class="hc-scroll-area" data-orientation="horizontal" tabindex="0"
+     style="max-inline-size:20rem;white-space:nowrap">
+  …wide content…
+</div>
+```
+
+`overscroll-behavior: contain` is set, so scrolling to the end of the
+region does not chain to the page behind it.
+
+## Accessibility
+
+- A region the user can scroll **must be keyboard-focusable**, or
+  keyboard-only and switch-control users can't reach the content. Add
+  `tabindex="0"` to the `.hc-scroll-area` (this is what lets `↑`/`↓` /
+  `PageUp`/`PageDown` scroll it). Because the component is pure CSS, it
+  cannot add this for you — it's part of the markup contract.
+- When the region is a meaningful chunk of content, also give it
+  `role="region"` and an `aria-label` so screen-reader users get a
+  navigable landmark.
+- Scrollbar colours should keep enough contrast against the track;
+  the defaults use the border / muted-text tokens.
+
+## Theming tokens
+
+| Token path | Purpose |
+| --- | --- |
+| `scroll-area.thumb` | Scrollbar thumb colour (resting). |
+| `scroll-area.thumb-hover` | Thumb colour while the region is hovered. |
+| `scroll-area.track` | Scrollbar track colour (default transparent). |
+
+## CSS variables
+
+```text
+--hc-scroll-area-thumb | -thumb-hover | -track
+```
+
+## Notes & out of scope
+
+- Styling uses the **standard** `scrollbar-width` / `scrollbar-color`.
+  These give a thin, themed scrollbar everywhere modern; they don't
+  allow a custom thumb radius. If you want a rounded thumb on Chromium
+  / WebKit you can layer `::-webkit-scrollbar` rules yourself, but note
+  Firefox ignores them and the standard `scrollbar-color` overrides
+  them where both apply.
+- A fully custom overlay scrollbar (JS-rendered thumb), scroll-edge
+  fade / shadow, and scroll-to buttons are out of scope.
+
+## Related
+
+- [Card](/hypermedia-components/components/card/) — a common container
+  to wrap a scroll area in.
+- [Command](/hypermedia-components/components/command/) /
+  [Menu](/hypermedia-components/components/menu/) — their lists scroll
+  with the same thin-scrollbar feel.
