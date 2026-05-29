@@ -20,6 +20,7 @@ import { installCombobox } from './combobox.js';
 import { installMulticombobox } from './multicombobox.js';
 import { installDrawer } from './drawer.js';
 import { installHovercard } from './hovercard.js';
+import { installToggleGroup } from './toggle-group.js';
 
 function init() {
   installConfirm();
@@ -35,6 +36,7 @@ function init() {
   installMulticombobox();
   installDrawer();
   installHovercard();
+  installToggleGroup();
 }
 
 if (typeof document !== 'undefined') {
@@ -59,4 +61,5 @@ export {
   installMulticombobox,
   installDrawer,
   installHovercard,
+  installToggleGroup,
 };

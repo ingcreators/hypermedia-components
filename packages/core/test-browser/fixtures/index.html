@@ -403,6 +403,46 @@
     </div>
   </section>
 
+  <section id="section-toggle-group" data-testid="section-toggle-group">
+    <h2>Toggle group</h2>
+
+    <h3>Single (exclusive)</h3>
+    <div class="hc-toggle-group" role="radiogroup" data-type="single"
+         aria-label="Text alignment" data-testid="tg-single">
+      <button type="button" class="hc-toggle" role="radio" aria-checked="true"
+              data-value="left" data-testid="tg-s-left">Left</button>
+      <button type="button" class="hc-toggle" role="radio" aria-checked="false"
+              data-value="center" data-testid="tg-s-center">Center</button>
+      <button type="button" class="hc-toggle" role="radio" aria-checked="false"
+              data-value="right" data-testid="tg-s-right" aria-disabled="true">Right</button>
+      <button type="button" class="hc-toggle" role="radio" aria-checked="false"
+              data-value="justify" data-testid="tg-s-justify">Justify</button>
+    </div>
+
+    <h3>Multiple</h3>
+    <div class="hc-toggle-group" role="group" data-type="multiple"
+         aria-label="Text formatting" data-testid="tg-multi">
+      <button type="button" class="hc-toggle" aria-pressed="false"
+              data-value="bold" data-testid="tg-m-bold">B</button>
+      <button type="button" class="hc-toggle" aria-pressed="true"
+              data-value="italic" data-testid="tg-m-italic">I</button>
+      <button type="button" class="hc-toggle" aria-pressed="false"
+              data-value="underline" data-testid="tg-m-underline">U</button>
+    </div>
+
+    <h3>Sizes</h3>
+    <div class="hc-toggle-group" role="radiogroup" data-type="single" data-size="sm"
+         aria-label="Small size" data-testid="tg-sm">
+      <button type="button" class="hc-toggle" role="radio" aria-checked="true" data-value="a">A</button>
+      <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="b">B</button>
+    </div>
+    <div class="hc-toggle-group" role="radiogroup" data-type="single" data-size="lg"
+         aria-label="Large size" data-testid="tg-lg">
+      <button type="button" class="hc-toggle" role="radio" aria-checked="true" data-value="a">A</button>
+      <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="b">B</button>
+    </div>
+  </section>
+
   <section id="section-avatar" data-testid="section-avatar">
     <h2>Avatar</h2>
     <div class="row" style="gap:1rem;align-items:center;flex-wrap:wrap;">

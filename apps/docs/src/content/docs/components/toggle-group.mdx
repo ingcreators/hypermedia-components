@@ -1,0 +1,203 @@
+---
+title: Toggle group
+description: A connected row of two-state toggle buttons — exclusive (radio) or multiple selection — with roving-tabindex keyboard support. Light CSS skin + installToggleGroup.
+---
+
+`hc-toggle-group` is a connected row of toggle buttons, the shadcn
+`ToggleGroup` equivalent. It comes in two selection modes and ships a
+small behavior (`installToggleGroup`) for the keyboard and state logic;
+the CSS is the segmented-control skin.
+
+The mode is set with `data-type` on the group and reflected by the ARIA
+roles on the buttons — choose the markup that matches the semantics.
+
+## Single (exclusive)
+
+Only one button can be on at a time. Per the
+[WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), an
+exclusive set of toggles **is a radio group** even when it looks like
+buttons: use `role="radiogroup"` on the group and `role="radio"` +
+`aria-checked` on each button. Selection follows focus (arrow keys move
+*and* select), and the group can never be emptied by a click.
+
+<div class="hc-preview not-content">
+  <div class="hc-toggle-group" role="radiogroup" data-type="single" aria-label="Text alignment">
+    <button type="button" class="hc-toggle" role="radio" aria-checked="true"  data-value="left">Left</button>
+    <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="center">Center</button>
+    <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="right">Right</button>
+  </div>
+</div>
+
+```html
+<div class="hc-toggle-group" role="radiogroup" data-type="single"
+     aria-label="Text alignment">
+  <button type="button" class="hc-toggle" role="radio"
+          aria-checked="true"  data-value="left">Left</button>
+  <button type="button" class="hc-toggle" role="radio"
+          aria-checked="false" data-value="center">Center</button>
+  <button type="button" class="hc-toggle" role="radio"
+          aria-checked="false" data-value="right">Right</button>
+</div>
+```
+
+## Multiple
+
+Each button toggles independently. Use `role="group"` on the group and
+`aria-pressed` on each button. Arrow keys move focus; Space / Enter /
+click toggle the focused button on and off.
+
+<div class="hc-preview not-content">
+  <div class="hc-toggle-group" role="group" data-type="multiple" aria-label="Text formatting">
+    <button type="button" class="hc-toggle" aria-pressed="false" data-value="bold"><strong>B</strong></button>
+    <button type="button" class="hc-toggle" aria-pressed="true"  data-value="italic"><em>I</em></button>
+    <button type="button" class="hc-toggle" aria-pressed="false" data-value="underline"><u>U</u></button>
+  </div>
+</div>
+
+```html
+<div class="hc-toggle-group" role="group" data-type="multiple"
+     aria-label="Text formatting">
+  <button type="button" class="hc-toggle" aria-pressed="false" data-value="bold">B</button>
+  <button type="button" class="hc-toggle" aria-pressed="true"  data-value="italic">I</button>
+  <button type="button" class="hc-toggle" aria-pressed="false" data-value="underline">U</button>
+</div>
+```
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg` on the group, drawn
+from the shared `--hc-control-*` scale (so `data-density` shrinks them
+consistently).
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.75rem;align-items:flex-start;">
+  <div class="hc-toggle-group" role="radiogroup" data-type="single" data-size="sm" aria-label="Small">
+    <button type="button" class="hc-toggle" role="radio" aria-checked="true"  data-value="d">Day</button>
+    <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="w">Week</button>
+    <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="m">Month</button>
+  </div>
+  <div class="hc-toggle-group" role="radiogroup" data-type="single" data-size="lg" aria-label="Large">
+    <button type="button" class="hc-toggle" role="radio" aria-checked="true"  data-value="d">Day</button>
+    <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="w">Week</button>
+    <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="m">Month</button>
+  </div>
+</div>
+
+## Keyboard
+
+| Key | Single (radio) | Multiple (group) |
+| --- | --- | --- |
+| `Tab` | Enters / leaves the group (one stop). | Same. |
+| `→` / `↓` | Move focus to next + select it. | Move focus to next. |
+| `←` / `↑` | Move focus to previous + select it. | Move focus to previous. |
+| `Home` / `End` | First / last enabled + select. | First / last enabled. |
+| `Space` / `Enter` | Select the focused button. | Toggle the focused button. |
+
+Navigation wraps around the ends and skips disabled buttons
+(`disabled` or `aria-disabled="true"`). The group is a single
+`Tab` stop via a roving tabindex.
+
+## JavaScript
+
+```js
+import { installToggleGroup } from '@hypermedia-components/core';
+installToggleGroup(); // idempotent; returns an uninstaller
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs
+it automatically. Every change dispatches a bubbling
+`hc:togglegroupchange` on the group:
+
+```js
+group.addEventListener('hc:togglegroupchange', (e) => {
+  // single   → { type:'single', value, item, group }
+  // multiple → { type:'multiple', values, item, pressed, group }
+  console.log(e.detail);
+});
+```
+
+`value` / `values` come from each button's `data-value` attribute.
+
+## Form integration
+
+Set `data-name="X"` on the group and the behavior maintains hidden
+inputs so it serialises like a native control — one `<input type="hidden"
+name="X">` for the checked value (single), or one per pressed value
+(multiple). No JS wiring needed on the server side.
+
+```html
+<div class="hc-toggle-group" role="radiogroup" data-type="single"
+     data-name="view" aria-label="View">
+  <button type="button" class="hc-toggle" role="radio"
+          aria-checked="true" data-value="grid">Grid</button>
+  <button type="button" class="hc-toggle" role="radio"
+          aria-checked="false" data-value="list">List</button>
+</div>
+<!-- submits view=grid -->
+```
+
+## htmx usage
+
+Drive a request straight off the change event — e.g. a segmented
+view switcher that swaps a region:
+
+```html
+<div class="hc-toggle-group" role="radiogroup" data-type="single"
+     aria-label="View"
+     data-hx-get="/reports"
+     data-hx-trigger="hc:togglegroupchange"
+     data-hx-include="this"
+     data-hx-target="#report"
+     data-name="range">
+  <button type="button" class="hc-toggle" role="radio" aria-checked="true"  data-value="7d">7d</button>
+  <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="30d">30d</button>
+  <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="90d">90d</button>
+</div>
+```
+
+`data-hx-include="this"` picks up the hidden input the `data-name`
+integration writes, so the request carries `range=7d` etc.
+
+## Accessibility
+
+- Give the group an accessible name with `aria-label` (or
+  `aria-labelledby`).
+- Pick the role that matches the semantics: an exclusive choice is a
+  **radio group**, not a set of independent toggles. Using
+  `aria-pressed` for an exclusive choice misleads screen-reader users
+  into thinking several can be on at once.
+- The behavior keeps `aria-checked` / `aria-pressed` and the roving
+  tabindex in sync; you only set the initial state in markup.
+- Disabled buttons are skipped by keyboard navigation.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `toggle.height` / `padding-x` / `radius` / `font-size` / `font-weight` | Box metrics (height + padding-x are density-aware). |
+| `toggle.fg` / `bg` / `border` | Resting colours. |
+| `toggle.hover-bg` / `hover-fg` | Hover state. |
+| `toggle.on-bg` / `on-fg` / `on-border` | Selected / pressed state — the accent tracks `data-color`. |
+| `toggle.disabled-fg` / `disabled-bg` | Disabled state. |
+| `toggle.sm.*` / `lg.*` | Size variants. |
+
+## CSS variables
+
+```text
+--hc-toggle-height | -padding-x | -radius | -font-size | -font-weight
+--hc-toggle-fg | -bg | -border
+--hc-toggle-hover-bg | -hover-fg
+--hc-toggle-on-bg | -on-fg | -on-border
+--hc-toggle-disabled-fg | -disabled-bg
+--hc-toggle-sm-* | -lg-*
+```
+
+## Related
+
+- [Button](/hypermedia-components/components/button/) — for single
+  actions rather than persistent state.
+- [Tabs](/hypermedia-components/components/tabs/) — when each option
+  reveals a different panel of content.
+- [Switch](/hypermedia-components/components/switch/) — for a single
+  on / off setting.

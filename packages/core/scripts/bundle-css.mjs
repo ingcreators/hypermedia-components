@@ -48,6 +48,7 @@ const COMPONENTS = [
   'hc-toolbar.css',
   'hc-pagination.css',
   'hc-tabs.css',
+  'hc-toggle-group.css',
   'hc-menu.css',
   'hc-tooltip.css',
   'hc-hovercard.css',
