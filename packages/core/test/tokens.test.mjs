@@ -311,5 +311,33 @@ describe('buildTokensCss', () => {
       // theme key).
       expect(indigoBlock).not.toContain('--hc-button-secondary-bg');
     });
+
+    // The CLI writes per-axis files (hc.tokens.color-indigo.css, etc.)
+    // by keeping every source in the list for {ref} resolution but
+    // flagging only the target axis to emit. These two cases lock that
+    // emit-subset behaviour the granular token files rely on.
+    it('per-axis: emits only the requested colour axis block', () => {
+      const sources = SOURCES_WITH_THEMES.map((s) => ({
+        ...s,
+        emit: s.emit === false ? false : s.namespace === 'color.indigo',
+      }));
+      const { css } = buildTokensCss({ sources, trees: TREES_WITH_THEMES });
+      // Just the indigo block, with its overlaid themed leaf.
+      expect(css).toMatch(/\[data-color="indigo"\]\s*\{[^}]*--hc-button-primary-bg:\s*#4f46e5;/);
+      // No base (:root) leaves and no other axis block leak in.
+      expect(css).not.toContain('[data-color="default"]');
+      expect(css).not.toContain('--hc-button-secondary-bg');
+    });
+
+    it('core: omits the non-default colour axis block', () => {
+      const sources = SOURCES_WITH_THEMES.map((s) => ({
+        ...s,
+        emit: s.emit === false ? false : s.namespace !== 'color.indigo',
+      }));
+      const { css } = buildTokensCss({ sources, trees: TREES_WITH_THEMES });
+      expect(css).not.toContain('[data-color="indigo"]');
+      expect(css).toMatch(/\[data-color="default"\]\s*\{[^}]*--hc-button-primary-bg:\s*#2563eb;/);
+      expect(css).toContain('--hc-button-secondary-bg: #f3f4f6;');
+    });
   });
 });

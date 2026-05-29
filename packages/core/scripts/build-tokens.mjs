@@ -271,6 +271,25 @@ export const DEFAULT_SOURCES = [
   { namespace: 'color.amber',   file: 'color.amber.tokens.json',   selector: '[data-color="amber"]' },
 ];
 
+// The "core" axes every consumer needs: the semantic base, the
+// theme-independent component leaves, dark mode, and the *default*
+// density / colour blocks (so the unset state renders). The remaining
+// density / colour axes ship as their own files so a consumer can load
+// only the runtime axes they actually switch between — and so authors
+// can drop in their own custom axis files next to them.
+const CORE_NAMESPACES = ['semantic', 'component', 'theme.dark', 'density.comfortable', 'color.default'];
+const AXIS_NAMESPACES = ['density.compact', 'density.dense', 'color.indigo', 'color.emerald', 'color.rose', 'color.amber'];
+
+/**
+ * Re-flag DEFAULT_SOURCES so only `names` are emitted; the rest stay in
+ * the list (for `{ref}` resolution + consistent themed-leaf
+ * classification) but are skipped on output. primitive is never emitted.
+ */
+function emitOnly(names) {
+  const set = new Set(names);
+  return DEFAULT_SOURCES.map((s) => ({ ...s, emit: s.emit === false ? false : set.has(s.namespace) }));
+}
+
 async function main() {
   const here = dirname(fileURLToPath(import.meta.url));
   const pkgRoot = resolve(here, '..');
@@ -283,15 +302,29 @@ async function main() {
     trees[src.namespace] = JSON.parse(text);
   }
 
-  const { css, varCount, blockCount } = buildTokensCss({
-    sources: DEFAULT_SOURCES,
-    trees,
-  });
-
   await mkdir(distDir, { recursive: true });
-  await writeFile(join(distDir, 'hc.tokens.css'), css, 'utf8');
 
-  console.log(`hc.tokens.css written (${varCount} vars across ${blockCount} blocks)`);
+  // Full bundle (all axes) — the easy, everything path.
+  const full = buildTokensCss({ sources: DEFAULT_SOURCES, trees });
+  await writeFile(join(distDir, 'hc.tokens.css'), full.css, 'utf8');
+
+  // Core (semantic + base components + dark + default density/colour).
+  const core = buildTokensCss({ sources: emitOnly(CORE_NAMESPACES), trees });
+  await writeFile(join(distDir, 'hc.tokens.core.css'), core.css, 'utf8');
+
+  // One file per non-default runtime axis: hc.tokens.color-indigo.css etc.
+  const axisFiles = [];
+  for (const ns of AXIS_NAMESPACES) {
+    const out = buildTokensCss({ sources: emitOnly([ns]), trees });
+    const file = `hc.tokens.${ns.replace('.', '-')}.css`;
+    await writeFile(join(distDir, file), out.css, 'utf8');
+    axisFiles.push(file);
+  }
+
+  console.log(
+    `hc.tokens.css written (${full.varCount} vars across ${full.blockCount} blocks)\n` +
+    `  + hc.tokens.core.css (${core.varCount} vars) and ${axisFiles.length} axis files: ${axisFiles.join(', ')}`,
+  );
 }
 
 // Run main only when invoked as a script (not when imported by tests).

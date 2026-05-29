@@ -22,6 +22,41 @@ Security    — security-relevant changes
 
 ### Added
 
+- Build optimization & granular imports (plan §5.4). Three consumption
+  shapes so consumers pay only for what they use:
+  - **Per-component CSS**: new `./css/*` exports (e.g. `./css/button` →
+    `dist/hc-button.css`) plus a shared `./css/core` (`hc.core.css` =
+    layer declaration + core tokens + base). Load `css/core` once, then
+    only the component CSS you use. A ~6-component app drops from the
+    ~26–62 KB-gzip full payload to roughly ~20 KB.
+  - **Per-theme-axis token files**: `build-tokens.mjs` now also emits
+    `hc.tokens.core.css` (semantic + default colour/density + dark) and
+    one file per non-default axis (`hc.tokens.color-indigo.css`,
+    `…-emerald/-rose/-amber`, `…density-compact/-dense`), exposed via
+    `./tokens.*.css`. Apps load only the runtime axes they switch, and
+    authors get a template for custom axes. `hc.tokens.css` (full)
+    stays a concatenation of these.
+  - **Minified single-file bundles** via a new `esbuild` devDependency +
+    `scripts/minify.mjs` (`build:min` step): `hc.min.css`
+    (30.6 → **14.1 KB gzip**), `hc.core.min.css` (**4.0 KB**),
+    `hc.behaviors.min.js` (31.5 → **12.1 KB gzip**, bundled so the
+    relative-import graph is no longer exposed to consumers),
+    `hc.min.js`, and `macros/index.min.js`. The script prints a
+    raw/min/gzip size report. (Minification helps unusually much here
+    because it strips the source's doc comments, which gzip only
+    partially compresses.)
+
+  All new `exports` are additive — `.`, `./css`, `./behaviors`,
+  `./macros` are unchanged — adding `./min`, `./css/min`, `./css/core`,
+  `./css/core/min`, `./css/*`, `./tokens.*.css`, `./behaviors/min`,
+  `./macros/min`; `sideEffects` lists the minified behaviors bundle. The
+  per-file ESM + per-component CSS stay the primary tree-shakeable
+  surface; the bundles are for CDN / import-map / no-bundler use. New
+  docs page `reference/size.mdx` documents the size baseline and the
+  full / granular / native-ESM-import-map shapes (including an
+  `importmap-rails` recipe and a caching-tradeoff note). Two new Vitest
+  cases cover the per-axis vs core token emission.
+
 - Docs **Kitchen sink** page (`apps/docs/src/content/docs/kitchen-sink.mdx`)
   — every component rendered live on one page, grouped (Actions, Form
   controls, Navigation, Overlays, Feedback & status, Layout & data),
