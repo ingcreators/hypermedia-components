@@ -179,6 +179,26 @@
     </fieldset>
   </section>
 
+  <section id="section-progress" data-testid="section-progress">
+    <h2>Progress</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:0.75rem;max-inline-size:24rem;">
+      <progress class="hc-progress" value="40" max="100"
+                aria-label="Upload progress" data-testid="pg-default"></progress>
+      <progress class="hc-progress" value="65" max="100"
+                aria-label="Validation" data-variant="success" data-testid="pg-success"></progress>
+      <progress class="hc-progress" value="80" max="100"
+                aria-label="Disk" data-variant="warning" data-testid="pg-warning"></progress>
+      <progress class="hc-progress" value="92" max="100"
+                aria-label="Error" data-variant="error" data-testid="pg-error"></progress>
+      <progress class="hc-progress" value="50" max="100"
+                aria-label="Small" data-size="sm" data-testid="pg-sm"></progress>
+      <progress class="hc-progress" value="50" max="100"
+                aria-label="Large" data-size="lg" data-testid="pg-lg"></progress>
+      <progress class="hc-progress" aria-label="Indeterminate loading"
+                data-testid="pg-indet"></progress>
+    </div>
+  </section>
+
   <section id="section-avatar" data-testid="section-avatar">
     <h2>Avatar</h2>
     <div class="row" style="gap:1rem;align-items:center;flex-wrap:wrap;">

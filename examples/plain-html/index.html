@@ -206,6 +206,21 @@
   </section>
 
   <section>
+    <h2>Progress (component — no JS required)</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:.5rem;max-inline-size:24rem;">
+      <progress class="hc-progress" value="40" max="100" aria-label="Upload"></progress>
+      <progress class="hc-progress" value="80" max="100" data-variant="success"
+                aria-label="Validation"></progress>
+      <progress class="hc-progress" value="92" max="100" data-variant="error"
+                aria-label="Disk near full"></progress>
+      <progress class="hc-progress" aria-label="Indeterminate loading"></progress>
+    </div>
+    <p class="small">Native <code>&lt;progress&gt;</code> styled via
+      <code>appearance: none</code> + vendor pseudo-elements. Omit
+      <code>value</code> for the indeterminate slide.</p>
+  </section>
+
+  <section>
     <h2>Avatar (component — no JS required)</h2>
     <div class="row" style="gap:1rem;align-items:center;flex-wrap:wrap;">
       <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>

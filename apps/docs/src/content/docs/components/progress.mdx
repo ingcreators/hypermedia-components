@@ -1,0 +1,133 @@
+---
+title: Progress
+description: Native <progress> element styled with consistent cross-browser chrome, supporting determinate and indeterminate states. Pure CSS, no JavaScript.
+---
+
+`hc-progress` is applied to a standard `<progress>` element. The
+native element retains its ARIA `role="progressbar"` semantics and
+the `value` / `max` attribute pair; only the visual chrome is
+replaced via `appearance: none` and per-vendor pseudo-elements.
+
+## Determinate
+
+Set `value` and (optionally) `max`. The browser computes the
+percentage automatically.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+  <progress class="hc-progress" value="40" max="100" aria-label="Upload progress"></progress>
+  <progress class="hc-progress" value="80" max="100" aria-label="Validation progress"></progress>
+</div>
+
+```html
+<progress class="hc-progress"
+          value="40" max="100"
+          aria-label="Upload progress">
+</progress>
+```
+
+The fill transitions smoothly when `value` changes — htmx swaps,
+JS updates, etc.
+
+## Indeterminate
+
+Omit `value` for the "unknown duration" state. A muted gradient
+slides across the track at a steady cadence.
+
+<div class="hc-preview not-content" style="max-inline-size:24rem;">
+  <progress class="hc-progress" aria-label="Loading"></progress>
+</div>
+
+```html
+<progress class="hc-progress" aria-label="Loading"></progress>
+```
+
+The slide animation respects `prefers-reduced-motion: reduce` —
+when the user has opted out of motion, the track displays a static
+centred gradient instead.
+
+## Variants
+
+`data-variant` accepts `success`, `warning`, and `error` for
+non-default fill colours.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+  <progress class="hc-progress" value="60" max="100" aria-label="Default"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="success" aria-label="Success"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="warning" aria-label="Warning"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="error" aria-label="Error"></progress>
+</div>
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+  <progress class="hc-progress" value="50" max="100" data-size="sm" aria-label="Small"></progress>
+  <progress class="hc-progress" value="50" max="100" aria-label="Default"></progress>
+  <progress class="hc-progress" value="50" max="100" data-size="lg" aria-label="Large"></progress>
+</div>
+
+## htmx usage
+
+A `<progress>` is a normal DOM node — htmx can swap it like any
+other element. Pair with a polling or SSE pattern to show
+server-side progress:
+
+```html
+<progress
+  class="hc-progress"
+  value="0" max="100"
+  aria-label="Importing"
+  data-hx-get="/imports/42/progress"
+  data-hx-trigger="every 500ms"
+  data-hx-swap="outerHTML">
+</progress>
+```
+
+The server returns an updated `<progress class="hc-progress" value="N" max="100">`;
+the fill animates from the previous value to the new one.
+
+## Accessibility
+
+- Always give the element an accessible name — either an `aria-label`
+  or a wrapping `<label for>` element. Without one, screen readers
+  announce "progress bar" without context.
+- `value` and `max` carry the percentage. There is no need to also
+  set `aria-valuenow` / `aria-valuemax`; the browser maps the
+  attributes to the accessibility tree automatically.
+- For long-running tasks (over a few seconds), pair the progress
+  bar with a status text that periodically updates. A bare bar
+  alone is hard to interpret.
+- The indeterminate animation suppresses itself for
+  `prefers-reduced-motion: reduce` users.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `progress.height` | Track height. |
+| `progress.radius` | Track corner radius. |
+| `progress.bg` | Track background. |
+| `progress.fill` | Default fill colour (action.primary). |
+| `progress.success-fill` / `warning-fill` / `error-fill` | Variant fills. |
+| `progress.transition-duration` | Fill animation when `value` changes. |
+| `progress.indeterminate-duration` | Slide-cycle duration when no `value`. |
+| `progress.sm.height` / `lg.height` | Size variants. |
+
+## CSS variables
+
+```text
+--hc-progress-height | -radius | -bg | -fill
+--hc-progress-success-fill | -warning-fill | -error-fill
+--hc-progress-transition-duration | -indeterminate-duration
+--hc-progress-sm-height | -lg-height
+```
+
+## Related
+
+- [Spinner](/hypermedia-components/components/spinner/) — when the
+  duration is too short or too unknown to merit a bar.
+- [Alert](/hypermedia-components/components/alert/) — pairs well
+  with a progress bar in an "importing… 60%" status row.

@@ -1,0 +1,170 @@
+/* hc-progress — semantic styling for a native <progress> element.
+ *
+ * The native element retains its ARIA role ("progressbar") and the
+ * value/max attribute pair; only the visual chrome is replaced via
+ * `appearance: none` and per-vendor pseudo-elements.
+ *
+ * Determinate:
+ *   <progress class="hc-progress" value="40" max="100" aria-label="…"></progress>
+ *
+ * Indeterminate (omit value):
+ *   <progress class="hc-progress" aria-label="Loading"></progress>
+ *
+ * Variants: data-variant="success" | "warning" | "error" → fill colour.
+ * Sizes:    data-size="sm" | "md" (default) | "lg".
+ */
+@layer hc.components {
+  .hc-progress {
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    block-size: var(--hc-progress-height);
+    border: 0;
+    border-radius: var(--hc-progress-radius);
+    background-color: var(--hc-progress-bg);
+    color: var(--hc-progress-fill);
+    overflow: hidden;
+  }
+
+  /* Determinate track / fill — Chromium / WebKit. */
+  .hc-progress::-webkit-progress-bar {
+    background-color: var(--hc-progress-bg);
+    border-radius: var(--hc-progress-radius);
+  }
+
+  .hc-progress::-webkit-progress-value {
+    background-color: var(--hc-progress-fill);
+    border-radius: var(--hc-progress-radius);
+    transition: inline-size var(--hc-progress-transition-duration) ease;
+  }
+
+  /* Determinate fill — Firefox. */
+  .hc-progress::-moz-progress-bar {
+    background-color: var(--hc-progress-fill);
+    border-radius: var(--hc-progress-radius);
+    transition: inline-size var(--hc-progress-transition-duration) ease;
+  }
+
+  /* Variants — recolour the fill in every vendor's pseudo. */
+  .hc-progress[data-variant="success"] {
+    color: var(--hc-progress-success-fill);
+  }
+
+  .hc-progress[data-variant="success"]::-webkit-progress-value {
+    background-color: var(--hc-progress-success-fill);
+  }
+
+  .hc-progress[data-variant="success"]::-moz-progress-bar {
+    background-color: var(--hc-progress-success-fill);
+  }
+
+  .hc-progress[data-variant="warning"] {
+    color: var(--hc-progress-warning-fill);
+  }
+
+  .hc-progress[data-variant="warning"]::-webkit-progress-value {
+    background-color: var(--hc-progress-warning-fill);
+  }
+
+  .hc-progress[data-variant="warning"]::-moz-progress-bar {
+    background-color: var(--hc-progress-warning-fill);
+  }
+
+  .hc-progress[data-variant="error"] {
+    color: var(--hc-progress-error-fill);
+  }
+
+  .hc-progress[data-variant="error"]::-webkit-progress-value {
+    background-color: var(--hc-progress-error-fill);
+  }
+
+  .hc-progress[data-variant="error"]::-moz-progress-bar {
+    background-color: var(--hc-progress-error-fill);
+  }
+
+  /* Sizes */
+  .hc-progress[data-size="sm"] {
+    block-size: var(--hc-progress-sm-height);
+  }
+
+  .hc-progress[data-size="lg"] {
+    block-size: var(--hc-progress-lg-height);
+  }
+
+  /* Indeterminate — a <progress> without a `value` attribute. The
+   * native element animates a moving stripe by default; we render
+   * our own consistent animation by repainting the track with a
+   * masked gradient that travels across it. The base styles above
+   * are overridden so the pseudo-elements don't fight us. */
+  .hc-progress:not([value]) {
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--hc-progress-fill) 50%,
+      transparent 100%
+    );
+    background-size: 40% 100%;
+    background-repeat: no-repeat;
+    background-position-x: -40%;
+    animation: hc-progress-slide var(--hc-progress-indeterminate-duration) linear infinite;
+  }
+
+  .hc-progress[data-variant="success"]:not([value]) {
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--hc-progress-success-fill) 50%,
+      transparent 100%
+    );
+  }
+
+  .hc-progress[data-variant="warning"]:not([value]) {
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--hc-progress-warning-fill) 50%,
+      transparent 100%
+    );
+  }
+
+  .hc-progress[data-variant="error"]:not([value]) {
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--hc-progress-error-fill) 50%,
+      transparent 100%
+    );
+  }
+
+  /* Hide the native indeterminate fill so only our gradient shows. */
+  .hc-progress:not([value])::-webkit-progress-bar {
+    background-color: var(--hc-progress-bg);
+  }
+
+  .hc-progress:not([value])::-webkit-progress-value {
+    visibility: hidden;
+  }
+
+  .hc-progress:not([value])::-moz-progress-bar {
+    background-color: transparent;
+  }
+
+  @keyframes hc-progress-slide {
+    from { background-position-x: -40%; }
+    to   { background-position-x: 140%; }
+  }
+
+  /* Respect users who prefer not to see motion: drop the slide
+   * animation; the track stays visible as a flat coloured bar. */
+  @media (prefers-reduced-motion: reduce) {
+    .hc-progress:not([value]) {
+      animation-duration: 0ms;
+      background-position-x: 50%;
+    }
+
+    .hc-progress::-webkit-progress-value,
+    .hc-progress::-moz-progress-bar {
+      transition-duration: 0ms;
+    }
+  }
+}
