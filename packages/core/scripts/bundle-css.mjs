@@ -48,6 +48,7 @@ const COMPONENTS = [
   'hc-tabs.css',
   'hc-menu.css',
   'hc-tooltip.css',
+  'hc-hovercard.css',
   'hc-accordion.css',
   'hc-breadcrumb.css',
 ];

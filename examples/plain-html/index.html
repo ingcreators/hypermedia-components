@@ -206,6 +206,30 @@
   </section>
 
   <section>
+    <h2>Hover card (component + behavior)</h2>
+    <p>
+      Hover or focus
+      <a href="#" id="example-hc-trigger" aria-describedby="example-hc-card">Ada Lovelace</a>
+      for a richer preview.
+    </p>
+    <div class="hc-hovercard" id="example-hc-card">
+      <header class="hc-hovercard__header">
+        <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+        <div>
+          <div class="hc-hovercard__title">Ada Lovelace</div>
+          <div class="hc-hovercard__subtitle">Mathematician</div>
+        </div>
+      </header>
+      <div class="hc-hovercard__body">
+        <p>First computer programmer. <a href="#">View profile →</a></p>
+      </div>
+    </div>
+    <p class="small">The card stays open while either the trigger or the
+      card is hovered, so you can move into the card and click the link
+      inside.</p>
+  </section>
+
+  <section>
     <h2>Drawer (component + behavior)</h2>
     <div class="row">
       <button class="hc-button" id="example-open-drawer">Open right drawer</button>

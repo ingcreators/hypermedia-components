@@ -19,6 +19,7 @@ import { installSlider } from './slider.js';
 import { installCombobox } from './combobox.js';
 import { installMulticombobox } from './multicombobox.js';
 import { installDrawer } from './drawer.js';
+import { installHovercard } from './hovercard.js';
 
 function init() {
   installConfirm();
@@ -33,6 +34,7 @@ function init() {
   installCombobox();
   installMulticombobox();
   installDrawer();
+  installHovercard();
 }
 
 if (typeof document !== 'undefined') {
@@ -56,4 +58,5 @@ export {
   installCombobox,
   installMulticombobox,
   installDrawer,
+  installHovercard,
 };

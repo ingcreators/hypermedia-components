@@ -1,0 +1,158 @@
+---
+title: Hover card
+description: Richer tooltip with structured content. The user can move the cursor into the card and click links inside it.
+---
+
+`hc-hovercard` is the **richer-content sibling of
+[hc-tooltip](/hypermedia-components/components/tooltip/)**. Use it
+when the popup needs an avatar, a title and subtitle, a paragraph
+description, or interactive links — anywhere a short text label is
+not enough. Common examples: GitHub-style `@user` mention previews,
+issue ID previews, page link previews.
+
+Built on the same primitives as `hc-tooltip` and `hc-menu`: native
+`popover` attribute, CSS Anchor Positioning,
+`installHovercard()` for the open / close routing. The key
+behavioural differences from tooltip:
+
+- The card receives pointer events (no `pointer-events: none`), so
+  users can move the cursor into it and click links inside.
+- The behavior tracks hover state on **both the trigger and the
+  card** — the card stays open while either is hovered.
+- Show / hide delays are longer (500 ms / 200 ms) to suit the
+  reading-card UX.
+
+## Basic example
+
+<div class="hc-preview not-content">
+  <p>
+    Hover or focus
+    <a href="#" id="doc-hc-trigger" aria-describedby="doc-hc-card">Ada Lovelace</a>
+    for a richer preview.
+  </p>
+  <div class="hc-hovercard" id="doc-hc-card">
+    <header class="hc-hovercard__header">
+      <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+      <div>
+        <div class="hc-hovercard__title">Ada Lovelace</div>
+        <div class="hc-hovercard__subtitle">Mathematician</div>
+      </div>
+    </header>
+    <div class="hc-hovercard__body">
+      <p>First computer programmer. <a href="#">View profile →</a></p>
+    </div>
+  </div>
+</div>
+
+```html
+<a href="/users/ada" aria-describedby="ada-card">Ada Lovelace</a>
+
+<div class="hc-hovercard" id="ada-card">
+  <header class="hc-hovercard__header">
+    <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+    <div>
+      <div class="hc-hovercard__title">Ada Lovelace</div>
+      <div class="hc-hovercard__subtitle">Mathematician</div>
+    </div>
+  </header>
+  <div class="hc-hovercard__body">
+    <p>First computer programmer. <a href="/users/ada">View profile →</a></p>
+  </div>
+</div>
+```
+
+```js
+import { installHovercard } from '@hypermedia-components/core';
+installHovercard();
+```
+
+## How `installHovercard()` routes show / hide
+
+| Trigger event | Effect |
+| --- | --- |
+| trigger `mouseenter` | Schedule show after 500 ms. |
+| trigger `mouseleave` | Schedule hide after 200 ms (cancels pending show). |
+| trigger `focus` | Show immediately (a11y). |
+| trigger `blur` | Schedule hide after 200 ms. |
+| card `mouseenter` | Cancel any pending hide. |
+| card `mouseleave` | Schedule hide after 200 ms. |
+| `Escape` on trigger or card | Close. |
+
+The card stays open while **either the trigger or the card** is
+hovered, so the cursor can travel through the small gap between
+them without dismissing.
+
+## htmx lazy load
+
+Pair with htmx's `data-hx-trigger="mouseenter"` (or
+`hc:hovercardrequest` if you wire your own) to fetch the card body
+on first hover.
+
+```html
+<a href="/users/ada"
+   aria-describedby="ada-card">Ada Lovelace</a>
+
+<div class="hc-hovercard" id="ada-card"
+     data-hx-get="/users/ada/preview"
+     data-hx-trigger="hc:hovercardrequest once"
+     data-hx-target="this">
+  <hc-spinner></hc-spinner>
+</div>
+```
+
+A small wrapper in your app can dispatch `hc:hovercardrequest` on
+the card the first time it opens. (`installHovercard` does not
+currently dispatch this — it is shown here as a documented
+extension pattern.)
+
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| HTML `popover` | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| CSS Anchor Positioning | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+Browsers without anchor support fall back to a
+`getBoundingClientRect` placement that mirrors the default-below +
+`flip-block` CSS path.
+
+## Accessibility
+
+- The trigger references the card via `aria-describedby` so screen
+  readers announce the card's text content on trigger focus,
+  regardless of whether it is visually rendered.
+- Hover-card content is supplementary. Anything **necessary** to
+  understand the page must live in the document body too.
+- Do not put primary actions inside a hover card — a user who never
+  hovers will never see them. Links to "view full profile" are
+  fine; the action they trigger should also be reachable via the
+  trigger element directly (e.g. the trigger is the same link).
+- `Escape` always closes the card without moving focus.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `hovercard.bg` / `fg` / `border` / `radius` | Surface. |
+| `hovercard.max-width` | Cap before wrapping. |
+| `hovercard.padding` / `gap` | Inner layout. |
+| `hovercard.offset` | Distance from trigger when anchored. |
+| `hovercard.title-weight` | `.hc-hovercard__title` font weight. |
+| `hovercard.subtitle-fg` / `subtitle-size` | `.hc-hovercard__subtitle` colour and size. |
+
+## CSS variables
+
+```text
+--hc-hovercard-bg | -fg | -border | -radius
+--hc-hovercard-max-width | -padding | -gap | -offset
+--hc-hovercard-title-weight
+--hc-hovercard-subtitle-fg | -subtitle-size
+```
+
+## Related
+
+- [Tooltip](/hypermedia-components/components/tooltip/) — short text label sibling (`pointer-events: none`, shorter delays).
+- [Popover](/hypermedia-components/components/popover/) — explicit-open transient surface.
+- [Menu](/hypermedia-components/components/menu/) — action menu with the same anchor + popover machinery.
