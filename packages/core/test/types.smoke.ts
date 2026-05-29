@@ -23,6 +23,7 @@ import {
   installMulticombobox,
   installDrawer,
   installHovercard,
+  installToggleGroup,
   version,
 } from '@hypermedia-components/core';
 
@@ -40,6 +41,7 @@ import {
   installMulticombobox as installMulticomboboxFromBehaviors,
   installDrawer as installDrawerFromBehaviors,
   installHovercard as installHovercardFromBehaviors,
+  installToggleGroup as installToggleGroupFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -61,6 +63,7 @@ const uninstallers: Array<() => void> = [
   installMulticombobox(document),
   installDrawer(document),
   installHovercard(document),
+  installToggleGroup(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -74,6 +77,7 @@ const uninstallers: Array<() => void> = [
   installMulticomboboxFromBehaviors(),
   installDrawerFromBehaviors(),
   installHovercardFromBehaviors(),
+  installToggleGroupFromBehaviors(),
 ];
 
 // `version` is a string literal export.

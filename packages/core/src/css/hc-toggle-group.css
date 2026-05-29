@@ -1,0 +1,124 @@
+/* hc-toggle-group — a connected row of two-state toggle buttons.
+ *
+ * Two selection modes, distinguished by `data-type` on the group and
+ * by the ARIA roles on the buttons (the behavior reads `data-type`):
+ *
+ *   Single (exclusive) — the group is a radio group. Even though the
+ *   buttons look like toggles, only one can be on at a time, so per the
+ *   WAI-ARIA APG they carry radio semantics:
+ *     <div class="hc-toggle-group" role="radiogroup" data-type="single"
+ *          aria-label="Text alignment">
+ *       <button class="hc-toggle" role="radio" aria-checked="true">Left</button>
+ *       <button class="hc-toggle" role="radio" aria-checked="false">Center</button>
+ *       …
+ *     </div>
+ *
+ *   Multiple — independent toggle buttons grouped together:
+ *     <div class="hc-toggle-group" role="group" data-type="multiple"
+ *          aria-label="Text formatting">
+ *       <button class="hc-toggle" aria-pressed="false">Bold</button>
+ *       <button class="hc-toggle" aria-pressed="true">Italic</button>
+ *       …
+ *     </div>
+ *
+ * `installToggleGroup()` supplies roving tabindex, arrow-key
+ * navigation, and the toggle / selection logic. The CSS here is the
+ * connected-segmented-control skin and the on / hover / disabled
+ * states; the "on" accent (background + border) reads the active colour
+ * theme through the `data-color` cascade.
+ *
+ * Sizes: data-size="sm" | "md" (default) | "lg" on the group.
+ */
+@layer hc.components {
+  .hc-toggle-group {
+    display: inline-flex;
+
+    /* keep the lifted-item z-index stacking local to the group */
+    isolation: isolate;
+  }
+
+  .hc-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    block-size: var(--hc-toggle-height);
+    padding-inline: var(--hc-toggle-padding-x);
+    border: 1px solid var(--hc-toggle-border);
+    background-color: var(--hc-toggle-bg);
+    color: var(--hc-toggle-fg);
+    font: inherit;
+    font-size: var(--hc-toggle-font-size);
+    font-weight: var(--hc-toggle-font-weight);
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+  }
+
+  /* Collapse shared inner borders into a single hairline. */
+  .hc-toggle:not(:first-child) {
+    margin-inline-start: -1px;
+  }
+
+  /* Outer corners follow the group; inner edges square off. `of-type`
+   * (not `child`) so the optional trailing hidden-input <span> the
+   * behavior injects for `data-name` form integration does not steal
+   * the last toggle's rounded edge. A lone toggle matches both
+   * selectors and stays fully rounded. */
+  .hc-toggle:first-of-type {
+    border-start-start-radius: var(--hc-toggle-radius);
+    border-end-start-radius: var(--hc-toggle-radius);
+  }
+
+  .hc-toggle:last-of-type {
+    border-start-end-radius: var(--hc-toggle-radius);
+    border-end-end-radius: var(--hc-toggle-radius);
+  }
+
+  .hc-toggle:hover:not(:disabled, [aria-disabled="true"]) {
+    background-color: var(--hc-toggle-hover-bg);
+    color: var(--hc-toggle-hover-fg);
+  }
+
+  /* On / selected — aria-pressed (multiple) or aria-checked (single).
+   * Lift above neighbours so the accent border is not clipped by the
+   * overlapping sibling edges. */
+  .hc-toggle[aria-pressed="true"],
+  .hc-toggle[aria-checked="true"] {
+    position: relative;
+    z-index: 1;
+    background-color: var(--hc-toggle-on-bg);
+    color: var(--hc-toggle-on-fg);
+    border-color: var(--hc-toggle-on-border);
+  }
+
+  .hc-toggle:focus-visible {
+    position: relative;
+    z-index: 2;
+    outline: 2px solid var(--hc-color-focus-ring);
+
+    /* inset so the ring is not clipped by the connected neighbours */
+    outline-offset: -2px;
+  }
+
+  .hc-toggle:disabled,
+  .hc-toggle[aria-disabled="true"] {
+    background-color: var(--hc-toggle-disabled-bg);
+    color: var(--hc-toggle-disabled-fg);
+    cursor: not-allowed;
+  }
+
+  /* Sizes */
+  .hc-toggle-group[data-size="sm"] .hc-toggle {
+    block-size: var(--hc-toggle-sm-height);
+    padding-inline: var(--hc-toggle-sm-padding-x);
+    font-size: var(--hc-toggle-sm-font-size);
+  }
+
+  .hc-toggle-group[data-size="lg"] .hc-toggle {
+    block-size: var(--hc-toggle-lg-height);
+    padding-inline: var(--hc-toggle-lg-padding-x);
+    font-size: var(--hc-toggle-lg-font-size);
+  }
+}

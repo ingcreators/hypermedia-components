@@ -1,0 +1,47 @@
+/* hc-separator — a thin divider line between sections or groups.
+ *
+ * Apply `.hc-separator` to an `<hr>`. The native `<hr>` already carries
+ * the implicit `role="separator"` and `aria-orientation="horizontal"`
+ * semantics; this only replaces the UA chrome with a single hairline
+ * drawn from a token.
+ *
+ *   <hr class="hc-separator">
+ *
+ * Orientation — data-orientation="horizontal" (default) | "vertical":
+ *   horizontal  full-width hairline with block (above / below) margin;
+ *   vertical    a hairline that stretches to its flex row's height,
+ *               with inline (left / right) margin. There is no HTML
+ *               element for a vertical separator, so add
+ *               `aria-orientation="vertical"` to keep the semantics
+ *               correct for assistive tech.
+ */
+@layer hc.components {
+  .hc-separator {
+    /* reset the UA default <hr> rendering */
+    border: 0;
+    margin: 0;
+    flex-shrink: 0;
+    background-color: var(--hc-separator-color);
+  }
+
+  /* Horizontal (default) — a full-width hairline with block margin. */
+  .hc-separator,
+  .hc-separator[data-orientation="horizontal"] {
+    inline-size: 100%;
+    block-size: var(--hc-separator-size);
+    margin-block: var(--hc-separator-spacing);
+    margin-inline: 0;
+  }
+
+  /* Vertical — a hairline that stretches to its flex row's height.
+   * `align-self: stretch` picks up the row height in a flex container;
+   * `min-block-size` is a fallback for non-stretch contexts. */
+  .hc-separator[data-orientation="vertical"] {
+    inline-size: var(--hc-separator-size);
+    block-size: auto;
+    min-block-size: 1em;
+    align-self: stretch;
+    margin-block: 0;
+    margin-inline: var(--hc-separator-spacing);
+  }
+}
