@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- Docs **Kitchen sink** page (`apps/docs/src/content/docs/kitchen-sink.mdx`)
+  — every component rendered live on one page, grouped (Actions, Form
+  controls, Navigation, Overlays, Feedback & status, Layout & data),
+  with each heading linking to the component's full docs. Interactive
+  components run their real behaviors (the docs site loads the behaviors
+  bundle), so menus, the command palette, the splitter, the OTP field,
+  etc. are all operable. Added a top-level "Kitchen sink" sidebar entry
+  and a link from the Components index.
+
 - `hc-scroll-area` component — pure CSS scrollable region with thin,
   themed scrollbars (shadcn `ScrollArea` equivalent), no JavaScript.
   Uses the **standard** CSS Scrollbars module (`scrollbar-width: thin`

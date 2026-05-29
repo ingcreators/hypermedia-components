@@ -27,6 +27,7 @@ export default defineConfig({
           ],
         },
         { label: 'Fundamentals', autogenerate: { directory: 'fundamentals' } },
+        { label: 'Kitchen sink', slug: 'kitchen-sink' },
         { label: 'Components', autogenerate: { directory: 'components' } },
         { label: 'Recipes', autogenerate: { directory: 'recipes' } },
         { label: 'Tokens', autogenerate: { directory: 'tokens' } },
