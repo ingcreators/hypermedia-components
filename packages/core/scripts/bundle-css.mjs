@@ -36,6 +36,7 @@ const COMPONENTS = [
   'hc-spinner.css',
   'hc-progress.css',
   'hc-skeleton.css',
+  'hc-separator.css',
   'hc-dialog.css',
   'hc-drawer.css',
   'hc-popover.css',

@@ -1,0 +1,91 @@
+---
+title: Separator
+description: A thin divider line between sections or groups, built on the native <hr> element with horizontal / vertical orientation. Pure CSS, no JavaScript.
+---
+
+`hc-separator` is a thin divider line. Apply `.hc-separator` to a
+native `<hr>` — the element already carries the implicit
+`role="separator"` and `aria-orientation="horizontal"` semantics, so
+this only swaps the browser's default rule for a single hairline drawn
+from a token. Pure CSS, no JavaScript.
+
+## Horizontal
+
+The default. A full-width hairline with margin above and below.
+
+<div class="hc-preview not-content" style="max-inline-size:24rem;">
+  <p style="margin:0;">Account settings</p>
+  <hr class="hc-separator" />
+  <p style="margin:0;">Billing</p>
+</div>
+
+```html
+<hr class="hc-separator">
+```
+
+## Vertical
+
+Set `data-orientation="vertical"` for an inline divider — for example
+between items in a horizontal toolbar or link row. The line stretches
+to the height of its flex row.
+
+There is no HTML element for a vertical separator, and a plain `<hr>`
+reports `aria-orientation="horizontal"`, so add
+`aria-orientation="vertical"` to keep the semantics correct.
+
+<div class="hc-preview not-content" style="display:flex;align-items:center;gap:.5rem;block-size:1.5rem;">
+  <a href="#">Profile</a>
+  <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical" />
+  <a href="#">Settings</a>
+  <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical" />
+  <a href="#">Log out</a>
+</div>
+
+```html
+<nav style="display:flex;align-items:center;gap:.5rem;">
+  <a href="/profile">Profile</a>
+  <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
+  <a href="/settings">Settings</a>
+  <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
+  <a href="/logout">Log out</a>
+</nav>
+```
+
+The vertical variant relies on `align-self: stretch`, so its parent
+should be a flex row (the row's height sets the line's length). A
+`min-block-size` fallback keeps it visible outside a stretch context.
+
+## Accessibility
+
+- A separator between content sections is meaningful structure, not
+  decoration — `<hr>` exposes it to screen readers via the implicit
+  `separator` role, which most reading cursors announce.
+- For a vertical separator, always add `aria-orientation="vertical"`;
+  the default for the role is horizontal.
+- If a divider is purely visual and the surrounding structure already
+  conveys the grouping, you can hide it with `role="none"` /
+  `aria-hidden="true"` so it is not announced twice. Most page-section
+  rules should keep the default semantics.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `separator.color` | Line colour (defaults to the border token). |
+| `separator.size` | Line thickness (`1px`). |
+| `separator.spacing` | Margin — block for horizontal, inline for vertical. |
+
+## CSS variables
+
+```text
+--hc-separator-color | -size | -spacing
+```
+
+## Related
+
+- [Toolbar](/hypermedia-components/components/toolbar/) — uses vertical
+  separators to group its action clusters.
+- [Card](/hypermedia-components/components/card/) — a horizontal
+  separator pairs well between a card header and its body.
