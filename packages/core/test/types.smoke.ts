@@ -26,6 +26,7 @@ import {
   installToggleGroup,
   installContextMenu,
   installCommand,
+  installCalendar,
   version,
 } from '@hypermedia-components/core';
 
@@ -46,6 +47,7 @@ import {
   installToggleGroup as installToggleGroupFromBehaviors,
   installContextMenu as installContextMenuFromBehaviors,
   installCommand as installCommandFromBehaviors,
+  installCalendar as installCalendarFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -70,6 +72,7 @@ const uninstallers: Array<() => void> = [
   installToggleGroup(document),
   installContextMenu(document),
   installCommand(document),
+  installCalendar(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -86,6 +89,7 @@ const uninstallers: Array<() => void> = [
   installToggleGroupFromBehaviors(),
   installContextMenuFromBehaviors(),
   installCommandFromBehaviors(),
+  installCalendarFromBehaviors(),
 ];
 
 // `version` is a string literal export.
