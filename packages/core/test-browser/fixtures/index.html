@@ -464,6 +464,25 @@
     </div>
   </section>
 
+  <section id="section-context-menu" data-testid="section-context-menu">
+    <h2>Context menu</h2>
+    <div class="hc-card" data-hc-context-menu="ctx-demo" data-testid="ctx-region"
+         tabindex="0" style="padding:1.5rem;min-block-size:5rem;max-inline-size:24rem;">
+      Right-click (or focus + Shift+F10) anywhere in this box.
+    </div>
+    <div class="hc-menu" id="ctx-demo" popover role="menu" aria-label="Item actions"
+         data-testid="ctx-menu">
+      <button class="hc-menu__item" role="menuitem" type="button"
+              data-testid="ctx-open">Open</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
+      <button class="hc-menu__item" role="menuitemcheckbox" aria-checked="false"
+              type="button" data-testid="ctx-bookmark">Bookmark</button>
+      <hr class="hc-menu__separator">
+      <button class="hc-menu__item" role="menuitem" type="button"
+              data-variant="error">Delete</button>
+    </div>
+  </section>
+
   <section id="section-avatar" data-testid="section-avatar">
     <h2>Avatar</h2>
     <div class="row" style="gap:1rem;align-items:center;flex-wrap:wrap;">

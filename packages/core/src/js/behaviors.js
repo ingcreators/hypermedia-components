@@ -21,6 +21,7 @@ import { installMulticombobox } from './multicombobox.js';
 import { installDrawer } from './drawer.js';
 import { installHovercard } from './hovercard.js';
 import { installToggleGroup } from './toggle-group.js';
+import { installContextMenu } from './context-menu.js';
 
 function init() {
   installConfirm();
@@ -37,6 +38,7 @@ function init() {
   installDrawer();
   installHovercard();
   installToggleGroup();
+  installContextMenu();
 }
 
 if (typeof document !== 'undefined') {
@@ -62,4 +64,5 @@ export {
   installDrawer,
   installHovercard,
   installToggleGroup,
+  installContextMenu,
 };

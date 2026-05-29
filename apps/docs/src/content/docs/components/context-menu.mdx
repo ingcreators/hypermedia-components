@@ -1,0 +1,148 @@
+---
+title: Context menu
+description: A right-click / keyboard context menu built on the hc-menu surface, opened at the pointer via installContextMenu. WAI-ARIA menu semantics.
+---
+
+`hc-context-menu` shows a menu where the user right-clicks, the shadcn
+`ContextMenu` equivalent. It reuses the [Menu](/hypermedia-components/components/menu/)
+surface entirely — same `.hc-menu` markup, items, separators, labels,
+and `menuitemcheckbox` / `menuitemradio` — so there is **no new CSS**.
+The only difference is how it opens: at the pointer, via the
+`contextmenu` event, instead of anchored to a trigger button.
+
+The behavior lives in `installContextMenu`.
+
+## Basic usage
+
+Add `data-hc-context-menu="<menu-id>"` to the region that should show a
+custom menu on right-click, and point it at a `.hc-menu` popover.
+
+<div class="hc-preview not-content">
+  <div class="hc-card" data-hc-context-menu="demo-ctx" tabindex="0" style="padding:1.5rem;min-block-size:5rem;">
+    Right-click (or focus + <kbd>Shift</kbd>+<kbd>F10</kbd>) inside this box.
+  </div>
+  <div class="hc-menu" id="demo-ctx" popover role="menu" aria-label="Item actions">
+    <button class="hc-menu__item" role="menuitem" type="button">Open</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
+    <button class="hc-menu__item" role="menuitemcheckbox" aria-checked="false" type="button">Bookmark</button>
+    <hr class="hc-menu__separator" />
+    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
+  </div>
+</div>
+
+```html
+<div data-hc-context-menu="file-ctx">…right-clickable region…</div>
+
+<div class="hc-menu" id="file-ctx" popover role="menu" aria-label="File actions">
+  <button class="hc-menu__item" role="menuitem" type="button">Open</button>
+  <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
+  <button class="hc-menu__item" role="menuitemcheckbox" aria-checked="false" type="button">Bookmark</button>
+  <hr class="hc-menu__separator">
+  <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
+</div>
+```
+
+The menu surface is identical to the dropdown [Menu](/hypermedia-components/components/menu/),
+so everything documented there — `menuitemcheckbox` / `menuitemradio`,
+group labels, the destructive `data-variant="error"` item — works here
+too.
+
+## JavaScript
+
+```js
+import { installContextMenu } from '@hypermedia-components/core';
+installContextMenu(); // idempotent; returns an uninstaller
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs
+it automatically.
+
+## Opening and keyboard
+
+- **Right-click** (and touch long-press, and the keyboard **Menu**
+  key) fire the `contextmenu` event; the behavior cancels the native
+  menu with `preventDefault()` and opens the popover at the pointer,
+  clamped to stay inside the viewport.
+- **`Shift`+`F10`** opens the menu at the focused element. This is
+  handled separately because `Shift`+`F10` does **not** fire a
+  `contextmenu` event. For it to reach the behavior, the region (or a
+  focusable descendant) must be able to hold focus — add `tabindex="0"`
+  to a generic region, or rely on the focusable rows / controls inside
+  it.
+
+Once open, navigation is the standard menu keyboard contract: `↓` / `↑`
+move between items, `Home` / `End` jump to the first / last enabled
+item, first-letter type-ahead, `Tab` and `Escape` close. Disabled items
+are skipped. `Escape` / outside-click dismissal and focus restoration
+come from the native `popover`.
+
+:::caution[Firefox + Shift]
+Holding `Shift` while right-clicking in Firefox shows the **browser's**
+native context menu without firing the `contextmenu` event, so the
+custom menu cannot replace it in that specific case. This is a browser
+behaviour, not something a page can override.
+:::
+
+## The select event
+
+Selecting an item dispatches the same bubbling `hc:menuselect` event as
+the dropdown menu, plus a `contextTarget` — the element that was
+right-clicked:
+
+```js
+menu.addEventListener('hc:menuselect', (e) => {
+  const { item, contextTarget, checked } = e.detail;
+  // contextTarget is the element the menu was opened on — e.g. the row
+  // or file the action applies to.
+});
+```
+
+Plain `menuitem`s close the menu after selection; `menuitemcheckbox` /
+`menuitemradio` keep it open so several can be toggled.
+
+## htmx usage
+
+Wire a request straight off `hc:menuselect`, using the right-clicked
+element to scope the action:
+
+```html
+<ul id="files">
+  <li data-hc-context-menu="row-ctx" data-id="42">report.pdf</li>
+  …
+</ul>
+
+<div class="hc-menu" id="row-ctx" popover role="menu" aria-label="Row actions"
+     data-hx-post="/files/delete"
+     data-hx-trigger="hc:menuselect"
+     data-hx-include="this">
+  <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
+</div>
+```
+
+Read `event.detail.contextTarget.dataset.id` in an `htmx:configRequest`
+handler to attach the target row's id to the request.
+
+## Accessibility
+
+- The popup uses `role="menu"` with `menuitem` children — the same
+  WAI-ARIA APG menu pattern as the dropdown.
+- Provide a keyboard path: the **Menu** key works through the
+  `contextmenu` event, and `Shift`+`F10` is handled explicitly — but
+  only if the region can receive focus. Make the region or its rows
+  focusable.
+- Don't rely on the context menu as the *only* way to reach an action;
+  mirror destructive / important actions in a visible control or a
+  dropdown menu too.
+
+## Theming tokens
+
+None of its own — it renders the [Menu](/hypermedia-components/components/menu/)
+surface, so the `menu.*` tokens (and the `--hc-menu-*` variables) drive
+its appearance.
+
+## Related
+
+- [Menu](/hypermedia-components/components/menu/) — the same surface,
+  opened from a trigger button.
+- [Toggle group](/hypermedia-components/components/toggle-group/) — for
+  persistent inline choices rather than a transient action list.
