@@ -16,6 +16,7 @@ import { installTabs } from './tabs.js';
 import { installMenu } from './menu.js';
 import { installTooltip } from './tooltip.js';
 import { installSlider } from './slider.js';
+import { installCombobox } from './combobox.js';
 
 function init() {
   installConfirm();
@@ -27,6 +28,7 @@ function init() {
   installMenu();
   installTooltip();
   installSlider();
+  installCombobox();
 }
 
 if (typeof document !== 'undefined') {
@@ -47,4 +49,5 @@ export {
   installMenu,
   installTooltip,
   installSlider,
+  installCombobox,
 };

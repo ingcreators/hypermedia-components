@@ -19,6 +19,7 @@ import {
   installMenu,
   installTooltip,
   installSlider,
+  installCombobox,
   version,
 } from '@hypermedia-components/core';
 
@@ -32,6 +33,7 @@ import {
   installMenu as installMenuFromBehaviors,
   installTooltip as installTooltipFromBehaviors,
   installSlider as installSliderFromBehaviors,
+  installCombobox as installComboboxFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -49,6 +51,7 @@ const uninstallers: Array<() => void> = [
   installMenu(document),
   installTooltip(document),
   installSlider(document),
+  installCombobox(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -58,6 +61,7 @@ const uninstallers: Array<() => void> = [
   installMenuFromBehaviors(),
   installTooltipFromBehaviors(),
   installSliderFromBehaviors(),
+  installComboboxFromBehaviors(),
 ];
 
 // `version` is a string literal export.

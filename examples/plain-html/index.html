@@ -206,6 +206,26 @@
   </section>
 
   <section>
+    <h2>Combobox (component + behavior)</h2>
+    <div class="hc-combobox" style="max-inline-size:18rem;">
+      <input class="hc-combobox__input hc-input"
+             type="text"
+             role="combobox"
+             aria-controls="example-cb-list"
+             aria-label="Country">
+      <ul class="hc-combobox__listbox" id="example-cb-list" role="listbox">
+        <li class="hc-combobox__option" role="option" data-value="jp">Japan</li>
+        <li class="hc-combobox__option" role="option" data-value="us">United States</li>
+        <li class="hc-combobox__option" role="option" data-value="gb">United Kingdom</li>
+        <li class="hc-combobox__option" role="option" data-value="fr">France</li>
+        <li class="hc-combobox__option" role="option" data-value="de">Germany</li>
+      </ul>
+    </div>
+    <p class="small">Focus the input, type to filter, ↓/↑ to navigate,
+      Enter to select.</p>
+  </section>
+
+  <section>
     <h2>Slider (component + behavior)</h2>
     <div class="row" style="flex-direction:column;align-items:stretch;gap:.75rem;max-inline-size:24rem;">
       <label>
