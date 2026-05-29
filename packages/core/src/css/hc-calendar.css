@@ -1,0 +1,123 @@
+/* hc-calendar — a styled month-grid date picker.
+ *
+ * `installCalendar()` renders the grid into a `.hc-calendar` container
+ * (the markup below is generated; you author only the container with
+ * `data-*` config). The grid follows the WAI-ARIA APG date-picker
+ * pattern: `<table role="grid">` with `<td role="gridcell">` day cells
+ * managed by a roving tabindex.
+ *
+ *   <div class="hc-calendar" data-value="2026-05-29" aria-label="Date"></div>
+ *
+ * Rendered:
+ *   <div class="hc-calendar__header">
+ *     <button class="hc-calendar__nav" data-hc-calendar-prev>‹</button>
+ *     <span class="hc-calendar__title" aria-live="polite">May 2026</span>
+ *     <button class="hc-calendar__nav" data-hc-calendar-next>›</button>
+ *   </div>
+ *   <table class="hc-calendar__grid" role="grid">
+ *     <thead><tr><th scope="col" abbr="Sunday">Su</th>…</tr></thead>
+ *     <tbody><tr role="row">
+ *       <td class="hc-calendar__day" role="gridcell" data-date="…" tabindex="-1">1</td>…
+ *     </tr>…</tbody>
+ *   </table>
+ *
+ * Day-cell state attributes: `aria-selected`, `data-today`,
+ * `data-outside` (adjacent month), `aria-disabled` (outside min/max).
+ */
+@layer hc.components {
+  .hc-calendar {
+    display: inline-block;
+    padding: var(--hc-calendar-padding);
+    border: 1px solid var(--hc-calendar-border);
+    border-radius: var(--hc-calendar-radius);
+    background: var(--hc-calendar-bg);
+    color: var(--hc-calendar-fg);
+  }
+
+  .hc-calendar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--hc-calendar-padding);
+    margin-block-end: var(--hc-calendar-padding);
+  }
+
+  .hc-calendar__title {
+    font-size: var(--hc-calendar-title-font-size);
+    font-weight: var(--hc-calendar-title-font-weight);
+  }
+
+  .hc-calendar__nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-calendar-nav-size);
+    block-size: var(--hc-calendar-nav-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--hc-calendar-nav-radius);
+    background: transparent;
+    color: var(--hc-calendar-nav-fg);
+    font-size: 1.125rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .hc-calendar__nav:hover {
+    background: var(--hc-calendar-nav-hover-bg);
+  }
+
+  .hc-calendar__grid {
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .hc-calendar__grid th {
+    padding-block: 0.25rem;
+    color: var(--hc-calendar-weekday-fg);
+    font-size: var(--hc-calendar-weekday-font-size);
+    font-weight: var(--hc-calendar-weekday-font-weight);
+    text-align: center;
+  }
+
+  .hc-calendar__day {
+    inline-size: var(--hc-calendar-day-size);
+    block-size: var(--hc-calendar-day-size);
+    border-radius: var(--hc-calendar-day-radius);
+    color: var(--hc-calendar-day-fg);
+    font-size: var(--hc-calendar-day-font-size);
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hc-calendar__day:hover:not([aria-disabled="true"], [aria-selected="true"]) {
+    background: var(--hc-calendar-day-hover-bg);
+  }
+
+  .hc-calendar__day:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  /* Adjacent-month days shown for grid alignment. */
+  .hc-calendar__day[data-outside] {
+    color: var(--hc-calendar-day-outside-fg);
+  }
+
+  /* Today — a ring, distinct from the filled selected state. */
+  .hc-calendar__day[data-today] {
+    box-shadow: inset 0 0 0 1px var(--hc-calendar-day-today-border);
+  }
+
+  .hc-calendar__day[aria-selected="true"] {
+    background: var(--hc-calendar-day-selected-bg);
+    color: var(--hc-calendar-day-selected-fg);
+  }
+
+  .hc-calendar__day[aria-disabled="true"] {
+    color: var(--hc-calendar-day-disabled-fg);
+    cursor: not-allowed;
+  }
+}

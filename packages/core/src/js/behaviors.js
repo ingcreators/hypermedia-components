@@ -23,6 +23,7 @@ import { installHovercard } from './hovercard.js';
 import { installToggleGroup } from './toggle-group.js';
 import { installContextMenu } from './context-menu.js';
 import { installCommand } from './command.js';
+import { installCalendar } from './calendar.js';
 
 function init() {
   installConfirm();
@@ -41,6 +42,7 @@ function init() {
   installToggleGroup();
   installContextMenu();
   installCommand();
+  installCalendar();
 }
 
 if (typeof document !== 'undefined') {
@@ -68,4 +70,5 @@ export {
   installToggleGroup,
   installContextMenu,
   installCommand,
+  installCalendar,
 };

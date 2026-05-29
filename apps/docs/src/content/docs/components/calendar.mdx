@@ -1,0 +1,168 @@
+---
+title: Calendar
+description: A styled month-grid date picker rendered by installCalendar, following the WAI-ARIA date-picker grid pattern with full keyboard navigation. Localized via Intl.
+---
+
+`hc-calendar` is a styled, inline month grid for choosing a date — the
+shadcn `Calendar` equivalent. `installCalendar` renders the grid into a
+`.hc-calendar` container and wires the WAI-ARIA date-picker keyboard
+model. You author only the container with `data-*` config; the behavior
+renders the header, the localized weekday row, and a six-week grid of
+`<td role="gridcell">` day cells managed by a roving tabindex.
+
+:::note[When to use which]
+For a plain date field that works without JavaScript, reach for
+[Datepicker](/hypermedia-components/components/datepicker/) — a skin
+over the native `<input type="date">`. `hc-calendar` is the opt-in
+choice when you need a design-system-consistent inline month grid; it
+requires JavaScript to render.
+:::
+
+## Basic usage
+
+<div class="hc-preview not-content">
+  <div class="hc-calendar" data-value="2026-05-15" data-locale="en-US" aria-label="Pick a date"></div>
+</div>
+
+```html
+<div class="hc-calendar"
+     data-value="2026-05-15"
+     aria-label="Pick a date"></div>
+```
+
+```js
+import { installCalendar } from '@hypermedia-components/core';
+installCalendar(); // idempotent; returns an uninstaller
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs
+it automatically.
+
+## Configuration
+
+All configuration is via `data-*` attributes on the container:
+
+| Attribute | Purpose |
+| --- | --- |
+| `data-value` | Selected date, ISO `YYYY-MM-DD`. Also sets the displayed month. |
+| `data-min` / `data-max` | Selectable range (ISO). Days outside are `aria-disabled`. |
+| `data-first-day` | First day of the week: `0` = Sunday (default) … `6` = Saturday. |
+| `data-locale` | BCP-47 locale for month / weekday names. Falls back to `<html lang>`, then the browser default. |
+| `data-name` | When set, the behavior maintains a hidden `<input name="…">` with the selected ISO value, so the calendar serialises in a form. |
+
+Month and weekday names come from `Intl.DateTimeFormat`. The first day
+of the week is taken from `data-first-day` (not `Intl.Locale`'s
+`getWeekInfo()`, which is not yet Baseline).
+
+<div class="hc-preview not-content">
+  <div class="hc-calendar" data-value="2026-05-15" data-first-day="1" data-locale="en-GB"
+       data-min="2026-05-04" data-max="2026-06-20" aria-label="Pick a date (Mon start, ranged)"></div>
+</div>
+
+## Keyboard
+
+Focus a day cell, then:
+
+| Key | Action |
+| --- | --- |
+| `←` / `→` | Previous / next day |
+| `↑` / `↓` | Previous / next week |
+| `Home` / `End` | First / last day of the week |
+| `PageUp` / `PageDown` | Previous / next month |
+| `Shift`+`PageUp` / `Shift`+`PageDown` | Previous / next year |
+| `Enter` / `Space` | Select the focused day |
+
+Moving past the edge of the month re-renders the adjacent month with the
+target day focused. The grid is a single `Tab` stop (roving tabindex);
+days outside `data-min` / `data-max` stay focusable but are not
+selectable.
+
+## The change event
+
+Selecting a date dispatches a bubbling `hc:calendarchange` on the
+container and updates `data-value`:
+
+```js
+calendar.addEventListener('hc:calendarchange', (e) => {
+  const { value, date } = e.detail; // value: 'YYYY-MM-DD', date: Date
+});
+```
+
+## Form integration
+
+Set `data-name` and the calendar serialises like a native control via a
+hidden input:
+
+```html
+<form>
+  <div class="hc-calendar" data-name="due" data-value="2026-05-15"
+       aria-label="Due date"></div>
+  <!-- submits due=2026-05-15 -->
+</form>
+```
+
+## htmx usage
+
+Fetch off the change event — e.g. load availability for the picked day:
+
+```html
+<div class="hc-calendar"
+     data-name="day"
+     data-hx-get="/availability"
+     data-hx-trigger="hc:calendarchange"
+     data-hx-include="this"
+     data-hx-target="#slots"
+     aria-label="Pick a day"></div>
+```
+
+## Accessibility
+
+- The grid follows the WAI-ARIA APG date-picker pattern: a
+  `role="grid"` table with `<td role="gridcell">` day cells, a roving
+  tabindex, `aria-selected` on the chosen day, and `aria-disabled` for
+  out-of-range days. Each cell's `aria-label` is the full localized
+  date.
+- The month title is an `aria-live="polite"` region, so month changes
+  are announced.
+- Always give the container an accessible name (`aria-label` or
+  `aria-labelledby`).
+
+## Theming tokens
+
+| Token path | Purpose |
+| --- | --- |
+| `calendar.bg` / `fg` / `border` / `radius` / `padding` | Surface. |
+| `calendar.title-*` | Month title. |
+| `calendar.nav-*` | Prev / next buttons. |
+| `calendar.weekday-*` | Weekday header row. |
+| `calendar.day-size` / `day-radius` / `day-font-size` / `day-fg` | Day cells. |
+| `calendar.day-hover-bg` | Day hover. |
+| `calendar.day-selected-bg` / `day-selected-fg` | Selected day (tracks `data-color`). |
+| `calendar.day-today-border` | Today's ring. |
+| `calendar.day-outside-fg` / `day-disabled-fg` | Adjacent-month / out-of-range days. |
+
+## CSS variables
+
+```text
+--hc-calendar-bg | -fg | -border | -radius | -padding
+--hc-calendar-title-font-size | -title-font-weight
+--hc-calendar-nav-size | -nav-fg | -nav-hover-bg | -nav-radius
+--hc-calendar-weekday-fg | -weekday-font-size | -weekday-font-weight
+--hc-calendar-day-size | -day-radius | -day-font-size | -day-fg
+--hc-calendar-day-hover-bg | -day-selected-bg | -day-selected-fg
+--hc-calendar-day-today-border | -day-outside-fg | -day-disabled-fg
+```
+
+## Out of scope
+
+Range selection, multiple months side by side, month / year dropdown
+pickers, week numbers, time selection, and non-Gregorian calendars are
+deferred. For a no-JS native field, see
+[Datepicker](/hypermedia-components/components/datepicker/).
+
+## Related
+
+- [Datepicker](/hypermedia-components/components/datepicker/) — native
+  `<input type="date">` skin; the no-JS baseline.
+- [Popover](/hypermedia-components/components/popover/) — pair with a
+  calendar to build a dropdown date field.

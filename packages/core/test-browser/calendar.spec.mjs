@@ -1,0 +1,68 @@
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+});
+
+const day = (iso) => `.hc-calendar__day[data-date="${iso}"]`;
+
+test.describe('hc-calendar', () => {
+  test('renders the configured month grid', async ({ page }) => {
+    await expect(page.locator('.hc-calendar__title')).toHaveText('May 2026');
+    await expect(page.locator('.hc-calendar__grid')).toHaveAttribute('role', 'grid');
+    await expect(page.locator('.hc-calendar__grid th')).toHaveCount(7);
+    await expect(page.locator('.hc-calendar__day')).toHaveCount(42);
+    await expect(page.locator(day('2026-05-15'))).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('clicking a day selects it and dispatches hc:calendarchange', async ({ page }) => {
+    const value = page.evaluate(
+      () =>
+        new Promise((resolve) => {
+          document.querySelector('.hc-calendar').addEventListener(
+            'hc:calendarchange',
+            (e) => resolve(e.detail.value),
+            { once: true },
+          );
+        }),
+    );
+    await page.locator(day('2026-05-20')).click();
+    expect(await value).toBe('2026-05-20');
+    await expect(page.locator(day('2026-05-20'))).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator(day('2026-05-15'))).not.toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('arrow keys move focus and cross the month boundary', async ({ page }) => {
+    await page.locator(day('2026-05-31')).click(); // select + focus 31
+    await page.keyboard.press('ArrowRight'); // → June 1, re-renders to June
+    await expect(page.locator('.hc-calendar__title')).toHaveText('June 2026');
+    await expect(page.locator(day('2026-06-01'))).toBeFocused();
+  });
+
+  test('PageDown moves forward a month', async ({ page }) => {
+    await page.locator(day('2026-05-15')).click();
+    await page.keyboard.press('PageDown');
+    await expect(page.locator('.hc-calendar__title')).toHaveText('June 2026');
+  });
+
+  test('the next button advances the month', async ({ page }) => {
+    await page.locator('[data-hc-calendar-next]').click();
+    await expect(page.locator('.hc-calendar__title')).toHaveText('June 2026');
+  });
+
+  test('days outside min / max are disabled and not selectable', async ({ page }) => {
+    const out = page.locator(day('2026-05-01')); // before data-min 2026-05-04
+    await expect(out).toHaveAttribute('aria-disabled', 'true');
+    await out.click({ force: true });
+    await expect(out).not.toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator(day('2026-05-15'))).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('axe finds no violations in the calendar section', async ({ page }) => {
+    const results = await new AxeBuilder({ page })
+      .include('#section-calendar')
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
+});

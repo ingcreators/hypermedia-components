@@ -22,6 +22,43 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-calendar` component + `installCalendar` behavior. A styled,
+  inline month-grid date picker (shadcn `Calendar` equivalent) —
+  closes the `hc-calendar` deferral noted when `hc-datepicker` shipped.
+  `installCalendar()` renders the grid into a `.hc-calendar` container
+  (you author only the container + `data-*` config) following the
+  WAI-ARIA APG date-picker pattern: a `role="grid"` `<table>` with
+  `<td role="gridcell">` day cells managed by a roving tabindex, an
+  `aria-live` month title, `aria-selected` on the chosen day, and
+  `aria-disabled` for out-of-range days. Keyboard: `←`/`→` ±1 day,
+  `↑`/`↓` ±1 week, `Home`/`End` week edges, `PageUp`/`PageDown` ±1
+  month, `Shift`+`PageUp`/`PageDown` ±1 year, `Enter`/`Space` select;
+  crossing a month edge re-renders the adjacent month with the target
+  day focused. Config via `data-value` (ISO, also sets the displayed
+  month), `data-min`/`data-max`, `data-first-day` (`0`=Sunday default …
+  `6`), `data-locale`, and `data-name` (maintains a hidden `<input>` so
+  it serialises in a form). Month / weekday names come from
+  `Intl.DateTimeFormat`; the first day of the week is `data-first-day`
+  rather than `Intl.Locale`'s `getWeekInfo()` (not yet Baseline).
+  Selecting dispatches a bubbling `hc:calendarchange`
+  (`detail { value: 'YYYY-MM-DD', date: Date }`) and syncs `data-value`.
+  New `calendar.*` tokens (surface, title, nav buttons, weekday header,
+  day cells incl. the themed `day-selected-bg`, today ring, outside /
+  disabled). Vitest spec (15 cases) covers grid render, weekday order
+  per `data-first-day`, selection (aria-selected / data-value / hidden
+  input / event), prev/next buttons, arrow nav + month crossing,
+  PageDown / Shift+PageDown, Home/End, min/max disable + refusal,
+  today / outside markers, uninstall, MutationObserver. Playwright
+  spec (7 cases incl. axe-core scan) covers render, click select +
+  event, keyboard month crossing, PageDown, the next button, min/max
+  disabled, and a11y.
+
+  hc-datepicker (the native `<input type="date">` skin) remains the
+  no-JS baseline; hc-calendar is the opt-in styled grid. Out of scope
+  (deferred): range selection, multiple months side by side, month /
+  year dropdown pickers, week numbers, time, non-Gregorian calendars,
+  and an input-attached combobox variant.
+
 - `hc-command` component + `installCommand` behavior. A command palette
   (shadcn `Command` / `cmdk` equivalent): the WAI-ARIA combobox pattern
   used as an action launcher. An `<input role="combobox">` filters a
