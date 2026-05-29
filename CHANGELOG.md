@@ -22,6 +22,39 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-inputotp` component + `installInputOtp` behavior. A segmented
+  one-time-code field (shadcn `InputOTP` equivalent) built on the
+  accessible **single-input** approach: one real
+  `<input autocomplete="one-time-code">` captures all typing, paste,
+  SMS autofill, and selection, and the behavior overlays it
+  transparently (transparent text + caret) and renders N decorative
+  `aria-hidden` slots that mirror the value — avoiding the
+  screen-reader and paste problems of the "one input per digit"
+  pattern. Config via `data-length` (slot count, default 6; also sets
+  `maxlength`) and `data-pattern` (allowed-character class, default
+  `[0-9]`; non-matching characters are stripped on input). The behavior
+  also fills in `inputmode="numeric"`, `autocomplete="one-time-code"`,
+  and `type="text"` when omitted. The active slot's border (shown only
+  while focused) doubles as the focus indicator and carries a blinking
+  caret that respects `prefers-reduced-motion`. `aria-invalid` (on the
+  input) / `data-invalid` (on the container) draws the error border;
+  `disabled` mutes the slots. Events bubble from the container:
+  `hc:otpchange` (`detail { value, input }`) on every edit and
+  `hc:otpcomplete` when every slot is filled — pair with
+  `data-hx-trigger="hc:otpcomplete"` to auto-submit. The value lives in
+  a single named `<input>`, so it serialises in a form with no hidden
+  fields. New `inputotp.*` tokens (gap, slot size, chrome, themed
+  active-border / caret-color, invalid / disabled). Vitest spec (12
+  cases) covers slot rendering + maxlength, custom length, autofill
+  attribute defaults, character mirroring, numeric + custom pattern
+  filtering, the focused-only active slot, change / complete events,
+  pre-filled seeding, uninstall, MutationObserver. Playwright spec (6
+  cases incl. axe-core scan) covers rendering, typing + active caret,
+  pattern stripping, the complete event, the invalid border, and a11y.
+
+  Out of scope (deferred): group separators (e.g. `3-3`), per-slot
+  click caret placement, and RTL fine-tuning.
+
 - `hc-calendar` component + `installCalendar` behavior. A styled,
   inline month-grid date picker (shadcn `Calendar` equivalent) —
   closes the `hc-calendar` deferral noted when `hc-datepicker` shipped.

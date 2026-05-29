@@ -26,6 +26,7 @@ const COMPONENTS = [
   'hc-input.css',
   'hc-select.css',
   'hc-datepicker.css',
+  'hc-inputotp.css',
   'hc-checkbox.css',
   'hc-radio.css',
   'hc-switch.css',

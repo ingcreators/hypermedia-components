@@ -32,6 +32,7 @@ const ASSET_ALIASES = new Map([
   ['/context-menu.js',  join(coreDist, 'context-menu.js')],
   ['/command.js',       join(coreDist, 'command.js')],
   ['/calendar.js',      join(coreDist, 'calendar.js')],
+  ['/inputotp.js',     join(coreDist, 'inputotp.js')],
   ['/tooltip.js',       join(coreDist, 'tooltip.js')],
   ['/slider.js',        join(coreDist, 'slider.js')],
   ['/combobox.js',      join(coreDist, 'combobox.js')],

@@ -514,6 +514,20 @@
     </dialog>
   </section>
 
+  <section id="section-inputotp" data-testid="section-inputotp">
+    <h2>Input OTP</h2>
+    <div class="hc-inputotp" data-length="6" data-testid="otp">
+      <input class="hc-inputotp__input" type="text" name="otp"
+             aria-label="One-time code" data-testid="otp-input">
+    </div>
+
+    <h3>Invalid</h3>
+    <div class="hc-inputotp" data-length="4" data-testid="otp-invalid">
+      <input class="hc-inputotp__input" type="text" aria-label="Code (invalid)"
+             aria-invalid="true" data-testid="otp-invalid-input">
+    </div>
+  </section>
+
   <section id="section-calendar" data-testid="section-calendar">
     <h2>Calendar</h2>
     <div class="hc-calendar"

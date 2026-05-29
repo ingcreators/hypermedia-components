@@ -1,0 +1,105 @@
+/* hc-inputotp — a segmented one-time-code input.
+ *
+ * The accessible single-input approach (per Cloud Four / Twilio /
+ * inputotp): ONE real `<input autocomplete="one-time-code">` captures
+ * all typing, paste, autofill, and selection; `installInputOtp()`
+ * overlays it transparently and renders N visual slots that mirror the
+ * value. Screen readers see one labelled input; the slots are
+ * decorative (`aria-hidden`).
+ *
+ *   <div class="hc-inputotp" data-length="6">
+ *     <input class="hc-inputotp__input" name="otp" inputmode="numeric"
+ *            autocomplete="one-time-code" aria-label="One-time code">
+ *   </div>
+ *
+ * The behavior renders the `.hc-inputotp__slot` boxes and toggles
+ * `data-active` (caret here) / `data-empty` on them. Error state:
+ * `aria-invalid="true"` on the input (or `data-invalid` on the
+ * container); disabled: `disabled` on the input.
+ */
+@layer hc.components {
+  .hc-inputotp {
+    position: relative;
+    display: inline-flex;
+    gap: var(--hc-inputotp-gap);
+  }
+
+  /* The real input sits on top of the slots, invisible (transparent
+   * text + caret) but receiving every interaction. */
+  .hc-inputotp__input {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: transparent;
+    font: inherit;
+    text-align: center;
+    letter-spacing: 1em;
+    outline: none;
+    cursor: text;
+  }
+
+  .hc-inputotp__input::selection {
+    background: transparent;
+  }
+
+  .hc-inputotp__slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-inputotp-slot-size);
+    block-size: var(--hc-inputotp-slot-size);
+    border: 1px solid var(--hc-inputotp-border);
+    border-radius: var(--hc-inputotp-radius);
+    background: var(--hc-inputotp-bg);
+    color: var(--hc-inputotp-fg);
+    font-size: var(--hc-inputotp-font-size);
+    font-weight: var(--hc-inputotp-font-weight);
+    line-height: 1;
+    user-select: none;
+  }
+
+  /* The slot the caret is in (input focused). Doubles as the focus
+   * indicator. */
+  .hc-inputotp__slot[data-active] {
+    border-color: var(--hc-inputotp-active-border);
+    box-shadow: 0 0 0 1px var(--hc-inputotp-active-border);
+  }
+
+  /* Blinking caret in the active, still-empty slot. */
+  .hc-inputotp__slot[data-active][data-empty]::after {
+    content: "";
+    inline-size: 1px;
+    block-size: 1.1em;
+    background: var(--hc-inputotp-caret-color);
+    animation: hc-inputotp-caret 1s steps(1) infinite;
+  }
+
+  @keyframes hc-inputotp-caret {
+    50% { opacity: 0; }
+  }
+
+  /* Invalid — aria-invalid on the input or data-invalid on the host. */
+  .hc-inputotp[data-invalid] .hc-inputotp__slot,
+  .hc-inputotp:has(.hc-inputotp__input[aria-invalid="true"]) .hc-inputotp__slot {
+    border-color: var(--hc-inputotp-invalid-border);
+  }
+
+  /* Disabled */
+  .hc-inputotp:has(.hc-inputotp__input:disabled) .hc-inputotp__slot {
+    background: var(--hc-inputotp-disabled-bg);
+    color: var(--hc-inputotp-disabled-fg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-inputotp__slot[data-active][data-empty]::after {
+      animation: none;
+    }
+  }
+}

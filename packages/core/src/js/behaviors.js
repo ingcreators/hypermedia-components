@@ -24,6 +24,7 @@ import { installToggleGroup } from './toggle-group.js';
 import { installContextMenu } from './context-menu.js';
 import { installCommand } from './command.js';
 import { installCalendar } from './calendar.js';
+import { installInputOtp } from './inputotp.js';
 
 function init() {
   installConfirm();
@@ -43,6 +44,7 @@ function init() {
   installContextMenu();
   installCommand();
   installCalendar();
+  installInputOtp();
 }
 
 if (typeof document !== 'undefined') {
@@ -71,4 +73,5 @@ export {
   installContextMenu,
   installCommand,
   installCalendar,
+  installInputOtp,
 };
