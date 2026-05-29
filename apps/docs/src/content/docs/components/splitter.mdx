@@ -1,0 +1,126 @@
+---
+title: Splitter
+description: Resizable panels with a draggable, keyboard-accessible handle, following the WAI-ARIA Window Splitter pattern. Driven by installSplitter.
+---
+
+`hc-splitter` splits two panes with a movable handle — the shadcn
+`Resizable` equivalent. It follows the WAI-ARIA **Window Splitter**
+pattern: the handle is a focusable `role="separator"` whose
+`aria-valuenow` tracks the primary pane's size. `installSplitter` wires
+the pointer drag, keyboard resize, and ARIA; the layout is plain
+flexbox driven by a single `--hc-splitter-pos` custom property.
+
+## Basic usage
+
+Give the container a cross-axis size (a height for the default
+horizontal layout).
+
+<div class="hc-preview not-content">
+  <div class="hc-splitter" data-orientation="horizontal" data-value="40" style="block-size:10rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
+    <div class="hc-splitter__panel" style="padding:.75rem;">Primary pane</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0" aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel" style="padding:.75rem;">Secondary pane</div>
+  </div>
+</div>
+
+```html
+<div class="hc-splitter" data-orientation="horizontal" style="block-size:10rem">
+  <div class="hc-splitter__panel">Primary pane</div>
+  <div class="hc-splitter__handle" role="separator" tabindex="0"
+       aria-label="Resize panels"></div>
+  <div class="hc-splitter__panel">Secondary pane</div>
+</div>
+```
+
+```js
+import { installSplitter } from '@hypermedia-components/core';
+installSplitter(); // idempotent; returns an uninstaller
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs
+it automatically.
+
+## Vertical
+
+`data-orientation="vertical"` stacks the panes with a horizontal handle.
+
+<div class="hc-preview not-content">
+  <div class="hc-splitter" data-orientation="vertical" data-value="40" style="block-size:14rem;inline-size:16rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
+    <div class="hc-splitter__panel" style="padding:.75rem;">Top</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0" aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel" style="padding:.75rem;">Bottom</div>
+  </div>
+</div>
+
+## Configuration
+
+| Attribute | Purpose |
+| --- | --- |
+| `data-orientation` | `horizontal` (default, side-by-side) or `vertical` (stacked). |
+| `data-value` | Initial primary-pane size, percent (default `50`). |
+| `data-min` / `data-max` | Allowed range, percent (default `10` / `90`). |
+| `data-step` | Keyboard step, percent (default `5`). |
+
+## Keyboard
+
+Tab to the handle, then:
+
+| Key | Action |
+| --- | --- |
+| `←` / `→` (horizontal) or `↑` / `↓` (vertical) | Resize by one step |
+| `Home` | Minimum size |
+| `End` | Maximum size |
+
+DOM focus is on the handle; `aria-valuenow` / `aria-valuemin` /
+`aria-valuemax` describe the primary pane's size to assistive tech.
+
+## The change event
+
+Each resize dispatches a bubbling `hc:splitterchange` on the container:
+
+```js
+splitter.addEventListener('hc:splitterchange', (e) => {
+  const { value, orientation } = e.detail; // value: primary-pane %
+});
+```
+
+## Accessibility
+
+- The handle is `role="separator"` + `tabindex="0"` with
+  `aria-valuenow` / `aria-valuemin` / `aria-valuemax` and
+  `aria-controls` pointing at the primary pane (per the APG Window
+  Splitter pattern).
+- The separator's `aria-orientation` is set automatically (a
+  side-by-side split uses a `vertical` separator line, and vice-versa).
+- Give the handle an accessible name with `aria-label` or
+  `aria-labelledby` (the primary pane's heading).
+
+## Theming tokens
+
+| Token path | Purpose |
+| --- | --- |
+| `splitter.handle-size` | Handle thickness (the hit area). |
+| `splitter.handle-bg` / `handle-hover-bg` | Handle background (hover / focus tints with `data-color`). |
+| `splitter.grip-color` / `grip-active-color` | The centred grip bar. |
+| `splitter.grip-length` / `grip-thickness` | Grip dimensions. |
+
+## CSS variables
+
+```text
+--hc-splitter-handle-size | -handle-bg | -handle-hover-bg
+--hc-splitter-grip-color | -grip-active-color | -grip-length | -grip-thickness
+--hc-splitter-pos   (runtime: the primary pane's size, set by installSplitter)
+```
+
+## Out of scope
+
+Three-or-more panes, collapse/expand toggling, persistence
+(`localStorage`), nested splitters, and pixel-based minimums are
+deferred.
+
+## Related
+
+- [Separator](/hypermedia-components/components/separator/) — a static,
+  non-interactive divider.
+- [Card](/hypermedia-components/components/card/) — common content for
+  the panes.

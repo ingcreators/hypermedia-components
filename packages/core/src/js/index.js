@@ -22,5 +22,6 @@ export { installContextMenu } from './context-menu.js';
 export { installCommand } from './command.js';
 export { installCalendar } from './calendar.js';
 export { installInputOtp } from './inputotp.js';
+export { installSplitter } from './splitter.js';
 
 export const version = '0.0.0';

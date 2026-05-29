@@ -1,0 +1,90 @@
+/* hc-splitter — resizable panels with a draggable handle.
+ *
+ * Two panes split by a movable handle (the WAI-ARIA Window Splitter
+ * pattern). `installSplitter()` wires the ARIA value attributes,
+ * pointer drag, and keyboard resize; the layout is flexbox driven by a
+ * single `--hc-splitter-pos` custom property (the primary pane's size,
+ * a percentage).
+ *
+ *   <div class="hc-splitter" data-orientation="horizontal" style="block-size:16rem">
+ *     <div class="hc-splitter__panel">A</div>
+ *     <div class="hc-splitter__handle" role="separator" tabindex="0"
+ *          aria-label="Resize panels"></div>
+ *     <div class="hc-splitter__panel">B</div>
+ *   </div>
+ *
+ * `data-orientation="horizontal"` (default) lays the panes side by side
+ * with a vertical handle; `"vertical"` stacks them with a horizontal
+ * handle. Give the container a cross-axis size (height for horizontal).
+ */
+@layer hc.components {
+  .hc-splitter {
+    display: flex;
+    inline-size: 100%;
+  }
+
+  .hc-splitter[data-orientation="vertical"] {
+    flex-direction: column;
+  }
+
+  .hc-splitter__panel {
+    overflow: auto;
+    min-inline-size: 0;
+    min-block-size: 0;
+  }
+
+  /* Primary pane: its main-axis size is the splitter position. */
+  .hc-splitter__panel:first-of-type {
+    flex: 0 0 var(--hc-splitter-pos, 50%);
+  }
+
+  /* Secondary pane fills the rest. */
+  .hc-splitter__panel:last-of-type {
+    flex: 1 1 0;
+  }
+
+  .hc-splitter__handle {
+    position: relative;
+    flex: 0 0 var(--hc-splitter-handle-size);
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hc-splitter-handle-bg);
+    cursor: col-resize;
+    touch-action: none;
+  }
+
+  .hc-splitter[data-orientation="vertical"] .hc-splitter__handle {
+    cursor: row-resize;
+  }
+
+  /* Grip indicator — a short rounded bar centred in the handle. */
+  .hc-splitter__handle::before {
+    content: "";
+    inline-size: var(--hc-splitter-grip-thickness);
+    block-size: var(--hc-splitter-grip-length);
+    border-radius: 9999px;
+    background: var(--hc-splitter-grip-color);
+  }
+
+  .hc-splitter[data-orientation="vertical"] .hc-splitter__handle::before {
+    inline-size: var(--hc-splitter-grip-length);
+    block-size: var(--hc-splitter-grip-thickness);
+  }
+
+  .hc-splitter__handle:hover,
+  .hc-splitter__handle:focus-visible {
+    background: var(--hc-splitter-handle-hover-bg);
+  }
+
+  .hc-splitter__handle:hover::before,
+  .hc-splitter__handle:focus-visible::before {
+    background: var(--hc-splitter-grip-active-color);
+  }
+
+  .hc-splitter__handle:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+}
