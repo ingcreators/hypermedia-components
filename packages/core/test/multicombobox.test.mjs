@@ -1,5 +1,5 @@
 import './dom-setup.mjs';
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { installMulticombobox } from '../src/js/multicombobox.js';
 
 let uninstall = () => {};
