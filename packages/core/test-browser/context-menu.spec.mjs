@@ -5,6 +5,23 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
+// Open the menu by dispatching a real `contextmenu` event at the given
+// viewport coordinates. Playwright's `click({ button: 'right' })` does
+// not reliably deliver a `contextmenu` event in headless CI Chromium,
+// so we dispatch one directly — it exercises the same handler a real
+// right-click would, deterministically across environments. (The
+// Shift+F10 test below covers the genuine keyboard path.)
+async function openMenu(page, x = 60, y = 50) {
+  await page.evaluate(
+    ({ x, y }) => {
+      document.querySelector('[data-hc-context-menu]').dispatchEvent(
+        new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: x, clientY: y }),
+      );
+    },
+    { x, y },
+  );
+}
+
 test.describe('hc-context-menu', () => {
   test('right-click opens the menu at the pointer and suppresses the native menu', async ({ page }) => {
     const region = page.getByTestId('ctx-region');
@@ -65,14 +82,13 @@ test.describe('hc-context-menu', () => {
   });
 
   test('arrow keys navigate the open menu', async ({ page }) => {
-    await page.getByTestId('ctx-region').click({ button: 'right' });
+    await openMenu(page);
     await expect(page.getByTestId('ctx-open')).toBeFocused();
     await page.keyboard.press('ArrowDown');
     await expect(page.getByTestId('ctx-menu').getByText('Rename')).toBeFocused();
   });
 
   test('selecting a menuitem dispatches hc:menuselect and closes', async ({ page }) => {
-    const region = page.getByTestId('ctx-region');
     const menu = page.getByTestId('ctx-menu');
 
     const selectName = page.evaluate(
@@ -86,7 +102,7 @@ test.describe('hc-context-menu', () => {
         }),
     );
 
-    await region.click({ button: 'right' });
+    await openMenu(page);
     await page.getByTestId('ctx-open').click();
 
     expect(await selectName).toEqual({ text: 'Open', hasTarget: true });
@@ -94,16 +110,15 @@ test.describe('hc-context-menu', () => {
   });
 
   test('a menuitemcheckbox toggles without closing the menu', async ({ page }) => {
-    const region = page.getByTestId('ctx-region');
     const bookmark = page.getByTestId('ctx-bookmark');
-    await region.click({ button: 'right' });
+    await openMenu(page);
     await bookmark.click();
     await expect(bookmark).toHaveAttribute('aria-checked', 'true');
     await expect(page.getByTestId('ctx-menu')).toBeVisible();
   });
 
   test('axe finds no violations with the context menu open', async ({ page }) => {
-    await page.getByTestId('ctx-region').click({ button: 'right' });
+    await openMenu(page);
     await expect(page.getByTestId('ctx-menu')).toBeVisible();
     const results = await new AxeBuilder({ page })
       .include('#section-context-menu')
