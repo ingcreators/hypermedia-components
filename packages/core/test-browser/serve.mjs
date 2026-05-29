@@ -33,6 +33,7 @@ const ASSET_ALIASES = new Map([
   ['/combobox.js',      join(coreDist, 'combobox.js')],
   ['/multicombobox.js', join(coreDist, 'multicombobox.js')],
   ['/drawer.js',        join(coreDist, 'drawer.js')],
+  ['/hovercard.js',    join(coreDist, 'hovercard.js')],
   ['/macros/index.js',          join(coreDist, 'macros', 'index.js')],
   ['/macros/confirm-action.js', join(coreDist, 'macros', 'confirm-action.js')],
   ['/macros/live-search.js',    join(coreDist, 'macros', 'live-search.js')],

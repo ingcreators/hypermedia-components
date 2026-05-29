@@ -22,6 +22,40 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-hovercard` component + `installHovercard` behavior. Richer-
+  content sibling of `hc-tooltip` for previews that need an avatar,
+  title and subtitle, paragraph description, or interactive links
+  (GitHub-style `@user` mention previews, issue ID previews, page
+  link previews). Trigger references the card via
+  `aria-describedby`, same as tooltip. Built on the same
+  primitives — HTML `popover` (still `manual` because Safari has
+  no `popover="hint"` support as of 2026-05), CSS Anchor
+  Positioning, JS positioning fallback. Three behavioural
+  differences from tooltip:
+  - the card receives pointer events so users can move the cursor
+    in and click links inside;
+  - the behavior tracks hover state on **both the trigger and the
+    card** — the card stays open while either is hovered, so the
+    short cursor traversal between them does not dismiss it;
+  - show / hide delays are longer (500 ms / 200 ms) for the
+    reading-card UX.
+
+  Focus on the trigger shows the card immediately (a11y); Escape
+  on either trigger or card hides it. CSS layout is
+  `.hc-hovercard__header` (with `.hc-hovercard__title` /
+  `.hc-hovercard__subtitle`), `.hc-hovercard__body`, optional
+  `.hc-hovercard__footer`. New tokens
+  `hovercard.{bg, fg, border, radius, max-width, padding, gap,
+  offset, title-weight, subtitle-fg, subtitle-size}`, all `{ref}`.
+
+  Vitest spec (12 cases) covers idempotency, auto-attribution,
+  show delay, immediate focus open, hide grace period, hover-into-
+  card cancellation of the hide timer, hover-out-of-card schedules
+  hide, Escape closes, mouseleave during show delay cancels,
+  no-id no-op, uninstall cleanup, MutationObserver pickup.
+  Playwright spec (6 cases incl. axe-core scan) exercises the
+  real popover algorithm and the cursor-into-card path.
+
 - `hc-drawer` component + `installDrawer` behavior. Slide-in side
   panel styled over the native `<dialog>` element. The native
   dialog gives us focus trapping, `Escape`-to-close, and the

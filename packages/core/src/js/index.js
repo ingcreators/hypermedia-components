@@ -16,5 +16,6 @@ export { installSlider } from './slider.js';
 export { installCombobox } from './combobox.js';
 export { installMulticombobox } from './multicombobox.js';
 export { installDrawer } from './drawer.js';
+export { installHovercard } from './hovercard.js';
 
 export const version = '0.0.0';

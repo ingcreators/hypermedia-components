@@ -132,6 +132,19 @@
       "size": { "$type": "dimension", "$value": "1.375rem" }
     }
   },
+  "hovercard": {
+    "bg":         { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "fg":         { "$type": "color",     "$value": "{semantic.color.text}" },
+    "border":     { "$type": "color",     "$value": "{semantic.color.border}" },
+    "radius":     { "$type": "dimension", "$value": "{primitive.radius.md}" },
+    "max-width":  { "$type": "dimension", "$value": "20rem" },
+    "padding":    { "$type": "dimension", "$value": "{semantic.space.3}" },
+    "gap":        { "$type": "dimension", "$value": "{semantic.space.2}" },
+    "offset":     { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "title-weight":    { "$type": "fontWeight", "$value": "{semantic.font.weight-semibold}" },
+    "subtitle-fg":     { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+    "subtitle-size":   { "$type": "dimension",  "$value": "{semantic.font.size-sm}" }
+  },
   "drawer": {
     "bg":           { "$type": "color",     "$value": "{semantic.color.surface}" },
     "fg":           { "$type": "color",     "$value": "{semantic.color.text}" },

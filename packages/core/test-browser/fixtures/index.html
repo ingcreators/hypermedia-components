@@ -179,6 +179,31 @@
     </fieldset>
   </section>
 
+  <section id="section-hovercard" data-testid="section-hovercard">
+    <h2>Hover card</h2>
+    <p>
+      Hover or focus
+      <a href="#" id="hc-trigger" aria-describedby="hc-card" data-testid="hc-trigger">
+        Ada Lovelace
+      </a>
+      for a richer preview.
+    </p>
+    <div class="hc-hovercard" id="hc-card" data-testid="hc-card">
+      <header class="hc-hovercard__header">
+        <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+        <div>
+          <div class="hc-hovercard__title">Ada Lovelace</div>
+          <div class="hc-hovercard__subtitle">Mathematician</div>
+        </div>
+      </header>
+      <div class="hc-hovercard__body">
+        <p>First computer programmer.
+          <a href="#" data-testid="hc-card-link">View profile →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
   <section id="section-drawer" data-testid="section-drawer">
     <h2>Drawer</h2>
     <div class="row">
