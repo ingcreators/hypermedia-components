@@ -28,6 +28,7 @@ import {
   installCommand,
   installCalendar,
   installInputOtp,
+  installSplitter,
   version,
 } from '@hypermedia-components/core';
 
@@ -50,6 +51,7 @@ import {
   installCommand as installCommandFromBehaviors,
   installCalendar as installCalendarFromBehaviors,
   installInputOtp as installInputOtpFromBehaviors,
+  installSplitter as installSplitterFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -76,6 +78,7 @@ const uninstallers: Array<() => void> = [
   installCommand(document),
   installCalendar(document),
   installInputOtp(document),
+  installSplitter(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -94,6 +97,7 @@ const uninstallers: Array<() => void> = [
   installCommandFromBehaviors(),
   installCalendarFromBehaviors(),
   installInputOtpFromBehaviors(),
+  installSplitterFromBehaviors(),
 ];
 
 // `version` is a string literal export.

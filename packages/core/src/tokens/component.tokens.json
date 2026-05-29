@@ -592,6 +592,15 @@
     "max-width": { "$type": "dimension", "$value": "20rem" },
     "offset":    { "$type": "dimension", "$value": "{primitive.space.1}" }
   },
+  "splitter": {
+    "handle-size":       { "$type": "dimension", "$value": "0.625rem" },
+    "handle-bg":         { "$type": "color",     "$value": "transparent" },
+    "handle-hover-bg":   { "$type": "color",     "$value": "{semantic.color.action.primary-soft.bg}" },
+    "grip-color":        { "$type": "color",     "$value": "{semantic.color.border}" },
+    "grip-active-color": { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "grip-length":       { "$type": "dimension", "$value": "1.5rem" },
+    "grip-thickness":    { "$type": "dimension", "$value": "3px" }
+  },
   "inputotp": {
     "gap":            { "$type": "dimension",  "$value": "{primitive.space.2}" },
     "slot-size":      { "$type": "dimension",  "$value": "2.75rem" },

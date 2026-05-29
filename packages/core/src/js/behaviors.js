@@ -25,6 +25,7 @@ import { installContextMenu } from './context-menu.js';
 import { installCommand } from './command.js';
 import { installCalendar } from './calendar.js';
 import { installInputOtp } from './inputotp.js';
+import { installSplitter } from './splitter.js';
 
 function init() {
   installConfirm();
@@ -45,6 +46,7 @@ function init() {
   installCommand();
   installCalendar();
   installInputOtp();
+  installSplitter();
 }
 
 if (typeof document !== 'undefined') {
@@ -74,4 +76,5 @@ export {
   installCommand,
   installCalendar,
   installInputOtp,
+  installSplitter,
 };

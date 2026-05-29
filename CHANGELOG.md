@@ -22,6 +22,36 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-splitter` component + `installSplitter` behavior. Resizable panels
+  with a draggable handle (shadcn `Resizable` equivalent), following the
+  WAI-ARIA **Window Splitter** pattern — closes the focusable-splitter
+  deferral noted when `hc-separator` shipped. Two `.hc-splitter__panel`
+  panes are split by a `.hc-splitter__handle` that becomes a focusable
+  `role="separator"` with `aria-valuenow` / `aria-valuemin` /
+  `aria-valuemax` tracking the primary pane's size (percent),
+  `aria-controls` pointing at it, and `aria-orientation` set
+  automatically (a side-by-side split uses a `vertical` separator line,
+  and vice-versa). Layout is plain flexbox driven by a single
+  `--hc-splitter-pos` custom property. Pointer drag (handled at the
+  document level so a fast drag still tracks) and keyboard resize
+  (`←`/`→` or `↑`/`↓` by `data-step`, `Home`/`End` to min/max) both
+  clamp to `data-min` / `data-max`. Config: `data-orientation`
+  (`horizontal` default / `vertical`), `data-value` (initial %, default
+  50), `data-min` / `data-max` (default 10 / 90), `data-step` (default
+  5). Each change dispatches a bubbling `hc:splitterchange`
+  (`detail { value, orientation }`). New `splitter.*` tokens (handle
+  size / bg / hover, grip bar incl. themed active colour). Vitest spec
+  (10 cases) covers ARIA wiring, `data-value`/`min`/`max`, arrow-step
+  resize + custom-property sync, min/max clamp + Home/End, the change
+  event, vertical-orientation key mapping, a mocked-rect pointer drag,
+  uninstall, and MutationObserver. Playwright spec (5 cases incl.
+  axe-core scan) covers the separator semantics, keyboard resize (with
+  pane-width assertion), Home/End, a real handle drag, and a11y.
+
+  Out of scope (deferred): three-or-more panes, collapse / expand
+  toggling, persistence (`localStorage`), nested splitters, and
+  pixel-based minimums.
+
 - `hc-inputotp` component + `installInputOtp` behavior. A segmented
   one-time-code field (shadcn `InputOTP` equivalent) built on the
   accessible **single-input** approach: one real
