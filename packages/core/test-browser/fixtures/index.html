@@ -514,6 +514,22 @@
     </dialog>
   </section>
 
+  <section id="section-scroll-area" data-testid="section-scroll-area">
+    <h2>Scroll area</h2>
+    <div class="hc-scroll-area" data-testid="sa-vertical" tabindex="0" role="region" aria-label="Vertical scroll demo"
+         style="max-block-size:8rem;max-inline-size:18rem;border:1px solid var(--hc-color-border);padding:.5rem;">
+      <p style="margin:0">Vertical scroll region.</p>
+      <p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p><p>10</p>
+    </div>
+
+    <h3>Horizontal</h3>
+    <div class="hc-scroll-area" data-orientation="horizontal" data-testid="sa-horizontal"
+         tabindex="0" role="region" aria-label="Horizontal scroll demo"
+         style="max-inline-size:18rem;border:1px solid var(--hc-color-border);padding:.5rem;white-space:nowrap;">
+      <span>This is a very long single line of content that overflows horizontally and must scroll sideways to read it fully.</span>
+    </div>
+  </section>
+
   <section id="section-splitter" data-testid="section-splitter">
     <h2>Splitter</h2>
     <div class="hc-splitter" data-orientation="horizontal" data-value="50"

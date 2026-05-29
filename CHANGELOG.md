@@ -22,6 +22,29 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-scroll-area` component — pure CSS scrollable region with thin,
+  themed scrollbars (shadcn `ScrollArea` equivalent), no JavaScript.
+  Uses the **standard** CSS Scrollbars module (`scrollbar-width: thin`
+  + `scrollbar-color`, Baseline 2025) rather than the non-standard
+  `::-webkit-scrollbar` pseudo-elements (Firefox never supported them,
+  and a set `scrollbar-color` overrides them anyway). The thumb darkens
+  to `scroll-area.thumb-hover` on hover (the property cascades live, no
+  JS). `data-orientation` selects the scroll axis — `vertical`
+  (default), `horizontal`, or `both` — and `overscroll-behavior:
+  contain` stops scroll chaining to the page. New
+  `scroll-area.{thumb, thumb-hover, track}` tokens. Documented markup
+  contract: a scrollable region must be keyboard-focusable, so add
+  `tabindex="0"` (plus `role="region"` + `aria-label` when it's a
+  meaningful landmark) — CSS can't add it, and axe's
+  `scrollable-region-focusable` rule requires it. Playwright spec (5
+  cases): the thin themed scrollbar (computed `scrollbar-width` /
+  `scrollbar-color`), vertical block-axis overflow, horizontal
+  inline-axis overflow, programmatic scrolling, and an axe-core scan.
+
+  Out of scope (deferred): fully custom JS overlay scrollbars,
+  scroll-edge fade / shadow, scroll-to buttons, and `::-webkit-scrollbar`
+  rounded-thumb styling.
+
 - `hc-splitter` component + `installSplitter` behavior. Resizable panels
   with a draggable handle (shadcn `Resizable` equivalent), following the
   WAI-ARIA **Window Splitter** pattern — closes the focusable-splitter

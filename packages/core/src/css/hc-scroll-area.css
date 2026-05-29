@@ -1,0 +1,37 @@
+/* hc-scroll-area — a scrollable region with thin, themed scrollbars.
+ *
+ * Pure CSS, no JavaScript. Uses the standard CSS Scrollbars module
+ * (`scrollbar-width` + `scrollbar-color`, Baseline 2025) — not the
+ * non-standard `::-webkit-scrollbar` pseudo-elements (Firefox never
+ * supported them, and setting `scrollbar-color` overrides them anyway).
+ *
+ *   <div class="hc-scroll-area" style="max-block-size:12rem">…</div>
+ *
+ * Give it a max size on the scroll axis (e.g. `max-block-size` for the
+ * default vertical orientation). `data-orientation` switches the axis;
+ * `overscroll-behavior: contain` stops scroll chaining to the page.
+ */
+@layer hc.components {
+  .hc-scroll-area {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--hc-scroll-area-thumb) var(--hc-scroll-area-track);
+  }
+
+  /* Darken the thumb while the region is hovered (the property cascades
+   * live, so this is a smooth, JS-free affordance). */
+  .hc-scroll-area:hover {
+    scrollbar-color: var(--hc-scroll-area-thumb-hover) var(--hc-scroll-area-track);
+  }
+
+  .hc-scroll-area[data-orientation="horizontal"] {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .hc-scroll-area[data-orientation="both"] {
+    overflow: auto;
+  }
+}
