@@ -29,6 +29,7 @@ const COMPONENTS = [
   'hc-radio.css',
   'hc-switch.css',
   'hc-slider.css',
+  'hc-combobox.css',
   'hc-field.css',
   'hc-spinner.css',
   'hc-progress.css',

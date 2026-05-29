@@ -1,0 +1,193 @@
+---
+title: Combobox
+description: Accessible single-select with type-to-filter, built on the WAI-ARIA 1.2 combobox pattern, native popover, and CSS Anchor Positioning.
+---
+
+`hc-combobox` is an accessible **single-select** input with a
+type-to-filter dropdown. Follows the [WAI-ARIA 1.2 combobox
+pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) — the
+`<input>` carries `role="combobox"` and the dropdown is a
+`<ul role="listbox" popover>`. Keyboard navigation uses
+`aria-activedescendant` so the visible highlight moves with the
+user's selection while the actual DOM focus stays on the input.
+
+Same architectural primitives as `hc-menu` and `hc-tooltip`:
+
+- HTML `popover` attribute for show / hide + Escape / outside
+  dismiss.
+- CSS Anchor Positioning for the listbox placement under the input.
+- `installCombobox()` wires the filter, keyboard, selection, and
+  ARIA bookkeeping.
+
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| HTML `popover` | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| CSS Anchor Positioning | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+Browsers without anchor support fall back to a `getBoundingClientRect`
+positioning hook.
+
+## Basic example
+
+<div class="hc-preview not-content">
+  <div class="hc-combobox" style="max-inline-size:18rem;">
+    <input class="hc-combobox__input hc-input"
+           type="text"
+           role="combobox"
+           aria-controls="doc-cb-list"
+           aria-label="Country" />
+    <ul class="hc-combobox__listbox" id="doc-cb-list" role="listbox">
+      <li class="hc-combobox__option" role="option" data-value="jp">Japan</li>
+      <li class="hc-combobox__option" role="option" data-value="us">United States</li>
+      <li class="hc-combobox__option" role="option" data-value="gb">United Kingdom</li>
+      <li class="hc-combobox__option" role="option" data-value="fr">France</li>
+      <li class="hc-combobox__option" role="option" data-value="de"
+          aria-disabled="true">Germany (coming soon)</li>
+    </ul>
+  </div>
+</div>
+
+```html
+<div class="hc-combobox">
+  <input class="hc-combobox__input hc-input"
+         type="text"
+         role="combobox"
+         aria-controls="country-list"
+         aria-label="Country">
+
+  <ul class="hc-combobox__listbox" id="country-list" role="listbox">
+    <li class="hc-combobox__option" role="option" data-value="jp">Japan</li>
+    <li class="hc-combobox__option" role="option" data-value="us">United States</li>
+    <li class="hc-combobox__option" role="option" data-value="gb">United Kingdom</li>
+    <li class="hc-combobox__option" role="option" data-value="fr">France</li>
+    <li class="hc-combobox__option" role="option" data-value="de"
+        aria-disabled="true">Germany</li>
+  </ul>
+</div>
+```
+
+```js
+import { installCombobox } from '@hypermedia-components/core';
+installCombobox();
+```
+
+## What `installCombobox()` does
+
+- **ARIA wiring** on the input: `aria-haspopup="listbox"`,
+  `aria-autocomplete="list"`, `aria-expanded` (toggled with the
+  popover state), `aria-controls` if missing,
+  `aria-activedescendant` tracking the highlighted option.
+- **Auto-set** `popover="manual"` on the listbox if the author
+  did not supply a value.
+- **Anchor binding** via inline `anchor-name` on the input and
+  `position-anchor` on the listbox so the popover lands directly
+  under the input.
+- **Filter**: each input keystroke hides options whose text does
+  not contain the typed string (case-insensitive). A
+  `.hc-combobox__empty` `<li role="presentation">` appears when
+  nothing matches.
+- **Keyboard**:
+  - `↓` opens / moves to the next visible option;
+  - `↑` moves to the previous;
+  - `Home` / `End` jump to the first / last visible enabled option;
+  - `Enter` selects;
+  - `Escape` closes the listbox without altering the input value;
+  - `Tab` closes and yields to the next tab stop.
+- **Mouse**: clicking an option selects it. `aria-disabled="true"`
+  options are skipped.
+- **Selection**: fills the input value, dispatches a bubbling
+  `hc:comboboxselect` event whose `detail` carries
+  `{ value, label, option, input }`.
+
+## htmx integration
+
+A selection fires `hc:comboboxselect` on the input; wire htmx to
+that event to push the choice to the server.
+
+```html
+<input class="hc-combobox__input hc-input"
+       type="text"
+       role="combobox"
+       aria-controls="user-list"
+       aria-label="Assignee"
+       data-hx-post="/issues/123/assignee"
+       data-hx-trigger="hc:comboboxselect"
+       data-hx-vals='js:{ value: event.detail.value }'>
+```
+
+For server-driven filtering (instead of the built-in client filter),
+keep the same `data-hx-trigger="input changed delay:200ms"` pattern
+documented for [`hc-input`](/hypermedia-components/components/input/)
+on the input itself; the server returns just the `<li role="option">`
+rows and htmx swaps them into the listbox. The behavior re-evaluates
+the new options on the next keystroke / arrow key.
+
+## Accessibility
+
+- The input is the user's anchor — focus stays there at all times so
+  type-ahead and screen-reader announcement track correctly.
+  `aria-activedescendant` moves the *highlight* without moving DOM
+  focus.
+- Always give the combobox an accessible name. Wrap with a
+  `<label>`, set `aria-label`, or use `aria-labelledby`.
+- The listbox carries `role="listbox"` and each child
+  `role="option"`. Mark unavailable rows with `aria-disabled="true"`
+  rather than `disabled` — `<li>` is not a focusable form control,
+  so `disabled` has no effect.
+- The visible focus indicator on the active option uses
+  `--hc-color-focus-ring` and stays in sync across `data-color`
+  themes.
+
+## Out of scope (MVP)
+
+The MVP keeps the surface small. The following patterns are
+deferred:
+
+- **Multi-select** — tag input with multiple chosen values. Will
+  ship as a separate `hc-multicombobox`.
+- **Async option loading** — the docs show the htmx pattern
+  (server returns filtered `<li>` rows on each keystroke); a
+  built-in debounce / cancel-in-flight helper is not yet bundled.
+- **Free input** — accept values not in the list as the final
+  value. The current behavior leaves whatever text the user typed
+  in the input even if they close without selecting; an opt-in
+  strict mode (clear on close without match) is a future flag.
+- **Rich options** — icons, descriptions, two-line items. The CSS
+  permits any HTML inside an `[role="option"]`, but the filter
+  matches against `textContent` — fine for plain text, may need
+  a `data-search` attribute escape hatch for richer cases.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `combobox.listbox.bg` / `fg` / `border` / `radius` | Listbox surface. |
+| `combobox.listbox.max-height` | Cap before the listbox scrolls. |
+| `combobox.listbox.padding-block` / `min-width` / `offset` | Listbox spacing and anchor offset. |
+| `combobox.option.padding-x` / `padding-y` / `font-size` / `gap` | Option layout. |
+| `combobox.option.fg` / `hover-bg` / `active-bg` / `selected-bg` / `selected-fg` / `disabled-fg` | Option states. |
+| `combobox.empty-fg` | "No matches" placeholder colour. |
+
+## CSS variables
+
+```text
+--hc-combobox-listbox-bg | -listbox-fg | -listbox-border | -listbox-radius
+--hc-combobox-listbox-max-height | -listbox-padding-block
+--hc-combobox-listbox-min-width | -listbox-offset
+--hc-combobox-option-padding-x | -option-padding-y | -option-font-size
+--hc-combobox-option-fg | -option-hover-bg | -option-active-bg
+--hc-combobox-option-selected-bg | -option-selected-fg
+--hc-combobox-option-disabled-fg
+--hc-combobox-empty-fg
+--hc-color-focus-ring (inherited from data-color)
+```
+
+## Related
+
+- [Select](/hypermedia-components/components/select/) — when the list is short and you want the native OS picker on mobile.
+- [Menu](/hypermedia-components/components/menu/) — when the items are actions, not values.
+- [Input](/hypermedia-components/components/input/) — plain text input.

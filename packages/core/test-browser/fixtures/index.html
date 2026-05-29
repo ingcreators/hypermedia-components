@@ -179,6 +179,40 @@
     </fieldset>
   </section>
 
+  <section id="section-combobox" data-testid="section-combobox">
+    <h2>Combobox</h2>
+    <div class="hc-combobox" style="max-inline-size:18rem;">
+      <input class="hc-combobox__input hc-input"
+             type="text"
+             role="combobox"
+             aria-controls="cb-country-list"
+             aria-label="Country"
+             data-testid="cb-input">
+      <ul class="hc-combobox__listbox" id="cb-country-list"
+          role="listbox" data-testid="cb-listbox">
+        <li id="cb-jp" class="hc-combobox__option" role="option" data-value="jp"
+            data-testid="cb-opt-jp">Japan</li>
+        <li id="cb-us" class="hc-combobox__option" role="option" data-value="us"
+            data-testid="cb-opt-us">United States</li>
+        <li id="cb-gb" class="hc-combobox__option" role="option" data-value="gb"
+            data-testid="cb-opt-gb">United Kingdom</li>
+        <li id="cb-fr" class="hc-combobox__option" role="option" data-value="fr"
+            data-testid="cb-opt-fr">France</li>
+        <li id="cb-de" class="hc-combobox__option" role="option" data-value="de"
+            aria-disabled="true" data-testid="cb-opt-de">Germany</li>
+      </ul>
+    </div>
+    <output data-testid="cb-selected"></output>
+    <script type="module">
+      const cb = document.querySelector('[data-testid="cb-input"]');
+      const out = document.querySelector('[data-testid="cb-selected"]');
+      cb.addEventListener('hc:comboboxselect', (e) => {
+        out.textContent = e.detail.value + ': ' + e.detail.label;
+        out.setAttribute('data-value', e.detail.value);
+      });
+    </script>
+  </section>
+
   <section id="section-slider" data-testid="section-slider">
     <h2>Slider</h2>
     <div class="row" style="flex-direction:column;align-items:stretch;gap:0.5rem;max-inline-size:24rem;">

@@ -22,6 +22,41 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-combobox` component + `installCombobox` behavior. Accessible
+  single-select with type-to-filter, following the WAI-ARIA 1.2
+  combobox pattern: the `<input>` carries `role="combobox"` and the
+  dropdown is a `<ul role="listbox" popover>`. Keyboard navigation
+  uses `aria-activedescendant` so the visible highlight moves with
+  the user's selection while DOM focus stays on the input (the
+  type-ahead anchor). Same architectural primitives as `hc-menu` and
+  `hc-tooltip` — HTML `popover` attribute for show / hide + Escape +
+  outside dismiss, CSS Anchor Positioning for placement under the
+  input, JS positioning fallback for browsers without anchor support.
+  `installCombobox()` wires ARIA (`aria-haspopup`, `aria-autocomplete`,
+  `aria-expanded`, `aria-controls`, `aria-activedescendant`),
+  auto-sets `popover="manual"` and the anchor name pair, runs the
+  case-insensitive substring filter on every input keystroke,
+  manages `↓ / ↑ / Home / End / Enter / Escape / Tab`, dispatches
+  `hc:comboboxselect` with `{ value, label, option, input }`, and
+  inserts a `.hc-combobox__empty` `<li role="presentation">` placeholder
+  when the filter yields nothing. `aria-disabled="true"` options are
+  skipped by both keyboard nav and click selection. New tokens
+  `combobox.{listbox.{bg, fg, border, radius, max-height,
+  padding-block, min-width, offset}, option.{padding-x, padding-y,
+  font-size, fg, hover-bg, active-bg, selected-bg, selected-fg,
+  disabled-fg}, empty-fg}`, all `{ref}` so the overlay machinery
+  handles theming. Vitest spec (12 cases): idempotency, ARIA wiring,
+  focus opens, substring filter, arrow keys + disabled skip, Home /
+  End, Enter select + event detail + input update, click select,
+  Escape no-op on value, empty-marker insertion, uninstall cleanup,
+  MutationObserver pickup. Playwright spec (9 cases incl. axe-core
+  scan in the open state).
+
+  Out of scope (deferred): multi-select (will ship as
+  `hc-multicombobox`), built-in async loading helper (htmx pattern
+  documented), strict / free-input mode toggle, rich option
+  rendering with icons or descriptions.
+
 - `hc-slider` component + `installSlider` behavior. Pure CSS skin
   over a native `<input type="range">` with a tiny JS shim. The
   native input retains every accessible behaviour (←/→/Home/End/
