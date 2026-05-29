@@ -179,6 +179,59 @@
     </fieldset>
   </section>
 
+  <section id="section-drawer" data-testid="section-drawer">
+    <h2>Drawer</h2>
+    <div class="row">
+      <button class="hc-button" id="dr-open-right" data-testid="dr-open-right">
+        Open right drawer
+      </button>
+      <button class="hc-button" id="dr-open-bottom" data-testid="dr-open-bottom">
+        Open bottom drawer
+      </button>
+    </div>
+
+    <dialog class="hc-drawer" data-side="right" id="dr-right" data-testid="dr-right">
+      <header class="hc-drawer__header">
+        <h2 class="hc-drawer__title">Settings</h2>
+        <form method="dialog">
+          <button class="hc-button" data-variant="ghost" data-size="sm"
+                  type="submit" aria-label="Close" data-testid="dr-right-x">×</button>
+        </form>
+      </header>
+      <div class="hc-drawer__body" data-testid="dr-right-body">
+        <p>Body content for the right-side drawer.</p>
+      </div>
+      <footer class="hc-drawer__footer">
+        <form method="dialog">
+          <button class="hc-button" type="submit" data-testid="dr-right-cancel">Cancel</button>
+        </form>
+        <button class="hc-button" data-variant="primary" data-testid="dr-right-save">Save</button>
+      </footer>
+    </dialog>
+
+    <dialog class="hc-drawer" data-side="bottom" id="dr-bottom" data-testid="dr-bottom">
+      <header class="hc-drawer__header">
+        <h2 class="hc-drawer__title">Bottom sheet</h2>
+        <form method="dialog">
+          <button class="hc-button" data-variant="ghost" data-size="sm"
+                  type="submit" aria-label="Close">×</button>
+        </form>
+      </header>
+      <div class="hc-drawer__body">
+        <p>Slides up from the bottom of the viewport.</p>
+      </div>
+    </dialog>
+
+    <script type="module">
+      document.getElementById('dr-open-right').addEventListener('click', () => {
+        document.getElementById('dr-right').showModal();
+      });
+      document.getElementById('dr-open-bottom').addEventListener('click', () => {
+        document.getElementById('dr-bottom').showModal();
+      });
+    </script>
+  </section>
+
   <section id="section-multicombobox" data-testid="section-multicombobox">
     <h2>Multicombobox</h2>
     <div class="hc-multicombobox" data-name="languages" style="max-inline-size:22rem;"

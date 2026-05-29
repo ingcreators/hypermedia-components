@@ -132,6 +132,17 @@
       "size": { "$type": "dimension", "$value": "1.375rem" }
     }
   },
+  "drawer": {
+    "bg":           { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "fg":           { "$type": "color",     "$value": "{semantic.color.text}" },
+    "border":       { "$type": "color",     "$value": "{semantic.color.border}" },
+    "side-max-width":  { "$type": "dimension", "$value": "24rem" },
+    "vert-max-height": { "$type": "dimension", "$value": "60vh" },
+    "padding":      { "$type": "dimension", "$value": "{semantic.space.4}" },
+    "gap":          { "$type": "dimension", "$value": "{semantic.space.3}" },
+    "backdrop":     { "$type": "color",     "$value": "{semantic.color.overlay}" },
+    "duration":     { "$type": "duration",  "$value": "200ms" }
+  },
   "multicombobox": {
     "control": {
       "padding-x":   { "$type": "dimension", "$value": "{primitive.space.2}" },

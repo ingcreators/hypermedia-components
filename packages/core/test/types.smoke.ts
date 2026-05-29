@@ -21,6 +21,7 @@ import {
   installSlider,
   installCombobox,
   installMulticombobox,
+  installDrawer,
   version,
 } from '@hypermedia-components/core';
 
@@ -36,6 +37,7 @@ import {
   installSlider as installSliderFromBehaviors,
   installCombobox as installComboboxFromBehaviors,
   installMulticombobox as installMulticomboboxFromBehaviors,
+  installDrawer as installDrawerFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -55,6 +57,7 @@ const uninstallers: Array<() => void> = [
   installSlider(document),
   installCombobox(document),
   installMulticombobox(document),
+  installDrawer(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -66,6 +69,7 @@ const uninstallers: Array<() => void> = [
   installSliderFromBehaviors(),
   installComboboxFromBehaviors(),
   installMulticomboboxFromBehaviors(),
+  installDrawerFromBehaviors(),
 ];
 
 // `version` is a string literal export.
