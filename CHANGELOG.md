@@ -22,6 +22,37 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-datepicker` component — pure CSS skin over a native `<input>`
+  whose `type` is `date`, `datetime-local`, `month`, or `time`. The
+  native input keeps every accessible behaviour (keyboard
+  navigation across year / month / day spinners, the OS-native
+  calendar / time picker on mobile, form submission, `min` / `max`
+  / `step` validation, locale-aware rendering); only the closed-
+  state chrome is replaced via `appearance: none` and an embedded
+  SVG icon (calendar for date / datetime / month, clock for time).
+  The WebKit native indicator is hidden so a single visible icon
+  reads consistently across engines; clicks anywhere on the input
+  still open the picker. Same axes as the other form controls —
+  `data-variant="success" | "warning" | "error"` for border-colour
+  cues, `data-size="sm" | "md" | "lg"` driven from the shared
+  `--hc-control-*` scale (so `data-density="compact"` shrinks
+  consistently), `:disabled` / `aria-invalid` states. New
+  `datepicker.{height, padding-x, radius, font-size, bg, fg,
+  border, focus-border, invalid-border, success-border,
+  warning-border, disabled-bg, icon-size, sm.*, lg.*}` tokens, all
+  `{ref}` so the overlay machinery handles theming. Playwright
+  spec (10 cases) covers the native `type` attribute and form
+  value, both calendar and clock SVG icons, focus ring, error /
+  success variant borders, disabled state, sm / lg sizing, native
+  `change` event firing, and an axe-core scan.
+
+  Out of scope (deferred): fully-styled calendar grid (a future
+  `hc-calendar` component for cases that need design-system-
+  consistent month UI), preset shortcuts ("Last 7 days"), Japanese
+  imperial-era / Buddhist calendar (browser handles via locale),
+  multi-thumb date range (use two adjacent inputs with linked
+  `min` / `max` per the documented pattern).
+
 - `hc-hovercard` component + `installHovercard` behavior. Richer-
   content sibling of `hc-tooltip` for previews that need an avatar,
   title and subtitle, paragraph description, or interactive links
