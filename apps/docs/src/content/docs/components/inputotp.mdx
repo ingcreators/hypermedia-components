@@ -1,0 +1,139 @@
+---
+title: Input OTP
+description: A segmented one-time-code input built on a single accessible <input> with autocomplete=one-time-code, rendered as visual slots by installInputOtp.
+---
+
+`hc-inputotp` is a segmented one-time-code field — the shadcn
+`InputOTP` equivalent. It uses the accessible **single-input** approach:
+one real `<input autocomplete="one-time-code">` captures all typing,
+paste, SMS autofill, and selection, and `installInputOtp` overlays it
+transparently and renders the familiar boxes. Screen readers interact
+with one labelled input; the slots are decorative.
+
+This avoids the screen-reader and paste problems of the common
+"one input per digit" pattern.
+
+## Basic usage
+
+<div class="hc-preview not-content">
+  <div class="hc-inputotp" data-length="6">
+    <input class="hc-inputotp__input" type="text" name="otp" aria-label="One-time code" />
+  </div>
+</div>
+
+```html
+<div class="hc-inputotp" data-length="6">
+  <input class="hc-inputotp__input" type="text" name="otp"
+         inputmode="numeric" autocomplete="one-time-code"
+         aria-label="One-time code">
+</div>
+```
+
+```js
+import { installInputOtp } from '@hypermedia-components/core';
+installInputOtp(); // idempotent; returns an uninstaller
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs
+it automatically. The behavior renders the `data-length` slots and sets
+`maxlength`; it also fills in `inputmode="numeric"`,
+`autocomplete="one-time-code"`, and `type="text"` if you omit them
+(`type="text"`, not `number`, so leading zeros and paste work).
+
+## Configuration
+
+| Attribute | Purpose |
+| --- | --- |
+| `data-length` | Number of slots (default `6`); also sets the input's `maxlength`. |
+| `data-pattern` | Allowed characters as a CSS-style class, default `[0-9]`. Non-matching characters are stripped on input. Use e.g. `[0-9a-zA-Z]` for alphanumeric codes. |
+
+The `<input>` carries the real value and the accessible name — always
+give it an `aria-label` or a `<label>`, and a `name` if it should
+submit.
+
+## States
+
+`aria-invalid="true"` on the input (or `data-invalid` on the container)
+draws the error border; `disabled` on the input mutes the slots.
+
+<div class="hc-preview not-content" style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+  <div class="hc-inputotp" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code" aria-invalid="true" />
+  </div>
+  <div class="hc-inputotp" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code" disabled value="12" />
+  </div>
+</div>
+
+## Events
+
+Both bubble from the container:
+
+- `hc:otpchange` — `detail { value, input }` on every edit.
+- `hc:otpcomplete` — same detail, fired when the value fills every slot.
+
+```js
+otp.addEventListener('hc:otpcomplete', (e) => {
+  verify(e.detail.value);
+});
+```
+
+## htmx usage
+
+Auto-submit the code the moment it completes:
+
+```html
+<form data-hx-post="/verify" data-hx-trigger="hc:otpcomplete">
+  <div class="hc-inputotp" data-length="6">
+    <input class="hc-inputotp__input" type="text" name="code"
+           inputmode="numeric" autocomplete="one-time-code"
+           aria-label="Verification code">
+  </div>
+</form>
+```
+
+Because the value lives in a single named `<input>`, it serialises
+normally — no extra hidden fields.
+
+## Accessibility
+
+- One real, labelled `<input>` carries the value; the visual slots are
+  `aria-hidden` so assistive tech announces a single field, not N
+  empty boxes.
+- `autocomplete="one-time-code"` lets iOS / password managers offer the
+  SMS code; `inputmode="numeric"` shows the numeric keypad.
+- The active slot's border doubles as the focus indicator; the caret
+  blink respects `prefers-reduced-motion: reduce`.
+
+## Theming tokens
+
+| Token path | Purpose |
+| --- | --- |
+| `inputotp.gap` | Space between slots. |
+| `inputotp.slot-size` | Slot box size (square). |
+| `inputotp.radius` / `border` / `bg` / `fg` | Slot chrome. |
+| `inputotp.font-size` / `font-weight` | The digit. |
+| `inputotp.active-border` / `caret-color` | Active slot + caret (track `data-color`). |
+| `inputotp.invalid-border` | `aria-invalid` border. |
+| `inputotp.disabled-bg` / `disabled-fg` | Disabled slots. |
+
+## CSS variables
+
+```text
+--hc-inputotp-gap | -slot-size | -radius | -border | -bg | -fg
+--hc-inputotp-font-size | -font-weight
+--hc-inputotp-active-border | -caret-color
+--hc-inputotp-invalid-border | -disabled-bg | -disabled-fg
+```
+
+## Out of scope
+
+Group separators (e.g. `3-3`), per-slot click caret placement, and RTL
+fine-tuning are deferred.
+
+## Related
+
+- [Input](/hypermedia-components/components/input/) — the standard text
+  field.
+- [Field](/hypermedia-components/components/field/) — wrap with a label
+  and validation message.

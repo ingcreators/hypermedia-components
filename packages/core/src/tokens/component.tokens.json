@@ -592,6 +592,21 @@
     "max-width": { "$type": "dimension", "$value": "20rem" },
     "offset":    { "$type": "dimension", "$value": "{primitive.space.1}" }
   },
+  "inputotp": {
+    "gap":            { "$type": "dimension",  "$value": "{primitive.space.2}" },
+    "slot-size":      { "$type": "dimension",  "$value": "2.75rem" },
+    "radius":         { "$type": "dimension",  "$value": "{semantic.control.radius}" },
+    "border":         { "$type": "color",      "$value": "{semantic.color.border}" },
+    "bg":             { "$type": "color",      "$value": "{semantic.color.surface}" },
+    "fg":             { "$type": "color",      "$value": "{semantic.color.text}" },
+    "font-size":      { "$type": "dimension",  "$value": "{semantic.font.size-lg}" },
+    "font-weight":    { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
+    "active-border":  { "$type": "color",      "$value": "{semantic.color.action.primary.bg}" },
+    "caret-color":    { "$type": "color",      "$value": "{semantic.color.action.primary.bg}" },
+    "invalid-border": { "$type": "color",      "$value": "{semantic.color.error}" },
+    "disabled-bg":    { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
+    "disabled-fg":    { "$type": "color",      "$value": "{semantic.color.text-muted}" }
+  },
   "calendar": {
     "bg":             { "$type": "color",      "$value": "{semantic.color.surface}" },
     "fg":             { "$type": "color",      "$value": "{semantic.color.text}" },

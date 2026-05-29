@@ -32,6 +32,7 @@ const FILES = [
   ['src/js/context-menu.js',  'context-menu.js'],
   ['src/js/command.js',       'command.js'],
   ['src/js/calendar.js',      'calendar.js'],
+  ['src/js/inputotp.js',     'inputotp.js'],
   ['src/js/tooltip.js',       'tooltip.js'],
   ['src/js/slider.js',        'slider.js'],
   ['src/js/combobox.js',      'combobox.js'],
