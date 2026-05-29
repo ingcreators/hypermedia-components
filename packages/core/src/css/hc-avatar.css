@@ -1,0 +1,86 @@
+/* hc-avatar — user avatar (image or initials fallback).
+ *
+ * Apply `.hc-avatar` to an <img> for image avatars, or to a
+ * `<span>` for an initials fallback when no image is available:
+ *
+ *   <img class="hc-avatar" src="/me.jpg" alt="Ada Lovelace">
+ *   <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+ *
+ * Sizes:  data-size="xs" | "sm" | "md" (default) | "lg" | "xl"
+ * Shapes: data-shape="circle" (default) | "square"
+ */
+@layer hc.components {
+  .hc-avatar {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-avatar-size);
+    block-size: var(--hc-avatar-size);
+    border-radius: var(--hc-avatar-radius);
+    background-color: var(--hc-avatar-bg);
+    color: var(--hc-avatar-fg);
+    font-family: inherit;
+    font-size: var(--hc-avatar-font-size);
+    font-weight: var(--hc-avatar-font-weight);
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  /* When the avatar is an <img>, fill the circle. Replaced elements
+   * ignore display:inline-flex centering, so object-fit handles it. */
+  img.hc-avatar {
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* Shape variants */
+  .hc-avatar[data-shape="square"] {
+    border-radius: var(--hc-avatar-square-radius);
+  }
+
+  /* Sizes */
+  .hc-avatar[data-size="xs"] {
+    inline-size: var(--hc-avatar-xs-size);
+    block-size: var(--hc-avatar-xs-size);
+    font-size: var(--hc-avatar-xs-font-size);
+  }
+
+  .hc-avatar[data-size="sm"] {
+    inline-size: var(--hc-avatar-sm-size);
+    block-size: var(--hc-avatar-sm-size);
+    font-size: var(--hc-avatar-sm-font-size);
+  }
+
+  .hc-avatar[data-size="lg"] {
+    inline-size: var(--hc-avatar-lg-size);
+    block-size: var(--hc-avatar-lg-size);
+    font-size: var(--hc-avatar-lg-font-size);
+  }
+
+  .hc-avatar[data-size="xl"] {
+    inline-size: var(--hc-avatar-xl-size);
+    block-size: var(--hc-avatar-xl-size);
+    font-size: var(--hc-avatar-xl-font-size);
+  }
+
+  /* Avatar group — overlapping avatars cluster. Apply `.hc-avatar-group`
+   * to a wrapping element; each direct .hc-avatar gets a margin
+   * pull-back and a ring matching the page background so the overlap
+   * reads cleanly. */
+  .hc-avatar-group {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .hc-avatar-group > .hc-avatar + .hc-avatar {
+    margin-inline-start: calc(var(--hc-avatar-size) * -0.3);
+  }
+
+  .hc-avatar-group > .hc-avatar {
+    box-shadow: 0 0 0 2px var(--hc-color-bg);
+  }
+}

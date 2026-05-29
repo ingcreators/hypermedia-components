@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-avatar` component — pure CSS, no JavaScript. Apply
+  `.hc-avatar` to an `<img>` for a photo avatar or to a `<span>`
+  for an initials fallback when no image is available; both share
+  the same circular surface, sizes, and shape variants. Image
+  paths use `object-fit: cover` + `overflow: hidden` so any
+  aspect ratio renders as a centred square crop. Sizes:
+  `data-size="xs" | "sm" | "md" | "lg" | "xl"`. Shape:
+  `data-shape="circle"` (default) / `"square"`. New
+  `.hc-avatar-group` wrapper overlaps a row of avatars with a
+  negative margin pull-back and a ring matching the page
+  background, so trail-of-N patterns read cleanly. Tokens
+  `avatar.{size, radius, square-radius, bg, fg, border, font-size,
+  font-weight, xs.*, sm.*, lg.*, xl.*}`, all `{ref}`. Playwright
+  spec (5 cases): circle vs square radius, distinct sizes,
+  overlapping group margins, axe-core scan over seven labelled
+  instances.
 - `hc-switch` component — pure CSS over a native
   `<input type="checkbox" role="switch">`. The native input keeps
   every accessible behaviour (Space toggles, form serialisation,

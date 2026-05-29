@@ -132,6 +132,32 @@
       "size": { "$type": "dimension", "$value": "1.375rem" }
     }
   },
+  "avatar": {
+    "size":       { "$type": "dimension", "$value": "2.5rem" },
+    "radius":     { "$type": "dimension", "$value": "9999px" },
+    "square-radius": { "$type": "dimension", "$value": "{primitive.radius.md}" },
+    "bg":         { "$type": "color",     "$value": "{primitive.color.gray.200}" },
+    "fg":         { "$type": "color",     "$value": "{primitive.color.gray.700}" },
+    "border":     { "$type": "color",     "$value": "{semantic.color.border}" },
+    "font-size":  { "$type": "dimension", "$value": "{semantic.font.size-sm}" },
+    "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
+    "xs": {
+      "size":      { "$type": "dimension", "$value": "1.5rem" },
+      "font-size": { "$type": "dimension", "$value": "0.625rem" }
+    },
+    "sm": {
+      "size":      { "$type": "dimension", "$value": "2rem" },
+      "font-size": { "$type": "dimension", "$value": "0.75rem" }
+    },
+    "lg": {
+      "size":      { "$type": "dimension", "$value": "3rem" },
+      "font-size": { "$type": "dimension", "$value": "{semantic.font.size-md}" }
+    },
+    "xl": {
+      "size":      { "$type": "dimension", "$value": "4rem" },
+      "font-size": { "$type": "dimension", "$value": "{semantic.font.size-lg}" }
+    }
+  },
   "switch": {
     "width":           { "$type": "dimension", "$value": "2.25rem" },
     "height":          { "$type": "dimension", "$value": "1.25rem" },
