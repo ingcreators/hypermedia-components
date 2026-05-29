@@ -22,6 +22,46 @@ Security    — security-relevant changes
 
 ### Added
 
+- `hc-slider` component + `installSlider` behavior. Pure CSS skin
+  over a native `<input type="range">` with a tiny JS shim. The
+  native input retains every accessible behaviour (←/→/Home/End/
+  PageUp/PageDown, form participation, screen-reader role + value);
+  only the visual chrome is replaced via `appearance: none` plus
+  per-vendor pseudo-elements (`::-webkit-slider-runnable-track`,
+  `::-webkit-slider-thumb`, `::-moz-range-track`,
+  `::-moz-range-thumb`, `::-moz-range-progress`).
+
+  The 0→value portion of the track is filled differently per
+  engine: Firefox uses the native `::-moz-range-progress` pseudo;
+  WebKit / Chromium have no equivalent so the same effect is
+  painted by a `linear-gradient` that reads a `--hc-slider-value`
+  custom property (0-100 percentage). `installSlider()` keeps
+  `--hc-slider-value` synchronised with each slider's current
+  value via the `input` event — call it once and forget. Server-
+  rendered pages can set the property directly via
+  `style="--hc-slider-value: N"` so the fill renders correctly on
+  first paint before JS loads.
+
+  Variants: `data-variant="success" | "warning" | "error"`
+  recolour the fill (both engines) and the thumb border. Sizes:
+  `data-size="sm" | "md" | "lg"` scale track-height and thumb-size
+  together. Disabled state lowers opacity and recolours the thumb
+  border. Focus ring on the thumb via `--hc-color-focus-ring`.
+
+  Vitest spec (8 cases): idempotency, initial value sync,
+  `input`-event sync, non-zero min/max percent mapping,
+  out-of-range clamping, degenerate min===max fallback, uninstall
+  cleanup, MutationObserver pickup. Playwright spec (8 cases):
+  native role + attributes, initial `--hc-slider-value`, keyboard
+  + JS-driven updates, Home/End full-native traversal, sm vs lg
+  sizing, disabled state, axe-core scan over six labelled
+  instances.
+
+  Multi-thumb range pickers (price-range, brightness-span) are out
+  of scope — a native `<input type="range">` is single-thumb and
+  that pattern requires a custom DOM shell. Two adjacent sliders
+  with linked validation is the documented workaround.
+
 - `hc-progress` component — pure CSS skin over a native
   `<progress>` element. The native element retains its
   `role="progressbar"` semantics and `value` / `max` attribute

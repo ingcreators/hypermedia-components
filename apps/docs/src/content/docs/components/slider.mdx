@@ -1,0 +1,146 @@
+---
+title: Slider
+description: Native input[type=range] styled with consistent cross-browser chrome. Keyboard, form integration, and accessibility come from the browser; a tiny behavior keeps the WebKit fill in sync.
+---
+
+`hc-slider` is applied to a native `<input type="range">`. Keyboard
+navigation (←/→, Home, End, PageUp, PageDown), form participation,
+and screen-reader announcement of role + value + range all come for
+free from the browser; only the visual chrome is replaced via
+`appearance: none` plus per-vendor pseudo-elements.
+
+## Basic example
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+  <label>
+    Volume
+    <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" />
+  </label>
+</div>
+
+```html
+<label>
+  Volume
+  <input class="hc-slider" type="range" min="0" max="100" value="40">
+</label>
+```
+
+```js
+import { installSlider } from '@hypermedia-components/core';
+installSlider();
+```
+
+## How the fill colour works
+
+Firefox renders the 0→value portion of the track natively via
+`::-moz-range-progress`. WebKit and Chromium have no equivalent
+pseudo, so the same effect is painted with a `linear-gradient`
+that reads a `--hc-slider-value` custom property (a 0-100
+percentage).
+
+`installSlider()` keeps `--hc-slider-value` synchronised with each
+slider's current value via the `input` event — call it once and
+forget. For server-rendered pages, write the property directly:
+
+```html
+<input class="hc-slider" type="range"
+       min="0" max="100" value="40"
+       style="--hc-slider-value: 40">
+```
+
+That way the fill renders correctly on first paint even before
+JavaScript loads.
+
+## Variants
+
+`data-variant` accepts `success`, `warning`, and `error` for
+non-default fill colours. The thumb border tracks the variant too.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+  <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" aria-label="Default" />
+  <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" data-variant="success" aria-label="Success" />
+  <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" data-variant="warning" aria-label="Warning" />
+  <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" data-variant="error" aria-label="Error" />
+</div>
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`. Track height
+and thumb size scale together.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+  <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-size="sm" aria-label="Small" />
+  <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" aria-label="Default" />
+  <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-size="lg" aria-label="Large" />
+</div>
+
+## htmx usage
+
+The slider participates in form submissions like any other input.
+For instant updates, listen to `input`:
+
+```html
+<input class="hc-slider"
+       type="range" min="0" max="100" value="40"
+       name="volume"
+       data-hx-post="/preferences/volume"
+       data-hx-trigger="input changed delay:200ms"
+       data-hx-include="this">
+```
+
+## Accessibility
+
+- Always give the slider an accessible name — wrap it in a `<label>`
+  or set `aria-label`.
+- The native input handles `←` / `→` (step), `Home` / `End` (min /
+  max), `PageUp` / `PageDown` (large step) without any custom JS.
+- For ranges where the displayed value differs from the underlying
+  number (e.g. percent of a non-100 max), set
+  `aria-valuetext="40 %"` so screen readers announce the formatted
+  string.
+- Don't remove the focus outline. The thumb receives a `box-shadow`
+  ring through `--hc-color-focus-ring`.
+
+## Range constraints (single thumb)
+
+A native `<input type="range">` is a single-thumb control. Multi-
+thumb range pickers (price range, brightness span, etc.) are out of
+scope for this component — that pattern requires a custom DOM
+shell and a much larger behavior to manage the two thumbs
+manually. Until that lands, two single sliders side-by-side (with
+linked min/max constraints in form-validation JS) is the recommended
+pattern.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `slider.track-height` / `track-bg` | Track. |
+| `slider.thumb-size` / `thumb-bg` / `thumb-border` | Thumb. |
+| `slider.fill` | Default fill colour (action.primary). |
+| `slider.success-fill` / `warning-fill` / `error-fill` | Variant fills. |
+| `slider.success-thumb-border` / `warning-thumb-border` / `error-thumb-border` | Variant thumb borders. |
+| `slider.disabled-fill` | Disabled thumb border colour. |
+| `slider.radius` | Track + thumb corner radius. |
+| `slider.sm.*` / `lg.*` | Sized variants. |
+
+## CSS variables
+
+```text
+--hc-slider-track-height | -track-bg | -radius
+--hc-slider-thumb-size | -thumb-bg | -thumb-border
+--hc-slider-fill | -success-fill | -warning-fill | -error-fill
+--hc-slider-success-thumb-border | -warning-thumb-border | -error-thumb-border
+--hc-slider-disabled-fill
+--hc-slider-sm-track-height | -sm-thumb-size
+--hc-slider-lg-track-height | -lg-thumb-size
+--hc-slider-value (0-100, kept in sync by installSlider)
+--hc-color-focus-ring (inherited from data-color)
+```
+
+## Related
+
+- [Progress](/hypermedia-components/components/progress/) — for displaying a non-interactive measure of completion.
+- [Input](/hypermedia-components/components/input/) — text / number inputs share the focus ring contract.

@@ -1,0 +1,232 @@
+/* hc-slider — semantic styling for a native <input type="range">.
+ *
+ *   <input class="hc-slider" type="range" min="0" max="100"
+ *          value="40" aria-label="Volume">
+ *
+ * The native input keeps every accessible behaviour — ←/→/Home/End/
+ * PageUp/PageDown navigation, form participation, screen-reader
+ * announcement of the role + value + range — and only the visual
+ * chrome is replaced via `appearance: none` plus per-vendor
+ * pseudo-elements.
+ *
+ * Fill colouring of the 0→value portion:
+ *   - Firefox renders it natively via `::-moz-range-progress`.
+ *   - Chromium / WebKit have no equivalent pseudo, so we paint the
+ *     same effect via a linear-gradient driven by the
+ *     `--hc-slider-value` custom property (a 0-100 percentage).
+ *     `installSlider()` keeps that property synchronised with the
+ *     input's current value; server-rendered fallback is just an
+ *     inline `style="--hc-slider-value: 40"`.
+ *
+ * Variants: data-variant="success" | "warning" | "error" → fill
+ *           and thumb-border colour.
+ * Sizes:    data-size="sm" | "md" (default) | "lg".
+ */
+@layer hc.components {
+  .hc-slider {
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    block-size: var(--hc-slider-thumb-size);
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+
+    /* Custom property the JS / SSR fills in (0 → 100). Default to
+     * 0 so the gradient renders even before installSlider runs. */
+    --hc-slider-value: 0;
+  }
+
+  /* Chromium / WebKit track. */
+  .hc-slider::-webkit-slider-runnable-track {
+    block-size: var(--hc-slider-track-height);
+    border-radius: var(--hc-slider-radius);
+    background: linear-gradient(
+      to right,
+      var(--hc-slider-fill) 0%,
+      var(--hc-slider-fill) calc(var(--hc-slider-value) * 1%),
+      var(--hc-slider-track-bg) calc(var(--hc-slider-value) * 1%),
+      var(--hc-slider-track-bg) 100%
+    );
+  }
+
+  /* Chromium / WebKit thumb. The negative margin centres the thumb
+   * on the track regardless of size. */
+  .hc-slider::-webkit-slider-thumb {
+    appearance: none;
+    inline-size: var(--hc-slider-thumb-size);
+    block-size: var(--hc-slider-thumb-size);
+    margin-block-start:
+      calc((var(--hc-slider-track-height) - var(--hc-slider-thumb-size)) / 2);
+    border: 2px solid var(--hc-slider-thumb-border);
+    border-radius: 50%;
+    background: var(--hc-slider-thumb-bg);
+    cursor: grab;
+  }
+
+  /* Firefox track. */
+  .hc-slider::-moz-range-track {
+    block-size: var(--hc-slider-track-height);
+    border-radius: var(--hc-slider-radius);
+    background: var(--hc-slider-track-bg);
+  }
+
+  /* Firefox fill — native, no JS required. */
+  .hc-slider::-moz-range-progress {
+    block-size: var(--hc-slider-track-height);
+    border-radius: var(--hc-slider-radius);
+    background: var(--hc-slider-fill);
+  }
+
+  /* Firefox thumb. */
+  .hc-slider::-moz-range-thumb {
+    inline-size: var(--hc-slider-thumb-size);
+    block-size: var(--hc-slider-thumb-size);
+    border: 2px solid var(--hc-slider-thumb-border);
+    border-radius: 50%;
+    background: var(--hc-slider-thumb-bg);
+    cursor: grab;
+  }
+
+  /* Focus ring — applied to the thumb in both engines. */
+  .hc-slider:focus-visible {
+    outline: none;
+  }
+
+  .hc-slider:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  .hc-slider:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  /* Variants — recolour the fill + thumb border in both engines. */
+  .hc-slider[data-variant="success"]::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to right,
+      var(--hc-slider-success-fill) 0%,
+      var(--hc-slider-success-fill) calc(var(--hc-slider-value) * 1%),
+      var(--hc-slider-track-bg) calc(var(--hc-slider-value) * 1%),
+      var(--hc-slider-track-bg) 100%
+    );
+  }
+
+  .hc-slider[data-variant="success"]::-webkit-slider-thumb {
+    border-color: var(--hc-slider-success-thumb-border);
+  }
+
+  .hc-slider[data-variant="success"]::-moz-range-progress {
+    background: var(--hc-slider-success-fill);
+  }
+
+  .hc-slider[data-variant="success"]::-moz-range-thumb {
+    border-color: var(--hc-slider-success-thumb-border);
+  }
+
+  .hc-slider[data-variant="warning"]::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to right,
+      var(--hc-slider-warning-fill) 0%,
+      var(--hc-slider-warning-fill) calc(var(--hc-slider-value) * 1%),
+      var(--hc-slider-track-bg) calc(var(--hc-slider-value) * 1%),
+      var(--hc-slider-track-bg) 100%
+    );
+  }
+
+  .hc-slider[data-variant="warning"]::-webkit-slider-thumb {
+    border-color: var(--hc-slider-warning-thumb-border);
+  }
+
+  .hc-slider[data-variant="warning"]::-moz-range-progress {
+    background: var(--hc-slider-warning-fill);
+  }
+
+  .hc-slider[data-variant="warning"]::-moz-range-thumb {
+    border-color: var(--hc-slider-warning-thumb-border);
+  }
+
+  .hc-slider[data-variant="error"]::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to right,
+      var(--hc-slider-error-fill) 0%,
+      var(--hc-slider-error-fill) calc(var(--hc-slider-value) * 1%),
+      var(--hc-slider-track-bg) calc(var(--hc-slider-value) * 1%),
+      var(--hc-slider-track-bg) 100%
+    );
+  }
+
+  .hc-slider[data-variant="error"]::-webkit-slider-thumb {
+    border-color: var(--hc-slider-error-thumb-border);
+  }
+
+  .hc-slider[data-variant="error"]::-moz-range-progress {
+    background: var(--hc-slider-error-fill);
+  }
+
+  .hc-slider[data-variant="error"]::-moz-range-thumb {
+    border-color: var(--hc-slider-error-thumb-border);
+  }
+
+  /* Sizes */
+  .hc-slider[data-size="sm"] {
+    block-size: var(--hc-slider-sm-thumb-size);
+  }
+
+  .hc-slider[data-size="sm"]::-webkit-slider-runnable-track,
+  .hc-slider[data-size="sm"]::-moz-range-track,
+  .hc-slider[data-size="sm"]::-moz-range-progress {
+    block-size: var(--hc-slider-sm-track-height);
+  }
+
+  .hc-slider[data-size="sm"]::-webkit-slider-thumb {
+    inline-size: var(--hc-slider-sm-thumb-size);
+    block-size: var(--hc-slider-sm-thumb-size);
+    margin-block-start:
+      calc((var(--hc-slider-sm-track-height) - var(--hc-slider-sm-thumb-size)) / 2);
+  }
+
+  .hc-slider[data-size="sm"]::-moz-range-thumb {
+    inline-size: var(--hc-slider-sm-thumb-size);
+    block-size: var(--hc-slider-sm-thumb-size);
+  }
+
+  .hc-slider[data-size="lg"] {
+    block-size: var(--hc-slider-lg-thumb-size);
+  }
+
+  .hc-slider[data-size="lg"]::-webkit-slider-runnable-track,
+  .hc-slider[data-size="lg"]::-moz-range-track,
+  .hc-slider[data-size="lg"]::-moz-range-progress {
+    block-size: var(--hc-slider-lg-track-height);
+  }
+
+  .hc-slider[data-size="lg"]::-webkit-slider-thumb {
+    inline-size: var(--hc-slider-lg-thumb-size);
+    block-size: var(--hc-slider-lg-thumb-size);
+    margin-block-start:
+      calc((var(--hc-slider-lg-track-height) - var(--hc-slider-lg-thumb-size)) / 2);
+  }
+
+  .hc-slider[data-size="lg"]::-moz-range-thumb {
+    inline-size: var(--hc-slider-lg-thumb-size);
+    block-size: var(--hc-slider-lg-thumb-size);
+  }
+
+  /* Disabled */
+  .hc-slider:disabled {
+    cursor: not-allowed;
+    opacity: var(--hc-opacity-disabled);
+  }
+
+  .hc-slider:disabled::-webkit-slider-runnable-track {
+    background: var(--hc-slider-track-bg);
+  }
+
+  .hc-slider:disabled::-webkit-slider-thumb,
+  .hc-slider:disabled::-moz-range-thumb {
+    border-color: var(--hc-slider-disabled-fill);
+    cursor: not-allowed;
+  }
+}

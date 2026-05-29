@@ -29,6 +29,7 @@ const FILES = [
   ['src/js/tabs.js',          'tabs.js'],
   ['src/js/menu.js',          'menu.js'],
   ['src/js/tooltip.js',       'tooltip.js'],
+  ['src/js/slider.js',        'slider.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
 
   // Macros — kept under dist/macros/ so the entry module's relative
