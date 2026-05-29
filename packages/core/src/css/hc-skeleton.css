@@ -1,0 +1,91 @@
+/* hc-skeleton — a loading placeholder block.
+ *
+ * Apply `.hc-skeleton` to any element and size it from the consumer
+ * side (inline `style`, a utility class, or a wrapping layout). The
+ * base surface uses the theme-adaptive muted background, so it reads
+ * correctly in both light and dark mode without per-mode overrides.
+ *
+ *   <div class="hc-skeleton" style="block-size:1rem;inline-size:60%"></div>
+ *
+ * Animation — data-animation="pulse" (default) | "wave" | "none":
+ *   pulse  fades the whole block in and out (shadcn's animate-pulse);
+ *   wave   sweeps a lighter highlight across the block left→right;
+ *   none   a static block (motion off regardless of OS preference).
+ *
+ * Shape — data-shape="rect" (default) | "text" | "circle":
+ *   rect   a generic block with the medium corner radius;
+ *   text   a single text line — `1em` tall with a tighter radius;
+ *   circle a fully-rounded block for avatar / icon placeholders.
+ *
+ * Skeletons are decorative. Mark the loading container with
+ * `role="status"` + `aria-busy="true"` (and a visually-hidden
+ * "Loading" label) rather than annotating each skeleton; see the docs.
+ */
+@layer hc.components {
+  .hc-skeleton {
+    display: block;
+    inline-size: 100%;
+    border-radius: var(--hc-skeleton-radius);
+    background-color: var(--hc-skeleton-bg);
+
+    /* pulse is the default animation */
+    animation: hc-skeleton-pulse var(--hc-skeleton-pulse-duration) ease-in-out infinite;
+  }
+
+  /* Shapes */
+  .hc-skeleton[data-shape="text"] {
+    block-size: var(--hc-skeleton-text-height);
+    border-radius: var(--hc-skeleton-text-radius);
+  }
+
+  .hc-skeleton[data-shape="circle"] {
+    aspect-ratio: 1;
+    border-radius: 9999px;
+  }
+
+  /* Animations */
+  .hc-skeleton[data-animation="pulse"] {
+    background-image: none;
+    animation: hc-skeleton-pulse var(--hc-skeleton-pulse-duration) ease-in-out infinite;
+  }
+
+  .hc-skeleton[data-animation="wave"] {
+    /* A lighter highlight band travels across the muted base. The
+     * highlight is derived from the base via color-mix(), so it tracks
+     * the active theme automatically. */
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--hc-skeleton-highlight) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    background-position-x: -150%;
+    animation: hc-skeleton-wave var(--hc-skeleton-wave-duration) ease-in-out infinite;
+  }
+
+  .hc-skeleton[data-animation="none"] {
+    background-image: none;
+    animation: none;
+  }
+
+  @keyframes hc-skeleton-pulse {
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes hc-skeleton-wave {
+    to { background-position-x: 250%; }
+  }
+
+  /* Respect users who prefer reduced motion: drop both animations and
+   * the wave highlight so every skeleton renders as a static block. */
+  @media (prefers-reduced-motion: reduce) {
+    .hc-skeleton,
+    .hc-skeleton[data-animation="pulse"],
+    .hc-skeleton[data-animation="wave"] {
+      animation: none;
+      background-image: none;
+    }
+  }
+}

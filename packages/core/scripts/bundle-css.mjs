@@ -35,6 +35,7 @@ const COMPONENTS = [
   'hc-field.css',
   'hc-spinner.css',
   'hc-progress.css',
+  'hc-skeleton.css',
   'hc-dialog.css',
   'hc-drawer.css',
   'hc-popover.css',

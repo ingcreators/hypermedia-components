@@ -385,6 +385,24 @@
     </div>
   </section>
 
+  <section id="section-skeleton" data-testid="section-skeleton">
+    <h2>Skeleton</h2>
+    <div role="status" aria-busy="true" aria-label="Loading" class="row"
+         style="flex-direction:column;align-items:stretch;gap:0.75rem;max-inline-size:24rem;">
+      <div class="hc-skeleton" style="block-size:1rem;inline-size:80%"
+           data-testid="sk-pulse"></div>
+      <div class="hc-skeleton" data-animation="wave"
+           style="block-size:1rem;inline-size:60%" data-testid="sk-wave"></div>
+      <div class="hc-skeleton" data-animation="none"
+           style="block-size:1rem" data-testid="sk-none"></div>
+      <div class="hc-skeleton" data-shape="text" data-testid="sk-text"></div>
+      <div class="hc-skeleton" data-shape="circle"
+           style="inline-size:3rem" data-testid="sk-circle"></div>
+      <div class="hc-skeleton" data-shape="rect"
+           style="block-size:6rem" data-testid="sk-rect"></div>
+    </div>
+  </section>
+
   <section id="section-avatar" data-testid="section-avatar">
     <h2>Avatar</h2>
     <div class="row" style="gap:1rem;align-items:center;flex-wrap:wrap;">

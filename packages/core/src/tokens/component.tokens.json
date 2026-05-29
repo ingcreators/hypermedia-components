@@ -292,6 +292,15 @@
       "height": { "$type": "dimension", "$value": "0.75rem" }
     }
   },
+  "skeleton": {
+    "bg":             { "$type": "color",     "$value": "var(--hc-color-muted-bg)" },
+    "highlight":      { "$type": "color",     "$value": "color-mix(in srgb, var(--hc-skeleton-bg), white 35%)" },
+    "radius":         { "$type": "dimension", "$value": "{primitive.radius.md}" },
+    "text-radius":    { "$type": "dimension", "$value": "{primitive.radius.sm}" },
+    "text-height":    { "$type": "dimension", "$value": "1em" },
+    "pulse-duration": { "$type": "duration",  "$value": "1.5s" },
+    "wave-duration":  { "$type": "duration",  "$value": "1.6s" }
+  },
   "avatar": {
     "size":       { "$type": "dimension", "$value": "2.5rem" },
     "radius":     { "$type": "dimension", "$value": "9999px" },
