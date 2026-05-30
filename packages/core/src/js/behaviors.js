@@ -26,6 +26,7 @@ import { installCommand } from './command.js';
 import { installCalendar } from './calendar.js';
 import { installInputOtp } from './inputotp.js';
 import { installSplitter } from './splitter.js';
+import { installShell } from './shell.js';
 
 function init() {
   installConfirm();
@@ -47,6 +48,7 @@ function init() {
   installCalendar();
   installInputOtp();
   installSplitter();
+  installShell();
 }
 
 if (typeof document !== 'undefined') {
@@ -77,4 +79,5 @@ export {
   installCalendar,
   installInputOtp,
   installSplitter,
+  installShell,
 };

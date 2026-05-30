@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-shell fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="margin: 0;">
+  <div class="hc-shell" data-testid="shell">
+    <header class="hc-shell__header" data-testid="shell-header">
+      <button
+        class="hc-shell__toggle hc-button"
+        data-variant="ghost"
+        data-hc-shell-toggle
+        type="button"
+        aria-label="Open navigation"
+        data-testid="shell-toggle">≡</button>
+      <strong>Acme Admin</strong>
+    </header>
+
+    <nav class="hc-shell__sidebar" aria-label="Primary" data-testid="shell-sidebar">
+      <ul class="hc-stack" style="list-style: none; padding: 0; margin: 0; --hc-stack-gap: var(--hc-space-1);">
+        <li><a href="#dashboard" data-testid="shell-link-first">Dashboard</a></li>
+        <li><a href="#orders">Orders</a></li>
+        <li><a href="#customers">Customers</a></li>
+        <li><a href="#settings" data-testid="shell-link-last">Settings</a></li>
+      </ul>
+    </nav>
+
+    <main class="hc-shell__main" data-testid="shell-main">
+      <h1>Dashboard</h1>
+      <button type="button" data-testid="shell-main-btn">A control in main</button>
+      <p>Main content scrolls independently of the chrome.</p>
+    </main>
+
+    <aside class="hc-shell__aside" data-testid="shell-aside">
+      <h2>Activity</h2>
+      <p>Secondary panel.</p>
+    </aside>
+
+    <footer class="hc-shell__footer" data-testid="shell-footer">
+      <small>© Acme</small>
+    </footer>
+  </div>
+</body>
+</html>

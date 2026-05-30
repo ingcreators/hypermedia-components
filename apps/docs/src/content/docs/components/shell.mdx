@@ -1,0 +1,157 @@
+---
+title: Shell
+description: A full-viewport application shell for business apps — persistent sidebar, header, main, optional aside and footer — built on CSS Grid. Pure-CSS layout; the only JavaScript is the accessible mobile navigation overlay.
+---
+
+`hc-shell` is the outer layout for an admin / business application: a
+persistent **sidebar**, a **header**, a scrolling **main** region, and an
+optional secondary **aside** and **footer**. The layout is pure CSS Grid.
+The single piece of JavaScript — `installShell()` — only powers the
+**mobile** navigation overlay, where the platform cannot manage focus and
+dismissal for us. On desktop the shell needs no script at all.
+
+It is built on the [layout utilities](/hypermedia-components/fundamentals/layout/)
+and reuses the existing colour and spacing tokens, so it adopts the active
+theme, density, and colour automatically.
+
+## Browser baseline
+
+| Primitive | Status |
+| --- | --- |
+| CSS Grid + `grid-template-areas` | Baseline (all evergreen browsers) |
+| `100dvh` dynamic viewport units | Baseline 2023 |
+| `:has()` (the optional-aside third column) | Baseline 2023 |
+
+## Structure
+
+Author the regions in this source order — on mobile everything stacks in
+flow while the sidebar lifts out as an overlay, so the order matters:
+
+<div class="hc-preview not-content">
+  <div class="hc-shell" style="block-size: 16rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme</strong></header>
+    <nav class="hc-shell__sidebar" aria-label="Demo navigation">
+      <div>Dashboard</div>
+      <div>Orders</div>
+      <div>Settings</div>
+    </nav>
+    <main class="hc-shell__main">Main content scrolls here, independently of the chrome.</main>
+    <footer class="hc-shell__footer"><small>© Acme</small></footer>
+  </div>
+</div>
+
+```html
+<div class="hc-shell">
+  <header class="hc-shell__header">
+    <button class="hc-button" data-variant="ghost"
+            data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+    <strong>Acme Admin</strong>
+  </header>
+
+  <nav class="hc-shell__sidebar" aria-label="Primary">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/orders">Orders</a>
+    <a href="/settings">Settings</a>
+  </nav>
+
+  <main class="hc-shell__main">
+    <!-- page content -->
+  </main>
+
+  <footer class="hc-shell__footer">…</footer>
+</div>
+```
+
+The header's `data-hc-shell-toggle` button is **hidden on desktop** — it
+appears only on the mobile breakpoint.
+
+## Regions
+
+| Class | Element (suggested) | Role |
+| --- | --- | --- |
+| `hc-shell__header` | `<header>` | Top bar; holds the mobile toggle. |
+| `hc-shell__sidebar` | `<nav>` | Persistent navigation; full height on desktop. |
+| `hc-shell__main` | `<main>` | Primary content; scrolls independently. |
+| `hc-shell__aside` | `<aside>` | Optional secondary panel (adds a third column). |
+| `hc-shell__footer` | `<footer>` | Optional footer. |
+| `hc-shell__toggle` | `<button>` | Mobile hamburger (use with `data-hc-shell-toggle`). |
+
+## Optional aside
+
+Add an `<aside class="hc-shell__aside">` as a direct child and the grid
+grows a third column automatically (detected with `:has()`). On mobile it
+drops below `main` in normal flow.
+
+```html
+<div class="hc-shell">
+  <header class="hc-shell__header">…</header>
+  <nav class="hc-shell__sidebar">…</nav>
+  <main class="hc-shell__main">…</main>
+  <aside class="hc-shell__aside">…</aside>
+</div>
+```
+
+## CSS variables
+
+These are **layout knobs**, not themeable visual tokens — set them inline
+on the shell or in a wrapper rule. Colours and spacing come from the
+shared `--hc-color-*` / `--hc-space-*` tokens.
+
+| Variable | Default | Controls |
+| --- | --- | --- |
+| `--hc-shell-sidebar-width` | `16rem` | Sidebar column width (desktop) / overlay width (mobile, capped at `80vw`). |
+| `--hc-shell-aside-width` | `20rem` | Aside column width. |
+| `--hc-shell-pad` | `var(--hc-space-4)` | Inner padding of the regions. |
+
+## Responsive behavior
+
+- **Desktop (≥ 60rem):** a CSS Grid with the sidebar spanning full height
+  on the left, header / main / footer in the next column, and main
+  scrolling independently of the chrome (`block-size: 100dvh`).
+- **Mobile (< 60rem):** the regions stack in normal flow and the page
+  scrolls. The sidebar becomes a fixed off-canvas overlay, the header
+  sticks to the top, and the hamburger toggles the overlay.
+
+A literal `60rem` breakpoint is used (media-query conditions cannot read
+custom properties). This is the one place the system uses a viewport
+breakpoint rather than a container query — the shell, by definition,
+fills the viewport, so viewport width *is* its container width. The
+regions inside it still use the container-responsive
+[layout utilities](/hypermedia-components/fundamentals/layout/).
+
+## Behavior — `installShell()`
+
+```js
+import { installShell } from '@hypermedia-components/core';
+installShell(); // or the auto-init bundle: @hypermedia-components/core/behaviors
+```
+
+For a shell that has a `[data-hc-shell-toggle]` button and a
+`.hc-shell__sidebar`, `installShell()`:
+
+- toggles `data-sidebar="open"` on the shell and keeps `aria-expanded` /
+  `aria-controls` in sync;
+- moves focus into the sidebar on open and **traps `Tab`** within it;
+- closes on `Escape`, on a click outside the sidebar (the scrim), and on
+  activating a link inside the sidebar — restoring focus to the toggle;
+- force-closes when the viewport grows back to desktop, so the overlay
+  never gets stuck open.
+
+It is idempotent, returns an uninstaller, and picks up shells added to the
+DOM later (via `MutationObserver`) — so it works with htmx-swapped
+content. It never touches the network.
+
+## Accessibility
+
+- Use real landmarks: `<header>`, `<nav aria-label="…">`, `<main>`,
+  `<aside>`, `<footer>`. The shell only provides layout.
+- The mobile overlay manages focus like a dialog: focus enters the
+  sidebar, `Tab` is trapped, `Escape` dismisses, and focus returns to the
+  toggle.
+- Give the toggle an accessible name (`aria-label` or visible text);
+  `installShell()` adds a fallback label if neither is present.
+
+## Related
+
+- [Layout utilities](/hypermedia-components/fundamentals/layout/) — the
+  primitives the shell is built on.
