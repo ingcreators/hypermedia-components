@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>responsive fixes fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <section id="section-table-scroll" data-testid="section-table-scroll">
+    <h2>Wide table in a scroll wrapper</h2>
+    <div class="hc-table-scroll" role="region" aria-label="Orders" tabindex="0" data-testid="table-scroll">
+      <table class="hc-table" data-testid="table">
+        <thead>
+          <tr>
+            <th>Order</th><th>Customer</th><th>Email address</th>
+            <th>Created</th><th>Status</th><th>Items</th><th>Total amount</th><th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#1001</td><td>Ada Lovelace</td><td>ada@example.com</td>
+            <td>2026-05-01</td><td>Shipped</td><td>3</td><td>$129.00</td><td>Gift wrap requested</td>
+          </tr>
+          <tr>
+            <td>#1002</td><td>Alan Turing</td><td>alan@example.com</td>
+            <td>2026-05-02</td><td>Pending</td><td>1</td><td>$42.50</td><td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="section-pagination" data-testid="section-pagination" style="max-inline-size: 18rem;">
+    <h2>Pagination (wraps when narrow)</h2>
+    <nav class="hc-pagination" aria-label="Pagination" data-testid="pagination">
+      <a class="hc-pagination__item" href="#" data-hc-rel="prev" data-testid="page-first">Prev</a>
+      <a class="hc-pagination__item" href="#">1</a>
+      <a class="hc-pagination__item" href="#">2</a>
+      <a class="hc-pagination__item" aria-current="page" href="#">3</a>
+      <a class="hc-pagination__item" href="#">4</a>
+      <a class="hc-pagination__item" href="#">5</a>
+      <a class="hc-pagination__item" href="#">6</a>
+      <a class="hc-pagination__item" href="#">7</a>
+      <a class="hc-pagination__item" href="#" data-hc-rel="next" data-testid="page-last">Next</a>
+    </nav>
+  </section>
+</body>
+</html>

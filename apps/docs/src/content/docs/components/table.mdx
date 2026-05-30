@@ -67,6 +67,27 @@ table is announceable to assistive tech.
 </table>
 ```
 
+## Responsive — horizontal scroll
+
+A data table cannot shrink below the content width of its columns, so a
+wide table on a narrow screen would otherwise push the whole page sideways.
+Wrap it in `.hc-table-scroll` to confine the overflow to a scrollable strip.
+
+Because the strip scrolls, it must be reachable by keyboard — make the
+wrapper a focusable, labelled region (`role="region"`, `aria-label`,
+`tabindex="0"`):
+
+```html
+<div class="hc-table-scroll" role="region" aria-label="Orders" tabindex="0">
+  <table class="hc-table">
+    …
+  </table>
+</div>
+```
+
+On wide viewports the wrapper is invisible; it only scrolls once the table
+exceeds its width.
+
 ## htmx usage
 
 For inline row updates, swap the `<tr>` itself.

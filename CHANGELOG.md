@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Responsive audit of existing components** (no breaking changes):
+  - **`hc-pagination`** now wraps onto multiple rows when its container is
+    narrow (`flex-wrap: wrap`) instead of overflowing horizontally.
+  - **`hc-table`** gains a `.hc-table-scroll` wrapper that confines a wide
+    table to a horizontal scroll strip on small screens rather than
+    pushing the page sideways. (Make the wrapper a focusable, labelled
+    region — `role="region"` / `aria-label` / `tabindex="0"` — so it stays
+    keyboard-reachable.)
+  - **`hc-dialog` / `hc-drawer` footers** wrap their action buttons
+    (`flex-wrap: wrap`) instead of overflowing on very narrow screens.
+
+  Audit confirmed the already-responsive components need no change:
+  `hc-dialog` / `hc-drawer` / `hc-command` cap their width to the viewport,
+  and `hc-toolbar` / `hc-tabs` / `hc-breadcrumb` already wrap.
 - Consistency renames (pre-alpha, no back-compat aliases). A library
   audit turned up three naming drifts:
   - **`confirmed` event → `hc:confirmed`.** `installConfirm` was the
