@@ -122,6 +122,20 @@ element to scope the action:
 Read `event.detail.contextTarget.dataset.id` in an `htmx:configRequest`
 handler to attach the target row's id to the request.
 
+## Hyperscript
+
+Act on the right-clicked row inline — `detail.contextTarget` is the
+element the menu opened on:
+
+```html
+<div class="hc-menu" id="row-ctx" popover role="menu" aria-label="Row actions"
+     _="on hc:menuselect call rowAction(event.detail.item.dataset.action, event.detail.contextTarget)">
+  …
+</div>
+```
+
+More patterns: [Hyperscript → Reacting to component events](/hypermedia-components/integrations/hyperscript/#reacting-to-component-events).
+
 ## Accessibility
 
 - The popup uses `role="menu"` with `menuitem` children — the same

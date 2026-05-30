@@ -139,6 +139,19 @@ Run an action server-side straight off the event:
 </div>
 ```
 
+## Hyperscript
+
+Run the chosen command inline instead of wiring JS:
+
+```html
+<div class="hc-command"
+     _="on hc:commandselect call runCommand(event.detail.value)">
+  …
+</div>
+```
+
+More patterns: [Hyperscript → Reacting to component events](/hypermedia-components/integrations/hyperscript/#reacting-to-component-events).
+
 ## Accessibility
 
 - The input is `role="combobox"` with `aria-expanded`,

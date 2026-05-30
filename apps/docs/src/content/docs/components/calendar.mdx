@@ -115,6 +115,19 @@ Fetch off the change event — e.g. load availability for the picked day:
      aria-label="Pick a day"></div>
 ```
 
+## Hyperscript
+
+React to the change event inline — the same event htmx can drive via
+`data-hx-trigger`:
+
+```html
+<div class="hc-calendar" aria-label="Pick a date"
+     _="on hc:calendarchange put event.detail.value into #due"></div>
+<output id="due"></output>
+```
+
+More patterns: [Hyperscript → Reacting to component events](/hypermedia-components/integrations/hyperscript/#reacting-to-component-events).
+
 ## Accessibility
 
 - The grid follows the WAI-ARIA APG date-picker pattern: a

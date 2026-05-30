@@ -95,6 +95,21 @@ Auto-submit the code the moment it completes:
 Because the value lives in a single named `<input>`, it serialises
 normally — no extra hidden fields.
 
+## Hyperscript
+
+Auto-submit the form when the code fills up, with no helper:
+
+```html
+<form data-hx-post="/verify">
+  <div class="hc-inputotp" data-length="6"
+       _="on hc:otpcomplete call closest <form/> then call it.requestSubmit()">
+    <input class="hc-inputotp__input" type="text" name="code" aria-label="Code">
+  </div>
+</form>
+```
+
+More patterns: [Hyperscript → Reacting to component events](/hypermedia-components/integrations/hyperscript/#reacting-to-component-events).
+
 ## Accessibility
 
 - One real, labelled `<input>` carries the value; the visual slots are
