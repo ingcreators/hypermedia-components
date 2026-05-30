@@ -8,7 +8,9 @@ language inspired by HyperTalk. It is small, easy to read inline in
 markup, and pairs cleanly with htmx. Hypermedia Components does **not**
 require it — the vanilla behaviors in `@hypermedia-components/core` are
 the default — but every behavior has a natural _hyperscript equivalent
-if you prefer to keep the logic next to the markup.
+if you prefer to keep the logic next to the markup. And the interactive
+components emit `hc:*` events you can react to inline — see
+[Reacting to component events](#reacting-to-component-events).
 
 Use this page as a translation reference: copy a snippet, paste it
 into an existing `_=` attribute (or a `<script type="text/hyperscript">`
@@ -254,6 +256,94 @@ _hyperscript — same idea, inline:
        if dlg and not dlg.open then dlg.showModal()">
 </div>
 ```
+
+## Reacting to component events
+
+The interactive components (menu, combobox, command, calendar, toggle
+group, input OTP, splitter, tabs, …) keep their **internals in the
+vanilla behaviors** — that is where the WAI-ARIA keyboard model, focus
+management, and roving tabindex live, tested once and consistent
+everywhere. What they expose to *you* is a small set of bubbling
+`hc:*` events. That seam is fully declarative: handle it with
+`_="on hc:…"` in _hyperscript, exactly as you would with htmx's
+`data-hx-trigger`.
+
+| Component | Event | `event.detail` |
+| --- | --- | --- |
+| [Menu](/hypermedia-components/components/menu/) / [Context menu](/hypermedia-components/components/context-menu/) | `hc:menuselect` | `{ item, menu, checked?, contextTarget? }` |
+| [Combobox](/hypermedia-components/components/combobox/) | `hc:comboboxselect` | `{ value, label, option, input }` |
+| [Multicombobox](/hypermedia-components/components/multicombobox/) | `hc:multicomboboxchange` | `{ values, added, removed, input }` |
+| [Command](/hypermedia-components/components/command/) | `hc:commandselect` | `{ item, value, command }` |
+| [Calendar](/hypermedia-components/components/calendar/) | `hc:calendarchange` | `{ value, date }` |
+| [Input OTP](/hypermedia-components/components/inputotp/) | `hc:otpchange` · `hc:otpcomplete` | `{ value, input }` |
+| [Splitter](/hypermedia-components/components/splitter/) | `hc:splitterchange` | `{ value, orientation }` |
+| [Toggle group](/hypermedia-components/components/toggle-group/) | `hc:togglegroupchange` | `{ type, value? , values?, item, pressed? }` |
+| [Tabs](/hypermedia-components/components/tabs/) | `hc:tabactivated` | _(dispatched on the activated panel)_ |
+
+These bubble, so you can listen on the component or any ancestor.
+
+**Show the chosen calendar date:**
+
+```html
+<div class="hc-calendar" data-value="2026-05-15" aria-label="Pick a date"
+     _="on hc:calendarchange put event.detail.value into #picked"></div>
+<output id="picked"></output>
+```
+
+**Auto-submit when the OTP fills up** (no JS, no `hx-trigger` needed):
+
+```html
+<form data-hx-post="/verify">
+  <div class="hc-inputotp" data-length="6"
+       _="on hc:otpcomplete call closest <form/> then call it.requestSubmit()">
+    <input class="hc-inputotp__input" type="text" name="code" aria-label="Code">
+  </div>
+</form>
+```
+
+**Run a command-palette action:**
+
+```html
+<div class="hc-command"
+     _="on hc:commandselect
+          if event.detail.value is 'home' then go to url '/'
+          else if event.detail.value is 'new' then go to url '/new/'">
+  ...
+</div>
+```
+
+**Persist the splitter position across visits:**
+
+```html
+<div class="hc-splitter" data-orientation="horizontal"
+     _="on load
+          if localStorage.split then set @data-value to localStorage.split
+        on hc:splitterchange
+          set localStorage.split to event.detail.value">
+  ...
+</div>
+```
+
+**React to a toggle-group / menu choice:**
+
+```html
+<div class="hc-toggle-group" role="radiogroup" data-type="single" aria-label="View"
+     _="on hc:togglegroupchange add .is-{event.detail.value} to #grid">
+  ...
+</div>
+
+<div class="hc-menu" id="row-menu" popover role="menu"
+     _="on hc:menuselect call handleRow(event.detail.item.dataset.action)">
+  ...
+</div>
+```
+
+Because these are ordinary DOM events, the **same handler works in
+htmx** — swap `_="on hc:calendarchange …"` for
+`data-hx-trigger="hc:calendarchange"` when the reaction is a server
+request rather than a local DOM change. Use _hyperscript for the local
+glue, htmx for the network call; the component does not care which is
+listening.
 
 ## When not to use _hyperscript
 

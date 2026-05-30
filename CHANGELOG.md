@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- Docs: _hyperscript "receiving" guidance. The interactive components
+  keep their internals in the vanilla behaviors (one tested, accessible
+  WAI-ARIA implementation) but expose bubbling `hc:*` events; the
+  `integrations/hyperscript.mdx` page gains a **Reacting to component
+  events** section tabulating every event (`hc:menuselect`,
+  `hc:comboboxselect`, `hc:multicomboboxchange`, `hc:commandselect`,
+  `hc:calendarchange`, `hc:otpchange` / `hc:otpcomplete`,
+  `hc:splitterchange`, `hc:togglegroupchange`, `hc:tabactivated`) with
+  inline `_="on hc:…"` handlers, and notes the same events drive htmx
+  via `data-hx-trigger`. Each of the event-emitting components added
+  this cycle (calendar, command, input OTP, toggle group, splitter,
+  context menu) gains a short **Hyperscript** snippet linking to it.
+
 - Build optimization & granular imports (plan §5.4). Three consumption
   shapes so consumers pay only for what they use:
   - **Per-component CSS**: new `./css/*` exports (e.g. `./css/button` →

@@ -157,6 +157,20 @@ view switcher that swaps a region:
 `data-hx-include="this"` picks up the hidden input the `data-name`
 integration writes, so the request carries `range=7d` etc.
 
+## Hyperscript
+
+Reflect the selection inline (the `detail` carries `value` for single,
+`values` for multiple):
+
+```html
+<div class="hc-toggle-group" role="radiogroup" data-type="single" aria-label="View"
+     _="on hc:togglegroupchange add .is-{event.detail.value} to #grid">
+  …
+</div>
+```
+
+More patterns: [Hyperscript → Reacting to component events](/hypermedia-components/integrations/hyperscript/#reacting-to-component-events).
+
 ## Accessibility
 
 - Give the group an accessible name with `aria-label` (or
