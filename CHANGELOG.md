@@ -26,6 +26,10 @@ Security    — security-relevant changes
   feature cards are now built from HC's own `hc-grid` + `hc-card` (with
   `not-content` to bypass Starlight's prose styles) instead of Starlight's
   `<CardGrid>` / `<Card>`. Docs only.
+- **Docs navbar pickers dogfood `hc-select`.** The colour / density
+  pickers in the navbar are now styled by HC's own `.hc-select`
+  (`data-size="sm"`) instead of ~30 lines of bespoke `<select>` CSS — the
+  chrome itself now uses a real HC form control. Docs only.
 - **Responsive audit of existing components** (no breaking changes):
   - **`hc-pagination`** now wraps onto multiple rows when its container is
     narrow (`flex-wrap: wrap`) instead of overflowing horizontally.
