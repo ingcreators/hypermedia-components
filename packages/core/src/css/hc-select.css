@@ -69,11 +69,11 @@
   }
 
   .hc-select[data-variant="error"] {
-    border-color: var(--hc-select-invalid-border);
+    border-color: var(--hc-select-error-border);
   }
 
   .hc-select[aria-invalid="true"] {
-    border-color: var(--hc-select-invalid-border);
+    border-color: var(--hc-select-error-border);
   }
 
   .hc-select[aria-invalid="true"]:focus-visible {

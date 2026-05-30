@@ -78,7 +78,7 @@
   /* Invalid (the accessibility hook). Border switches; pairs well with
    * data-invalid on a wrapping hc-field. */
   .hc-radio[aria-invalid="true"] {
-    border-color: var(--hc-radio-invalid-border);
+    border-color: var(--hc-radio-error-border);
   }
 
   .hc-radio[aria-invalid="true"]:focus-visible {

@@ -14,7 +14,7 @@
 // the item's `data-value`, falling back to its label text). If the
 // palette is inside a native `<dialog>`, selection closes it.
 //
-// ⌘K / Ctrl+K opener: put `data-hc-command-hotkey="k"` (any single key,
+// ⌘K / Ctrl+K opener: put `data-hotkey="k"` (any single key,
 // default `k`) on the `<dialog>` (or the `.hc-command`), and the
 // behavior toggles that dialog with Cmd/Ctrl + the key, focusing the
 // input and resetting the filter on open. Escape, focus trapping, and
@@ -191,10 +191,10 @@ function attach(root, detachers) {
     if (item && list.contains(item) && isEnabled(item)) select(item);
   }
 
-  // ⌘K / Ctrl+K opener (opt-in via data-hc-command-hotkey).
+  // ⌘K / Ctrl+K opener (opt-in via data-hotkey).
   const hotkey = (
-    dialog?.getAttribute('data-hc-command-hotkey') ??
-    root.getAttribute('data-hc-command-hotkey')
+    dialog?.getAttribute('data-hotkey') ??
+    root.getAttribute('data-hotkey')
   );
   function onHotkey(event) {
     if (!hotkey || !dialog) return;

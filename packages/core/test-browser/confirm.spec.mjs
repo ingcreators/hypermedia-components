@@ -25,7 +25,7 @@ test.describe('confirm-action behavior', () => {
     await expect(cancel).toBeFocused();
   });
 
-  test('dispatching "confirm" closes the dialog and fires `confirmed` on the source', async ({ page }) => {
+  test('dispatching "confirm" closes the dialog and fires `hc:confirmed` on the source', async ({ page }) => {
     const result = page.getByTestId('confirm-result');
     await expect(result).toHaveText('');
 
@@ -37,7 +37,7 @@ test.describe('confirm-action behavior', () => {
     await expect(result).toHaveText('confirmed');
   });
 
-  test('cancelling does NOT fire `confirmed`', async ({ page }) => {
+  test('cancelling does NOT fire `hc:confirmed`', async ({ page }) => {
     const result = page.getByTestId('confirm-result');
 
     await page.getByTestId('trigger-confirm').click();
@@ -47,7 +47,7 @@ test.describe('confirm-action behavior', () => {
     await expect(result).not.toHaveAttribute('data-confirmed', 'true');
   });
 
-  test('Escape closes the dialog without firing `confirmed`', async ({ page }) => {
+  test('Escape closes the dialog without firing `hc:confirmed`', async ({ page }) => {
     const result = page.getByTestId('confirm-result');
 
     await page.getByTestId('trigger-confirm').click();

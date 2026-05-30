@@ -57,12 +57,12 @@ describe('installConfirm', () => {
     expect(first.querySelector('#hc-confirm-message').textContent).toBe('Second?');
   });
 
-  it('dispatches a bubbling "confirmed" event on the source when accepted', () => {
+  it('dispatches a bubbling "hc:confirmed" event on the source when accepted', () => {
     uninstall = installConfirm();
     const btn = placeButton();
 
     let received = null;
-    document.body.addEventListener('confirmed', (e) => { received = e; });
+    document.body.addEventListener('hc:confirmed', (e) => { received = e; });
 
     dispatchClick(btn);
     document.querySelector('[data-hc-confirm-ok]').click();
@@ -72,12 +72,12 @@ describe('installConfirm', () => {
     expect(received.bubbles).toBe(true);
   });
 
-  it('does not dispatch "confirmed" when cancelled', () => {
+  it('does not dispatch "hc:confirmed" when cancelled', () => {
     uninstall = installConfirm();
     const btn = placeButton();
 
     const spy = vi.fn();
-    btn.addEventListener('confirmed', spy);
+    btn.addEventListener('hc:confirmed', spy);
 
     dispatchClick(btn);
     document.querySelector('[data-hc-confirm-cancel]').click();
@@ -145,7 +145,7 @@ describe('installConfirm', () => {
 
     const btn = placeButton();
     const spy = vi.fn();
-    btn.addEventListener('confirmed', spy);
+    btn.addEventListener('hc:confirmed', spy);
 
     dispatchClick(btn);
     document.querySelector('[data-hc-confirm-ok]').click();
@@ -161,7 +161,7 @@ describe('installConfirm', () => {
     btn.appendChild(icon);
 
     const spy = vi.fn();
-    btn.addEventListener('confirmed', spy);
+    btn.addEventListener('hc:confirmed', spy);
 
     dispatchClick(icon);
     document.querySelector('[data-hc-confirm-ok]').click();

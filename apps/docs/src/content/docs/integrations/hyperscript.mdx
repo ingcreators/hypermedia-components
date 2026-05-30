@@ -97,25 +97,25 @@ Vanilla — driven by `installConfirm()`:
   data-variant="error"
   data-hc-confirm="Delete this item?"
   data-hx-delete="/items/123"
-  data-hx-trigger="confirmed"
+  data-hx-trigger="hc:confirmed"
   data-hx-target="closest tr">
   Delete
 </button>
 ```
 
 _hyperscript — handle the confirmation inline; htmx still listens for
-`confirmed`:
+`hc:confirmed`:
 
 ```html
 <button
   class="hc-button"
   data-variant="error"
   data-hx-delete="/items/123"
-  data-hx-trigger="confirmed"
+  data-hx-trigger="hc:confirmed"
   data-hx-target="closest tr"
   _="on click
        if confirm('Delete this item?')
-         send confirmed to me
+         send hc:confirmed to me
        end">
   Delete
 </button>
@@ -148,14 +148,14 @@ markup instead, render it once in the page and target it by id:
   class="hc-button"
   data-variant="error"
   data-hx-delete="/items/123"
-  data-hx-trigger="confirmed"
+  data-hx-trigger="hc:confirmed"
   data-hx-target="closest tr"
   _="on click
        set #confirm-message.textContent to 'Delete this item?'
        call #confirm-dialog.showModal()
        wait for close from #confirm-dialog
        if #confirm-dialog.returnValue is 'confirm'
-         send confirmed to me
+         send hc:confirmed to me
        end">
   Delete
 </button>

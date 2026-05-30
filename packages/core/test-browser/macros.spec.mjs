@@ -18,7 +18,7 @@ test.describe('<hc-confirm-action>', () => {
   test('wires the expanded htmx attributes', async ({ page }) => {
     const button = page.getByTestId('macro-confirm').locator('button');
     await expect(button).toHaveAttribute('data-hx-delete', '/items/99');
-    await expect(button).toHaveAttribute('data-hx-trigger', 'confirmed');
+    await expect(button).toHaveAttribute('data-hx-trigger', 'hc:confirmed');
     await expect(button).toHaveAttribute('data-hx-target', 'closest tr');
     await expect(button).toHaveAttribute('data-hx-swap', 'outerHTML');
     await expect(button).toHaveAttribute('data-hc-confirm', 'Macro delete?');

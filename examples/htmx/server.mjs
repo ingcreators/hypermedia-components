@@ -77,7 +77,7 @@ function rowHtml(item) {
         type="button"
         data-hc-confirm="Delete ${escape(item.name)}?"
         data-hx-delete="/items/${item.id}"
-        data-hx-trigger="confirmed"
+        data-hx-trigger="hc:confirmed"
         data-hx-target="closest tr"
         data-hx-swap="outerHTML"
         data-hx-disabled-elt="this"

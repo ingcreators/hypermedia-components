@@ -110,9 +110,9 @@
     <h2>Confirm action (per row)</h2>
     <p class="small">
       Each <strong>Delete</strong> button uses
-      <code>data-hc-confirm</code> + <code>data-hx-trigger="confirmed"</code>.
+      <code>data-hc-confirm</code> + <code>data-hx-trigger="hc:confirmed"</code>.
       The behavior shows a modal dialog; on confirm it re-emits a
-      <code>confirmed</code> event so htmx fires the
+      <code>hc:confirmed</code> event so htmx fires the
       <code>DELETE /items/:id</code> request.
     </p>
   </section>

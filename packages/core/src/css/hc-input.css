@@ -47,7 +47,7 @@
   }
 
   .hc-input[aria-invalid="true"] {
-    border-color: var(--hc-input-invalid-border);
+    border-color: var(--hc-input-error-border);
   }
 
   .hc-input[aria-invalid="true"]:focus-visible {
@@ -65,7 +65,7 @@
   }
 
   .hc-input[data-variant="error"] {
-    border-color: var(--hc-input-invalid-border);
+    border-color: var(--hc-input-error-border);
   }
 
   .hc-input:disabled,

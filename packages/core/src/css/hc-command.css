@@ -10,7 +10,7 @@
  * `<dialog class="hc-command-dialog">` so it gets focus trapping,
  * Escape-to-close, and a backdrop for free.
  *
- *   <dialog class="hc-command-dialog" data-hc-command-hotkey="k">
+ *   <dialog class="hc-command-dialog" data-hotkey="k">
  *     <div class="hc-command">
  *       <input class="hc-command__input" type="text" role="combobox" autofocus …>
  *       <div class="hc-command__list" role="listbox" id="…">

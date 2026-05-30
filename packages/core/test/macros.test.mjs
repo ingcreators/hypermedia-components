@@ -55,9 +55,9 @@ describe('<hc-confirm-action>', () => {
     expect(btn.getAttribute('data-hx-swap')).toBe('outerHTML');
   });
 
-  it('always sets data-hx-trigger="confirmed"', () => {
+  it('always sets data-hx-trigger="hc:confirmed"', () => {
     const el = place(`<hc-confirm-action action="/x">Go</hc-confirm-action>`);
-    expect(el.querySelector('button').getAttribute('data-hx-trigger')).toBe('confirmed');
+    expect(el.querySelector('button').getAttribute('data-hx-trigger')).toBe('hc:confirmed');
   });
 
   it('writes the message into data-hc-confirm', () => {

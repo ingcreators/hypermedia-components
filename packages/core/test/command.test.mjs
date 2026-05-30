@@ -5,7 +5,7 @@ import { installCommand } from '../src/js/command.js';
 let uninstall = () => {};
 
 const FIXTURE = `
-  <dialog id="cmd-dialog" class="hc-command-dialog" data-hc-command-hotkey="k">
+  <dialog id="cmd-dialog" class="hc-command-dialog" data-hotkey="k">
     <div class="hc-command">
       <input class="hc-command__input" type="text" role="combobox" aria-label="Command" id="cmd-input">
       <div class="hc-command__list" id="cmd-list" role="listbox">

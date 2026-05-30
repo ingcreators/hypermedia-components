@@ -20,6 +20,32 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Changed
+
+- Consistency renames (pre-alpha, no back-compat aliases). A library
+  audit turned up three naming drifts:
+  - **`confirmed` event → `hc:confirmed`.** `installConfirm` was the
+    only behavior dispatching an un-namespaced event; every other one
+    uses `hc:*`. Update `data-hx-trigger="confirmed"` →
+    `data-hx-trigger="hc:confirmed"` (and `send confirmed` →
+    `send hc:confirmed` in _hyperscript). Touches the behavior, the
+    `<hc-confirm-action>` macro, all integration / recipe / component
+    docs and examples.
+  - **`data-hc-command-hotkey` → `data-hotkey`.** Every other
+    component reads its own config from a plain `data-*`
+    (`data-value`, `data-length`, `data-orientation`, …); the
+    `data-hc-*` prefix is reserved for cross-component glue
+    (`data-hc-confirm`, `data-hc-context-menu`,
+    `data-hc-close-dialog-on-success`, …). The command hotkey is the
+    component's own config, so it drops the prefix.
+  - **`*-invalid-border` token → `*-error-border`.** The error-state
+    border token for value-entry fields (input / select / datepicker /
+    input-OTP, and checkbox / radio) was named `invalid-border` while
+    the `data-variant="error"` attribute and every other component use
+    `error-*`. Renamed for attribute↔token symmetry
+    (`--hc-input-invalid-border` → `--hc-input-error-border`, etc.);
+    `aria-invalid` still maps to the same border.
+
 ### Added
 
 - Unified the `data-variant` vocabulary across form controls so every
@@ -245,7 +271,7 @@ Security    — security-relevant changes
   staying on the input. Selecting dispatches a bubbling
   `hc:commandselect` (`detail { item, value, command }`, `value` from
   `data-value`) and, inside a `<dialog>`, closes it. Optional ⌘K opener:
-  `data-hc-command-hotkey="k"` (any key, default `k`) on the dialog
+  `data-hotkey="k"` (any key, default `k`) on the dialog
   toggles it with Cmd/Ctrl + key (`preventDefault` so the browser's own
   shortcut doesn't also fire), focusing the input and resetting the
   filter on open; the filter also resets on dialog `close`. Used inside
@@ -419,7 +445,7 @@ Security    — security-relevant changes
   `--hc-control-*` scale (so `data-density="compact"` shrinks
   consistently), `:disabled` / `aria-invalid` states. New
   `datepicker.{height, padding-x, radius, font-size, bg, fg,
-  border, focus-border, invalid-border, success-border,
+  border, focus-border, error-border, success-border,
   warning-border, disabled-bg, icon-size, sm.*, lg.*}` tokens, all
   `{ref}` so the overlay machinery handles theming. Playwright
   spec (10 cases) covers the native `type` attribute and form
@@ -672,7 +698,7 @@ Security    — security-relevant changes
   browser. The chevron uses a hardcoded neutral stroke colour
   matching the SVG convention `hc-checkbox` / `hc-radio` already
   use. New `select.{height, padding-x, radius, font-size, bg, fg,
-  border, focus-border, invalid-border, success-border,
+  border, focus-border, error-border, success-border,
   warning-border, disabled-bg, chevron-size, sm.*, lg.*}` tokens,
   all `{ref}` so the overlay machinery handles theming. The
   `hc-input` docstring was scoped to `<input>` / `<textarea>` only

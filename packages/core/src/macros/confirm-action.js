@@ -62,7 +62,7 @@ class HcConfirmAction extends HTMLElement {
 
     setIfPresent(button, 'data-variant', variant);
     if (action) button.setAttribute(`data-hx-${method}`, action);
-    button.setAttribute('data-hx-trigger', 'confirmed');
+    button.setAttribute('data-hx-trigger', 'hc:confirmed');
     setIfPresent(button, 'data-hx-target', target);
     button.setAttribute('data-hx-swap', swap);
     button.setAttribute('data-hx-disabled-elt', disabledElt);
