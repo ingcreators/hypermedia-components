@@ -14,19 +14,37 @@ hero:
       icon: external
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+{/* Dogfood: the landing cards are built with HC's own hc-grid + hc-card,
+    not Starlight's CardGrid. `not-content` keeps Starlight prose styles off
+    the HC surfaces. */}
 
-<CardGrid stagger>
-  <Card title="Standard HTML first" icon="document">
-    Native elements like `button`, `dialog`, `popover` are the primary building blocks.
-  </Card>
-  <Card title="Light DOM" icon="open-book">
-    No Shadow DOM. htmx attributes, form behavior, and progressive enhancement work as expected.
-  </Card>
-  <Card title="DTCG tokens" icon="setting">
-    Themes, density, and component values come from token files exported as CSS custom properties.
-  </Card>
-  <Card title="htmx-friendly recipes" icon="rocket">
-    Confirm action, live search, remote dialog, filter popover — with documented server contracts.
-  </Card>
-</CardGrid>
+<div class="hc-grid not-content" style="--hc-grid-min: 14rem;">
+  <div class="hc-card">
+    <div class="hc-card__header"><strong>Standard HTML first</strong></div>
+    <div class="hc-card__body">
+      Native elements like <code>button</code>, <code>dialog</code>, and
+      <code>popover</code> are the primary building blocks.
+    </div>
+  </div>
+  <div class="hc-card">
+    <div class="hc-card__header"><strong>Light DOM</strong></div>
+    <div class="hc-card__body">
+      No Shadow DOM. htmx attributes, form behavior, and progressive
+      enhancement work as expected.
+    </div>
+  </div>
+  <div class="hc-card">
+    <div class="hc-card__header"><strong>DTCG tokens</strong></div>
+    <div class="hc-card__body">
+      Themes, density, and component values come from token files exported
+      as CSS custom properties.
+    </div>
+  </div>
+  <div class="hc-card">
+    <div class="hc-card__header"><strong>htmx-friendly recipes</strong></div>
+    <div class="hc-card__body">
+      Confirm action, live search, remote dialog, filter popover — with
+      documented server contracts.
+    </div>
+  </div>
+</div>

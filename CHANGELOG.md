@@ -22,6 +22,10 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Docs home page dogfoods `hc-card` + `hc-grid`.** The landing page's
+  feature cards are now built from HC's own `hc-grid` + `hc-card` (with
+  `not-content` to bypass Starlight's prose styles) instead of Starlight's
+  `<CardGrid>` / `<Card>`. Docs only.
 - **Responsive audit of existing components** (no breaking changes):
   - **`hc-pagination`** now wraps onto multiple rows when its container is
     narrow (`flex-wrap: wrap`) instead of overflowing horizontally.
