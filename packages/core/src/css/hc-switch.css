@@ -6,7 +6,7 @@
  * readers announce it as a switch via the role override — and only
  * the visual chrome is replaced.
  *
- * Variants: data-variant="success" | "error" → checked-state tint.
+ * Variants: data-variant="success" | "warning" | "error" → checked-state tint.
  * Sizes:    data-size="sm" | "md" (default) | "lg".
  *
  * Markup:
@@ -78,6 +78,11 @@
   .hc-switch[data-variant="success"]:checked {
     background-color: var(--hc-switch-success-checked-bg);
     border-color: var(--hc-switch-success-checked-bg);
+  }
+
+  .hc-switch[data-variant="warning"]:checked {
+    background-color: var(--hc-switch-warning-checked-bg);
+    border-color: var(--hc-switch-warning-checked-bg);
   }
 
   .hc-switch[data-variant="error"]:checked {

@@ -55,10 +55,16 @@ submit.
 
 `aria-invalid="true"` on the input (or `data-invalid` on the container)
 draws the error border; `disabled` on the input mutes the slots.
+`data-variant="success" | "warning" | "error"` on the container
+recolours the slot borders with the same validation vocabulary as the
+other form fields.
 
 <div class="hc-preview not-content" style="display:flex;gap:1.5rem;flex-wrap:wrap;">
   <div class="hc-inputotp" data-length="4">
     <input class="hc-inputotp__input" type="text" aria-label="Code" aria-invalid="true" />
+  </div>
+  <div class="hc-inputotp" data-variant="success" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code (valid)" />
   </div>
   <div class="hc-inputotp" data-length="4">
     <input class="hc-inputotp__input" type="text" aria-label="Code" disabled value="12" />

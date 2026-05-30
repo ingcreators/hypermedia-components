@@ -3,7 +3,11 @@
  * Apply `.hc-input` to <input> or <textarea>. Use `.hc-select` on a
  * native <select> instead — it adds appearance: none plus a chevron
  * indicator that .hc-input does not provide. Size via
- * `data-size="sm|lg"`. Invalid via the standard `aria-invalid="true"`.
+ * `data-size="sm|lg"`. Error via the standard `aria-invalid="true"`
+ * (the accessible hook) or `data-variant="error"`; `data-variant`
+ * also accepts `success` / `warning` for the other border-colour cues
+ * (no native attribute exists for those). Matches hc-select /
+ * hc-datepicker so every form field speaks the same vocabulary.
  */
 @layer hc.components {
   .hc-input {
@@ -48,6 +52,20 @@
 
   .hc-input[aria-invalid="true"]:focus-visible {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
+  }
+
+  /* Validation-state variants — border-colour cues. `error` mirrors
+   * aria-invalid; `success` / `warning` have no native attribute. */
+  .hc-input[data-variant="success"] {
+    border-color: var(--hc-input-success-border);
+  }
+
+  .hc-input[data-variant="warning"] {
+    border-color: var(--hc-input-warning-border);
+  }
+
+  .hc-input[data-variant="error"] {
+    border-color: var(--hc-input-invalid-border);
   }
 
   .hc-input:disabled,

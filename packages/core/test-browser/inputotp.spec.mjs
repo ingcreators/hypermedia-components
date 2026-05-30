@@ -52,6 +52,15 @@ test.describe('hc-inputotp', () => {
     expect(color).toMatch(/rgba?\(\s*220,\s*38,\s*38/);
   });
 
+  test('data-variant success / warning recolour the slot border', async ({ page }) => {
+    const success = await page.getByTestId('otp-success').locator('.hc-inputotp__slot').first()
+      .evaluate((el) => getComputedStyle(el).borderTopColor);
+    expect(success).toMatch(/rgba?\(\s*5,\s*150,\s*105/); // green.600
+    const warning = await page.getByTestId('otp-warning').locator('.hc-inputotp__slot').first()
+      .evaluate((el) => getComputedStyle(el).borderTopColor);
+    expect(warning).toMatch(/rgba?\(\s*217,\s*119,\s*6/); // amber.600
+  });
+
   test('axe finds no violations in the inputotp section', async ({ page }) => {
     const results = await new AxeBuilder({ page })
       .include('#section-inputotp')

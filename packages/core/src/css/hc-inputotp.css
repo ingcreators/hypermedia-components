@@ -85,7 +85,19 @@
     50% { opacity: 0; }
   }
 
-  /* Invalid — aria-invalid on the input or data-invalid on the host. */
+  /* Validation-state variants on the host — same vocabulary as the
+   * other form fields. `error` mirrors aria-invalid / data-invalid. */
+  .hc-inputotp[data-variant="success"] .hc-inputotp__slot {
+    border-color: var(--hc-inputotp-success-border);
+  }
+
+  .hc-inputotp[data-variant="warning"] .hc-inputotp__slot {
+    border-color: var(--hc-inputotp-warning-border);
+  }
+
+  /* Error — aria-invalid on the input, or data-invalid / data-variant
+   * on the host. */
+  .hc-inputotp[data-variant="error"] .hc-inputotp__slot,
   .hc-inputotp[data-invalid] .hc-inputotp__slot,
   .hc-inputotp:has(.hc-inputotp__input[aria-invalid="true"]) .hc-inputotp__slot {
     border-color: var(--hc-inputotp-invalid-border);
