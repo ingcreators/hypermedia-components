@@ -68,6 +68,14 @@ Security    — security-relevant changes
   picker re-tints `--hc-color-action-primary-*`, switching the colour
   theme now re-tints the whole docs chrome, not just the live previews.
   No library or API change.
+- **Responsive design documentation.** New Fundamentals → Responsive
+  design page laying out the container-first strategy (intrinsic layout
+  utilities, the single viewport breakpoint in `hc-shell`, the density
+  axis, and a decision table for which tool responds to container vs
+  viewport width). The Kitchen sink gains a Layout & responsiveness
+  section (live `hc-grid` / `hc-cluster` / `hc-sidebar`, a scaled
+  `hc-shell`, and the `.hc-table-scroll` pattern), and the Fundamentals
+  index links the new pages. Docs only.
 
 ### Added
 
