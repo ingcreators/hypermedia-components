@@ -30,6 +30,14 @@ Security    — security-relevant changes
   pickers in the navbar are now styled by HC's own `.hc-select`
   (`data-size="sm"`) instead of ~30 lines of bespoke `<select>` CSS — the
   chrome itself now uses a real HC form control. Docs only.
+- **Docs reference tables dogfood `hc-table`.** A small rehype plugin
+  (`apps/docs/rehype-hc-tables.mjs`) wraps every Markdown table in
+  `<div class="hc-table-scroll not-content">` and adds the `hc-table`
+  class, so the docs' reference tables render as HC's own component (the
+  `.not-content` wrapper is required because Starlight styles tables with
+  unlayered rules that would otherwise beat the `hc-table` layer; it also
+  doubles as the responsive scroll strip). Authored `<table class="hc-table">`
+  demos in MDX are JSX nodes and are left untouched. Docs only.
 - **Responsive audit of existing components** (no breaking changes):
   - **`hc-pagination`** now wraps onto multiple rows when its container is
     narrow (`flex-wrap: wrap`) instead of overflowing horizontally.
