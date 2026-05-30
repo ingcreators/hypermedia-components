@@ -29,6 +29,7 @@
     "./css/min": "./dist/hc.min.css",
     "./css/core": "./dist/hc.core.css",
     "./css/core/min": "./dist/hc.core.min.css",
+    "./css/utilities": "./dist/hc.utilities.css",
     "./css/*": "./dist/hc-*.css",
     "./tokens.css": "./dist/hc.tokens.css",
     "./tokens.*.css": "./dist/hc.tokens.*.css",

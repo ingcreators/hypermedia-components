@@ -1,0 +1,182 @@
+---
+title: Layout utilities
+description: Small, intrinsically responsive layout primitives — stack, cluster, grid, container, sidebar — plus sr-only and hidden helpers. No breakpoints, no utility-first framework.
+---
+
+Hypermedia Components ships a handful of **layout utilities** in the
+`hc.utilities` cascade layer. They are the responsive building blocks the
+rest of the system leans on — including the forthcoming `hc-shell`
+application shell.
+
+They are deliberately few and semantic. This is **not** a utility-first
+framework: there are no spacing scales sprayed across class names, no
+`md:` / `lg:` breakpoint prefixes. Each utility is *intrinsically
+responsive* — it adapts to the space it is given through `flex-wrap`,
+grid `auto-fill`, or content-based flex ratios, with **no media queries**.
+The same class behaves correctly in a full page, a dialog, a card, or a
+sidebar, because it responds to its **container**, not the viewport.
+
+## Import
+
+The utilities are in the full stylesheet already. For granular setups,
+import just this layer on top of the core:
+
+```js
+import '@hypermedia-components/core/css/core';       // tokens + base
+import '@hypermedia-components/core/css/utilities';   // this layer
+```
+
+Because they live in the last cascade layer, your own application CSS
+overrides them without specificity fights.
+
+## Tuning knobs
+
+Every utility exposes one or two local custom properties with
+token-based fallbacks. Set them inline or in a wrapper rule — never add
+per-element variant classes:
+
+```html
+<ul class="hc-cluster" style="--hc-cluster-gap: var(--hc-space-4)">…</ul>
+```
+
+## `.hc-stack` — vertical rhythm
+
+Children laid out in a column with one consistent gap. Knob:
+`--hc-stack-gap` (default `--hc-space-3`).
+
+<div class="hc-preview not-content">
+  <div class="hc-stack" style="--hc-stack-gap: var(--hc-space-2);">
+    <div class="hc-card" style="padding:.5rem .75rem;">First</div>
+    <div class="hc-card" style="padding:.5rem .75rem;">Second</div>
+    <div class="hc-card" style="padding:.5rem .75rem;">Third</div>
+  </div>
+</div>
+
+```html
+<div class="hc-stack">
+  <div>First</div>
+  <div>Second</div>
+  <div>Third</div>
+</div>
+```
+
+## `.hc-cluster` — wrapping row
+
+A horizontal group that wraps when it runs out of room — button rows,
+tag lists, meta bars, toolbars. Knobs: `--hc-cluster-gap` (default
+`--hc-space-2`), `--hc-cluster-align` (default `center`).
+
+<div class="hc-preview not-content">
+  <div class="hc-cluster">
+    <button class="hc-button" type="button">Save</button>
+    <button class="hc-button" data-variant="secondary" type="button">Duplicate</button>
+    <button class="hc-button" data-variant="ghost" type="button">Archive</button>
+    <button class="hc-button" data-variant="error" type="button">Delete</button>
+  </div>
+</div>
+
+```html
+<div class="hc-cluster">
+  <button class="hc-button">Save</button>
+  <button class="hc-button" data-variant="secondary">Duplicate</button>
+  <button class="hc-button" data-variant="ghost">Archive</button>
+  <button class="hc-button" data-variant="error">Delete</button>
+</div>
+```
+
+## `.hc-grid` — responsive grid
+
+As many equal columns as fit at a minimum track width, then it wraps —
+no breakpoints. Knobs: `--hc-grid-min` (default `16rem`), `--hc-grid-gap`
+(default `--hc-space-4`). The built-in `min(…, 100%)` guard stops a wide
+track from overflowing a narrow container.
+
+<div class="hc-preview not-content">
+  <div class="hc-grid" style="--hc-grid-min: 8rem;">
+    <div class="hc-card" style="padding:.75rem;">A</div>
+    <div class="hc-card" style="padding:.75rem;">B</div>
+    <div class="hc-card" style="padding:.75rem;">C</div>
+    <div class="hc-card" style="padding:.75rem;">D</div>
+    <div class="hc-card" style="padding:.75rem;">E</div>
+    <div class="hc-card" style="padding:.75rem;">F</div>
+  </div>
+</div>
+
+```html
+<div class="hc-grid" style="--hc-grid-min: 16rem;">
+  <article class="hc-card">…</article>
+  <article class="hc-card">…</article>
+  <!-- …as many as you like -->
+</div>
+```
+
+Swap `auto-fill` for `auto-fit` (by setting
+`grid-template-columns` yourself) when you want a few items to stretch
+and fill the row instead of leaving empty tracks.
+
+## `.hc-container` — centred content well
+
+A centred column with a maximum line length and inline padding. Knobs:
+`--hc-container-max` (default `72rem`), `--hc-container-pad` (default
+`--hc-space-4`).
+
+```html
+<div class="hc-container">
+  <!-- page content, capped and centred -->
+</div>
+```
+
+## `.hc-sidebar` — sidebar + main
+
+A two-part layout where the **first child is the sidebar** and the second
+is the main region. The main region keeps a minimum width; when it can no
+longer hold it, the sidebar wraps onto its own row. Pure flexbox, so it
+reflows by **container** width — drop it inside a narrow panel and it
+collapses there too, with no viewport media query. Knobs:
+`--hc-sidebar-width` (default `16rem`), `--hc-sidebar-content-min`
+(default `60%`), `--hc-sidebar-gap` (default `--hc-space-4`).
+
+<div class="hc-preview not-content">
+  <div class="hc-sidebar">
+    <nav class="hc-card" style="padding:.75rem;" aria-label="Example">Sidebar</nav>
+    <div class="hc-card" style="padding:.75rem;">Main content area that keeps its width and wraps the sidebar when space runs out.</div>
+  </div>
+</div>
+
+```html
+<div class="hc-sidebar">
+  <nav aria-label="Section">…</nav>
+  <main>…</main>
+</div>
+```
+
+## `.hc-sr-only` — visually hidden
+
+Content available to assistive technology but removed from the visual
+layout — skip links, labels for icon-only controls. Unlike `.hc-hidden`,
+it stays in the accessibility tree.
+
+```html
+<button class="hc-button" type="button">
+  <svg aria-hidden="true">…</svg>
+  <span class="hc-sr-only">Delete</span>
+</button>
+```
+
+## `.hc-hidden` — force-hide
+
+`display: none !important`. Wins over component rules by layer order, and
+the `!important` also beats unlayered application CSS and inline display.
+Use it to toggle visibility from the server (swap the class in/out) or
+from htmx, without inline styles.
+
+```html
+<div class="hc-hidden">Removed from layout entirely</div>
+```
+
+## Related
+
+- [Tokens](/hypermedia-components/fundamentals/tokens/) — the `--hc-space-*`
+  scale the gaps default to.
+- `hc-shell` (forthcoming) — the application shell, built on these
+  primitives.

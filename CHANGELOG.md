@@ -57,6 +57,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Layout utilities** (`hc.utilities` cascade layer, plan §10.4). The
+  previously reserved layer is now populated with a small, semantic set
+  of *intrinsically responsive* layout primitives — no breakpoints, no
+  media queries: `.hc-stack` (vertical rhythm), `.hc-cluster` (wrapping
+  row), `.hc-grid` (auto-fill responsive grid), `.hc-container` (centred
+  well), `.hc-sidebar` (sidebar + main that wraps by container width),
+  plus the `.hc-sr-only` and `.hc-hidden` helpers. Each exposes
+  token-based tuning knobs (`--hc-stack-gap`, `--hc-grid-min`, …). They
+  are bundled into `hc.css` / `hc.min.css` and available granularly via
+  the new `@hypermedia-components/core/css/utilities` export. These are
+  the responsive foundation the forthcoming `hc-shell` builds on. New
+  Fundamentals → Layout utilities docs page; Playwright coverage for
+  display modes, responsive wrap/collapse, sr-only, and an axe scan.
 - Unified the `data-variant` vocabulary across form controls so every
   field speaks the same `success` / `warning` / `error` language
   (closing inconsistencies that had crept in as controls were added
