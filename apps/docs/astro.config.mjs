@@ -1,9 +1,15 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import rehypeHcTables from './rehype-hc-tables.mjs';
 
 export default defineConfig({
   site: 'https://ingcreators.com',
   base: '/hypermedia-components',
+  // Dogfood: render Markdown reference tables as HC's own hc-table by
+  // wrapping each in `.hc-table-scroll.not-content` (see the plugin file).
+  markdown: {
+    rehypePlugins: [rehypeHcTables],
+  },
   integrations: [
     starlight({
       title: 'Hypermedia Components',
