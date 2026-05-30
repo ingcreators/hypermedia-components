@@ -45,6 +45,15 @@ Security    — security-relevant changes
     `error-*`. Renamed for attribute↔token symmetry
     (`--hc-input-invalid-border` → `--hc-input-error-border`, etc.);
     `aria-invalid` still maps to the same border.
+- **Docs site dogfoods HC tokens.** The Starlight chrome (header,
+  sidebar, links, inline code, hairlines, accents) is now skinned with
+  the generated `--hc-*` tokens via a `--sl-*` → `--hc-*` bridge in
+  `apps/docs/src/styles/custom.css`. Because both Starlight and HC key
+  their light/dark values on `[data-theme]`, the bridge is a single set
+  of `var(--hc-*)` references; and because the navbar `data-color`
+  picker re-tints `--hc-color-action-primary-*`, switching the colour
+  theme now re-tints the whole docs chrome, not just the live previews.
+  No library or API change.
 
 ### Added
 

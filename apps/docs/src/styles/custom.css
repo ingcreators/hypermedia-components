@@ -1,4 +1,86 @@
-/* Site-wide custom CSS. Override Starlight design tokens here. */
-:root {
-  --sl-font: system-ui, -apple-system, "Segoe UI", sans-serif;
+/*
+ * Site-wide custom CSS — "dogfood" token bridge.
+ *
+ * We skin Starlight's own chrome with Hypermedia Components tokens by
+ * mapping Starlight's design variables (--sl-*) onto the generated HC
+ * tokens (--hc-*). The header, sidebar, links, inline code, hairlines,
+ * and accents then all wear HC's palette and typography — the docs site
+ * literally renders in the system it documents.
+ *
+ * Two properties of the token systems make this a thin mapping rather
+ * than a rewrite:
+ *
+ *   1. Both Starlight and HC switch their light/dark values on the
+ *      [data-theme] attribute on <html>. So a single `var(--hc-*)`
+ *      reference resolves to the right theme automatically — there is no
+ *      need for separate light/dark bridge blocks.
+ *
+ *   2. The HC `data-color` picker (in the navbar) re-tints
+ *      --hc-color-action-primary-*. Because we drive Starlight's accent
+ *      from those tokens, switching the colour theme re-tints the whole
+ *      docs chrome — not just the live component previews.
+ *
+ * We bridge Starlight's *derived* semantic variables (text, surfaces,
+ * hairlines, inline code, accent) and the lightest few ramp stops, and
+ * deliberately leave the raw --sl-color-gray-4..7 ramp to Starlight: HC's
+ * neutral ramp is coarser, and the semantic aliases already cover every
+ * large surface, so remapping the full ramp would only risk Starlight's
+ * carefully tuned contrast for little visible gain.
+ *
+ * Selector note: we list :root plus both [data-theme] states so each
+ * override matches or beats the specificity of Starlight's own
+ * `:root[data-theme='light']` block (0,2,0) and wins on cascade order.
+ */
+
+:root,
+:root[data-theme='light'],
+:root[data-theme='dark'] {
+  /* Typography */
+  --sl-font: var(--hc-font-family-sans);
+
+  /* Text — headings, body, and muted secondary text. */
+  --sl-color-white: var(--hc-color-text); /* headings / strong */
+  --sl-color-gray-1: var(--hc-color-text);
+  --sl-color-gray-2: var(--hc-color-text); /* body copy */
+  --sl-color-gray-3: var(--hc-color-text-muted);
+  --sl-color-text: var(--hc-color-text);
+
+  /* Surfaces — page, top nav, and sidebar. */
+  --sl-color-bg: var(--hc-color-bg);
+  --sl-color-bg-nav: var(--hc-color-surface);
+  --sl-color-bg-sidebar: var(--hc-color-surface);
+  --sl-color-bg-inline-code: var(--hc-color-muted-bg);
+
+  /* Hairlines / dividers / borders. */
+  --sl-color-hairline: var(--hc-color-border);
+  --sl-color-hairline-light: var(--hc-color-border);
+  --sl-color-hairline-shade: var(--hc-color-border);
+
+  /* Accent — driven by HC's primary action colour, so the navbar
+     data-color picker re-tints the chrome along with the previews. */
+  --sl-color-accent: var(--hc-color-action-primary-bg);
+  --sl-color-accent-low: var(--hc-color-action-primary-soft-bg);
+  --sl-color-accent-high: var(--hc-color-action-primary-hover-bg);
+  --sl-color-bg-accent: var(--hc-color-action-primary-bg);
+  --sl-color-text-invert: var(--hc-color-action-primary-fg);
+}
+
+/*
+ * Accent *text* (links, active sidebar entry) has to stay legible on
+ * whichever background it sits on. On dark backgrounds HC's primary
+ * (a blue-600-class colour) is too dark for body-size text, so we lift it
+ * toward white while keeping its hue — the data-color picker still
+ * re-tints it. On light backgrounds the primary is used as-is.
+ */
+:root,
+:root[data-theme='dark'] {
+  --sl-color-text-accent: color-mix(
+    in srgb,
+    var(--hc-color-action-primary-bg) 62%,
+    white
+  );
+}
+
+:root[data-theme='light'] {
+  --sl-color-text-accent: var(--hc-color-action-primary-bg);
 }
