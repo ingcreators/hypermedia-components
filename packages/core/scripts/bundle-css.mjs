@@ -62,6 +62,7 @@ const COMPONENTS = [
   'hc-hovercard.css',
   'hc-accordion.css',
   'hc-breadcrumb.css',
+  'hc-shell.css',
 ];
 
 async function read(file) {

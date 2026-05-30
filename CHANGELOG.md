@@ -57,6 +57,23 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-shell`** — a full-viewport application shell for business apps:
+  a persistent sidebar, header, scrolling main region, and optional aside
+  (third column, added via `:has()`) and footer, on a CSS Grid with
+  `grid-template-areas` and `100dvh`. The layout is pure CSS. The one
+  behavior, `installShell()`, powers only the **mobile** navigation
+  overlay (below a `60rem` breakpoint the sidebar becomes a fixed
+  off-canvas panel): it toggles `data-sidebar` from a
+  `[data-hc-shell-toggle]` button, keeps `aria-expanded` / `aria-controls`
+  in sync, moves focus into the sidebar and traps `Tab`, and closes on
+  `Escape` / scrim click / nav-link activation while restoring focus —
+  force-closing when the viewport returns to desktop. Idempotent, returns
+  an uninstaller, and picks up htmx-swapped shells via `MutationObserver`.
+  Layout knobs: `--hc-shell-sidebar-width` / `--hc-shell-aside-width` /
+  `--hc-shell-pad`. New Components → Shell docs page; Vitest unit coverage
+  for the behavior and Playwright coverage for the desktop grid, the
+  mobile overlay (open / focus move / Tab trap / Escape / scrim), and axe
+  scans in both states.
 - **Layout utilities** (`hc.utilities` cascade layer, plan §10.4). The
   previously reserved layer is now populated with a small, semantic set
   of *intrinsically responsive* layout primitives — no breakpoints, no
