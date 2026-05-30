@@ -22,6 +22,35 @@ Security    — security-relevant changes
 
 ### Added
 
+- Unified the `data-variant` vocabulary across form controls so every
+  field speaks the same `success` / `warning` / `error` language
+  (closing inconsistencies that had crept in as controls were added
+  piecemeal):
+  - **`hc-input` / `<textarea>`** gain `data-variant="success" |
+    "warning" | "error"` border-colour cues (previously error-only via
+    `aria-invalid`), matching `hc-select` / `hc-datepicker`. New
+    `input.success-border` / `input.warning-border` tokens.
+  - **`hc-switch`** gains the missing `data-variant="warning"` (it had
+    only `success` / `error`), so it matches checkbox / radio. New
+    `switch.warning-checked-bg` token.
+  - **`hc-inputotp`** gains `data-variant="success" | "warning"` slot-
+    border cues alongside its existing error / `aria-invalid` state.
+    New `inputotp.success-border` / `inputotp.warning-border` tokens.
+  - **Combobox / multicombobox** inherit the trio through their inner
+    `.hc-input` (set `data-variant` on the input / control) — no new
+    code.
+
+  For value-entry fields, `error` remains best expressed with the
+  native `aria-invalid="true"` (the accessible hook); `data-variant`
+  is the visual-only shorthand and the only way to express
+  `success` / `warning`. `tokens/variants.mdx` is rewritten as a
+  complete matrix covering every form control with the two rationales
+  (validation cue for value-entry fields, semantic intent for choice
+  controls), and the input / switch / input-OTP component pages document
+  the variants. New Playwright `input.spec.mjs` (5 cases) plus
+  `warning` / variant-border cases added to the switch and input-OTP
+  specs.
+
 - Docs: _hyperscript "receiving" guidance. The interactive components
   keep their internals in the vanilla behaviors (one tested, accessible
   WAI-ARIA implementation) but expose bubbling `hc:*` events; the

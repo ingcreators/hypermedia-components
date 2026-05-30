@@ -98,6 +98,8 @@
     "placeholder": { "$type": "color", "$value": "{semantic.color.text-muted}" },
     "focus-border": { "$type": "color", "$value": "{semantic.color.focus-ring}" },
     "invalid-border": { "$type": "color", "$value": "{semantic.color.error}" },
+    "success-border": { "$type": "color", "$value": "{semantic.color.success}" },
+    "warning-border": { "$type": "color", "$value": "{semantic.color.warning}" },
     "disabled-bg": { "$type": "color", "$value": "{primitive.color.gray.100}" },
     "sm": {
       "height":    { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
@@ -371,6 +373,7 @@
     "checked-bg":      { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
     "checked-border":  { "$type": "color",     "$value": "{semantic.color.action.primary.border}" },
     "success-checked-bg": { "$type": "color",  "$value": "{semantic.color.success}" },
+    "warning-checked-bg": { "$type": "color",  "$value": "{semantic.color.warning}" },
     "error-checked-bg":   { "$type": "color",  "$value": "{semantic.color.error}" },
     "disabled-bg":     { "$type": "color",     "$value": "{primitive.color.gray.100}" },
     "label-gap":       { "$type": "dimension", "$value": "{semantic.space.2}" },
@@ -618,6 +621,8 @@
     "active-border":  { "$type": "color",      "$value": "{semantic.color.action.primary.bg}" },
     "caret-color":    { "$type": "color",      "$value": "{semantic.color.action.primary.bg}" },
     "invalid-border": { "$type": "color",      "$value": "{semantic.color.error}" },
+    "success-border": { "$type": "color",      "$value": "{semantic.color.success}" },
+    "warning-border": { "$type": "color",      "$value": "{semantic.color.warning}" },
     "disabled-bg":    { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
     "disabled-fg":    { "$type": "color",      "$value": "{semantic.color.text-muted}" }
   },

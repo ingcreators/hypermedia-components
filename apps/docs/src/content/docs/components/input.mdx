@@ -66,6 +66,30 @@ The `aria-invalid="true"` attribute switches the border to the error
 color and changes the focus-ring color. Pair it with a message via
 [`hc-field`](/hypermedia-components/components/field/).
 
+## Variants
+
+`data-variant` recolours the border as a validation cue —
+`success` (green), `warning` (amber), `error` (red) — the same
+vocabulary as [select](/hypermedia-components/components/select/),
+[datepicker](/hypermedia-components/components/datepicker/), and the
+other form fields. (textarea takes the same attribute.)
+
+<div class="hc-preview not-content" style="display:grid;gap:.5rem;max-width:24rem;">
+  <input class="hc-input" data-variant="success" defaultValue="Looks good" />
+  <input class="hc-input" data-variant="warning" defaultValue="Double-check this" />
+  <input class="hc-input" data-variant="error" defaultValue="Fix this" />
+</div>
+
+```html
+<input class="hc-input" data-variant="success" value="Looks good">
+```
+
+Prefer `aria-invalid="true"` over `data-variant="error"` for the error
+case — it paints the same border *and* announces the state to assistive
+tech. `success` / `warning` have no native attribute, so the variant is
+the only way to express them. See the cross-component
+[Variants matrix](/hypermedia-components/tokens/variants/).
+
 ## htmx usage
 
 `hc-input` works with htmx like any other input. The `live-search`

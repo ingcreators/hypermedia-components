@@ -40,9 +40,11 @@ switch and its text so a click on the label toggles the input.
 
 ## Variants
 
-`data-variant` accepts `success` and `error` for non-default
-checked-state tints. The default (omitted) variant uses the active
-colour theme's primary fill.
+`data-variant` accepts `success`, `warning`, and `error` for
+non-default checked-state tints — the same trio as
+[checkbox](/hypermedia-components/components/checkbox/) and
+[radio](/hypermedia-components/components/radio/). The default (omitted)
+variant uses the active colour theme's primary fill.
 
 <div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;">
   <label class="hc-switch-label">
@@ -52,6 +54,10 @@ colour theme's primary fill.
   <label class="hc-switch-label">
     <input class="hc-switch" type="checkbox" role="switch" data-variant="success" defaultChecked />
     Success
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-variant="warning" defaultChecked />
+    Warning
   </label>
   <label class="hc-switch-label">
     <input class="hc-switch" type="checkbox" role="switch" data-variant="error" defaultChecked />

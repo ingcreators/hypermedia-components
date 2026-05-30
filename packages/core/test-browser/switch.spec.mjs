@@ -49,6 +49,14 @@ test.describe('hc-switch', () => {
       .toMatch(/rgba?\(\s*5,\s*150,\s*105/);
   });
 
+  test('data-variant="warning" tints the checked track amber', async ({ page }) => {
+    const sw = page.getByTestId('sw-warning');
+    // semantic.color.warning → amber.600 = rgb(217, 119, 6).
+    await expect
+      .poll(() => sw.evaluate((el) => getComputedStyle(el).backgroundColor))
+      .toMatch(/rgba?\(\s*217,\s*119,\s*6/);
+  });
+
   test('data-variant="error" tints the checked track red', async ({ page }) => {
     const sw = page.getByTestId('sw-error');
     // semantic.color.error → red.600 = rgb(220, 38, 38).

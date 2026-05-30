@@ -554,6 +554,26 @@
       <input class="hc-inputotp__input" type="text" aria-label="Code (invalid)"
              aria-invalid="true" data-testid="otp-invalid-input">
     </div>
+
+    <h3>Variants</h3>
+    <div class="hc-inputotp" data-length="4" data-variant="success" data-testid="otp-success">
+      <input class="hc-inputotp__input" type="text" aria-label="Code (success)">
+    </div>
+    <div class="hc-inputotp" data-length="4" data-variant="warning" data-testid="otp-warning">
+      <input class="hc-inputotp__input" type="text" aria-label="Code (warning)">
+    </div>
+  </section>
+
+  <section id="section-input" data-testid="section-input">
+    <h2>Input</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:0.5rem;max-inline-size:22rem;">
+      <input class="hc-input" type="text" aria-label="Default" placeholder="Default" data-testid="in-default">
+      <input class="hc-input" type="text" aria-label="Success" data-variant="success" data-testid="in-success">
+      <input class="hc-input" type="text" aria-label="Warning" data-variant="warning" data-testid="in-warning">
+      <input class="hc-input" type="text" aria-label="Error" data-variant="error" data-testid="in-error">
+      <input class="hc-input" type="text" aria-label="Invalid" aria-invalid="true" data-testid="in-invalid">
+      <textarea class="hc-input" aria-label="Textarea success" data-variant="success" data-testid="in-textarea"></textarea>
+    </div>
   </section>
 
   <section id="section-calendar" data-testid="section-calendar">
@@ -603,6 +623,10 @@
       <label class="hc-switch-label">
         <input class="hc-switch" type="checkbox" role="switch" data-variant="success" checked data-testid="sw-success">
         Success variant
+      </label>
+      <label class="hc-switch-label">
+        <input class="hc-switch" type="checkbox" role="switch" data-variant="warning" checked data-testid="sw-warning">
+        Warning variant
       </label>
       <label class="hc-switch-label">
         <input class="hc-switch" type="checkbox" role="switch" data-variant="error" checked data-testid="sw-error">

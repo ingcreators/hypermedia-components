@@ -12,12 +12,28 @@ description: A cross-component matrix of every `data-variant` and `data-size` HC
 | Component        | _omitted_                | `primary`  | `secondary` | `success`  | `warning`  | `error`   | `ghost`    | `data-size` |
 | ---------------- | ------------------------ | ---------- | ----------- | ---------- | ---------- | ---------- | ---------- | ----------- |
 | [Button](/hypermedia-components/components/button/) | (default) outlined neutral | ✓ themed fill | ✓ neutral fill | — | — | ✓ red fill | ✓ transparent | `sm` / `md` / `lg` |
-| [Input](/hypermedia-components/components/input/)   | (default) standard rendering | — | — | — | — | via `aria-invalid` | — | `sm` / `md` / `lg` |
-| [Checkbox](/hypermedia-components/components/checkbox/) | (default) themed primary fill on `:checked` | — | — | ✓ green fill | ✓ amber fill | ✓ red fill | — | `sm` / `md` / `lg` |
-| [Radio](/hypermedia-components/components/radio/)   | (default) themed primary fill on `:checked` | — | — | ✓ green fill | ✓ amber fill | ✓ red fill | — | `sm` / `md` / `lg` |
+| [Input](/hypermedia-components/components/input/) / textarea | (default) standard | — | — | ✓ green border | ✓ amber border | ✓ red border ¹ | — | `sm` / `md` / `lg` |
+| [Select](/hypermedia-components/components/select/) | (default) standard | — | — | ✓ green border | ✓ amber border | ✓ red border ¹ | — | `sm` / `md` / `lg` |
+| [Datepicker](/hypermedia-components/components/datepicker/) | (default) standard | — | — | ✓ green border | ✓ amber border | ✓ red border ¹ | — | `sm` / `md` / `lg` |
+| [Input OTP](/hypermedia-components/components/inputotp/) | (default) standard | — | — | ✓ green border | ✓ amber border | ✓ red border ¹ | — | — |
+| [Combobox](/hypermedia-components/components/combobox/) / [Multicombobox](/hypermedia-components/components/multicombobox/) | (default) standard | — | — | ✓ green border ² | ✓ amber border ² | ✓ red border ¹ ² | — | — |
+| [Checkbox](/hypermedia-components/components/checkbox/) | (default) themed fill on `:checked` | — | — | ✓ green fill | ✓ amber fill | ✓ red fill | — | `sm` / `md` / `lg` |
+| [Radio](/hypermedia-components/components/radio/)   | (default) themed fill on `:checked` | — | — | ✓ green fill | ✓ amber fill | ✓ red fill | — | `sm` / `md` / `lg` |
+| [Switch](/hypermedia-components/components/switch/) | (default) themed track | — | — | ✓ green track | ✓ amber track | ✓ red track | — | `sm` / `md` / `lg` |
+| [Slider](/hypermedia-components/components/slider/) | (default) themed fill | — | — | ✓ green fill | ✓ amber fill | ✓ red fill | — | `sm` / `md` / `lg` |
+| [Toggle group](/hypermedia-components/components/toggle-group/) | (default) themed on-state | — | — | — | — | — | — | `sm` / `md` / `lg` |
 | [Badge](/hypermedia-components/components/badge/)   | (default) neutral | — | — | ✓ green     | ✓ amber    | ✓ red      | — | — |
 | [Alert](/hypermedia-components/components/alert/)   | _required_ | — | — | ✓ green     | ✓ amber    | ✓ red      | — | — |
 | [Toast](/hypermedia-components/recipes/toast/)      | `info` default | — | — | ✓ green     | ✓ amber    | ✓ red      | — | — |
+
+¹ The error state is **also** reachable with the native
+`aria-invalid="true"` attribute — the accessible hook, which pairs with
+`aria-describedby` for the message. `data-variant="error"` is the
+visual-only equivalent; `success` / `warning` have no native attribute,
+so the attribute is the only way to express them.
+² Combobox / multicombobox inherit the variant border from their inner
+`.hc-input`: put `data-variant` on the combobox `<input>` or on the
+multicombobox `.hc-multicombobox__control`.
 
 ## Why the matrix is asymmetric
 
@@ -35,7 +51,7 @@ Variants describe a **fill style** — how loud the button should be:
 
 There is intentionally no `data-variant="success"` button or `data-variant="warning"` button. "Click here to succeed" is not a thing users want to read — success / warning are **states** that messages describe, not actions users take. The error variant is the one exception because the action itself is destructive and the button text should warn.
 
-### Form controls (Checkbox, Radio)
+### Choice controls (Checkbox, Radio, Switch)
 
 Variants describe a **semantic intent** of the option itself:
 
@@ -44,7 +60,10 @@ Variants describe a **semantic intent** of the option itself:
 - `warning` = amber — selecting this is risky or needs caution
 - `error` = red — selecting this is destructive or expressly opted-in
 
-There is no `secondary` / `ghost` for checkbox or radio: a checkbox has a single visual fill style (the `:checked` glyph), not multiple fill styles like a button. There is no `primary` either — the implicit default already _is_ the primary themed action. Adding `data-variant="primary"` as an alias would be redundant.
+The tint lands on the checked glyph (checkbox / radio) or the checked
+track (switch). There is no `primary` / `secondary` / `ghost`: these
+controls have a single fill style, and the implicit default already _is_
+the primary themed action.
 
 ### Notification components (Badge, Alert, Toast)
 
@@ -57,13 +76,37 @@ Variants describe the **information class**:
 
 No `primary` / `secondary` / `ghost`: these surfaces communicate state, not user actions, so the action-style variants don't apply.
 
-### Input
+### Value-entry fields (Input, Select, Datepicker, Input OTP, Combobox)
 
-`hc-input` has no `data-variant`. The accessible hook is the standard `aria-invalid="true"` attribute, which switches the border to the error colour and pairs with `aria-describedby` for the message. The `hc-field` wrapper carries `data-invalid="true"` to coordinate the surrounding label and message colours.
+Every field that holds a typed / picked value shares one vocabulary —
+`data-variant` recolours the **border** as a validation cue:
+
+- `success` = green — the value validated / is confirmed
+- `warning` = amber — accepted but needs attention
+- `error` = red — invalid
+
+For `error`, prefer the native `aria-invalid="true"` — it does the same
+recolour **and** exposes the state to assistive tech (pair it with
+`aria-describedby` for the message). `data-variant="error"` is the
+visual-only shorthand. `success` / `warning` have no native attribute,
+so the variant is the only way to express them. The `hc-field` wrapper
+carries `data-invalid="true"` to coordinate the surrounding label and
+message colours.
+
+Earlier releases left `hc-input` variant-free (error via `aria-invalid`
+only) while the other fields grew the `success` / `warning` / `error`
+trio — this unifies them so every form field speaks the same language.
+
+### Range & toggle (Slider, Toggle group)
+
+`hc-slider` takes the same `success` / `warning` / `error` trio,
+recolouring the **fill** as a level cue. `hc-toggle-group` has no
+semantic variant — its on-state is the themed accent — but it does take
+`data-size`.
 
 ## Sizes
 
-`data-size` accepts `sm`, `md` (default), and `lg` on every component where a meaningful size choice exists. The four supported components — button, input, checkbox, radio — all share the same vocabulary.
+`data-size` accepts `sm`, `md` (default), and `lg` on every component where a meaningful size choice exists — button plus the form controls (input, select, datepicker, checkbox, radio, switch, slider, toggle group). They all share the same vocabulary; the table below uses button / input / checkbox / radio as the representative scale.
 
 | Component | `sm`        | `md` (default) | `lg`        | Notes |
 | --------- | ----------- | -------------- | ----------- | ----- |
