@@ -1,0 +1,112 @@
+---
+title: Responsive design
+description: How Hypermedia Components handles responsiveness — container-first intrinsic layout, the one viewport breakpoint, the density axis, and where each tool fits. No utility-first breakpoint prefixes.
+---
+
+Hypermedia Components is responsive by construction rather than by a grid
+of breakpoint-prefixed classes. There is no `sm:` / `md:` / `lg:` system to
+memorise. Instead, three layers cooperate so a layout adapts to the space
+it is actually given:
+
+1. **Components are intrinsically fluid.** Inputs, buttons, cards, and the
+   like fill their container and have no fixed pixel widths. Overlays
+   (`hc-dialog`, `hc-drawer`, `hc-command`) cap their width to the viewport
+   (`max-inline-size` + `calc(100% - …)`), and horizontal groups
+   (`hc-toolbar`, `hc-tabs`, `hc-breadcrumb`, `hc-pagination`) wrap.
+2. **Layout utilities are container-responsive.** `hc-stack`, `hc-cluster`,
+   `hc-grid`, `hc-sidebar`, and `hc-container` reflow based on the width of
+   their container — not the viewport — using `flex-wrap`, grid `auto-fill`,
+   and content-based flex ratios. **No media queries.** Drop one inside a
+   panel half the page wide and it adapts there too.
+3. **The shell is viewport-responsive.** `hc-shell` is the one place with a
+   viewport breakpoint, because a full-screen application shell's container
+   *is* the viewport.
+
+## Container-first, not viewport-first
+
+The modern default here is the **container query** (and its intrinsic
+cousins, `flex-wrap` and grid `auto-fill`). A component should respond to
+the room it has, not to the size of the screen — the same card grid might
+sit in a full-width page on one route and a narrow drawer on another, and
+it should wrap correctly in both without knowing which.
+
+| Tool | Responds to | Use it for |
+| --- | --- | --- |
+| [`hc-grid`](/hypermedia-components/fundamentals/layout/) | container width | card/tile galleries that reflow column count |
+| [`hc-sidebar`](/hypermedia-components/fundamentals/layout/) | container width | sidebar + content that collapses to one column |
+| [`hc-cluster`](/hypermedia-components/fundamentals/layout/) | container width | button rows, tag lists, toolbars |
+| [`hc-stack`](/hypermedia-components/fundamentals/layout/) | — (just rhythm) | consistent vertical spacing |
+| [`hc-container`](/hypermedia-components/fundamentals/layout/) | container width | a centred, max-width content well |
+| [`hc-shell`](/hypermedia-components/components/shell/) | **viewport** width | the whole-app layout (sidebar ↔ off-canvas) |
+
+A viewport media query is the right tool in exactly one situation: a layout
+that fills the viewport and must change *structurally* at a hard threshold —
+which is the shell collapsing its sidebar to an off-canvas overlay. Reach
+for the container-responsive utilities everywhere else.
+
+## The density axis is a responsive lever too
+
+`data-density="comfortable | compact | dense"` rescales control heights and
+padding across every component from one attribute. It is orthogonal to
+layout: set it high on information-dense desktop tools, or step it down on
+touch devices for larger tap targets. See
+[Tokens · Density](/hypermedia-components/tokens/density/).
+
+## Common patterns
+
+**Responsive card grid** — as many columns as fit, then wrap:
+
+```html
+<div class="hc-grid" style="--hc-grid-min: 16rem;">
+  <article class="hc-card">…</article>
+  <article class="hc-card">…</article>
+  <!-- …as many as you like -->
+</div>
+```
+
+**Sidebar + content that collapses on its own:**
+
+```html
+<div class="hc-sidebar">
+  <nav aria-label="Filters">…</nav>
+  <main>…</main>
+</div>
+```
+
+**A wide data table** — confine the overflow, don't push the page:
+
+```html
+<div class="hc-table-scroll" role="region" aria-label="Orders" tabindex="0">
+  <table class="hc-table">…</table>
+</div>
+```
+
+**The whole application layout:**
+
+```html
+<div class="hc-shell">
+  <header class="hc-shell__header">
+    <button class="hc-button" data-variant="ghost"
+            data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+    <strong>Acme</strong>
+  </header>
+  <nav class="hc-shell__sidebar" aria-label="Primary">…</nav>
+  <main class="hc-shell__main">…</main>
+</div>
+```
+
+## Web-feature baseline
+
+The responsive layer leans on widely-available Baseline CSS: `flex-wrap`,
+CSS Grid `repeat(auto-fill, minmax(min(…, 100%), 1fr))`, logical properties
+(`inline-size`, `padding-inline`, …), `100dvh` dynamic viewport units, and
+`:has()`. No JavaScript is involved in the layout itself — only the shell's
+mobile-navigation overlay uses a small behavior, for focus management.
+
+## Related
+
+- [Layout utilities](/hypermedia-components/fundamentals/layout/) — the
+  primitives, with live demos.
+- [Shell](/hypermedia-components/components/shell/) — the application shell.
+- [Kitchen sink](/hypermedia-components/kitchen-sink/) — everything live on
+  one page; resize to watch it adapt.

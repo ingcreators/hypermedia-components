@@ -323,8 +323,71 @@ splitter, type in the OTP field — it all works.
   </div>
 </div>
 
+## Layout &amp; responsiveness
+
+### [Layout utilities](/hypermedia-components/fundamentals/layout/)
+
+Intrinsically responsive primitives — no breakpoints. Resize the window
+and the grid reflows, the cluster wraps, the sidebar collapses.
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:1rem;">
+  <div class="hc-grid" style="--hc-grid-min:8rem;">
+    <div class="hc-card" style="padding:.75rem;text-align:center;">A</div>
+    <div class="hc-card" style="padding:.75rem;text-align:center;">B</div>
+    <div class="hc-card" style="padding:.75rem;text-align:center;">C</div>
+    <div class="hc-card" style="padding:.75rem;text-align:center;">D</div>
+  </div>
+  <ul class="hc-cluster" style="list-style:none;padding:0;margin:0;">
+    <li><span class="hc-badge">tag-one</span></li>
+    <li><span class="hc-badge">tag-two</span></li>
+    <li><span class="hc-badge">tag-three</span></li>
+    <li><span class="hc-badge">tag-four</span></li>
+  </ul>
+  <div class="hc-sidebar">
+    <nav class="hc-card" style="padding:.75rem;" aria-label="Example">Sidebar</nav>
+    <div class="hc-card" style="padding:.75rem;">Main content keeps its width and wraps the sidebar when space runs out.</div>
+  </div>
+</div>
+
+### [Shell](/hypermedia-components/components/shell/)
+
+A full application shell, scaled into a box here. On a real page it fills
+the viewport and the sidebar collapses to an off-canvas overlay on mobile.
+
+<div class="hc-preview not-content">
+  <div class="hc-shell" style="block-size:15rem;--hc-shell-sidebar-width:9rem;--hc-shell-pad:var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme</strong></header>
+    <nav class="hc-shell__sidebar" aria-label="Demo">
+      <div>Dashboard</div>
+      <div>Orders</div>
+      <div>Settings</div>
+    </nav>
+    <main class="hc-shell__main">Main content scrolls independently of the chrome.</main>
+    <footer class="hc-shell__footer"><small>© Acme</small></footer>
+  </div>
+</div>
+
+### [Table scroll](/hypermedia-components/components/table/) wrapper
+
+A wide table in `.hc-table-scroll` confines the overflow to a scroll strip
+instead of pushing the page sideways. Scroll the strip below.
+
+<div class="hc-preview not-content">
+  <div class="hc-table-scroll" role="region" aria-label="Orders" tabindex="0" style="max-inline-size:22rem;">
+    <table class="hc-table">
+      <thead><tr><th>Order</th><th>Customer</th><th>Email</th><th>Created</th><th>Status</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr><td>#1001</td><td>Ada Lovelace</td><td>ada@example.com</td><td>2026-05-01</td><td>Shipped</td><td>$129.00</td></tr>
+        <tr><td>#1002</td><td>Alan Turing</td><td>alan@example.com</td><td>2026-05-02</td><td>Pending</td><td>$42.50</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 ## See also
 
 - [Components index](/hypermedia-components/components/) — full docs per component.
+- [Fundamentals · Layout utilities](/hypermedia-components/fundamentals/layout/) — the responsive primitives.
+- [Fundamentals · Responsive design](/hypermedia-components/fundamentals/responsive/) — the overall strategy.
 - [Tokens · Themes](/hypermedia-components/tokens/themes/) — the five colour themes.
 - [Tokens · Density](/hypermedia-components/tokens/density/) — comfortable / compact / dense.
