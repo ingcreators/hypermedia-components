@@ -19,7 +19,7 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
 
 <label class="hc-picker" aria-label="Colour theme">
   <span class="hc-picker__label">Color</span>
-  <select id="hc-color-select" aria-label="Colour theme">
+  <select id="hc-color-select" class="hc-select" data-size="sm" aria-label="Colour theme">
     <option value="default">Default</option>
     <option value="indigo">Indigo</option>
     <option value="emerald">Emerald</option>
@@ -30,7 +30,7 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
 
 <label class="hc-picker" aria-label="Density">
   <span class="hc-picker__label">Density</span>
-  <select id="hc-density-select" aria-label="Density">
+  <select id="hc-density-select" class="hc-select" data-size="sm" aria-label="Density">
     <option value="comfortable">Comfortable</option>
     <option value="compact">Compact</option>
     <option value="dense">Dense</option>
@@ -100,21 +100,12 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
     }
   }
 
+  /* The selects are dogfooded through HC's own `.hc-select` (chrome,
+     chevron, focus ring, sizing all come from the component). The only
+     override is layout: `.hc-select` is display:block / inline-size:100%
+     by default, which we don't want in a compact inline navbar. */
   #hc-density-select,
   #hc-color-select {
-    appearance: auto;
-    font: inherit;
-    padding: 0.25rem 0.4rem;
-    background: var(--sl-color-bg);
-    color: var(--sl-color-text);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.25rem;
-    cursor: pointer;
-  }
-
-  #hc-density-select:focus-visible,
-  #hc-color-select:focus-visible {
-    outline: 2px solid var(--sl-color-text-accent);
-    outline-offset: 1px;
+    inline-size: auto;
   }
 </style>
