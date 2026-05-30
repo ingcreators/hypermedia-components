@@ -173,7 +173,7 @@ end
               variant: "error",
               hc_confirm: "Delete #{item.name}?",
               hx_delete: item_path(item),
-              hx_trigger: "confirmed",
+              hx_trigger: "hc:confirmed",
               hx_target: "closest tr",
               hx_swap: "outerHTML",
               hx_disabled_elt: "this",

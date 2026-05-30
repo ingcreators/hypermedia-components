@@ -43,7 +43,7 @@ inline.
 ## Markup
 
 ```html
-<dialog class="hc-command-dialog" data-hc-command-hotkey="k">
+<dialog class="hc-command-dialog" data-hotkey="k">
   <div class="hc-command">
     <input class="hc-command__input" type="text" role="combobox" autofocus
            aria-label="Command menu" placeholder="Type a command…">
@@ -82,12 +82,12 @@ it automatically.
 
 ## Opening with ⌘K
 
-Put `data-hc-command-hotkey="k"` on the `<dialog>` (any single key;
+Put `data-hotkey="k"` on the `<dialog>` (any single key;
 default `k`) and the behavior toggles it with <kbd>⌘</kbd>/<kbd>Ctrl</kbd>
 + the key, focusing the input and resetting the filter on open:
 
 ```html
-<dialog class="hc-command-dialog" data-hc-command-hotkey="k">…</dialog>
+<dialog class="hc-command-dialog" data-hotkey="k">…</dialog>
 ```
 
 The handler calls `preventDefault()` so the browser's own

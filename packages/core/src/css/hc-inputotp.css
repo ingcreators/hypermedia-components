@@ -100,7 +100,7 @@
   .hc-inputotp[data-variant="error"] .hc-inputotp__slot,
   .hc-inputotp[data-invalid] .hc-inputotp__slot,
   .hc-inputotp:has(.hc-inputotp__input[aria-invalid="true"]) .hc-inputotp__slot {
-    border-color: var(--hc-inputotp-invalid-border);
+    border-color: var(--hc-inputotp-error-border);
   }
 
   /* Disabled */

@@ -36,6 +36,6 @@
    * the input itself (defensive — the recommended pattern still sets
    * aria-invalid="true" on the input for accessibility). */
   .hc-field[data-invalid="true"] .hc-input {
-    border-color: var(--hc-input-invalid-border);
+    border-color: var(--hc-input-error-border);
   }
 }

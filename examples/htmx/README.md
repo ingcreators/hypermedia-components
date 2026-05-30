@@ -34,8 +34,8 @@ PORT=5001 pnpm start
   `data-hx-trigger="input changed delay:200ms, search"` filters the
   items table.
 - **Items table with confirm-action** — every row's Delete button
-  uses `data-hc-confirm` + `data-hx-trigger="confirmed"`. The
-  confirm-action behavior shows a modal and re-emits a `confirmed`
+  uses `data-hc-confirm` + `data-hx-trigger="hc:confirmed"`. The
+  confirm-action behavior shows a modal and re-emits a `hc:confirmed`
   event so htmx fires `DELETE /items/:id`.
 - **Add form with request-action** — `<form data-hx-post="/items"
   data-hx-target="#items-tbody" data-hx-swap="beforeend">`. The

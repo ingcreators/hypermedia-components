@@ -91,7 +91,7 @@ A row partial reused by both the full list and per-row swaps:
         type="button"
         data-hc-confirm="Delete {{.Name}}?"
         data-hx-delete="/items/{{.ID}}"
-        data-hx-trigger="confirmed"
+        data-hx-trigger="hc:confirmed"
         data-hx-target="closest tr"
         data-hx-swap="outerHTML"
         data-hx-disabled-elt="this"

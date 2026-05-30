@@ -3,9 +3,9 @@
 // Contract (plan §13.2):
 //   1. Intercept clicks on elements with `data-hc-confirm`.
 //   2. Show a shared modal dialog with the message.
-//   3. If the user confirms, dispatch a bubbling `confirmed` event on
+//   3. If the user confirms, dispatch a bubbling `hc:confirmed` event on
 //      the original element.
-//   4. htmx — listening for `data-hx-trigger="confirmed"` — fires the
+//   4. htmx — listening for `data-hx-trigger="hc:confirmed"` — fires the
 //      request. The behavior does not wrap fetch().
 //
 // installConfirm() returns an `uninstall` function that removes the
@@ -46,8 +46,8 @@ function buildDialog(ownerDocument) {
  *
  * On every click of an element with `data-hc-confirm`, the behavior
  * shows a shared `<dialog class="hc-confirm-dialog">`. If the user
- * confirms, the original element receives a bubbling `confirmed`
- * event so htmx (listening via `data-hx-trigger="confirmed"`) fires
+ * confirms, the original element receives a bubbling `hc:confirmed`
+ * event so htmx (listening via `data-hx-trigger="hc:confirmed"`) fires
  * the request.
  *
  * The shared dialog is created lazily on first use, reused between
@@ -90,7 +90,7 @@ export function installConfirm(root = (typeof document !== 'undefined' ? documen
         pendingSource = null;
         if (!source) return;
         if (result === 'confirm') {
-          source.dispatchEvent(new CustomEvent('confirmed', { bubbles: true }));
+          source.dispatchEvent(new CustomEvent('hc:confirmed', { bubbles: true }));
         }
       });
 
@@ -104,7 +104,7 @@ export function installConfirm(root = (typeof document !== 'undefined' ? documen
     if (!source) return;
 
     // Block the original interaction — htmx (or a default form submit)
-    // must not fire yet. If the user confirms we re-emit as `confirmed`.
+    // must not fire yet. If the user confirms we re-emit as `hc:confirmed`.
     event.preventDefault();
     event.stopPropagation();
 

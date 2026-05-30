@@ -101,11 +101,11 @@
   }
 
   .hc-datepicker[data-variant="error"] {
-    border-color: var(--hc-datepicker-invalid-border);
+    border-color: var(--hc-datepicker-error-border);
   }
 
   .hc-datepicker[aria-invalid="true"] {
-    border-color: var(--hc-datepicker-invalid-border);
+    border-color: var(--hc-datepicker-error-border);
   }
 
   .hc-datepicker[aria-invalid="true"]:focus-visible {
