@@ -176,8 +176,30 @@ function attach(grid, detachers) {
   }
 
   function onKeydown(event) {
+    if (editingCell) return; // the editor handles its own keys
     if (!matrix.length) return;
     const { r, c } = active;
+    const activeCell = matrix[r]?.[c];
+    const editable =
+      activeCell?.hasAttribute('data-editable') &&
+      templates.has(activeCell.dataset.col);
+    if (editable && (event.key === 'Enter' || event.key === 'F2')) {
+      event.preventDefault();
+      startEdit(activeCell);
+      return;
+    }
+    if (
+      editable &&
+      event.key.length === 1 &&
+      event.key !== ' ' &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey
+    ) {
+      event.preventDefault();
+      startEdit(activeCell, event.key); // type-to-edit (Excel-style)
+      return;
+    }
     switch (event.key) {
       case 'ArrowDown': setActive(r + 1, c); break;
       case 'ArrowUp': setActive(r - 1, c); break;
@@ -243,12 +265,148 @@ function attach(grid, detachers) {
     emitSelection();
   }
 
+  // ---- Inline editing ----
+  // Editable columns declare a <template data-datagrid-editor data-col="…">
+  // holding an HC form control (hc-input / hc-select / hc-combobox). On
+  // activation the template is cloned into the cell; on commit the value is
+  // written back and `hc:datagridedit` is dispatched (htmx persists).
+  const templates = new Map();
+  for (const t of grid.querySelectorAll('template[data-datagrid-editor]')) {
+    if (t.dataset.col) templates.set(t.dataset.col, t);
+  }
+  let editingCell = null;
+  let pendingCombo = null;
+
+  function editorControl(rootEl) {
+    return rootEl.matches('input, select, textarea')
+      ? rootEl
+      : rootEl.querySelector('input, select, textarea');
+  }
+
+  function readEditor(rootEl) {
+    if (pendingCombo) return pendingCombo;
+    const ctrl = editorControl(rootEl);
+    if (!ctrl) return { value: '', label: '' };
+    if (ctrl.tagName === 'SELECT') {
+      return {
+        value: ctrl.value,
+        label: ctrl.selectedOptions[0]?.textContent?.trim() ?? ctrl.value,
+      };
+    }
+    return { value: ctrl.value, label: ctrl.value };
+  }
+
+  function endEdit(restore) {
+    if (!editingCell) return;
+    const cell = editingCell;
+    editingCell = null;
+    cell.removeAttribute('data-editing');
+    const oldValue = cell.__hcOldValue;
+    let detail = null;
+    if (restore) {
+      cell.innerHTML = cell.__hcOldHTML;
+    } else {
+      const { value, label } = readEditor(cell.firstElementChild ?? cell);
+      cell.textContent = label;
+      if (value != null && value !== '') cell.dataset.value = value;
+      if (value !== oldValue) {
+        detail = { cell, col: cell.dataset.col, value, label, oldValue };
+      }
+    }
+    delete cell.__hcOldValue;
+    delete cell.__hcOldHTML;
+    pendingCombo = null;
+    cell.tabIndex = 0;
+    cell.focus();
+    if (detail) {
+      grid.dispatchEvent(
+        new CustomEvent('hc:datagridedit', { bubbles: true, detail }),
+      );
+    }
+  }
+  const commitEdit = () => endEdit(false);
+  const cancelEdit = () => endEdit(true);
+
+  function onEditorKeydown(event) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      cancelEdit();
+    } else if (event.key === 'Enter' && !event.shiftKey) {
+      // A combobox owns Enter (it picks the active option and commits via
+      // hc:comboboxselect) — don't double-handle it here.
+      if (!event.target.closest('.hc-combobox')) {
+        event.preventDefault();
+        event.stopPropagation();
+        commitEdit();
+      }
+    }
+  }
+  function onEditorSelect(event) {
+    pendingCombo = { value: event.detail.value, label: event.detail.label };
+    commitEdit();
+  }
+  function onEditorFocusout() {
+    setTimeout(() => {
+      if (editingCell && !editingCell.contains(document.activeElement)) {
+        commitEdit();
+      }
+    }, 0);
+  }
+
+  function startEdit(cell, seedChar) {
+    if (!cell || !cell.hasAttribute('data-editable')) return;
+    const tpl = templates.get(cell.dataset.col);
+    if (!tpl) return;
+    if (editingCell) commitEdit();
+
+    const oldLabel = cell.textContent.trim();
+    const oldValue = cell.dataset.value ?? oldLabel;
+    cell.__hcOldValue = oldValue;
+    cell.__hcOldHTML = cell.innerHTML;
+
+    const clone = tpl.content.firstElementChild.cloneNode(true);
+    const isCombobox = clone.classList?.contains('hc-combobox');
+    cell.setAttribute('data-editing', '');
+    cell.replaceChildren(clone);
+    editingCell = cell;
+    pendingCombo = null;
+
+    const ctrl = editorControl(clone);
+    if (ctrl) {
+      if (ctrl.tagName === 'SELECT') ctrl.value = oldValue;
+      else if (isCombobox) ctrl.value = oldLabel;
+      else ctrl.value = seedChar != null ? seedChar : oldLabel;
+    }
+
+    clone.addEventListener('keydown', onEditorKeydown);
+    clone.addEventListener('focusout', onEditorFocusout);
+    if (isCombobox) clone.addEventListener('hc:comboboxselect', onEditorSelect);
+
+    (ctrl ?? clone).focus();
+    if (seedChar != null && ctrl && ctrl.tagName === 'INPUT') {
+      ctrl.value = seedChar;
+      ctrl.setSelectionRange?.(ctrl.value.length, ctrl.value.length);
+    }
+  }
+
+  function onDblclick(event) {
+    const cell = event.target.closest?.('.hc-datagrid__cell');
+    if (!cell || !grid.contains(cell)) return;
+    const pos = locate(cell);
+    if (pos) {
+      setActive(pos.r, pos.c, false);
+      startEdit(cell);
+    }
+  }
+
   rebuild();
   measure(grid);
 
   table.addEventListener('keydown', onKeydown);
   table.addEventListener('change', onChange);
   table.addEventListener('focusin', onFocusin);
+  table.addEventListener('dblclick', onDblclick);
 
   let ro = null;
   if (typeof ResizeObserver !== 'undefined') {
@@ -269,6 +427,7 @@ function attach(grid, detachers) {
     table.removeEventListener('keydown', onKeydown);
     table.removeEventListener('change', onChange);
     table.removeEventListener('focusin', onFocusin);
+    table.removeEventListener('dblclick', onDblclick);
     if (ro) ro.disconnect();
     if (mo) mo.disconnect();
   });

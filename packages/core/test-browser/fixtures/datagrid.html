@@ -11,6 +11,27 @@
   <!-- Constrained box so both axes scroll, exercising sticky header + frozen columns.
        Frozen columns set fixed widths and matching --hc-datagrid-left offsets. -->
   <div class="hc-datagrid" data-testid="grid" style="--hc-datagrid-max-height: 180px; max-inline-size: 460px;">
+    <template data-datagrid-editor data-col="alpha">
+      <input class="hc-input" type="text" aria-label="Alpha value">
+    </template>
+    <template data-datagrid-editor data-col="beta">
+      <select class="hc-select" aria-label="Beta value">
+        <option value="x">X</option>
+        <option value="y">Y</option>
+        <option value="z">Z</option>
+      </select>
+    </template>
+    <template data-datagrid-editor data-col="gamma">
+      <div class="hc-combobox">
+        <input class="hc-combobox__input hc-input" type="text" role="combobox"
+               aria-haspopup="listbox" aria-controls="dg-gamma-list" aria-label="Gamma code" autocomplete="off">
+        <ul class="hc-combobox__listbox" id="dg-gamma-list" role="listbox" popover>
+          <li class="hc-combobox__option" role="option" data-value="001">コードA</li>
+          <li class="hc-combobox__option" role="option" data-value="002">コードB</li>
+          <li class="hc-combobox__option" role="option" data-value="003">コードC</li>
+        </ul>
+      </div>
+    </template>
     <div class="hc-datagrid__scroll" data-testid="scroll">
       <table class="hc-datagrid__table">
         <thead class="hc-datagrid__head">
@@ -49,7 +70,11 @@
         + '<input type="checkbox" class="hc-checkbox" aria-label="Select row ' + r + '"></td>';
       html += '<th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" '
         + 'style="--hc-datagrid-left:36px;width:56px;" data-testid="cell-id-' + r + '">' + r + '</th>';
-      for (const c of ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta']) {
+      // Alpha = editable text, Beta = editable select, Gamma = editable combobox.
+      html += '<td class="hc-datagrid__cell" data-testid="cell-Alpha-' + r + '" data-editable data-col="alpha">Alpha ' + r + '</td>';
+      html += '<td class="hc-datagrid__cell" data-testid="cell-Beta-' + r + '" data-editable data-col="beta" data-value="x">X</td>';
+      html += '<td class="hc-datagrid__cell" data-testid="cell-Gamma-' + r + '" data-editable data-col="gamma" data-value="001">コードA</td>';
+      for (const c of ['Delta', 'Epsilon', 'Zeta']) {
         html += '<td class="hc-datagrid__cell" data-testid="cell-' + c + '-' + r + '">'
           + c + ' value ' + r + ' (wide content)</td>';
       }

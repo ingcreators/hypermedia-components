@@ -11,12 +11,6 @@ renders it. It is deliberately **not** a client-side virtual-scroll /
 sort / filter engine: sorting, filtering, and persistence stay on the
 server (htmx), and the cell editors are just existing HC form controls.
 
-:::note[Phased delivery]
-The CSS layout **and** `installDatagrid()` (keyboard cell navigation,
-row selection, and automatic sticky-offset measurement) are shipped.
-Inline cell **editing** — per-column `<template>` editors mounted on
-activation — is the remaining phase.
-:::
 
 ## Browser baseline
 
@@ -171,22 +165,61 @@ State is expressed with attributes, styled by the component:
 ## Inline editing
 
 Editing reuses existing HC form controls rather than a bespoke editor
-engine. An editable column declares a `<template>` holding the control;
-`installDatagrid()` clones it into the cell on activation, seeds the
-value, focuses it, and on commit writes the value back and dispatches
-`hc:datagridedit` — which htmx can listen for to persist:
+engine. An **editable cell** carries `data-editable` and a `data-col`
+naming its column (and, for coded values, a `data-value`). The column's
+editor is a `<template data-datagrid-editor data-col="…">` holding the
+control; `installDatagrid()` clones it into the cell on activation, seeds
+it from the cell's current value, and focuses it:
 
 ```html
-<template data-datagrid-editor data-col="code">
-  <!-- a searchable select, reusing hc-combobox -->
-  <div class="hc-combobox">…</div>
-</template>
+<div class="hc-datagrid">
+  <template data-datagrid-editor data-col="qty">
+    <input class="hc-input" type="text" aria-label="Quantity">
+  </template>
+  <template data-datagrid-editor data-col="code">
+    <!-- a searchable select, reusing hc-combobox -->
+    <div class="hc-combobox">
+      <input class="hc-combobox__input hc-input" role="combobox"
+             aria-controls="code-list" aria-haspopup="listbox" autocomplete="off">
+      <ul class="hc-combobox__listbox" id="code-list" role="listbox" popover>
+        <li class="hc-combobox__option" role="option" data-value="001">コードA</li>
+        <li class="hc-combobox__option" role="option" data-value="002">コードB</li>
+      </ul>
+    </div>
+  </template>
+
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <!-- … -->
+      <td class="hc-datagrid__cell" data-editable data-col="qty">3</td>
+      <td class="hc-datagrid__cell" data-editable data-col="code" data-value="001">コードA</td>
+    </table>
+  </div>
+</div>
 ```
 
 Map editor types to the controls you already use: text → `hc-input`,
 date → `hc-input[type=date]`, select → `hc-select`, searchable select →
-`hc-combobox`. (Activation, commit, and the event are part of the
-forthcoming behavior.)
+`hc-combobox`. (The combobox's listbox uses `popover`, so its dropdown
+escapes the grid's scroll clipping.)
+
+**Activation:** `Enter` / `F2` / double-click the active editable cell, or
+just start typing (the first character seeds the editor, Excel-style).
+**Commit:** `Enter`, moving focus out of the cell, or — for a combobox —
+picking an option. **Cancel:** `Escape` (restores the original value).
+
+On commit the value is written back (`data-value` + the cell's display
+text) and the grid dispatches **`hc:datagridedit`** with
+`detail: { cell, col, value, label, oldValue }`. Persist it with htmx —
+e.g. on the row or grid:
+
+```html
+<tbody class="hc-datagrid__body"
+       data-hx-trigger="hc:datagridedit"
+       data-hx-patch="/rows" data-hx-include="closest tr">
+  …
+</tbody>
+```
 
 ## CSS variables
 

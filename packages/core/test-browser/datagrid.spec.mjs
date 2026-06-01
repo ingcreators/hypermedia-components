@@ -126,3 +126,68 @@ test.describe('hc-datagrid — keyboard & selection (installDatagrid)', () => {
     await expect(page.getByTestId('row-14')).toHaveAttribute('aria-selected', 'true');
   });
 });
+
+test.describe('hc-datagrid — inline editing (installDatagrid)', () => {
+  test('double-click a text cell, edit, Enter commits + emits hc:datagridedit', async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      window.__edits = [];
+      document
+        .querySelector('.hc-datagrid')
+        .addEventListener('hc:datagridedit', (e) => window.__edits.push(e.detail));
+    });
+    const cell = page.getByTestId('cell-Alpha-1');
+    await cell.dblclick();
+    const input = cell.locator('input');
+    await input.fill('Edited!');
+    await input.press('Enter');
+
+    await expect(cell).toHaveText('Edited!');
+    const edits = await page.evaluate(() => window.__edits);
+    expect(edits.length).toBe(1);
+    expect(edits[0]).toMatchObject({ value: 'Edited!', col: 'alpha' });
+  });
+
+  test('F2 edits a select cell; choosing an option updates value + label', async ({
+    page,
+  }) => {
+    const cell = page.getByTestId('cell-Beta-2');
+    await cell.focus();
+    await page.keyboard.press('F2');
+    const select = cell.locator('select');
+    await select.selectOption('y');
+    await select.press('Enter');
+    await expect(cell).toHaveText('Y');
+    await expect(cell).toHaveAttribute('data-value', 'y');
+  });
+
+  test('a combobox cell commits the picked code + label (hc:comboboxselect)', async ({
+    page,
+  }) => {
+    const cell = page.getByTestId('cell-Gamma-1');
+    await cell.dblclick();
+    await expect(cell.locator('.hc-combobox')).toBeVisible();
+    // Drive the combobox's own selection event (full search UI is covered by
+    // the combobox specs); this checks the grid's commit path.
+    await cell.locator('.hc-combobox').evaluate((el) => {
+      el.dispatchEvent(
+        new CustomEvent('hc:comboboxselect', {
+          bubbles: true,
+          detail: { value: '002', label: 'コードB' },
+        }),
+      );
+    });
+    await expect(cell).toHaveText('コードB');
+    await expect(cell).toHaveAttribute('data-value', '002');
+  });
+
+  test('Escape cancels an edit and restores the cell', async ({ page }) => {
+    const cell = page.getByTestId('cell-Alpha-3');
+    const before = await cell.textContent();
+    await cell.dblclick();
+    await cell.locator('input').fill('discard me');
+    await cell.locator('input').press('Escape');
+    await expect(cell).toHaveText(before.trim());
+  });
+});
