@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-datagrid fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <!-- Constrained box so both axes scroll, exercising sticky header + frozen columns.
+       Frozen columns set fixed widths and matching --hc-datagrid-left offsets. -->
+  <div class="hc-datagrid" data-testid="grid" style="--hc-datagrid-max-height: 180px; max-inline-size: 460px;">
+    <div class="hc-datagrid__scroll" data-testid="scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen rowspan="2"
+                style="--hc-datagrid-left: 0; width: 36px;" scope="col" data-testid="corner-check">
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2"
+                style="--hc-datagrid-left: 36px; width: 56px;" scope="col" data-testid="corner-id">ID</th>
+            <th class="hc-datagrid__headcell" colspan="3" data-testid="group-a">Group A</th>
+            <th class="hc-datagrid__headcell" colspan="3">Group B</th>
+          </tr>
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col" data-testid="leaf-a1">Alpha</th>
+            <th class="hc-datagrid__headcell" scope="col">Beta</th>
+            <th class="hc-datagrid__headcell" scope="col">Gamma</th>
+            <th class="hc-datagrid__headcell" scope="col">Delta</th>
+            <th class="hc-datagrid__headcell" scope="col">Epsilon</th>
+            <th class="hc-datagrid__headcell" scope="col">Zeta</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="grid-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Build 14 rows so the body scrolls vertically; wide cells force
+    // horizontal scroll.
+    const body = document.getElementById('grid-body');
+    let html = '';
+    for (let r = 1; r <= 14; r += 1) {
+      html += '<tr class="hc-datagrid__row" data-testid="row-' + r + '">';
+      html += '<td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;width:36px;">'
+        + '<input type="checkbox" class="hc-checkbox" aria-label="Select row ' + r + '"></td>';
+      html += '<th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" '
+        + 'style="--hc-datagrid-left:36px;width:56px;" data-testid="cell-id-' + r + '">' + r + '</th>';
+      for (const c of ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta']) {
+        html += '<td class="hc-datagrid__cell" data-testid="cell-' + c + '-' + r + '">'
+          + c + ' value ' + r + ' (wide content)</td>';
+      }
+      html += '</tr>';
+    }
+    body.innerHTML = html;
+  </script>
+</body>
+</html>

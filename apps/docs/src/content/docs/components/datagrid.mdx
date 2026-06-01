@@ -1,0 +1,195 @@
+---
+title: Datagrid
+description: An interactive, Excel-like data grid — multi-level sticky headers, frozen columns, row selection, keyboard cell navigation, and inline editing — built on a semantic table and position:sticky. For paged data, not a client-side grid framework.
+---
+
+`hc-datagrid` is the heavy-duty grid for business screens: a semantic
+`<table>` with **multi-level sticky headers**, **frozen columns**, row
+selection, keyboard cell navigation, and inline editing. It is built for
+**paged** data — htmx loads a page (tens/hundreds of rows) and the grid
+renders it. It is deliberately **not** a client-side virtual-scroll /
+sort / filter engine: sorting, filtering, and persistence stay on the
+server (htmx), and the cell editors are just existing HC form controls.
+
+:::note[Phased delivery]
+This page documents the **CSS layer** (sticky headers, frozen columns,
+state styling, the editing-cell slot). The `installDatagrid()` behavior —
+keyboard cell navigation (the WAI-ARIA *grid* pattern), row-selection
+wiring, inline-edit activation, and automatic measurement of the sticky
+offsets — ships next. Until then, set the offset variables yourself (see
+below).
+:::
+
+## Browser baseline
+
+| Primitive | Status |
+| --- | --- |
+| `position: sticky` (headers + frozen columns) | Baseline (all evergreen browsers) |
+| `:has()` (optional, for adaptive layout) | Baseline 2023 |
+
+## Structure
+
+A standard `<table>` inside a scroll viewport. Group / sub / leaf headers
+are ordinary `<thead>` rows with `colspan`; frozen columns carry
+`data-frozen` (and `data-frozen-edge` on the last one, which casts the
+freeze line). Scroll the demo horizontally — the checkbox and **ID**
+columns stay pinned:
+
+<div class="hc-preview not-content">
+  <div class="hc-datagrid" style="max-inline-size: 32rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col" style="--hc-datagrid-left:0;width:44px;"><input type="checkbox" class="hc-checkbox" aria-label="Select all" /></th>
+            <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col" style="--hc-datagrid-left:44px;width:56px;">ID</th>
+            <th class="hc-datagrid__headcell" colspan="3">Group A</th>
+            <th class="hc-datagrid__headcell" colspan="3">Group B</th>
+          </tr>
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Alpha</th>
+            <th class="hc-datagrid__headcell" scope="col">Beta</th>
+            <th class="hc-datagrid__headcell" scope="col">Gamma</th>
+            <th class="hc-datagrid__headcell" scope="col">Delta</th>
+            <th class="hc-datagrid__headcell" scope="col">Epsilon</th>
+            <th class="hc-datagrid__headcell" scope="col">Zeta</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row" aria-selected="true">
+            <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;width:44px;"><input type="checkbox" class="hc-checkbox" checked aria-label="Select row 1" /></td>
+            <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left:44px;width:56px;">1</th>
+            <td class="hc-datagrid__cell" data-highlight>456 (wide content)</td>
+            <td class="hc-datagrid__cell" data-highlight>789 (wide content)</td>
+            <td class="hc-datagrid__cell">long value here</td>
+            <td class="hc-datagrid__cell">456</td>
+            <td class="hc-datagrid__cell">789</td>
+            <td class="hc-datagrid__cell">789</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;width:44px;"><input type="checkbox" class="hc-checkbox" aria-label="Select row 2" /></td>
+            <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left:44px;width:56px;">2</th>
+            <td class="hc-datagrid__cell" data-highlight>457 (wide content)</td>
+            <td class="hc-datagrid__cell" data-highlight>790 (wide content)</td>
+            <td class="hc-datagrid__cell">another value</td>
+            <td class="hc-datagrid__cell">457</td>
+            <td class="hc-datagrid__cell">790</td>
+            <td class="hc-datagrid__cell">790</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+```html
+<div class="hc-datagrid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col">…</th>
+          <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col">ID</th>
+          <th class="hc-datagrid__headcell" colspan="3">Group A</th>
+          <th class="hc-datagrid__headcell" colspan="3">Group B</th>
+        </tr>
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Alpha</th>
+          <!-- …leaf headers… -->
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell" data-frozen>…</td>
+          <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">1</th>
+          <td class="hc-datagrid__cell">…</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+```
+
+## Sticky offsets
+
+`position: sticky` needs to know *where* to stick: each header level's
+`top` and each frozen column's `left`. Those come from CSS variables so
+they can be set to the real rendered sizes:
+
+| Variable | On | Meaning |
+| --- | --- | --- |
+| `--hc-datagrid-head-1-h` | `.hc-datagrid` | Height of the group (1st) header row — the `top` offset of the 2nd row. |
+| `--hc-datagrid-head-2-h` | `.hc-datagrid` | Height of the sub (2nd) header row — added for the 3rd row's offset. |
+| `--hc-datagrid-left` | each frozen cell | The cell's `left` offset = total width of the frozen columns before it. |
+
+`installDatagrid()` will **measure and set these automatically**. For a
+static grid, set them yourself: give the frozen columns fixed widths and
+set each frozen cell's `--hc-datagrid-left` to the cumulative width, and
+set `--hc-datagrid-head-1-h` to the group-row height (as in the demo
+above).
+
+## States
+
+State is expressed with attributes, styled by the component:
+
+| Attribute | On | Effect |
+| --- | --- | --- |
+| `aria-selected="true"` | `.hc-datagrid__row` | Selected-row background. |
+| `data-active` | `.hc-datagrid__cell` | Active-cell focus ring (set by the keyboard behavior). |
+| `data-highlight` | `.hc-datagrid__cell` | Column / cell highlight band. |
+| `data-editing` | `.hc-datagrid__cell` | Edit mode — padding drops so the editor fills the cell. |
+
+## Inline editing
+
+Editing reuses existing HC form controls rather than a bespoke editor
+engine. An editable column declares a `<template>` holding the control;
+`installDatagrid()` clones it into the cell on activation, seeds the
+value, focuses it, and on commit writes the value back and dispatches
+`hc:datagridedit` — which htmx can listen for to persist:
+
+```html
+<template data-datagrid-editor data-col="code">
+  <!-- a searchable select, reusing hc-combobox -->
+  <div class="hc-combobox">…</div>
+</template>
+```
+
+Map editor types to the controls you already use: text → `hc-input`,
+date → `hc-input[type=date]`, select → `hc-select`, searchable select →
+`hc-combobox`. (Activation, commit, and the event are part of the
+forthcoming behavior.)
+
+## CSS variables
+
+Colours and spacing come from the shared tokens, so the grid follows the
+active theme / density / colour. Override the `--hc-datagrid-*` knobs for
+a custom look (the blue headers / tinted columns seen in admin apps are
+just overrides).
+
+| Variable | Default |
+| --- | --- |
+| `--hc-datagrid-bg` | `--hc-color-surface` |
+| `--hc-datagrid-head-bg` | `--hc-color-muted-bg` |
+| `--hc-datagrid-border` | `--hc-color-border` |
+| `--hc-datagrid-frozen-bg` | `--hc-color-surface` |
+| `--hc-datagrid-selected-bg` | `--hc-color-action-primary-soft-bg` |
+| `--hc-datagrid-highlight-bg` | `--hc-color-action-primary-soft-bg` |
+| `--hc-datagrid-max-height` | `70vh` |
+
+## Accessibility
+
+- It is a real `<table>` with `<thead>` / `<tbody>`, `scope` on header
+  cells, and `aria-label`s on the row-select checkboxes — so it is
+  meaningful without any script.
+- Full keyboard cell navigation follows the
+  [WAI-ARIA grid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/grid/)
+  and arrives with `installDatagrid()`.
+- The scroll viewport contains focusable controls (the checkboxes), so it
+  is keyboard-reachable.
+
+## Related
+
+- [Table](/hypermedia-components/components/table/) — the static semantic
+  table for simple, non-interactive data.
+- [Layout utilities](/hypermedia-components/fundamentals/layout/) ·
+  [Responsive design](/hypermedia-components/fundamentals/responsive/).
