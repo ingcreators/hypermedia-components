@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-datagrid vertical-header fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <div class="hc-datagrid" data-testid="grid" style="max-inline-size: 520px;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col" data-testid="h-name">Name</th>
+            <th class="hc-datagrid__headcell" data-orientation="vertical" scope="col" data-testid="vh-1">Very long vertical header label that would otherwise be wide</th>
+            <th class="hc-datagrid__headcell" data-orientation="sideways" scope="col" data-testid="vh-sideways">Sideways header label reading bottom to top</th>
+            <th class="hc-datagrid__headcell" scope="col">Notes</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">Alice</td>
+            <td class="hc-datagrid__cell" data-testid="vcell-1">1</td>
+            <td class="hc-datagrid__cell">2</td>
+            <td class="hc-datagrid__cell">ok</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">Bob</td>
+            <td class="hc-datagrid__cell">3</td>
+            <td class="hc-datagrid__cell">4</td>
+            <td class="hc-datagrid__cell">ok</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
