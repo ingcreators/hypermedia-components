@@ -170,6 +170,35 @@ Firefox; verify your Safari target). For full control set
 Keep any group / sub header above it horizontal; only the leaf row should be
 rotated so the sticky stacking stays simple.
 
+## Column resize
+
+Mark a column resizable with `data-resizable` + `data-col` on its header,
+and the matching `data-col` on that column's body cells. `installDatagrid()`
+adds a grip at the header's right edge: **drag** it, or focus it and use the
+**arrow keys** (`Shift` for a larger step). Only that column becomes
+fixed-width (and clips with an ellipsis); other columns keep their
+content-based width.
+
+```html
+<thead class="hc-datagrid__head">
+  <tr>
+    <th class="hc-datagrid__headcell" data-resizable data-col="name" scope="col">Name</th>
+    <th class="hc-datagrid__headcell" scope="col">Fixed</th>
+  </tr>
+</thead>
+<tbody class="hc-datagrid__body">
+  <tr class="hc-datagrid__row">
+    <td class="hc-datagrid__cell" data-col="name">Chai…</td>
+    <td class="hc-datagrid__cell">x</td>
+  </tr>
+</tbody>
+```
+
+On each change the grid dispatches **`hc:datagridcolumnresize`**
+(`detail: { col, width }`) — persist the width with htmx or `localStorage`
+and write it back as the column's cell widths on the next render. The grip
+is a keyboard-operable `role="separator"` with `aria-valuenow`.
+
 ## Behavior — `installDatagrid()`
 
 ```js

@@ -126,6 +126,36 @@
     --hc-datagrid-head-writing-mode: sideways-lr;
   }
 
+  /* ---- Column resize ---- */
+
+  /* installDatagrid() appends a .hc-datagrid__resizer grip to each
+     `data-resizable` header; dragging it (or arrow keys) sets the column
+     width on every cell sharing the header's `data-col`, which then clips. */
+  .hc-datagrid__resizer {
+    /* Reset to horizontal so the insets resolve to the visual right edge
+       even on a vertical-writing-mode header. */
+    writing-mode: horizontal-tb;
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: 7px;
+    cursor: col-resize;
+    touch-action: none;
+    background-color: transparent;
+  }
+
+  .hc-datagrid__resizer:hover,
+  .hc-datagrid__resizer:focus-visible {
+    background-color: var(--hc-color-focus-ring);
+    outline: none;
+  }
+
+  .hc-datagrid__cell[data-resized],
+  .hc-datagrid__headcell[data-resized] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   /* ---- Frozen (sticky-left) columns ---- */
   .hc-datagrid__cell[data-frozen],
   .hc-datagrid__headcell[data-frozen] {

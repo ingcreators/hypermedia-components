@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-datagrid column-resize fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <div class="hc-datagrid" data-testid="grid" style="max-inline-size: 560px;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-resizable data-col="name" scope="col" data-testid="h-name">Name</th>
+            <th class="hc-datagrid__headcell" data-resizable data-col="desc" scope="col" data-testid="h-desc">Description</th>
+            <th class="hc-datagrid__headcell" scope="col" data-testid="h-fixed">Fixed</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-col="name" data-testid="c-name-1">Chai with a fairly long value here</td>
+            <td class="hc-datagrid__cell" data-col="desc">A long description that should clip when the column is narrowed</td>
+            <td class="hc-datagrid__cell">x</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-col="name">Chang</td>
+            <td class="hc-datagrid__cell" data-col="desc">Another description</td>
+            <td class="hc-datagrid__cell">y</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

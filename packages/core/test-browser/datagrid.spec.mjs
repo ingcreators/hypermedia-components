@@ -376,3 +376,73 @@ test.describe('hc-datagrid — expandable row detail', () => {
     expect(results.violations).toEqual([]);
   });
 });
+
+test.describe('hc-datagrid — column resize', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/datagrid-resize.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(
+      () =>
+        document.querySelector('[data-testid="grid"] .hc-datagrid__table')
+          ?.getAttribute('role') === 'grid',
+    );
+  });
+
+  test('a resize handle is added to resizable headers only', async ({ page }) => {
+    await expect(
+      page.getByTestId('h-name').locator('.hc-datagrid__resizer'),
+    ).toHaveAttribute('role', 'separator');
+    expect(
+      await page.getByTestId('h-fixed').locator('.hc-datagrid__resizer').count(),
+    ).toBe(0);
+  });
+
+  test('dragging the handle widens the column and emits the event', async ({ page }) => {
+    await page.evaluate(() => {
+      window.__resizes = [];
+      document
+        .querySelector('.hc-datagrid')
+        .addEventListener('hc:datagridcolumnresize', (e) => window.__resizes.push(e.detail));
+    });
+    const cell = page.getByTestId('c-name-1');
+    const before = await cell.evaluate((el) => el.getBoundingClientRect().width);
+    const box = await page.getByTestId('h-name').locator('.hc-datagrid__resizer').boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 90, box.y + box.height / 2, { steps: 6 });
+    await page.mouse.up();
+    const after = await cell.evaluate((el) => el.getBoundingClientRect().width);
+    expect(after).toBeGreaterThan(before + 40);
+    const resizes = await page.evaluate(() => window.__resizes);
+    expect(resizes.length).toBeGreaterThan(0);
+    expect(resizes.at(-1).col).toBe('name');
+  });
+
+  test('arrow keys on the handle resize the column', async ({ page }) => {
+    const cell = page.getByTestId('c-name-1');
+    const before = await cell.evaluate((el) => el.getBoundingClientRect().width);
+    await page.getByTestId('h-name').locator('.hc-datagrid__resizer').focus();
+    await page.keyboard.press('Shift+ArrowRight');
+    await page.keyboard.press('Shift+ArrowRight');
+    const after = await cell.evaluate((el) => el.getBoundingClientRect().width);
+    expect(after).toBeGreaterThan(before);
+  });
+
+  test('narrowing a column clips its cells', async ({ page }) => {
+    await page.getByTestId('h-name').locator('.hc-datagrid__resizer').focus();
+    for (let i = 0; i < 20; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await page.keyboard.press('Shift+ArrowLeft');
+    }
+    const { resized, overflow } = await page.getByTestId('c-name-1').evaluate((el) => ({
+      resized: el.hasAttribute('data-resized'),
+      overflow: el.scrollWidth > el.clientWidth + 1,
+    }));
+    expect(resized).toBe(true);
+    expect(overflow).toBe(true);
+  });
+
+  test('axe finds no violations', async ({ page }) => {
+    const results = await new AxeBuilder({ page }).include('[data-testid="grid"]').analyze();
+    expect(results.violations).toEqual([]);
+  });
+});
