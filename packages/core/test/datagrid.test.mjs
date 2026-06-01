@@ -45,6 +45,10 @@ function press(el, key, opts = {}) {
   );
 }
 
+function click(el) {
+  el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+}
+
 const $ = (id) => document.getElementById(id);
 
 beforeEach(() => {
@@ -342,5 +346,75 @@ describe('installDatagrid — multi-row records', () => {
     press($('r1b').querySelector('[data-active]'), 'ArrowDown'); // into record 2
     expect($('rec-2').hasAttribute('data-current')).toBe(true);
     expect($('rec-1').hasAttribute('data-current')).toBe(false);
+  });
+});
+
+const FIXTURE_DETAIL = `
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head"><tr>
+          <th class="hc-datagrid__headcell" scope="col"></th>
+          <th class="hc-datagrid__headcell" scope="col">Category</th>
+        </tr></thead>
+        <tbody class="hc-datagrid__record" id="rec-1">
+          <tr class="hc-datagrid__row" id="main-1">
+            <td class="hc-datagrid__cell" id="toggle-cell">
+              <button class="hc-datagrid__toggle" data-hc-datagrid-toggle type="button" aria-label="Toggle"></button>
+            </td>
+            <td class="hc-datagrid__cell">Beverages</td>
+          </tr>
+          <tr class="hc-datagrid__detail-row" id="detail-1">
+            <td class="hc-datagrid__detail" colspan="2"><p>Soft drinks, coffees…</p></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+`;
+
+describe('installDatagrid — expandable row detail', () => {
+  const btn = () => $('toggle-cell').querySelector('button');
+
+  it('starts collapsed with ARIA wired', () => {
+    document.body.innerHTML = FIXTURE_DETAIL;
+    uninstall = installDatagrid();
+    expect($('detail-1').hidden).toBe(true);
+    expect(btn().getAttribute('aria-expanded')).toBe('false');
+    const cellId = $('detail-1').querySelector('.hc-datagrid__detail').id;
+    expect(cellId).toMatch(/^hc-datagrid-detail-\d+$/);
+    expect(btn().getAttribute('aria-controls')).toBe(cellId);
+  });
+
+  it('clicking the toggle expands the detail and emits hc:datagridexpand', () => {
+    document.body.innerHTML = FIXTURE_DETAIL;
+    uninstall = installDatagrid();
+    const onExp = vi.fn();
+    $('grid').addEventListener('hc:datagridexpand', onExp);
+    click(btn());
+    expect($('detail-1').hidden).toBe(false);
+    expect($('rec-1').hasAttribute('data-expanded')).toBe(true);
+    expect(btn().getAttribute('aria-expanded')).toBe('true');
+    expect(onExp).toHaveBeenCalledTimes(1);
+  });
+
+  it('clicking again collapses and emits hc:datagridcollapse', () => {
+    document.body.innerHTML = FIXTURE_DETAIL;
+    uninstall = installDatagrid();
+    click(btn()); // expand
+    const onCol = vi.fn();
+    $('grid').addEventListener('hc:datagridcollapse', onCol);
+    click(btn()); // collapse
+    expect($('detail-1').hidden).toBe(true);
+    expect($('rec-1').hasAttribute('data-expanded')).toBe(false);
+    expect(onCol).toHaveBeenCalledTimes(1);
+  });
+
+  it('Enter on a cell holding a toggle expands the detail', () => {
+    document.body.innerHTML = FIXTURE_DETAIL;
+    uninstall = installDatagrid();
+    $('toggle-cell').focus();
+    press($('toggle-cell'), 'Enter');
+    expect($('detail-1').hidden).toBe(false);
   });
 });

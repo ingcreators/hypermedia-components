@@ -173,6 +173,51 @@
     color: var(--hc-datagrid-current-fg);
   }
 
+  /* ---- Expandable row detail (master / detail) ---- */
+
+  /* A `[data-hc-datagrid-toggle]` button in the record's lead cell expands
+     a `.hc-datagrid__detail-row` (a <tr> with one colspan cell) holding any
+     HTML — a nested grid, a form, a chart. installDatagrid() toggles it. */
+  .hc-datagrid__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    padding: 0;
+    border: 1px solid var(--hc-datagrid-border);
+    border-radius: 3px;
+    background-color: var(--hc-datagrid-bg);
+    color: var(--hc-datagrid-fg);
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .hc-datagrid__toggle::before {
+    content: "+";
+    font-weight: var(--hc-font-weight-semibold);
+  }
+
+  .hc-datagrid__toggle[aria-expanded="true"]::before {
+    content: "\2212"; /* minus sign */
+  }
+
+  .hc-datagrid__toggle:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 1px;
+  }
+
+  .hc-datagrid__detail-row[hidden] {
+    display: none;
+  }
+
+  .hc-datagrid__detail {
+    padding: var(--hc-datagrid-cell-padding-y) var(--hc-datagrid-cell-padding-x);
+    border-block-end: 1px solid var(--hc-datagrid-border);
+    background-color: var(--hc-datagrid-bg);
+  }
+
   /* ---- Inline editing ---- */
 
   /* When a cell enters edit mode the behavior mounts an HC form control

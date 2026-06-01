@@ -262,3 +262,54 @@ test.describe('hc-datagrid — multi-row records', () => {
     expect(results.violations).toEqual([]);
   });
 });
+
+test.describe('hc-datagrid — expandable row detail', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/datagrid-detail.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(
+      () =>
+        document.querySelector('[data-testid="grid"] .hc-datagrid__table')
+          ?.getAttribute('role') === 'grid',
+    );
+  });
+
+  test('a collapsed record expands when its toggle is clicked', async ({ page }) => {
+    await expect(page.getByTestId('detail-2')).toBeHidden();
+    await page.getByTestId('toggle-cell-2').locator('button').click();
+    await expect(page.getByTestId('detail-2')).toBeVisible();
+    await expect(page.getByTestId('toggle-cell-2').locator('button')).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
+
+  test('an expanded record collapses when its toggle is clicked', async ({ page }) => {
+    await expect(page.getByTestId('detail-1')).toBeVisible();
+    await page.getByTestId('toggle-cell-1').locator('button').click();
+    await expect(page.getByTestId('detail-1')).toBeHidden();
+  });
+
+  test('Enter on a toggle cell toggles the detail', async ({ page }) => {
+    await page.getByTestId('toggle-cell-2').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('detail-2')).toBeVisible();
+  });
+
+  test('a nested grid inside the detail is independent of the outer grid', async ({
+    page,
+  }) => {
+    // The nested grid is upgraded too.
+    await expect(
+      page.getByTestId('nested').locator('.hc-datagrid__table'),
+    ).toHaveAttribute('role', 'grid');
+    // Selecting in the nested grid must not select the outer record.
+    await page.getByTestId('nested-check').check();
+    await expect(page.getByTestId('nested-row')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('rec-1')).not.toHaveAttribute('data-selected', '');
+  });
+
+  test('axe finds no violations with a detail expanded', async ({ page }) => {
+    const results = await new AxeBuilder({ page }).include('[data-testid="grid"]').analyze();
+    expect(results.violations).toEqual([]);
+  });
+});
