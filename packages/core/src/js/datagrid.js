@@ -162,11 +162,130 @@ function attach(grid, detachers) {
   function rebuild() {
     matrix = bodyRows(grid).map(rowCells);
     applyRoles();
+    applyResizedWidths(); // re-apply column widths to swapped-in rows
     const cur = matrix[active.r]?.[active.c] ?? matrix[0]?.[0];
     if (cur) {
       cur.tabIndex = 0;
       const pos = locate(cur);
       if (pos) active = pos;
+    }
+  }
+
+  // ---- Column resize ----
+  // A resizable column declares `data-resizable` + `data-col` on its header
+  // and the matching `data-col` on its body cells. Only that column becomes
+  // fixed-width (and clips); other columns keep content-sizing.
+  const MIN_COL = 40;
+  const resizedWidths = new Map();
+  const resizerCleanups = [];
+
+  function columnCells(key) {
+    return ownedBy(
+      grid,
+      `.hc-datagrid__cell[data-col="${key}"], .hc-datagrid__headcell[data-col="${key}"]`,
+    );
+  }
+
+  function applyColumn(key, px) {
+    for (const cell of columnCells(key)) {
+      cell.style.inlineSize = px;
+      cell.style.maxInlineSize = px;
+      cell.setAttribute('data-resized', '');
+    }
+  }
+
+  function applyResizedWidths() {
+    for (const [key, px] of resizedWidths) applyColumn(key, px);
+  }
+
+  function setColumnWidth(key, w) {
+    const n = Math.max(MIN_COL, Math.round(w));
+    const px = `${n}px`;
+    resizedWidths.set(key, px);
+    applyColumn(key, px);
+    const handle = ownedBy(
+      grid,
+      `.hc-datagrid__headcell[data-resizable][data-col="${key}"] > .hc-datagrid__resizer`,
+    )[0];
+    if (handle) handle.setAttribute('aria-valuenow', String(n));
+    measure(grid); // a frozen column's width change shifts later frozen offsets
+  }
+
+  function emitResize(key, width) {
+    grid.dispatchEvent(
+      new CustomEvent('hc:datagridcolumnresize', {
+        bubbles: true,
+        detail: { col: key, width: Math.max(MIN_COL, Math.round(width)) },
+      }),
+    );
+  }
+
+  function wireResizer(handle, th) {
+    const key = th.dataset.col;
+    let startX = 0;
+    let startW = 0;
+    let dragging = false;
+
+    function onPointerDown(event) {
+      dragging = true;
+      startX = event.clientX;
+      startW = th.getBoundingClientRect().width;
+      handle.setPointerCapture?.(event.pointerId);
+      event.preventDefault();
+    }
+    function onPointerMove(event) {
+      if (!dragging) return;
+      setColumnWidth(key, startW + (event.clientX - startX));
+    }
+    function onPointerUp(event) {
+      if (!dragging) return;
+      dragging = false;
+      handle.releasePointerCapture?.(event.pointerId);
+      emitResize(key, th.getBoundingClientRect().width);
+    }
+    function onKeydown(event) {
+      const step = event.shiftKey ? 32 : 8;
+      const cur = th.getBoundingClientRect().width;
+      let w;
+      if (event.key === 'ArrowRight') w = cur + step;
+      else if (event.key === 'ArrowLeft') w = cur - step;
+      else return;
+      event.preventDefault();
+      setColumnWidth(key, w);
+      emitResize(key, w);
+    }
+
+    handle.addEventListener('pointerdown', onPointerDown);
+    handle.addEventListener('pointermove', onPointerMove);
+    handle.addEventListener('pointerup', onPointerUp);
+    handle.addEventListener('keydown', onKeydown);
+    resizerCleanups.push(() => {
+      handle.removeEventListener('pointerdown', onPointerDown);
+      handle.removeEventListener('pointermove', onPointerMove);
+      handle.removeEventListener('pointerup', onPointerUp);
+      handle.removeEventListener('keydown', onKeydown);
+      handle.remove();
+    });
+  }
+
+  function initResizers() {
+    for (const th of ownedBy(grid, '.hc-datagrid__headcell[data-resizable]')) {
+      if (!th.dataset.col) continue;
+      if (th.querySelector(':scope > .hc-datagrid__resizer')) continue; // idempotent
+      const handle = grid.ownerDocument.createElement('span');
+      handle.className = 'hc-datagrid__resizer';
+      handle.setAttribute('role', 'separator');
+      handle.setAttribute('aria-orientation', 'vertical');
+      handle.tabIndex = 0;
+      handle.setAttribute(
+        'aria-label',
+        `Resize ${th.textContent.trim() || 'column'}`,
+      );
+      // A focusable separator is a window-splitter — it needs a value.
+      handle.setAttribute('aria-valuemin', String(MIN_COL));
+      handle.setAttribute('aria-valuenow', String(Math.round(th.getBoundingClientRect().width)));
+      th.appendChild(handle);
+      wireResizer(handle, th);
     }
   }
 
@@ -567,6 +686,7 @@ function attach(grid, detachers) {
   rebuild();
   measure(grid);
   initDetails();
+  initResizers();
 
   table.addEventListener('keydown', onKeydown);
   table.addEventListener('change', onChange);
@@ -606,6 +726,7 @@ function attach(grid, detachers) {
     grid.removeEventListener('focusout', hideTip);
     if (scrollEl) scrollEl.removeEventListener('scroll', hideTip);
     tip.remove();
+    for (const cleanup of resizerCleanups) cleanup();
     if (ro) ro.disconnect();
     if (mo) mo.disconnect();
   });

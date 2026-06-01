@@ -418,3 +418,64 @@ describe('installDatagrid — expandable row detail', () => {
     expect($('detail-1').hidden).toBe(false);
   });
 });
+
+const FIXTURE_RESIZE = `
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head"><tr>
+          <th class="hc-datagrid__headcell" data-resizable data-col="name" scope="col" id="h-name">Name</th>
+          <th class="hc-datagrid__headcell" scope="col" id="h-fixed">Fixed</th>
+        </tr></thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-col="name" id="c-name">Chai</td>
+            <td class="hc-datagrid__cell">x</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+`;
+
+describe('installDatagrid — column resize', () => {
+  it('adds a separator handle only to resizable headers', () => {
+    document.body.innerHTML = FIXTURE_RESIZE;
+    uninstall = installDatagrid();
+    const handle = $('h-name').querySelector('.hc-datagrid__resizer');
+    expect(handle).toBeTruthy();
+    expect(handle.getAttribute('role')).toBe('separator');
+    expect(handle.getAttribute('aria-orientation')).toBe('vertical');
+    expect($('h-fixed').querySelector('.hc-datagrid__resizer')).toBeNull();
+  });
+
+  it('arrow keys on the handle set the column width and emit hc:datagridcolumnresize', () => {
+    document.body.innerHTML = FIXTURE_RESIZE;
+    uninstall = installDatagrid();
+    const onResize = vi.fn();
+    $('grid').addEventListener('hc:datagridcolumnresize', (e) => onResize(e.detail));
+    const handle = $('h-name').querySelector('.hc-datagrid__resizer');
+    press(handle, 'ArrowRight');
+    // jsdom has no layout (width 0) → clamps to the minimum; header + body
+    // cells of the column become fixed-width and clip.
+    expect($('h-name').style.inlineSize).toBe('40px');
+    expect($('c-name').style.inlineSize).toBe('40px');
+    expect($('c-name').hasAttribute('data-resized')).toBe(true);
+    expect(onResize).toHaveBeenCalled();
+    expect(onResize.mock.calls.at(-1)[0]).toMatchObject({ col: 'name', width: 40 });
+  });
+
+  it('does not duplicate handles on repeated install', () => {
+    document.body.innerHTML = FIXTURE_RESIZE;
+    installDatagrid();
+    uninstall = installDatagrid();
+    expect($('h-name').querySelectorAll('.hc-datagrid__resizer')).toHaveLength(1);
+  });
+
+  it('uninstall removes the handle', () => {
+    document.body.innerHTML = FIXTURE_RESIZE;
+    const u = installDatagrid();
+    u();
+    expect($('h-name').querySelector('.hc-datagrid__resizer')).toBeNull();
+  });
+});

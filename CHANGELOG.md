@@ -104,6 +104,12 @@ Security    — security-relevant changes
     (`data-editing`, padding drops so an HC form control fills the cell).
     Built for **paged** data (htmx loads a page) — explicitly not a
     client-side virtual-scroll / sort / filter engine.
+  - **Column resize:** mark a column with `data-resizable` + `data-col` on
+    its header (and the matching `data-col` on body cells);
+    `installDatagrid()` adds a draggable / keyboard-operable grip
+    (`role="separator"` + `aria-valuenow`) that sets that column's width and
+    clips it, leaving other columns content-sized. Emits
+    `hc:datagridcolumnresize` (`{ col, width }`) for the app to persist.
   - **Vertical headers:** `data-orientation="vertical"` on a header cell
     rotates its label (`writing-mode: vertical-rl`) so a long name reads
     top-to-bottom in a narrow column instead of widening it;
