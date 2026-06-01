@@ -80,6 +80,21 @@ test.describe('hc-datagrid — Phase 1 structure', () => {
     expect(pad).toBe('0px');
   });
 
+  test('a selected row keeps frozen cells opaque (no horizontal bleed-through)', async ({
+    page,
+  }) => {
+    await page.getByTestId('row-1').locator('input[type="checkbox"]').check();
+    const { bgColor, hasImage } = await page.getByTestId('cell-id-1').evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { bgColor: cs.backgroundColor, hasImage: cs.backgroundImage !== 'none' };
+    });
+    // The base background-color stays opaque (no alpha < 1); the selection
+    // tint is layered as a background-image so scrolled content can't show
+    // through the frozen cell.
+    expect(bgColor).not.toMatch(/rgba\([^)]*,\s*0(\.\d+)?\)/);
+    expect(hasImage).toBe(true);
+  });
+
   test('axe finds no violations in the grid', async ({ page }) => {
     const results = await new AxeBuilder({ page }).include('[data-testid="grid"]').analyze();
     expect(results.violations).toEqual([]);
