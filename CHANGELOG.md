@@ -115,12 +115,21 @@ Security    — security-relevant changes
     returns an uninstaller, and picks up htmx-swapped grids/rows via
     `MutationObserver`.
 
+  - **Inline editing:** editable cells (`data-editable` + `data-col`)
+    activate on Enter / F2 / double-click / type-to-edit; the column's
+    `<template data-datagrid-editor>` is cloned into the cell, reusing
+    existing HC controls (text → `hc-input`, date → `hc-input[type=date]`,
+    select → `hc-select`, searchable → `hc-combobox`, whose `popover`
+    listbox escapes the scroll clip). Commit on Enter / blur / combobox
+    pick writes the value back and dispatches `hc:datagridedit`
+    (`{ cell, col, value, label, oldValue }`) for htmx to persist; Escape
+    cancels. No bespoke editor engine.
+
     Colours come from the shared tokens. New Components → Datagrid docs
-    page; Vitest unit coverage and Playwright coverage (sticky header /
-    frozen columns / corner pinning via the behavior's auto-measurement,
-    header stacking, edit-cell slot, keyboard navigation, selection,
-    select-all, axe). Inline cell **editing** (per-column `<template>`
-    editors) is the remaining phase.
+    page; Vitest unit + Playwright coverage (sticky header / frozen
+    columns / corner pinning via the behavior's auto-measurement, header
+    stacking, keyboard navigation, selection, select-all, text/select/
+    combobox editing, and axe).
 - **`hc-shell`** — a full-viewport application shell for business apps:
   a persistent sidebar, header, scrolling main region, and optional aside
   (third column, added via `:has()`) and footer, on a CSS Grid with

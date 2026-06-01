@@ -156,3 +156,90 @@ describe('installDatagrid', () => {
     expect(document.querySelector('.hc-datagrid__table').getAttribute('role')).toBe('grid');
   });
 });
+
+const FIXTURE_EDIT = `
+  <div class="hc-datagrid" id="grid">
+    <template data-datagrid-editor data-col="name"><input class="hc-input" type="text" aria-label="Name"></template>
+    <template data-datagrid-editor data-col="status">
+      <select class="hc-select" aria-label="Status"><option value="open">Open</option><option value="done">Done</option></select>
+    </template>
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head"><tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col">Status</th>
+        </tr></thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row" id="row-1">
+            <td class="hc-datagrid__cell" id="c-name" data-editable data-col="name">Ada</td>
+            <td class="hc-datagrid__cell" id="c-status" data-editable data-col="status" data-value="open">Open</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+`;
+
+describe('installDatagrid — inline editing', () => {
+  it('Enter starts editing a text cell; Enter commits and emits hc:datagridedit', () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Enter');
+    const input = cell.querySelector('input');
+    expect(input).toBeTruthy();
+    expect(cell.getAttribute('data-editing')).toBe('');
+
+    input.value = 'Grace';
+    const onEdit = vi.fn();
+    $('grid').addEventListener('hc:datagridedit', (e) => onEdit(e.detail));
+    press(input, 'Enter');
+
+    expect(cell.hasAttribute('data-editing')).toBe(false);
+    expect(cell.textContent).toBe('Grace');
+    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onEdit.mock.calls[0][0]).toMatchObject({
+      value: 'Grace',
+      oldValue: 'Ada',
+      col: 'name',
+    });
+  });
+
+  it('editing a select commits the chosen value and label', () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    const cell = $('c-status');
+    cell.focus();
+    press(cell, 'F2');
+    const select = cell.querySelector('select');
+    expect(select.value).toBe('open'); // seeded from the cell
+    select.value = 'done';
+    press(select, 'Enter');
+    expect(cell.textContent).toBe('Done');
+    expect(cell.dataset.value).toBe('done');
+  });
+
+  it('Escape cancels and restores the original cell', () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Enter');
+    cell.querySelector('input').value = 'changed';
+    press(cell.querySelector('input'), 'Escape');
+    expect(cell.hasAttribute('data-editing')).toBe(false);
+    expect(cell.textContent).toBe('Ada');
+  });
+
+  it('typing a character starts editing and seeds the value', () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Z');
+    const input = cell.querySelector('input');
+    expect(input).toBeTruthy();
+    expect(input.value).toBe('Z');
+  });
+});
