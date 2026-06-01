@@ -191,3 +191,31 @@ test.describe('hc-datagrid — inline editing (installDatagrid)', () => {
     await expect(cell).toHaveText(before.trim());
   });
 });
+
+test.describe('hc-datagrid — overflow truncation & tooltip', () => {
+  test('a clipped cell shows an ellipsis and the full value on hover', async ({
+    page,
+  }) => {
+    const span = page.getByTestId('cell-Delta-1').locator('.hc-datagrid__truncate');
+    // The content is clipped (ellipsised) within the fixed-width column.
+    expect(await span.evaluate((el) => el.scrollWidth > el.clientWidth + 1)).toBe(true);
+    expect(await span.evaluate((el) => getComputedStyle(el).textOverflow)).toBe('ellipsis');
+
+    const tip = page.locator('.hc-datagrid__tooltip');
+    await expect(tip).toBeHidden();
+
+    await span.hover();
+    await expect(tip).toBeVisible();
+    await expect(tip).toHaveText((await span.textContent()).trim());
+
+    // Moving off the cell hides the tooltip again.
+    await page.getByTestId('cell-Epsilon-1').hover();
+    await expect(tip).toBeHidden();
+  });
+
+  test('a cell that fits does not get a tooltip', async ({ page }) => {
+    // Epsilon cells have no truncate wrapper → never a tooltip.
+    await page.getByTestId('cell-Epsilon-2').hover();
+    await expect(page.locator('.hc-datagrid__tooltip')).toBeHidden();
+  });
+});

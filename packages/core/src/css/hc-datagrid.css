@@ -158,6 +158,43 @@
     border-radius: 0;
   }
 
+  /* ---- Truncation ---- */
+
+  /* Wrap a cell's value in this block to clip overflow to one ellipsised
+     line. Give it a fixed `max-inline-size` (the column's content width) —
+     that caps the column's max-content so the table doesn't just grow to
+     fit, and the text truncates. Set it inline or via the
+     `--hc-datagrid-truncate-max` knob. installDatagrid() shows the full
+     value in a tooltip when such an element is clipped. */
+  .hc-datagrid__truncate {
+    display: block;
+    max-inline-size: var(--hc-datagrid-truncate-max, 16rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---- Overflow tooltip (shared element, positioned by installDatagrid) ---- */
+  .hc-datagrid__tooltip {
+    position: fixed;
+    z-index: 60; /* above the sticky header/frozen layers */
+    max-inline-size: var(--hc-tooltip-max-width, 20rem);
+    padding: var(--hc-tooltip-padding-y, 0.25rem) var(--hc-tooltip-padding-x, 0.5rem);
+    border-radius: var(--hc-tooltip-radius, 4px);
+    background-color: var(--hc-tooltip-bg, #111827);
+    color: var(--hc-tooltip-fg, #fff);
+    font-size: var(--hc-tooltip-font-size, 0.875rem);
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    box-shadow: 0 4px 12px rgb(0, 0, 0, 0.25);
+    pointer-events: none;
+  }
+
+  .hc-datagrid__tooltip[hidden] {
+    display: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hc-datagrid__scroll {
       scroll-behavior: auto;

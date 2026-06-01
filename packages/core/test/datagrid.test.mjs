@@ -149,6 +149,14 @@ describe('installDatagrid', () => {
     expect($('c-1-id').hasAttribute('data-active')).toBe(false);
   });
 
+  it('creates a shared overflow tooltip and removes it on uninstall', () => {
+    document.body.innerHTML = FIXTURE;
+    const u = installDatagrid();
+    expect(document.querySelector('.hc-datagrid__tooltip')).toBeTruthy();
+    u();
+    expect(document.querySelector('.hc-datagrid__tooltip')).toBeNull();
+  });
+
   it('picks up a grid added after install (MutationObserver)', async () => {
     uninstall = installDatagrid();
     document.body.innerHTML = FIXTURE;
