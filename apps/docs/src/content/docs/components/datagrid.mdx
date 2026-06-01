@@ -165,7 +165,7 @@ State is expressed with attributes, styled by the component:
 ## Multi-row records
 
 Dense business screens often show **one record across several rows** (e.g.
-品番/商品名 on the first line, 数量/単価 on the second, 利益 on a third).
+Code/Product on the first line, Qty/Unit price on the second, Profit on a third).
 Model each record as its own `<tbody class="hc-datagrid__record">` of
 sub-rows — a `<table>` may have many `<tbody>` elements — and span the lead
 column (No. / select) across them with `rowspan`. The header is the usual
@@ -178,34 +178,34 @@ multi-level `<thead>`, one header row per sub-row.
         <thead class="hc-datagrid__head">
           <tr>
             <th class="hc-datagrid__headcell" rowspan="2" scope="col" style="text-align:center;">No.</th>
-            <th class="hc-datagrid__headcell" scope="col">品番</th>
-            <th class="hc-datagrid__headcell" scope="col">商品名</th>
+            <th class="hc-datagrid__headcell" scope="col">Code</th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
           </tr>
           <tr>
-            <th class="hc-datagrid__headcell" scope="col">数量</th>
-            <th class="hc-datagrid__headcell" scope="col">単価</th>
+            <th class="hc-datagrid__headcell" scope="col">Qty</th>
+            <th class="hc-datagrid__headcell" scope="col">Unit price</th>
           </tr>
         </thead>
         <tbody class="hc-datagrid__record">
           <tr class="hc-datagrid__row">
             <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;">1</td>
             <td class="hc-datagrid__cell">D0006</td>
-            <td class="hc-datagrid__cell">ベターローストハム</td>
+            <td class="hc-datagrid__cell">Better Roast Ham</td>
           </tr>
           <tr class="hc-datagrid__row">
-            <td class="hc-datagrid__cell">12 箱</td>
-            <td class="hc-datagrid__cell">¥14,000</td>
+            <td class="hc-datagrid__cell">12 boxes</td>
+            <td class="hc-datagrid__cell">$14,000</td>
           </tr>
         </tbody>
         <tbody class="hc-datagrid__record">
           <tr class="hc-datagrid__row">
             <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;">2</td>
             <td class="hc-datagrid__cell">D0004</td>
-            <td class="hc-datagrid__cell">うまい素</td>
+            <td class="hc-datagrid__cell">Tasty Base</td>
           </tr>
           <tr class="hc-datagrid__row">
-            <td class="hc-datagrid__cell">47 箱</td>
-            <td class="hc-datagrid__cell">¥17,250</td>
+            <td class="hc-datagrid__cell">47 boxes</td>
+            <td class="hc-datagrid__cell">$17,250</td>
           </tr>
         </tbody>
       </table>
@@ -223,11 +223,11 @@ multi-level `<thead>`, one header row per sub-row.
         <input type="checkbox" class="hc-checkbox" aria-label="Select"> 1
       </td>
       <td class="hc-datagrid__cell">D0006</td>
-      <td class="hc-datagrid__cell">ベターローストハム</td>
+      <td class="hc-datagrid__cell">Better Roast Ham</td>
     </tr>
     <tr class="hc-datagrid__row">
-      <td class="hc-datagrid__cell">12 箱</td>
-      <td class="hc-datagrid__cell">¥14,000</td>
+      <td class="hc-datagrid__cell">12 boxes</td>
+      <td class="hc-datagrid__cell">$14,000</td>
     </tr>
   </tbody>
   <!-- one <tbody class="hc-datagrid__record"> per record -->
@@ -259,22 +259,22 @@ cell) to toggle:
       <table class="hc-datagrid__table">
         <thead class="hc-datagrid__head">
           <tr>
-            <th class="hc-datagrid__headcell" scope="col" style="width:2.5rem;"><span class="hc-sr-only">詳細</span></th>
-            <th class="hc-datagrid__headcell" scope="col">分類名</th>
-            <th class="hc-datagrid__headcell" scope="col">説明</th>
+            <th class="hc-datagrid__headcell" scope="col" style="width:2.5rem;"><span class="hc-sr-only">Detail</span></th>
+            <th class="hc-datagrid__headcell" scope="col">Category</th>
+            <th class="hc-datagrid__headcell" scope="col">Description</th>
           </tr>
         </thead>
         <tbody class="hc-datagrid__record">
           <tr class="hc-datagrid__row">
             <td class="hc-datagrid__cell" style="text-align:center;">
-              <button class="hc-datagrid__toggle" data-hc-datagrid-toggle type="button" aria-label="Beverages の詳細"></button>
+              <button class="hc-datagrid__toggle" data-hc-datagrid-toggle type="button" aria-label="Beverages detail"></button>
             </td>
             <td class="hc-datagrid__cell">Beverages</td>
             <td class="hc-datagrid__cell">Soft drinks, coffees, teas</td>
           </tr>
           <tr class="hc-datagrid__detail-row">
             <td class="hc-datagrid__detail" colspan="3">
-              詳細パネル — ここに任意の HTML（ネストした表・フォーム・グラフなど）。
+              Detail panel — any HTML here (a nested table, form, chart, …).
             </td>
           </tr>
         </tbody>
@@ -288,7 +288,7 @@ cell) to toggle:
   <tr class="hc-datagrid__row">
     <td class="hc-datagrid__cell">
       <button class="hc-datagrid__toggle" data-hc-datagrid-toggle
-              type="button" aria-label="詳細"></button>
+              type="button" aria-label="Detail"></button>
     </td>
     <td class="hc-datagrid__cell">Beverages</td>
     <td class="hc-datagrid__cell">Soft drinks, coffees, teas…</td>
@@ -313,7 +313,7 @@ attributes on the toggle:
 
 ```html
 <button class="hc-datagrid__toggle" data-hc-datagrid-toggle type="button"
-        aria-label="詳細"
+        aria-label="Detail"
         data-hx-get="/categories/1/products"
         data-hx-target="next .hc-datagrid__detail"
         data-hx-trigger="click once">
@@ -330,7 +330,7 @@ width) via `--hc-datagrid-truncate-max` or an inline `max-inline-size`:
 ```html
 <td class="hc-datagrid__cell">
   <span class="hc-datagrid__truncate" style="max-inline-size: 12rem">
-    データ1xxxxxxxxxxxxxx
+    Data 1 xxxxxxxxxxxxxx
   </span>
 </td>
 ```
@@ -363,8 +363,8 @@ it from the cell's current value, and focuses it:
       <input class="hc-combobox__input hc-input" role="combobox"
              aria-controls="code-list" aria-haspopup="listbox" autocomplete="off">
       <ul class="hc-combobox__listbox" id="code-list" role="listbox" popover>
-        <li class="hc-combobox__option" role="option" data-value="001">コードA</li>
-        <li class="hc-combobox__option" role="option" data-value="002">コードB</li>
+        <li class="hc-combobox__option" role="option" data-value="001">Code A</li>
+        <li class="hc-combobox__option" role="option" data-value="002">Code B</li>
       </ul>
     </div>
   </template>
@@ -373,7 +373,7 @@ it from the cell's current value, and focuses it:
     <table class="hc-datagrid__table">
       <!-- … -->
       <td class="hc-datagrid__cell" data-editable data-col="qty">3</td>
-      <td class="hc-datagrid__cell" data-editable data-col="code" data-value="001">コードA</td>
+      <td class="hc-datagrid__cell" data-editable data-col="code" data-value="001">Code A</td>
     </table>
   </div>
 </div>
