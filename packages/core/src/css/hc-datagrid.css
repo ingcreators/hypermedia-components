@@ -105,14 +105,25 @@
     top: calc(var(--hc-datagrid-head-1-h) + var(--hc-datagrid-head-2-h));
   }
 
-  /* Vertical header label — `data-orientation="vertical"` rotates the text so
-     a long name reads top-to-bottom in a narrow column instead of widening
-     it (CJK stays upright, Latin rotates). Use it on the leaf header row (the
-     bottom sticky row, whose height is unconstrained). */
-  .hc-datagrid__headcell[data-orientation="vertical"] {
-    writing-mode: vertical-rl;
+  /* Vertical header label — rotate the text so a long name reads down a
+     narrow column instead of widening it. Use it on the leaf header row (the
+     bottom sticky row, whose height is unconstrained).
+       - data-orientation="vertical"  → vertical-rl: CJK upright, Latin
+         rotated clockwise (the safe, widest-support default).
+       - data-orientation="sideways"  → sideways-lr: the whole line rotated
+         counter-clockwise, reading bottom-to-top (axis-label style; good for
+         Latin). `sideways-*` is newer than `vertical-rl`.
+     Override --hc-datagrid-head-writing-mode for full control
+     (e.g. sideways-rl, vertical-lr). */
+  .hc-datagrid__headcell[data-orientation="vertical"],
+  .hc-datagrid__headcell[data-orientation="sideways"] {
+    writing-mode: var(--hc-datagrid-head-writing-mode, vertical-rl);
     white-space: nowrap;
     vertical-align: bottom;
+  }
+
+  .hc-datagrid__headcell[data-orientation="sideways"] {
+    --hc-datagrid-head-writing-mode: sideways-lr;
   }
 
   /* ---- Frozen (sticky-left) columns ---- */

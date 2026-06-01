@@ -155,9 +155,20 @@ row (the bottom sticky row, whose height is unconstrained):
 </th>
 ```
 
-It is pure CSS (`writing-mode: vertical-rl`) — no behavior needed. Keep any
-group / sub header above it horizontal; only the leaf row should be
-vertical so the sticky stacking stays simple.
+Two orientations, both pure CSS — no behavior needed:
+
+| `data-orientation` | `writing-mode` | Reads | Best for |
+| --- | --- | --- | --- |
+| `vertical` | `vertical-rl` | top → bottom (CJK upright, Latin rotated) | the safe default; mixed CJK / Japanese-first headers |
+| `sideways` | `sideways-lr` | bottom → top (whole line rotated) | Latin / "axis-label" style |
+
+`vertical-rl` has the widest support; `sideways-*` is newer (Chromium /
+Firefox; verify your Safari target). For full control set
+`--hc-datagrid-head-writing-mode` yourself (e.g. `sideways-rl`,
+`vertical-lr`) on the cell or the grid.
+
+Keep any group / sub header above it horizontal; only the leaf row should be
+rotated so the sticky stacking stays simple.
 
 ## Behavior — `installDatagrid()`
 

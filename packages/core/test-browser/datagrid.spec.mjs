@@ -311,6 +311,19 @@ test.describe('hc-datagrid — vertical headers', () => {
       .evaluate((el) => getComputedStyle(el).writingMode);
     expect(wm).toBe('horizontal-tb');
   });
+
+  test('data-orientation="sideways" uses sideways-lr and stays narrow', async ({ page }) => {
+    const { writingMode, width, height } = await page
+      .getByTestId('vh-sideways')
+      .evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        return { writingMode: cs.writingMode, width: r.width, height: r.height };
+      });
+    expect(writingMode).toBe('sideways-lr');
+    expect(width).toBeLessThan(64);
+    expect(height).toBeGreaterThan(width);
+  });
 });
 
 test.describe('hc-datagrid — expandable row detail', () => {
