@@ -115,6 +115,17 @@ Security    — security-relevant changes
     returns an uninstaller, and picks up htmx-swapped grids/rows via
     `MutationObserver`.
 
+  - **Multi-row records:** render one record across several rows by
+    making each record a `<tbody class="hc-datagrid__record">` of sub-rows
+    (span the lead column with `rowspan`). `installDatagrid()` treats each
+    record `<tbody>` as one selectable unit — its checkbox / `Space`
+    selects every sub-row (`aria-selected` per row + `data-selected` on the
+    tbody), select-all and `hc:datagridselectionchange` count by record,
+    and the active cell's record gets `data-current` (accented lead cell).
+    A thicker border separates records, a lighter one divides sub-rows;
+    keyboard nav moves by sub-row (↑/↓) and cell (←/→) across both.
+    Single-row grids are unchanged. New tokens
+    `--hc-datagrid-subrow-border` / `-current-bg` / `-current-fg`.
   - **Overflow truncation + tooltip:** wrap a value in
     `.hc-datagrid__truncate` (with a fixed `max-inline-size` /
     `--hc-datagrid-truncate-max`) to clip it to one ellipsised line;

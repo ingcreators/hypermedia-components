@@ -25,8 +25,39 @@
 const INSTALL_KEY = '__hcDatagridUninstall';
 const WIDGETS = 'input, button, select, textarea, a[href]';
 
+// Every physical body row — across the single `.hc-datagrid__body` and any
+// `.hc-datagrid__record` tbodies (multi-row records). These become the
+// navigation matrix rows; non-uniform widths are fine (nav clamps).
 function bodyRows(grid) {
-  return [...grid.querySelectorAll('.hc-datagrid__body > .hc-datagrid__row')];
+  return [
+    ...grid.querySelectorAll(
+      '.hc-datagrid__body > .hc-datagrid__row, .hc-datagrid__record > .hc-datagrid__row',
+    ),
+  ];
+}
+
+// The selectable units. With `.hc-datagrid__record` tbodies each record is
+// one unit (it may span several physical rows); otherwise each row is a unit.
+function recordUnits(grid) {
+  const records = [...grid.querySelectorAll('.hc-datagrid__record')];
+  return records.length ? records : bodyRows(grid);
+}
+
+function unitOf(el) {
+  return el.closest('.hc-datagrid__record') ?? el.closest('.hc-datagrid__row');
+}
+
+function unitRows(unit) {
+  return unit.matches('.hc-datagrid__row')
+    ? [unit]
+    : [...unit.querySelectorAll('.hc-datagrid__row')];
+}
+
+function setUnitSelected(unit, on) {
+  unit.toggleAttribute('data-selected', on);
+  for (const tr of unitRows(unit)) {
+    tr.setAttribute('aria-selected', on ? 'true' : 'false');
+  }
 }
 
 function rowCells(row) {
@@ -46,7 +77,7 @@ function measure(grid) {
     headTotal += h;
   });
 
-  const ref = grid.querySelector('.hc-datagrid__body > .hc-datagrid__row');
+  const ref = bodyRows(grid)[0];
   const offsets = [];
   let acc = 0;
   if (ref) {
@@ -56,7 +87,7 @@ function measure(grid) {
     }
   }
   for (const row of grid.querySelectorAll(
-    '.hc-datagrid__head > tr, .hc-datagrid__body > tr',
+    '.hc-datagrid__head > tr, .hc-datagrid__body > tr, .hc-datagrid__record > tr',
   )) {
     const frozen = [...row.children].filter((c) => c.hasAttribute('data-frozen'));
     frozen.forEach((c, i) => {
@@ -84,10 +115,9 @@ function attach(grid, detachers) {
     grid.querySelector('.hc-datagrid__head input[type="checkbox"]');
 
   function emitSelection() {
-    const total = bodyRows(grid).length;
-    const selected = bodyRows(grid).filter(
-      (r) => r.getAttribute('aria-selected') === 'true',
-    ).length;
+    const units = recordUnits(grid);
+    const total = units.length;
+    const selected = units.filter((u) => u.hasAttribute('data-selected')).length;
     grid.dispatchEvent(
       new CustomEvent('hc:datagridselectionchange', {
         bubbles: true,
@@ -99,7 +129,7 @@ function attach(grid, detachers) {
   function applyRoles() {
     table.setAttribute('role', 'grid');
     for (const r of grid.querySelectorAll(
-      '.hc-datagrid__head > tr, .hc-datagrid__body > tr',
+      '.hc-datagrid__head > tr, .hc-datagrid__body > tr, .hc-datagrid__record > tr',
     )) {
       r.setAttribute('role', 'row');
     }
@@ -157,6 +187,14 @@ function attach(grid, detachers) {
     if (!cell) return;
     cell.tabIndex = 0;
     cell.setAttribute('data-active', '');
+    // Highlight the active cell's record (multi-row mode).
+    const rec = cell.closest('.hc-datagrid__record');
+    if (rec) {
+      for (const r of grid.querySelectorAll('.hc-datagrid__record[data-current]')) {
+        if (r !== rec) r.removeAttribute('data-current');
+      }
+      rec.setAttribute('data-current', '');
+    }
     if (focusIt) cell.focus();
     cell.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }
@@ -164,13 +202,13 @@ function attach(grid, detachers) {
   function toggleRow(r) {
     const row = bodyRows(grid)[r];
     if (!row) return;
-    const cb = row.querySelector('input[type="checkbox"]');
+    const unit = unitOf(row) ?? row;
+    const cb = unit.querySelector('input[type="checkbox"]');
     if (cb) {
       cb.checked = !cb.checked;
       cb.dispatchEvent(new Event('change', { bubbles: true }));
     } else {
-      const sel = row.getAttribute('aria-selected') === 'true';
-      row.setAttribute('aria-selected', sel ? 'false' : 'true');
+      setUnitSelected(unit, !unit.hasAttribute('data-selected'));
       emitSelection();
     }
   }
@@ -244,18 +282,18 @@ function attach(grid, detachers) {
     const cb = event.target;
     if (!(cb instanceof HTMLInputElement) || cb.type !== 'checkbox') return;
     if (cb === selectAll()) {
-      for (const row of bodyRows(grid)) {
-        const rcb = row.querySelector('input[type="checkbox"]');
-        if (rcb) rcb.checked = cb.checked;
-        row.setAttribute('aria-selected', cb.checked ? 'true' : 'false');
+      for (const unit of recordUnits(grid)) {
+        const ucb = unit.querySelector('input[type="checkbox"]');
+        if (ucb) ucb.checked = cb.checked;
+        setUnitSelected(unit, cb.checked);
       }
     } else {
-      const row = cb.closest('.hc-datagrid__row');
-      if (row) row.setAttribute('aria-selected', cb.checked ? 'true' : 'false');
+      const unit = unitOf(cb);
+      if (unit) setUnitSelected(unit, cb.checked);
       const all = selectAll();
       if (all) {
-        const boxes = bodyRows(grid)
-          .map((r) => r.querySelector('input[type="checkbox"]'))
+        const boxes = recordUnits(grid)
+          .map((u) => u.querySelector('input[type="checkbox"]'))
           .filter(Boolean);
         const checked = boxes.filter((b) => b.checked).length;
         all.checked = checked > 0 && checked === boxes.length;
