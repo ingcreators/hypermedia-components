@@ -24,5 +24,6 @@ export { installCalendar } from './calendar.js';
 export { installInputOtp } from './inputotp.js';
 export { installSplitter } from './splitter.js';
 export { installShell } from './shell.js';
+export { installDatagrid } from './datagrid.js';
 
 export const version = '0.0.0';

@@ -27,6 +27,7 @@ import { installCalendar } from './calendar.js';
 import { installInputOtp } from './inputotp.js';
 import { installSplitter } from './splitter.js';
 import { installShell } from './shell.js';
+import { installDatagrid } from './datagrid.js';
 
 function init() {
   installConfirm();
@@ -49,6 +50,7 @@ function init() {
   installInputOtp();
   installSplitter();
   installShell();
+  installDatagrid();
 }
 
 if (typeof document !== 'undefined') {
@@ -80,4 +82,5 @@ export {
   installInputOtp,
   installSplitter,
   installShell,
+  installDatagrid,
 };
