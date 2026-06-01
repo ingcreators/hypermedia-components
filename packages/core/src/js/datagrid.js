@@ -24,33 +24,47 @@
 
 const INSTALL_KEY = '__hcDatagridUninstall';
 const WIDGETS = 'input, button, select, textarea, a[href]';
+let detailIdSeq = 0;
+
+// Elements matching `selector` that belong to THIS grid — excluding any
+// inside a nested `.hc-datagrid` (e.g. a grid rendered in a detail panel).
+function ownedBy(grid, selector) {
+  return [...grid.querySelectorAll(selector)].filter(
+    (el) => el.closest('.hc-datagrid') === grid,
+  );
+}
 
 // Every physical body row — across the single `.hc-datagrid__body` and any
 // `.hc-datagrid__record` tbodies (multi-row records). These become the
 // navigation matrix rows; non-uniform widths are fine (nav clamps).
 function bodyRows(grid) {
-  return [
-    ...grid.querySelectorAll(
-      '.hc-datagrid__body > .hc-datagrid__row, .hc-datagrid__record > .hc-datagrid__row',
-    ),
-  ];
+  return ownedBy(
+    grid,
+    '.hc-datagrid__body > .hc-datagrid__row, .hc-datagrid__record > .hc-datagrid__row',
+  );
 }
 
 // The selectable units. With `.hc-datagrid__record` tbodies each record is
 // one unit (it may span several physical rows); otherwise each row is a unit.
 function recordUnits(grid) {
-  const records = [...grid.querySelectorAll('.hc-datagrid__record')];
+  const records = ownedBy(grid, '.hc-datagrid__record');
   return records.length ? records : bodyRows(grid);
 }
 
-function unitOf(el) {
-  return el.closest('.hc-datagrid__record') ?? el.closest('.hc-datagrid__row');
+// The record/row unit `el` belongs to — scoped to this grid (so a control
+// inside a nested grid resolves to the nested unit, not an outer record).
+function unitOf(el, grid) {
+  const sel = ownedBy(grid, '.hc-datagrid__record').length
+    ? '.hc-datagrid__record'
+    : '.hc-datagrid__row';
+  const unit = el.closest(sel);
+  return unit && unit.closest('.hc-datagrid') === grid ? unit : null;
 }
 
 function unitRows(unit) {
   return unit.matches('.hc-datagrid__row')
     ? [unit]
-    : [...unit.querySelectorAll('.hc-datagrid__row')];
+    : [...unit.querySelectorAll(':scope > .hc-datagrid__row')];
 }
 
 function setUnitSelected(unit, on) {
@@ -68,7 +82,7 @@ function rowCells(row) {
 
 /** Measure header heights + frozen widths → sticky offset variables. */
 function measure(grid) {
-  const headTrs = [...grid.querySelectorAll('.hc-datagrid__head > tr')];
+  const headTrs = ownedBy(grid, '.hc-datagrid__head > tr');
   let headTotal = 0;
   headTrs.forEach((tr, i) => {
     const h = tr.getBoundingClientRect().height;
@@ -86,7 +100,8 @@ function measure(grid) {
       acc += c.getBoundingClientRect().width;
     }
   }
-  for (const row of grid.querySelectorAll(
+  for (const row of ownedBy(
+    grid,
     '.hc-datagrid__head > tr, .hc-datagrid__body > tr, .hc-datagrid__record > tr',
   )) {
     const frozen = [...row.children].filter((c) => c.hasAttribute('data-frozen'));
@@ -112,7 +127,7 @@ function attach(grid, detachers) {
   let active = { r: 0, c: 0 };
 
   const selectAll = () =>
-    grid.querySelector('.hc-datagrid__head input[type="checkbox"]');
+    ownedBy(grid, '.hc-datagrid__head input[type="checkbox"]')[0] ?? null;
 
   function emitSelection() {
     const units = recordUnits(grid);
@@ -128,12 +143,10 @@ function attach(grid, detachers) {
 
   function applyRoles() {
     table.setAttribute('role', 'grid');
-    for (const r of grid.querySelectorAll(
-      '.hc-datagrid__head > tr, .hc-datagrid__body > tr, .hc-datagrid__record > tr',
-    )) {
+    for (const r of ownedBy(grid, '.hc-datagrid__head > tr, .hc-datagrid__row')) {
       r.setAttribute('role', 'row');
     }
-    for (const h of grid.querySelectorAll('.hc-datagrid__headcell')) {
+    for (const h of ownedBy(grid, '.hc-datagrid__headcell')) {
       if (!h.getAttribute('role')) h.setAttribute('role', 'columnheader');
     }
     matrix.flat().forEach((cell) => {
@@ -202,7 +215,7 @@ function attach(grid, detachers) {
   function toggleRow(r) {
     const row = bodyRows(grid)[r];
     if (!row) return;
-    const unit = unitOf(row) ?? row;
+    const unit = unitOf(row, grid) ?? row;
     const cb = unit.querySelector('input[type="checkbox"]');
     if (cb) {
       cb.checked = !cb.checked;
@@ -215,9 +228,17 @@ function attach(grid, detachers) {
 
   function onKeydown(event) {
     if (editingCell) return; // the editor handles its own keys
+    if (!isOurs(event)) return; // nested grid handles its own
     if (!matrix.length) return;
     const { r, c } = active;
     const activeCell = matrix[r]?.[c];
+    const toggleBtn = activeCell?.querySelector?.('[data-hc-datagrid-toggle]');
+    if (toggleBtn && event.key === 'Enter') {
+      event.preventDefault();
+      const record = toggleBtn.closest('.hc-datagrid__record');
+      if (record) setExpanded(record, !record.hasAttribute('data-expanded'));
+      return;
+    }
     const editable =
       activeCell?.hasAttribute('data-editable') &&
       templates.has(activeCell.dataset.col);
@@ -267,6 +288,7 @@ function attach(grid, detachers) {
   }
 
   function onFocusin(event) {
+    if (!isOurs(event)) return;
     const cell = event.target.closest?.('.hc-datagrid__cell');
     if (!cell || !grid.contains(cell)) return;
     const pos = locate(cell);
@@ -279,6 +301,7 @@ function attach(grid, detachers) {
   }
 
   function onChange(event) {
+    if (!isOurs(event)) return;
     const cb = event.target;
     if (!(cb instanceof HTMLInputElement) || cb.type !== 'checkbox') return;
     if (cb === selectAll()) {
@@ -288,7 +311,7 @@ function attach(grid, detachers) {
         setUnitSelected(unit, cb.checked);
       }
     } else {
-      const unit = unitOf(cb);
+      const unit = unitOf(cb, grid);
       if (unit) setUnitSelected(unit, cb.checked);
       const all = selectAll();
       if (all) {
@@ -301,6 +324,60 @@ function attach(grid, detachers) {
       }
     }
     emitSelection();
+  }
+
+  // Ignore events bubbling up from a NESTED grid (e.g. one rendered inside
+  // an expanded detail panel) — that grid handles its own.
+  function isOurs(event) {
+    return event.target.closest?.('.hc-datagrid') === grid;
+  }
+
+  // ---- Expandable row detail (master / detail) ----
+  function detailRowOf(record) {
+    return record.querySelector(':scope > .hc-datagrid__detail-row');
+  }
+
+  function setExpanded(record, on) {
+    const detail = detailRowOf(record);
+    const btn = record.querySelector('[data-hc-datagrid-toggle]');
+    record.toggleAttribute('data-expanded', on);
+    if (detail) detail.hidden = !on;
+    if (btn) btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    grid.dispatchEvent(
+      new CustomEvent(on ? 'hc:datagridexpand' : 'hc:datagridcollapse', {
+        bubbles: true,
+        detail: { record },
+      }),
+    );
+  }
+
+  function initDetails() {
+    for (const record of ownedBy(grid, '.hc-datagrid__record')) {
+      const btn = record.querySelector('[data-hc-datagrid-toggle]');
+      const detail = detailRowOf(record);
+      if (!btn || !detail) continue;
+      const cell = detail.querySelector('.hc-datagrid__detail');
+      if (cell) {
+        if (!cell.id) {
+          detailIdSeq += 1;
+          cell.id = `hc-datagrid-detail-${detailIdSeq}`;
+        }
+        detail.setAttribute('role', 'row');
+        cell.setAttribute('role', 'gridcell');
+        btn.setAttribute('aria-controls', cell.id);
+      }
+      const open = record.hasAttribute('data-expanded');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      detail.hidden = !open;
+    }
+  }
+
+  function onToggleClick(event) {
+    if (!isOurs(event)) return;
+    const btn = event.target.closest('[data-hc-datagrid-toggle]');
+    if (!btn || !grid.contains(btn)) return;
+    const record = btn.closest('.hc-datagrid__record');
+    if (record) setExpanded(record, !record.hasAttribute('data-expanded'));
   }
 
   // ---- Inline editing ----
@@ -430,6 +507,7 @@ function attach(grid, detachers) {
   }
 
   function onDblclick(event) {
+    if (!isOurs(event)) return;
     const cell = event.target.closest?.('.hc-datagrid__cell');
     if (!cell || !grid.contains(cell)) return;
     const pos = locate(cell);
@@ -471,6 +549,7 @@ function attach(grid, detachers) {
     return el && grid.contains(el) && el.scrollWidth > el.clientWidth + 1;
   }
   function onPointerOver(event) {
+    if (!isOurs(event)) return;
     const el = event.target.closest?.('.hc-datagrid__truncate');
     if (isClipped(el)) showTip(el);
   }
@@ -478,6 +557,7 @@ function attach(grid, detachers) {
     if (event.target.closest?.('.hc-datagrid__truncate')) hideTip();
   }
   function onTipFocusin(event) {
+    if (!isOurs(event)) return;
     const cell = event.target.closest?.('.hc-datagrid__cell');
     const el = cell?.querySelector?.(':scope > .hc-datagrid__truncate') ?? null;
     if (isClipped(el)) showTip(el);
@@ -486,11 +566,13 @@ function attach(grid, detachers) {
 
   rebuild();
   measure(grid);
+  initDetails();
 
   table.addEventListener('keydown', onKeydown);
   table.addEventListener('change', onChange);
   table.addEventListener('focusin', onFocusin);
   table.addEventListener('dblclick', onDblclick);
+  table.addEventListener('click', onToggleClick);
   grid.addEventListener('pointerover', onPointerOver);
   grid.addEventListener('pointerout', onPointerOut);
   grid.addEventListener('focusin', onTipFocusin);
@@ -517,6 +599,7 @@ function attach(grid, detachers) {
     table.removeEventListener('change', onChange);
     table.removeEventListener('focusin', onFocusin);
     table.removeEventListener('dblclick', onDblclick);
+    table.removeEventListener('click', onToggleClick);
     grid.removeEventListener('pointerover', onPointerOver);
     grid.removeEventListener('pointerout', onPointerOut);
     grid.removeEventListener('focusin', onTipFocusin);

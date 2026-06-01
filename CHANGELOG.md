@@ -115,6 +115,16 @@ Security    — security-relevant changes
     returns an uninstaller, and picks up htmx-swapped grids/rows via
     `MutationObserver`.
 
+  - **Expandable row detail (master/detail):** put a
+    `[data-hc-datagrid-toggle]` button in a record's lead cell and a
+    `.hc-datagrid__detail-row` (a `<tr>` with one `colspan` cell) holding
+    **arbitrary HTML** — a nested grid, a form, a chart. `installDatagrid()`
+    toggles `data-expanded` / row visibility / `aria-expanded` /
+    `aria-controls` (click the +/− or `Enter`), dispatches
+    `hc:datagridexpand` / `hc:datagridcollapse`, and (htmx) lazy-loads via
+    `data-hx-*` on the toggle. A nested `hc-datagrid` in a detail panel is
+    upgraded and operated independently (events from a nested grid are
+    ignored by the outer one).
   - **Multi-row records:** render one record across several rows by
     making each record a `<tbody class="hc-datagrid__record">` of sub-rows
     (span the lead column with `rowspan`). `installDatagrid()` treats each

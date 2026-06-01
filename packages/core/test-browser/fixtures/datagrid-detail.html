@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-datagrid row-detail fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <div class="hc-datagrid" data-testid="grid" style="max-inline-size: 720px;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col" style="width: 2.5rem;"><span class="hc-sr-only">詳細</span></th>
+            <th class="hc-datagrid__headcell" scope="col">分類名</th>
+            <th class="hc-datagrid__headcell" scope="col">説明</th>
+          </tr>
+        </thead>
+
+        <!-- Record 1 starts expanded; its detail holds a NESTED grid. -->
+        <tbody class="hc-datagrid__record" data-testid="rec-1" data-expanded>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-testid="toggle-cell-1" style="text-align: center;">
+              <button class="hc-datagrid__toggle" data-hc-datagrid-toggle type="button" aria-label="Beverages の詳細"></button>
+            </td>
+            <td class="hc-datagrid__cell">Beverages</td>
+            <td class="hc-datagrid__cell">Soft drinks, coffees, teas, beers, and ales</td>
+          </tr>
+          <tr class="hc-datagrid__detail-row" data-testid="detail-1">
+            <td class="hc-datagrid__detail" colspan="3">
+              <div class="hc-datagrid" data-testid="nested" style="max-inline-size: 480px;">
+                <div class="hc-datagrid__scroll">
+                  <table class="hc-datagrid__table">
+                    <thead class="hc-datagrid__head">
+                      <tr>
+                        <th class="hc-datagrid__headcell" scope="col">ID</th>
+                        <th class="hc-datagrid__headcell" scope="col">商品名</th>
+                      </tr>
+                    </thead>
+                    <tbody class="hc-datagrid__body">
+                      <tr class="hc-datagrid__row" data-testid="nested-row">
+                        <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" aria-label="Select Chai" data-testid="nested-check"></td>
+                        <td class="hc-datagrid__cell">Chai</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <!-- Record 2 starts collapsed. -->
+        <tbody class="hc-datagrid__record" data-testid="rec-2">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-testid="toggle-cell-2" style="text-align: center;">
+              <button class="hc-datagrid__toggle" data-hc-datagrid-toggle type="button" aria-label="Condiments の詳細"></button>
+            </td>
+            <td class="hc-datagrid__cell">Condiments</td>
+            <td class="hc-datagrid__cell">Sweet and savory sauces, relishes, spreads</td>
+          </tr>
+          <tr class="hc-datagrid__detail-row" data-testid="detail-2">
+            <td class="hc-datagrid__detail" colspan="3"><p>詳細パネル（任意の HTML）</p></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
