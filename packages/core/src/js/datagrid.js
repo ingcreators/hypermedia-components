@@ -358,6 +358,7 @@ function attach(grid, detachers) {
     if (!cell || !cell.hasAttribute('data-editable')) return;
     const tpl = templates.get(cell.dataset.col);
     if (!tpl) return;
+    hideTip();
     if (editingCell) commitEdit();
 
     const oldLabel = cell.textContent.trim();
@@ -400,6 +401,51 @@ function attach(grid, detachers) {
     }
   }
 
+  // ---- Overflow tooltip ----
+  // A single shared, styled tooltip per grid shows the full text of a
+  // `.hc-datagrid__truncate` element when (and only when) it is clipped.
+  const scrollEl = grid.querySelector('.hc-datagrid__scroll');
+  const tip = grid.ownerDocument.createElement('div');
+  tip.className = 'hc-datagrid__tooltip';
+  tip.setAttribute('role', 'tooltip');
+  tip.hidden = true;
+  grid.appendChild(tip);
+
+  function showTip(el) {
+    tip.textContent = el.textContent.trim();
+    tip.hidden = false;
+    const r = el.getBoundingClientRect();
+    const tr = tip.getBoundingClientRect();
+    const doc = grid.ownerDocument.documentElement;
+    const vw = doc.clientWidth || 0;
+    const vh = doc.clientHeight || 0;
+    let left = r.left;
+    if (left + tr.width > vw - 4) left = Math.max(4, vw - tr.width - 4);
+    let top = r.bottom + 4;
+    if (top + tr.height > vh - 4) top = Math.max(4, r.top - tr.height - 4);
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+  }
+  function hideTip() {
+    tip.hidden = true;
+  }
+  function isClipped(el) {
+    return el && grid.contains(el) && el.scrollWidth > el.clientWidth + 1;
+  }
+  function onPointerOver(event) {
+    const el = event.target.closest?.('.hc-datagrid__truncate');
+    if (isClipped(el)) showTip(el);
+  }
+  function onPointerOut(event) {
+    if (event.target.closest?.('.hc-datagrid__truncate')) hideTip();
+  }
+  function onTipFocusin(event) {
+    const cell = event.target.closest?.('.hc-datagrid__cell');
+    const el = cell?.querySelector?.(':scope > .hc-datagrid__truncate') ?? null;
+    if (isClipped(el)) showTip(el);
+    else hideTip();
+  }
+
   rebuild();
   measure(grid);
 
@@ -407,6 +453,11 @@ function attach(grid, detachers) {
   table.addEventListener('change', onChange);
   table.addEventListener('focusin', onFocusin);
   table.addEventListener('dblclick', onDblclick);
+  grid.addEventListener('pointerover', onPointerOver);
+  grid.addEventListener('pointerout', onPointerOut);
+  grid.addEventListener('focusin', onTipFocusin);
+  grid.addEventListener('focusout', hideTip);
+  if (scrollEl) scrollEl.addEventListener('scroll', hideTip, { passive: true });
 
   let ro = null;
   if (typeof ResizeObserver !== 'undefined') {
@@ -428,6 +479,12 @@ function attach(grid, detachers) {
     table.removeEventListener('change', onChange);
     table.removeEventListener('focusin', onFocusin);
     table.removeEventListener('dblclick', onDblclick);
+    grid.removeEventListener('pointerover', onPointerOver);
+    grid.removeEventListener('pointerout', onPointerOut);
+    grid.removeEventListener('focusin', onTipFocusin);
+    grid.removeEventListener('focusout', hideTip);
+    if (scrollEl) scrollEl.removeEventListener('scroll', hideTip);
+    tip.remove();
     if (ro) ro.disconnect();
     if (mo) mo.disconnect();
   });

@@ -115,6 +115,13 @@ Security    — security-relevant changes
     returns an uninstaller, and picks up htmx-swapped grids/rows via
     `MutationObserver`.
 
+  - **Overflow truncation + tooltip:** wrap a value in
+    `.hc-datagrid__truncate` (with a fixed `max-inline-size` /
+    `--hc-datagrid-truncate-max`) to clip it to one ellipsised line;
+    `installDatagrid()` shows the full text in a single shared, styled
+    tooltip on hover/focus, but only when the value is actually clipped
+    (`scrollWidth > clientWidth`) — so it scales without a per-cell
+    tooltip. Reuses the `--hc-tooltip-*` tokens.
   - **Inline editing:** editable cells (`data-editable` + `data-col`)
     activate on Enter / F2 / double-click / type-to-edit; the column's
     `<template data-datagrid-editor>` is cloned into the cell, reusing

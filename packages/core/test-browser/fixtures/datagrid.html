@@ -49,7 +49,7 @@
             <th class="hc-datagrid__headcell" scope="col" data-testid="leaf-a1">Alpha</th>
             <th class="hc-datagrid__headcell" scope="col">Beta</th>
             <th class="hc-datagrid__headcell" scope="col">Gamma</th>
-            <th class="hc-datagrid__headcell" scope="col">Delta</th>
+            <th class="hc-datagrid__headcell" scope="col" style="width: 7rem;">Delta</th>
             <th class="hc-datagrid__headcell" scope="col">Epsilon</th>
             <th class="hc-datagrid__headcell" scope="col">Zeta</th>
           </tr>
@@ -74,7 +74,10 @@
       html += '<td class="hc-datagrid__cell" data-testid="cell-Alpha-' + r + '" data-editable data-col="alpha">Alpha ' + r + '</td>';
       html += '<td class="hc-datagrid__cell" data-testid="cell-Beta-' + r + '" data-editable data-col="beta" data-value="x">X</td>';
       html += '<td class="hc-datagrid__cell" data-testid="cell-Gamma-' + r + '" data-editable data-col="gamma" data-value="001">コードA</td>';
-      for (const c of ['Delta', 'Epsilon', 'Zeta']) {
+      // Delta = fixed-width truncating column (ellipsis + overflow tooltip).
+      html += '<td class="hc-datagrid__cell" data-testid="cell-Delta-' + r + '">'
+        + '<span class="hc-datagrid__truncate" style="max-inline-size:7rem;">Delta ' + r + ' very long content xxxxxxxxxxxxxxxxxxxx</span></td>';
+      for (const c of ['Epsilon', 'Zeta']) {
         html += '<td class="hc-datagrid__cell" data-testid="cell-' + c + '-' + r + '">'
           + c + ' value ' + r + ' (wide content)</td>';
       }

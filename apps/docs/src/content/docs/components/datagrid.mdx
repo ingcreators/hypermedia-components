@@ -162,6 +162,29 @@ State is expressed with attributes, styled by the component:
 | `data-highlight` | `.hc-datagrid__cell` | Column / cell highlight band. |
 | `data-editing` | `.hc-datagrid__cell` | Edit mode — padding drops so the editor fills the cell. |
 
+## Truncation &amp; overflow tooltip
+
+When a value is too wide for its column, clip it to one line with an
+ellipsis and reveal the full text on hover/focus. Wrap the value in
+`.hc-datagrid__truncate` and give it a fixed width (the column's content
+width) via `--hc-datagrid-truncate-max` or an inline `max-inline-size`:
+
+```html
+<td class="hc-datagrid__cell">
+  <span class="hc-datagrid__truncate" style="max-inline-size: 12rem">
+    データ1xxxxxxxxxxxxxx
+  </span>
+</td>
+```
+
+The fixed width is what makes truncation work: it caps the column's
+`max-content` so the table doesn't simply grow to fit. `installDatagrid()`
+watches these elements and, **only when the text is actually clipped**
+(`scrollWidth > clientWidth`), shows the full value in a single shared,
+styled tooltip on hover **and** keyboard focus — so it scales to a grid
+of hundreds of cells without a tooltip per cell. The tooltip reuses the
+`--hc-tooltip-*` tokens.
+
 ## Inline editing
 
 Editing reuses existing HC form controls rather than a bespoke editor
@@ -237,6 +260,7 @@ just overrides).
 | `--hc-datagrid-selected-bg` | `--hc-color-action-primary-soft-bg` |
 | `--hc-datagrid-highlight-bg` | `--hc-color-action-primary-soft-bg` |
 | `--hc-datagrid-max-height` | `70vh` |
+| `--hc-datagrid-truncate-max` | `16rem` (width of a `.hc-datagrid__truncate` cell) |
 
 ## Accessibility
 
