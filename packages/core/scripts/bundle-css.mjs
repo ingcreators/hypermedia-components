@@ -47,6 +47,7 @@ const COMPONENTS = [
   'hc-popover.css',
   'hc-card.css',
   'hc-table.css',
+  'hc-datagrid.css',
   'hc-avatar.css',
   'hc-badge.css',
   'hc-alert.css',

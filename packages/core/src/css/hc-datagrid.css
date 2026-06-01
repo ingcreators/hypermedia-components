@@ -1,0 +1,166 @@
+/* hc-datagrid — interactive, Excel-like data grid.
+ *
+ * Phase 1 (this file): the pure-CSS structure — a scroll viewport, a
+ * semantic <table>, multi-level *sticky* group/sub/leaf headers, *frozen*
+ * (sticky-left) columns, the freeze-line affordance, row selection /
+ * active-cell / column-highlight states, and the inline-editing cell
+ * state. Keyboard cell navigation, row selection wiring, and automatic
+ * offset measurement come from `installDatagrid()` (a separate behavior).
+ *
+ * It is built for PAGED data — htmx loads a page (~tens/hundreds of rows)
+ * and the grid renders that page. It is deliberately NOT a client-side
+ * virtual-scroll / sort / filter / editing engine; sorting, filtering and
+ * persistence are htmx / server concerns, and the cell editors are just
+ * existing HC form controls mounted into a cell.
+ *
+ * Offsets contract: the sticky `top` of each header level and the sticky
+ * `left` of each frozen column are read from CSS variables.
+ * `installDatagrid()` sets them automatically by measuring the rendered
+ * widths/heights; for a fully static grid you can set them yourself:
+ *   - header levels:  --hc-datagrid-head-1-h, --hc-datagrid-head-2-h
+ *   - frozen columns: a per-cell `--hc-datagrid-left` (inline style)
+ *
+ * Colours and spacing come from the shared semantic tokens, so the grid
+ * follows the active theme / density / colour automatically. The blue
+ * headers and tinted columns in product screenshots are app overrides of
+ * the `--hc-datagrid-*` knobs below.
+ */
+@layer hc.components {
+  .hc-datagrid {
+    /* Header-level heights — only the non-last levels need a fixed height
+       so the level(s) below can offset their sticky `top`. The leaf row
+       can be any height. */
+    --hc-datagrid-head-1-h: 2rem;
+    --hc-datagrid-head-2-h: 1.75rem;
+    --hc-datagrid-bg: var(--hc-color-surface);
+    --hc-datagrid-fg: var(--hc-color-text);
+    --hc-datagrid-border: var(--hc-color-border);
+    --hc-datagrid-head-bg: var(--hc-color-muted-bg);
+    --hc-datagrid-head-fg: var(--hc-color-text);
+    --hc-datagrid-frozen-bg: var(--hc-color-surface);
+    --hc-datagrid-row-hover-bg: var(--hc-color-muted-bg);
+    --hc-datagrid-selected-bg: var(--hc-color-action-primary-soft-bg);
+    --hc-datagrid-highlight-bg: var(--hc-color-action-primary-soft-bg);
+    --hc-datagrid-cell-padding-y: var(--hc-space-2);
+    --hc-datagrid-cell-padding-x: var(--hc-space-3);
+    --hc-datagrid-freeze-shadow: 2px 0 4px -2px rgb(0, 0, 0, 0.25);
+
+    position: relative;
+    border: 1px solid var(--hc-datagrid-border);
+    border-radius: var(--hc-control-radius);
+    background-color: var(--hc-datagrid-bg);
+    overflow: hidden; /* clip the rounded corners over the scroller */
+  }
+
+  /* The scroll viewport. Both axes scroll here, which is what makes the
+     sticky headers / frozen columns stick. */
+  .hc-datagrid__scroll {
+    overflow: auto;
+    max-block-size: var(--hc-datagrid-max-height, 70vh);
+    overscroll-behavior: contain;
+  }
+
+  .hc-datagrid__table {
+    inline-size: max-content; /* size to content so columns can overflow → horizontal scroll */
+    border-collapse: separate; /* `separate` keeps borders painted on sticky cells */
+    border-spacing: 0;
+    color: var(--hc-datagrid-fg);
+    font-size: var(--hc-font-size-sm);
+  }
+
+  .hc-datagrid__cell,
+  .hc-datagrid__headcell {
+    box-sizing: border-box;
+    padding: var(--hc-datagrid-cell-padding-y) var(--hc-datagrid-cell-padding-x);
+    border-inline-end: 1px solid var(--hc-datagrid-border);
+    border-block-end: 1px solid var(--hc-datagrid-border);
+    text-align: start;
+    vertical-align: top;
+    white-space: nowrap; /* Excel-like: cells don't wrap; the viewport scrolls */
+    background-color: var(--hc-datagrid-bg); /* opaque so sticky cells cover scrolled content */
+  }
+
+  /* ---- Sticky multi-level header ---- */
+  .hc-datagrid__headcell {
+    position: sticky;
+    z-index: 2;
+    background-color: var(--hc-datagrid-head-bg);
+    color: var(--hc-datagrid-head-fg);
+    font-weight: var(--hc-font-weight-semibold);
+  }
+
+  /* Stack the header rows by level via increasing `top` offsets. */
+  .hc-datagrid__head > tr:nth-child(1) > .hc-datagrid__headcell {
+    top: 0;
+  }
+
+  .hc-datagrid__head > tr:nth-child(2) > .hc-datagrid__headcell {
+    top: var(--hc-datagrid-head-1-h);
+  }
+
+  .hc-datagrid__head > tr:nth-child(3) > .hc-datagrid__headcell {
+    top: calc(var(--hc-datagrid-head-1-h) + var(--hc-datagrid-head-2-h));
+  }
+
+  /* ---- Frozen (sticky-left) columns ---- */
+  .hc-datagrid__cell[data-frozen],
+  .hc-datagrid__headcell[data-frozen] {
+    position: sticky;
+    left: var(--hc-datagrid-left, 0);
+    z-index: 1; /* above normal body cells when scrolled horizontally */
+    background-color: var(--hc-datagrid-frozen-bg);
+  }
+
+  /* Corner cells (frozen AND in the header) must beat both layers. */
+  .hc-datagrid__headcell[data-frozen] {
+    z-index: 3;
+  }
+
+  /* The last frozen column casts the freeze line. */
+  .hc-datagrid__cell[data-frozen-edge],
+  .hc-datagrid__headcell[data-frozen-edge] {
+    box-shadow: var(--hc-datagrid-freeze-shadow);
+  }
+
+  /* ---- States ---- */
+  .hc-datagrid__body > .hc-datagrid__row:hover > .hc-datagrid__cell {
+    background-color: var(--hc-datagrid-row-hover-bg);
+  }
+
+  .hc-datagrid__row[aria-selected="true"] > .hc-datagrid__cell {
+    background-color: var(--hc-datagrid-selected-bg);
+  }
+
+  /* Column / cell highlight (e.g. the active column band). */
+  .hc-datagrid__cell[data-highlight] {
+    background-color: var(--hc-datagrid-highlight-bg);
+  }
+
+  /* Active cell — the keyboard focus target (installDatagrid sets
+     data-active). */
+  .hc-datagrid__cell[data-active] {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  /* ---- Inline editing ---- */
+
+  /* When a cell enters edit mode the behavior mounts an HC form control
+     (hc-input / hc-select / hc-combobox / date input) as its only child.
+     Drop the padding so the editor fills the cell edge-to-edge. */
+  .hc-datagrid__cell[data-editing] {
+    padding: 0;
+  }
+
+  .hc-datagrid__cell[data-editing] > :first-child {
+    inline-size: 100%;
+    block-size: 100%;
+    border-radius: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-datagrid__scroll {
+      scroll-behavior: auto;
+    }
+  }
+}
