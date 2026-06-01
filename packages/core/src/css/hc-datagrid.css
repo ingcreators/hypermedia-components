@@ -125,18 +125,32 @@
     box-shadow: var(--hc-datagrid-freeze-shadow);
   }
 
-  /* ---- States ---- */
+  /* ---- States ----
+     State tints are painted as a background-IMAGE layer (not background-color)
+     so each cell's opaque background-color base (surface, or frozen-bg on a
+     sticky column) stays behind a semi-transparent tint. This keeps frozen
+     columns opaque when the row is selected / hovered / highlighted, so
+     horizontally-scrolled content never bleeds through them. */
   .hc-datagrid__body > .hc-datagrid__row:hover > .hc-datagrid__cell {
-    background-color: var(--hc-datagrid-row-hover-bg);
+    background-image: linear-gradient(
+      var(--hc-datagrid-row-hover-bg),
+      var(--hc-datagrid-row-hover-bg)
+    );
   }
 
   .hc-datagrid__row[aria-selected="true"] > .hc-datagrid__cell {
-    background-color: var(--hc-datagrid-selected-bg);
+    background-image: linear-gradient(
+      var(--hc-datagrid-selected-bg),
+      var(--hc-datagrid-selected-bg)
+    );
   }
 
   /* Column / cell highlight (e.g. the active column band). */
   .hc-datagrid__cell[data-highlight] {
-    background-color: var(--hc-datagrid-highlight-bg);
+    background-image: linear-gradient(
+      var(--hc-datagrid-highlight-bg),
+      var(--hc-datagrid-highlight-bg)
+    );
   }
 
   /* Active cell — the keyboard focus target (installDatagrid sets
@@ -162,7 +176,10 @@
   }
 
   .hc-datagrid__record:hover > .hc-datagrid__row > .hc-datagrid__cell {
-    background-color: var(--hc-datagrid-row-hover-bg);
+    background-image: linear-gradient(
+      var(--hc-datagrid-row-hover-bg),
+      var(--hc-datagrid-row-hover-bg)
+    );
   }
 
   /* The lead (rowspan) cell of the record that holds the active cell. */
