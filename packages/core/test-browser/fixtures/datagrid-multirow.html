@@ -16,12 +16,12 @@
             <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col" style="--hc-datagrid-left:0; width:56px; text-align:center;">
               <input type="checkbox" class="hc-checkbox" aria-label="Select all" data-testid="select-all">
             </th>
-            <th class="hc-datagrid__headcell" scope="col">品番</th>
-            <th class="hc-datagrid__headcell" scope="col">商品名</th>
+            <th class="hc-datagrid__headcell" scope="col">Code</th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
           </tr>
           <tr>
-            <th class="hc-datagrid__headcell" scope="col">数量</th>
-            <th class="hc-datagrid__headcell" scope="col">単価</th>
+            <th class="hc-datagrid__headcell" scope="col">Qty</th>
+            <th class="hc-datagrid__headcell" scope="col">Unit price</th>
           </tr>
         </thead>
         <tbody id="records"></tbody>
@@ -43,11 +43,11 @@
         + '<input type="checkbox" class="hc-checkbox" aria-label="Select record ' + i + '" data-testid="check-' + i + '">'
         + '<div>' + i + '</div></td>';
       html += '<td class="hc-datagrid__cell">D000' + i + '</td>';
-      html += '<td class="hc-datagrid__cell" data-testid="name-' + i + '">商品 ' + i + ' ベターローストハム</td>';
+      html += '<td class="hc-datagrid__cell" data-testid="name-' + i + '">Product ' + i + ' Better Roast Ham</td>';
       html += '</tr>';
       html += '<tr class="hc-datagrid__row">';
-      html += '<td class="hc-datagrid__cell" data-testid="qty-' + i + '">' + (10 + i) + ' 箱</td>';
-      html += '<td class="hc-datagrid__cell">¥14,000</td>';
+      html += '<td class="hc-datagrid__cell" data-testid="qty-' + i + '">' + (10 + i) + ' boxes</td>';
+      html += '<td class="hc-datagrid__cell">$14,000</td>';
       html += '</tr>';
       html += '</tbody>';
     }

@@ -174,11 +174,11 @@ test.describe('hc-datagrid — inline editing (installDatagrid)', () => {
       el.dispatchEvent(
         new CustomEvent('hc:comboboxselect', {
           bubbles: true,
-          detail: { value: '002', label: 'コードB' },
+          detail: { value: '002', label: 'Code B' },
         }),
       );
     });
-    await expect(cell).toHaveText('コードB');
+    await expect(cell).toHaveText('Code B');
     await expect(cell).toHaveAttribute('data-value', '002');
   });
 

@@ -26,9 +26,9 @@
         <input class="hc-combobox__input hc-input" type="text" role="combobox"
                aria-haspopup="listbox" aria-controls="dg-gamma-list" aria-label="Gamma code" autocomplete="off">
         <ul class="hc-combobox__listbox" id="dg-gamma-list" role="listbox" popover>
-          <li class="hc-combobox__option" role="option" data-value="001">コードA</li>
-          <li class="hc-combobox__option" role="option" data-value="002">コードB</li>
-          <li class="hc-combobox__option" role="option" data-value="003">コードC</li>
+          <li class="hc-combobox__option" role="option" data-value="001">Code A</li>
+          <li class="hc-combobox__option" role="option" data-value="002">Code B</li>
+          <li class="hc-combobox__option" role="option" data-value="003">Code C</li>
         </ul>
       </div>
     </template>
@@ -73,7 +73,7 @@
       // Alpha = editable text, Beta = editable select, Gamma = editable combobox.
       html += '<td class="hc-datagrid__cell" data-testid="cell-Alpha-' + r + '" data-editable data-col="alpha">Alpha ' + r + '</td>';
       html += '<td class="hc-datagrid__cell" data-testid="cell-Beta-' + r + '" data-editable data-col="beta" data-value="x">X</td>';
-      html += '<td class="hc-datagrid__cell" data-testid="cell-Gamma-' + r + '" data-editable data-col="gamma" data-value="001">コードA</td>';
+      html += '<td class="hc-datagrid__cell" data-testid="cell-Gamma-' + r + '" data-editable data-col="gamma" data-value="001">Code A</td>';
       // Delta = fixed-width truncating column (ellipsis + overflow tooltip).
       html += '<td class="hc-datagrid__cell" data-testid="cell-Delta-' + r + '">'
         + '<span class="hc-datagrid__truncate" style="max-inline-size:7rem;">Delta ' + r + ' very long content xxxxxxxxxxxxxxxxxxxx</span></td>';
