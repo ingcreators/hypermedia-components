@@ -219,3 +219,46 @@ test.describe('hc-datagrid — overflow truncation & tooltip', () => {
     await expect(page.locator('.hc-datagrid__tooltip')).toBeHidden();
   });
 });
+
+test.describe('hc-datagrid — multi-row records', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/datagrid-multirow.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(
+      () =>
+        document.querySelector('.hc-datagrid__table')?.getAttribute('role') ===
+        'grid',
+    );
+  });
+
+  test('selecting a record marks all of its sub-rows', async ({ page }) => {
+    await page.getByTestId('check-1').check();
+    const rows = page.getByTestId('rec-1').locator('.hc-datagrid__row');
+    await expect(rows.nth(0)).toHaveAttribute('aria-selected', 'true');
+    await expect(rows.nth(1)).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('rec-1')).toHaveAttribute('data-selected', '');
+  });
+
+  test('select-all selects every record', async ({ page }) => {
+    await page.getByTestId('select-all').check();
+    await expect(page.getByTestId('rec-1')).toHaveAttribute('data-selected', '');
+    await expect(page.getByTestId('rec-4')).toHaveAttribute('data-selected', '');
+  });
+
+  test('focusing a cell marks its record current and navigates across sub-rows', async ({
+    page,
+  }) => {
+    await page.getByTestId('name-2').focus();
+    await expect(page.getByTestId('rec-2')).toHaveAttribute('data-current', '');
+    // Down into the second sub-row of the same record, then into record 3.
+    await page.keyboard.press('ArrowDown');
+    await expect(page.getByTestId('rec-2')).toHaveAttribute('data-current', '');
+    await page.keyboard.press('ArrowDown');
+    await expect(page.getByTestId('rec-3')).toHaveAttribute('data-current', '');
+    await expect(page.getByTestId('rec-2')).not.toHaveAttribute('data-current', '');
+  });
+
+  test('axe finds no violations', async ({ page }) => {
+    const results = await new AxeBuilder({ page }).include('[data-testid="grid"]').analyze();
+    expect(results.violations).toEqual([]);
+  });
+});

@@ -41,6 +41,9 @@
     --hc-datagrid-row-hover-bg: var(--hc-color-muted-bg);
     --hc-datagrid-selected-bg: var(--hc-color-action-primary-soft-bg);
     --hc-datagrid-highlight-bg: var(--hc-color-action-primary-soft-bg);
+    --hc-datagrid-subrow-border: color-mix(in srgb, var(--hc-color-border) 55%, var(--hc-color-surface));
+    --hc-datagrid-current-bg: var(--hc-color-action-primary-bg);
+    --hc-datagrid-current-fg: var(--hc-color-action-primary-fg);
     --hc-datagrid-cell-padding-y: var(--hc-space-2);
     --hc-datagrid-cell-padding-x: var(--hc-space-3);
     --hc-datagrid-freeze-shadow: 2px 0 4px -2px rgb(0, 0, 0, 0.25);
@@ -141,6 +144,33 @@
   .hc-datagrid__cell[data-active] {
     outline: 2px solid var(--hc-color-focus-ring);
     outline-offset: -2px;
+  }
+
+  /* ---- Multi-row records (one record across several rows) ---- */
+
+  /* Each record is a <tbody class="hc-datagrid__record"> of sub-rows; the
+     lead column usually spans them with rowspan. Sub-rows get a light
+     separator; the record boundary (last sub-row + the rowspan lead cell)
+     keeps the normal border. */
+  .hc-datagrid__record > .hc-datagrid__row > .hc-datagrid__cell {
+    border-block-end-color: var(--hc-datagrid-subrow-border);
+  }
+
+  .hc-datagrid__record > .hc-datagrid__row:last-child > .hc-datagrid__cell,
+  .hc-datagrid__record > .hc-datagrid__row:first-child > .hc-datagrid__cell[rowspan] {
+    border-block-end-color: var(--hc-datagrid-border);
+  }
+
+  .hc-datagrid__record:hover > .hc-datagrid__row > .hc-datagrid__cell {
+    background-color: var(--hc-datagrid-row-hover-bg);
+  }
+
+  /* The lead (rowspan) cell of the record that holds the active cell. */
+  .hc-datagrid__record[data-current]
+    > .hc-datagrid__row:first-child
+    > .hc-datagrid__cell[rowspan] {
+    background-color: var(--hc-datagrid-current-bg);
+    color: var(--hc-datagrid-current-fg);
   }
 
   /* ---- Inline editing ---- */

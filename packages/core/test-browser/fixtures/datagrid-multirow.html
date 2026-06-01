@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-datagrid multi-row records fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <div class="hc-datagrid" data-testid="grid" style="max-inline-size: 640px;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col" style="--hc-datagrid-left:0; width:56px; text-align:center;">
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all" data-testid="select-all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">品番</th>
+            <th class="hc-datagrid__headcell" scope="col">商品名</th>
+          </tr>
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">数量</th>
+            <th class="hc-datagrid__headcell" scope="col">単価</th>
+          </tr>
+        </thead>
+        <tbody id="records"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Each record is its own <tbody class="hc-datagrid__record"> with two
+    // sub-rows; the lead (No.) cell spans them with rowspan and holds the
+    // record's select checkbox.
+    const root = document.getElementById('records');
+    let html = '';
+    for (let i = 1; i <= 4; i += 1) {
+      html += '<tbody class="hc-datagrid__record" data-testid="rec-' + i + '">';
+      html += '<tr class="hc-datagrid__row">';
+      html += '<td class="hc-datagrid__cell" data-frozen data-frozen-edge rowspan="2" '
+        + 'style="--hc-datagrid-left:0; width:56px; text-align:center;">'
+        + '<input type="checkbox" class="hc-checkbox" aria-label="Select record ' + i + '" data-testid="check-' + i + '">'
+        + '<div>' + i + '</div></td>';
+      html += '<td class="hc-datagrid__cell">D000' + i + '</td>';
+      html += '<td class="hc-datagrid__cell" data-testid="name-' + i + '">商品 ' + i + ' ベターローストハム</td>';
+      html += '</tr>';
+      html += '<tr class="hc-datagrid__row">';
+      html += '<td class="hc-datagrid__cell" data-testid="qty-' + i + '">' + (10 + i) + ' 箱</td>';
+      html += '<td class="hc-datagrid__cell">¥14,000</td>';
+      html += '</tr>';
+      html += '</tbody>';
+    }
+    // Replace the placeholder tbody with the record tbodies.
+    root.outerHTML = html;
+  </script>
+</body>
+</html>

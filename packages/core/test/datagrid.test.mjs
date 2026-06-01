@@ -251,3 +251,96 @@ describe('installDatagrid — inline editing', () => {
     expect(input.value).toBe('Z');
   });
 });
+
+const FIXTURE_MULTI = `
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" rowspan="2" scope="col">
+              <input type="checkbox" class="hc-checkbox" id="select-all" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">Code</th>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+          </tr>
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Qty</th>
+            <th class="hc-datagrid__headcell" scope="col">Price</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__record" id="rec-1">
+          <tr class="hc-datagrid__row" id="r1a">
+            <td class="hc-datagrid__cell" rowspan="2"><input type="checkbox" class="hc-checkbox" aria-label="Select record 1"></td>
+            <td class="hc-datagrid__cell" id="c-r1-code">D0006</td>
+            <td class="hc-datagrid__cell">Ham</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="r1b">
+            <td class="hc-datagrid__cell" id="c-r1-qty">12</td>
+            <td class="hc-datagrid__cell">14000</td>
+          </tr>
+        </tbody>
+        <tbody class="hc-datagrid__record" id="rec-2">
+          <tr class="hc-datagrid__row" id="r2a">
+            <td class="hc-datagrid__cell" rowspan="2"><input type="checkbox" class="hc-checkbox" aria-label="Select record 2"></td>
+            <td class="hc-datagrid__cell" id="c-r2-code">D0004</td>
+            <td class="hc-datagrid__cell">Rice</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="r2b">
+            <td class="hc-datagrid__cell">47</td>
+            <td class="hc-datagrid__cell">17250</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+`;
+
+describe('installDatagrid — multi-row records', () => {
+  it('a record checkbox selects all of the record’s sub-rows and counts by record', () => {
+    document.body.innerHTML = FIXTURE_MULTI;
+    uninstall = installDatagrid();
+    const onSel = vi.fn();
+    $('grid').addEventListener('hc:datagridselectionchange', (e) => onSel(e.detail));
+
+    const cb = $('rec-1').querySelector('input[type="checkbox"]');
+    cb.checked = true;
+    cb.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect($('r1a').getAttribute('aria-selected')).toBe('true');
+    expect($('r1b').getAttribute('aria-selected')).toBe('true');
+    expect($('rec-1').hasAttribute('data-selected')).toBe(true);
+    expect(onSel.mock.calls.at(-1)[0]).toMatchObject({ selected: 1, total: 2 });
+  });
+
+  it('the select-all checkbox selects every record', () => {
+    document.body.innerHTML = FIXTURE_MULTI;
+    uninstall = installDatagrid();
+    const all = $('select-all');
+    all.checked = true;
+    all.dispatchEvent(new Event('change', { bubbles: true }));
+    expect($('rec-1').hasAttribute('data-selected')).toBe(true);
+    expect($('rec-2').hasAttribute('data-selected')).toBe(true);
+  });
+
+  it('Space on a cell selects that cell’s record', () => {
+    document.body.innerHTML = FIXTURE_MULTI;
+    uninstall = installDatagrid();
+    $('c-r2-code').focus();
+    press($('c-r2-code'), ' ');
+    expect($('rec-2').hasAttribute('data-selected')).toBe(true);
+    expect($('rec-2').querySelector('input[type="checkbox"]').checked).toBe(true);
+  });
+
+  it('arrow keys navigate across a record’s sub-rows and sets the current record', () => {
+    document.body.innerHTML = FIXTURE_MULTI;
+    uninstall = installDatagrid();
+    $('c-r1-code').focus();
+    expect($('rec-1').hasAttribute('data-current')).toBe(true);
+    press($('c-r1-code'), 'ArrowDown'); // into the second sub-row
+    expect($('r1b').querySelector('[data-active]')).toBeTruthy();
+    press($('r1b').querySelector('[data-active]'), 'ArrowDown'); // into record 2
+    expect($('rec-2').hasAttribute('data-current')).toBe(true);
+    expect($('rec-1').hasAttribute('data-current')).toBe(false);
+  });
+});
