@@ -95,23 +95,32 @@ Security    — security-relevant changes
 
 ### Added
 
-- **`hc-datagrid` (Phase 1 — CSS structure).** An interactive, Excel-like
-  data grid for business screens, built on a semantic `<table>` and
-  `position: sticky`: multi-level sticky group/sub/leaf headers, frozen
-  (sticky-left) columns with a freeze-line affordance, and styling for
-  row selection (`aria-selected`), active cell (`data-active`), column
-  highlight (`data-highlight`), and the inline-editing cell slot
-  (`data-editing`, padding drops so an HC form control fills the cell).
-  Built for **paged** data (htmx loads a page) — explicitly not a
-  client-side virtual-scroll / sort / filter engine. Sticky `top`/`left`
-  offsets are read from CSS variables (`--hc-datagrid-head-1-h`,
-  per-cell `--hc-datagrid-left`); colours come from the shared tokens.
-  New Components → Datagrid docs page and Playwright coverage (sticky
-  header on vertical scroll, frozen columns on horizontal scroll, corner
-  pinning, header-level stacking, edit-cell padding, axe). The
-  `installDatagrid()` behavior — WAI-ARIA *grid* keyboard navigation, row
-  selection, inline-edit activation, and automatic offset measurement —
-  follows in a later release.
+- **`hc-datagrid`** — an interactive, Excel-like data grid for business
+  screens, built on a semantic `<table>` and `position: sticky`.
+  - **CSS layer:** multi-level sticky group/sub/leaf headers, frozen
+    (sticky-left) columns with a freeze-line affordance, and styling for
+    row selection (`aria-selected`), active cell (`data-active`), column
+    highlight (`data-highlight`), and the inline-editing cell slot
+    (`data-editing`, padding drops so an HC form control fills the cell).
+    Built for **paged** data (htmx loads a page) — explicitly not a
+    client-side virtual-scroll / sort / filter engine.
+  - **`installDatagrid()` behavior:** measures the rendered header heights
+    and frozen-column widths and writes the sticky offset variables
+    (`--hc-datagrid-head-1-h`, per-cell `--hc-datagrid-left`),
+    re-measuring on resize; applies the WAI-ARIA *grid* roles and a
+    roving-tabindex keyboard model (arrows / Home / End / Ctrl+Home·End /
+    Page Up·Down move the active cell; the grid is one tab stop); and
+    wires row selection (Space + per-row checkbox + select-all with an
+    indeterminate state), emitting `hc:datagridselectionchange`. Idempotent,
+    returns an uninstaller, and picks up htmx-swapped grids/rows via
+    `MutationObserver`.
+
+    Colours come from the shared tokens. New Components → Datagrid docs
+    page; Vitest unit coverage and Playwright coverage (sticky header /
+    frozen columns / corner pinning via the behavior's auto-measurement,
+    header stacking, edit-cell slot, keyboard navigation, selection,
+    select-all, axe). Inline cell **editing** (per-column `<template>`
+    editors) is the remaining phase.
 - **`hc-shell`** — a full-viewport application shell for business apps:
   a persistent sidebar, header, scrolling main region, and optional aside
   (third column, added via `:has()`) and footer, on a CSS Grid with

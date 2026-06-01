@@ -12,12 +12,10 @@ sort / filter engine: sorting, filtering, and persistence stay on the
 server (htmx), and the cell editors are just existing HC form controls.
 
 :::note[Phased delivery]
-This page documents the **CSS layer** (sticky headers, frozen columns,
-state styling, the editing-cell slot). The `installDatagrid()` behavior —
-keyboard cell navigation (the WAI-ARIA *grid* pattern), row-selection
-wiring, inline-edit activation, and automatic measurement of the sticky
-offsets — ships next. Until then, set the offset variables yourself (see
-below).
+The CSS layout **and** `installDatagrid()` (keyboard cell navigation,
+row selection, and automatic sticky-offset measurement) are shipped.
+Inline cell **editing** — per-column `<template>` editors mounted on
+activation — is the remaining phase.
 :::
 
 ## Browser baseline
@@ -122,11 +120,42 @@ they can be set to the real rendered sizes:
 | `--hc-datagrid-head-2-h` | `.hc-datagrid` | Height of the sub (2nd) header row — added for the 3rd row's offset. |
 | `--hc-datagrid-left` | each frozen cell | The cell's `left` offset = total width of the frozen columns before it. |
 
-`installDatagrid()` will **measure and set these automatically**. For a
-static grid, set them yourself: give the frozen columns fixed widths and
-set each frozen cell's `--hc-datagrid-left` to the cumulative width, and
-set `--hc-datagrid-head-1-h` to the group-row height (as in the demo
-above).
+`installDatagrid()` **measures and sets these automatically** (and
+re-measures on resize). For a static, script-free grid, set them
+yourself: give the frozen columns fixed widths and set each frozen cell's
+`--hc-datagrid-left` to the cumulative width, and `--hc-datagrid-head-1-h`
+to the group-row height (as in the demo above).
+
+## Behavior — `installDatagrid()`
+
+```js
+import { installDatagrid } from '@hypermedia-components/core';
+installDatagrid(); // or the auto-init bundle: @hypermedia-components/core/behaviors
+```
+
+It upgrades the server-rendered table into an interactive grid
+([WAI-ARIA grid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/grid/)):
+applies `role="grid"` and a roving tabindex over the body cells, measures
+the sticky offsets, and wires selection. It never fetches — paging and
+persistence stay with htmx / the server. Idempotent, returns an
+uninstaller, and picks up htmx-swapped grids and rows via
+`MutationObserver`.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| Arrow keys | Move the active cell |
+| Home / End | First / last cell in the row |
+| Ctrl + Home / End | First cell of the first row / last cell of the last row |
+| Page Up / Down | Move by a viewport of rows |
+| Space | Toggle the active row's selection |
+
+The grid is a single tab stop; widgets inside cells are not separate tab
+stops. `Space` toggles the row's checkbox and `aria-selected`; the header
+select-all checkbox toggles every row (with an indeterminate state when
+the selection is partial). Selection changes emit
+`hc:datagridselectionchange` (`detail: { selected, total }`) on the grid.
 
 ## States
 
@@ -181,9 +210,9 @@ just overrides).
 - It is a real `<table>` with `<thead>` / `<tbody>`, `scope` on header
   cells, and `aria-label`s on the row-select checkboxes — so it is
   meaningful without any script.
-- Full keyboard cell navigation follows the
+- `installDatagrid()` adds full keyboard cell navigation following the
   [WAI-ARIA grid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/grid/)
-  and arrives with `installDatagrid()`.
+  (see [Behavior](#behavior--installdatagrid) above).
 - The scroll viewport contains focusable controls (the checkboxes), so it
   is keyboard-reachable.
 

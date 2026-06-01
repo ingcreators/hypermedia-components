@@ -3,22 +3,15 @@ import AxeBuilder from '@axe-core/playwright';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/datagrid.html', { waitUntil: 'domcontentloaded' });
-  // Mirror what installDatagrid() (Phase 2) does: measure the real header
-  // row height and frozen column width and write the sticky offsets back
-  // as CSS variables, so the offsets match the rendered layout exactly.
-  await page.evaluate(() => {
-    const grid = document.querySelector('.hc-datagrid');
-    const headRow1 = grid.querySelector('.hc-datagrid__head > tr');
-    grid.style.setProperty(
-      '--hc-datagrid-head-1-h',
-      headRow1.getBoundingClientRect().height + 'px',
-    );
-    const idHead = document.querySelector('[data-testid="corner-id"]');
-    const checkW = idHead.previousElementSibling.getBoundingClientRect().width;
-    document
-      .querySelectorAll('[data-frozen-edge]')
-      .forEach((c) => c.style.setProperty('--hc-datagrid-left', checkW + 'px'));
-  });
+  // installDatagrid() (auto-init) applies the grid role and MEASURES the
+  // sticky offsets. Waiting for role="grid" guarantees the offsets have
+  // been written before we assert the sticky layout — so these tests also
+  // prove the behavior's automatic measurement is correct.
+  await page.waitForFunction(
+    () =>
+      document.querySelector('.hc-datagrid__table')?.getAttribute('role') ===
+      'grid',
+  );
 });
 
 const rectOf = (loc) =>
@@ -90,5 +83,46 @@ test.describe('hc-datagrid — Phase 1 structure', () => {
   test('axe finds no violations in the grid', async ({ page }) => {
     const results = await new AxeBuilder({ page }).include('[data-testid="grid"]').analyze();
     expect(results.violations).toEqual([]);
+  });
+});
+
+test.describe('hc-datagrid — keyboard & selection (installDatagrid)', () => {
+  const activeTestId = (page) =>
+    page.evaluate(
+      () =>
+        document
+          .querySelector('.hc-datagrid__cell[data-active]')
+          ?.getAttribute('data-testid') ?? null,
+    );
+
+  test('arrow keys move the active cell across rows and columns', async ({ page }) => {
+    await page.getByTestId('cell-id-1').focus();
+    await page.keyboard.press('ArrowRight');
+    expect(await activeTestId(page)).toBe('cell-Alpha-1');
+    await page.keyboard.press('ArrowDown');
+    expect(await activeTestId(page)).toBe('cell-Alpha-2');
+    await page.keyboard.press('ArrowLeft');
+    expect(await activeTestId(page)).toBe('cell-id-2');
+  });
+
+  test('Ctrl+End jumps to the last cell of the last row', async ({ page }) => {
+    await page.getByTestId('cell-id-1').focus();
+    await page.keyboard.press('Control+End');
+    expect(await activeTestId(page)).toBe('cell-Zeta-14');
+  });
+
+  test('Space selects the active row (checkbox + aria-selected)', async ({ page }) => {
+    await page.getByTestId('cell-Alpha-2').focus();
+    await page.keyboard.press('Space');
+    await expect(page.getByTestId('row-2')).toHaveAttribute('aria-selected', 'true');
+    expect(
+      await page.getByTestId('row-2').locator('input[type="checkbox"]').isChecked(),
+    ).toBe(true);
+  });
+
+  test('the select-all checkbox selects every row', async ({ page }) => {
+    await page.getByTestId('corner-check').locator('input[type="checkbox"]').check();
+    await expect(page.getByTestId('row-1')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('row-14')).toHaveAttribute('aria-selected', 'true');
   });
 });
