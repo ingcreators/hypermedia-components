@@ -104,6 +104,9 @@ Security    — security-relevant changes
     (`data-editing`, padding drops so an HC form control fills the cell).
     Built for **paged** data (htmx loads a page) — explicitly not a
     client-side virtual-scroll / sort / filter engine.
+  - **Vertical headers:** `data-orientation="vertical"` on a header cell
+    rotates its label (`writing-mode: vertical-rl`) so a long name reads
+    top-to-bottom in a narrow column instead of widening it (pure CSS).
   - **`installDatagrid()` behavior:** measures the rendered header heights
     and frozen-column widths and writes the sticky offset variables
     (`--hc-datagrid-head-1-h`, per-cell `--hc-datagrid-left`),

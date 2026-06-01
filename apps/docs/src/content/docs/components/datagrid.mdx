@@ -120,6 +120,45 @@ yourself: give the frozen columns fixed widths and set each frozen cell's
 `--hc-datagrid-left` to the cumulative width, and `--hc-datagrid-head-1-h`
 to the group-row height (as in the demo above).
 
+## Vertical headers
+
+When a header name is much longer than its column's data, rotate the label
+instead of widening the column. Add `data-orientation="vertical"` to the
+header cell — the label reads top-to-bottom (CJK upright, Latin rotated)
+and the column stays as narrow as its data. Use it on the **leaf** header
+row (the bottom sticky row, whose height is unconstrained):
+
+<div class="hc-preview not-content">
+  <div class="hc-datagrid" style="max-inline-size: 22rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+            <th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">Very long header name 2</th>
+            <th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">Discontinued flag</th>
+            <th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">Reorder level</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row"><td class="hc-datagrid__cell">Chai</td><td class="hc-datagrid__cell">18</td><td class="hc-datagrid__cell">no</td><td class="hc-datagrid__cell">10</td></tr>
+          <tr class="hc-datagrid__row"><td class="hc-datagrid__cell">Chang</td><td class="hc-datagrid__cell">19</td><td class="hc-datagrid__cell">no</td><td class="hc-datagrid__cell">25</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+```html
+<th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">
+  Very long header name
+</th>
+```
+
+It is pure CSS (`writing-mode: vertical-rl`) — no behavior needed. Keep any
+group / sub header above it horizontal; only the leaf row should be
+vertical so the sticky stacking stays simple.
+
 ## Behavior — `installDatagrid()`
 
 ```js

@@ -278,6 +278,41 @@ test.describe('hc-datagrid — multi-row records', () => {
   });
 });
 
+test.describe('hc-datagrid — vertical headers', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/datagrid-vertical.html', { waitUntil: 'domcontentloaded' });
+  });
+
+  test('a vertical header rotates its label and keeps the column narrow', async ({
+    page,
+  }) => {
+    const vh = page.getByTestId('vh-1');
+    const { writingMode, width, height } = await vh.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return { writingMode: cs.writingMode, width: r.width, height: r.height };
+    });
+    expect(writingMode).toBe('vertical-rl');
+    // Despite a very long label the column stays narrow (≈ line height),
+    // and the header cell is taller than it is wide.
+    expect(width).toBeLessThan(64);
+    expect(height).toBeGreaterThan(width);
+
+    // The data column under it is just as narrow.
+    const cellWidth = await page
+      .getByTestId('vcell-1')
+      .evaluate((el) => el.getBoundingClientRect().width);
+    expect(cellWidth).toBeLessThan(64);
+  });
+
+  test('a normal header in the same grid is not rotated', async ({ page }) => {
+    const wm = await page
+      .getByTestId('h-name')
+      .evaluate((el) => getComputedStyle(el).writingMode);
+    expect(wm).toBe('horizontal-tb');
+  });
+});
+
 test.describe('hc-datagrid — expandable row detail', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/datagrid-detail.html', { waitUntil: 'domcontentloaded' });

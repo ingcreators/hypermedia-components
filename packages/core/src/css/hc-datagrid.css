@@ -105,6 +105,16 @@
     top: calc(var(--hc-datagrid-head-1-h) + var(--hc-datagrid-head-2-h));
   }
 
+  /* Vertical header label — `data-orientation="vertical"` rotates the text so
+     a long name reads top-to-bottom in a narrow column instead of widening
+     it (CJK stays upright, Latin rotates). Use it on the leaf header row (the
+     bottom sticky row, whose height is unconstrained). */
+  .hc-datagrid__headcell[data-orientation="vertical"] {
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+
   /* ---- Frozen (sticky-left) columns ---- */
   .hc-datagrid__cell[data-frozen],
   .hc-datagrid__headcell[data-frozen] {
