@@ -95,6 +95,21 @@ test.describe('hc-datagrid — Phase 1 structure', () => {
     expect(hasImage).toBe(true);
   });
 
+  test('the header background is distinct from the row-hover background', async ({
+    page,
+  }) => {
+    const { head, hover } = await page.getByTestId('grid').evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        head: cs.getPropertyValue('--hc-datagrid-head-bg').trim(),
+        hover: cs.getPropertyValue('--hc-datagrid-row-hover-bg').trim(),
+      };
+    });
+    expect(head).toBeTruthy();
+    expect(hover).toBeTruthy();
+    expect(head).not.toBe(hover); // header (grey) must differ from hover (accent tint)
+  });
+
   test('axe finds no violations in the grid', async ({ page }) => {
     const results = await new AxeBuilder({ page }).include('[data-testid="grid"]').analyze();
     expect(results.violations).toEqual([]);

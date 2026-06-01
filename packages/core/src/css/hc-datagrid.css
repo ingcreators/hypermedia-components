@@ -38,7 +38,10 @@
     --hc-datagrid-head-bg: var(--hc-color-muted-bg);
     --hc-datagrid-head-fg: var(--hc-color-text);
     --hc-datagrid-frozen-bg: var(--hc-color-surface);
-    --hc-datagrid-row-hover-bg: var(--hc-color-muted-bg);
+
+    /* A faint accent tint, distinct in hue from the grey header band (and
+       lighter than the selected tint), so a hovered row reads clearly. */
+    --hc-datagrid-row-hover-bg: color-mix(in srgb, var(--hc-color-action-primary-bg) 8%, transparent);
     --hc-datagrid-selected-bg: var(--hc-color-action-primary-soft-bg);
     --hc-datagrid-highlight-bg: var(--hc-color-action-primary-soft-bg);
     --hc-datagrid-subrow-border: color-mix(in srgb, var(--hc-color-border) 55%, var(--hc-color-surface));
