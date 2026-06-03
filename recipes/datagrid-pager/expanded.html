@@ -1,0 +1,50 @@
+<!-- datagrid-pager — expanded form.
+     A frozen ID column, a status line ("X–Y / total"), and a prev/next +
+     numbered pager. The grid body and the pager + status are updated
+     together: rows swap into #rows (innerHTML); the pager and status are
+     returned as out-of-band fragments (hx-swap-oob) by the server. -->
+<div class="hc-datagrid" style="--hc-datagrid-max-height: 24rem;">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" data-frozen scope="col" style="--hc-datagrid-left:0;">
+            <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+          </th>
+          <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col" style="--hc-datagrid-left:2.5rem;">ID</th>
+          <th class="hc-datagrid__headcell" data-resizable data-col="name" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col">Unit price</th>
+        </tr>
+      </thead>
+
+      <!-- Swap target. Load the first page, then the pager drives it. -->
+      <tbody class="hc-datagrid__body" id="rows"
+             data-hx-get="/products?page=1&size=100" data-hx-trigger="load"
+             data-hx-target="#rows" data-hx-swap="innerHTML">
+        <!-- Server renders the page's rows here, e.g.:
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;"><input type="checkbox" class="hc-checkbox" aria-label="Select row 1"></td>
+          <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left:2.5rem;">1</th>
+          <td class="hc-datagrid__cell" data-col="name">Chai</td>
+          <td class="hc-datagrid__cell">$18.00</td>
+        </tr>
+        -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="hc-cluster" style="justify-content: space-between;">
+    <p id="rows-status" aria-live="polite" style="margin:0;">1–100 / 5,000</p>
+
+    <nav class="hc-pagination" id="pager" aria-label="Pagination">
+      <a class="hc-pagination__item" data-hc-rel="prev" data-hx-get="/products?page=1&size=100"
+         data-hx-target="#rows" data-hx-swap="innerHTML" aria-disabled="true" href="?page=1">Prev</a>
+      <a class="hc-pagination__item" aria-current="page" data-hx-get="/products?page=1&size=100"
+         data-hx-target="#rows" data-hx-swap="innerHTML" href="?page=1">1</a>
+      <a class="hc-pagination__item" data-hx-get="/products?page=2&size=100"
+         data-hx-target="#rows" data-hx-swap="innerHTML" href="?page=2">2</a>
+      <a class="hc-pagination__item" data-hc-rel="next" data-hx-get="/products?page=2&size=100"
+         data-hx-target="#rows" data-hx-swap="innerHTML" href="?page=2">Next</a>
+    </nav>
+  </div>
+</div>

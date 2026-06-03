@@ -95,6 +95,12 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`datagrid-pager` recipe** — server pagination for `hc-datagrid` with
+  htmx: swap one page of rows into the `<tbody>` (`innerHTML`, so the
+  behavior's observer re-runs and re-applies roles / sticky offsets /
+  resized widths) and update the `hc-pagination` pager + status line
+  out-of-band. New Recipes → Datagrid pager page plus the
+  `recipes/datagrid-pager/` scaffold (recipe / expanded / contract).
 - **`hc-datagrid`** — an interactive, Excel-like data grid for business
   screens, built on a semantic `<table>` and `position: sticky`.
   - **CSS layer:** multi-level sticky group/sub/leaf headers, frozen

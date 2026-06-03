@@ -1,0 +1,30 @@
+<!-- datagrid-pager — server pagination for hc-datagrid (short form).
+     htmx swaps the rows INTO the <tbody> (innerHTML), so the <tbody> stays
+     put and installDatagrid's MutationObserver re-runs (roles, sticky
+     offsets, resized widths). The pager updates out-of-band. -->
+<div class="hc-datagrid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col">Price</th>
+        </tr>
+      </thead>
+      <!-- The swap target: rows replace #rows' children. -->
+      <tbody class="hc-datagrid__body" id="rows"
+             data-hx-get="/products?page=1" data-hx-trigger="load"
+             data-hx-target="#rows" data-hx-swap="innerHTML"></tbody>
+    </table>
+  </div>
+
+  <nav class="hc-pagination" id="pager" aria-label="Pagination">
+    <a class="hc-pagination__item" data-hx-get="/products?page=1"
+       data-hx-target="#rows" data-hx-swap="innerHTML" aria-current="page" href="?page=1">1</a>
+    <a class="hc-pagination__item" data-hx-get="/products?page=2"
+       data-hx-target="#rows" data-hx-swap="innerHTML" href="?page=2">2</a>
+    <a class="hc-pagination__item" data-hx-get="/products?page=3"
+       data-hx-target="#rows" data-hx-swap="innerHTML" href="?page=3">3</a>
+  </nav>
+</div>

@@ -1,0 +1,100 @@
+---
+title: Datagrid pager
+description: Paginate an hc-datagrid from the server with htmx — swap one page of rows into the tbody and update the pager out-of-band, keeping headers, frozen columns, and resized widths.
+---
+
+`hc-datagrid` is built for **paged** data: the server owns the data window,
+htmx swaps one page of rows, and `installDatagrid()` re-initialises the
+swapped rows. This recipe wires it to an [`hc-pagination`](/hypermedia-components/components/pagination/)
+pager.
+
+## Basic usage
+
+Make the grid's `<tbody>` the swap target and swap **`innerHTML`** (the rows
+*inside* it). Each pager link loads a page into the same `<tbody>`:
+
+```html
+<div class="hc-datagrid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col">Price</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body" id="rows"
+             data-hx-get="/products?page=1" data-hx-trigger="load"
+             data-hx-target="#rows" data-hx-swap="innerHTML"></tbody>
+    </table>
+  </div>
+
+  <nav class="hc-pagination" id="pager" aria-label="Pagination">
+    <a class="hc-pagination__item" aria-current="page"
+       data-hx-get="/products?page=1" data-hx-target="#rows" data-hx-swap="innerHTML" href="?page=1">1</a>
+    <a class="hc-pagination__item"
+       data-hx-get="/products?page=2" data-hx-target="#rows" data-hx-swap="innerHTML" href="?page=2">2</a>
+  </nav>
+</div>
+```
+
+## Why `innerHTML`, not `outerHTML`
+
+`installDatagrid()` watches the **`<tbody>` element** for child changes.
+Swapping the rows *inside* it (`innerHTML`) keeps that element, so the
+observer fires and the grid re-applies its ARIA roles, sticky-offset
+measurement, and any resized column widths to the freshly-loaded rows.
+Replacing the whole `<tbody>` (`outerHTML`) would discard the observed
+node — so target `#rows` and swap `innerHTML`.
+
+You therefore don't recompute layout on the server: render each row with
+the **same column structure** as the header (`data-frozen` /
+`data-frozen-edge` on frozen cells, `data-col` on resizable / editable
+columns) and the frozen `--hc-datagrid-left` offsets and resized widths are
+re-applied automatically.
+
+## Server response
+
+`GET /products?page=N&size=100` returns **only the page's rows**:
+
+```html
+<tr class="hc-datagrid__row">
+  <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">101</th>
+  <td class="hc-datagrid__cell">Chai</td>
+  <td class="hc-datagrid__cell">$18.00</td>
+</tr>
+<!-- …one <tr> per row in the page… -->
+```
+
+Update the pager and a status line in the **same response**, out-of-band, so
+they refresh without a second request:
+
+```html
+<nav class="hc-pagination" id="pager" hx-swap-oob="true" aria-label="Pagination">
+  …items, with aria-current="page" on the active page…
+</nav>
+<p id="rows-status" hx-swap-oob="true" aria-live="polite">101–200 / 5,000</p>
+```
+
+Mark the current page with `aria-current="page"`; disable Prev / Next at the
+ends with `aria-disabled="true"`.
+
+## Notes
+
+- **Focus.** Swapping rows removes the previously active cell; the grid keeps
+  a tabbable cell but does not move focus. Restore focus from the server
+  (e.g. an out-of-band focus target) if your flow needs it.
+- **Selection** is per page unless the server re-renders selected rows with
+  `aria-selected="true"` — server-track the selection to keep it across
+  pages.
+- **Multi-row records.** This targets the standard one-`<tbody>` rows layout.
+  For [multi-row records](/hypermedia-components/components/datagrid/#multi-row-records)
+  swap a wrapping region instead and let the document observer re-initialise.
+
+## Related
+
+- [Datagrid](/hypermedia-components/components/datagrid/) — the grid itself.
+- [Pagination](/hypermedia-components/components/pagination/) — the pager component.
+- [Data region](/hypermedia-components/recipes/data-region/) — the general
+  server-rendered-region pattern.
