@@ -47,6 +47,39 @@
     font-weight: var(--hc-calendar-title-font-weight);
   }
 
+  /* Month / year quick-nav dropdowns (data-nav="select"), shown in place of
+   * the title. */
+  .hc-calendar__monthnav {
+    display: inline-flex;
+    gap: var(--hc-space-1);
+    align-items: center;
+  }
+
+  .hc-calendar__month-select,
+  .hc-calendar__year-select {
+    font: inherit;
+    font-size: var(--hc-calendar-title-font-size);
+    font-weight: var(--hc-calendar-title-font-weight);
+    color: var(--hc-calendar-nav-fg);
+    padding-block: 0.15em;
+    padding-inline: 0.3em;
+    border: 1px solid transparent;
+    border-radius: var(--hc-calendar-nav-radius);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .hc-calendar__month-select:hover,
+  .hc-calendar__year-select:hover {
+    background: var(--hc-calendar-nav-hover-bg);
+  }
+
+  .hc-calendar__month-select:focus-visible,
+  .hc-calendar__year-select:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 1px;
+  }
+
   .hc-calendar__nav {
     display: inline-flex;
     align-items: center;
