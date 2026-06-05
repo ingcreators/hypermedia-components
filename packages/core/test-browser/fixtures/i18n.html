@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc i18n fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <!--
+    Set the locale BEFORE the auto-init bundle runs. Module scripts execute
+    in document order, so this i18n-only module (which does NOT auto-init)
+    sets the catalog first; the behaviors bundle below then inits with the
+    overrides already in place. Both resolve the same /i18n.js module
+    instance, so the catalog is shared.
+  -->
+  <script type="module">
+    import { setMessages } from '/i18n.js';
+    setMessages({
+      'combobox.empty': '一致なし',
+      'multicombobox.empty': '一致なし',
+      'multicombobox.remove': '{label} を削除',
+    });
+  </script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main>
+    <section id="section-combobox">
+      <h2>Combobox</h2>
+      <div class="hc-combobox" style="max-inline-size:18rem;">
+        <input class="hc-combobox__input hc-input"
+               type="text"
+               role="combobox"
+               aria-controls="cb-country-list"
+               aria-label="Country"
+               data-testid="cb-input">
+        <ul class="hc-combobox__listbox" id="cb-country-list"
+            role="listbox" data-testid="cb-listbox">
+          <li id="cb-jp" class="hc-combobox__option" role="option" data-value="jp"
+              data-testid="cb-opt-jp">Japan</li>
+          <li id="cb-us" class="hc-combobox__option" role="option" data-value="us"
+              data-testid="cb-opt-us">United States</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="section-multicombobox">
+      <h2>Multi-combobox</h2>
+      <div class="hc-multicombobox" data-name="languages" style="max-inline-size:22rem;"
+           data-testid="mc-wrap">
+        <div class="hc-multicombobox__control hc-input">
+          <span class="hc-multicombobox__tags" data-testid="mc-tags"></span>
+          <input class="hc-multicombobox__input"
+                 type="text"
+                 role="combobox"
+                 aria-controls="mc-lang-list"
+                 aria-label="Languages"
+                 data-testid="mc-input">
+        </div>
+        <ul class="hc-multicombobox__listbox" id="mc-lang-list" role="listbox"
+            data-testid="mc-listbox">
+          <li id="mc-opt-js" class="hc-multicombobox__option" role="option" data-value="js"
+              data-testid="mc-opt-js">JavaScript</li>
+          <li id="mc-opt-py" class="hc-multicombobox__option" role="option" data-value="py"
+              aria-selected="true" data-testid="mc-opt-py">Python</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

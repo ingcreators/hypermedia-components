@@ -1,0 +1,114 @@
+---
+title: Internationalization (i18n)
+description: Translate the strings behaviors inject — created nodes and default ARIA labels — with one message catalog. Per-element attributes still win, so the server can localize too.
+---
+
+Almost all text in Hypermedia Components comes from **your HTML**, which the
+server renders in whatever language it likes. But a few strings are injected
+by behaviors — created DOM nodes (the combobox "No matches" marker, a
+multi-select tag's remove button) and default ARIA labels (the shell's
+navigation toggle, the splitter handle). Those can't be authored in markup,
+so they have a small **message catalog** you can translate in one place.
+
+## Resolution order
+
+For every injected string, the highest-priority source wins:
+
+1. **A per-element attribute** the server/author wrote — an existing
+   `aria-label`, or a `data-hc-*` override. The server localizes per element.
+2. **The global catalog**, set with `setMessages()` — the app-wide locale.
+3. **The built-in English default**.
+
+## Setting the locale
+
+Import the named installers from the main entry, set the catalog once, then
+install. `setMessages()` merges a flat `{ key: value }` map:
+
+```js
+import { setMessages, installCombobox, installConfirm } from '@hypermedia-components/core';
+
+setMessages({
+  'combobox.empty': '一致なし',
+  'confirm.confirm': 'OK',
+  'confirm.cancel': 'キャンセル',
+  'multicombobox.remove': '{label} を削除', // {label} is interpolated
+});
+
+installCombobox();
+installConfirm();
+```
+
+### Ordering with the auto-init bundle
+
+The zero-config [`/behaviors`](/hypermedia-components/start/installation/) entry
+installs everything as soon as it runs, so set the catalog **before** it
+executes. Because ES module scripts run in document order, set messages from
+the i18n module first, then load the bundle:
+
+```html
+<script type="module">
+  import { setMessages } from '@hypermedia-components/core/i18n';
+  setMessages({ 'combobox.empty': '一致なし' });
+</script>
+<script type="module" src="/path/to/hc.behaviors.js"></script>
+```
+
+Importing `setMessages` from `@hypermedia-components/core` (the auto-init main
+entry) would run the install first — so for the auto-init flow, import it from
+the `i18n` submodule, which has no side effects.
+
+## The catalog
+
+| Key | Default | Injected by |
+| --- | --- | --- |
+| `combobox.empty` | `No matches` | combobox empty-results marker |
+| `multicombobox.empty` | `No matches` | multi-combobox empty-results marker |
+| `multicombobox.remove` | `Remove {label}` | tag remove-button `aria-label` |
+| `calendar.label` | `Calendar` | grid `aria-label` (fallback) |
+| `calendar.prevMonth` | `Previous month` | previous-month button `aria-label` |
+| `calendar.nextMonth` | `Next month` | next-month button `aria-label` |
+| `confirm.message` | `Continue?` | confirm dialog body (fallback) |
+| `confirm.title` | `Confirm` | confirm dialog title (fallback) |
+| `confirm.confirm` | `Confirm` | confirm button (fallback) |
+| `confirm.cancel` | `Cancel` | cancel button (fallback) |
+| `shell.toggleNav` | `Toggle navigation` | shell nav-toggle `aria-label` (fallback) |
+| `splitter.resize` | `Resize panels` | splitter handle `aria-label` (fallback) |
+| `toast.label` | `Notifications` | toast region `aria-label` (fallback) |
+
+`{name}` placeholders are interpolated from the params the behavior passes
+(currently `{label}` for `multicombobox.remove`).
+
+## Per-element overrides (server-side localization)
+
+When a string belongs to a specific element, set it in markup and it wins over
+the catalog — handy when the server already knows the language of each region:
+
+- **confirm** — `data-hc-confirm`, `data-hc-confirm-title`,
+  `data-hc-confirm-label`, `data-hc-cancel-label` on the trigger.
+- **combobox / multi-combobox** — `data-hc-empty` on the `<ul role="listbox">`.
+- **calendar / shell / splitter / toast** — an author-provided `aria-label`
+  on the element is never overwritten.
+
+```html
+<!-- This dialog stays Japanese regardless of the global catalog. -->
+<button class="hc-button" data-hc-confirm="削除しますか？"
+        data-hc-confirm-label="削除" data-hc-cancel-label="キャンセル">
+  削除
+</button>
+
+<!-- Per-listbox empty text. -->
+<ul class="hc-combobox__listbox" role="listbox" data-hc-empty="該当なし"></ul>
+```
+
+## API
+
+All exported from the main entry and the `i18n` submodule.
+
+- `setMessages(overrides)` — merge translations into the catalog. Returns a
+  function that restores the previous state.
+- `resetMessages()` — revert to the built-in English defaults.
+- `getMessages()` — a snapshot of the current catalog (defaults + overrides).
+- `DEFAULT_MESSAGES` — the frozen English defaults.
+
+Missing translations degrade gracefully: an unknown key falls back to the
+English default, then to the key itself — never an empty string or a throw.

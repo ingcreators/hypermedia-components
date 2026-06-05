@@ -21,6 +21,8 @@
 //                              the source's own data-variant, then
 //                              "primary".
 
+import { t } from './i18n.js';
+
 const INSTALL_KEY = '__hcConfirmUninstall';
 
 function buildDialog(ownerDocument) {
@@ -110,10 +112,10 @@ export function installConfirm(root = (typeof document !== 'undefined' ? documen
 
     const dialog = getDialog();
 
-    const message = source.getAttribute('data-hc-confirm') || 'Continue?';
-    const title = source.getAttribute('data-hc-confirm-title') || 'Confirm';
-    const confirmLabel = source.getAttribute('data-hc-confirm-label') || 'Confirm';
-    const cancelLabel = source.getAttribute('data-hc-cancel-label') || 'Cancel';
+    const message = source.getAttribute('data-hc-confirm') || t('confirm.message');
+    const title = source.getAttribute('data-hc-confirm-title') || t('confirm.title');
+    const confirmLabel = source.getAttribute('data-hc-confirm-label') || t('confirm.confirm');
+    const cancelLabel = source.getAttribute('data-hc-cancel-label') || t('confirm.cancel');
     const variant =
       source.getAttribute('data-hc-confirm-variant') ||
       source.getAttribute('data-variant') ||

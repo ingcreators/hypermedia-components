@@ -25,6 +25,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/hc.min.js"
     },
+    "./i18n": {
+      "types": "./dist/i18n.d.ts",
+      "import": "./dist/i18n.js"
+    },
     "./css": "./dist/hc.css",
     "./css/min": "./dist/hc.min.css",
     "./css/core": "./dist/hc.core.css",

@@ -20,6 +20,8 @@
 //     duration?: number,                   // ms; 0 = sticky
 //   }
 
+import { t } from './i18n.js';
+
 const DEFAULT_DURATION_MS = 4500;
 const INSTALL_KEY = '__hcToastUninstall';
 
@@ -30,7 +32,7 @@ function getOrCreateRegion(root) {
   region.className = 'hc-toast-region';
   region.setAttribute('data-hc-toast-region', '');
   region.setAttribute('role', 'region');
-  region.setAttribute('aria-label', 'Notifications');
+  region.setAttribute('aria-label', t('toast.label'));
   root.body.appendChild(region);
   return { region, created: true };
 }
