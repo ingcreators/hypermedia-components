@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc forced-colors fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body>
+  <main style="padding:1rem; display:flex; flex-direction:column; gap:1rem;">
+    <!-- Focus ring restoration -->
+    <input class="hc-input" type="text" value="text" data-testid="fc-input">
+
+    <!-- Custom toggles (checked) -->
+    <input class="hc-checkbox" type="checkbox" checked data-testid="fc-check">
+    <input class="hc-switch" type="checkbox" role="switch" checked data-testid="fc-switch">
+
+    <!-- Tabs: selected tab -->
+    <nav class="hc-tabs">
+      <a class="hc-tabs__tab" href="#a" data-testid="fc-tab-off">One</a>
+      <a class="hc-tabs__tab" href="#b" aria-current="page" data-testid="fc-tab-on">Two</a>
+    </nav>
+
+    <!-- Pagination: current page -->
+    <nav class="hc-pagination" aria-label="Pagination">
+      <a class="hc-pagination__item" href="?p=1" data-testid="fc-page-off">1</a>
+      <a class="hc-pagination__item" href="?p=2" aria-current="page" data-testid="fc-page-on">2</a>
+    </nav>
+
+    <!-- Combobox: selected option (static state, no behavior needed) -->
+    <div class="hc-combobox">
+      <input class="hc-combobox__input hc-input" type="text" role="combobox"
+             aria-controls="fc-cb-list" aria-label="Country" value="Japan">
+      <ul class="hc-combobox__listbox" id="fc-cb-list" role="listbox">
+        <li class="hc-combobox__option" role="option" data-value="jp"
+            aria-selected="true" data-testid="fc-opt-on">Japan</li>
+        <li class="hc-combobox__option" role="option" data-value="us"
+            data-testid="fc-opt-off">United States</li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

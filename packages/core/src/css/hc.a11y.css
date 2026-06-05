@@ -1,0 +1,130 @@
+/* hc.a11y — cross-component accessibility overrides.
+ *
+ * Concatenated into the `hc.components` layer as the LAST source file, so
+ * these rules win over each component's own focus / state styling by source
+ * order (equal specificity, later wins) — no new layer, no specificity
+ * hacks. With the granular CSS entry, import this file after the component
+ * stylesheets. Today it holds the Forced Colors / Windows High Contrast
+ * treatment.
+ *
+ * Why this is needed: in forced-colors mode the UA replaces author colours
+ * with the user's system palette and *drops box-shadow*. Two HC patterns
+ * break as a result:
+ *   1. Focus rings drawn with `box-shadow` (and `outline: none`) vanish.
+ *   2. State conveyed only by `background` / `color-mix` tints (selected
+ *      option, current page, checked control) becomes invisible.
+ *
+ * The fixes use CSS system colours (Highlight, HighlightText, Canvas,
+ * CanvasText, ButtonText), which forced-colors mode keeps. `outline`
+ * survives forced-colors, so state is re-expressed as an inset outline;
+ * the custom toggles opt out with `forced-color-adjust: none` and paint
+ * with system colours directly.
+ *
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors
+ */
+@layer hc.components {
+  @media (forced-colors: active) {
+    /* ---- 1. Focus rings ------------------------------------------------ */
+
+    /* These controls set `outline: none` and draw the ring with box-shadow,
+       which is dropped in forced-colors. Restore a real outline. */
+    .hc-input:focus-visible,
+    .hc-select:focus-visible,
+    .hc-datepicker:focus-visible,
+    .hc-checkbox:focus-visible,
+    .hc-radio:focus-visible,
+    .hc-switch:focus-visible,
+    .hc-slider:focus-visible,
+    .hc-command__input:focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 1px;
+    }
+
+    /* The OTP "active" slot shows the caret position via box-shadow. */
+    .hc-inputotp__slot[data-active] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+
+    /* ---- 2. Selection / active states (inset outline) ------------------ */
+
+    /* Tints disappear, so mark the selected / active item with an outline
+       that forced-colors paints in a system colour. */
+    .hc-combobox__option[aria-selected="true"],
+    .hc-combobox__option[data-active="true"],
+    .hc-multicombobox__option[aria-selected="true"],
+    .hc-multicombobox__option[data-active="true"],
+    .hc-command__item[data-active="true"],
+    .hc-menu__item:focus-visible,
+    .hc-tabs__tab[aria-selected="true"],
+    .hc-tabs__tab[aria-current="page"],
+    .hc-toggle[aria-pressed="true"],
+    .hc-toggle[aria-checked="true"],
+    .hc-pagination__item[aria-current="page"],
+    .hc-calendar__day[aria-selected="true"],
+    .hc-calendar__day[data-today] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+
+    /* Datagrid: selected rows, the active (current) cell, and the
+       highlighted column all rely on background tints. */
+    .hc-datagrid__row[aria-selected="true"] > .hc-datagrid__cell,
+    .hc-datagrid__cell[data-highlight] {
+      outline: 1px solid Highlight;
+      outline-offset: -1px;
+    }
+
+    .hc-datagrid__cell[data-active] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+
+    /* ---- 3. Custom toggle controls (checked fill) --------------------- */
+
+    /* appearance:none controls can't be re-rendered by the UA, so opt out
+       of forced colours and paint checked with the system Highlight. The
+       embedded white check / dot SVG (a retained background-image) reads
+       against Highlight. */
+    .hc-checkbox:checked,
+    .hc-radio:checked {
+      forced-color-adjust: none;
+      background-color: Highlight;
+      border-color: Highlight;
+    }
+
+    /* Switch: define both states explicitly since we opt out entirely. */
+    .hc-switch {
+      forced-color-adjust: none;
+      background-color: Canvas;
+      border-color: CanvasText;
+    }
+
+    .hc-switch::before {
+      background-color: CanvasText;
+    }
+
+    .hc-switch:checked {
+      background-color: Highlight;
+      border-color: Highlight;
+    }
+
+    .hc-switch:checked::before {
+      background-color: HighlightText;
+    }
+
+    /* Slider thumb — keep it visible (separate rules: an unknown vendor
+       pseudo-element would invalidate the whole selector list). */
+    .hc-slider::-webkit-slider-thumb {
+      forced-color-adjust: none;
+      background: ButtonText;
+      border-color: ButtonText;
+    }
+
+    .hc-slider::-moz-range-thumb {
+      forced-color-adjust: none;
+      background: ButtonText;
+      border-color: ButtonText;
+    }
+  }
+}

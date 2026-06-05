@@ -39,6 +39,7 @@
     "./tokens.*.css": "./dist/hc.tokens.*.css",
     "./theme.css": "./dist/hc.theme.css",
     "./htmx.css": "./dist/hc.htmx.css",
+    "./a11y.css": "./dist/hc.a11y.css",
     "./macros": {
       "types": "./dist/macros/index.d.ts",
       "import": "./dist/macros/index.js"
