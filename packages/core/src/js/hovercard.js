@@ -33,6 +33,8 @@
 // JS toggling matches the `hint` semantics everywhere `popover` is
 // supported.
 
+import { supportsAnchorPositioning, trackFloating } from './anchor-fallback.js';
+
 const INSTALL_KEY = '__hcHoverCardUninstall';
 const SHOW_DELAY = 500;
 const HIDE_DELAY = 200;
@@ -42,16 +44,6 @@ function escapeAttr(s) {
     return CSS.escape(s);
   }
   return String(s).replace(/[^\w-]/g, (c) => `\\${c}`);
-}
-
-function supportsAnchorPositioning() {
-  try {
-    return typeof CSS !== 'undefined'
-      && typeof CSS.supports === 'function'
-      && CSS.supports('anchor-name', '--x');
-  } catch {
-    return false;
-  }
 }
 
 function triggersFor(card) {
@@ -78,6 +70,7 @@ function attach(card, detachers) {
   let hideTimer = null;
   let currentTrigger = null;
   let cardHovered = false;
+  let fallbackCleanup = null;
   // Per-trigger hover / focus state — keyed by element. The card
   // stays open while ANY tracked state is true.
   const triggerState = new WeakMap();
@@ -103,26 +96,6 @@ function attach(card, detachers) {
     hideTimer = null;
   }
 
-  function positionFallback() {
-    if (!currentTrigger) return;
-    const t = currentTrigger.getBoundingClientRect();
-    const m = card.getBoundingClientRect();
-    const view = card.ownerDocument.defaultView;
-    const vh = view?.innerHeight ?? 0;
-    const gap = 6;
-    let top = t.bottom + gap;
-    const left = t.left;
-    if (top + m.height > vh && t.top - m.height - gap >= 0) {
-      top = t.top - m.height - gap;
-    }
-    Object.assign(card.style, {
-      position: 'fixed',
-      insetBlockStart: `${top}px`,
-      insetInlineStart: `${left}px`,
-      margin: '0',
-    });
-  }
-
   function show(trigger) {
     clearTimers();
     currentTrigger = trigger;
@@ -130,15 +103,20 @@ function attach(card, detachers) {
     if (usingAnchor) {
       trigger.style.setProperty('anchor-name', anchorName);
       card.style.setProperty('position-anchor', anchorName);
-    } else {
-      positionFallback();
     }
     card.showPopover();
+    // Below the trigger, flipping above on overflow (mirrors the CSS
+    // `position-area: block-end` + flip-block). After show so it has size.
+    if (!usingAnchor) {
+      fallbackCleanup = trackFloating(card, trigger, { side: 'block-end', gap: 6 });
+    }
   }
 
   function hide() {
     clearTimers();
     currentTrigger = null;
+    fallbackCleanup?.();
+    fallbackCleanup = null;
     if (!card.matches(':popover-open')) return;
     card.hidePopover();
   }

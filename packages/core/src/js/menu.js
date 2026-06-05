@@ -31,6 +31,7 @@ import {
   handleMenuNavKeydown,
   selectMenuItem,
 } from './menu-core.js';
+import { supportsAnchorPositioning, trackFloating } from './anchor-fallback.js';
 
 const INSTALL_KEY = '__hcMenuUninstall';
 
@@ -49,21 +50,6 @@ function triggerFor(menu) {
   return menu.ownerDocument.querySelector(
     `[popovertarget="${escapeAttr(menu.id)}"]`,
   );
-}
-
-function supportsAnchorPositioning() {
-  // Feature-detect once at install time; both `anchor-name` and
-  // `position-anchor` ship together so checking one is sufficient.
-  // jsdom does not implement `CSS.supports` — treat that as "no
-  // support" so the JS positioning fallback path is exercised in
-  // unit tests as well as in older real browsers.
-  try {
-    return typeof CSS !== 'undefined'
-      && typeof CSS.supports === 'function'
-      && CSS.supports('anchor-name', '--x');
-  } catch {
-    return false;
-  }
 }
 
 function attach(menu, detachers) {
@@ -87,42 +73,7 @@ function attach(menu, detachers) {
     menu.style.setProperty('position-anchor', anchorName);
   }
 
-  function positionViaFallback() {
-    const t = trigger.getBoundingClientRect();
-    // The popover is already in the top layer by the time
-    // `beforetoggle → open` fires, so its rect is measurable.
-    const m = menu.getBoundingClientRect();
-    const view = menu.ownerDocument.defaultView;
-    const vw = view?.innerWidth ?? 0;
-    const vh = view?.innerHeight ?? 0;
-    const gap = 4;
-
-    // Primary placement: block-end span-inline-end (i.e. below the
-    // trigger, aligned to its inline-start edge). Mirrors the CSS
-    // `position-area: block-end span-inline-end` path so behaviour
-    // is consistent across the two branches.
-    let top = t.bottom + gap;
-    let left = t.left;
-
-    // flip-block: if the menu would overflow the viewport's bottom
-    // edge and there is room above the trigger, flip it.
-    if (top + m.height > vh && t.top - m.height - gap >= 0) {
-      top = t.top - m.height - gap;
-    }
-    // flip-inline: if the menu would overflow the viewport's
-    // inline-end edge, align it to the trigger's inline-end edge
-    // instead.
-    if (left + m.width > vw && t.right - m.width >= 0) {
-      left = t.right - m.width;
-    }
-
-    Object.assign(menu.style, {
-      position: 'fixed',
-      insetBlockStart: `${top}px`,
-      insetInlineStart: `${left}px`,
-      margin: '0',
-    });
-  }
+  let fallbackCleanup = null;
 
   function onToggle(event) {
     const open = event.newState === 'open';
@@ -142,8 +93,15 @@ function attach(menu, detachers) {
 
   function onBeforeToggle(event) {
     if (usingAnchor) return;
-    if (event.newState !== 'open') return;
-    positionViaFallback();
+    // Position before the popover paints (no flash), then keep tracking on
+    // scroll / resize until it closes. Mirrors the CSS
+    // `position-area: block-end span-inline-end` + flip-block / flip-inline.
+    if (event.newState === 'open') {
+      fallbackCleanup = trackFloating(menu, trigger, { side: 'block-end' });
+    } else {
+      fallbackCleanup?.();
+      fallbackCleanup = null;
+    }
   }
 
   function onKeydown(event) {
@@ -174,6 +132,8 @@ function attach(menu, detachers) {
     menu.removeEventListener('beforetoggle', onBeforeToggle);
     menu.removeEventListener('keydown', onKeydown);
     menu.removeEventListener('click', onClick);
+    fallbackCleanup?.();
+    fallbackCleanup = null;
     trigger.removeAttribute('aria-haspopup');
     trigger.removeAttribute('aria-expanded');
     trigger.removeAttribute('aria-controls');

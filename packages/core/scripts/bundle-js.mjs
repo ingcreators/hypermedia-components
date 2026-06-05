@@ -22,6 +22,7 @@ const FILES = [
   // Behaviors and main entry.
   ['src/js/index.js',         'index.js'],
   ['src/js/i18n.js',          'i18n.js'],
+  ['src/js/anchor-fallback.js', 'anchor-fallback.js'],
   ['src/js/confirm.js',       'confirm.js'],
   ['src/js/toast.js',         'toast.js'],
   ['src/js/close-dialog.js',  'close-dialog.js'],

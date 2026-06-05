@@ -22,6 +22,7 @@ const ASSET_ALIASES = new Map([
   ['/hc.htmx.css',     join(coreDist, 'hc.htmx.css')],
   ['/hc.behaviors.js',  join(coreDist, 'hc.behaviors.js')],
   ['/i18n.js',          join(coreDist, 'i18n.js')],
+  ['/anchor-fallback.js', join(coreDist, 'anchor-fallback.js')],
   ['/confirm.js',       join(coreDist, 'confirm.js')],
   ['/toast.js',         join(coreDist, 'toast.js')],
   ['/close-dialog.js',  join(coreDist, 'close-dialog.js')],
