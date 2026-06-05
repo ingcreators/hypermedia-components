@@ -117,12 +117,32 @@ that event to push the choice to the server.
        data-hx-vals='js:{ value: event.detail.value }'>
 ```
 
-For server-driven filtering (instead of the built-in client filter),
-keep the same `data-hx-trigger="input changed delay:200ms"` pattern
-documented for [`hc-input`](/hypermedia-components/components/input/)
-on the input itself; the server returns just the `<li role="option">`
-rows and htmx swaps them into the listbox. The behavior re-evaluates
-the new options on the next keystroke / arrow key.
+### Remote (async) options
+
+Add `data-remote` to the `.hc-combobox` to let the **server filter**. The
+behavior turns off its client-side filter and surfaces the loading / empty /
+error states from the htmx request lifecycle:
+
+```html
+<div class="hc-combobox" data-remote>
+  <input class="hc-combobox__input hc-input" type="text" role="combobox"
+         aria-controls="city-list" aria-label="City"
+         data-hx-get="/cities" data-hx-trigger="input changed delay:200ms"
+         data-hx-target="#city-list">
+  <ul class="hc-combobox__listbox" id="city-list" role="listbox"></ul>
+</div>
+```
+
+The server returns just the matching `<li role="option">` rows and htmx swaps
+them into the listbox. While the request is in flight the behavior shows a
+spinner row and sets `aria-busy="true"`; an empty result shows the "No
+matches" marker; a failed response shows an error row. The three messages are
+translatable via the [i18n catalog](/hypermedia-components/fundamentals/i18n/)
+(`combobox.loading` / `combobox.empty` / `combobox.error`) or overridable
+per-listbox with `data-hc-loading` / `data-hc-empty` / `data-hc-error`.
+
+Debouncing and cancel-in-flight stay with htmx (`delay:200ms` on the trigger,
+`hx-sync`) — the behavior never makes the request itself.
 
 ## Accessibility
 
@@ -147,9 +167,10 @@ deferred:
 
 - **Multi-select** — tag input with multiple chosen values. Will
   ship as a separate `hc-multicombobox`.
-- **Async option loading** — the docs show the htmx pattern
-  (server returns filtered `<li>` rows on each keystroke); a
-  built-in debounce / cancel-in-flight helper is not yet bundled.
+- **Built-in debounce / cancel-in-flight** — async loading itself is
+  supported (see [Remote (async) options](#remote-async-options)), but
+  request timing stays with htmx (`delay:` on the trigger, `hx-sync`)
+  rather than being bundled into the behavior.
 - **Free input** — accept values not in the list as the final
   value. The current behavior leaves whatever text the user typed
   in the input even if they close without selecting; an opt-in

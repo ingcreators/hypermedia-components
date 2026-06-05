@@ -231,3 +231,85 @@ describe('installCombobox', () => {
     expect(document.getElementById('cb-input').getAttribute('aria-haspopup')).toBe('listbox');
   });
 });
+
+describe('installCombobox — remote (async) mode', () => {
+  const REMOTE = `
+    <div class="hc-combobox" data-remote>
+      <input id="r-input" type="text" role="combobox" aria-controls="r-list" aria-label="City">
+      <ul id="r-list" class="hc-combobox__listbox" role="listbox"></ul>
+    </div>`;
+
+  function setOptions(listbox, labels) {
+    listbox.innerHTML = labels
+      .map(
+        (l, i) =>
+          `<li id="r-opt-${i}" class="hc-combobox__option" role="option" data-value="${l}">${l}</li>`,
+      )
+      .join('');
+  }
+
+  function hx(input, type, detail) {
+    input.dispatchEvent(new CustomEvent(type, { bubbles: true, detail }));
+  }
+
+  it('does not client-filter — the server owns filtering', () => {
+    document.body.innerHTML = REMOTE;
+    const lb = document.getElementById('r-list');
+    setOptions(lb, ['Tokyo', 'Osaka']);
+    uninstall = installCombobox();
+    const input = document.getElementById('r-input');
+    input.dispatchEvent(new Event('focus'));
+    input.value = 'zzz';
+    input.dispatchEvent(new Event('input'));
+
+    const opts = [...lb.querySelectorAll('.hc-combobox__option')];
+    expect(opts.every((o) => !o.hasAttribute('hidden'))).toBe(true);
+    expect(lb.querySelector('.hc-combobox__empty')).toBeNull();
+  });
+
+  it('shows a loading row + aria-busy on htmx:beforeRequest', () => {
+    document.body.innerHTML = REMOTE;
+    uninstall = installCombobox();
+    const input = document.getElementById('r-input');
+    const lb = document.getElementById('r-list');
+    hx(input, 'htmx:beforeRequest');
+    expect(lb.getAttribute('aria-busy')).toBe('true');
+    expect(lb.querySelector('.hc-combobox__loading')).not.toBeNull();
+  });
+
+  it('clears loading and shows empty when the response has no options', () => {
+    document.body.innerHTML = REMOTE;
+    uninstall = installCombobox();
+    const input = document.getElementById('r-input');
+    const lb = document.getElementById('r-list');
+    hx(input, 'htmx:beforeRequest');
+    hx(input, 'htmx:afterRequest', { failed: false });
+    expect(lb.hasAttribute('aria-busy')).toBe(false);
+    expect(lb.querySelector('.hc-combobox__loading')).toBeNull();
+    expect(lb.querySelector('.hc-combobox__empty')).not.toBeNull();
+  });
+
+  it('activates the first option after a successful swap', () => {
+    document.body.innerHTML = REMOTE;
+    const lb = document.getElementById('r-list');
+    uninstall = installCombobox();
+    const input = document.getElementById('r-input');
+    hx(input, 'htmx:beforeRequest');
+    setOptions(lb, ['Tokyo', 'Osaka']); // server swap
+    hx(input, 'htmx:afterRequest', { failed: false });
+    expect(lb.querySelector('.hc-combobox__option[data-active="true"]')?.id).toBe('r-opt-0');
+    expect(lb.querySelector('.hc-combobox__empty')).toBeNull();
+  });
+
+  it('shows the error row on a failed request', () => {
+    document.body.innerHTML = REMOTE;
+    uninstall = installCombobox();
+    const input = document.getElementById('r-input');
+    const lb = document.getElementById('r-list');
+    hx(input, 'htmx:beforeRequest');
+    hx(input, 'htmx:afterRequest', { failed: true });
+    expect(lb.querySelector('.hc-combobox__error')).not.toBeNull();
+    expect(lb.querySelector('.hc-combobox__loading')).toBeNull();
+    expect(lb.hasAttribute('data-error')).toBe(true);
+  });
+});

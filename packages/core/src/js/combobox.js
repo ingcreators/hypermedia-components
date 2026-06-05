@@ -100,6 +100,23 @@ function toggleEmptyMarker(listbox, shouldShow) {
   }
 }
 
+// Insert / update / remove a presentation status row (loading, error) in the
+// listbox — the same shape as the empty marker.
+function toggleStatusRow(listbox, cls, show, text) {
+  let row = listbox.querySelector('.' + cls);
+  if (show) {
+    if (!row) {
+      row = listbox.ownerDocument.createElement('li');
+      row.className = cls;
+      row.setAttribute('role', 'presentation');
+      listbox.appendChild(row);
+    }
+    row.textContent = text;
+  } else if (row) {
+    row.remove();
+  }
+}
+
 function syncSelectedFromInput(input, listbox) {
   const value = input.value.trim().toLowerCase();
   for (const o of options(listbox)) {
@@ -125,6 +142,10 @@ function attach(root, detachers) {
     input.setAttribute('aria-controls', listbox.id);
   }
   input.setAttribute('aria-expanded', 'false');
+
+  // Remote mode: the server filters options (typically via htmx), so we don't
+  // client-filter — we surface the loading / empty / error states instead.
+  const remote = root.hasAttribute('data-remote');
 
   const usingAnchor = supportsAnchorPositioning();
   const anchorName = `--hc-combobox-${listbox.id || Math.random().toString(36).slice(2, 9)}`;
@@ -203,7 +224,80 @@ function attach(root, detachers) {
     blurTimer = setTimeout(close, BLUR_GRACE);
   }
 
+  // ---- Remote (async) state ----------------------------------------------
+  function evaluateRemote() {
+    const count = options(listbox).length;
+    const showEmpty =
+      count === 0 &&
+      listbox.getAttribute('aria-busy') !== 'true' &&
+      !listbox.hasAttribute('data-error');
+    toggleEmptyMarker(listbox, showEmpty);
+    if (count > 0) setActive(input, listbox, visibleOptions(listbox)[0] ?? null);
+  }
+
+  function setBusy(on) {
+    if (on) {
+      listbox.setAttribute('aria-busy', 'true');
+      setError(false);
+      toggleEmptyMarker(listbox, false);
+      toggleStatusRow(
+        listbox,
+        'hc-combobox__loading',
+        true,
+        listbox.getAttribute('data-hc-loading') || t('combobox.loading'),
+      );
+      if (!listbox.matches(':popover-open')) open();
+    } else {
+      listbox.removeAttribute('aria-busy');
+      toggleStatusRow(listbox, 'hc-combobox__loading', false);
+    }
+  }
+
+  function setError(on) {
+    if (on) {
+      listbox.setAttribute('data-error', '');
+      toggleEmptyMarker(listbox, false);
+      toggleStatusRow(
+        listbox,
+        'hc-combobox__error',
+        true,
+        listbox.getAttribute('data-hc-error') || t('combobox.error'),
+      );
+      if (!listbox.matches(':popover-open')) open();
+    } else {
+      listbox.removeAttribute('data-error');
+      toggleStatusRow(listbox, 'hc-combobox__error', false);
+    }
+  }
+
+  function onHxBefore() {
+    setBusy(true);
+  }
+
+  function onHxAfter(event) {
+    setBusy(false);
+    const d = event && event.detail;
+    const failed = !!(d && (d.failed || (d.xhr && d.xhr.status >= 400)));
+    if (failed) {
+      setError(true);
+    } else {
+      setError(false);
+      evaluateRemote();
+    }
+  }
+
+  function onHxError() {
+    setBusy(false);
+    setError(true);
+  }
+
   function onInput() {
+    if (remote) {
+      // The server filters; keep the listbox open and let the htmx lifecycle
+      // (or any options swap) drive the loading / empty / error states.
+      if (!listbox.matches(':popover-open')) open();
+      return;
+    }
     const firstVisible = applyFilter(input, listbox);
     if (!listbox.matches(':popover-open')) open();
     setActive(input, listbox, firstVisible);
@@ -277,6 +371,21 @@ function attach(root, detachers) {
   listbox.addEventListener('click', onListboxClick);
   listbox.addEventListener('mousedown', onListboxMousedown);
 
+  // Remote mode: react to the htmx request lifecycle (busy / error) and to any
+  // options swap (re-evaluate the empty state + active option).
+  let lbObserver = null;
+  if (remote) {
+    input.addEventListener('htmx:beforeRequest', onHxBefore);
+    input.addEventListener('htmx:afterRequest', onHxAfter);
+    input.addEventListener('htmx:responseError', onHxError);
+    if (typeof MutationObserver !== 'undefined') {
+      lbObserver = new MutationObserver(() => {
+        if (listbox.getAttribute('aria-busy') !== 'true') evaluateRemote();
+      });
+      lbObserver.observe(listbox, { childList: true });
+    }
+  }
+
   // Initial selected-state sync (in case the input was pre-filled).
   syncSelectedFromInput(input, listbox);
 
@@ -289,6 +398,12 @@ function attach(root, detachers) {
     input.removeEventListener('keydown', onKeydown);
     listbox.removeEventListener('click', onListboxClick);
     listbox.removeEventListener('mousedown', onListboxMousedown);
+    if (remote) {
+      input.removeEventListener('htmx:beforeRequest', onHxBefore);
+      input.removeEventListener('htmx:afterRequest', onHxAfter);
+      input.removeEventListener('htmx:responseError', onHxError);
+      lbObserver?.disconnect();
+    }
     input.removeAttribute('aria-haspopup');
     input.removeAttribute('aria-autocomplete');
     input.removeAttribute('aria-expanded');

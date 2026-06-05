@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc combobox remote fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:22rem;">
+    <!-- Remote combobox: the server (htmx) filters; here we simulate the htmx
+         lifecycle from the test. -->
+    <div class="hc-combobox" data-remote style="max-inline-size:18rem;">
+      <input class="hc-combobox__input hc-input" type="text" role="combobox"
+             aria-controls="rc-list" aria-label="City"
+             data-hx-get="/cities" data-hx-trigger="input changed delay:200ms"
+             data-hx-target="#rc-list" data-testid="rc-input">
+      <ul class="hc-combobox__listbox" id="rc-list" role="listbox"
+          data-testid="rc-list"></ul>
+    </div>
+  </main>
+
+  <script>
+    // Test helpers on window: simulate the htmx request lifecycle + a swap.
+    window.hcFire = (type, detail) =>
+      document.querySelector('[data-testid="rc-input"]')
+        .dispatchEvent(new CustomEvent(type, { bubbles: true, detail }));
+    window.hcSwap = (labels) => {
+      document.getElementById('rc-list').innerHTML = labels
+        .map((l, i) => `<li id="rc-opt-${i}" class="hc-combobox__option" role="option" data-value="${l}">${l}</li>`)
+        .join('');
+    };
+  </script>
+</body>
+</html>

@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Remote (async) combobox options.** Add `data-remote` to an `hc-combobox`
+  to let the server filter: the behavior turns off its client-side filter and
+  surfaces the request lifecycle as in-listbox states — a spinner row +
+  `aria-busy` while loading (from `htmx:beforeRequest`), the existing "No
+  matches" marker on an empty result, and an error row on failure
+  (`htmx:responseError` / a failed `htmx:afterRequest`). It re-evaluates and
+  highlights the first option after each options swap (htmx event or a plain
+  DOM swap, via a `MutationObserver`). New `combobox.loading` / `combobox.error`
+  i18n keys (overridable per-listbox with `data-hc-loading` / `data-hc-error`),
+  CSS `.hc-combobox__loading` (with a reduced-motion-aware spinner) /
+  `.hc-combobox__error`, and a Combobox → Remote (async) options docs section.
+  The behavior still never makes the request — htmx owns fetching, debounce,
+  and cancel-in-flight. 5 Vitest + 5 Playwright tests.
+
 - **Toast options — position, stacking limit, swipe-to-dismiss.** The toast
   region accepts `data-position="{top,bottom}-{left,center,right}"` (default
   `bottom-right`; top positions stack downward, `*-center` centres) and
