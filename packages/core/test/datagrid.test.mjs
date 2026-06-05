@@ -479,3 +479,82 @@ describe('installDatagrid — column resize', () => {
     expect($('h-name').querySelector('.hc-datagrid__resizer')).toBeNull();
   });
 });
+
+describe('installDatagrid — sortable columns', () => {
+  function makeSortable() {
+    const heads = document.querySelectorAll(
+      '.hc-datagrid__head > tr:nth-child(2) > .hc-datagrid__headcell',
+    );
+    heads[0].setAttribute('data-sortable', '');
+    heads[0].setAttribute('data-col', 'a');
+    heads[1].setAttribute('data-sortable', '');
+    heads[1].setAttribute('data-col', 'b');
+    return heads;
+  }
+
+  it('makes a sortable header focusable with aria-sort="none"', () => {
+    document.body.innerHTML = FIXTURE;
+    const [a] = makeSortable();
+    uninstall = installDatagrid();
+    expect(a.getAttribute('tabindex')).toBe('0');
+    expect(a.getAttribute('aria-sort')).toBe('none');
+  });
+
+  it('cycles aria-sort none → ascending → descending → none on click', () => {
+    document.body.innerHTML = FIXTURE;
+    const [a] = makeSortable();
+    uninstall = installDatagrid();
+    click(a);
+    expect(a.getAttribute('aria-sort')).toBe('ascending');
+    click(a);
+    expect(a.getAttribute('aria-sort')).toBe('descending');
+    click(a);
+    expect(a.getAttribute('aria-sort')).toBe('none');
+  });
+
+  it('emits hc:datagridsort with the column + direction', () => {
+    document.body.innerHTML = FIXTURE;
+    const [a] = makeSortable();
+    const grid = $('grid');
+    const details = [];
+    grid.addEventListener('hc:datagridsort', (e) => details.push(e.detail));
+    uninstall = installDatagrid();
+    click(a); // asc
+    click(a); // desc
+    click(a); // none
+    expect(details).toEqual([
+      { col: 'a', direction: 'asc' },
+      { col: 'a', direction: 'desc' },
+      { col: 'a', direction: null },
+    ]);
+  });
+
+  it('is single-column — sorting one clears the other', () => {
+    document.body.innerHTML = FIXTURE;
+    const [a, b] = makeSortable();
+    uninstall = installDatagrid();
+    click(a);
+    expect(a.getAttribute('aria-sort')).toBe('ascending');
+    click(b);
+    expect(b.getAttribute('aria-sort')).toBe('ascending');
+    expect(a.getAttribute('aria-sort')).toBe('none');
+  });
+
+  it('Enter on a focused header cycles the sort', () => {
+    document.body.innerHTML = FIXTURE;
+    const [a] = makeSortable();
+    uninstall = installDatagrid();
+    press(a, 'Enter');
+    expect(a.getAttribute('aria-sort')).toBe('ascending');
+  });
+
+  it('clicking the resizer grip does not sort', () => {
+    document.body.innerHTML = FIXTURE;
+    const [a] = makeSortable();
+    a.setAttribute('data-resizable', '');
+    uninstall = installDatagrid();
+    const resizer = a.querySelector('.hc-datagrid__resizer');
+    click(resizer);
+    expect(a.getAttribute('aria-sort')).toBe('none');
+  });
+});
