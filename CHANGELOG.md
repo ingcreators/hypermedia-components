@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Rich combobox / multi-combobox options (`data-search` / `data-label`).**
+  Options can now hold arbitrary HTML (icon, two-line label, description)
+  without breaking filtering or selection. `data-search` is the text the
+  filter matches (so aliases / keywords that aren't shown still match);
+  `data-label` is the clean value written into the input (combobox) or used as
+  the tag label (multi-combobox) — instead of the rich markup's text content.
+  Both fall back to the previous behaviour when absent. Updated Combobox /
+  Multi-combobox → Rich options docs (incl. the `:not([hidden])` layout note).
+  5 Vitest + 3 Playwright tests.
+
 - **`hc-calendar` month / year quick navigation (`data-nav="select"`).** Swaps
   the header title for month and year **dropdowns**, so users jump to a far
   month/year in one step instead of clicking the arrows repeatedly. The year

@@ -47,6 +47,18 @@ function visibleOptions(listbox) {
   );
 }
 
+// The clean display label — `data-label` for rich options (icon + text),
+// otherwise the trimmed text content.
+function labelText(o) {
+  return o.dataset.label ?? (o.textContent ?? '').trim();
+}
+
+// The text the filter matches against — `data-search` when present (so rich
+// options can be searched by aliases / hidden keywords), else the label.
+function searchText(o) {
+  return (o.dataset.search ?? labelText(o)).toLowerCase();
+}
+
 function clearActive(listbox) {
   for (const o of options(listbox)) o.removeAttribute('data-active');
 }
@@ -93,9 +105,8 @@ function applyFilter(input, listbox) {
   let exact = false;
   for (const o of options(listbox)) {
     if (o.classList.contains('hc-combobox__create')) continue; // managed below
-    const label = (o.textContent ?? '').trim().toLowerCase();
-    if (q !== '' && label === q) exact = true;
-    const match = q === '' || label.includes(q);
+    if (q !== '' && labelText(o).toLowerCase() === q) exact = true;
+    const match = q === '' || searchText(o).includes(q);
     if (match) {
       o.removeAttribute('hidden');
       if (!firstVisible) firstVisible = o;
@@ -145,7 +156,7 @@ function toggleStatusRow(listbox, cls, show, text) {
 function syncSelectedFromInput(input, listbox) {
   const value = input.value.trim().toLowerCase();
   for (const o of options(listbox)) {
-    const label = (o.textContent ?? '').trim().toLowerCase();
+    const label = labelText(o).toLowerCase();
     if (value !== '' && label === value) {
       o.setAttribute('aria-selected', 'true');
     } else {
@@ -213,9 +224,9 @@ function attach(root, detachers) {
     const created = option.classList.contains('hc-combobox__create');
     const value = created
       ? option.dataset.value ?? ''
-      : option.getAttribute('data-value') ?? option.textContent?.trim() ?? '';
+      : option.getAttribute('data-value') ?? labelText(option);
     // The create option's text is "Create …" — its label is the raw value.
-    const label = created ? (option.dataset.value ?? '') : (option.textContent ?? '').trim();
+    const label = created ? (option.dataset.value ?? '') : labelText(option);
     input.value = label;
     syncSelectedFromInput(input, listbox);
     input.dispatchEvent(

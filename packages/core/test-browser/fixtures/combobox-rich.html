@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc rich-option combobox fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+  <style>
+    /* Rich-option layout. Scope to :not([hidden]) so the author's `display`
+       doesn't override the filter's `[hidden]` (UA display:none). */
+    .hc-combobox__option:not([hidden]),
+    .hc-multicombobox__option:not([hidden]) { display: grid; grid-template-columns: auto 1fr; gap: .1rem .5rem; }
+    .hc-combobox__option small,
+    .hc-multicombobox__option small { grid-column: 2; opacity: .7; }
+  </style>
+</head>
+<body>
+  <main style="padding:1rem; display:flex; flex-direction:column; gap:2rem; max-inline-size:24rem;">
+    <div class="hc-combobox" style="max-inline-size:20rem;">
+      <input class="hc-combobox__input hc-input" type="text" role="combobox"
+             aria-controls="cb-list" aria-label="Country" data-testid="cb-input">
+      <ul class="hc-combobox__listbox" id="cb-list" role="listbox" data-testid="cb-list">
+        <li class="hc-combobox__option" role="option" data-value="jp"
+            data-label="Japan" data-search="japan nippon jp" data-testid="o-jp">
+          <strong>Japan</strong><small>Asia</small>
+        </li>
+        <li class="hc-combobox__option" role="option" data-value="us"
+            data-label="United States" data-search="united states usa" data-testid="o-us">
+          <strong>United States</strong><small>North America</small>
+        </li>
+      </ul>
+    </div>
+
+    <div class="hc-multicombobox" data-name="langs" style="max-inline-size:22rem;" data-testid="mc">
+      <div class="hc-multicombobox__control hc-input">
+        <span class="hc-multicombobox__tags" data-testid="mc-tags"></span>
+        <input class="hc-multicombobox__input" type="text" role="combobox"
+               aria-controls="mc-list" aria-label="Languages" data-testid="mc-input">
+      </div>
+      <ul class="hc-multicombobox__listbox" id="mc-list" role="listbox" data-testid="mc-list">
+        <li class="hc-multicombobox__option" role="option" data-value="py"
+            data-label="Python" data-search="python py snake" data-testid="o-py">
+          <strong>Python</strong><small>scripting</small>
+        </li>
+        <li class="hc-multicombobox__option" role="option" data-value="go"
+            data-label="Go" data-search="go golang">
+          <strong>Go</strong>
+        </li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

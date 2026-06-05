@@ -364,3 +364,46 @@ describe('installCombobox — creatable', () => {
     expect(document.querySelector('.hc-combobox__create')).toBeNull();
   });
 });
+
+describe('installCombobox — rich options (data-search / data-label)', () => {
+  const RICH = `
+    <div class="hc-combobox">
+      <input id="cb-input" type="text" role="combobox" aria-controls="cb-list" aria-label="Country">
+      <ul id="cb-list" class="hc-combobox__listbox" role="listbox">
+        <li id="o-jp" class="hc-combobox__option" role="option" data-value="jp"
+            data-label="Japan" data-search="japan nippon jp"><strong>Japan</strong> <small>Asia</small></li>
+        <li id="o-us" class="hc-combobox__option" role="option" data-value="us"
+            data-label="United States" data-search="united states usa"><strong>United States</strong> <small>N. America</small></li>
+      </ul>
+    </div>`;
+  function type(value) {
+    const input = document.getElementById('cb-input');
+    input.dispatchEvent(new Event('focus'));
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+    return input;
+  }
+
+  it('matches an option by a data-search alias not present in the visible text', () => {
+    document.body.innerHTML = RICH;
+    uninstall = installCombobox();
+    type('nippon');
+    expect(document.getElementById('o-jp').hasAttribute('hidden')).toBe(false);
+    expect(document.getElementById('o-us').hasAttribute('hidden')).toBe(true);
+  });
+
+  it('uses data-search exclusively — text only in the visible content does not match', () => {
+    document.body.innerHTML = RICH;
+    uninstall = installCombobox();
+    type('asia'); // in textContent but NOT in data-search
+    expect(document.getElementById('o-jp').hasAttribute('hidden')).toBe(true);
+  });
+
+  it('selecting a rich option fills the input with data-label, not the rich text', () => {
+    document.body.innerHTML = RICH;
+    uninstall = installCombobox();
+    const input = type('japan');
+    press(input, 'Enter');
+    expect(input.value).toBe('Japan'); // not "Japan Asia"
+  });
+});

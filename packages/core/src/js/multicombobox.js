@@ -53,12 +53,18 @@ function visibleOptions(listbox) {
   );
 }
 
-function valueOf(option) {
-  return option.getAttribute('data-value') ?? (option.textContent ?? '').trim();
+// The clean display label — `data-label` for rich options, else text content.
+function labelOf(option) {
+  return option.dataset.label ?? (option.textContent ?? '').trim();
 }
 
-function labelOf(option) {
-  return (option.textContent ?? '').trim();
+function valueOf(option) {
+  return option.getAttribute('data-value') ?? labelOf(option);
+}
+
+// The text the filter matches against — `data-search` when present, else label.
+function searchText(option) {
+  return (option.dataset.search ?? labelOf(option)).toLowerCase();
 }
 
 function findOptionByValue(listbox, value) {
@@ -108,9 +114,8 @@ function applyFilter(input, listbox) {
   let exact = false;
   for (const o of options(listbox)) {
     if (o.classList.contains('hc-multicombobox__create')) continue; // managed below
-    const label = labelOf(o).toLowerCase();
-    if (q !== '' && label === q) exact = true;
-    const match = q === '' || label.includes(q);
+    if (q !== '' && labelOf(o).toLowerCase() === q) exact = true;
+    const match = q === '' || searchText(o).includes(q);
     if (match) {
       o.removeAttribute('hidden');
       if (!firstVisible) firstVisible = o;
