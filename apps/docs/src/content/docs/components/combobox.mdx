@@ -167,6 +167,31 @@ input.addEventListener('hc:comboboxselect', (e) => {
 The label is translatable via the [i18n catalog](/hypermedia-components/fundamentals/i18n/)
 (`combobox.create`, e.g. `Create "{value}"`).
 
+## Rich options
+
+Options can hold any HTML — an icon, a two-line label, a description. Two
+optional attributes keep filtering and selection clean:
+
+- **`data-label`** — the value written into the input on select (otherwise the
+  option's text content, which would include the rich markup's text).
+- **`data-search`** — the text the filter matches against (otherwise the
+  label). Use it to match aliases / keywords that aren't shown.
+
+```html
+<li class="hc-combobox__option" role="option" data-value="jp"
+    data-label="Japan" data-search="japan nippon 日本 jp">
+  <img src="/flags/jp.svg" alt=""> <strong>Japan</strong> <small>Asia</small>
+</li>
+```
+
+The filter hides non-matching options with the `hidden` attribute. If you give
+options a `display` (flex/grid) for the rich layout, **scope it to
+`:not([hidden])`** so it doesn't override the hide:
+
+```css
+.hc-combobox__option:not([hidden]) { display: grid; … }
+```
+
 ## Accessibility
 
 - The input is the user's anchor — focus stays there at all times so
@@ -197,10 +222,6 @@ deferred:
 - **Strict mode** — accepting free text *as a value* is supported via
   [`data-allow-create`](#creatable); the opposite — clearing the input on close
   when it doesn't match an option — is still a future opt-in flag.
-- **Rich options** — icons, descriptions, two-line items. The CSS
-  permits any HTML inside an `[role="option"]`, but the filter
-  matches against `textContent` — fine for plain text, may need
-  a `data-search` attribute escape hatch for richer cases.
 
 ## Theming tokens
 

@@ -154,6 +154,23 @@ The created tag's label is the value itself, and a hidden `name` input is
 added like any other tag. The option label is translatable via the
 [i18n catalog](/hypermedia-components/fundamentals/i18n/) (`multicombobox.create`).
 
+## Rich options
+
+Options can hold any HTML (icon + label + description). Use **`data-label`**
+for the tag's label and the matched value, and **`data-search`** for the
+filter haystack (aliases/keywords), so the rich markup's text doesn't pollute
+either:
+
+```html
+<li class="hc-multicombobox__option" role="option" data-value="py"
+    data-label="Python" data-search="python py snake">
+  <strong>Python</strong> <small>scripting</small>
+</li>
+```
+
+If you set a `display` on options for the rich layout, scope it to
+`:not([hidden])` so it doesn't override the filter's hide.
+
 ## Accessibility
 
 - DOM focus stays on the input so the type-ahead anchor is
@@ -171,9 +188,6 @@ added like any other tag. The option label is translatable via the
 - **Drag-to-reorder** tags.
 - **Async option loading** — the docs above show the htmx swap
   pattern; a built-in debounce / cancel helper is not bundled.
-- **Rich options** (icon + description) — the filter currently
-  matches `textContent`; richer layouts may need a `data-search`
-  escape hatch.
 
 ## Theming tokens
 

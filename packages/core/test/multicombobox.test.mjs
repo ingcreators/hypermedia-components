@@ -305,3 +305,46 @@ describe('installMulticombobox — creatable', () => {
     expect(document.querySelector('.hc-multicombobox__create')).toBeNull();
   });
 });
+
+describe('installMulticombobox — rich options (data-search / data-label)', () => {
+  const RICH = `
+    <div class="hc-multicombobox" data-name="langs">
+      <div class="hc-multicombobox__control hc-input">
+        <span class="hc-multicombobox__tags"></span>
+        <input id="mc-input" type="text" role="combobox" aria-controls="mc-list" aria-label="Languages">
+      </div>
+      <ul id="mc-list" class="hc-multicombobox__listbox" role="listbox">
+        <li id="o-py" class="hc-multicombobox__option" role="option" data-value="py"
+            data-label="Python" data-search="python py snake"><strong>Python</strong> <small>scripting</small></li>
+        <li id="o-go" class="hc-multicombobox__option" role="option" data-value="go"
+            data-label="Go" data-search="go golang"><strong>Go</strong></li>
+      </ul>
+    </div>`;
+  function type(value) {
+    const input = document.getElementById('mc-input');
+    input.dispatchEvent(new Event('focus'));
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+  }
+  function clickEl(el) {
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  }
+
+  it('filters by a data-search alias not present in the visible text', () => {
+    document.body.innerHTML = RICH;
+    uninstall = installMulticombobox();
+    type('snake');
+    expect(document.getElementById('o-py').hasAttribute('hidden')).toBe(false);
+    expect(document.getElementById('o-go').hasAttribute('hidden')).toBe(true);
+  });
+
+  it('creates a tag labelled by data-label, not the rich content', () => {
+    document.body.innerHTML = RICH;
+    uninstall = installMulticombobox();
+    clickEl(document.getElementById('o-py'));
+    const tag = document.querySelector('.hc-multicombobox__tag[data-value="py"]');
+    expect(tag).toBeTruthy();
+    expect(tag.textContent).toContain('Python');
+    expect(tag.textContent).not.toContain('scripting');
+  });
+});
