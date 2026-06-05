@@ -4,8 +4,9 @@
  * these rules win over each component's own focus / state styling by source
  * order (equal specificity, later wins) — no new layer, no specificity
  * hacks. With the granular CSS entry, import this file after the component
- * stylesheets. Today it holds the Forced Colors / Windows High Contrast
- * treatment.
+ * stylesheets. It holds the Forced Colors / Windows High Contrast treatment
+ * and the cross-component reduced-motion completion (components whose
+ * transitions weren't already gated in their own file).
  *
  * Why this is needed: in forced-colors mode the UA replaces author colours
  * with the user's system palette and *drops box-shadow*. Two HC patterns
@@ -125,6 +126,26 @@
       forced-color-adjust: none;
       background: ButtonText;
       border-color: ButtonText;
+    }
+  }
+
+  /* Reduced motion — complete the per-component coverage. Several controls
+     animate via a `transition` shorthand but weren't gated in their own
+     file; neutralise their duration when the user prefers reduced motion.
+     (accordion / datagrid / drawer / inputotp / progress / shell / skeleton
+     / spinner / switch already handle this in their own stylesheets; the
+     htmx indicator is gated in hc.htmx.css since it lives in a later layer.) */
+  @media (prefers-reduced-motion: reduce) {
+    .hc-button,
+    .hc-checkbox,
+    .hc-radio,
+    .hc-input,
+    .hc-select,
+    .hc-datepicker,
+    .hc-tabs__tab,
+    .hc-pagination__item,
+    .hc-toggle {
+      transition-duration: 0ms;
     }
   }
 }
