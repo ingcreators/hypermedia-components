@@ -168,3 +168,54 @@ describe('installToast', () => {
     expect(document.getElementById('keep-me')).not.toBeNull();
   });
 });
+
+describe('installToast — options', () => {
+  function pointer(el, type, clientX) {
+    el.dispatchEvent(new MouseEvent(type, { clientX, bubbles: true, button: 0 }));
+  }
+
+  it('caps the stack at data-limit, evicting the oldest', () => {
+    const region = document.createElement('div');
+    region.setAttribute('data-hc-toast-region', '');
+    region.setAttribute('data-limit', '2');
+    document.body.appendChild(region);
+
+    uninstall = installToast();
+    dispatch({ message: 'one', duration: 0 });
+    dispatch({ message: 'two', duration: 0 });
+    dispatch({ message: 'three', duration: 0 });
+
+    const bodies = [...region.querySelectorAll('.hc-toast__body')].map((b) => b.textContent);
+    expect(region.children.length).toBe(2);
+    expect(bodies).toEqual(['two', 'three']); // 'one' was evicted
+  });
+
+  it('swiping past the threshold flies the toast out and removes it', () => {
+    uninstall = installToast();
+    dispatch({ message: 'swipe me', duration: 0 });
+    const toast = document.querySelector('[data-hc-toast-region] .hc-toast');
+    Object.defineProperty(toast, 'offsetWidth', { value: 200, configurable: true });
+
+    pointer(toast, 'pointerdown', 0);
+    pointer(toast, 'pointermove', 120); // > 0.4 * 200 = 80
+    pointer(toast, 'pointerup', 120);
+
+    expect(toast.style.opacity).toBe('0'); // flying out
+    vi.advanceTimersByTime(250); // fallback removal (no transitionend in jsdom)
+    expect(toast.isConnected).toBe(false);
+  });
+
+  it('a short swipe snaps back without dismissing', () => {
+    uninstall = installToast();
+    dispatch({ message: 'keep', duration: 0 });
+    const toast = document.querySelector('[data-hc-toast-region] .hc-toast');
+    Object.defineProperty(toast, 'offsetWidth', { value: 200, configurable: true });
+
+    pointer(toast, 'pointerdown', 0);
+    pointer(toast, 'pointermove', 20); // < 80
+    pointer(toast, 'pointerup', 20);
+
+    expect(toast.style.translate).toBe(''); // snapped back
+    expect(toast.isConnected).toBe(true);
+  });
+});

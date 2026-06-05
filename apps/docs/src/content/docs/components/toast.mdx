@@ -1,0 +1,119 @@
+---
+title: Toast
+description: Transient, event-driven notifications — fired from client code or an HX-Trigger header, with position, stacking, and swipe-to-dismiss.
+---
+
+`hc-toast` is a transient notification. You don't write toast markup — you
+**fire an event** (or return an `HX-Trigger` header) and `installToast()`
+renders a `.hc-toast` into a `.hc-toast-region`, auto-dismissing it after a
+delay.
+
+## Appearance
+
+<div class="hc-preview not-content" style="display:grid;gap:.75rem;max-width:24rem;">
+  <div class="hc-toast" role="status">
+    <div class="hc-toast__title">Saved</div>
+    <div class="hc-toast__body">Your changes were saved.</div>
+  </div>
+  <div class="hc-toast" data-variant="success" role="status">
+    <div class="hc-toast__body">Profile updated.</div>
+  </div>
+  <div class="hc-toast" data-variant="error" role="alert">
+    <div class="hc-toast__title">Upload failed</div>
+    <div class="hc-toast__body">The server returned a 500.</div>
+  </div>
+</div>
+
+## Firing a toast
+
+Dispatch an `hc:toast` `CustomEvent` on `document.body`:
+
+```js
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: { message: 'Saved.', title: 'Done', variant: 'success', duration: 4500 },
+}));
+```
+
+…or let the server fire it from a response — htmx turns an `HX-Trigger`
+header into the same event:
+
+```text
+HX-Trigger: {"hc:toast": {"message": "Saved.", "variant": "success"}}
+```
+
+`detail` fields: `message` (required), `title?`, `variant?`
+(`info` · `success` · `warning` · `error`), `duration?` ms (`0` keeps it until
+dismissed). `error` is announced assertively (`role="alert"`); others use
+`role="status"`.
+
+## The region
+
+Toasts render into the first `[data-hc-toast-region]`. If none exists the
+behavior creates one (bottom-right) for you. **Pre-render it** to configure
+position and stacking:
+
+```html
+<div class="hc-toast-region" data-hc-toast-region
+     data-position="top-center" data-limit="3"
+     role="region" aria-label="Notifications"></div>
+```
+
+### Position
+
+`data-position` anchors the region — `{top,bottom}-{left,center,right}`
+(default `bottom-right`). Top positions stack downward (newest nearest the
+edge); bottom positions stack upward.
+
+```html
+<div class="hc-toast-region" data-hc-toast-region data-position="top-right" …></div>
+```
+
+### Stacking limit
+
+`data-limit="N"` caps the number of visible toasts; when a new one arrives
+the **oldest** is evicted. Without it the stack is unbounded.
+
+### Swipe to dismiss
+
+Every toast can be **dragged horizontally** to dismiss it — past ~40% of its
+width it flies out, otherwise it snaps back. This is a pointer / touch
+affordance (keyboard users rely on auto-dismiss); vertical drags still scroll
+the page. The motion is removed under `prefers-reduced-motion`.
+
+## Accessibility
+
+- The region is a labelled `role="region"`; the label is translatable via the
+  [i18n catalog](/hypermedia-components/fundamentals/i18n/) (`toast.label`).
+- Each toast is a live region — `role="alert"` / `aria-live="assertive"` for
+  `error`, `role="status"` / `aria-live="polite"` otherwise — so it is
+  announced without moving focus.
+- Don't rely on colour alone: include a `title` or clear `message`.
+- Keep `duration` long enough to read (or `0` for important messages), since
+  swipe-to-dismiss isn't available to keyboard users.
+
+## Theming tokens
+
+| Token path | Purpose |
+| --- | --- |
+| `toast.region-inset` / `region-gap` | Region offset from the edge / gap between toasts. |
+| `toast.gap` | Gap between title and body. |
+| `toast.min-width` / `max-width` | Toast width bounds. |
+| `toast.padding-y` / `padding-x` / `radius` | Box metrics. |
+| `toast.{variant}.{bg,fg,border}` | Per-variant colours. |
+
+## CSS variables
+
+```text
+--hc-toast-region-inset | -region-gap
+--hc-toast-gap | -min-width | -max-width | -padding-y | -padding-x | -radius
+--hc-toast-info-bg    | -fg | -border
+--hc-toast-success-bg | -fg | -border
+--hc-toast-warning-bg | -fg | -border
+--hc-toast-error-bg  | -fg | -border
+```
+
+## Related
+
+- [Alert](/hypermedia-components/components/alert/) — inline, persistent notice.
+- [htmx integration](/hypermedia-components/integrations/htmx/) — firing toasts from `HX-Trigger`.

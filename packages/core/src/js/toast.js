@@ -63,6 +63,74 @@ function renderToast(ownerDocument, detail) {
   return toast;
 }
 
+// Remove a toast and cancel its pending auto-dismiss timer. Idempotent.
+function removeToast(toast) {
+  if (toast._hcTimer) {
+    clearTimeout(toast._hcTimer);
+    toast._hcTimer = null;
+  }
+  toast.remove();
+}
+
+// Cap the number of visible toasts via `data-limit` on the region; evict the
+// oldest (first in DOM order, regardless of stack direction).
+function enforceLimit(region) {
+  const limit = parseInt(region.getAttribute('data-limit') ?? '', 10);
+  if (!Number.isFinite(limit) || limit <= 0) return;
+  while (region.children.length > limit && region.firstElementChild) {
+    removeToast(region.firstElementChild);
+  }
+}
+
+// Swipe-to-dismiss: drag a toast horizontally past ~40% of its width to fly it
+// out; release short of that to snap back. Pointer-only (keyboard users rely
+// on auto-dismiss). Vertical pans scroll the page (touch-action: pan-y).
+function wireSwipe(toast) {
+  let startX = 0;
+  let dx = 0;
+  let width = 1;
+  let dragging = false;
+
+  function onDown(event) {
+    if (event.button != null && event.button !== 0) return; // primary only
+    dragging = true;
+    startX = event.clientX;
+    dx = 0;
+    width = toast.offsetWidth || 1;
+    toast.style.transition = 'none';
+    toast.setPointerCapture?.(event.pointerId);
+  }
+
+  function onMove(event) {
+    if (!dragging) return;
+    dx = event.clientX - startX;
+    toast.style.translate = `${dx}px`;
+    toast.style.opacity = String(Math.max(0, 1 - Math.abs(dx) / width));
+  }
+
+  function onUp(event) {
+    if (!dragging) return;
+    dragging = false;
+    toast.releasePointerCapture?.(event.pointerId);
+    toast.style.transition = ''; // restore the CSS transition for the finish
+    if (Math.abs(dx) > width * 0.4) {
+      const sign = dx < 0 ? -1 : 1;
+      toast.style.translate = `${sign * (width + 40)}px`;
+      toast.style.opacity = '0';
+      toast.addEventListener('transitionend', () => removeToast(toast), { once: true });
+      setTimeout(() => removeToast(toast), 220); // fallback (reduced-motion)
+    } else {
+      toast.style.translate = '';
+      toast.style.opacity = '';
+    }
+  }
+
+  toast.addEventListener('pointerdown', onDown);
+  toast.addEventListener('pointermove', onMove);
+  toast.addEventListener('pointerup', onUp);
+  toast.addEventListener('pointercancel', onUp);
+}
+
 /**
  * @typedef {Object} HcToastDetail
  * @property {string} message              Required body text.
@@ -81,6 +149,12 @@ function renderToast(ownerDocument, detail) {
  * `document.body`. On each event, it renders a `.hc-toast` into the
  * first `[data-hc-toast-region]` element, creating the region itself
  * if absent. Each toast auto-dismisses after `detail.duration` ms.
+ *
+ * The region may configure presentation in markup:
+ *   - `data-position="{top|bottom}-{left|center|right}"` (default
+ *     `bottom-right`) anchors the stack.
+ *   - `data-limit="N"` caps the visible toasts, evicting the oldest.
+ * Toasts can also be swiped horizontally to dismiss (pointer / touch).
  *
  * Multiple calls to `installToast` on the same root return the same
  * uninstaller; the listener is only registered once.
@@ -119,15 +193,15 @@ export function installToast(root = (typeof document !== 'undefined' ? document 
 
     const toast = renderToast(root, detail);
     region.appendChild(toast);
+    enforceLimit(region);
+    wireSwipe(toast);
 
     const duration = Number.isFinite(detail.duration)
       ? Number(detail.duration)
       : DEFAULT_DURATION_MS;
 
     if (duration > 0) {
-      setTimeout(() => {
-        toast.remove();
-      }, duration);
+      toast._hcTimer = setTimeout(() => removeToast(toast), duration);
     }
   }
 
