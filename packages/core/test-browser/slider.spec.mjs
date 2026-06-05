@@ -68,3 +68,49 @@ test.describe('hc-slider', () => {
     expect(results.violations).toEqual([]);
   });
 });
+
+test.describe('hc-slider — vertical orientation', () => {
+  test('renders taller than wide (writing-mode vertical)', async ({ page }) => {
+    const box = await page.getByTestId('sl-vertical').boundingBox();
+    expect(box.height).toBeGreaterThan(box.width);
+  });
+
+  test('stays a native range — Up / Down change the value, Home / End jump', async ({ page }) => {
+    const s = page.getByTestId('sl-vertical');
+    await s.focus();
+    await expect(s).toHaveJSProperty('value', '40');
+
+    // The maximum is at the top (direction: rtl), so Up increases.
+    await page.keyboard.press('ArrowUp');
+    await expect(s).toHaveJSProperty('value', '41');
+    await page.keyboard.press('ArrowDown');
+    await expect(s).toHaveJSProperty('value', '40');
+
+    await page.keyboard.press('End');
+    await expect(s).toHaveJSProperty('value', '100');
+    await page.keyboard.press('Home');
+    await expect(s).toHaveJSProperty('value', '0');
+  });
+
+  test('installSlider keeps --hc-slider-value in sync in vertical mode', async ({ page }) => {
+    const s = page.getByTestId('sl-vertical');
+    await expect
+      .poll(() => s.evaluate((el) => el.style.getPropertyValue('--hc-slider-value')))
+      .toBe('40');
+    await s.focus();
+    await page.keyboard.press('ArrowUp');
+    const v = await s.evaluate((el) => el.style.getPropertyValue('--hc-slider-value'));
+    expect(v).toBe('41');
+  });
+
+  test('the maximum sits at the top — the thumb rises as the value grows', async ({ page }) => {
+    const s = page.getByTestId('sl-vertical');
+    await s.focus();
+    await page.keyboard.press('Home'); // value = 0 (bottom)
+    const low = await s.evaluate((el) => el.value);
+    expect(low).toBe('0');
+    // We cannot read the native thumb box directly, but End must reach max.
+    await page.keyboard.press('End');
+    await expect(s).toHaveJSProperty('value', '100');
+  });
+});

@@ -74,6 +74,44 @@ and thumb size scale together.
   <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-size="lg" aria-label="Large" />
 </div>
 
+## Vertical orientation
+
+Add `data-orientation="vertical"` to stand the slider up. This uses the
+modern, native approach — CSS [`writing-mode`](https://developer.mozilla.org/docs/Web/CSS/Guides/Writing_modes/Vertical_controls)
+— so the control stays a real `<input type="range">`: the OS thumb, the full
+keyboard (<kbd>↑</kbd> / <kbd>↓</kbd> step, <kbd>Home</kbd> / <kbd>End</kbd>,
+<kbd>PageUp</kbd> / <kbd>PageDown</kbd>), form participation, and
+screen-reader value announcement all keep working. The maximum sits at the
+top, so <kbd>↑</kbd> increases the value.
+
+<div class="hc-preview not-content" style="display:flex;gap:1.5rem;align-items:flex-end;block-size:12rem;">
+  <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-orientation="vertical" aria-label="Volume" />
+  <input class="hc-slider" type="range" min="0" max="100" defaultValue="70" data-orientation="vertical" data-variant="success" aria-label="Level" />
+</div>
+
+```html
+<input class="hc-slider" type="range" min="0" max="100" value="40"
+       data-orientation="vertical" aria-label="Volume">
+```
+
+Set the height with the `--hc-slider-length` custom property (default
+`12rem`):
+
+```html
+<input class="hc-slider" type="range" … data-orientation="vertical"
+       style="--hc-slider-length: 16rem">
+```
+
+:::note[Baseline]
+Vertical range rendering via `writing-mode` reached cross-engine support in
+**2024** (Chrome / Edge, Safari, and Firefox). On engines older than that the
+slider **degrades to the horizontal layout** — it stays fully usable, just
+not rotated. There is no JavaScript or transform fallback: the control is
+always a native range, which keeps the thumb and keyboard correct. (The
+legacy non-standard hooks — `appearance: slider-vertical`, the `orient`
+attribute — are intentionally not used.)
+:::
+
 ## htmx usage
 
 The slider participates in form submissions like any other input.
@@ -137,6 +175,7 @@ Component tokens (in `component.tokens.json`):
 --hc-slider-sm-track-height | -sm-thumb-size
 --hc-slider-lg-track-height | -lg-thumb-size
 --hc-slider-value (0-100, kept in sync by installSlider)
+--hc-slider-length (vertical track length; default 12rem)
 --hc-color-focus-ring (inherited from data-color)
 ```
 
