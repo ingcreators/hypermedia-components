@@ -348,6 +348,7 @@ function attach(grid, detachers) {
   function onKeydown(event) {
     if (editingCell) return; // the editor handles its own keys
     if (!isOurs(event)) return; // nested grid handles its own
+    if (event.target.closest('.hc-datagrid__head')) return; // header keys (sort) handled separately
     if (!matrix.length) return;
     const { r, c } = active;
     const activeCell = matrix[r]?.[c];
@@ -455,6 +456,57 @@ function attach(grid, detachers) {
   // an expanded detail panel) — that grid handles its own.
   function isOurs(event) {
     return event.target.closest?.('.hc-datagrid') === grid;
+  }
+
+  // ---- Sortable column headers ----
+  function sortableHeaders() {
+    return ownedBy(grid, '.hc-datagrid__headcell[data-sortable]');
+  }
+
+  function initSort() {
+    for (const th of sortableHeaders()) {
+      if (!th.hasAttribute('tabindex')) th.tabIndex = 0;
+      if (!th.hasAttribute('aria-sort')) th.setAttribute('aria-sort', 'none');
+    }
+  }
+
+  function cycleSort(th) {
+    const current = th.getAttribute('aria-sort') || 'none';
+    const next =
+      current === 'none'
+        ? 'ascending'
+        : current === 'ascending'
+          ? 'descending'
+          : 'none';
+    // Single-column sort: clear the others.
+    for (const h of sortableHeaders()) {
+      if (h !== th) h.setAttribute('aria-sort', 'none');
+    }
+    th.setAttribute('aria-sort', next);
+    const col = th.dataset.col || (th.textContent || '').trim();
+    const direction = next === 'ascending' ? 'asc' : next === 'descending' ? 'desc' : null;
+    grid.dispatchEvent(
+      new CustomEvent('hc:datagridsort', { bubbles: true, detail: { col, direction } }),
+    );
+  }
+
+  function sortableTargetOf(event) {
+    if (event.target.closest('.hc-datagrid__resizer')) return null; // resize, not sort
+    const th = event.target.closest('.hc-datagrid__headcell[data-sortable]');
+    return th && th.closest('.hc-datagrid') === grid ? th : null;
+  }
+
+  function onSortClick(event) {
+    const th = sortableTargetOf(event);
+    if (th) cycleSort(th);
+  }
+
+  function onSortKeydown(event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const th = sortableTargetOf(event);
+    if (!th) return;
+    event.preventDefault();
+    cycleSort(th);
   }
 
   // ---- Expandable row detail (master / detail) ----
@@ -693,12 +745,15 @@ function attach(grid, detachers) {
   measure(grid);
   initDetails();
   initResizers();
+  initSort();
 
   table.addEventListener('keydown', onKeydown);
+  table.addEventListener('keydown', onSortKeydown);
   table.addEventListener('change', onChange);
   table.addEventListener('focusin', onFocusin);
   table.addEventListener('dblclick', onDblclick);
   table.addEventListener('click', onToggleClick);
+  table.addEventListener('click', onSortClick);
   grid.addEventListener('pointerover', onPointerOver);
   grid.addEventListener('pointerout', onPointerOut);
   grid.addEventListener('focusin', onTipFocusin);
@@ -722,10 +777,12 @@ function attach(grid, detachers) {
 
   detachers.set(grid, () => {
     table.removeEventListener('keydown', onKeydown);
+    table.removeEventListener('keydown', onSortKeydown);
     table.removeEventListener('change', onChange);
     table.removeEventListener('focusin', onFocusin);
     table.removeEventListener('dblclick', onDblclick);
     table.removeEventListener('click', onToggleClick);
+    table.removeEventListener('click', onSortClick);
     grid.removeEventListener('pointerover', onPointerOver);
     grid.removeEventListener('pointerout', onPointerOut);
     grid.removeEventListener('focusin', onTipFocusin);

@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Sortable datagrid columns.** Mark a header `data-sortable` (with a
+  `data-col` key) and `installDatagrid()` makes it focusable, toggles
+  `aria-sort` on click / Enter / Space through none → ascending → descending →
+  none (one column at a time, with a `↕` / `↑` / `↓` indicator), and dispatches
+  **`hc:datagridsort`** (`detail: { col, direction }`, where `direction` is
+  `'asc'` / `'desc'` / `null`). The grid is server-paged, so the server sorts
+  and returns the page — wire the event to htmx. Header keyboard events no
+  longer leak into cell navigation. New Datagrid → Sortable columns docs.
+  6 Vitest + 5 Playwright tests.
+
 - **Remote (async) combobox options.** Add `data-remote` to an `hc-combobox`
   to let the server filter: the behavior turns off its client-side filter and
   surfaces the request lifecycle as in-listbox states — a spinner row +

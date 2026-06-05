@@ -349,6 +349,37 @@
     display: none;
   }
 
+  /* ---- Sortable column headers ----
+   * installDatagrid() makes a `data-sortable` headcell focusable, toggles its
+   * `aria-sort`, and emits `hc:datagridsort` — the server returns the sorted
+   * page. A faint ↕ hints sortability; ↑ / ↓ shows the active direction. */
+  .hc-datagrid__headcell[data-sortable] {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hc-datagrid__headcell[data-sortable]:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  .hc-datagrid__headcell[data-sortable]::after {
+    content: "↕";
+    margin-inline-start: 0.4em;
+    font-size: 0.85em;
+    opacity: 0.35;
+  }
+
+  .hc-datagrid__headcell[data-sortable][aria-sort="ascending"]::after {
+    content: "↑";
+    opacity: 1;
+  }
+
+  .hc-datagrid__headcell[data-sortable][aria-sort="descending"]::after {
+    content: "↓";
+    opacity: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hc-datagrid__scroll {
       scroll-behavior: auto;

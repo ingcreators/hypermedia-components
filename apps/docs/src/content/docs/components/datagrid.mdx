@@ -199,6 +199,33 @@ On each change the grid dispatches **`hc:datagridcolumnresize`**
 and write it back as the column's cell widths on the next render. The grip
 is a keyboard-operable `role="separator"` with `aria-valuenow`.
 
+## Sortable columns
+
+Mark a header `data-sortable` (with a `data-col` key). The behavior makes it
+focusable, toggles `aria-sort` on click / <kbd>Enter</kbd> / <kbd>Space</kbd>
+through **none → ascending → descending → none** (single column at a time, with
+a `↕` / `↑` / `↓` indicator), and dispatches **`hc:datagridsort`** — the grid
+is server-paged, so the **server** sorts and returns the page.
+
+```html
+<th class="hc-datagrid__headcell" data-sortable data-col="price" scope="col">
+  Price
+</th>
+```
+
+```js
+grid.addEventListener('hc:datagridsort', (e) => {
+  // e.detail = { col: 'price', direction: 'asc' | 'desc' | null }
+});
+```
+
+Wire it to htmx by reloading the rows with the sort params — e.g. put
+`data-hx-get`, `data-hx-trigger="hc:datagridsort"` and
+`data-hx-vals='js:{ sort: event.detail.col, dir: event.detail.direction }'`
+on the `<tbody>` (see the
+[Datagrid pager recipe](/hypermedia-components/recipes/datagrid-pager/)). Render
+each header with the current `aria-sort` so the indicator survives the swap.
+
 ## Behavior — `installDatagrid()`
 
 ```js

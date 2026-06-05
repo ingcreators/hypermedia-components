@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc datagrid sort fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem;">
+    <div class="hc-datagrid" data-testid="grid">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">ID</th>
+              <th class="hc-datagrid__headcell" data-sortable data-col="name"
+                  scope="col" data-testid="h-name">Name</th>
+              <th class="hc-datagrid__headcell" data-sortable data-col="price"
+                  scope="col" data-testid="h-price">Price</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <tr class="hc-datagrid__row">
+              <th class="hc-datagrid__cell" scope="row">1</th>
+              <td class="hc-datagrid__cell">Chai</td>
+              <td class="hc-datagrid__cell">$18.00</td>
+            </tr>
+            <tr class="hc-datagrid__row">
+              <th class="hc-datagrid__cell" scope="row">2</th>
+              <td class="hc-datagrid__cell">Chang</td>
+              <td class="hc-datagrid__cell">$19.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    window.__sorts = [];
+    document.querySelector('[data-testid="grid"]')
+      .addEventListener('hc:datagridsort', (e) => window.__sorts.push(e.detail));
+  </script>
+</body>
+</html>
