@@ -104,11 +104,13 @@
     border-color: var(--hc-datepicker-error-border);
   }
 
-  .hc-datepicker[aria-invalid="true"] {
+  .hc-datepicker[aria-invalid="true"],
+  .hc-datepicker:user-invalid {
     border-color: var(--hc-datepicker-error-border);
   }
 
-  .hc-datepicker[aria-invalid="true"]:focus-visible {
+  .hc-datepicker[aria-invalid="true"]:focus-visible,
+  .hc-datepicker:user-invalid:focus-visible {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
   }
 

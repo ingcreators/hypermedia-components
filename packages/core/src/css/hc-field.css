@@ -38,4 +38,34 @@
   .hc-field[data-invalid="true"] .hc-input {
     border-color: var(--hc-input-error-border);
   }
+
+  /* Native constraint validation — when a contained control is invalid
+   * after user interaction (`:user-invalid`), react like the manual
+   * `data-invalid` hook, with no JS required. The control paints its own
+   * border via its `:user-invalid` rule; this colours the help message. */
+  .hc-field:has(:user-invalid) .hc-field__message {
+    color: var(--hc-field-invalid-message-color);
+  }
+
+  /* Error slot that `installValidation()` fills with the control's native
+   * `validationMessage`. Hidden until it has text so it reserves no space. */
+  .hc-field__error {
+    margin: 0;
+    color: var(--hc-field-invalid-message-color);
+    font-size: var(--hc-field-message-font-size);
+    line-height: 1.4;
+  }
+
+  .hc-field__error:empty {
+    display: none;
+  }
+
+  /* Required indicator — an asterisk on the label of any field whose control
+   * is required. The native `required` / `aria-required` stays the accessible
+   * source of truth; the mark is decorative. Override
+   * `--hc-field-required-color` (e.g. to `transparent`) to restyle/remove. */
+  .hc-field:has(:is([required], [aria-required="true"])) .hc-field__label::after {
+    content: " *";
+    color: var(--hc-field-required-color, var(--hc-color-error));
+  }
 }

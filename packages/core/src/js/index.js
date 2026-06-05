@@ -25,6 +25,7 @@ export { installInputOtp } from './inputotp.js';
 export { installSplitter } from './splitter.js';
 export { installShell } from './shell.js';
 export { installDatagrid } from './datagrid.js';
+export { installValidation } from './validation.js';
 
 // i18n — translate the strings behaviors inject (created nodes, default
 // ARIA labels). Call setMessages() once at startup, before installing.

@@ -107,6 +107,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Form-validation depth for `hc-field`.** Native HTML constraint validation
+  (`required`, `type`, `pattern`, `min`/`max`, `minlength`…) now drives the
+  field UI with no per-field wiring. New CSS `:user-invalid` hooks on input /
+  select / datepicker / checkbox / radio style the control invalid **only after
+  the user interacts** (no JS), the field's help message follows via
+  `:has(:user-invalid)`, and a required control adds an asterisk to its label
+  (`--hc-field-required-color`, overridable). A new `installValidation()`
+  behavior (in the auto-init `/behaviors` bundle, and exported from the main
+  entry) surfaces the control's localized `validationMessage` into a
+  `.hc-field__error` element, wires `aria-invalid` / `data-invalid` /
+  `aria-describedby`, clears live as the user fixes the field, and replaces the
+  browser's default bubble with the inline message on submit. New Field →
+  Client-side validation docs; 8 Vitest + 4 Playwright tests.
 - **Right-to-left (RTL) support.** The kit is built on CSS logical properties,
   so `dir="rtl"` mostly "just works"; this fills the gaps that needed genuine
   direction-awareness. The datagrid frozen column now sticks to the

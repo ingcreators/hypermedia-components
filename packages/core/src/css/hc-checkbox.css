@@ -85,11 +85,13 @@
 
   /* Invalid (the accessibility hook). Border switches; if also checked,
    * the error fill wins over the default fill. */
-  .hc-checkbox[aria-invalid="true"] {
+  .hc-checkbox[aria-invalid="true"],
+  .hc-checkbox:user-invalid {
     border-color: var(--hc-checkbox-error-border);
   }
 
-  .hc-checkbox[aria-invalid="true"]:focus-visible {
+  .hc-checkbox[aria-invalid="true"]:focus-visible,
+  .hc-checkbox:user-invalid:focus-visible {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
   }
 
