@@ -528,6 +528,15 @@
       <hr class="hc-menu__separator">
       <button class="hc-menu__item" role="menuitem" type="button"
               data-variant="error">Delete</button>
+      <button class="hc-menu__item" role="menuitem" type="button"
+              data-hc-submenu="ctx-share" data-testid="ctx-share">Share</button>
+      <div class="hc-menu" id="ctx-share" role="menu" aria-label="Share"
+           data-testid="ctx-share-sub">
+        <button class="hc-menu__item" role="menuitem" type="button"
+                data-testid="ctx-share-email">Email</button>
+        <button class="hc-menu__item" role="menuitem" type="button"
+                data-testid="ctx-share-copy">Copy link</button>
+      </div>
     </div>
   </section>
 
@@ -1092,6 +1101,43 @@
       const out = document.querySelector('[data-testid="menu-selected"]');
       document.querySelector('[data-testid="menu"]').addEventListener('hc:menuselect', (e) => {
         out.textContent = e.detail.item.textContent.trim();
+        out.setAttribute('data-selected', e.detail.item.textContent.trim());
+      });
+    </script>
+  </section>
+
+  <section id="section-menu-submenu" data-testid="section-menu-submenu">
+    <h2>Menu (submenu)</h2>
+
+    <div style="display:flex; gap:1rem; align-items:flex-start;">
+      <button class="hc-button" type="button" popovertarget="edit-menu"
+              id="edit-menu-trigger" data-testid="sm-trigger">Edit</button>
+
+      <div class="hc-menu" id="edit-menu" popover role="menu"
+           aria-labelledby="edit-menu-trigger" data-testid="sm-menu">
+        <button class="hc-menu__item" role="menuitem" type="button"
+                data-testid="sm-undo">Undo</button>
+        <!-- Submenu parent: data-hc-submenu points at a nested .hc-menu.
+             installMenu adds popover="auto" + the submenu ARIA. -->
+        <button class="hc-menu__item" role="menuitem" type="button"
+                data-hc-submenu="edit-more" data-testid="sm-more">More tools</button>
+        <div class="hc-menu" id="edit-more" role="menu" aria-label="More tools"
+             data-testid="sm-sub">
+          <button class="hc-menu__item" role="menuitem" type="button"
+                  data-testid="sm-inspect">Inspect</button>
+          <button class="hc-menu__item" role="menuitem" type="button"
+                  data-testid="sm-saveas">Save as…</button>
+        </div>
+        <button class="hc-menu__item" role="menuitem" type="button"
+                data-testid="sm-paste">Paste</button>
+      </div>
+
+      <output data-testid="sm-selected"></output>
+    </div>
+
+    <script type="module">
+      const out = document.querySelector('[data-testid="sm-selected"]');
+      document.querySelector('[data-testid="sm-menu"]').addEventListener('hc:menuselect', (e) => {
         out.setAttribute('data-selected', e.detail.item.textContent.trim());
       });
     </script>

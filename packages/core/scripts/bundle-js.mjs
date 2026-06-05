@@ -31,6 +31,7 @@ const FILES = [
   ['src/js/remote-dialog.js', 'remote-dialog.js'],
   ['src/js/tabs.js',          'tabs.js'],
   ['src/js/menu-core.js',     'menu-core.js'],
+  ['src/js/submenu.js',       'submenu.js'],
   ['src/js/menu.js',          'menu.js'],
   ['src/js/context-menu.js',  'context-menu.js'],
   ['src/js/command.js',       'command.js'],

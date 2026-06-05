@@ -31,6 +31,7 @@ const ASSET_ALIASES = new Map([
   ['/remote-dialog.js', join(coreDist, 'remote-dialog.js')],
   ['/tabs.js',          join(coreDist, 'tabs.js')],
   ['/menu-core.js',     join(coreDist, 'menu-core.js')],
+  ['/submenu.js',       join(coreDist, 'submenu.js')],
   ['/menu.js',          join(coreDist, 'menu.js')],
   ['/context-menu.js',  join(coreDist, 'context-menu.js')],
   ['/command.js',       join(coreDist, 'command.js')],

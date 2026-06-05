@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-menu` / `hc-context-menu` submenus (`data-hc-submenu`).** A menu item
+  can now open a nested submenu following the WAI-ARIA APG submenu pattern.
+  Point a `menuitem` at a nested `.hc-menu` with `data-hc-submenu="<id>"`;
+  `installMenu()` / `installContextMenu()` wire `aria-haspopup="menu"`,
+  `aria-expanded`, and `aria-controls`, add `popover="auto"`, and manage open
+  / close: hover or click the parent, or press <kbd>→</kbd> / <kbd>Enter</kbd>
+  / <kbd>Space</kbd> to open (focusing the first item), <kbd>←</kbd> /
+  <kbd>Esc</kbd> to close (focus returns to the parent), and selecting any
+  leaf closes the whole tree. Roving focus / type-ahead are scoped per menu,
+  the arrows mirror under RTL, and the parent shows a chevron. Placement uses
+  CSS Anchor Positioning to the inline-end (flipping at the edge) with the
+  shared JS fallback — now extended with an `inline-end` / `inline-start`
+  side. The same wiring is shared by `hc-context-menu`. New Menu → Submenus
+  docs. 9 Vitest + 7 Playwright tests (incl. axe).
+
 - **`hc-slider` vertical orientation (`data-orientation="vertical"`).** Stands
   the range up with the modern, native `writing-mode` approach (Baseline
   2024) — the control stays a real `<input type="range">`, so the OS thumb,

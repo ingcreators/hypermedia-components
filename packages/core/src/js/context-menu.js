@@ -36,9 +36,9 @@ import {
   ITEM_ROLE_SELECTOR,
   isEnabled,
   focusFirst,
-  handleMenuNavKeydown,
   selectMenuItem,
 } from './menu-core.js';
+import { wireSubmenus, handleMenuTreeKeydown, isSubmenuParent } from './submenu.js';
 
 const INSTALL_KEY = '__hcContextMenuUninstall';
 
@@ -111,16 +111,20 @@ function attach(region, detachers) {
 
   function onMenuKeydown(event) {
     if (!menu.matches(':popover-open')) return;
-    handleMenuNavKeydown(menu, event);
+    handleMenuTreeKeydown(menu, event);
   }
 
   function onMenuClick(event) {
     const item = event.target.closest(ITEM_ROLE_SELECTOR);
     if (!item || !menu.contains(item) || !isEnabled(item)) return;
-    const { role } = selectMenuItem(menu, item, { contextTarget });
+    if (isSubmenuParent(item)) return; // submenu toggle handled by wireSubmenus
+    const owning = item.closest('.hc-menu') || menu;
+    const { role } = selectMenuItem(owning, item, { contextTarget });
     // Plain menuitems close the menu; checkbox / radio keep it open.
     if (role === 'menuitem') menu.hidePopover();
   }
+
+  const submenuCleanup = wireSubmenus(menu);
 
   region.addEventListener('contextmenu', onContextmenu);
   region.addEventListener('keydown', onRegionKeydown);
@@ -132,6 +136,7 @@ function attach(region, detachers) {
     region.removeEventListener('keydown', onRegionKeydown);
     menu.removeEventListener('keydown', onMenuKeydown);
     menu.removeEventListener('click', onMenuClick);
+    submenuCleanup();
   });
 }
 

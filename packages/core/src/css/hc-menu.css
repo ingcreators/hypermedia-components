@@ -56,6 +56,20 @@
         flip-inline,
         flip-block flip-inline;
     }
+
+    /* Submenus open to the inline-end of their parent item, aligned to its
+     * block-start, and flip to the inline-start when there is no room.
+     * installMenu / installContextMenu (via submenu.js) inject the matching
+     * anchor-name on the parent item and position-anchor here. */
+    .hc-menu[data-submenu] {
+      position-area: inline-end span-block-end;
+      margin-block-start: 0;
+      margin-inline-start: var(--hc-menu-offset);
+      position-try-fallbacks:
+        flip-inline,
+        flip-block,
+        flip-inline flip-block;
+    }
   }
 
   .hc-menu__item {
@@ -120,6 +134,25 @@
   .hc-menu__item[role="menuitemradio"][aria-checked="true"]::before {
     opacity: 1;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='3' fill='currentColor'/></svg>");
+  }
+
+  /* Submenu parent — a trailing chevron marks an item that opens a submenu.
+   * `margin-inline-start: auto` pushes it to the inline-end of the flex row;
+   * it mirrors automatically under RTL. */
+  .hc-menu__item[aria-haspopup="menu"]::after {
+    content: "";
+    margin-inline-start: auto;
+    inline-size: var(--hc-menu-item-indicator-size);
+    block-size: var(--hc-menu-item-indicator-size);
+    background: currentcolor;
+    opacity: 0.6;
+    mask:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M6 3.5 L10.5 8 L6 12.5'/></svg>")
+      center / contain no-repeat;
+  }
+
+  .hc-menu__item[aria-haspopup="menu"]:dir(rtl)::after {
+    scale: -1 1;
   }
 
   /* Group label — a small muted heading above a cluster of items. */

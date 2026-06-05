@@ -19,7 +19,12 @@ export const ITEM_ROLE_SELECTOR =
   '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
 
 export function itemsOf(menu) {
-  return Array.from(menu.querySelectorAll(ITEM_ROLE_SELECTOR));
+  // Scope to items that belong to THIS menu — not ones inside a nested
+  // submenu (`.hc-menu` descendant). Each menu in a submenu tree manages its
+  // own roving focus / type-ahead independently.
+  return Array.from(menu.querySelectorAll(ITEM_ROLE_SELECTOR)).filter(
+    (item) => item.closest('.hc-menu') === menu,
+  );
 }
 
 export function isEnabled(item) {
@@ -139,7 +144,11 @@ export function selectMenuItem(menu, item, extraDetail = {}) {
     checked = true;
     const group = radioGroupOf(item);
     if (group) {
+      // Stay within this menu — never clear radios in a nested submenu that
+      // happens to be a DOM descendant of the same group / menu.
+      const ownerMenu = item.closest('.hc-menu');
       for (const sib of group.querySelectorAll('[role="menuitemradio"]')) {
+        if (sib.closest('.hc-menu') !== ownerMenu) continue;
         sib.setAttribute('aria-checked', sib === item ? 'true' : 'false');
       }
     } else {
