@@ -37,11 +37,20 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
   </select>
 </label>
 
+<label class="hc-picker" aria-label="Text direction">
+  <span class="hc-picker__label">Dir</span>
+  <select id="hc-dir-select" class="hc-select" data-size="sm" aria-label="Text direction">
+    <option value="ltr">LTR</option>
+    <option value="rtl">RTL</option>
+  </select>
+</label>
+
 <script>
   /** @type {Array<{ key: string, attr: string, values: string[], fallback: string, id: string }>} */
   const PICKERS = [
     { key: 'hc-density', attr: 'data-density', values: ['comfortable', 'compact', 'dense'], fallback: 'comfortable', id: 'hc-density-select' },
     { key: 'hc-color',   attr: 'data-color',   values: ['default', 'indigo', 'emerald', 'rose', 'amber'], fallback: 'default', id: 'hc-color-select' },
+    { key: 'hc-dir',     attr: 'dir',          values: ['ltr', 'rtl'], fallback: 'ltr', id: 'hc-dir-select' },
   ];
 
   for (const p of PICKERS) {
@@ -105,7 +114,8 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
      override is layout: `.hc-select` is display:block / inline-size:100%
      by default, which we don't want in a compact inline navbar. */
   #hc-density-select,
-  #hc-color-select {
+  #hc-color-select,
+  #hc-dir-select {
     inline-size: auto;
   }
 </style>

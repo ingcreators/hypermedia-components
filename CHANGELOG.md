@@ -95,6 +95,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Right-to-left (RTL) support.** The kit is built on CSS logical properties,
+  so `dir="rtl"` mostly "just works"; this fills the gaps that needed genuine
+  direction-awareness. The datagrid frozen column now sticks to the
+  inline-start via `inset-inline-start` (was a physical `left`) with the
+  freeze-line shadow flipped in RTL; the calendar prev/next chevrons mirror;
+  and horizontal arrow-key navigation is mirrored in RTL for tabs, toggle
+  group, datagrid cell grid, calendar, and splitter (vertical arrows
+  unchanged). Docs gain a **Dir** picker in the top bar to preview the whole
+  site in RTL, plus an Accessibility → Right-to-left section. 6 Playwright
+  tests under `dir="rtl"`.
 - **Reduced-motion coverage completed.** The controls whose only animation is
   a `transition` and that weren't already gated in their own stylesheet
   (button, checkbox, radio, input, select, datepicker, tabs, pagination,

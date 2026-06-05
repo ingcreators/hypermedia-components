@@ -159,11 +159,14 @@
     text-overflow: ellipsis;
   }
 
-  /* ---- Frozen (sticky-left) columns ---- */
+  /* ---- Frozen (sticky inline-start) columns ---- */
   .hc-datagrid__cell[data-frozen],
   .hc-datagrid__headcell[data-frozen] {
     position: sticky;
-    left: var(--hc-datagrid-left, 0);
+
+    /* Logical, so frozen columns stick to the inline-start edge in both
+       LTR and RTL. The behavior measures cumulative inline widths. */
+    inset-inline-start: var(--hc-datagrid-left, 0);
     z-index: 1; /* above normal body cells when scrolled horizontally */
     background-color: var(--hc-datagrid-frozen-bg);
   }
@@ -177,6 +180,11 @@
   .hc-datagrid__cell[data-frozen-edge],
   .hc-datagrid__headcell[data-frozen-edge] {
     box-shadow: var(--hc-datagrid-freeze-shadow);
+  }
+
+  /* RTL: the freeze line falls on the other (inline-end) side. */
+  .hc-datagrid:dir(rtl) {
+    --hc-datagrid-freeze-shadow: -2px 0 4px -2px rgb(0, 0, 0, 0.25);
   }
 
   /* ---- States ----

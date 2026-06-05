@@ -378,7 +378,13 @@ function attach(grid, detachers) {
       startEdit(activeCell, event.key); // type-to-edit (Excel-style)
       return;
     }
-    switch (event.key) {
+    // In RTL the columns run right-to-left, so mirror the horizontal arrows.
+    let key = event.key;
+    if (getComputedStyle(grid).direction === 'rtl') {
+      if (key === 'ArrowRight') key = 'ArrowLeft';
+      else if (key === 'ArrowLeft') key = 'ArrowRight';
+    }
+    switch (key) {
       case 'ArrowDown': setActive(r + 1, c); break;
       case 'ArrowUp': setActive(r - 1, c); break;
       case 'ArrowRight': setActive(r, c + 1); break;
