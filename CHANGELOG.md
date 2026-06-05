@@ -95,6 +95,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Forced Colors / Windows High Contrast support.** A cross-component
+  forced-colors stylesheet (`hc.a11y.css`, bundled into `hc.css`) re-expresses
+  the patterns that break under a high-contrast theme — where the UA drops
+  `box-shadow` and forces the system palette — using CSS system colours.
+  Focus rings that used `box-shadow` are restored as an `outline`; selection /
+  active state (combobox & command options, tabs, toggle group, pagination,
+  calendar, datagrid selected rows / current cell) is marked with an inset
+  `outline`; custom toggles (checkbox / radio / switch / slider thumb) opt out
+  with `forced-color-adjust: none` and paint with `Highlight` / `Canvas` /
+  `CanvasText`. Shipped in the components layer (last source file, no extra
+  cascade layer) and exposed granularly at `@hypermedia-components/core/a11y.css`.
+  New Fundamentals → Accessibility page. 6 Playwright tests under emulated
+  forced-colors.
 - **i18n message catalog for behaviors.** The strings behaviors inject —
   created nodes (combobox "No matches", multi-select tag remove labels) and
   default ARIA labels (shell nav toggle, splitter handle, toast region,

@@ -21,6 +21,7 @@ const TOKENS_CSS = join(distDir, 'hc.tokens.css');
 const CORE_TOKENS_CSS = join(distDir, 'hc.tokens.core.css');
 const BASE_CSS   = join(srcCssDir, 'hc.base.css');
 const HTMX_CSS   = join(srcCssDir, 'hc.htmx.css');
+const A11Y_CSS   = join(srcCssDir, 'hc.a11y.css');
 const UTILITIES_CSS = join(srcCssDir, 'hc.utilities.css');
 
 const COMPONENTS = [
@@ -81,6 +82,7 @@ async function main() {
   for (const c of COMPONENTS) {
     parts.push(await read(join(srcCssDir, c)));
   }
+  parts.push(await read(A11Y_CSS));
   parts.push(await read(UTILITIES_CSS));
   parts.push(await read(HTMX_CSS));
 
@@ -102,6 +104,7 @@ async function main() {
   // dist root so the package "exports" map can point at them later.
   await copyFile(BASE_CSS, join(distDir, 'hc.base.css'));
   await copyFile(HTMX_CSS, join(distDir, 'hc.htmx.css'));
+  await copyFile(A11Y_CSS, join(distDir, 'hc.a11y.css'));
   await copyFile(UTILITIES_CSS, join(distDir, 'hc.utilities.css'));
   for (const c of COMPONENTS) {
     await copyFile(join(srcCssDir, c), join(distDir, c));

@@ -1,0 +1,63 @@
+---
+title: Accessibility
+description: How Hypermedia Components supports OS accessibility preferences — Forced Colors / Windows High Contrast — re-expressing focus and state with CSS system colours.
+---
+
+Hypermedia Components keeps state in HTML attributes (`aria-*`, `data-*`,
+native `:checked` / `disabled`), so assistive technology gets the semantics
+for free. Beyond that, the kit respects OS-level accessibility preferences in
+CSS. This page covers **Forced Colors**; reduced-motion handling is noted per
+component.
+
+## Forced Colors (Windows High Contrast)
+
+When a user turns on a high-contrast / forced-colors theme, the browser
+**replaces author colours with the user's system palette and drops
+`box-shadow`**. Two HC patterns would otherwise break:
+
+1. **Focus rings** drawn with `box-shadow` (the inputs, selects, custom
+   toggles, slider) — the ring disappears.
+2. **State conveyed only by a background tint** (`color-mix`) — a selected
+   option, the current pagination page, a checked control — becomes
+   indistinguishable.
+
+A single forced-colors stylesheet (`hc.a11y.css`, shipped inside the main
+`hc.css` bundle) re-expresses both using **CSS system colours**, which
+forced-colors mode preserves:
+
+- **Focus** is restored as a real `outline` (`Highlight`) wherever a
+  component used `outline: none` plus a box-shadow ring.
+- **Selection / active state** (combobox & command options, tabs, toggle
+  group, pagination, calendar days, datagrid selected rows / current cell)
+  is marked with an inset `outline` — `outline` survives forced-colors, so
+  the mark is always visible.
+- **Custom toggles** (`hc-checkbox`, `hc-radio`, `hc-switch`, the
+  `hc-slider` thumb) opt out with `forced-color-adjust: none` and paint with
+  `Highlight` / `HighlightText` / `Canvas` / `CanvasText`, so the checked
+  fill and thumb stay visible.
+
+You get this automatically with the bundled `hc.css`. With the granular
+entry, import the stylesheet **after** your component CSS:
+
+```css
+@import "@hypermedia-components/core/css/core";
+@import "@hypermedia-components/core/css/button";
+/* …other components… */
+@import "@hypermedia-components/core/a11y.css"; /* last */
+```
+
+`hc.a11y.css` is concatenated into the `hc.components` layer as the last
+source file, so it overrides each component's own focus / state rules by
+source order — no extra cascade layer, no specificity hacks.
+
+### Testing it
+
+Emulate forced-colors in Chromium DevTools (**Rendering → Emulate CSS media
+feature `forced-colors`**), or in Playwright:
+
+```js
+await page.emulateMedia({ forcedColors: 'active' });
+```
+
+Focus an input, tab through a combobox, toggle a checkbox — the indicators
+stay visible in the system palette.
