@@ -21,6 +21,40 @@
     pointer-events: auto;
   }
 
+  /* Position presets via `data-position` on the region (default bottom-right).
+   * `*-center` centres horizontally; top positions stack downward with the
+   * newest nearest the top edge (column-reverse). */
+  .hc-toast-region[data-position$="-left"] {
+    inset-inline-start: var(--hc-toast-region-inset);
+    inset-inline-end: auto;
+    align-items: flex-start;
+  }
+
+  .hc-toast-region[data-position$="-right"] {
+    inset-inline-end: var(--hc-toast-region-inset);
+    inset-inline-start: auto;
+    align-items: flex-end;
+  }
+
+  .hc-toast-region[data-position$="-center"] {
+    inset-inline: 0;
+    margin-inline: auto;
+    inline-size: fit-content;
+    align-items: center;
+  }
+
+  .hc-toast-region[data-position^="top-"] {
+    inset-block-start: var(--hc-toast-region-inset);
+    inset-block-end: auto;
+    flex-direction: column-reverse;
+  }
+
+  .hc-toast-region[data-position^="bottom-"] {
+    inset-block-end: var(--hc-toast-region-inset);
+    inset-block-start: auto;
+    flex-direction: column;
+  }
+
   .hc-toast {
     display: grid;
     gap: var(--hc-toast-gap);
@@ -33,6 +67,11 @@
     background: var(--hc-toast-info-bg);
     color: var(--hc-toast-info-fg);
     box-shadow: 0 4px 12px rgb(0, 0, 0, 0.08);
+
+    /* Horizontal drag is the swipe-to-dismiss gesture; the behavior animates
+     * the snap-back / fly-out via these transitions. */
+    touch-action: pan-y;
+    transition: translate 160ms ease, opacity 160ms ease;
   }
 
   .hc-toast[data-variant="success"] {
@@ -60,5 +99,11 @@
 
   .hc-toast__body {
     line-height: 1.5;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-toast {
+      transition-duration: 0ms;
+    }
   }
 }

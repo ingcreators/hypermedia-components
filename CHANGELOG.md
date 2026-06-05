@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Toast options — position, stacking limit, swipe-to-dismiss.** The toast
+  region accepts `data-position="{top,bottom}-{left,center,right}"` (default
+  `bottom-right`; top positions stack downward, `*-center` centres) and
+  `data-limit="N"` to cap the visible stack (the oldest is evicted). Each toast
+  can be **dragged horizontally to dismiss** — past ~40% of its width it flies
+  out, otherwise it snaps back (pointer / touch; motion removed under
+  `prefers-reduced-motion`). New **Toast** component docs page. 3 Vitest + 3
+  Playwright tests.
+
 - **Scrollable tab overflow (`hc-tabs`).** Add `data-overflow="scroll"` to keep
   a long tab list on one horizontally-scrollable row instead of wrapping.
   `installTabs()` injects edge scroll buttons that appear only when there is
