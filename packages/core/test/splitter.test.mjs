@@ -23,6 +23,15 @@ function pos() {
 function press(el, key) {
   el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
 }
+function dblclick(el) {
+  el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+}
+function collapsibleFixture(extra = '') {
+  return FIXTURE.replace(
+    'data-orientation="horizontal"',
+    `data-orientation="horizontal" data-collapsible ${extra}`.trim(),
+  );
+}
 
 beforeEach(() => {
   document.body.innerHTML = '';
@@ -129,5 +138,99 @@ describe('installSplitter', () => {
     document.body.innerHTML = FIXTURE;
     await new Promise((r) => setTimeout(r, 0));
     expect(handle().getAttribute('aria-valuenow')).toBe('50');
+  });
+});
+
+describe('installSplitter — collapse / persistence', () => {
+  it('double-click collapses the primary pane (data-collapsible)', () => {
+    document.body.innerHTML = collapsibleFixture();
+    uninstall = installSplitter();
+    dblclick(handle());
+    expect(pos()).toBe('0%');
+    expect(root().hasAttribute('data-collapsed')).toBe(true);
+    // The pane is visually collapsed, but aria-valuenow stays within
+    // [min, max] — the collapsed state rides on data-collapsed instead.
+    expect(handle().getAttribute('aria-valuenow')).toBe('10');
+  });
+
+  it('a second double-click restores the previous open size', () => {
+    document.body.innerHTML = collapsibleFixture();
+    uninstall = installSplitter();
+    dblclick(handle()); // collapse
+    dblclick(handle()); // expand back to the last open size (50)
+    expect(pos()).toBe('50%');
+    expect(root().hasAttribute('data-collapsed')).toBe(false);
+  });
+
+  it('restores the size in effect before collapsing, not the default', () => {
+    document.body.innerHTML = collapsibleFixture();
+    uninstall = installSplitter();
+    press(handle(), 'ArrowRight'); // 50 → 55
+    dblclick(handle()); // collapse (remembers 55)
+    expect(pos()).toBe('0%');
+    dblclick(handle()); // expand
+    expect(pos()).toBe('55%');
+  });
+
+  it('Enter toggles collapse when data-collapsible is set', () => {
+    document.body.innerHTML = collapsibleFixture();
+    uninstall = installSplitter();
+    press(handle(), 'Enter'); // collapse
+    expect(pos()).toBe('0%');
+    expect(root().hasAttribute('data-collapsed')).toBe(true);
+    press(handle(), 'Enter'); // expand
+    expect(pos()).toBe('50%');
+  });
+
+  it('hc:splitterchange reports the collapsed flag', () => {
+    document.body.innerHTML = collapsibleFixture();
+    uninstall = installSplitter();
+    const collapsedFlag = vi.fn();
+    root().addEventListener('hc:splitterchange', (e) => collapsedFlag(e.detail.collapsed));
+    dblclick(handle()); // collapse
+    expect(collapsedFlag).toHaveBeenLastCalledWith(true);
+    dblclick(handle()); // expand
+    expect(collapsedFlag).toHaveBeenLastCalledWith(false);
+  });
+
+  it('ignores double-click / Enter without data-collapsible', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installSplitter();
+    dblclick(handle());
+    press(handle(), 'Enter');
+    expect(pos()).toBe('50%');
+    expect(root().hasAttribute('data-collapsed')).toBe(false);
+  });
+
+  it('persists the position to localStorage (data-persist)', () => {
+    localStorage.clear();
+    document.body.innerHTML = FIXTURE.replace(
+      'data-orientation="horizontal"',
+      'data-orientation="horizontal" data-persist="hc-split-a"',
+    );
+    uninstall = installSplitter();
+    press(handle(), 'ArrowRight'); // 50 → 55
+    expect(localStorage.getItem('hc-split-a')).toBe('55');
+  });
+
+  it('restores a persisted position on a fresh install', () => {
+    localStorage.clear();
+    localStorage.setItem('hc-split-b', '30');
+    document.body.innerHTML = FIXTURE.replace(
+      'data-orientation="horizontal"',
+      'data-orientation="horizontal" data-persist="hc-split-b"',
+    );
+    uninstall = installSplitter();
+    expect(pos()).toBe('30%');
+    expect(handle().getAttribute('aria-valuenow')).toBe('30');
+  });
+
+  it('restores a persisted collapsed state (0) on init', () => {
+    localStorage.clear();
+    localStorage.setItem('hc-split-c', '0');
+    document.body.innerHTML = collapsibleFixture('data-persist="hc-split-c"');
+    uninstall = installSplitter();
+    expect(pos()).toBe('0%');
+    expect(root().hasAttribute('data-collapsed')).toBe(true);
   });
 });

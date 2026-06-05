@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc splitter collapse / persist fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem;">
+    <div class="hc-splitter" data-orientation="horizontal"
+         data-collapsible data-persist="hc-split-demo" data-testid="sp"
+         style="block-size:10rem;inline-size:24rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
+      <div class="hc-splitter__panel" data-testid="sp-primary" style="padding:.75rem;">Primary</div>
+      <div class="hc-splitter__handle" role="separator" tabindex="0"
+           aria-label="Resize panels" data-testid="sp-handle"></div>
+      <div class="hc-splitter__panel" style="padding:.75rem;">Secondary</div>
+    </div>
+  </main>
+</body>
+</html>

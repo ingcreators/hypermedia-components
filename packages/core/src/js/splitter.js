@@ -18,17 +18,40 @@
 // Config: `data-orientation` ("horizontal" default = side-by-side /
 // "vertical" = stacked), `data-value` (initial primary-pane %, default
 // 50), `data-min` / `data-max` (%, default 10 / 90), `data-step`
-// (keyboard step %, default 5).
+// (keyboard step %, default 5), `data-collapsible` (double-click / Enter
+// on the handle toggles the primary pane collapsed↔last-open), and
+// `data-persist="<key>"` (save / restore the position in localStorage).
 //
 // Pointer: drag the handle. Keyboard: ←/→ (horizontal) or ↑/↓
-// (vertical) by one step, Home = min, End = max. Each change dispatches
-// a bubbling `hc:splitterchange` (`detail { value, orientation }`).
+// (vertical) by one step, Home = min, End = max, Enter = toggle collapse
+// (when `data-collapsible`). Each change dispatches a bubbling
+// `hc:splitterchange` (`detail { value, collapsed, orientation }`). A
+// collapsed splitter carries `data-collapsed` on the container.
 //
 // installSplitter(root = document) returns an idempotent uninstaller.
 
 import { t } from './i18n.js';
 
 const INSTALL_KEY = '__hcSplitterUninstall';
+
+// localStorage is optional and may throw (privacy mode, disabled). Guard it.
+function readStored(key) {
+  try {
+    const v = localStorage.getItem(key);
+    const n = v == null ? NaN : Number(v);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStored(key, value) {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {
+    /* ignore */
+  }
+}
 
 function attach(root, detachers) {
   if (detachers.has(root)) return;
@@ -41,7 +64,17 @@ function attach(root, detachers) {
   const min = root.hasAttribute('data-min') ? Number(root.getAttribute('data-min')) : 10;
   const max = root.hasAttribute('data-max') ? Number(root.getAttribute('data-max')) : 90;
   const step = root.hasAttribute('data-step') ? Number(root.getAttribute('data-step')) : 5;
-  let pos = root.hasAttribute('data-value') ? Number(root.getAttribute('data-value')) : 50;
+  const collapsible = root.hasAttribute('data-collapsible');
+  const persistKey = root.getAttribute('data-persist');
+  const defaultPos = root.hasAttribute('data-value') ? Number(root.getAttribute('data-value')) : 50;
+  let pos = defaultPos;
+  // Restore a persisted position (incl. a collapsed 0) over data-value.
+  if (persistKey) {
+    const saved = readStored(persistKey);
+    if (saved != null) pos = saved;
+  }
+  // The size to restore to when expanding from collapsed.
+  let lastOpen = pos > 0 ? pos : defaultPos;
 
   if (!primary.id) primary.id = `hc-splitter-panel-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -60,19 +93,37 @@ function attach(root, detachers) {
     return Math.min(max, Math.max(min, p));
   }
 
-  function setPos(next, { dispatch = true } = {}) {
-    pos = clamp(next);
-    root.style.setProperty('--hc-splitter-pos', `${pos}%`);
-    handle.setAttribute('aria-valuenow', String(Math.round(pos)));
+  // Apply a raw position (collapse uses 0, below `min`). The visual size
+  // tracks the raw value; aria-valuenow stays within [min, max].
+  function applyPos(p, { dispatch = true } = {}) {
+    pos = p;
+    const collapsed = p <= 0;
+    root.style.setProperty('--hc-splitter-pos', `${Math.max(0, p)}%`);
+    handle.setAttribute('aria-valuenow', String(Math.round(clamp(p))));
+    root.toggleAttribute('data-collapsed', collapsed);
+    if (persistKey && dispatch) writeStored(persistKey, Math.round(p));
     if (dispatch) {
       root.dispatchEvent(new CustomEvent('hc:splitterchange', {
         bubbles: true,
-        detail: { value: pos, orientation, handle, primary },
+        detail: { value: p, collapsed, orientation, handle, primary },
       }));
     }
   }
 
-  setPos(pos, { dispatch: false });
+  function setPos(next, opts) {
+    applyPos(clamp(next), opts);
+  }
+
+  function toggleCollapse() {
+    if (pos <= 0) {
+      applyPos(clamp(lastOpen > 0 ? lastOpen : defaultPos)); // expand
+    } else {
+      lastOpen = pos;
+      applyPos(0); // collapse the primary pane
+    }
+  }
+
+  applyPos(pos <= 0 ? 0 : clamp(pos), { dispatch: false });
 
   const doc = root.ownerDocument;
   let dragging = false;
@@ -101,7 +152,16 @@ function attach(root, detachers) {
     dragging = false;
   }
 
+  function onDblclick() {
+    if (collapsible) toggleCollapse();
+  }
+
   function onKeydown(event) {
+    if (collapsible && event.key === 'Enter') {
+      event.preventDefault();
+      toggleCollapse();
+      return;
+    }
     // For a side-by-side (horizontal) splitter in RTL, the primary pane sits
     // on the inline-start (right) edge, so mirror the horizontal arrows.
     const rtl =
@@ -121,12 +181,14 @@ function attach(root, detachers) {
 
   handle.addEventListener('pointerdown', onPointerDown);
   handle.addEventListener('keydown', onKeydown);
+  if (collapsible) handle.addEventListener('dblclick', onDblclick);
   doc.addEventListener('pointermove', onPointerMove);
   doc.addEventListener('pointerup', onPointerUp);
 
   detachers.set(root, () => {
     handle.removeEventListener('pointerdown', onPointerDown);
     handle.removeEventListener('keydown', onKeydown);
+    handle.removeEventListener('dblclick', onDblclick);
     doc.removeEventListener('pointermove', onPointerMove);
     doc.removeEventListener('pointerup', onPointerUp);
   });
