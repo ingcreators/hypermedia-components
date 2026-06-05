@@ -186,7 +186,13 @@ function attach(group, detachers) {
   function onKeydown(event) {
     const t = event.target.closest('.hc-toggle');
     if (!t || t.parentElement !== group) return;
-    switch (event.key) {
+    // In RTL the horizontal arrows are mirrored; vertical arrows are not.
+    let key = event.key;
+    if (getComputedStyle(group).direction === 'rtl') {
+      if (key === 'ArrowRight') key = 'ArrowLeft';
+      else if (key === 'ArrowLeft') key = 'ArrowRight';
+    }
+    switch (key) {
       case 'ArrowRight':
       case 'ArrowDown':
         event.preventDefault();

@@ -1,12 +1,12 @@
 ---
 title: Accessibility
-description: How Hypermedia Components supports OS accessibility preferences — Forced Colors / Windows High Contrast and reduced motion — re-expressing focus and state with CSS system colours.
+description: How Hypermedia Components adapts to the user's context — Forced Colors / Windows High Contrast, reduced motion, and right-to-left layout.
 ---
 
 Hypermedia Components keeps state in HTML attributes (`aria-*`, `data-*`,
 native `:checked` / `disabled`), so assistive technology gets the semantics
-for free. Beyond that, the kit respects OS-level accessibility preferences in
-CSS: **Forced Colors** and **reduced motion**.
+for free. Beyond that, the kit adapts to the user's context in CSS:
+**Forced Colors**, **reduced motion**, and **right-to-left** layout.
 
 ## Forced Colors (Windows High Contrast)
 
@@ -83,3 +83,31 @@ await page.emulateMedia({ reducedMotion: 'reduce' });
 
 Motion that conveys meaning (a spinner indicating progress) keeps its role
 via `aria-*`; reduced-motion only removes the decorative animation.
+
+## Right-to-left (RTL)
+
+Set `dir="rtl"` on `<html>` (or any subtree) and the kit follows. Layout is
+built on **CSS logical properties** (`margin-inline`, `inset-inline-start`,
+`text-align: start`, `border-inline-end`…), so spacing, alignment, borders,
+and the components' internal geometry mirror automatically — there are no
+physical `left` / `right` rules to flip.
+
+A few spots need genuine direction-awareness, and are handled for you:
+
+- **Datagrid** frozen columns stick to the inline-start edge (right, in RTL),
+  and the freeze-line shadow falls on the correct side.
+- **Calendar** previous / next chevrons mirror so "previous" still points the
+  natural way.
+- **Keyboard navigation.** Horizontal <kbd>←</kbd> / <kbd>→</kbd> are mirrored
+  in RTL for the tabs, toggle group, datagrid cell grid, calendar, and
+  splitter — <kbd>←</kbd> moves to the inline-end (next) item. Vertical
+  <kbd>↑</kbd> / <kbd>↓</kbd> are unchanged.
+
+You can flip the whole documentation site to RTL with the **Dir** picker in
+the top bar to preview every component.
+
+:::note
+A custom directional breadcrumb separator (e.g. `--hc-breadcrumb-separator: '›'`)
+won't auto-mirror — set the mirrored glyph for RTL yourself. The default `/`
+needs no change.
+:::

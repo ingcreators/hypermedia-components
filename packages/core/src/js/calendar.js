@@ -254,7 +254,14 @@ function attach(root, detachers) {
     const day = event.target.closest('.hc-calendar__day');
     if (!day) return;
     const cur = state.focused;
-    switch (event.key) {
+    // In RTL the grid runs right-to-left, so the horizontal arrows are
+    // mirrored (ArrowLeft = next day); vertical arrows are not.
+    let key = event.key;
+    if (getComputedStyle(root).direction === 'rtl') {
+      if (key === 'ArrowRight') key = 'ArrowLeft';
+      else if (key === 'ArrowLeft') key = 'ArrowRight';
+    }
+    switch (key) {
       case 'ArrowLeft': event.preventDefault(); setFocused(addDays(cur, -1)); break;
       case 'ArrowRight': event.preventDefault(); setFocused(addDays(cur, +1)); break;
       case 'ArrowUp': event.preventDefault(); setFocused(addDays(cur, -7)); break;

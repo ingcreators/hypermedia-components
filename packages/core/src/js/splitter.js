@@ -102,8 +102,14 @@ function attach(root, detachers) {
   }
 
   function onKeydown(event) {
-    const forward = orientation === 'horizontal' ? 'ArrowRight' : 'ArrowDown';
-    const back = orientation === 'horizontal' ? 'ArrowLeft' : 'ArrowUp';
+    // For a side-by-side (horizontal) splitter in RTL, the primary pane sits
+    // on the inline-start (right) edge, so mirror the horizontal arrows.
+    const rtl =
+      orientation === 'horizontal' && getComputedStyle(root).direction === 'rtl';
+    const forward =
+      orientation === 'horizontal' ? (rtl ? 'ArrowLeft' : 'ArrowRight') : 'ArrowDown';
+    const back =
+      orientation === 'horizontal' ? (rtl ? 'ArrowRight' : 'ArrowLeft') : 'ArrowUp';
     switch (event.key) {
       case forward: event.preventDefault(); setPos(pos + step); break;
       case back: event.preventDefault(); setPos(pos - step); break;

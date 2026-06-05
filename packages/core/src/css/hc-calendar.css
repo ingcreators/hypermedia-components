@@ -67,6 +67,11 @@
     background: var(--hc-calendar-nav-hover-bg);
   }
 
+  /* RTL: the ‹ / › chevrons point the other way (prev sits on the right). */
+  .hc-calendar__nav:dir(rtl) {
+    transform: scaleX(-1);
+  }
+
   .hc-calendar__grid {
     border-collapse: collapse;
     table-layout: fixed;

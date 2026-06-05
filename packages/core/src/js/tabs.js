@@ -109,7 +109,13 @@ function attach(rootEl, detachers) {
   function onKeydown(event) {
     const tab = event.target.closest('[role="tab"]');
     if (!tab || !list.contains(tab)) return;
-    switch (event.key) {
+    // In RTL the horizontal arrows are mirrored; vertical arrows are not.
+    let key = event.key;
+    if (getComputedStyle(list).direction === 'rtl') {
+      if (key === 'ArrowRight') key = 'ArrowLeft';
+      else if (key === 'ArrowLeft') key = 'ArrowRight';
+    }
+    switch (key) {
       case 'ArrowRight':
       case 'ArrowDown':
         event.preventDefault();

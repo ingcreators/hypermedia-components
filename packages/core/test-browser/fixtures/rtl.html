@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc RTL fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; display:flex; flex-direction:column; gap:1.5rem;">
+    <!-- Tabs (horizontal): ArrowLeft should move forward in RTL -->
+    <div class="hc-tabs">
+      <div class="hc-tabs__list" role="tablist" aria-label="Sections">
+        <button class="hc-tabs__tab" role="tab" id="t1" aria-controls="p1"
+                aria-selected="true" data-testid="rtl-tab-1">One</button>
+        <button class="hc-tabs__tab" role="tab" id="t2" aria-controls="p2"
+                aria-selected="false" tabindex="-1" data-testid="rtl-tab-2">Two</button>
+        <button class="hc-tabs__tab" role="tab" id="t3" aria-controls="p3"
+                aria-selected="false" tabindex="-1" data-testid="rtl-tab-3">Three</button>
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p1" aria-labelledby="t1">P1</div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden>P2</div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p3" aria-labelledby="t3" hidden>P3</div>
+    </div>
+
+    <!-- Calendar: the prev/next chevrons flip in RTL -->
+    <div class="hc-calendar" data-testid="rtl-calendar"></div>
+
+    <!-- Datagrid with a frozen first column -->
+    <div class="hc-datagrid" data-testid="rtl-grid">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+              <th class="hc-datagrid__headcell" scope="col">Name</th>
+              <th class="hc-datagrid__headcell" scope="col">City</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <tr class="hc-datagrid__row">
+              <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
+                  data-testid="rtl-cell-0-0">1</th>
+              <td class="hc-datagrid__cell" data-testid="rtl-cell-0-1">Sara</td>
+              <td class="hc-datagrid__cell" data-testid="rtl-cell-0-2">Cairo</td>
+            </tr>
+            <tr class="hc-datagrid__row">
+              <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">2</th>
+              <td class="hc-datagrid__cell">Omar</td>
+              <td class="hc-datagrid__cell">Doha</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

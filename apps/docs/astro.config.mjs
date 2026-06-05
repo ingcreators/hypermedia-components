@@ -66,6 +66,12 @@ export default defineConfig({
                   document.documentElement.setAttribute('data-color', c);
                 }
               } catch (e) {}
+              try {
+                var dir = localStorage.getItem('hc-dir');
+                if (dir === 'ltr' || dir === 'rtl') {
+                  document.documentElement.setAttribute('dir', dir);
+                }
+              } catch (e) {}
             })();
           `.trim(),
         },
