@@ -24,7 +24,7 @@
 // matches the hint semantics across every browser that supports
 // `popover` at all (Chromium 114+, Firefox 125+, Safari 17+).
 
-import { supportsAnchorPositioning, trackFloating } from './anchor-fallback.js';
+import { supportsAnchorPositioning, trackFloating, readSideAlign } from './anchor-fallback.js';
 
 const INSTALL_KEY = '__hcTooltipUninstall';
 const SHOW_DELAY = 300;
@@ -84,11 +84,15 @@ function attach(tooltip, detachers) {
       tooltip.style.setProperty('position-anchor', anchorName);
     }
     tooltip.showPopover();
-    // Default placement: above the trigger, centred on it (mirrors the CSS
-    // `position-area: block-start` + flip-block). Position after showPopover
-    // so the tooltip has measurable dimensions.
+    // Placement: honor data-side / data-align (default above + centred),
+    // mirroring the CSS position-area path. Position after showPopover so the
+    // tooltip has measurable dimensions.
     if (!usingAnchor) {
-      fallbackCleanup = trackFloating(tooltip, trigger, { side: 'block-start', align: 'center' });
+      fallbackCleanup = trackFloating(
+        tooltip,
+        trigger,
+        readSideAlign(tooltip, { side: 'block-start', align: 'center' }),
+      );
     }
   }
 

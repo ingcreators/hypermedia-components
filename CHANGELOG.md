@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Directional placement for tooltip / popover / hovercard (`data-side` /
+  `data-align` / `data-arrow`).** All three anchored popovers now take a
+  `data-side` (top / right / bottom / left) and optional `data-align` (start /
+  center / end) to place them around their trigger, plus an opt-in
+  `data-arrow` pointer. A new shared stylesheet maps the attributes to a CSS
+  `position-area` (with `position-try-fallbacks` to flip at the viewport
+  edge); the shared `anchor-fallback` JS mirrors the same attributes (via a
+  new `readSideAlign` helper and `inline`-axis alignment) so both paths place
+  the element identically. `hc-popover` gains a small opt-in **`installPopover`**
+  behavior: a bare popover stays browser-centred, but a `.hc-popover[data-side]`
+  is anchored to its `popovertarget` trigger and gets `aria-expanded` /
+  `aria-controls`. Exported from `@hypermedia-components/core` and
+  `/behaviors`. New Placement docs on all three components with a Baseline
+  note (CSS Anchor Positioning is Baseline 2026; JS fallback for older
+  engines). 8 Vitest + 6 Playwright tests (incl. axe).
+
 - **`hc-menu` / `hc-context-menu` submenus (`data-hc-submenu`).** A menu item
   can now open a nested submenu following the WAI-ARIA APG submenu pattern.
   Point a `menuitem` at a nested `.hc-menu` with `data-hc-submenu="<id>"`;

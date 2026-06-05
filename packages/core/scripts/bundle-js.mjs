@@ -39,6 +39,7 @@ const FILES = [
   ['src/js/inputotp.js',     'inputotp.js'],
   ['src/js/splitter.js',      'splitter.js'],
   ['src/js/tooltip.js',       'tooltip.js'],
+  ['src/js/popover.js',       'popover.js'],
   ['src/js/slider.js',        'slider.js'],
   ['src/js/combobox.js',      'combobox.js'],
   ['src/js/multicombobox.js', 'multicombobox.js'],

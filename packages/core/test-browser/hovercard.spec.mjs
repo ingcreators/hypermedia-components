@@ -55,4 +55,14 @@ test.describe('hc-hovercard', () => {
       .analyze();
     expect(results.violations).toEqual([]);
   });
+
+  test('data-side="right" places the card to the inline-end of its trigger', async ({ page }) => {
+    const trigger = page.getByTestId('hc-right-trigger');
+    const card = page.getByTestId('hc-right-card');
+    await trigger.focus();
+    await expect(card).toBeVisible();
+    const t = await trigger.boundingBox();
+    const c = await card.boundingBox();
+    expect(c.x).toBeGreaterThan(t.x + t.width - 1);
+  });
 });

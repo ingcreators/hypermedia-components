@@ -1,0 +1,129 @@
+/* hc-anchored — shared directional placement + arrow for the anchored
+ * popovers (tooltip / popover / hovercard).
+ *
+ * Opt in per instance with `data-side` (top | right | bottom | left) and
+ * `data-align` (start | center | end, default center). The CSS Anchor
+ * Positioning path below maps those to a `position-area`; `installTooltip`
+ * / `installHovercard` / `installPopover` mirror the same attributes through
+ * the JS fallback (anchor-fallback.js) for engines without Anchor
+ * Positioning, so both paths place the element identically.
+ *
+ * Each component sets the shared knobs on its own surface:
+ *   --hc-anchored-offset        gap from the anchor (its existing offset)
+ *   --hc-anchored-arrow-border  arrow edge colour (its border, or bg if none)
+ *   --hc-anchored-arrow-size    arrow square size (default 0.5rem)
+ *
+ * `position-area` / `position-try-fallbacks` are Baseline 2026; older engines
+ * fall through to the JS path. The `::before` arrow is plain CSS and renders
+ * everywhere.
+ */
+@layer hc.components {
+  @supports (anchor-name: --x) {
+    /* ---- Side: primary axis placement + offset margin ---- */
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="top"] {
+      position-area: block-start center;
+      margin: 0;
+      margin-block-end: var(--hc-anchored-offset, 0.5rem);
+      position-try-fallbacks: flip-block;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="bottom"] {
+      position-area: block-end center;
+      margin: 0;
+      margin-block-start: var(--hc-anchored-offset, 0.5rem);
+      position-try-fallbacks: flip-block;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="left"] {
+      position-area: inline-start center;
+      margin: 0;
+      margin-inline-end: var(--hc-anchored-offset, 0.5rem);
+      position-try-fallbacks: flip-inline;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="right"] {
+      position-area: inline-end center;
+      margin: 0;
+      margin-inline-start: var(--hc-anchored-offset, 0.5rem);
+      position-try-fallbacks: flip-inline;
+    }
+
+    /* ---- Align: shift along the cross axis (start / end) ---- */
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="top"][data-align="start"] {
+      position-area: block-start span-inline-end;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="top"][data-align="end"] {
+      position-area: block-start span-inline-start;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="bottom"][data-align="start"] {
+      position-area: block-end span-inline-end;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="bottom"][data-align="end"] {
+      position-area: block-end span-inline-start;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="left"][data-align="start"] {
+      position-area: inline-start span-block-end;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="left"][data-align="end"] {
+      position-area: inline-start span-block-start;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="right"][data-align="start"] {
+      position-area: inline-end span-block-end;
+    }
+
+    :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="right"][data-align="end"] {
+      position-area: inline-end span-block-start;
+    }
+  }
+
+  /* ---- Optional arrow (data-arrow) ----
+   * A rotated square half-overlapping the anchor-facing edge. Centred on the
+   * popover edge, so it points at the trigger for the default centre align. */
+  :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-arrow]::before {
+    content: "";
+    position: absolute;
+    inline-size: var(--hc-anchored-arrow-size, 0.5rem);
+    block-size: var(--hc-anchored-arrow-size, 0.5rem);
+    background: inherit;
+    rotate: 45deg;
+    pointer-events: none;
+  }
+
+  :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="top"][data-arrow]::before {
+    inset-block-end: calc(var(--hc-anchored-arrow-size, 0.5rem) / -2);
+    inset-inline-start: 50%;
+    translate: -50% 0;
+    border-inline-end: 1px solid var(--hc-anchored-arrow-border, transparent);
+    border-block-end: 1px solid var(--hc-anchored-arrow-border, transparent);
+  }
+
+  :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="bottom"][data-arrow]::before {
+    inset-block-start: calc(var(--hc-anchored-arrow-size, 0.5rem) / -2);
+    inset-inline-start: 50%;
+    translate: -50% 0;
+    border-inline-start: 1px solid var(--hc-anchored-arrow-border, transparent);
+    border-block-start: 1px solid var(--hc-anchored-arrow-border, transparent);
+  }
+
+  :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="left"][data-arrow]::before {
+    inset-inline-end: calc(var(--hc-anchored-arrow-size, 0.5rem) / -2);
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    border-block-start: 1px solid var(--hc-anchored-arrow-border, transparent);
+    border-inline-end: 1px solid var(--hc-anchored-arrow-border, transparent);
+  }
+
+  :is(.hc-tooltip, .hc-popover, .hc-hovercard)[data-side="right"][data-arrow]::before {
+    inset-inline-start: calc(var(--hc-anchored-arrow-size, 0.5rem) / -2);
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    border-block-end: 1px solid var(--hc-anchored-arrow-border, transparent);
+    border-inline-start: 1px solid var(--hc-anchored-arrow-border, transparent);
+  }
+}

@@ -85,6 +85,20 @@ test.describe('hc-tooltip', () => {
     await expect(saveTip).toBeHidden();
   });
 
+  test('data-side="right" places the tooltip to the inline-end and renders an arrow', async ({
+    page,
+  }) => {
+    const trigger = page.getByTestId('tt-right');
+    await trigger.focus(); // focus shows immediately (no delay)
+    const tip = page.getByTestId('tt-right-tip');
+    await expect(tip).toBeVisible();
+    const t = await trigger.boundingBox();
+    const p = await tip.boundingBox();
+    expect(p.x).toBeGreaterThan(t.x + t.width - 1); // to the right of the trigger
+    const arrow = await tip.evaluate((el) => getComputedStyle(el, '::before').width);
+    expect(parseFloat(arrow)).toBeGreaterThan(0);
+  });
+
   test('axe finds no violations in the tooltip section (open state)', async ({ page }) => {
     await page.getByTestId('tt-save').focus();
     await expect(page.getByTestId('tt-save-tip')).toBeVisible();

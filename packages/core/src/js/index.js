@@ -12,6 +12,7 @@ export { installRemoteDialog } from './remote-dialog.js';
 export { installTabs } from './tabs.js';
 export { installMenu } from './menu.js';
 export { installTooltip } from './tooltip.js';
+export { installPopover } from './popover.js';
 export { installSlider } from './slider.js';
 export { installCombobox } from './combobox.js';
 export { installMulticombobox } from './multicombobox.js';

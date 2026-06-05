@@ -41,6 +41,10 @@
     inline-size: max-content;
     max-inline-size: var(--hc-hovercard-max-width);
     box-shadow: 0 8px 24px rgb(0, 0, 0, 0.14);
+
+    /* Shared directional placement (hc-anchored.css). */
+    --hc-anchored-offset: var(--hc-hovercard-offset);
+    --hc-anchored-arrow-border: var(--hc-hovercard-border);
   }
 
   @supports (anchor-name: --x) {

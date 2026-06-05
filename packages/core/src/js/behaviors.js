@@ -15,6 +15,7 @@ import { installRemoteDialog } from './remote-dialog.js';
 import { installTabs } from './tabs.js';
 import { installMenu } from './menu.js';
 import { installTooltip } from './tooltip.js';
+import { installPopover } from './popover.js';
 import { installSlider } from './slider.js';
 import { installCombobox } from './combobox.js';
 import { installMulticombobox } from './multicombobox.js';
@@ -41,6 +42,7 @@ function init() {
   installTabs();
   installMenu();
   installTooltip();
+  installPopover();
   installSlider();
   installCombobox();
   installMulticombobox();
@@ -76,6 +78,7 @@ export {
   installTabs,
   installMenu,
   installTooltip,
+  installPopover,
   installSlider,
   installCombobox,
   installMulticombobox,
