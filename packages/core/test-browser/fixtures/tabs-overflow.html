@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc tabs overflow fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem;">
+    <!-- A narrow container so the eight tabs overflow into a scroll row.
+         The deep variant pre-selects the last tab (see ?deep). -->
+    <div class="hc-tabs" data-overflow="scroll" data-testid="tabs"
+         style="max-inline-size:320px;">
+      <div class="hc-tabs__list" role="tablist" aria-label="Sections">
+        <button class="hc-tabs__tab" role="tab" id="t1" aria-controls="p1" aria-selected="true" data-testid="tab-1">Overview</button>
+        <button class="hc-tabs__tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1" data-testid="tab-2">Activity</button>
+        <button class="hc-tabs__tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1" data-testid="tab-3">Settings</button>
+        <button class="hc-tabs__tab" role="tab" id="t4" aria-controls="p4" aria-selected="false" tabindex="-1" data-testid="tab-4">Members</button>
+        <button class="hc-tabs__tab" role="tab" id="t5" aria-controls="p5" aria-selected="false" tabindex="-1" data-testid="tab-5">Billing</button>
+        <button class="hc-tabs__tab" role="tab" id="t6" aria-controls="p6" aria-selected="false" tabindex="-1" data-testid="tab-6">Integrations</button>
+        <button class="hc-tabs__tab" role="tab" id="t7" aria-controls="p7" aria-selected="false" tabindex="-1" data-testid="tab-7">Security</button>
+        <button class="hc-tabs__tab" role="tab" id="t8" aria-controls="p8" aria-selected="false" tabindex="-1" data-testid="tab-8">Advanced</button>
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p1" aria-labelledby="t1" tabindex="0">Overview panel</div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p2" aria-labelledby="t2" tabindex="0" hidden>Activity panel</div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p3" aria-labelledby="t3" tabindex="0" hidden>Settings panel</div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p4" aria-labelledby="t4" tabindex="0" hidden>Members panel</div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p5" aria-labelledby="t5" tabindex="0" hidden>Billing panel</div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p6" aria-labelledby="t6" tabindex="0" hidden>Integrations panel</div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p7" aria-labelledby="t7" tabindex="0" hidden>Security panel</div>
+      <div class="hc-tabs__panel" role="tabpanel" id="p8" aria-labelledby="t8" tabindex="0" hidden>Advanced panel</div>
+    </div>
+  </main>
+
+  <!-- Classic script: runs during parsing (DOM ready, before the deferred
+       behaviors module inits), so the selection is set before installTabs. -->
+  <script>
+    // ?deep pre-selects the last tab before behaviors run, to test the
+    // initial scroll-into-view.
+    if (new URLSearchParams(location.search).has('deep')) {
+      const tabs = document.querySelectorAll('.hc-tabs__tab');
+      tabs.forEach((t, i) => {
+        const last = i === tabs.length - 1;
+        t.setAttribute('aria-selected', String(last));
+        t.setAttribute('tabindex', last ? '0' : '-1');
+      });
+      document.querySelectorAll('.hc-tabs__panel').forEach((p, i) => {
+        if (i === tabs.length - 1) p.removeAttribute('hidden');
+        else p.setAttribute('hidden', 'until-found');
+      });
+    }
+  </script>
+</body>
+</html>

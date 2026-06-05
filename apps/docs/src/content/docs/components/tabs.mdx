@@ -137,6 +137,36 @@ work.
 <div class="hc-tabs" data-size="sm">…</div>
 ```
 
+### Overflow (scrollable)
+
+By default a tab list **wraps** to a second line when it runs out of room.
+Add `data-overflow="scroll"` to keep it on **one horizontally-scrollable row**
+instead:
+
+```html
+<div class="hc-tabs" data-overflow="scroll">
+  <div class="hc-tabs__list" role="tablist" aria-label="Sections">
+    <button class="hc-tabs__tab" role="tab" …>Overview</button>
+    <!-- …many tabs… -->
+  </div>
+  <!-- panels -->
+</div>
+```
+
+`installTabs()` does the rest:
+
+- It injects **edge scroll buttons** (a mouse affordance) that appear only
+  when there is more to scroll in that direction. They sit outside the tab
+  order — keyboard users rely on the arrow keys, which already scroll.
+- The **active and focused tabs are kept in view**: arrow-key navigation,
+  activation, and the initially-selected tab all scroll into the visible row.
+- Touch / trackpad scroll works natively; the scrollbar is hidden.
+- It is direction-aware — in RTL the buttons flip to the other edge and the
+  chevrons mirror.
+
+The scroll buttons are decorative (`aria-hidden`), so this is purely additive
+to the accessible tab pattern.
+
 ## URL-routed tabs
 
 When each tab is its own route, drop the ARIA tab roles and let the
@@ -233,6 +263,7 @@ Component tokens (in `component.tokens.json`):
 --hc-tabs-tab-disabled-fg
 --hc-tabs-pill-active-bg | -pill-active-fg
 --hc-tabs-panel-padding-y | -panel-focus-ring
+--hc-tabs-scroll-size   /* width of the overflow scroll buttons; default 2rem */
 --hc-tabs-sm-tab-height | -sm-tab-padding-x | -sm-tab-font-size
 --hc-tabs-lg-tab-height | -lg-tab-padding-x | -lg-tab-font-size
 --hc-control-height (inherited from data-density)

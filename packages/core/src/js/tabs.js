@@ -47,6 +47,88 @@ function isEnabled(tab) {
   );
 }
 
+function isScrollMode(rootEl) {
+  return rootEl.getAttribute('data-overflow') === 'scroll';
+}
+
+function makeScrollButton(doc, dir) {
+  const b = doc.createElement('button');
+  b.type = 'button';
+  b.className = 'hc-tabs__scroll';
+  b.dataset.dir = dir;
+  // Mouse affordance only — keyboard arrows already scroll the focused tab
+  // into view, so keep these out of the tab order and the a11y tree.
+  b.setAttribute('aria-hidden', 'true');
+  b.tabIndex = -1;
+  b.hidden = true;
+  return b;
+}
+
+// data-overflow="scroll": inject the edge scroll buttons, keep them in sync
+// with the scroll position, and bring the selected tab into view. Returns a
+// cleanup (or null when the root is not in scroll mode).
+function setupOverflow(rootEl, list) {
+  if (!isScrollMode(rootEl)) return null;
+  const doc = rootEl.ownerDocument;
+  const view = doc.defaultView;
+  const startBtn = makeScrollButton(doc, 'start');
+  const endBtn = makeScrollButton(doc, 'end');
+  rootEl.append(startBtn, endBtn);
+
+  const rtl = () => (view ? view.getComputedStyle(list).direction === 'rtl' : false);
+
+  function update() {
+    const h = list.offsetHeight;
+    if (h) {
+      startBtn.style.blockSize = `${h}px`;
+      endBtn.style.blockSize = `${h}px`;
+    }
+    const max = list.scrollWidth - list.clientWidth;
+    const pos = Math.abs(list.scrollLeft); // normalize LTR / RTL scrollLeft
+    const overflowing = max > 1;
+    startBtn.hidden = !overflowing || pos <= 1;
+    endBtn.hidden = !overflowing || pos >= max - 1;
+  }
+
+  function page(toEnd) {
+    if (typeof list.scrollBy !== 'function') return;
+    const amount = Math.max(120, list.clientWidth * 0.8);
+    const sign = (toEnd ? 1 : -1) * (rtl() ? -1 : 1);
+    list.scrollBy({ left: sign * amount, behavior: 'smooth' });
+  }
+
+  const onStart = () => page(false);
+  const onEnd = () => page(true);
+  startBtn.addEventListener('click', onStart);
+  endBtn.addEventListener('click', onEnd);
+  list.addEventListener('scroll', update, { passive: true });
+
+  let ro = null;
+  if (typeof ResizeObserver !== 'undefined') {
+    ro = new ResizeObserver(update);
+    ro.observe(list);
+  }
+  let mo = null;
+  if (typeof MutationObserver !== 'undefined') {
+    mo = new MutationObserver(update);
+    mo.observe(list, { childList: true });
+  }
+
+  update();
+  const selected = list.querySelector(':scope > [role="tab"][aria-selected="true"]');
+  if (selected && typeof selected.scrollIntoView === 'function') {
+    selected.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'instant' });
+  }
+
+  return () => {
+    startBtn.remove();
+    endBtn.remove();
+    list.removeEventListener('scroll', update);
+    ro?.disconnect();
+    mo?.disconnect();
+  };
+}
+
 function activateTab(rootEl, tab, { focus = true } = {}) {
   const list = tablistOf(rootEl);
   if (!list) return;
@@ -72,7 +154,11 @@ function activateTab(rootEl, tab, { focus = true } = {}) {
       p.setAttribute('hidden', 'until-found');
     }
   }
-  if (focus) tab.focus();
+  if (focus) {
+    tab.focus(); // .focus() natively scrolls the tab into view in the list
+  } else if (isScrollMode(rootEl) && typeof tab.scrollIntoView === 'function') {
+    tab.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }
 }
 
 function moveFocus(rootEl, current, delta) {
@@ -161,6 +247,8 @@ function attach(rootEl, detachers) {
     if (owner) activateTab(rootEl, owner, { focus: false });
   }
 
+  const overflowCleanup = setupOverflow(rootEl, list);
+
   rootEl.addEventListener('click', onClick);
   rootEl.addEventListener('keydown', onKeydown);
   rootEl.addEventListener('focusin', onFocusin);
@@ -171,6 +259,7 @@ function attach(rootEl, detachers) {
     rootEl.removeEventListener('keydown', onKeydown);
     rootEl.removeEventListener('focusin', onFocusin);
     rootEl.removeEventListener('beforematch', onBeforematch);
+    overflowCleanup?.();
   });
 }
 
