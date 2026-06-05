@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-inputotp` group separators (`data-groups`).** Visually split the OTP
+  slots into groups — `data-groups="3-3"` (also `"3 3"` / `"2,2,2"`) renders a
+  decorative, `aria-hidden` separator between each group, for formatted codes
+  like `123-456`. The spec is ignored unless the group sizes sum to
+  `data-length`. Restyle the glyph with `--hc-inputotp-separator` (default
+  `"–"`; `""` gives a plain wider gap). New Input OTP → Group separators docs.
+  5 Vitest + 3 Playwright tests.
+
 - **Creatable combobox & multi-combobox (`data-allow-create`).** Let users pick
   a value that isn't in the list. When the typed text has no exact match, a
   synthetic, selectable option appears at the end — **"Create …"** for

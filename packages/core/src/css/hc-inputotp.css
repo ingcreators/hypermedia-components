@@ -85,6 +85,21 @@
     50% { opacity: 0; }
   }
 
+  /* Group separator (`data-groups="3-3"`). Decorative — the input value is
+   * the source of truth. Override `--hc-inputotp-separator` with any CSS
+   * `content` value (e.g. "·", or "" for a plain gap) to restyle it. */
+  .hc-inputotp__separator {
+    display: inline-flex;
+    align-items: center;
+    color: var(--hc-inputotp-fg);
+    font-size: var(--hc-inputotp-font-size);
+    user-select: none;
+  }
+
+  .hc-inputotp__separator::before {
+    content: var(--hc-inputotp-separator, "–");
+  }
+
   /* Validation-state variants on the host — same vocabulary as the
    * other form fields. `error` mirrors aria-invalid / data-invalid. */
   .hc-inputotp[data-variant="success"] .hc-inputotp__slot {
