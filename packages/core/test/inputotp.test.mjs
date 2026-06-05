@@ -149,3 +149,52 @@ describe('installInputOtp', () => {
     expect(slots()).toHaveLength(6);
   });
 });
+
+describe('installInputOtp — group separators', () => {
+  const withGroups = (groups, length = 6) =>
+    FIXTURE.replace('data-length="6"', `data-length="${length}" data-groups="${groups}"`);
+  const seps = () => [...document.querySelectorAll('.hc-inputotp__separator')];
+  const visualOrder = () =>
+    [...host().children].filter(
+      (c) =>
+        c.classList.contains('hc-inputotp__slot') ||
+        c.classList.contains('hc-inputotp__separator'),
+    );
+
+  it('renders one aria-hidden separator after the third slot for "3-3"', () => {
+    document.body.innerHTML = withGroups('3-3');
+    uninstall = installInputOtp();
+    expect(slots()).toHaveLength(6);
+    expect(seps()).toHaveLength(1);
+    expect(seps()[0].getAttribute('aria-hidden')).toBe('true');
+    // order: slot slot slot SEP slot slot slot
+    const order = visualOrder();
+    expect(order[3].classList.contains('hc-inputotp__separator')).toBe(true);
+  });
+
+  it('renders two separators for "2-2-2"', () => {
+    document.body.innerHTML = withGroups('2-2-2');
+    uninstall = installInputOtp();
+    expect(seps()).toHaveLength(2);
+  });
+
+  it('accepts whitespace / comma separated group specs', () => {
+    document.body.innerHTML = withGroups('3 3');
+    uninstall = installInputOtp();
+    expect(seps()).toHaveLength(1);
+  });
+
+  it('ignores groups that do not sum to the slot count', () => {
+    document.body.innerHTML = withGroups('3-2'); // sums to 5, not 6
+    uninstall = installInputOtp();
+    expect(seps()).toHaveLength(0);
+    expect(slots()).toHaveLength(6);
+  });
+
+  it('still fills the slots correctly with separators present', () => {
+    document.body.innerHTML = withGroups('3-3');
+    uninstall = installInputOtp();
+    type('1234');
+    expect(slots().map((s) => s.textContent).join('')).toBe('1234');
+  });
+});

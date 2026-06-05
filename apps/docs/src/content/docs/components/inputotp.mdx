@@ -46,10 +46,32 @@ it automatically. The behavior renders the `data-length` slots and sets
 | --- | --- |
 | `data-length` | Number of slots (default `6`); also sets the input's `maxlength`. |
 | `data-pattern` | Allowed characters as a CSS-style class, default `[0-9]`. Non-matching characters are stripped on input. Use e.g. `[0-9a-zA-Z]` for alphanumeric codes. |
+| `data-groups` | Visually split the slots into groups — `"3-3"` (also `"3 3"` / `"2,2,2"`). A decorative separator is rendered between groups; ignored unless the group sizes sum to `data-length`. |
 
 The `<input>` carries the real value and the accessible name — always
 give it an `aria-label` or a `<label>`, and a `name` if it should
 submit.
+
+## Group separators
+
+`data-groups="3-3"` renders a separator between each group of slots — common
+for formatted codes like `123-456`:
+
+<div class="hc-preview not-content">
+  <div class="hc-inputotp" data-length="6" data-groups="3-3">
+    <input class="hc-inputotp__input" type="text" aria-label="One-time code" />
+  </div>
+</div>
+
+```html
+<div class="hc-inputotp" data-length="6" data-groups="3-3">
+  <input class="hc-inputotp__input" type="text" aria-label="One-time code">
+</div>
+```
+
+The separator is `aria-hidden` (the input value is the source of truth). Set
+`--hc-inputotp-separator` to any CSS `content` value to restyle the glyph
+(e.g. `"·"`, or `""` for a plain wider gap).
 
 ## States
 
@@ -145,12 +167,14 @@ More patterns: [Hyperscript → Reacting to component events](/hypermedia-compon
 --hc-inputotp-font-size | -font-weight
 --hc-inputotp-active-border | -caret-color
 --hc-inputotp-error-border | -disabled-bg | -disabled-fg
+--hc-inputotp-separator   /* the data-groups separator glyph; default "–" */
 ```
 
 ## Out of scope
 
-Group separators (e.g. `3-3`), per-slot click caret placement, and RTL
-fine-tuning are deferred.
+Per-slot click caret placement (clicking a specific slot to edit it) and RTL
+fine-tuning are deferred. Group separators are supported — see
+[Group separators](#group-separators) above.
 
 ## Related
 

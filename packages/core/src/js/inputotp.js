@@ -34,6 +34,23 @@ function charClassRe(spec) {
   }
 }
 
+// `data-groups="3-3"` (also `"3 3"` / `"2,2,2"`) → the set of slot indices
+// after which a separator is rendered. Ignored unless the group sizes are
+// positive integers that sum to the slot count.
+function groupBoundaries(spec, length) {
+  if (!spec) return new Set();
+  const parts = spec.split(/[\s,-]+/).filter(Boolean).map(Number);
+  if (parts.length < 2 || parts.some((n) => !Number.isInteger(n) || n <= 0)) return new Set();
+  if (parts.reduce((a, b) => a + b, 0) !== length) return new Set();
+  const set = new Set();
+  let acc = 0;
+  for (let g = 0; g < parts.length - 1; g += 1) {
+    acc += parts[g];
+    set.add(acc);
+  }
+  return set;
+}
+
 function attach(root, detachers) {
   if (detachers.has(root)) return;
   const input = root.querySelector('.hc-inputotp__input') || root.querySelector('input');
@@ -50,14 +67,23 @@ function attach(root, detachers) {
 
   const slots = [];
   function renderSlots() {
-    for (const old of root.querySelectorAll('.hc-inputotp__slot')) old.remove();
+    for (const old of root.querySelectorAll('.hc-inputotp__slot, .hc-inputotp__separator')) {
+      old.remove();
+    }
     slots.length = 0;
+    const boundaries = groupBoundaries(root.getAttribute('data-groups'), length);
     for (let i = 0; i < length; i++) {
       const slot = doc.createElement('div');
       slot.className = 'hc-inputotp__slot';
       slot.setAttribute('aria-hidden', 'true');
       root.appendChild(slot);
       slots.push(slot);
+      if (boundaries.has(i + 1)) {
+        const sep = doc.createElement('span');
+        sep.className = 'hc-inputotp__separator';
+        sep.setAttribute('aria-hidden', 'true');
+        root.appendChild(sep);
+      }
     }
   }
 
@@ -119,7 +145,9 @@ function attach(root, detachers) {
     input.removeEventListener('blur', onSelectionMove);
     input.removeEventListener('keyup', onSelectionMove);
     input.removeEventListener('click', onSelectionMove);
-    for (const slot of root.querySelectorAll('.hc-inputotp__slot')) slot.remove();
+    for (const el of root.querySelectorAll('.hc-inputotp__slot, .hc-inputotp__separator')) {
+      el.remove();
+    }
   });
 }
 
