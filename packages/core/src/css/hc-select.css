@@ -72,11 +72,13 @@
     border-color: var(--hc-select-error-border);
   }
 
-  .hc-select[aria-invalid="true"] {
+  .hc-select[aria-invalid="true"],
+  .hc-select:user-invalid {
     border-color: var(--hc-select-error-border);
   }
 
-  .hc-select[aria-invalid="true"]:focus-visible {
+  .hc-select[aria-invalid="true"]:focus-visible,
+  .hc-select:user-invalid:focus-visible {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
   }
 

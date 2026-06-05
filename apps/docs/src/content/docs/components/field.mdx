@@ -98,6 +98,50 @@ The server returns the same `<form>` (or just the failing
 `<div class="hc-field" id="email-field" data-invalid="true">…`) with
 the appropriate attributes and a descriptive message.
 
+## Client-side validation
+
+Native HTML constraint validation (`required`, `type="email"`, `pattern`,
+`min` / `max`, `minlength`…) is wired into the field with no per-field code.
+
+**Styling needs no JavaScript.** Each control reacts to the standard
+[`:user-invalid`](https://developer.mozilla.org/en-US/docs/Web/CSS/:user-invalid)
+pseudo-class — it turns invalid **only after the user has interacted** (blurred
+the field or submitted the form), never on first paint. A required control also
+adds an asterisk to its field's label automatically.
+
+**Messages and ARIA come from `installValidation()`** (included in the
+auto-init [`/behaviors`](/hypermedia-components/start/installation/) bundle). On
+blur — and live thereafter — it writes the control's native, localized
+`validationMessage` into a `.hc-field__error` element (created if absent), sets
+`aria-invalid="true"` on the control and `data-invalid="true"` on the field, and
+points the control's `aria-describedby` at the error. When the control becomes
+valid again, it clears all of that. On submit, the browser's default bubble is
+replaced by the inline message and the invalid submit is still blocked.
+
+```html
+<form>
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input id="email" class="hc-input" name="email" type="email" required>
+    <!-- installValidation() fills this on demand; you can also author it -->
+    <p class="hc-field__error" aria-live="polite"></p>
+  </div>
+  <button class="hc-button" data-variant="primary" type="submit">Submit</button>
+</form>
+```
+
+The message text (`--hc-field-invalid-message-color`) and the `:user-invalid`
+border share the same error tokens as the manual `aria-invalid` / `data-invalid`
+hooks, so server-rendered and client-side errors look identical. Combine the two:
+let the client catch native constraints immediately, and the server return
+`data-invalid="true"` for rules only it can check (uniqueness, etc.).
+
+:::tip
+Override `--hc-field-required-color` (e.g. to `transparent`) to restyle or hide
+the required asterisk. The native `required` attribute remains the accessible
+source of truth.
+:::
+
 ## Accessibility
 
 - The `<label>` must reference the input's `id` via `for`. Implicit
@@ -133,6 +177,7 @@ Component tokens (in `component.tokens.json`):
 --hc-field-label-color | -weight | -font-size
 --hc-field-message-color | -font-size
 --hc-field-invalid-message-color
+--hc-field-required-color   /* the required asterisk; defaults to --hc-color-error */
 ```
 
 ## Related

@@ -28,6 +28,7 @@ import { installInputOtp } from './inputotp.js';
 import { installSplitter } from './splitter.js';
 import { installShell } from './shell.js';
 import { installDatagrid } from './datagrid.js';
+import { installValidation } from './validation.js';
 
 function init() {
   installConfirm();
@@ -51,6 +52,7 @@ function init() {
   installSplitter();
   installShell();
   installDatagrid();
+  installValidation();
 }
 
 if (typeof document !== 'undefined') {
@@ -83,6 +85,7 @@ export {
   installSplitter,
   installShell,
   installDatagrid,
+  installValidation,
 };
 
 // i18n — set the locale before this module's auto-init runs (e.g. inline
