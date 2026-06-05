@@ -110,4 +110,47 @@
     font-size: var(--hc-combobox-option-font-size);
     font-style: italic;
   }
+
+  /* Async (`data-remote`) status rows the behavior inserts while htmx loads
+   * options: a spinner + "Loading…" during the request, an error row on
+   * failure. Same metrics as the empty marker. */
+  .hc-combobox__loading,
+  .hc-combobox__error {
+    display: flex;
+    align-items: center;
+    gap: var(--hc-combobox-option-padding-x);
+    padding-block: var(--hc-combobox-option-padding-y);
+    padding-inline: var(--hc-combobox-option-padding-x);
+    font-size: var(--hc-combobox-option-font-size);
+  }
+
+  .hc-combobox__loading {
+    color: var(--hc-combobox-empty-fg);
+  }
+
+  .hc-combobox__error {
+    color: var(--hc-color-error);
+  }
+
+  .hc-combobox__loading::before {
+    content: "";
+    inline-size: 1em;
+    block-size: 1em;
+    border: 2px solid currentColor;
+    border-block-start-color: transparent;
+    border-radius: 50%;
+    animation: hc-combobox-spin 0.6s linear infinite;
+  }
+
+  @keyframes hc-combobox-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-combobox__loading::before {
+      animation: none;
+    }
+  }
 }

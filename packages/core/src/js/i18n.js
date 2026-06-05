@@ -22,6 +22,8 @@
 
 export const DEFAULT_MESSAGES = Object.freeze({
   'combobox.empty': 'No matches',
+  'combobox.loading': 'Loading…',
+  'combobox.error': 'Couldn’t load options',
   'multicombobox.empty': 'No matches',
   'multicombobox.remove': 'Remove {label}',
   'calendar.label': 'Calendar',
