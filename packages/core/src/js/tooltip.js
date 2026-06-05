@@ -24,6 +24,8 @@
 // matches the hint semantics across every browser that supports
 // `popover` at all (Chromium 114+, Firefox 125+, Safari 17+).
 
+import { supportsAnchorPositioning, trackFloating } from './anchor-fallback.js';
+
 const INSTALL_KEY = '__hcTooltipUninstall';
 const SHOW_DELAY = 300;
 const HIDE_DELAY = 100;
@@ -33,16 +35,6 @@ function escapeAttr(s) {
     return CSS.escape(s);
   }
   return String(s).replace(/[^\w-]/g, (c) => `\\${c}`);
-}
-
-function supportsAnchorPositioning() {
-  try {
-    return typeof CSS !== 'undefined'
-      && typeof CSS.supports === 'function'
-      && CSS.supports('anchor-name', '--x');
-  } catch {
-    return false;
-  }
 }
 
 function triggersFor(tooltip) {
@@ -72,7 +64,7 @@ function attach(tooltip, detachers) {
 
   let showTimer = null;
   let hideTimer = null;
-  let currentTrigger = null;
+  let fallbackCleanup = null;
 
   function clearTimers() {
     if (showTimer) clearTimeout(showTimer);
@@ -81,31 +73,8 @@ function attach(tooltip, detachers) {
     hideTimer = null;
   }
 
-  function positionFallback() {
-    if (!currentTrigger) return;
-    const t = currentTrigger.getBoundingClientRect();
-    const m = tooltip.getBoundingClientRect();
-    const view = tooltip.ownerDocument.defaultView;
-    const vh = view?.innerHeight ?? 0;
-    const gap = 4;
-    // Default: above the trigger, horizontally centred on it.
-    let top = t.top - m.height - gap;
-    const left = t.left + (t.width - m.width) / 2;
-    // flip-block: drop below when there is no room above.
-    if (top < 0 && t.bottom + m.height + gap <= vh) {
-      top = t.bottom + gap;
-    }
-    Object.assign(tooltip.style, {
-      position: 'fixed',
-      insetBlockStart: `${top}px`,
-      insetInlineStart: `${left}px`,
-      margin: '0',
-    });
-  }
-
   function show(trigger) {
     clearTimers();
-    currentTrigger = trigger;
     if (tooltip.matches(':popover-open')) return;
     if (usingAnchor) {
       // Rebind the anchor to the trigger that just gained hover /
@@ -113,15 +82,20 @@ function attach(tooltip, detachers) {
       // anchor edge at a time.
       trigger.style.setProperty('anchor-name', anchorName);
       tooltip.style.setProperty('position-anchor', anchorName);
-    } else {
-      positionFallback();
     }
     tooltip.showPopover();
+    // Default placement: above the trigger, centred on it (mirrors the CSS
+    // `position-area: block-start` + flip-block). Position after showPopover
+    // so the tooltip has measurable dimensions.
+    if (!usingAnchor) {
+      fallbackCleanup = trackFloating(tooltip, trigger, { side: 'block-start', align: 'center' });
+    }
   }
 
   function hide() {
     clearTimers();
-    currentTrigger = null;
+    fallbackCleanup?.();
+    fallbackCleanup = null;
     if (!tooltip.matches(':popover-open')) return;
     tooltip.hidePopover();
   }

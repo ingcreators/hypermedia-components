@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Anchor-positioning fallback consolidated and hardened.** The popovers
+  (menu, tooltip, hovercard, combobox, multi-combobox) position with CSS
+  Anchor Positioning where available and fall back to JS where it isn't (e.g.
+  current Firefox). That fallback now lives in one shared module
+  (`anchor-fallback.js`) instead of five near-duplicates, and gains three
+  fixes: it **tracks the trigger on scroll / resize** while open (was
+  positioned once on open and drifted); the combobox / multi-combobox
+  fallbacks now **flip** on viewport overflow like the others (they only
+  dropped straight down before); and it positions with physical `top` / `left`
+  so it is **correct under RTL** (the previous logical-inset values mis-placed
+  it). Listeners are cleaned up on close. Default (Chromium) rendering is
+  unchanged. New browser tests run with anchor positioning stubbed off.
 - **Docs home page dogfoods `hc-card` + `hc-grid`.** The landing page's
   feature cards are now built from HC's own `hc-grid` + `hc-card` (with
   `not-content` to bypass Starlight's prose styles) instead of Starlight's

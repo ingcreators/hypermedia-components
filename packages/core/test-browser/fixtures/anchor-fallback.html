@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc anchor-fallback fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+  <style>
+    /* Make the page scrollable so we can test reposition-on-scroll. */
+    body { min-block-size: 250vh; }
+    .spacer { block-size: 40vh; }
+  </style>
+</head>
+<body>
+  <main style="padding:1rem;">
+    <div class="spacer"></div>
+
+    <button id="menu-trigger" class="hc-button" type="button"
+            popovertarget="fb-menu" data-testid="fb-trigger">Open menu</button>
+    <div id="fb-menu" class="hc-menu" popover role="menu"
+         aria-labelledby="menu-trigger" data-testid="fb-menu">
+      <button class="hc-menu__item" role="menuitem" type="button">Apple</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Banana</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Cherry</button>
+    </div>
+
+    <div class="spacer"></div>
+  </main>
+</body>
+</html>

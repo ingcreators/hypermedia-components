@@ -23,19 +23,10 @@
 //     CSS Anchor Positioning.
 
 import { t } from './i18n.js';
+import { supportsAnchorPositioning, trackFloating } from './anchor-fallback.js';
 
 const INSTALL_KEY = '__hcComboboxUninstall';
 const BLUR_GRACE = 120;
-
-function supportsAnchorPositioning() {
-  try {
-    return typeof CSS !== 'undefined'
-      && typeof CSS.supports === 'function'
-      && CSS.supports('anchor-name', '--x');
-  } catch {
-    return false;
-  }
-}
 
 function findInput(root) {
   return root.querySelector('[role="combobox"]');
@@ -143,12 +134,18 @@ function attach(root, detachers) {
   }
 
   let blurTimer = null;
+  let fallbackCleanup = null;
 
   function open() {
     if (listbox.matches(':popover-open')) return;
-    if (!usingAnchor) positionFallback(input, listbox);
     listbox.showPopover();
     input.setAttribute('aria-expanded', 'true');
+    // Below the input, matching its width, flipping above on overflow
+    // (mirrors the CSS `position-area: block-end span-inline-end`). After
+    // showPopover so it has size; the call is synchronous, so no flash.
+    if (!usingAnchor) {
+      fallbackCleanup = trackFloating(listbox, input, { side: 'block-end', matchWidth: true });
+    }
     // Highlight the currently selected option if any, else the first
     // visible one.
     const selected = options(listbox).find((o) => o.getAttribute('aria-selected') === 'true');
@@ -158,20 +155,11 @@ function attach(root, detachers) {
   function close() {
     if (!listbox.matches(':popover-open')) return;
     listbox.hidePopover();
+    fallbackCleanup?.();
+    fallbackCleanup = null;
     input.setAttribute('aria-expanded', 'false');
     input.removeAttribute('aria-activedescendant');
     clearActive(listbox);
-  }
-
-  function positionFallback(input, listbox) {
-    const r = input.getBoundingClientRect();
-    Object.assign(listbox.style, {
-      position: 'fixed',
-      insetBlockStart: `${r.bottom + 4}px`,
-      insetInlineStart: `${r.left}px`,
-      minWidth: `${r.width}px`,
-      margin: '0',
-    });
   }
 
   function select(option) {

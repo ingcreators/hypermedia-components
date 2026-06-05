@@ -283,8 +283,8 @@ describe('installMenu', () => {
       uninstall = installMenu();
       const m = document.getElementById('m1');
       fireOpen(m);
-      expect(m.style.insetBlockStart).toBe('86px');   // trigger.bottom + gap
-      expect(m.style.insetInlineStart).toBe('100px'); // trigger.left
+      expect(m.style.top).toBe('86px');   // trigger.bottom + gap
+      expect(m.style.left).toBe('100px'); // trigger.left
       restore();
     });
 
@@ -299,8 +299,8 @@ describe('installMenu', () => {
       const m = document.getElementById('m1');
       fireOpen(m);
       // 500 - 200 - 4 = 296
-      expect(m.style.insetBlockStart).toBe('296px');
-      expect(m.style.insetInlineStart).toBe('100px');
+      expect(m.style.top).toBe('296px');
+      expect(m.style.left).toBe('100px');
       restore();
     });
 
@@ -314,9 +314,9 @@ describe('installMenu', () => {
       uninstall = installMenu();
       const m = document.getElementById('m1');
       fireOpen(m);
-      expect(m.style.insetBlockStart).toBe('86px');
+      expect(m.style.top).toBe('86px');
       // trigger.right - menu.width = 580 - 160 = 420
-      expect(m.style.insetInlineStart).toBe('420px');
+      expect(m.style.left).toBe('420px');
       restore();
     });
 
@@ -330,8 +330,8 @@ describe('installMenu', () => {
       uninstall = installMenu();
       const m = document.getElementById('m1');
       fireOpen(m);
-      expect(m.style.insetBlockStart).toBe('296px');
-      expect(m.style.insetInlineStart).toBe('420px');
+      expect(m.style.top).toBe('296px');
+      expect(m.style.left).toBe('420px');
       restore();
     });
   });

@@ -14,19 +14,10 @@
 // `detail.{values, added, removed, input}` on every state mutation.
 
 import { t } from './i18n.js';
+import { supportsAnchorPositioning, trackFloating } from './anchor-fallback.js';
 
 const INSTALL_KEY = '__hcMulticomboboxUninstall';
 const BLUR_GRACE = 120;
-
-function supportsAnchorPositioning() {
-  try {
-    return typeof CSS !== 'undefined'
-      && typeof CSS.supports === 'function'
-      && CSS.supports('anchor-name', '--x');
-  } catch {
-    return false;
-  }
-}
 
 function findInput(root) {
   return root.querySelector('[role="combobox"]');
@@ -252,29 +243,25 @@ function attach(root, detachers) {
   }
 
   let blurTimer = null;
-
-  function positionFallback() {
-    const r = input.getBoundingClientRect();
-    Object.assign(listbox.style, {
-      position: 'fixed',
-      insetBlockStart: `${r.bottom + 4}px`,
-      insetInlineStart: `${r.left}px`,
-      minWidth: `${r.width}px`,
-      margin: '0',
-    });
-  }
+  let fallbackCleanup = null;
 
   function open() {
     if (listbox.matches(':popover-open')) return;
-    if (!usingAnchor) positionFallback();
     listbox.showPopover();
     input.setAttribute('aria-expanded', 'true');
+    // Below the control, matching its width, flipping above on overflow.
+    // After showPopover so it has size; synchronous, so no flash.
+    if (!usingAnchor) {
+      fallbackCleanup = trackFloating(listbox, input, { side: 'block-end', matchWidth: true });
+    }
     setActive(input, listbox, visibleOptions(listbox)[0] ?? null);
   }
 
   function close() {
     if (!listbox.matches(':popover-open')) return;
     listbox.hidePopover();
+    fallbackCleanup?.();
+    fallbackCleanup = null;
     input.setAttribute('aria-expanded', 'false');
     input.removeAttribute('aria-activedescendant');
     clearActive(listbox);
