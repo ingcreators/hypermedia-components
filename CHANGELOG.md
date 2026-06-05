@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Lazy-loaded datagrid row detail.** Add `data-lazy` to a
+  `.hc-datagrid__detail` cell and `installDatagrid()` defers its content to the
+  **first expand**: it fires **`hc:datagriddetailload`** on the cell (wire htmx
+  to it via `hx-trigger`) and shows a reduced-motion-aware busy spinner
+  (`aria-busy="true"`) that clears as soon as the content swaps in. The detail
+  loads once — re-expanding doesn't refetch. New Datagrid → Expandable detail
+  lazy-load docs. 4 Vitest + 2 Playwright tests.
+
 - **Sortable datagrid columns.** Mark a header `data-sortable` (with a
   `data-col` key) and `installDatagrid()` makes it focusable, toggles
   `aria-sort` on click / Enter / Space through none → ascending → descending →

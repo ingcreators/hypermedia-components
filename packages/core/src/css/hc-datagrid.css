@@ -297,6 +297,31 @@
     background-color: var(--hc-datagrid-bg);
   }
 
+  /* Lazy detail: while installDatagrid() waits for htmx to load the content
+   * (set on first expand of a `data-lazy` cell), show a centered spinner. */
+  .hc-datagrid__detail[aria-busy="true"] {
+    min-block-size: 2.5rem;
+    text-align: center;
+  }
+
+  .hc-datagrid__detail[aria-busy="true"]::after {
+    content: "";
+    display: inline-block;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    margin-block: 0.5rem;
+    border: 2px solid var(--hc-datagrid-border);
+    border-block-start-color: var(--hc-color-action-primary-bg);
+    border-radius: 50%;
+    animation: hc-datagrid-detail-spin 0.6s linear infinite;
+  }
+
+  @keyframes hc-datagrid-detail-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
   /* ---- Inline editing ---- */
 
   /* When a cell enters edit mode the behavior mounts an HC form control
@@ -383,6 +408,10 @@
   @media (prefers-reduced-motion: reduce) {
     .hc-datagrid__scroll {
       scroll-behavior: auto;
+    }
+
+    .hc-datagrid__detail[aria-busy="true"]::after {
+      animation: none;
     }
   }
 }
