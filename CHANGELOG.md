@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-calendar` month / year quick navigation (`data-nav="select"`).** Swaps
+  the header title for month and year **dropdowns**, so users jump to a far
+  month/year in one step instead of clicking the arrows repeatedly. The year
+  range spans `data-min`…`data-max` (or the focused year ±10); the arrows still
+  work alongside the dropdowns. New `calendar.month` / `calendar.year` i18n keys
+  and a Calendar → Month / year navigation docs section. 5 Vitest + 3 Playwright
+  tests.
+
 - **`hc-inputotp` group separators (`data-groups`).** Visually split the OTP
   slots into groups — `data-groups="3-3"` (also `"3 3"` / `"2,2,2"`) renders a
   decorative, `aria-hidden` separator between each group, for formatted codes

@@ -49,6 +49,7 @@ All configuration is via `data-*` attributes on the container:
 | `data-first-day` | First day of the week: `0` = Sunday (default) … `6` = Saturday. |
 | `data-locale` | BCP-47 locale for month / weekday names. Falls back to `<html lang>`, then the browser default. |
 | `data-name` | When set, the behavior maintains a hidden `<input name="…">` with the selected ISO value, so the calendar serialises in a form. |
+| `data-nav` | `"select"` swaps the month/year title for dropdown pickers (see [Month / year navigation](#month--year-navigation)). |
 
 Month and weekday names come from `Intl.DateTimeFormat`. The first day
 of the week is taken from `data-first-day` (not `Intl.Locale`'s
@@ -58,6 +59,26 @@ of the week is taken from `data-first-day` (not `Intl.Locale`'s
   <div class="hc-calendar" data-value="2026-05-15" data-first-day="1" data-locale="en-GB"
        data-min="2026-05-04" data-max="2026-06-20" aria-label="Pick a date (Mon start, ranged)"></div>
 </div>
+
+## Month / year navigation
+
+The header shows previous/next-month arrows by default. Add `data-nav="select"`
+to swap the title for **month and year dropdowns**, so users can jump to a far
+month/year in one step:
+
+<div class="hc-preview not-content" style="max-width:20rem;">
+  <div class="hc-calendar" data-value="2026-05-15" data-locale="en-US"
+       data-nav="select" aria-label="Pick a date (dropdown nav)"></div>
+</div>
+
+```html
+<div class="hc-calendar" data-value="2026-05-15" data-nav="select"
+     aria-label="Pick a date"></div>
+```
+
+The year range spans `data-min`…`data-max` when set, otherwise the focused
+year ±10. The dropdown labels are translatable (`calendar.month` /
+`calendar.year`), and the arrows still work alongside them.
 
 ## Keyboard
 
@@ -168,9 +189,10 @@ More patterns: [Hyperscript → Reacting to component events](/hypermedia-compon
 
 ## Out of scope
 
-Range selection, multiple months side by side, month / year dropdown
-pickers, week numbers, time selection, and non-Gregorian calendars are
-deferred. For a no-JS native field, see
+Range selection, multiple months side by side, week numbers, time selection,
+and non-Gregorian calendars are deferred. Month / year dropdown navigation is
+supported — see [Month / year navigation](#month--year-navigation). For a
+no-JS native field, see
 [Datepicker](/hypermedia-components/components/datepicker/).
 
 ## Related

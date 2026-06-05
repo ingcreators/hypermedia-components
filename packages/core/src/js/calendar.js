@@ -127,8 +127,12 @@ function attach(root, detachers) {
 
   const today = todayISO();
 
+  // Quick month / year navigation via dropdowns (opt-in: data-nav="select").
+  const navSelect = root.getAttribute('data-nav') === 'select';
+
   // Intl formatters are locale-stable for the life of the instance.
   const titleFmt = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' });
+  const monthLongFmt = new Intl.DateTimeFormat(locale, { month: 'long' });
   const dayLabelFmt = new Intl.DateTimeFormat(locale, {
     year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
   });
@@ -142,6 +146,37 @@ function attach(root, detachers) {
     input.value = state.selected || '';
   }
 
+  // Build the month + year dropdowns shown in place of the title when
+  // data-nav="select". The year range spans data-min..data-max (or the
+  // focused year ±10), always including the focused year.
+  function buildMonthYearNav(y, m0) {
+    const wrap = el(doc, 'div', { class: 'hc-calendar__monthnav' });
+    const monthSel = el(doc, 'select', {
+      class: 'hc-calendar__month-select', 'aria-label': t('calendar.month'),
+    });
+    for (let i = 0; i < 12; i += 1) {
+      const opt = doc.createElement('option');
+      opt.value = String(i);
+      opt.textContent = monthLongFmt.format(new Date(2020, i, 1));
+      if (i === m0) opt.selected = true;
+      monthSel.appendChild(opt);
+    }
+    const yearSel = el(doc, 'select', {
+      class: 'hc-calendar__year-select', 'aria-label': t('calendar.year'),
+    });
+    const loY = Math.min(min ? partsOf(min).y : y - 10, y);
+    const hiY = Math.max(max ? partsOf(max).y : y + 10, y);
+    for (let yr = loY; yr <= hiY; yr += 1) {
+      const opt = doc.createElement('option');
+      opt.value = String(yr);
+      opt.textContent = String(yr);
+      if (yr === y) opt.selected = true;
+      yearSel.appendChild(opt);
+    }
+    wrap.append(monthSel, yearSel);
+    return wrap;
+  }
+
   function render() {
     const { y, m0 } = partsOf(state.focused);
 
@@ -150,13 +185,16 @@ function attach(root, detachers) {
     root.replaceChildren();
 
     const header = el(doc, 'div', { class: 'hc-calendar__header' });
+    const middle = navSelect
+      ? buildMonthYearNav(y, m0)
+      : el(doc, 'span', { class: 'hc-calendar__title', 'aria-live': 'polite' },
+          titleFmt.format(new Date(y, m0, 1)));
     header.append(
       el(doc, 'button', {
         class: 'hc-calendar__nav', type: 'button',
         'data-hc-calendar-prev': true, 'aria-label': t('calendar.prevMonth'),
       }, '‹'),
-      el(doc, 'span', { class: 'hc-calendar__title', 'aria-live': 'polite' },
-        titleFmt.format(new Date(y, m0, 1))),
+      middle,
       el(doc, 'button', {
         class: 'hc-calendar__nav', type: 'button',
         'data-hc-calendar-next': true, 'aria-label': t('calendar.nextMonth'),
@@ -250,6 +288,20 @@ function attach(root, detachers) {
     }
   }
 
+  function onChange(event) {
+    const isMonth = event.target.classList?.contains?.('hc-calendar__month-select');
+    const isYear = event.target.classList?.contains?.('hc-calendar__year-select');
+    if (!isMonth && !isYear) return;
+    const { y, m0 } = partsOf(state.focused);
+    const newM = isMonth ? Number(event.target.value) : m0;
+    const newY = isYear ? Number(event.target.value) : y;
+    state.focused = clampToRange(isoOf(newY, newM, 1), min, max);
+    render();
+    root
+      .querySelector(isMonth ? '.hc-calendar__month-select' : '.hc-calendar__year-select')
+      ?.focus();
+  }
+
   function onKeydown(event) {
     const day = event.target.closest('.hc-calendar__day');
     if (!day) return;
@@ -282,11 +334,13 @@ function attach(root, detachers) {
 
   root.addEventListener('click', onClick);
   root.addEventListener('keydown', onKeydown);
+  if (navSelect) root.addEventListener('change', onChange);
   render();
 
   detachers.set(root, () => {
     root.removeEventListener('click', onClick);
     root.removeEventListener('keydown', onKeydown);
+    root.removeEventListener('change', onChange);
   });
 }
 

@@ -192,3 +192,56 @@ describe('installCalendar', () => {
     expect(document.querySelector('.hc-calendar__grid')).toBeTruthy();
   });
 });
+
+describe('installCalendar — month / year quick nav', () => {
+  // data-value 2026-05-15 → May (m0 = 4) 2026.
+  const NAV = FIXTURE.replace('class="hc-calendar"', 'class="hc-calendar" data-nav="select"');
+  const monthSel = () => document.querySelector('.hc-calendar__month-select');
+  const yearSel = () => document.querySelector('.hc-calendar__year-select');
+  function changeSelect(sel, value) {
+    sel.value = value;
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  it('replaces the title with month + year dropdowns reflecting the focused month', () => {
+    document.body.innerHTML = NAV;
+    uninstall = installCalendar();
+    expect(document.querySelector('.hc-calendar__title')).toBeNull();
+    expect(monthSel().value).toBe('4'); // May (0-indexed)
+    expect(yearSel().value).toBe('2026');
+    expect(monthSel().options).toHaveLength(12);
+  });
+
+  it('changing the month dropdown navigates to that month', () => {
+    document.body.innerHTML = NAV;
+    uninstall = installCalendar();
+    changeSelect(monthSel(), '0'); // January
+    expect(monthSel().value).toBe('0'); // re-rendered
+    expect(cell('2026-01-01')).toBeTruthy();
+  });
+
+  it('changing the year dropdown navigates to that year', () => {
+    document.body.innerHTML = NAV;
+    uninstall = installCalendar();
+    changeSelect(yearSel(), '2030');
+    expect(yearSel().value).toBe('2030');
+    expect(cell('2030-05-01')).toBeTruthy();
+  });
+
+  it('bounds the year range by data-min / data-max', () => {
+    document.body.innerHTML = NAV.replace(
+      'data-value="2026-05-15"',
+      'data-value="2026-05-15" data-min="2025-01-01" data-max="2027-12-31"',
+    );
+    uninstall = installCalendar();
+    const years = [...yearSel().options].map((o) => o.value);
+    expect(years).toEqual(['2025', '2026', '2027']);
+  });
+
+  it('does not add dropdowns without data-nav="select"', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installCalendar();
+    expect(document.querySelector('.hc-calendar__month-select')).toBeNull();
+    expect(document.querySelector('.hc-calendar__title')).toBeTruthy();
+  });
+});

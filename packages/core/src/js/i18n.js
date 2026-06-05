@@ -31,6 +31,8 @@ export const DEFAULT_MESSAGES = Object.freeze({
   'calendar.label': 'Calendar',
   'calendar.prevMonth': 'Previous month',
   'calendar.nextMonth': 'Next month',
+  'calendar.month': 'Month',
+  'calendar.year': 'Year',
   'confirm.message': 'Continue?',
   'confirm.title': 'Confirm',
   'confirm.confirm': 'Confirm',
