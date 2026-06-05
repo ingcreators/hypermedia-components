@@ -82,6 +82,22 @@ The card stays open while **either the trigger or the card** is
 hovered, so the cursor can travel through the small gap between
 them without dismissing.
 
+## Placement
+
+The card opens **below** the trigger by default. Override it with `data-side`
+(`top` / `right` / `bottom` / `left`) and optional `data-align` (`start` /
+`center` / `end`, default `center`); add `data-arrow` for a pointer.
+
+```html
+<a href="/users/grace" aria-describedby="grace-card">Grace Hopper</a>
+<div class="hc-hovercard" id="grace-card" data-side="right" data-arrow>…</div>
+```
+
+This shares the directional-placement mechanism with tooltip and popover —
+CSS Anchor Positioning with a JS fallback. See the
+[Popover → Directional placement](/hypermedia-components/components/popover/#directional-placement)
+baseline note.
+
 ## htmx lazy load
 
 Pair with htmx's `data-hx-trigger="mouseenter"` (or

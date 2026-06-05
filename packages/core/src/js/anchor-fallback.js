@@ -31,6 +31,34 @@ export function supportsAnchorPositioning() {
 
 const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
 
+// data-side (physical) → fallback `side` (logical block / inline axis).
+const SIDE_TO_AXIS = {
+  top: 'block-start',
+  bottom: 'block-end',
+  left: 'inline-start',
+  right: 'inline-end',
+};
+
+/**
+ * Read a floating element's `data-side` / `data-align` attributes into the
+ * `{ side, align }` options {@link positionFloating} understands, falling
+ * back to the component's default when an attribute is absent or invalid.
+ * The CSS Anchor Positioning path keys off the same attributes
+ * (`position-area`), so both paths place the element identically.
+ *
+ * @param {Element} el
+ * @param {{ side?: string, align?: string }} [fallback]
+ * @returns {{ side: string, align: 'start'|'center'|'end' }}
+ */
+export function readSideAlign(el, fallback = {}) {
+  const side = SIDE_TO_AXIS[el.getAttribute('data-side')] ?? fallback.side ?? 'block-end';
+  const alignAttr = el.getAttribute('data-align');
+  const align = ['start', 'center', 'end'].includes(alignAttr)
+    ? alignAttr
+    : fallback.align ?? 'start';
+  return { side, align };
+}
+
 /**
  * Position `floating` next to `anchor`, once.
  *
@@ -66,9 +94,18 @@ export function positionFloating(floating, anchor, opts = {}) {
       left = a.left - f.width - gap;
       if (left < 0 && a.right + f.width + gap <= vw) left = a.right + gap;
     }
-    // Align the submenu's top with the anchor's; flip up if it overflows.
-    let top = a.top;
-    if (top + f.height > vh && a.bottom - f.height >= 0) top = a.bottom - f.height;
+    // Cross axis (block): align start (tops) / center / end (bottoms),
+    // flipping the chosen edge when it would overflow.
+    let top;
+    if (align === 'center') {
+      top = a.top + (a.height - f.height) / 2;
+    } else if (align === 'end') {
+      top = a.bottom - f.height;
+      if (top < 0 && a.top + f.height <= vh) top = a.top;
+    } else {
+      top = a.top;
+      if (top + f.height > vh && a.bottom - f.height >= 0) top = a.bottom - f.height;
+    }
     top = clamp(top, gap, Math.max(gap, vh - f.height - gap));
     left = clamp(left, gap, Math.max(gap, vw - f.width - gap));
 
@@ -92,18 +129,21 @@ export function positionFloating(floating, anchor, opts = {}) {
     if (top + f.height > vh && a.top - f.height - gap >= 0) top = a.top - f.height - gap;
   }
 
-  // Inline axis: align, then flip the alignment on overflow.
+  // Inline axis: align start / center / end, then flip on overflow.
   let left;
   if (align === 'center') {
     left = a.left + (a.width - f.width) / 2;
-  } else if (rtl) {
-    // Align the inline-start (right) edges; flip to the left edge on overflow.
-    left = a.right - f.width;
-    if (left < 0 && a.left + f.width <= vw) left = a.left;
   } else {
-    // Align the inline-start (left) edges; flip to the right edge on overflow.
-    left = a.left;
-    if (left + f.width > vw && a.right - f.width >= 0) left = a.right - f.width;
+    // `start` aligns the inline-start edges, `end` the inline-end edges; RTL
+    // swaps which physical edge each maps to.
+    const startToLeft = (align !== 'end') !== rtl;
+    if (startToLeft) {
+      left = a.left;
+      if (left + f.width > vw && a.right - f.width >= 0) left = a.right - f.width;
+    } else {
+      left = a.right - f.width;
+      if (left < 0 && a.left + f.width <= vw) left = a.left;
+    }
   }
 
   // Final safety clamp so it can never sit fully off-screen.

@@ -62,6 +62,7 @@ const COMPONENTS = [
   'hc-calendar.css',
   'hc-tooltip.css',
   'hc-hovercard.css',
+  'hc-anchored.css',
   'hc-accordion.css',
   'hc-breadcrumb.css',
   'hc-shell.css',

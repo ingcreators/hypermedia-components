@@ -15,6 +15,11 @@
     min-inline-size: var(--hc-popover-min-width);
     max-inline-size: var(--hc-popover-max-width);
     box-shadow: 0 6px 20px rgb(0, 0, 0, 0.12);
+
+    /* Shared directional placement (hc-anchored.css). Anchoring is opt-in via
+     * data-side + installPopover; a bare popover stays browser-positioned. */
+    --hc-anchored-offset: var(--hc-popover-offset, 0.5rem);
+    --hc-anchored-arrow-border: var(--hc-popover-border);
   }
 
   /* Native popovers are display:none by default; the UA toggles to

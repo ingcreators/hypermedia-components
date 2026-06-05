@@ -81,6 +81,27 @@ installTooltip();
   - `blur` → hide immediately.
   - `Escape` while focused → hide without moving focus.
 
+## Placement
+
+The tooltip sits **above** the trigger by default. Override it per instance
+with `data-side` (`top` / `right` / `bottom` / `left`) and optional
+`data-align` (`start` / `center` / `end`, default `center`). Add `data-arrow`
+for a small pointer.
+
+```html
+<button aria-describedby="hint">Help</button>
+<div class="hc-tooltip" id="hint" data-side="right" data-arrow>
+  Appears to the right
+</div>
+```
+
+Placement uses CSS Anchor Positioning (`position-area`) where supported and
+the same JS fallback as the default placement otherwise — `data-side` /
+`data-align` drive both paths identically. See the
+[Popover → Directional placement](/hypermedia-components/components/popover/#directional-placement)
+baseline note; the shared mechanism reached Baseline in 2026 with a JS
+fallback for older engines.
+
 ## Use a real description, not the `title` attribute
 
 The browser's native tooltip rendered from the `title` attribute

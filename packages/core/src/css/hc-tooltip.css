@@ -40,6 +40,11 @@
      * mouseleave would fire on the trigger and the tooltip would
      * dismiss itself out from under the pointer. */
     pointer-events: none;
+
+    /* Shared directional placement (hc-anchored.css). The tooltip has no
+     * border, so the arrow edge matches its background. */
+    --hc-anchored-offset: var(--hc-tooltip-offset);
+    --hc-anchored-arrow-border: var(--hc-tooltip-bg);
   }
 
   @supports (anchor-name: --x) {

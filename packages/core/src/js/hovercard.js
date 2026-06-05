@@ -33,7 +33,7 @@
 // JS toggling matches the `hint` semantics everywhere `popover` is
 // supported.
 
-import { supportsAnchorPositioning, trackFloating } from './anchor-fallback.js';
+import { supportsAnchorPositioning, trackFloating, readSideAlign } from './anchor-fallback.js';
 
 const INSTALL_KEY = '__hcHoverCardUninstall';
 const SHOW_DELAY = 500;
@@ -105,10 +105,13 @@ function attach(card, detachers) {
       card.style.setProperty('position-anchor', anchorName);
     }
     card.showPopover();
-    // Below the trigger, flipping above on overflow (mirrors the CSS
-    // `position-area: block-end` + flip-block). After show so it has size.
+    // Placement: honor data-side / data-align (default below + centred),
+    // mirroring the CSS position-area path. After show so it has size.
     if (!usingAnchor) {
-      fallbackCleanup = trackFloating(card, trigger, { side: 'block-end', gap: 6 });
+      fallbackCleanup = trackFloating(card, trigger, {
+        ...readSideAlign(card, { side: 'block-end', align: 'center' }),
+        gap: 6,
+      });
     }
   }
 

@@ -38,6 +38,46 @@ The `popover` attribute defaults to `popover="auto"`, which means:
 For a popover that ignores light-dismiss, use `popover="manual"` and
 close it yourself with `element.hidePopover()`.
 
+## Directional placement
+
+A bare popover is positioned by the browser (centred in the top layer). To
+**anchor it to its trigger** with a side and alignment, add `data-side`
+(`top` / `right` / `bottom` / `left`) and optionally `data-align` (`start` /
+`center` / `end`, default `center`). `installPopover()` (bundled in the
+default behaviors) wires the anchoring and keeps `aria-expanded` /
+`aria-controls` on the trigger in sync. Add `data-arrow` for a small pointer.
+
+<div class="hc-preview not-content" style="display:flex;gap:6rem;align-items:center;min-height:8rem;">
+  <button class="hc-button" type="button" popovertarget="side-popover">Anchored</button>
+  <div id="side-popover" class="hc-popover" popover
+       data-side="right" data-align="start" data-arrow>
+    <p style="margin:0;">Opens to the inline-end, top-aligned.</p>
+  </div>
+</div>
+
+```html
+<button class="hc-button" type="button" popovertarget="filters">Filter</button>
+
+<div id="filters" class="hc-popover" popover
+     data-side="bottom" data-align="start" data-arrow>
+  …
+</div>
+```
+
+Placement uses **CSS Anchor Positioning** (`position-area`) where supported
+and `position-try-fallbacks` to flip at the viewport edge. The same
+attributes drive a JS fallback (`getBoundingClientRect`) for engines without
+it, so both paths place the popover identically.
+
+:::note[Baseline]
+CSS Anchor Positioning (`position-area` / `position-try-fallbacks`) reached
+[Baseline](https://developer.mozilla.org/docs/Web/CSS/position-area) in
+**2026** (Chrome / Edge 125+, Safari 26, Firefox 147+). On engines older than
+that, `installPopover()`'s JS fallback positions the popover; without
+JavaScript a `data-side` popover stays browser-centred. The `data-arrow`
+pointer is plain CSS and renders everywhere.
+:::
+
 ## With htmx
 
 A popover can host an htmx-driven form. To close the popover after a

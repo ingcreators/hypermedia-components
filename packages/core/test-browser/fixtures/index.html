@@ -57,6 +57,17 @@
         Close
       </button>
     </div>
+
+    <h3>Anchored placement (installPopover)</h3>
+    <div class="row" style="margin-block-start:6rem;">
+      <button class="hc-button" type="button" popovertarget="place-popover"
+              data-testid="place-trigger">Anchored</button>
+    </div>
+    <div id="place-popover" class="hc-popover" popover
+         data-side="right" data-align="start" data-arrow
+         data-testid="place-popover">
+      <p>Anchored to the inline-end of its trigger.</p>
+    </div>
   </section>
 
   <section id="section-confirm" data-testid="section-confirm">
@@ -201,6 +212,18 @@
           <a href="#" data-testid="hc-card-link">View profile →</a>
         </p>
       </div>
+    </div>
+
+    <h3>Placement (data-side="right")</h3>
+    <p style="margin-block-start:2rem;">
+      Hover
+      <a href="#" id="hc-right-trigger" aria-describedby="hc-right-card"
+         data-testid="hc-right-trigger">Grace Hopper</a>.
+    </p>
+    <div class="hc-hovercard" id="hc-right-card" data-side="right" data-arrow
+         data-testid="hc-right-card">
+      <div class="hc-hovercard__title">Grace Hopper</div>
+      <div class="hc-hovercard__body"><p>Compiler pioneer.</p></div>
     </div>
   </section>
 
@@ -910,6 +933,14 @@
         <span>Delete</span>
       </button>
       <div class="hc-tooltip" id="del-tip" data-testid="tt-del-tip">Move to trash</div>
+    </div>
+
+    <h3>Placement (data-side + arrow)</h3>
+    <div style="display:flex; gap:6rem; align-items:center; margin-block:2rem;">
+      <button class="hc-button" type="button" aria-describedby="right-tip"
+              data-testid="tt-right">Right</button>
+      <div class="hc-tooltip" id="right-tip" data-side="right" data-arrow
+           data-testid="tt-right-tip">On the right</div>
     </div>
   </section>
 
