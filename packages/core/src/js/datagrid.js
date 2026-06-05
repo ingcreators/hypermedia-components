@@ -514,12 +514,34 @@ function attach(grid, detachers) {
     return record.querySelector(':scope > .hc-datagrid__detail-row');
   }
 
+  // Lazy detail: when a `data-lazy` detail cell is opened the first time, fire
+  // `hc:datagriddetailload` on it (htmx loads via hx-trigger) and show a busy
+  // spinner until content arrives. The request itself is htmx's job.
+  function loadDetail(record, cell) {
+    cell.dataset.loaded = ''; // load only once
+    cell.setAttribute('aria-busy', 'true');
+    if (typeof MutationObserver !== 'undefined') {
+      const obs = new MutationObserver(() => {
+        cell.removeAttribute('aria-busy');
+        obs.disconnect();
+      });
+      obs.observe(cell, { childList: true });
+    }
+    cell.dispatchEvent(
+      new CustomEvent('hc:datagriddetailload', { bubbles: true, detail: { record } }),
+    );
+  }
+
   function setExpanded(record, on) {
     const detail = detailRowOf(record);
+    const cell = detail?.querySelector('.hc-datagrid__detail');
     const btn = record.querySelector('[data-hc-datagrid-toggle]');
     record.toggleAttribute('data-expanded', on);
     if (detail) detail.hidden = !on;
     if (btn) btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    if (on && cell && cell.hasAttribute('data-lazy') && cell.dataset.loaded == null) {
+      loadDetail(record, cell);
+    }
     grid.dispatchEvent(
       new CustomEvent(on ? 'hc:datagridexpand' : 'hc:datagridcollapse', {
         bubbles: true,

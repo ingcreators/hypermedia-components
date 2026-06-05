@@ -558,3 +558,71 @@ describe('installDatagrid — sortable columns', () => {
     expect(a.getAttribute('aria-sort')).toBe('none');
   });
 });
+
+const FIXTURE_LAZY = `
+  <div class="hc-datagrid" id="grid">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head"><tr>
+        <th class="hc-datagrid__headcell" scope="col"></th>
+        <th class="hc-datagrid__headcell" scope="col">Category</th>
+      </tr></thead>
+      <tbody class="hc-datagrid__record" id="rec-1">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">
+            <button class="hc-datagrid__toggle" data-hc-datagrid-toggle type="button" aria-label="Toggle"></button>
+          </td>
+          <td class="hc-datagrid__cell">Beverages</td>
+        </tr>
+        <tr class="hc-datagrid__detail-row" id="detail-1">
+          <td class="hc-datagrid__detail" id="lazy-cell" data-lazy colspan="2"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+
+describe('installDatagrid — lazy row detail', () => {
+  const btn = () => document.querySelector('[data-hc-datagrid-toggle]');
+  const tick = () => new Promise((r) => setTimeout(r, 0));
+
+  it('fires hc:datagriddetailload + sets aria-busy on first expand', () => {
+    document.body.innerHTML = FIXTURE_LAZY;
+    uninstall = installDatagrid();
+    const onLoad = vi.fn();
+    $('lazy-cell').addEventListener('hc:datagriddetailload', onLoad);
+    click(btn());
+    expect(onLoad).toHaveBeenCalledTimes(1);
+    expect($('lazy-cell').getAttribute('aria-busy')).toBe('true');
+    expect($('lazy-cell').dataset.loaded).toBe('');
+  });
+
+  it('clears aria-busy once content arrives', async () => {
+    document.body.innerHTML = FIXTURE_LAZY;
+    uninstall = installDatagrid();
+    click(btn());
+    expect($('lazy-cell').getAttribute('aria-busy')).toBe('true');
+    $('lazy-cell').innerHTML = '<p>Loaded content</p>'; // simulate the htmx swap
+    await tick(); // let the MutationObserver run
+    expect($('lazy-cell').hasAttribute('aria-busy')).toBe(false);
+  });
+
+  it('does not reload on subsequent expands', () => {
+    document.body.innerHTML = FIXTURE_LAZY;
+    uninstall = installDatagrid();
+    const onLoad = vi.fn();
+    $('lazy-cell').addEventListener('hc:datagriddetailload', onLoad);
+    click(btn()); // expand → load
+    click(btn()); // collapse
+    click(btn()); // expand again → no reload
+    expect(onLoad).toHaveBeenCalledTimes(1);
+  });
+
+  it('a non-lazy detail does not fire the load event', () => {
+    document.body.innerHTML = FIXTURE_LAZY.replace(' data-lazy', '');
+    uninstall = installDatagrid();
+    const onLoad = vi.fn();
+    $('lazy-cell').addEventListener('hc:datagriddetailload', onLoad);
+    click(btn());
+    expect(onLoad).not.toHaveBeenCalled();
+    expect($('lazy-cell').hasAttribute('aria-busy')).toBe(false);
+  });
+});

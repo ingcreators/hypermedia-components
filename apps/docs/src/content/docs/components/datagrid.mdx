@@ -414,16 +414,21 @@ record open by putting `data-expanded` on its `<tbody>`. A **nested
 `hc-datagrid`** in a detail panel is upgraded and operated independently —
 the outer grid ignores events bubbling from it.
 
-**Lazy-load with htmx** — fetch the detail on first expand by putting htmx
-attributes on the toggle:
+**Lazy-load with htmx** — add `data-lazy` to the detail cell. On the **first
+expand** the behavior fires **`hc:datagriddetailload`** on the cell and shows a
+busy spinner (`aria-busy="true"`); wire htmx to that event to fetch the
+content, and the spinner clears as soon as the content swaps in. Re-expanding
+does not reload.
 
 ```html
-<button class="hc-datagrid__toggle" data-hc-datagrid-toggle type="button"
-        aria-label="Detail"
-        data-hx-get="/categories/1/products"
-        data-hx-target="next .hc-datagrid__detail"
-        data-hx-trigger="click once">
-</button>
+<tr class="hc-datagrid__detail-row">
+  <td class="hc-datagrid__detail" colspan="3" data-lazy
+      data-hx-get="/categories/1/products"
+      data-hx-trigger="hc:datagriddetailload"
+      data-hx-target="this" data-hx-swap="innerHTML">
+    <!-- filled on first expand -->
+  </td>
+</tr>
 ```
 
 ## Truncation &amp; overflow tooltip
