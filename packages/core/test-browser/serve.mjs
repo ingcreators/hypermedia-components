@@ -44,6 +44,7 @@ const ASSET_ALIASES = new Map([
   ['/drawer.js',        join(coreDist, 'drawer.js')],
   ['/hovercard.js',    join(coreDist, 'hovercard.js')],
   ['/toggle-group.js',  join(coreDist, 'toggle-group.js')],
+  ['/toolbar.js',       join(coreDist, 'toolbar.js')],
   ['/shell.js',         join(coreDist, 'shell.js')],
   ['/datagrid.js',      join(coreDist, 'datagrid.js')],
   ['/macros/index.js',          join(coreDist, 'macros', 'index.js')],

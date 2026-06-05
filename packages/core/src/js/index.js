@@ -18,6 +18,7 @@ export { installMulticombobox } from './multicombobox.js';
 export { installDrawer } from './drawer.js';
 export { installHovercard } from './hovercard.js';
 export { installToggleGroup } from './toggle-group.js';
+export { installToolbar } from './toolbar.js';
 export { installContextMenu } from './context-menu.js';
 export { installCommand } from './command.js';
 export { installCalendar } from './calendar.js';

@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-toolbar` keyboard navigation (`installToolbar`).** A new behavior
+  upgrades every `.hc-toolbar[role="toolbar"]` into the WAI-ARIA APG Toolbar
+  pattern: the toolbar becomes a **single Tab stop** with roving-tabindex
+  arrow-key navigation — <kbd>←</kbd>/<kbd>→</kbd> (horizontal, mirrored in
+  RTL) or <kbd>↑</kbd>/<kbd>↓</kbd> when `aria-orientation="vertical"`, plus
+  <kbd>Home</kbd>/<kbd>End</kbd>. Disabled controls are skipped, the last
+  focused control stays the Tab stop, and a text field keeps the on-axis
+  arrow for its own caret. The plain `.hc-toolbar` layout class (no
+  `role="toolbar"`) is left untouched and degrades to the native focus order
+  without JavaScript. Exported from both `@hypermedia-components/core` and
+  `/behaviors`. New Toolbar → Keyboard navigation docs. 13 Vitest + 7
+  Playwright tests (incl. axe).
+
 - **`hc-splitter` collapse & persistence (`data-collapsible` / `data-persist`).**
   `data-collapsible` lets the handle fold the primary pane away and bring it
   back — **double-click** the handle or focus it and press <kbd>Enter</kbd> to
