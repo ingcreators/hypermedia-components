@@ -443,6 +443,38 @@
     </div>
   </section>
 
+  <section id="section-toolbar" data-testid="section-toolbar">
+    <h2>Toolbar</h2>
+
+    <h3>Horizontal</h3>
+    <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar" data-testid="tb-h">
+      <button type="button" class="hc-button" data-size="sm" data-variant="ghost"
+              data-testid="tb-h-bold">Bold</button>
+      <button type="button" class="hc-button" data-size="sm" data-variant="ghost"
+              data-testid="tb-h-italic" disabled>Italic</button>
+      <button type="button" class="hc-button" data-size="sm" data-variant="ghost"
+              data-testid="tb-h-underline">Underline</button>
+      <hr role="separator" aria-orientation="vertical" />
+      <a class="hc-button" data-size="sm" data-variant="ghost" href="#help"
+         data-testid="tb-h-link">Help</a>
+      <span data-hc-spacer="true"></span>
+      <button type="button" class="hc-button" data-size="sm" data-variant="primary"
+              data-testid="tb-h-save">Save</button>
+    </div>
+
+    <h3>Vertical</h3>
+    <div class="hc-toolbar" role="toolbar" aria-orientation="vertical"
+         aria-label="Drawing tools" data-testid="tb-v"
+         style="flex-direction:column;align-items:stretch;inline-size:max-content;">
+      <button type="button" class="hc-button" data-size="sm" data-variant="ghost"
+              data-testid="tb-v-1">Pen</button>
+      <button type="button" class="hc-button" data-size="sm" data-variant="ghost"
+              data-testid="tb-v-2">Brush</button>
+      <button type="button" class="hc-button" data-size="sm" data-variant="ghost"
+              data-testid="tb-v-3">Eraser</button>
+    </div>
+  </section>
+
   <section id="section-separator" data-testid="section-separator">
     <h2>Separator</h2>
 

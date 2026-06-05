@@ -48,14 +48,48 @@ inputs inside a toolbar keep their normal appearance.
 - **Spacer** — `<span data-hc-spacer="true"></span>` expands to push
   trailing children to the end (e.g. a save button at the right).
 
+## Keyboard navigation
+
+`installToolbar()` (bundled in the default behaviors) upgrades every
+`.hc-toolbar[role="toolbar"]` into the [WAI-ARIA APG Toolbar
+pattern](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/): the whole
+toolbar is a **single Tab stop**, and the arrow keys move focus between
+its controls. The plain `.hc-toolbar` layout class (without
+`role="toolbar"`) keeps the native focus order and is left untouched.
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Move into / out of the toolbar as one stop. Focus returns to the control you last used. |
+| <kbd>→</kbd> / <kbd>←</kbd> | Previous / next control (horizontal toolbar). Wraps at the ends; mirrored in RTL. |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | Previous / next control when `aria-orientation="vertical"`. |
+| <kbd>Home</kbd> / <kbd>End</kbd> | First / last control. |
+
+Disabled controls (`disabled` or `aria-disabled="true"`) are skipped.
+Navigation only **moves** focus — buttons keep their native
+<kbd>Space</kbd> / <kbd>Enter</kbd> activation.
+
+```html
+<!-- Vertical toolbar: arrows become ↑ / ↓ -->
+<div class="hc-toolbar" role="toolbar" aria-orientation="vertical"
+     aria-label="Drawing tools">
+  <button class="hc-button" data-variant="ghost">Pen</button>
+  <button class="hc-button" data-variant="ghost">Brush</button>
+  <button class="hc-button" data-variant="ghost">Eraser</button>
+</div>
+```
+
+A text field inside a toolbar keeps the on-axis arrow for its own caret;
+use <kbd>Home</kbd> / <kbd>End</kbd> to jump past it to the toolbar ends.
+
 ## Accessibility
 
 - Apply `role="toolbar"` on the wrapper and **always** include an
   `aria-label` describing what the toolbar controls (`"Editor
   toolbar"`, `"Filter actions"`).
-- The native focus order — left to right, top to bottom — is usually
-  correct. If you need arrow-key navigation within the toolbar,
-  implement it explicitly; the component does not do it for you.
+- With the behavior installed, the toolbar follows the APG roving
+  tabindex pattern above. Without JavaScript the controls stay in the
+  native left-to-right (or top-to-bottom) focus order — every control is
+  still reachable, just as separate Tab stops.
 - Buttons inside a toolbar are still standard buttons. Use clear
   labels (and `aria-pressed="true"` for toggle buttons).
 
