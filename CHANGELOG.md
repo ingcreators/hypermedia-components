@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-avatar` image fallback (`installAvatar`).** A composite avatar — an
+  `.hc-avatar` wrapper holding an `.hc-avatar__image` and an
+  `.hc-avatar__fallback` — now swaps a missing or broken image for its
+  initials automatically. The new behavior tracks the image's native
+  `load`/`error` events and writes `data-state` (`loading` → `loaded` /
+  `error`, plus `pending`) on the wrapper; an optional `data-delay="<ms>"`
+  holds the fallback hidden on fast connections so it never flashes. No
+  network of its own. Progressive: the image still covers the fallback
+  without JavaScript (a broken image shows the fallback behind it). Plain
+  `<img class="hc-avatar">` / `<span class="hc-avatar">` avatars are
+  untouched. Exported from both `@hypermedia-components/core` and
+  `/behaviors`. New Avatar → Image fallback docs. 13 Vitest + 2 Playwright
+  tests.
+
 - **`hc-toolbar` keyboard navigation (`installToolbar`).** A new behavior
   upgrades every `.hc-toolbar[role="toolbar"]` into the WAI-ARIA APG Toolbar
   pattern: the toolbar becomes a **single Tab stop** with roving-tabindex

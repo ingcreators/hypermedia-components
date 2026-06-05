@@ -11,6 +11,7 @@
  */
 @layer hc.components {
   .hc-avatar {
+    position: relative;
     display: inline-flex;
     flex: none;
     align-items: center;
@@ -35,6 +36,47 @@
   img.hc-avatar {
     object-fit: cover;
     object-position: center;
+  }
+
+  /* Composite avatar — an image with an initials fallback.
+   *
+   *   <span class="hc-avatar" role="img" aria-label="Ada Lovelace">
+   *     <img class="hc-avatar__image" src="/ada.jpg" alt="">
+   *     <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
+   *   </span>
+   *
+   * The image overlays the fallback inside the wrapper. installAvatar()
+   * sets `data-state` (loading / pending / loaded / error) off the native
+   * load / error events. Without JavaScript the image still covers the
+   * fallback when it loads; a broken image shows the fallback behind it. */
+  .hc-avatar__image {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: inherit;
+  }
+
+  .hc-avatar__fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* A successful load hides the fallback; `pending` keeps it hidden during
+   * the optional `data-delay` window so a fast image never flashes it. */
+  .hc-avatar[data-state="loaded"] .hc-avatar__fallback,
+  .hc-avatar[data-state="pending"] .hc-avatar__fallback {
+    visibility: hidden;
+  }
+
+  /* A failed load drops the broken image so only the fallback shows. */
+  .hc-avatar[data-state="error"] .hc-avatar__image {
+    display: none;
   }
 
   /* Shape variants */

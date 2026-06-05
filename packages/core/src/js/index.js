@@ -19,6 +19,7 @@ export { installDrawer } from './drawer.js';
 export { installHovercard } from './hovercard.js';
 export { installToggleGroup } from './toggle-group.js';
 export { installToolbar } from './toolbar.js';
+export { installAvatar } from './avatar.js';
 export { installContextMenu } from './context-menu.js';
 export { installCommand } from './command.js';
 export { installCalendar } from './calendar.js';

@@ -635,6 +635,21 @@
       <span class="hc-avatar" aria-label="Catalina">C</span>
       <span class="hc-avatar" aria-label="Dorothée">D</span>
     </div>
+
+    <h3>Image with fallback</h3>
+    <div class="row" style="gap:1rem;align-items:center;">
+      <!-- A 1x1 PNG data URI loads successfully → data-state="loaded". -->
+      <span class="hc-avatar" role="img" aria-label="Ada Lovelace" data-testid="av-img-ok">
+        <img class="hc-avatar__image" alt=""
+             src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/pLvAAAAAElFTkSuQmCC">
+        <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
+      </span>
+      <!-- A missing file 404s → error → the initials fallback shows. -->
+      <span class="hc-avatar" role="img" aria-label="John Smith" data-testid="av-img-broken">
+        <img class="hc-avatar__image" alt="" src="/__missing-avatar__.png">
+        <span class="hc-avatar__fallback" aria-hidden="true">JS</span>
+      </span>
+    </div>
   </section>
 
   <section id="section-switch" data-testid="section-switch">

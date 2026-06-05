@@ -45,6 +45,7 @@ const FILES = [
   ['src/js/hovercard.js',    'hovercard.js'],
   ['src/js/toggle-group.js',  'toggle-group.js'],
   ['src/js/toolbar.js',       'toolbar.js'],
+  ['src/js/avatar.js',        'avatar.js'],
   ['src/js/shell.js',         'shell.js'],
   ['src/js/datagrid.js',      'datagrid.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
