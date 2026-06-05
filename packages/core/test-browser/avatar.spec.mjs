@@ -49,3 +49,30 @@ test.describe('hc-avatar', () => {
     expect(results.violations).toEqual([]);
   });
 });
+
+test.describe('hc-avatar — image fallback', () => {
+  test('a loadable image resolves to data-state="loaded" with the fallback hidden', async ({
+    page,
+  }) => {
+    const av = page.getByTestId('av-img-ok');
+    await expect(av).toHaveAttribute('data-state', 'loaded');
+    // The image is visible; the fallback is hidden.
+    await expect(av.locator('.hc-avatar__image')).toBeVisible();
+    const vis = await av
+      .locator('.hc-avatar__fallback')
+      .evaluate((el) => getComputedStyle(el).visibility);
+    expect(vis).toBe('hidden');
+  });
+
+  test('a broken image falls back to the initials with data-state="error"', async ({ page }) => {
+    const av = page.getByTestId('av-img-broken');
+    await expect(av).toHaveAttribute('data-state', 'error');
+    // The broken image is removed; the fallback initials show.
+    const display = await av
+      .locator('.hc-avatar__image')
+      .evaluate((el) => getComputedStyle(el).display);
+    expect(display).toBe('none');
+    await expect(av.locator('.hc-avatar__fallback')).toBeVisible();
+    await expect(av.locator('.hc-avatar__fallback')).toHaveText('JS');
+  });
+});

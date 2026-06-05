@@ -1,6 +1,6 @@
 ---
 title: Avatar
-description: Circular or rounded user avatar — an <img> when a photo is available, a <span> with initials when not. Pure CSS, no JavaScript.
+description: Circular or rounded user avatar — an <img> when a photo is available, a <span> with initials when not. CSS-only, with an optional behavior that swaps a broken image for its initials fallback.
 ---
 
 `hc-avatar` is applied to either an `<img>` for a photo avatar or
@@ -38,6 +38,67 @@ within a group.
 ```html
 <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
 ```
+
+## Image fallback
+
+When a photo *might* be missing, wrap the image and an initials fallback
+in a single `.hc-avatar`. The `installAvatar()` behavior (bundled in the
+default behaviors) watches the image's native `load` / `error` events and
+sets `data-state` on the wrapper so the fallback appears automatically
+when the image fails.
+
+<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+  <span class="hc-avatar" role="img" aria-label="Broken photo, falls back to initials" data-state="error">
+    <img class="hc-avatar__image" alt="" src="/does-not-exist.jpg" />
+    <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
+  </span>
+</div>
+
+```html
+<span class="hc-avatar" role="img" aria-label="Ada Lovelace">
+  <img class="hc-avatar__image" src="/users/ada.jpg" alt="">
+  <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
+</span>
+```
+
+The wrapper carries the accessible name (`role="img"` + `aria-label`); the
+image is decorative (`alt=""`) and the fallback is `aria-hidden` because it
+duplicates that name visually.
+
+### States
+
+`installAvatar()` writes one of these to `data-state` on the wrapper, so you
+can style each phase:
+
+| `data-state` | Meaning |
+| --- | --- |
+| `loading` | The image is fetching; the fallback shows so the slot is never empty. |
+| `pending` | Fetching, but `data-delay` is set — the fallback stays hidden for that window to avoid a flash (see below). |
+| `loaded` | The image decoded; the fallback is hidden. |
+| `error` | The image failed (or has no `src`); the fallback shows and the broken image is removed. |
+
+### Avoiding a flash (`data-delay`)
+
+On a fast connection the image often arrives in a few milliseconds, so
+showing the initials first would flash. Set `data-delay="<ms>"` to hold the
+fallback hidden for that window — if the image loads first, the fallback
+never appears; otherwise it reveals once the delay elapses.
+
+```html
+<span class="hc-avatar" role="img" aria-label="Ada Lovelace" data-delay="500">
+  <img class="hc-avatar__image" src="/users/ada.jpg" alt="">
+  <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
+</span>
+```
+
+### Without JavaScript
+
+The pattern is progressive: the image overlays the fallback, so a
+successful load covers the initials even with `installAvatar()` absent. The
+trade-off is that a *broken* image is not removed without JS — the browser's
+broken-image indicator may show over the fallback. If you can detect a
+missing image server-side, render the `<span class="hc-avatar">…</span>`
+initials form directly instead.
 
 ## Sizes
 
