@@ -64,7 +64,9 @@ the `i18n` submodule, which has no side effects.
 | `combobox.empty` | `No matches` | combobox empty-results marker |
 | `combobox.loading` | `Loading…` | remote combobox loading row |
 | `combobox.error` | `Couldn’t load options` | remote combobox error row |
+| `combobox.create` | `Create “{value}”` | creatable combobox "create" option |
 | `multicombobox.empty` | `No matches` | multi-combobox empty-results marker |
+| `multicombobox.create` | `Add “{value}”` | creatable multi-combobox "add" option |
 | `multicombobox.remove` | `Remove {label}` | tag remove-button `aria-label` |
 | `calendar.label` | `Calendar` | grid `aria-label` (fallback) |
 | `calendar.prevMonth` | `Previous month` | previous-month button `aria-label` |
@@ -77,8 +79,9 @@ the `i18n` submodule, which has no side effects.
 | `splitter.resize` | `Resize panels` | splitter handle `aria-label` (fallback) |
 | `toast.label` | `Notifications` | toast region `aria-label` (fallback) |
 
-`{name}` placeholders are interpolated from the params the behavior passes
-(currently `{label}` for `multicombobox.remove`).
+`{name}` placeholders are interpolated from the params the behavior passes —
+`{label}` for `multicombobox.remove`, and `{value}` for the creatable
+`combobox.create` / `multicombobox.create` options.
 
 ## Per-element overrides (server-side localization)
 

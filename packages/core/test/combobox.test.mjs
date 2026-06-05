@@ -313,3 +313,54 @@ describe('installCombobox — remote (async) mode', () => {
     expect(lb.hasAttribute('data-error')).toBe(true);
   });
 });
+
+describe('installCombobox — creatable', () => {
+  const creatable = () =>
+    SIMPLE.replace('class="hc-combobox"', 'class="hc-combobox" data-allow-create');
+
+  function type(value) {
+    const input = document.getElementById('cb-input');
+    input.dispatchEvent(new Event('focus'));
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+    return input;
+  }
+
+  it('shows a Create option for a non-matching query', () => {
+    document.body.innerHTML = creatable();
+    uninstall = installCombobox();
+    type('Brazil');
+    const create = document.querySelector('.hc-combobox__create');
+    expect(create).not.toBeNull();
+    expect(create.dataset.value).toBe('Brazil');
+    expect(create.getAttribute('role')).toBe('option');
+  });
+
+  it('does not show Create for an exact (case-insensitive) match', () => {
+    document.body.innerHTML = creatable();
+    uninstall = installCombobox();
+    type('japan');
+    expect(document.querySelector('.hc-combobox__create')).toBeNull();
+  });
+
+  it('selecting Create emits hc:comboboxselect with created:true and the raw value', () => {
+    document.body.innerHTML = creatable();
+    uninstall = installCombobox();
+    const details = [];
+    document.getElementById('cb-input').addEventListener('hc:comboboxselect', (e) =>
+      details.push(e.detail),
+    );
+    const input = type('Brazil');
+    press(input, 'Enter'); // the create option is active (firstVisible)
+    expect(input.value).toBe('Brazil');
+    expect(details).toHaveLength(1);
+    expect(details[0]).toMatchObject({ value: 'Brazil', label: 'Brazil', created: true });
+  });
+
+  it('does not create without data-allow-create', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installCombobox();
+    type('Brazil');
+    expect(document.querySelector('.hc-combobox__create')).toBeNull();
+  });
+});

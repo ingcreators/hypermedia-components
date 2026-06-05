@@ -66,12 +66,35 @@ function setActive(input, listbox, option) {
   }
 }
 
+// Creatable (`data-allow-create`): a synthetic, selectable "Create …" option
+// shown at the end when the query has no exact match. Returns it (or null).
+function toggleCreateOption(listbox, query) {
+  let opt = listbox.querySelector(':scope > .hc-combobox__create');
+  if (query) {
+    if (!opt) {
+      opt = listbox.ownerDocument.createElement('li');
+      opt.className = 'hc-combobox__option hc-combobox__create';
+      opt.setAttribute('role', 'option');
+    }
+    opt.dataset.value = query;
+    opt.textContent = t('combobox.create', { value: query });
+    listbox.appendChild(opt); // keep it last, after the filtered options
+    return opt;
+  }
+  if (opt) opt.remove();
+  return null;
+}
+
 function applyFilter(input, listbox) {
-  const q = input.value.trim().toLowerCase();
+  const raw = input.value.trim();
+  const q = raw.toLowerCase();
   let firstVisible = null;
   let visibleCount = 0;
+  let exact = false;
   for (const o of options(listbox)) {
+    if (o.classList.contains('hc-combobox__create')) continue; // managed below
     const label = (o.textContent ?? '').trim().toLowerCase();
+    if (q !== '' && label === q) exact = true;
     const match = q === '' || label.includes(q);
     if (match) {
       o.removeAttribute('hidden');
@@ -81,8 +104,10 @@ function applyFilter(input, listbox) {
       o.setAttribute('hidden', '');
     }
   }
-  toggleEmptyMarker(listbox, visibleCount === 0);
-  return firstVisible;
+  const allowCreate = listbox.closest('.hc-combobox')?.hasAttribute('data-allow-create');
+  const createOpt = toggleCreateOption(listbox, allowCreate && raw !== '' && !exact ? raw : null);
+  toggleEmptyMarker(listbox, visibleCount === 0 && !createOpt);
+  return firstVisible ?? createOpt;
 }
 
 function toggleEmptyMarker(listbox, shouldShow) {
@@ -185,14 +210,18 @@ function attach(root, detachers) {
 
   function select(option) {
     if (!option || option.getAttribute('aria-disabled') === 'true') return;
-    const value = option.getAttribute('data-value') ?? option.textContent?.trim() ?? '';
-    const label = (option.textContent ?? '').trim();
+    const created = option.classList.contains('hc-combobox__create');
+    const value = created
+      ? option.dataset.value ?? ''
+      : option.getAttribute('data-value') ?? option.textContent?.trim() ?? '';
+    // The create option's text is "Create …" — its label is the raw value.
+    const label = created ? (option.dataset.value ?? '') : (option.textContent ?? '').trim();
     input.value = label;
     syncSelectedFromInput(input, listbox);
     input.dispatchEvent(
       new CustomEvent('hc:comboboxselect', {
         bubbles: true,
-        detail: { value, label, option, input },
+        detail: { value, label, option, input, created },
       }),
     );
     close();

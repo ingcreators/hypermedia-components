@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Creatable combobox & multi-combobox (`data-allow-create`).** Let users pick
+  a value that isn't in the list. When the typed text has no exact match, a
+  synthetic, selectable option appears at the end — **"Create …"** for
+  `hc-combobox` (commits the raw text, fires `hc:comboboxselect` with
+  `created: true`) and **"Add …"** for `hc-multicombobox` (creates a tag from
+  the raw text + a hidden `name` input, fires `hc:multicomboboxchange` with it
+  in `added`). New `combobox.create` / `multicombobox.create` i18n keys
+  (interpolating `{value}`) and Combobox / Multi-combobox → Creatable docs.
+  7 Vitest + 3 Playwright tests.
+
 - **Lazy-loaded datagrid row detail.** Add `data-lazy` to a
   `.hc-datagrid__detail` cell and `installDatagrid()` defers its content to the
   **first expand**: it fires **`hc:datagriddetailload`** on the cell (wire htmx

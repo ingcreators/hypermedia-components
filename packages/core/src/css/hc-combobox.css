@@ -148,6 +148,17 @@
     }
   }
 
+  /* Creatable: the synthetic "Create …" option (data-allow-create). */
+  .hc-combobox__create {
+    color: var(--hc-color-action-primary-bg);
+  }
+
+  .hc-combobox__create::before {
+    content: "+";
+    margin-inline-end: 0.5em;
+    font-weight: var(--hc-font-weight-semibold);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hc-combobox__loading::before {
       animation: none;

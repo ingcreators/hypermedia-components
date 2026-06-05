@@ -144,6 +144,29 @@ per-listbox with `data-hc-loading` / `data-hc-empty` / `data-hc-error`.
 Debouncing and cancel-in-flight stay with htmx (`delay:200ms` on the trigger,
 `hx-sync`) — the behavior never makes the request itself.
 
+## Creatable
+
+Add `data-allow-create` to let the user pick a value that isn't in the list.
+When the typed text has no exact match, a synthetic **"Create …"** option
+appears at the end of the listbox; choosing it (click or <kbd>Enter</kbd>)
+commits the raw text and fires `hc:comboboxselect` with `created: true`.
+
+```html
+<div class="hc-combobox" data-allow-create>…</div>
+```
+
+```js
+input.addEventListener('hc:comboboxselect', (e) => {
+  // e.detail = { value, label, option, input, created }
+  if (e.detail.created) {
+    // persist the new value (POST it, add it to the list, …)
+  }
+});
+```
+
+The label is translatable via the [i18n catalog](/hypermedia-components/fundamentals/i18n/)
+(`combobox.create`, e.g. `Create "{value}"`).
+
 ## Accessibility
 
 - The input is the user's anchor — focus stays there at all times so
@@ -171,10 +194,9 @@ deferred:
   supported (see [Remote (async) options](#remote-async-options)), but
   request timing stays with htmx (`delay:` on the trigger, `hx-sync`)
   rather than being bundled into the behavior.
-- **Free input** — accept values not in the list as the final
-  value. The current behavior leaves whatever text the user typed
-  in the input even if they close without selecting; an opt-in
-  strict mode (clear on close without match) is a future flag.
+- **Strict mode** — accepting free text *as a value* is supported via
+  [`data-allow-create`](#creatable); the opposite — clearing the input on close
+  when it doesn't match an option — is still a future opt-in flag.
 - **Rich options** — icons, descriptions, two-line items. The CSS
   permits any HTML inside an `[role="option"]`, but the filter
   matches against `textContent` — fine for plain text, may need
