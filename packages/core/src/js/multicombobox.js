@@ -13,6 +13,8 @@
 // Events: `hc:multicomboboxchange` dispatches on the input with
 // `detail.{values, added, removed, input}` on every state mutation.
 
+import { t } from './i18n.js';
+
 const INSTALL_KEY = '__hcMulticomboboxUninstall';
 const BLUR_GRACE = 120;
 
@@ -114,7 +116,7 @@ function toggleEmptyMarker(listbox, shouldShow) {
       marker = listbox.ownerDocument.createElement('li');
       marker.className = 'hc-multicombobox__empty';
       marker.setAttribute('role', 'presentation');
-      marker.textContent = 'No matches';
+      marker.textContent = listbox.getAttribute('data-hc-empty') || t('multicombobox.empty');
       listbox.appendChild(marker);
     }
   } else if (marker) {
@@ -130,7 +132,7 @@ function renderTag(doc, value, label, onRemove) {
   const remove = doc.createElement('button');
   remove.type = 'button';
   remove.className = 'hc-multicombobox__tag-remove';
-  remove.setAttribute('aria-label', `Remove ${label}`);
+  remove.setAttribute('aria-label', t('multicombobox.remove', { label }));
   remove.textContent = '×'; // ×
   remove.addEventListener('click', (event) => {
     event.preventDefault();

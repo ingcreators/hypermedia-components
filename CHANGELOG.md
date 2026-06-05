@@ -95,6 +95,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **i18n message catalog for behaviors.** The strings behaviors inject —
+  created nodes (combobox "No matches", multi-select tag remove labels) and
+  default ARIA labels (shell nav toggle, splitter handle, toast region,
+  calendar prev/next/grid, confirm dialog) — now route through a single
+  catalog. Call `setMessages({ … })` once to translate the whole kit;
+  `{name}` placeholders interpolate (e.g. `multicombobox.remove`). Per-element
+  attributes still win (`data-hc-confirm-*`, `data-hc-empty`, an
+  author-provided `aria-label`), so the server can localize per region.
+  Exported from the main entry and a side-effect-free `./i18n` submodule
+  (`setMessages` / `resetMessages` / `getMessages` / `DEFAULT_MESSAGES`).
+  New Fundamentals → Internationalization (i18n) page.
 - **`datagrid-pager` recipe** — server pagination for `hc-datagrid` with
   htmx: swap one page of rows into the `<tbody>` (`innerHTML`, so the
   behavior's observer re-runs and re-applies roles / sticky offsets /

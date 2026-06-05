@@ -31,6 +31,8 @@
 // hc-datepicker (the native `<input type="date">` skin) remains the
 // no-JS baseline; hc-calendar is the opt-in styled grid.
 
+import { t } from './i18n.js';
+
 const INSTALL_KEY = '__hcCalendarUninstall';
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -115,7 +117,7 @@ function attach(root, detachers) {
   const min = root.getAttribute('data-min') || null;
   const max = root.getAttribute('data-max') || null;
   const name = root.getAttribute('data-name');
-  const gridLabel = root.getAttribute('aria-label') || 'Calendar';
+  const gridLabel = root.getAttribute('aria-label') || t('calendar.label');
 
   const state = {
     selected: root.getAttribute('data-value') || null,
@@ -151,13 +153,13 @@ function attach(root, detachers) {
     header.append(
       el(doc, 'button', {
         class: 'hc-calendar__nav', type: 'button',
-        'data-hc-calendar-prev': true, 'aria-label': 'Previous month',
+        'data-hc-calendar-prev': true, 'aria-label': t('calendar.prevMonth'),
       }, '‹'),
       el(doc, 'span', { class: 'hc-calendar__title', 'aria-live': 'polite' },
         titleFmt.format(new Date(y, m0, 1))),
       el(doc, 'button', {
         class: 'hc-calendar__nav', type: 'button',
-        'data-hc-calendar-next': true, 'aria-label': 'Next month',
+        'data-hc-calendar-next': true, 'aria-label': t('calendar.nextMonth'),
       }, '›'),
     );
 

@@ -19,6 +19,8 @@
 // installShell(root = document) returns an uninstaller. Repeated calls on
 // the same root return the same uninstaller (idempotent).
 
+import { t } from './i18n.js';
+
 const INSTALL_KEY = '__hcShellUninstall';
 
 const FOCUSABLE = [
@@ -46,7 +48,7 @@ function attach(shell, detachers) {
   toggle.setAttribute('aria-controls', sidebar.id);
   toggle.setAttribute('aria-expanded', 'false');
   if (!toggle.hasAttribute('aria-label') && !toggle.textContent.trim()) {
-    toggle.setAttribute('aria-label', 'Toggle navigation');
+    toggle.setAttribute('aria-label', t('shell.toggleNav'));
   }
   // Let the sidebar receive programmatic focus as a fallback target.
   if (!sidebar.hasAttribute('tabindex')) sidebar.setAttribute('tabindex', '-1');

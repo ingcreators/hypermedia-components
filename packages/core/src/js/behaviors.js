@@ -84,3 +84,8 @@ export {
   installShell,
   installDatagrid,
 };
+
+// i18n — set the locale before this module's auto-init runs (e.g. inline
+// before the script that imports it), or import the named installers from
+// the main entry for full control over ordering.
+export { setMessages, resetMessages, getMessages, DEFAULT_MESSAGES } from './i18n.js';

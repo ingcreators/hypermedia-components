@@ -26,4 +26,8 @@ export { installSplitter } from './splitter.js';
 export { installShell } from './shell.js';
 export { installDatagrid } from './datagrid.js';
 
+// i18n — translate the strings behaviors inject (created nodes, default
+// ARIA labels). Call setMessages() once at startup, before installing.
+export { setMessages, resetMessages, getMessages, DEFAULT_MESSAGES } from './i18n.js';
+
 export const version = '0.0.0';

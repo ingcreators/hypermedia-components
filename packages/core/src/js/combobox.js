@@ -22,6 +22,8 @@
 //     the input. Falls back to JS positioning in browsers without
 //     CSS Anchor Positioning.
 
+import { t } from './i18n.js';
+
 const INSTALL_KEY = '__hcComboboxUninstall';
 const BLUR_GRACE = 120;
 
@@ -99,7 +101,7 @@ function toggleEmptyMarker(listbox, shouldShow) {
       marker = listbox.ownerDocument.createElement('li');
       marker.className = 'hc-combobox__empty';
       marker.setAttribute('role', 'presentation');
-      marker.textContent = 'No matches';
+      marker.textContent = listbox.getAttribute('data-hc-empty') || t('combobox.empty');
       listbox.appendChild(marker);
     }
   } else if (marker) {

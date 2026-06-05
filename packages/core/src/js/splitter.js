@@ -26,6 +26,8 @@
 //
 // installSplitter(root = document) returns an idempotent uninstaller.
 
+import { t } from './i18n.js';
+
 const INSTALL_KEY = '__hcSplitterUninstall';
 
 function attach(root, detachers) {
@@ -51,7 +53,7 @@ function attach(root, detachers) {
   handle.setAttribute('aria-valuemin', String(min));
   handle.setAttribute('aria-valuemax', String(max));
   if (!handle.hasAttribute('aria-label') && !handle.hasAttribute('aria-labelledby')) {
-    handle.setAttribute('aria-label', 'Resize panels');
+    handle.setAttribute('aria-label', t('splitter.resize'));
   }
 
   function clamp(p) {
