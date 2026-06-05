@@ -1000,6 +1000,35 @@
       </div>
     </div>
 
+    <h3>Vertical orientation</h3>
+    <!-- aria-orientation is intentionally omitted here — installTabs() sets
+         it from data-orientation; the spec asserts the behavior did so. -->
+    <div class="hc-tabs" data-orientation="vertical" data-testid="vtabs">
+      <div class="hc-tabs__list" role="tablist" aria-label="Workspace">
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="vtab-overview" aria-controls="vpanel-overview"
+                aria-selected="true" tabindex="0"
+                data-testid="vtab-overview">Overview</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="vtab-activity" aria-controls="vpanel-activity"
+                aria-selected="false" tabindex="-1"
+                data-testid="vtab-activity">Activity</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="vtab-settings" aria-controls="vpanel-settings"
+                aria-selected="false" tabindex="-1"
+                data-testid="vtab-settings">Settings</button>
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="vpanel-overview" aria-labelledby="vtab-overview" tabindex="0"
+           data-testid="vpanel-overview">Overview panel.</div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="vpanel-activity" aria-labelledby="vtab-activity" tabindex="0"
+           hidden="until-found" data-testid="vpanel-activity">Activity panel.</div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="vpanel-settings" aria-labelledby="vtab-settings" tabindex="0"
+           hidden="until-found" data-testid="vpanel-settings">Settings panel.</div>
+    </div>
+
     <h3>URL-routed variant (no JS)</h3>
     <div class="hc-tabs">
       <nav class="hc-tabs__list" aria-label="Documentation"

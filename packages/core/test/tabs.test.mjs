@@ -21,6 +21,22 @@ const SIMPLE = `
   </div>
 `;
 
+const VERTICAL = `
+  <div class="hc-tabs" data-orientation="vertical" data-testid="vtabs">
+    <div class="hc-tabs__list" role="tablist" aria-label="Settings">
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="vtab-a" aria-controls="vpanel-a" aria-selected="true"  tabindex="0">A</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="vtab-b" aria-controls="vpanel-b" aria-selected="false" tabindex="-1">B</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="vtab-c" aria-controls="vpanel-c" aria-selected="false" tabindex="-1">C</button>
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel" id="vpanel-a" aria-labelledby="vtab-a" tabindex="0">A</div>
+    <div class="hc-tabs__panel" role="tabpanel" id="vpanel-b" aria-labelledby="vtab-b" tabindex="0" hidden>B</div>
+    <div class="hc-tabs__panel" role="tabpanel" id="vpanel-c" aria-labelledby="vtab-c" tabindex="0" hidden>C</div>
+  </div>
+`;
+
 function click(el) {
   el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 }
@@ -163,6 +179,68 @@ describe('installTabs', () => {
     press(a, 'ArrowLeft');
     // C is disabled — wrap back to B.
     expect(document.activeElement).toBe(b);
+  });
+
+  it('horizontal: the cross-axis (up/down) arrows are ignored', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installTabs();
+
+    const a = document.getElementById('tab-a');
+    a.focus();
+    press(a, 'ArrowDown');
+    expect(document.activeElement).toBe(a); // unchanged
+    press(a, 'ArrowUp');
+    expect(document.activeElement).toBe(a);
+  });
+
+  it('vertical: reflects data-orientation onto the tablist aria-orientation', () => {
+    document.body.innerHTML = VERTICAL;
+    uninstall = installTabs();
+    const list = document.querySelector('[data-testid="vtabs"] [role="tablist"]');
+    expect(list.getAttribute('aria-orientation')).toBe('vertical');
+  });
+
+  it('vertical: Down / Up move focus along the column', () => {
+    document.body.innerHTML = VERTICAL;
+    uninstall = installTabs();
+
+    const a = document.getElementById('vtab-a');
+    const b = document.getElementById('vtab-b');
+
+    a.focus();
+    press(a, 'ArrowDown');
+    expect(document.activeElement).toBe(b);
+
+    press(b, 'ArrowUp');
+    expect(document.activeElement).toBe(a);
+  });
+
+  it('vertical: the cross-axis (left/right) arrows are ignored', () => {
+    document.body.innerHTML = VERTICAL;
+    uninstall = installTabs();
+
+    const a = document.getElementById('vtab-a');
+    a.focus();
+    press(a, 'ArrowRight');
+    expect(document.activeElement).toBe(a); // unchanged
+    press(a, 'ArrowLeft');
+    expect(document.activeElement).toBe(a);
+  });
+
+  it('vertical: Home / End and activation still work', () => {
+    document.body.innerHTML = VERTICAL;
+    uninstall = installTabs();
+
+    const a = document.getElementById('vtab-a');
+    const c = document.getElementById('vtab-c');
+
+    a.focus();
+    press(a, 'End');
+    expect(document.activeElement).toBe(c);
+
+    press(c, 'Enter');
+    expect(c.getAttribute('aria-selected')).toBe('true');
+    expect(a.getAttribute('aria-selected')).toBe('false');
   });
 
   it('clicking a disabled tab does not activate it', () => {

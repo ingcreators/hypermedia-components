@@ -140,6 +140,42 @@
     border-radius: var(--hc-tabs-tab-radius);
   }
 
+  /* ---- Vertical orientation ----
+   * Opt in with `data-orientation="vertical"` on the .hc-tabs root: the
+   * tablist becomes a column beside the panels and installTabs() sets
+   * `aria-orientation="vertical"` so the arrow keys move on the up/down
+   * axis. The active indicator moves from the underline to an inline-start
+   * bar (logical, so it flips correctly in RTL). */
+  .hc-tabs[data-orientation="vertical"] {
+    flex-direction: row;
+  }
+
+  .hc-tabs[data-orientation="vertical"] > .hc-tabs__list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    border-block-end: 0;
+    border-inline-end: 1px solid var(--hc-tabs-list-border);
+  }
+
+  .hc-tabs[data-orientation="vertical"] .hc-tabs__tab {
+    justify-content: start;
+    border-radius: var(--hc-tabs-tab-radius) 0 0 var(--hc-tabs-tab-radius);
+    border-inline-start: var(--hc-tabs-tab-indicator-size) solid transparent;
+    box-shadow: none; /* drop the horizontal underline indicator */
+  }
+
+  .hc-tabs[data-orientation="vertical"] .hc-tabs__tab[aria-selected="true"],
+  .hc-tabs[data-orientation="vertical"] .hc-tabs__tab[aria-current="page"],
+  .hc-tabs[data-orientation="vertical"] .hc-tabs__tab[aria-current="true"] {
+    border-inline-start-color: var(--hc-tabs-tab-indicator);
+  }
+
+  /* The active panel fills the remaining width beside the list. */
+  .hc-tabs[data-orientation="vertical"] > .hc-tabs__panel {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
   /* ---- Overflow: scrollable tab row ----
    * Opt in with `data-overflow="scroll"` on the .hc-tabs root: the list
    * becomes one horizontally-scrollable row instead of wrapping.

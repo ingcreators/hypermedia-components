@@ -93,6 +93,46 @@ test.describe('hc-tabs — pill variant', () => {
   });
 });
 
+test.describe('hc-tabs — vertical orientation', () => {
+  test('installTabs reflects data-orientation onto aria-orientation', async ({ page }) => {
+    const list = page.getByTestId('vtabs').getByRole('tablist');
+    await expect(list).toHaveAttribute('aria-orientation', 'vertical');
+  });
+
+  test('Down / Up move focus along the column; Left / Right are ignored', async ({ page }) => {
+    const overview = page.getByTestId('vtab-overview');
+    const activity = page.getByTestId('vtab-activity');
+
+    await overview.focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(activity).toBeFocused();
+    // Manual activation — focus moved but selection has not.
+    await expect(activity).toHaveAttribute('aria-selected', 'false');
+
+    await page.keyboard.press('ArrowUp');
+    await expect(overview).toBeFocused();
+
+    // The cross-axis arrows do nothing for a vertical tablist.
+    await page.keyboard.press('ArrowRight');
+    await expect(overview).toBeFocused();
+  });
+
+  test('Enter activates the focused tab and swaps the panel', async ({ page }) => {
+    await page.getByTestId('vtab-overview').focus();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('vtab-activity')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('vpanel-activity')).not.toHaveAttribute('hidden');
+  });
+
+  test('the tablist sits beside the panel (row layout)', async ({ page }) => {
+    const listBox = await page.getByTestId('vtabs').getByRole('tablist').boundingBox();
+    const panelBox = await page.getByTestId('vpanel-overview').boundingBox();
+    // The panel starts to the inline-end of the list, not below it.
+    expect(panelBox.x).toBeGreaterThan(listBox.x + listBox.width - 1);
+  });
+});
+
 test.describe('hc-tabs — URL-routed variant', () => {
   test('clicking a link does not get preventDefault by the behavior', async ({ page }) => {
     const link = page.getByTestId('link-api');

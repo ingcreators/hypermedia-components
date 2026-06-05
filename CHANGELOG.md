@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-tabs` vertical orientation (`data-orientation="vertical"`).** Setting
+  `data-orientation="vertical"` on the `.hc-tabs` root stands the tab list up
+  as a column beside its panels; `installTabs()` reflects it onto the
+  tablist's `aria-orientation="vertical"` and the arrow-key axis follows —
+  <kbd>↑</kbd> / <kbd>↓</kbd> move between tabs when vertical, <kbd>←</kbd> /
+  <kbd>→</kbd> when horizontal (per the APG; the cross-axis arrows are now
+  left alone). The active indicator moves from the underline to an
+  inline-start bar (logical, RTL-aware). CSS-only layout — no new behavior
+  surface and no baseline risk. New Tabs → Vertical orientation docs. 5
+  Vitest + 4 Playwright tests.
+
 - **`hc-avatar` image fallback (`installAvatar`).** A composite avatar — an
   `.hc-avatar` wrapper holding an `.hc-avatar__image` and an
   `.hc-avatar__fallback` — now swaps a missing or broken image for its
@@ -148,6 +159,10 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **`hc-tabs` arrow keys are now orientation-specific.** A horizontal tablist
+  no longer also navigates on <kbd>↑</kbd> / <kbd>↓</kbd> (and a vertical one
+  ignores <kbd>←</kbd> / <kbd>→</kbd>), matching the WAI-ARIA APG. Home / End,
+  Enter / Space, and click activation are unchanged.
 - **Anchor-positioning fallback consolidated and hardened.** The popovers
   (menu, tooltip, hovercard, combobox, multi-combobox) position with CSS
   Anchor Positioning where available and fall back to JS where it isn't (e.g.
