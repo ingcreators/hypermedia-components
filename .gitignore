@@ -32,5 +32,5 @@ Thumbs.db
 # Cloudflare
 .wrangler/
 
-# Claude Code user-local settings
-.claude/settings.local.json
+# Claude Code (dev-only working dir; never committed)
+.claude/
