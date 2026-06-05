@@ -36,6 +36,13 @@
     /* Custom property the JS / SSR fills in (0 → 100). Default to
      * 0 so the gradient renders even before installSlider runs. */
     --hc-slider-value: 0;
+
+    /* The current fill colour and gradient direction. Variants recolour
+     * `--hc-slider-fill-current`; the vertical orientation flips
+     * `--hc-slider-fill-dir`. Only WebKit / Chromium read these — Firefox
+     * fills natively via ::-moz-range-progress. */
+    --hc-slider-fill-current: var(--hc-slider-fill);
+    --hc-slider-fill-dir: to right;
   }
 
   /* Chromium / WebKit track. */
@@ -43,9 +50,9 @@
     block-size: var(--hc-slider-track-height);
     border-radius: var(--hc-slider-radius);
     background: linear-gradient(
-      to right,
-      var(--hc-slider-fill) 0%,
-      var(--hc-slider-fill) calc(var(--hc-slider-value) * 1%),
+      var(--hc-slider-fill-dir),
+      var(--hc-slider-fill-current) 0%,
+      var(--hc-slider-fill-current) calc(var(--hc-slider-value) * 1%),
       var(--hc-slider-track-bg) calc(var(--hc-slider-value) * 1%),
       var(--hc-slider-track-bg) 100%
     );
@@ -72,11 +79,11 @@
     background: var(--hc-slider-track-bg);
   }
 
-  /* Firefox fill — native, no JS required. */
+  /* Firefox fill — native, no JS required. Orientation-aware on its own. */
   .hc-slider::-moz-range-progress {
     block-size: var(--hc-slider-track-height);
     border-radius: var(--hc-slider-radius);
-    background: var(--hc-slider-fill);
+    background: var(--hc-slider-fill-current);
   }
 
   /* Firefox thumb. */
@@ -102,69 +109,31 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
   }
 
-  /* Variants — recolour the fill + thumb border in both engines. */
-  .hc-slider[data-variant="success"]::-webkit-slider-runnable-track {
-    background: linear-gradient(
-      to right,
-      var(--hc-slider-success-fill) 0%,
-      var(--hc-slider-success-fill) calc(var(--hc-slider-value) * 1%),
-      var(--hc-slider-track-bg) calc(var(--hc-slider-value) * 1%),
-      var(--hc-slider-track-bg) 100%
-    );
+  /* Variants — recolour the fill (via --hc-slider-fill-current, read by both
+   * the WebKit gradient and the Firefox progress) + the thumb border. */
+  .hc-slider[data-variant="success"] {
+    --hc-slider-fill-current: var(--hc-slider-success-fill);
   }
 
-  .hc-slider[data-variant="success"]::-webkit-slider-thumb {
-    border-color: var(--hc-slider-success-thumb-border);
-  }
-
-  .hc-slider[data-variant="success"]::-moz-range-progress {
-    background: var(--hc-slider-success-fill);
-  }
-
+  .hc-slider[data-variant="success"]::-webkit-slider-thumb,
   .hc-slider[data-variant="success"]::-moz-range-thumb {
     border-color: var(--hc-slider-success-thumb-border);
   }
 
-  .hc-slider[data-variant="warning"]::-webkit-slider-runnable-track {
-    background: linear-gradient(
-      to right,
-      var(--hc-slider-warning-fill) 0%,
-      var(--hc-slider-warning-fill) calc(var(--hc-slider-value) * 1%),
-      var(--hc-slider-track-bg) calc(var(--hc-slider-value) * 1%),
-      var(--hc-slider-track-bg) 100%
-    );
+  .hc-slider[data-variant="warning"] {
+    --hc-slider-fill-current: var(--hc-slider-warning-fill);
   }
 
-  .hc-slider[data-variant="warning"]::-webkit-slider-thumb {
-    border-color: var(--hc-slider-warning-thumb-border);
-  }
-
-  .hc-slider[data-variant="warning"]::-moz-range-progress {
-    background: var(--hc-slider-warning-fill);
-  }
-
+  .hc-slider[data-variant="warning"]::-webkit-slider-thumb,
   .hc-slider[data-variant="warning"]::-moz-range-thumb {
     border-color: var(--hc-slider-warning-thumb-border);
   }
 
-  .hc-slider[data-variant="error"]::-webkit-slider-runnable-track {
-    background: linear-gradient(
-      to right,
-      var(--hc-slider-error-fill) 0%,
-      var(--hc-slider-error-fill) calc(var(--hc-slider-value) * 1%),
-      var(--hc-slider-track-bg) calc(var(--hc-slider-value) * 1%),
-      var(--hc-slider-track-bg) 100%
-    );
+  .hc-slider[data-variant="error"] {
+    --hc-slider-fill-current: var(--hc-slider-error-fill);
   }
 
-  .hc-slider[data-variant="error"]::-webkit-slider-thumb {
-    border-color: var(--hc-slider-error-thumb-border);
-  }
-
-  .hc-slider[data-variant="error"]::-moz-range-progress {
-    background: var(--hc-slider-error-fill);
-  }
-
+  .hc-slider[data-variant="error"]::-webkit-slider-thumb,
   .hc-slider[data-variant="error"]::-moz-range-thumb {
     border-color: var(--hc-slider-error-thumb-border);
   }
@@ -212,6 +181,23 @@
   .hc-slider[data-size="lg"]::-moz-range-thumb {
     inline-size: var(--hc-slider-lg-thumb-size);
     block-size: var(--hc-slider-lg-thumb-size);
+  }
+
+  /* ---- Vertical orientation ----
+   * Opt in with `data-orientation="vertical"`. The modern, native way to
+   * stand a range up is `writing-mode` (Baseline 2024): the control stays a
+   * real <input type="range">, so the OS thumb, keyboard (↑/↓ step, Home /
+   * End, PageUp / PageDown), form participation, and screen-reader value
+   * announcement all keep working. `direction: rtl` puts the maximum at the
+   * top (a conventional fader) and the fill grows upward. Engines that
+   * predate vertical-writing-mode range rendering fall back to the
+   * horizontal layout. Override the length with `--hc-slider-length`. */
+  .hc-slider[data-orientation="vertical"] {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    inline-size: var(--hc-slider-length, 12rem);
+
+    --hc-slider-fill-dir: to top;
   }
 
   /* Disabled */

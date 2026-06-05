@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-slider` vertical orientation (`data-orientation="vertical"`).** Stands
+  the range up with the modern, native `writing-mode` approach (Baseline
+  2024) — the control stays a real `<input type="range">`, so the OS thumb,
+  full keyboard (<kbd>↑</kbd> / <kbd>↓</kbd>, Home / End, PageUp / PageDown),
+  form participation, and SR value announcement all keep working. The maximum
+  sits at the top (`direction: rtl`) and the WebKit fill grows upward; height
+  is set with `--hc-slider-length` (default `12rem`). Older engines degrade to
+  the horizontal layout (no transform / non-standard fallback). The WebKit
+  fill gradient was refactored to a `--hc-slider-fill-current` /
+  `--hc-slider-fill-dir` pair (variants now just recolour the former),
+  collapsing the per-variant duplication. New Slider → Vertical orientation
+  docs with a baseline note. 4 Playwright tests.
+
 - **`hc-tabs` vertical orientation (`data-orientation="vertical"`).** Setting
   `data-orientation="vertical"` on the `.hc-tabs` root stands the tab list up
   as a column beside its panels; `installTabs()` reflects it onto the
