@@ -192,4 +192,15 @@
     font-size: var(--hc-multicombobox-option-font-size);
     font-style: italic;
   }
+
+  /* Creatable: the synthetic "Add …" option (data-allow-create). */
+  .hc-multicombobox__create {
+    color: var(--hc-color-action-primary-bg);
+  }
+
+  .hc-multicombobox__create::before {
+    content: "+";
+    margin-inline-end: 0.5em;
+    font-weight: var(--hc-font-weight-semibold);
+  }
 }

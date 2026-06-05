@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc creatable combobox fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; display:flex; flex-direction:column; gap:2rem; max-inline-size:24rem;">
+    <div class="hc-combobox" data-allow-create style="max-inline-size:18rem;">
+      <input class="hc-combobox__input hc-input" type="text" role="combobox"
+             aria-controls="cb-list" aria-label="Country" data-testid="cb-input">
+      <ul class="hc-combobox__listbox" id="cb-list" role="listbox" data-testid="cb-list">
+        <li class="hc-combobox__option" role="option" data-value="jp">Japan</li>
+        <li class="hc-combobox__option" role="option" data-value="us">United States</li>
+      </ul>
+    </div>
+
+    <div class="hc-multicombobox" data-name="langs" data-allow-create
+         style="max-inline-size:22rem;" data-testid="mc">
+      <div class="hc-multicombobox__control hc-input">
+        <span class="hc-multicombobox__tags" data-testid="mc-tags"></span>
+        <input class="hc-multicombobox__input" type="text" role="combobox"
+               aria-controls="mc-list" aria-label="Languages" data-testid="mc-input">
+      </div>
+      <ul class="hc-multicombobox__listbox" id="mc-list" role="listbox" data-testid="mc-list">
+        <li class="hc-multicombobox__option" role="option" data-value="js">JavaScript</li>
+        <li class="hc-multicombobox__option" role="option" data-value="ts">TypeScript</li>
+      </ul>
+    </div>
+  </main>
+
+  <script>
+    window.__cbSelect = null;
+    document.querySelector('.hc-combobox [role="combobox"]')
+      .addEventListener('hc:comboboxselect', (e) => { window.__cbSelect = e.detail; });
+  </script>
+</body>
+</html>

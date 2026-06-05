@@ -252,3 +252,56 @@ describe('installMulticombobox', () => {
     expect(document.getElementById('mc-input').getAttribute('aria-haspopup')).toBe('listbox');
   });
 });
+
+describe('installMulticombobox — creatable', () => {
+  const creatable = () =>
+    SIMPLE.replace('class="hc-multicombobox"', 'class="hc-multicombobox" data-allow-create');
+
+  function type(value) {
+    const input = document.getElementById('mc-input');
+    input.dispatchEvent(new Event('focus'));
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+    return input;
+  }
+  function clickEl(el) {
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  }
+
+  it('shows an Add option for a new value', () => {
+    document.body.innerHTML = creatable();
+    uninstall = installMulticombobox();
+    type('Kotlin');
+    const create = document.querySelector('.hc-multicombobox__create');
+    expect(create).not.toBeNull();
+    expect(create.dataset.value).toBe('Kotlin');
+    expect(create.getAttribute('role')).toBe('option');
+  });
+
+  it('selecting Add creates a tag labelled with the raw value + fires change', () => {
+    document.body.innerHTML = creatable();
+    uninstall = installMulticombobox();
+    const details = [];
+    document
+      .querySelector('.hc-multicombobox')
+      .addEventListener('hc:multicomboboxchange', (e) => details.push(e.detail));
+    type('Kotlin');
+    clickEl(document.querySelector('.hc-multicombobox__create'));
+
+    const tags = [...document.querySelectorAll('.hc-multicombobox__tag')];
+    const kotlin = tags.find((t) => t.dataset.value === 'Kotlin');
+    expect(kotlin).toBeTruthy();
+    expect(kotlin.textContent).toContain('Kotlin');
+    expect(kotlin.textContent).not.toContain('Add'); // label is the value, not "Add …"
+    expect(details.at(-1).added).toContain('Kotlin');
+    // the synthetic option is gone after creating
+    expect(document.querySelector('.hc-multicombobox__create')).toBeNull();
+  });
+
+  it('does not create without data-allow-create', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installMulticombobox();
+    type('Kotlin');
+    expect(document.querySelector('.hc-multicombobox__create')).toBeNull();
+  });
+});

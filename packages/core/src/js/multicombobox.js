@@ -81,12 +81,35 @@ function setActive(input, listbox, option) {
   }
 }
 
+// Creatable (`data-allow-create`): a synthetic, selectable "Add …" option at
+// the end when the query has no exact match. Returns it (or null).
+function toggleCreateOption(listbox, query) {
+  let opt = listbox.querySelector(':scope > .hc-multicombobox__create');
+  if (query) {
+    if (!opt) {
+      opt = listbox.ownerDocument.createElement('li');
+      opt.className = 'hc-multicombobox__option hc-multicombobox__create';
+      opt.setAttribute('role', 'option');
+    }
+    opt.dataset.value = query;
+    opt.textContent = t('multicombobox.create', { value: query });
+    listbox.appendChild(opt); // keep it last
+    return opt;
+  }
+  if (opt) opt.remove();
+  return null;
+}
+
 function applyFilter(input, listbox) {
-  const q = input.value.trim().toLowerCase();
+  const raw = input.value.trim();
+  const q = raw.toLowerCase();
   let firstVisible = null;
   let visibleCount = 0;
+  let exact = false;
   for (const o of options(listbox)) {
+    if (o.classList.contains('hc-multicombobox__create')) continue; // managed below
     const label = labelOf(o).toLowerCase();
+    if (q !== '' && label === q) exact = true;
     const match = q === '' || label.includes(q);
     if (match) {
       o.removeAttribute('hidden');
@@ -96,8 +119,10 @@ function applyFilter(input, listbox) {
       o.setAttribute('hidden', '');
     }
   }
-  toggleEmptyMarker(listbox, visibleCount === 0);
-  return firstVisible;
+  const allowCreate = listbox.closest('.hc-multicombobox')?.hasAttribute('data-allow-create');
+  const createOpt = toggleCreateOption(listbox, allowCreate && raw !== '' && !exact ? raw : null);
+  toggleEmptyMarker(listbox, visibleCount === 0 && !createOpt);
+  return firstVisible ?? createOpt;
 }
 
 function toggleEmptyMarker(listbox, shouldShow) {
@@ -233,6 +258,15 @@ function attach(root, detachers) {
 
   function toggleOption(option) {
     if (!option || option.getAttribute('aria-disabled') === 'true') return;
+    if (option.classList.contains('hc-multicombobox__create')) {
+      // Create a new tag from the typed value. Reset the filter first so the
+      // synthetic option is gone before renderTags() resolves the label.
+      const value = option.dataset.value;
+      input.value = '';
+      applyFilter(input, listbox);
+      addValue(value);
+      return;
+    }
     const v = valueOf(option);
     if (selected.has(v)) removeValue(v);
     else addValue(v);

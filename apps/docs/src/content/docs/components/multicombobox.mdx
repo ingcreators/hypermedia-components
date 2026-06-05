@@ -139,6 +139,21 @@ edit is one trigger declaration:
 </div>
 ```
 
+## Creatable
+
+Add `data-allow-create` to let users add tags that aren't in the list. When
+the typed text has no exact match, a synthetic **"Add …"** option appears;
+choosing it (click or <kbd>Enter</kbd>) creates a tag from the raw text and
+fires `hc:multicomboboxchange` with the new value in `added`.
+
+```html
+<div class="hc-multicombobox" data-name="tags" data-allow-create>…</div>
+```
+
+The created tag's label is the value itself, and a hidden `name` input is
+added like any other tag. The option label is translatable via the
+[i18n catalog](/hypermedia-components/fundamentals/i18n/) (`multicombobox.create`).
+
 ## Accessibility
 
 - DOM focus stays on the input so the type-ahead anchor is
@@ -153,8 +168,6 @@ edit is one trigger declaration:
 
 ## Out of scope (MVP)
 
-- **Free-input** create-on-Enter ("type a new tag") — a future
-  `data-allow-create="true"` opt-in.
 - **Drag-to-reorder** tags.
 - **Async option loading** — the docs above show the htmx swap
   pattern; a built-in debounce / cancel helper is not bundled.
