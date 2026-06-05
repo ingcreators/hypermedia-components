@@ -100,6 +100,15 @@ menu.addEventListener('hc:menuselect', (e) => {
 Plain `menuitem`s close the menu after selection; `menuitemcheckbox` /
 `menuitemradio` keep it open so several can be toggled.
 
+## Submenus
+
+Context menus share the dropdown's submenu support: give a `menuitem` a
+`data-hc-submenu="<id>"` pointing at a nested `.hc-menu`. Hover or press
+<kbd>→</kbd> to open it, <kbd>←</kbd> / <kbd>Esc</kbd> to close, and selecting
+a leaf closes the whole tree. See
+[Menu → Submenus](/hypermedia-components/components/menu/#submenus) for the
+full markup and interaction model.
+
 ## htmx usage
 
 Wire a request straight off `hc:menuselect`, using the right-clicked

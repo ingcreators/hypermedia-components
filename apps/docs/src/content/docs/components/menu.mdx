@@ -184,6 +184,52 @@ menu item recolours its text via `--hc-menu-item-error-fg`.
 </button>
 ```
 
+## Submenus
+
+A menu item can open a **submenu** — a nested `.hc-menu` it controls. Nest
+the submenu inside the root menu's DOM and point the parent item at it with
+`data-hc-submenu="<submenu-id>"`. `installMenu()` adds `popover="auto"` and
+the submenu ARIA automatically; the same wiring powers
+[`hc-context-menu`](/hypermedia-components/components/context-menu/) submenus
+for free.
+
+```html
+<div class="hc-menu" id="edit-menu" popover role="menu"
+     aria-labelledby="edit-trigger">
+  <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+
+  <!-- parent: data-hc-submenu references the nested menu's id -->
+  <button class="hc-menu__item" role="menuitem" type="button"
+          data-hc-submenu="edit-more">More tools</button>
+  <div class="hc-menu" id="edit-more" role="menu" aria-label="More tools">
+    <button class="hc-menu__item" role="menuitem" type="button">Inspect</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Save as…</button>
+  </div>
+
+  <button class="hc-menu__item" role="menuitem" type="button">Paste</button>
+</div>
+```
+
+Nesting the submenu inside the root popover is what keeps the root open when
+the submenu shows (the HTML popover "nested" rule).
+
+**Interaction** (WAI-ARIA APG submenu pattern):
+
+| Action | Result |
+| --- | --- |
+| Hover the parent | Opens the submenu (focus stays put). |
+| Click, <kbd>Enter</kbd>, <kbd>Space</kbd>, or <kbd>→</kbd> | Opens it and focuses the first item. |
+| <kbd>←</kbd> | Closes the submenu, focus returns to the parent. |
+| <kbd>Esc</kbd> | Closes the submenu (then the root). |
+| Hovering a sibling | Closes the open submenu. |
+| Selecting any leaf | Closes the whole tree. |
+
+In RTL the open/close arrows mirror. The parent item shows a trailing chevron
+(`::after`). Placement uses CSS Anchor Positioning (submenu to the inline-end,
+flipping to the inline-start at the edge), with the same JS fallback as the
+dropdown for engines without it. `aria-haspopup="menu"`, `aria-expanded`, and
+`aria-controls` are kept in sync on the parent.
+
 ## htmx integration
 
 A menu item can fire an htmx request via the `hc:menuselect` event.

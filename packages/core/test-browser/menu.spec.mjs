@@ -187,4 +187,74 @@ test.describe('hc-menu', () => {
       .analyze();
     expect(results.violations).toEqual([]);
   });
+
+  test.describe('submenu', () => {
+    test('wires the submenu ARIA on the parent item', async ({ page }) => {
+      const more = page.getByTestId('sm-more');
+      await expect(more).toHaveAttribute('aria-haspopup', 'menu');
+      await expect(more).toHaveAttribute('aria-expanded', 'false');
+      await expect(more).toHaveAttribute('aria-controls', 'edit-more');
+    });
+
+    test('ArrowRight opens the submenu and focuses its first item; ArrowLeft closes it', async ({
+      page,
+    }) => {
+      await page.getByTestId('sm-trigger').click();
+      await expect(page.getByTestId('sm-undo')).toBeFocused();
+
+      await page.keyboard.press('ArrowDown'); // → More tools
+      await expect(page.getByTestId('sm-more')).toBeFocused();
+
+      await page.keyboard.press('ArrowRight'); // open submenu
+      await expect(page.getByTestId('sm-more')).toHaveAttribute('aria-expanded', 'true');
+      await expect(page.getByTestId('sm-sub')).toBeVisible();
+      await expect(page.getByTestId('sm-inspect')).toBeFocused();
+
+      await page.keyboard.press('ArrowLeft'); // close, focus returns to parent
+      await expect(page.getByTestId('sm-sub')).toBeHidden();
+      await expect(page.getByTestId('sm-more')).toHaveAttribute('aria-expanded', 'false');
+      await expect(page.getByTestId('sm-more')).toBeFocused();
+    });
+
+    test('hovering the parent opens the submenu', async ({ page }) => {
+      await page.getByTestId('sm-trigger').click();
+      await page.getByTestId('sm-more').hover();
+      await expect(page.getByTestId('sm-sub')).toBeVisible();
+      await expect(page.getByTestId('sm-more')).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    test('the root stays open while the submenu opens, and the parent shows a chevron', async ({
+      page,
+    }) => {
+      await page.getByTestId('sm-trigger').click();
+      await page.getByTestId('sm-more').hover();
+      await expect(page.getByTestId('sm-menu')).toBeVisible(); // root still open
+      // The chevron is painted on the ::after pseudo-element.
+      const mask = await page
+        .getByTestId('sm-more')
+        .evaluate((el) => getComputedStyle(el, '::after').maskImage || getComputedStyle(el, '::after').webkitMaskImage);
+      expect(mask).toContain('svg');
+    });
+
+    test('selecting a leaf in the submenu closes the whole tree', async ({ page }) => {
+      await page.getByTestId('sm-trigger').click();
+      await page.getByTestId('sm-more').click(); // open submenu
+      await expect(page.getByTestId('sm-inspect')).toBeFocused();
+
+      await page.getByTestId('sm-inspect').click();
+      await expect(page.getByTestId('sm-menu')).toBeHidden();
+      await expect(page.getByTestId('sm-sub')).toBeHidden();
+      await expect(page.getByTestId('sm-selected')).toHaveAttribute('data-selected', 'Inspect');
+    });
+
+    test('axe finds no violations with the submenu open', async ({ page }) => {
+      await page.getByTestId('sm-trigger').click();
+      await page.getByTestId('sm-more').click();
+      await expect(page.getByTestId('sm-sub')).toBeVisible();
+      const results = await new AxeBuilder({ page })
+        .include('#section-menu-submenu')
+        .analyze();
+      expect(results.violations).toEqual([]);
+    });
+  });
 });

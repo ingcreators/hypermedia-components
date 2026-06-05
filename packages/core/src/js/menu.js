@@ -28,9 +28,9 @@ import {
   ITEM_ROLE_SELECTOR,
   itemsOf,
   isEnabled,
-  handleMenuNavKeydown,
   selectMenuItem,
 } from './menu-core.js';
+import { wireSubmenus, handleMenuTreeKeydown, isSubmenuParent } from './submenu.js';
 import { supportsAnchorPositioning, trackFloating } from './anchor-fallback.js';
 
 const INSTALL_KEY = '__hcMenuUninstall';
@@ -106,14 +106,20 @@ function attach(menu, detachers) {
 
   function onKeydown(event) {
     if (!menu.matches(':popover-open')) return;
-    handleMenuNavKeydown(menu, event);
+    handleMenuTreeKeydown(menu, event);
   }
 
   function onClick(event) {
     const item = event.target.closest(ITEM_ROLE_SELECTOR);
     if (!item || !menu.contains(item) || !isEnabled(item)) return;
+    // A submenu parent toggles its submenu (handled by wireSubmenus); it is
+    // never a selectable leaf.
+    if (isSubmenuParent(item)) return;
 
-    const { role } = selectMenuItem(menu, item, { trigger });
+    // The selection acts on the menu that owns the item (a submenu, or the
+    // root), but a plain menuitem closes the whole tree from the root.
+    const owning = item.closest('.hc-menu') || menu;
+    const { role } = selectMenuItem(owning, item, { trigger });
     // shadcn / Radix convention: plain menuitems close the menu;
     // menuitemcheckbox / menuitemradio keep it open so users can
     // toggle multiple choices without reopening.
@@ -121,6 +127,8 @@ function attach(menu, detachers) {
       menu.hidePopover();
     }
   }
+
+  const submenuCleanup = wireSubmenus(menu);
 
   menu.addEventListener('toggle', onToggle);
   menu.addEventListener('beforetoggle', onBeforeToggle);
@@ -132,6 +140,7 @@ function attach(menu, detachers) {
     menu.removeEventListener('beforetoggle', onBeforeToggle);
     menu.removeEventListener('keydown', onKeydown);
     menu.removeEventListener('click', onClick);
+    submenuCleanup();
     fallbackCleanup?.();
     fallbackCleanup = null;
     trigger.removeAttribute('aria-haspopup');

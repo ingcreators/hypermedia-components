@@ -37,8 +37,11 @@ const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
  * @param {HTMLElement} floating  the popover to place (already in the top layer)
  * @param {HTMLElement} anchor    the trigger to place it against
  * @param {object} [opts]
- * @param {'block-end'|'block-start'} [opts.side='block-end']  primary side
- * @param {'start'|'center'} [opts.align='start']  inline-axis alignment
+ * @param {'block-end'|'block-start'|'inline-end'|'inline-start'} [opts.side='block-end']
+ *   primary side. The block sides drop the floating element below / above the
+ *   anchor (dropdown); the inline sides place it to the right / left
+ *   (submenu), aligning their block-start edges.
+ * @param {'start'|'center'} [opts.align='start']  inline-axis alignment (block sides only)
  * @param {number} [opts.gap=4]  distance from the anchor, px
  * @param {boolean} [opts.matchWidth=false]  set min-width to the anchor width
  */
@@ -50,6 +53,34 @@ export function positionFloating(floating, anchor, opts = {}) {
   const vw = view?.innerWidth ?? 0;
   const vh = view?.innerHeight ?? 0;
   const rtl = view ? view.getComputedStyle(anchor).direction === 'rtl' : false;
+
+  // Inline sides (submenu): place beside the anchor, align block tops.
+  if (side === 'inline-end' || side === 'inline-start') {
+    // `inline-end` resolves to the physical right in LTR, left in RTL.
+    const toRight = (side === 'inline-end') !== rtl;
+    let left;
+    if (toRight) {
+      left = a.right + gap;
+      if (left + f.width > vw && a.left - f.width - gap >= 0) left = a.left - f.width - gap;
+    } else {
+      left = a.left - f.width - gap;
+      if (left < 0 && a.right + f.width + gap <= vw) left = a.right + gap;
+    }
+    // Align the submenu's top with the anchor's; flip up if it overflows.
+    let top = a.top;
+    if (top + f.height > vh && a.bottom - f.height >= 0) top = a.bottom - f.height;
+    top = clamp(top, gap, Math.max(gap, vh - f.height - gap));
+    left = clamp(left, gap, Math.max(gap, vw - f.width - gap));
+
+    floating.style.position = 'fixed';
+    floating.style.top = `${top}px`;
+    floating.style.left = `${left}px`;
+    floating.style.insetInlineStart = 'auto';
+    floating.style.insetBlockStart = 'auto';
+    floating.style.margin = '0';
+    if (matchWidth) floating.style.minWidth = `${a.width}px`;
+    return;
+  }
 
   // Block axis: primary side, flip when it would overflow and there is room.
   let top;

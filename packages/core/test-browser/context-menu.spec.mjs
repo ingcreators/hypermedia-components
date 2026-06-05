@@ -117,6 +117,24 @@ test.describe('hc-context-menu', () => {
     await expect(page.getByTestId('ctx-menu')).toBeVisible();
   });
 
+  test('a submenu opens from the context menu and selecting a leaf closes the tree', async ({
+    page,
+  }) => {
+    await openMenu(page);
+    const share = page.getByTestId('ctx-share');
+    await expect(share).toHaveAttribute('aria-haspopup', 'menu');
+
+    // Hover opens the submenu without leaving the context menu.
+    await share.hover();
+    await expect(page.getByTestId('ctx-share-sub')).toBeVisible();
+    await expect(share).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.getByTestId('ctx-menu')).toBeVisible();
+
+    await page.getByTestId('ctx-share-email').click();
+    await expect(page.getByTestId('ctx-menu')).toBeHidden();
+    await expect(page.getByTestId('ctx-share-sub')).toBeHidden();
+  });
+
   test('axe finds no violations with the context menu open', async ({ page }) => {
     await openMenu(page);
     await expect(page.getByTestId('ctx-menu')).toBeVisible();
