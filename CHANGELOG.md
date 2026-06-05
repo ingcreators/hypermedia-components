@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-splitter` collapse & persistence (`data-collapsible` / `data-persist`).**
+  `data-collapsible` lets the handle fold the primary pane away and bring it
+  back — **double-click** the handle or focus it and press <kbd>Enter</kbd> to
+  toggle between collapsed (0%) and the last open size. A collapsed splitter
+  carries `data-collapsed` on the container and `hc:splitterchange` now reports
+  `detail.collapsed` (the handle's `aria-valuenow` stays within `[min, max]`).
+  `data-persist="<key>"` mirrors the position into `localStorage` and restores
+  it on the next visit (a persisted `0` restores the collapsed state); storage
+  failures degrade silently to the `data-value` default. New Splitter →
+  Collapse / Persistence docs. 9 Vitest + 4 Playwright tests.
+
 - **Rich combobox / multi-combobox options (`data-search` / `data-label`).**
   Options can now hold arbitrary HTML (icon, two-line label, description)
   without breaking filtering or selection. `data-search` is the text the
