@@ -167,6 +167,55 @@ instead:
 The scroll buttons are decorative (`aria-hidden`), so this is purely additive
 to the accessible tab pattern.
 
+### Vertical orientation
+
+Add `data-orientation="vertical"` to the root to stand the tab list up as a
+column beside its panels. `installTabs()` reflects this onto the tablist's
+`aria-orientation="vertical"`, which flips the arrow-key axis: <kbd>↑</kbd> /
+<kbd>↓</kbd> move between tabs (instead of <kbd>←</kbd> / <kbd>→</kbd>), while
+<kbd>Home</kbd> / <kbd>End</kbd> and activation are unchanged. The active
+indicator moves from the underline to an inline-start bar (logical, so it
+flips in RTL).
+
+<div class="hc-preview not-content">
+  <div class="hc-tabs" data-orientation="vertical">
+    <div class="hc-tabs__list" role="tablist" aria-orientation="vertical" aria-label="Workspace preview">
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-vtab-overview" aria-controls="doc-vpanel-overview"
+              aria-selected="true" tabindex="0">Overview</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-vtab-activity" aria-controls="doc-vpanel-activity"
+              aria-selected="false" tabindex="-1">Activity</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-vtab-settings" aria-controls="doc-vpanel-settings"
+              aria-selected="false" tabindex="-1">Settings</button>
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-vpanel-overview" aria-labelledby="doc-vtab-overview"
+         tabindex="0">Overview panel.</div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-vpanel-activity" aria-labelledby="doc-vtab-activity"
+         tabindex="0" hidden="until-found">Activity panel.</div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-vpanel-settings" aria-labelledby="doc-vtab-settings"
+         tabindex="0" hidden="until-found">Settings panel.</div>
+  </div>
+</div>
+
+```html
+<div class="hc-tabs" data-orientation="vertical">
+  <div class="hc-tabs__list" role="tablist" aria-orientation="vertical" aria-label="Workspace">
+    <button class="hc-tabs__tab" role="tab" …>Overview</button>
+    <!-- … -->
+  </div>
+  <!-- panels -->
+</div>
+```
+
+`installTabs()` sets `aria-orientation` for you, but include it in the markup
+too so the orientation is correct before JavaScript runs. Vertical and the
+scrollable overflow row are separate layouts — don't combine them.
+
 ## URL-routed tabs
 
 When each tab is its own route, drop the ARIA tab roles and let the
@@ -232,6 +281,10 @@ treat the attribute as a plain `hidden`.
   and are skipped by arrow navigation.
 - The tablist must have an accessible name. Use `aria-label` or
   `aria-labelledby` on the `[role="tablist"]` element.
+- A vertical tablist carries `aria-orientation="vertical"` (set by
+  `installTabs()` from `data-orientation`); the arrow-key axis follows it
+  — <kbd>↑</kbd> / <kbd>↓</kbd> when vertical, <kbd>←</kbd> / <kbd>→</kbd>
+  when horizontal.
 - Panels are programmatically focusable (`tabindex="0"`) so keyboard
   users can `Tab` into their content directly.
 - The URL-routed variant inherits all navigation accessibility from

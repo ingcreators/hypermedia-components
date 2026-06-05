@@ -51,6 +51,16 @@ function isScrollMode(rootEl) {
   return rootEl.getAttribute('data-overflow') === 'scroll';
 }
 
+// A vertical tablist navigates on the up/down axis. Opt in with
+// `data-orientation="vertical"` on the root (drives the CSS column layout);
+// the behavior reflects it onto the tablist's `aria-orientation`.
+function isVertical(rootEl, list) {
+  return (
+    rootEl.getAttribute('data-orientation') === 'vertical' ||
+    (list != null && list.getAttribute('aria-orientation') === 'vertical')
+  );
+}
+
 function makeScrollButton(doc, dir) {
   const b = doc.createElement('button');
   b.type = 'button';
@@ -185,6 +195,12 @@ function attach(rootEl, detachers) {
 
   const auto = rootEl.getAttribute('data-activation') === 'automatic';
 
+  // Reflect the root's orientation onto the tablist so assistive tech knows
+  // the arrow-key axis even if the author only set `data-orientation`.
+  if (rootEl.getAttribute('data-orientation') === 'vertical') {
+    list.setAttribute('aria-orientation', 'vertical');
+  }
+
   function onClick(event) {
     const tab = event.target.closest('[role="tab"]');
     if (!tab || !list.contains(tab) || !isEnabled(tab)) return;
@@ -195,20 +211,24 @@ function attach(rootEl, detachers) {
   function onKeydown(event) {
     const tab = event.target.closest('[role="tab"]');
     if (!tab || !list.contains(tab)) return;
-    // In RTL the horizontal arrows are mirrored; vertical arrows are not.
+    const vertical = isVertical(rootEl, list);
     let key = event.key;
-    if (getComputedStyle(list).direction === 'rtl') {
+    // A horizontal list mirrors the left/right arrows in RTL; a vertical
+    // list navigates the (unmirrored) up/down axis.
+    if (!vertical && getComputedStyle(list).direction === 'rtl') {
       if (key === 'ArrowRight') key = 'ArrowLeft';
       else if (key === 'ArrowLeft') key = 'ArrowRight';
     }
+    // Per APG the arrow axis follows the orientation: ←/→ for a horizontal
+    // tablist, ↑/↓ for a vertical one. The cross-axis arrows are left alone.
+    const nextKey = vertical ? 'ArrowDown' : 'ArrowRight';
+    const prevKey = vertical ? 'ArrowUp' : 'ArrowLeft';
     switch (key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
+      case nextKey:
         event.preventDefault();
         moveFocus(rootEl, tab, +1);
         break;
-      case 'ArrowLeft':
-      case 'ArrowUp':
+      case prevKey:
         event.preventDefault();
         moveFocus(rootEl, tab, -1);
         break;
