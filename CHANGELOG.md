@@ -20,6 +20,17 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Scrollable tab overflow (`hc-tabs`).** Add `data-overflow="scroll"` to keep
+  a long tab list on one horizontally-scrollable row instead of wrapping.
+  `installTabs()` injects edge scroll buttons that appear only when there is
+  more to scroll (a mouse affordance, kept out of the tab order), keeps the
+  active / focused / initially-selected tab in view (arrow keys, activation,
+  and load), hides the scrollbar, and is direction-aware (the buttons flip and
+  the chevrons mirror under RTL). New Tabs → Overflow (scrollable) docs and
+  `--hc-tabs-scroll-size` token; 4 Playwright tests.
+
 ### Changed
 
 - **Anchor-positioning fallback consolidated and hardened.** The popovers

@@ -139,4 +139,84 @@
     outline-offset: 2px;
     border-radius: var(--hc-tabs-tab-radius);
   }
+
+  /* ---- Overflow: scrollable tab row ----
+   * Opt in with `data-overflow="scroll"` on the .hc-tabs root: the list
+   * becomes one horizontally-scrollable row instead of wrapping.
+   * installTabs() injects the edge scroll buttons, keeps them in sync with
+   * the scroll position, and scrolls the active / focused tab into view. */
+  .hc-tabs[data-overflow="scroll"] {
+    position: relative;
+  }
+
+  .hc-tabs[data-overflow="scroll"] > .hc-tabs__list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--hc-tabs-scroll-size, 2rem);
+    scrollbar-width: none; /* the buttons + swipe / trackpad are the affordance */
+  }
+
+  .hc-tabs[data-overflow="scroll"] > .hc-tabs__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hc-tabs[data-overflow="scroll"] > .hc-tabs__list > .hc-tabs__tab {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  /* Scroll buttons (mouse affordance — keyboard arrows already scroll the
+   * focused tab into view, so the buttons stay out of the tab order). The
+   * behavior sets their block-size to the tab row and toggles [hidden] at
+   * each edge. */
+  .hc-tabs__scroll {
+    position: absolute;
+    inset-block-start: 0;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-tabs-scroll-size, 2rem);
+    padding: 0;
+    border: 0;
+    background-color: var(--hc-color-surface);
+    color: var(--hc-tabs-tab-color);
+    font-size: 1.125rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .hc-tabs__scroll[data-dir="start"] {
+    inset-inline-start: 0;
+    box-shadow: 4px 0 6px -4px rgb(0, 0, 0, 0.2);
+  }
+
+  .hc-tabs__scroll[data-dir="end"] {
+    inset-inline-end: 0;
+    box-shadow: -4px 0 6px -4px rgb(0, 0, 0, 0.2);
+  }
+
+  .hc-tabs__scroll::before {
+    content: "\2039"; /* ‹ */
+  }
+
+  .hc-tabs__scroll[data-dir="end"]::before {
+    content: "\203A"; /* › */
+  }
+
+  .hc-tabs__scroll:hover {
+    background-color: var(--hc-color-muted-bg);
+  }
+
+  /* RTL: the logical insets flip the buttons to the right edges; mirror the
+   * chevron glyphs so they still point the natural way. */
+  .hc-tabs[data-overflow="scroll"] > .hc-tabs__scroll:dir(rtl) {
+    transform: scaleX(-1);
+  }
+
+  .hc-tabs__scroll[hidden] {
+    display: none;
+  }
 }
