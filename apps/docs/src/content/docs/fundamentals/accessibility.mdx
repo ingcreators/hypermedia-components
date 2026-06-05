@@ -1,13 +1,12 @@
 ---
 title: Accessibility
-description: How Hypermedia Components supports OS accessibility preferences — Forced Colors / Windows High Contrast — re-expressing focus and state with CSS system colours.
+description: How Hypermedia Components supports OS accessibility preferences — Forced Colors / Windows High Contrast and reduced motion — re-expressing focus and state with CSS system colours.
 ---
 
 Hypermedia Components keeps state in HTML attributes (`aria-*`, `data-*`,
 native `:checked` / `disabled`), so assistive technology gets the semantics
 for free. Beyond that, the kit respects OS-level accessibility preferences in
-CSS. This page covers **Forced Colors**; reduced-motion handling is noted per
-component.
+CSS: **Forced Colors** and **reduced motion**.
 
 ## Forced Colors (Windows High Contrast)
 
@@ -61,3 +60,26 @@ await page.emulateMedia({ forcedColors: 'active' });
 
 Focus an input, tab through a combobox, toggle a checkbox — the indicators
 stay visible in the system palette.
+
+## Reduced motion
+
+When the user sets **prefers-reduced-motion**, every animated component
+neutralises its `transition` duration so state changes are instant rather
+than animated. This is handled in CSS — no JavaScript, no configuration.
+
+Components that animate in their own stylesheet (accordion, drawer, progress,
+skeleton, spinner, switch, the OTP caret, the shell overlay, datagrid) gate
+themselves; the remaining controls whose only motion is a `transition`
+(button, checkbox, radio, input, select, datepicker, tabs, pagination, toggle
+group) are covered centrally in `hc.a11y.css`, and the htmx indicator fade in
+`hc.htmx.css`. The net effect: **nothing in the kit animates** under
+reduced-motion.
+
+```js
+// Verify in Playwright:
+await page.emulateMedia({ reducedMotion: 'reduce' });
+// getComputedStyle(button).transitionDuration === '0s'
+```
+
+Motion that conveys meaning (a spinner indicating progress) keeps its role
+via `aria-*`; reduced-motion only removes the decorative animation.

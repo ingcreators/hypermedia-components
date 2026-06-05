@@ -95,6 +95,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Reduced-motion coverage completed.** The controls whose only animation is
+  a `transition` and that weren't already gated in their own stylesheet
+  (button, checkbox, radio, input, select, datepicker, tabs, pagination,
+  toggle group) now zero their `transition-duration` under
+  `prefers-reduced-motion: reduce` — handled centrally in `hc.a11y.css`; the
+  htmx indicator fade is gated in `hc.htmx.css`. Combined with the components
+  that already self-gated, nothing in the kit animates under reduced-motion.
+  New Accessibility → Reduced motion section; 2 Playwright tests under
+  emulated `reducedMotion`.
 - **Forced Colors / Windows High Contrast support.** A cross-component
   forced-colors stylesheet (`hc.a11y.css`, bundled into `hc.css`) re-expresses
   the patterns that break under a high-contrast theme — where the UA drops

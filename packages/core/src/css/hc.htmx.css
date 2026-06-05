@@ -38,4 +38,13 @@
   .hc-action:has(.htmx-request) {
     cursor: progress;
   }
+
+  /* The indicator fades via a transition; honour reduced-motion. (Gated
+     here, not in hc.a11y.css, because this lives in the later hc.recipes
+     layer and would otherwise win over a components-layer override.) */
+  @media (prefers-reduced-motion: reduce) {
+    .htmx-indicator {
+      transition-duration: 0ms;
+    }
+  }
 }
