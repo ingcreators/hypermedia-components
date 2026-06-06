@@ -129,6 +129,7 @@ export default defineConfig({
             },
           ],
         },
+        { label: 'Blocks', slug: 'blocks' },
         { label: 'Recipes', autogenerate: { directory: 'recipes' } },
         { label: 'Tokens', autogenerate: { directory: 'tokens' } },
         { label: 'Integrations', autogenerate: { directory: 'integrations' } },
