@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-input-group` — input with leading/trailing addons.** Composes an
+  `hc-input` with text, icon, or real `hc-button` addons on **one** bordered
+  surface with a single shared focus ring (`:focus-within`); the inner
+  `<input>` drops its own border so the group owns it. Distinct from
+  `hc-field` (label + help text) — this is the control's inner composition,
+  and htmx wiring stays on the inner `<input>` / `<button>`. New
+  `input-group.*` tokens. Also adds an opt-in **`installPasswordToggle()`**
+  behavior (`data-hc-password-toggle`): a trailing button toggles a password
+  field's visibility, reflecting `aria-pressed` + `aria-label`
+  (`data-hc-label-show` / `-hide`), no value access or network. New Input
+  group docs page, 8 Vitest tests, and 5 Playwright tests (incl. axe).
+
 - **`hc-collapsible` — standalone disclosure.** A single show/hide "show
   more" toggle built purely on native `<details>` / `<summary>` (the browser
   owns the keyboard handling and `open` state; no JavaScript). A lighter,

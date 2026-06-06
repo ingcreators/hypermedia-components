@@ -1,0 +1,90 @@
+/* hc-input-group — compose an input with leading/trailing addons.
+ *
+ *   <div class="hc-input-group">
+ *     <span class="hc-input-group__addon">https://</span>
+ *     <input class="hc-input" type="text">
+ *     <button class="hc-button" type="button">Go</button>
+ *   </div>
+ *
+ * Addons (text, icon, or a real .hc-button) and the field share ONE
+ * bordered surface and a single focus ring (via :focus-within). The inner
+ * .hc-input gives up its own border / radius / ring so the group owns them.
+ * Distinct from hc-field (label + help text) — this is the control's inner
+ * composition. Works with htmx (the inner <input>/<button> carry data-hx-*).
+ *
+ * Mostly CSS. The optional password-reveal button is an opt-in behavior —
+ * see installPasswordToggle (data-hc-password-toggle).
+ */
+@layer hc.components {
+  .hc-input-group {
+    display: flex;
+    align-items: stretch;
+    inline-size: 100%;
+    border: 1px solid var(--hc-input-group-border);
+    border-radius: var(--hc-input-group-radius);
+    background: var(--hc-input-group-bg);
+    color: var(--hc-input-group-fg);
+
+    /* Clip square-cornered edge children to the group's rounded corners.
+     * The group's own focus box-shadow is not clipped by this. */
+    overflow: hidden;
+  }
+
+  /* One shared focus ring for the whole control. */
+  .hc-input-group:focus-within {
+    border-color: var(--hc-input-group-focus-border);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  /* Mirror the field's invalid cue at the group level. */
+  .hc-input-group:has(.hc-input[aria-invalid="true"]),
+  .hc-input-group:has(.hc-input:user-invalid) {
+    border-color: var(--hc-color-error);
+  }
+
+  /* The inner control gives up its own chrome to the group. */
+  .hc-input-group > .hc-input {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .hc-input-group > .hc-input:focus-visible {
+    outline: none;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  /* Text / icon addons. */
+  .hc-input-group > .hc-input-addon {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-space-1);
+    padding-inline: var(--hc-input-group-addon-padding-x);
+    background: var(--hc-input-group-addon-bg);
+    color: var(--hc-input-group-addon-fg);
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  /* A real .hc-button sits flush inside the group. */
+  .hc-input-group > .hc-button {
+    border-block: 0;
+    border-inline: 0;
+    border-radius: 0;
+  }
+
+  /* Hairline divider between an edge piece (addon / button) and the field. */
+  .hc-input-group > .hc-input-addon:first-child,
+  .hc-input-group > .hc-button:first-child {
+    border-inline-end: 1px solid var(--hc-input-group-divider);
+  }
+
+  .hc-input-group > .hc-input-addon:last-child,
+  .hc-input-group > .hc-button:last-child {
+    border-inline-start: 1px solid var(--hc-input-group-divider);
+  }
+}

@@ -1236,6 +1236,43 @@
     </script>
   </section>
 
+  <section id="section-input-group" data-testid="section-input-group">
+    <h2>Input group</h2>
+
+    <form data-testid="ig-form" style="max-inline-size: 22rem;">
+      <div class="hc-input-group" data-testid="ig-search">
+        <span class="hc-input-addon" aria-hidden="true">🔍</span>
+        <input class="hc-input" type="search" name="q" aria-label="Search"
+               data-testid="ig-search-input" />
+        <button class="hc-button" data-variant="primary" type="submit"
+                data-testid="ig-search-submit">Search</button>
+      </div>
+    </form>
+    <p data-testid="ig-search-result"></p>
+
+    <div class="hc-input-group" data-testid="ig-prefix" style="max-inline-size: 22rem;">
+      <span class="hc-input-addon">https://</span>
+      <input class="hc-input" type="text" aria-label="Domain" value="example.com"
+             data-testid="ig-prefix-input" />
+    </div>
+
+    <div class="hc-input-group" data-testid="ig-password" style="max-inline-size: 22rem;">
+      <input class="hc-input" type="password" id="ig-pw" aria-label="Password" value="hunter2"
+             data-testid="ig-pw-input" />
+      <button type="button" class="hc-button" data-variant="ghost"
+              data-hc-password-toggle aria-controls="ig-pw"
+              data-testid="ig-pw-toggle">👁</button>
+    </div>
+
+    <script type="module">
+      document.querySelector('[data-testid="ig-form"]').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const q = e.target.querySelector('input[name="q"]').value;
+        document.querySelector('[data-testid="ig-search-result"]').textContent = 'searched:' + q;
+      });
+    </script>
+  </section>
+
   <section id="section-collapsible" data-testid="section-collapsible">
     <h2>Collapsible</h2>
 
