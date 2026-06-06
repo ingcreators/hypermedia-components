@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-button-group` — connected button cluster.** Visually joins adjacent
+  `.hc-button` elements into one segmented cluster (split buttons,
+  icon-button rows, pagination-like groups): collapses the shared inner
+  border-radii, overlaps neighbours by 1px so the touching borders read as a
+  single hairline, and rounds only the outer corners. `data-orientation="vertical"`
+  stacks the buttons. **Purely presentational** — no selected state, no
+  JavaScript (for a two-state segmented control use `hc-toggle-group`).
+  Reuses `--hc-button-radius`; no new tokens. New Button group docs page
+  (incl. icon-button row and split-button-with-menu) and 4 Playwright tests
+  (incl. axe).
+
 - **`hc-aspect` — fixed aspect-ratio box.** Reserves a box of a fixed
   proportion (no layout shift while media loads) via the native
   `aspect-ratio` property; a direct media child (`img` / `video` / `iframe` /

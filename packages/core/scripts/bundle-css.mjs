@@ -26,6 +26,7 @@ const UTILITIES_CSS = join(srcCssDir, 'hc.utilities.css');
 
 const COMPONENTS = [
   'hc-button.css',
+  'hc-button-group.css',
   'hc-input.css',
   'hc-select.css',
   'hc-datepicker.css',
