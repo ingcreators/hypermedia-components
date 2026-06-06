@@ -272,9 +272,11 @@ each menu item with [`hc-confirm-action`](/hypermedia-components/recipes/confirm
   ignored by `hc:menuselect` clicks.
 - Don't override the focus outline. The active item receives the
   same focus background via `:focus-visible`.
-- `menuitemcheckbox` / `menuitemradio` / submenus are not in the
-  MVP. Use the `hc:menuselect` event handler to manage state
-  externally for now.
+- `menuitemcheckbox` / `menuitemradio` items keep their own checked
+  state via `aria-checked` (see [Stateful items](#stateful-items-checkbox--radio)); the
+  menu stays open after toggling one. Use the `hc:menuselect` event to
+  persist the change. Submenus are supported via `data-hc-submenu` (see
+  [Submenus](#submenus)).
 
 ## Theming tokens
 
