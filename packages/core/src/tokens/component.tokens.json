@@ -567,6 +567,22 @@
     "description-margin":     { "$type": "dimension",  "$value": "{primitive.space.1}" },
     "actions-margin":         { "$type": "dimension",  "$value": "{semantic.space.4}" }
   },
+  "item": {
+    "gap":             { "$type": "dimension",  "$value": "{semantic.space.3}" },
+    "padding-x":       { "$type": "dimension",  "$value": "{semantic.space.3}" },
+    "padding-y":       { "$type": "dimension",  "$value": "{semantic.space.2}" },
+    "radius":          { "$type": "dimension",  "$value": "{primitive.radius.sm}" },
+    "fg":              { "$type": "color",      "$value": "{semantic.color.text}" },
+    "hover-bg":        { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
+    "selected-bg":     { "$type": "color",      "$value": "{semantic.color.action.primary-soft.bg}" },
+    "selected-fg":     { "$type": "color",      "$value": "{semantic.color.text}" },
+    "media-size":      { "$type": "dimension",  "$value": "1.5rem" },
+    "media-fg":        { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+    "title-fg":        { "$type": "color",      "$value": "{semantic.color.text}" },
+    "title-font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
+    "description-fg":  { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+    "description-font-size": { "$type": "dimension", "$value": "{semantic.font.size-sm}" }
+  },
   "kbd": {
     "bg":          { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
     "fg":          { "$type": "color",      "$value": "{semantic.color.text}" },

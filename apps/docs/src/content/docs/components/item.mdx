@@ -1,0 +1,154 @@
+---
+title: Item
+description: A generic list / option row primitive — media, content, and actions.
+---
+
+`hc-item` is a generic **row** primitive: a media slot (icon / avatar), a
+content column (title + description), and trailing actions. Use it for plain
+lists, option rows, and as the shared building block that command and menu
+items can adopt for a consistent look. It is pure CSS — render it as a
+`<div>`, `<li>`, `<a>`, or `<button>`.
+
+## Basic HTML
+
+<div class="hc-preview not-content" style="max-inline-size: 24rem;">
+  <div class="hc-item">
+    <span class="hc-item__media" aria-hidden="true">📄</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Quarterly report</span>
+      <span class="hc-item__description">Updated 2 days ago</span>
+    </div>
+    <div class="hc-item__actions">
+      <button class="hc-button" data-size="sm" type="button">Open</button>
+    </div>
+  </div>
+</div>
+
+```html
+<div class="hc-item">
+  <span class="hc-item__media" aria-hidden="true">📄</span>
+  <div class="hc-item__content">
+    <span class="hc-item__title">Quarterly report</span>
+    <span class="hc-item__description">Updated 2 days ago</span>
+  </div>
+  <div class="hc-item__actions">
+    <button class="hc-button" data-size="sm" type="button">Open</button>
+  </div>
+</div>
+```
+
+The media slot and actions are optional; an item can be just a title, or a
+title + description.
+
+## Interactive items
+
+Render the item as an `<a>` or `<button>` (or add `data-selectable`) to get
+the hover highlight and focus ring. Mark selection with `aria-selected` (or
+`data-selected`).
+
+<div class="hc-preview not-content" style="max-inline-size: 24rem; display:flex; flex-direction:column; gap:.25rem;">
+  <button class="hc-item" type="button">
+    <span class="hc-item__media" aria-hidden="true">📥</span>
+    <div class="hc-item__content"><span class="hc-item__title">Hoverable button row</span></div>
+  </button>
+  <button class="hc-item" type="button" data-selected>
+    <span class="hc-item__media" aria-hidden="true">⭐</span>
+    <div class="hc-item__content"><span class="hc-item__title">Selected row</span></div>
+  </button>
+  <button class="hc-item" type="button" disabled>
+    <span class="hc-item__media" aria-hidden="true">🚫</span>
+    <div class="hc-item__content"><span class="hc-item__title">Disabled row</span></div>
+  </button>
+</div>
+
+```html
+<button class="hc-item" type="button">…</button>
+<button class="hc-item" type="button" data-selected>…</button>
+<button class="hc-item" type="button" disabled>…</button>
+```
+
+For a real selectable list use the listbox roles — `aria-selected` belongs
+on a `role="option"` inside `role="listbox"`, not on a bare button:
+
+```html
+<ul role="listbox" aria-label="Pick one">
+  <li class="hc-item" role="option" aria-selected="true" tabindex="-1">…</li>
+</ul>
+```
+
+## Variant
+
+`data-variant="error"` tints the title and media for a destructive row.
+
+<div class="hc-preview not-content" style="max-inline-size: 24rem;">
+  <button class="hc-item" type="button" data-variant="error">
+    <span class="hc-item__media" aria-hidden="true">🗑️</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Delete project</span>
+      <span class="hc-item__description">This cannot be undone</span>
+    </div>
+  </button>
+</div>
+
+```html
+<button class="hc-item" type="button" data-variant="error">
+  <span class="hc-item__media" aria-hidden="true">🗑️</span>
+  <div class="hc-item__content">
+    <span class="hc-item__title">Delete project</span>
+    <span class="hc-item__description">This cannot be undone</span>
+  </div>
+</button>
+```
+
+## Accessibility
+
+- `hc-item` carries **no role of its own** — choose the element for the
+  context: a `<button>` for an action, an `<a>` for navigation, an `<li>`
+  (inside a `<ul>`/`<ol>`) for a plain list, or a `[role]` row inside a
+  composite widget.
+- A decorative media glyph should be `aria-hidden="true"`; the title is the
+  accessible name.
+- For a selectable list, use `aria-selected` on items inside an element with
+  the appropriate container role (e.g. `role="listbox"` + `role="option"`),
+  not on a bare `<div>`.
+- Don't rely on the `error` tint alone — keep the wording explicit ("Delete
+  project", "This cannot be undone").
+
+## Adoption (follow-up)
+
+This primitive is introduced standalone. The following could later be
+refactored onto it for a consistent row look — as separate changes, not
+here: [`hc-menu`](/hypermedia-components/components/menu/) items,
+[`hc-command`](/hypermedia-components/components/command/) result rows, and
+ad-hoc list rows in app code.
+
+## Theming tokens
+
+| Token path                | Purpose                          |
+| ------------------------- | -------------------------------- |
+| `item.gap`                | Gap between media / content / actions. |
+| `item.padding-x` / `-y`   | Row padding.                     |
+| `item.radius`             | Row corner radius.               |
+| `item.fg`                 | Row text colour.                 |
+| `item.hover-bg`           | Hover background (interactive).  |
+| `item.selected-bg` / `-fg` | Selected row colours.           |
+| `item.media-size` / `-fg` | Media slot size / colour.        |
+| `item.title-fg` / `-font-weight` | Title type.               |
+| `item.description-fg` / `-font-size` | Description type.     |
+
+## CSS variables
+
+```text
+--hc-item-gap | -padding-x | -padding-y | -radius | -fg
+--hc-item-hover-bg | -selected-bg | -selected-fg
+--hc-item-media-size | -media-fg
+--hc-item-title-fg | -title-font-weight | -description-fg | -description-font-size
+```
+
+## Related
+
+- [Menu](/hypermedia-components/components/menu/) — dropdown items (a future
+  adopter of this row).
+- [Command](/hypermedia-components/components/command/) — command palette
+  rows (a future adopter).
+- [Avatar](/hypermedia-components/components/avatar/) — a common media slot.

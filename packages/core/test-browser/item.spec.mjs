@@ -1,0 +1,44 @@
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+});
+
+test.describe('hc-item', () => {
+  test('lays out media, content and actions in a row in order', async ({ page }) => {
+    const item = page.getByTestId('item-basic');
+    await expect(item).toHaveCSS('display', 'flex');
+
+    const media = await page.getByTestId('item-media').boundingBox();
+    const title = await page.getByTestId('item-title').boundingBox();
+    const actions = await page.getByTestId('item-actions').boundingBox();
+
+    // Media is left of the content, actions are at the far end.
+    expect(media.x).toBeLessThan(title.x);
+    expect(title.x).toBeLessThan(actions.x);
+  });
+
+  test('the title sits above the description (content is a column)', async ({ page }) => {
+    const title = await page.getByTestId('item-title').boundingBox();
+    const desc = await page.getByTestId('item-desc').boundingBox();
+    expect(title.y).toBeLessThan(desc.y);
+  });
+
+  test('a selected item gets a non-transparent background', async ({ page }) => {
+    const bg = await page
+      .getByTestId('item-selected')
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(bg).not.toBe('rgba(0, 0, 0, 0)');
+    expect(bg).not.toBe('transparent');
+  });
+
+  test('data-variant="error" tints the title', async ({ page }) => {
+    await expect(page.getByTestId('item-error-title')).toHaveCSS('color', 'rgb(220, 38, 38)');
+  });
+
+  test('axe finds no violations across the item examples', async ({ page }) => {
+    const results = await new AxeBuilder({ page }).include('#section-item').analyze();
+    expect(results.violations).toEqual([]);
+  });
+});
