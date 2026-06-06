@@ -103,8 +103,8 @@ Use it from a page:
 @page
 @model CreateUserModel
 
-<form method="post"
-      data-hx-post asp-page="Create"
+<form method="post" asp-page="Create"
+      data-hx-post="@Url.Page("Create")"
       data-hx-target="this"
       data-hx-swap="outerHTML">
     <partial name="_Field" model="@(new FieldModel(

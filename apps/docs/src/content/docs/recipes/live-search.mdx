@@ -121,8 +121,10 @@ To show a spinner while the search runs, add an htmx indicator that
 points at the results region:
 
 ```html
-<div id="results" aria-live="polite" aria-busy="false">
-  <!-- htmx sets aria-busy="true" via data-hx-busy on a wrapper if you want -->
+<div id="results" aria-live="polite">
+  <!-- During a request htmx adds the `.htmx-request` class to the
+       triggering element; the `.htmx-indicator` spinner below reacts to
+       it. Drive a busy state from that class if you want one. -->
 </div>
 
 <span class="hc-spinner htmx-indicator" id="search-spinner" aria-hidden="true"></span>

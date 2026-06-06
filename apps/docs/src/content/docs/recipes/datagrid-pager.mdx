@@ -71,10 +71,10 @@ Update the pager and a status line in the **same response**, out-of-band, so
 they refresh without a second request:
 
 ```html
-<nav class="hc-pagination" id="pager" hx-swap-oob="true" aria-label="Pagination">
+<nav class="hc-pagination" id="pager" data-hx-swap-oob="true" aria-label="Pagination">
   …items, with aria-current="page" on the active page…
 </nav>
-<p id="rows-status" hx-swap-oob="true" aria-live="polite">101–200 / 5,000</p>
+<p id="rows-status" data-hx-swap-oob="true" aria-live="polite">101–200 / 5,000</p>
 ```
 
 Mark the current page with `aria-current="page"`; disable Prev / Next at the

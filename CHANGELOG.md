@@ -2047,6 +2047,20 @@ Security    — security-relevant changes
   bundler-based `import '@hypermedia-components/core/behaviors'` snippets
   were already correct and are unchanged.
 
+- **Docs: fixed code samples that did not work as written.** The
+  live-search recipe referenced a non-existent `data-hx-busy` attribute
+  (htmx signals in-flight requests with the `.htmx-request` class); the
+  remote-dialog recipe's progressive-enhancement fallback called an
+  undefined `showThis.showModal()`; the datagrid-pager recipe and the Go
+  guide used the bare `hx-swap-oob` form instead of the project's
+  `data-hx-swap-oob` convention; the Thymeleaf guide put a `@{/users}`
+  expression in a plain `data-hx-post` attribute (Thymeleaf only
+  evaluates it through `th:attr`); the Razor guide wrote
+  `data-hx-post asp-page="Create"` (a valueless `data-hx-post` — the
+  `asp-page` tag helper does not populate it), now `asp-page` plus an
+  explicit `data-hx-post="@Url.Page("Create")"`; and the htmx and Django
+  guides used bare `hx-headers` against their own `data-hx-*` convention.
+
 ---
 
 ## [Unreleased — v0.4 implementation]
