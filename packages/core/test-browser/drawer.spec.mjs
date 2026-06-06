@@ -67,6 +67,47 @@ test.describe('hc-drawer', () => {
     expect(box.y + box.height).toBeGreaterThanOrEqual(vp.height - 2);
   });
 
+  test('dragging the header outward past the threshold closes the drawer', async ({ page }) => {
+    await page.getByTestId('dr-open-right').click();
+    const drawer = page.getByTestId('dr-right');
+    await page.waitForTimeout(300); // settle the slide-in
+    const title = drawer.locator('.hc-drawer__title');
+    const box = await title.boundingBox();
+    const y = box.y + box.height / 2;
+    const x = box.x + box.width / 2;
+
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 280, y, { steps: 12 }); // drag right, well past 40%
+    await page.mouse.up();
+
+    await expect(drawer).toBeHidden();
+  });
+
+  test('a short drag snaps back and keeps the drawer open', async ({ page }) => {
+    await page.getByTestId('dr-open-right').click();
+    const drawer = page.getByTestId('dr-right');
+    await page.waitForTimeout(300);
+    const title = drawer.locator('.hc-drawer__title');
+    const box = await title.boundingBox();
+    const y = box.y + box.height / 2;
+    const x = box.x + box.width / 2;
+
+    // A small, deliberate drag (well under 40% of the panel, low velocity).
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 10, y);
+    await page.waitForTimeout(60);
+    await page.mouse.move(x + 20, y);
+    await page.waitForTimeout(60);
+    await page.mouse.move(x + 28, y);
+    await page.waitForTimeout(60);
+    await page.mouse.up();
+    await page.waitForTimeout(250); // let the snap-back settle
+
+    await expect(drawer).toBeVisible();
+  });
+
   test('axe finds no violations in the open drawer', async ({ page }) => {
     await page.getByTestId('dr-open-right').click();
     await page.waitForTimeout(300);

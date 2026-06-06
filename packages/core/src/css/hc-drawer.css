@@ -149,6 +149,10 @@
     justify-content: space-between;
     gap: var(--hc-drawer-gap);
     border-block-end: 1px solid var(--hc-drawer-border);
+
+    /* The header / footer chrome is the drag-to-dismiss grab area
+     * (installDrawer); take over the gesture so touch drags don't scroll. */
+    touch-action: none;
   }
 
   .hc-drawer__title {
@@ -168,6 +172,7 @@
     justify-content: flex-end;
     gap: var(--hc-drawer-gap);
     border-block-start: 1px solid var(--hc-drawer-border);
+    touch-action: none;
   }
 
   /* Respect reduced-motion. */

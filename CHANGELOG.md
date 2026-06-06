@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-drawer` drag to dismiss.** Drag the panel toward its anchored edge to
+  close it — the axis follows `data-side` (right/left horizontal, top/bottom
+  vertical); past ~40% of the panel size or with a quick flick it slides out
+  and closes, a shorter drag snaps back. Only the outward direction moves
+  (inward is clamped — no rubber-banding, so `prefers-reduced-motion` needs no
+  special case). The gesture is grabbed from the `__header` / `__footer`
+  chrome, never the scrollable `__body` or a control, and the trailing click
+  no longer trips backdrop-close. Pointer-Events based (mouse / touch / pen);
+  the threshold is exposed as `dragShouldDismiss` for tests. New Drawer → Drag
+  to dismiss docs. 6 Vitest + 2 Playwright tests.
+
 - **`hc-toast` actions + update-by-id (`action` / `id`).** A toast can now
   carry an **action button** — `action: { label, event }` renders a button
   that, on click, dispatches a bubbling `CustomEvent` (catchable by htmx
