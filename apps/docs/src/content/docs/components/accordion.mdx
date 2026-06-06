@@ -105,6 +105,23 @@ open at once.
 </div>
 ```
 
+## Height animation
+
+The panel **animates its height** open and closed — pure CSS, no JavaScript —
+using `::details-content` with `interpolate-size: allow-keywords` (so the
+height can transition to and from `auto`). The chevron rotation and the
+height both respect `prefers-reduced-motion: reduce`.
+
+:::note[Baseline]
+`interpolate-size` / `calc-size()` are **Chromium-only** as of 2026 (not yet
+in Firefox or Safari), so the height animation is gated behind
+`@supports (interpolate-size: allow-keywords)`. It is **fully progressive**:
+every other engine keeps the native **instant** open / close — nothing depends
+on the animation. Tune the duration with
+`--hc-accordion-content-transition-duration` (default `200ms`); it will start
+animating elsewhere automatically once those engines ship the feature.
+:::
+
 ## htmx lazy loading
 
 `<details>` fires the native `toggle` event when its `open` state
@@ -156,6 +173,7 @@ Component tokens (in `component.tokens.json`):
 | `accordion.trigger.font-weight` / `fg` / `hover-fg` | Summary text. |
 | `accordion.icon.size` / `transition-duration` | Chevron dimensions and rotation timing. |
 | `accordion.content.padding-block-end` / `fg` | Body padding and colour. |
+| `accordion.content.transition-duration` | Open / close height animation timing (where supported). |
 
 ## CSS variables
 
@@ -164,7 +182,7 @@ Component tokens (in `component.tokens.json`):
 --hc-accordion-trigger-padding-x | -padding-y | -gap
 --hc-accordion-trigger-font-weight | -fg | -hover-fg
 --hc-accordion-icon-size | -transition-duration
---hc-accordion-content-padding-block-end | -fg
+--hc-accordion-content-padding-block-end | -fg | -transition-duration
 --hc-color-focus-ring   (inherited from data-color)
 ```
 
