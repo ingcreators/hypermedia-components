@@ -542,28 +542,49 @@ e.g. on the row or grid:
 - The scroll viewport contains focusable controls (the checkboxes), so it
   is keyboard-reachable.
 
+## Theming tokens
+
+Component tokens (in `component.tokens.json`). They reference the shared
+semantic colours, so the grid follows the active light / dark and colour
+theme automatically.
+
+| Token path | Purpose |
+| --- | --- |
+| `datagrid.bg` / `fg` / `border` | Grid surface, text, and outer border. |
+| `datagrid.head-bg` / `head-fg` | Header band colours. |
+| `datagrid.frozen-bg` | Background of frozen (sticky) columns. |
+| `datagrid.row-hover-bg` | Hovered-row tint. |
+| `datagrid.selected-bg` / `highlight-bg` | Selected-row / highlighted-row tint. |
+| `datagrid.current-bg` / `current-fg` | Accent for the active record's lead cell. |
+| `datagrid.subrow-border` | Line between a record's sub-rows. |
+| `datagrid.cell-padding-x` / `cell-padding-y` | Cell padding. |
+| `datagrid.head-1-h` / `head-2-h` | Fixed heights of the non-leaf header levels (so the level below can offset its sticky `top`). |
+
 ## CSS variables
 
 <details>
 <summary>Show the generated CSS variables</summary>
 
-Colours and spacing come from the shared tokens, so the grid follows the
-active theme / density / colour. Override the `--hc-datagrid-*` knobs for
-a custom look (the blue headers / tinted columns seen in admin apps are
-just overrides).
+Generated from the `datagrid.*` tokens above — override any of them at
+your chosen scope for a custom look (the blue headers / tinted columns
+seen in admin apps are just overrides):
 
-| Variable | Default |
-| --- | --- |
-| `--hc-datagrid-bg` | `--hc-color-surface` |
-| `--hc-datagrid-head-bg` | `--hc-color-muted-bg` |
-| `--hc-datagrid-border` | `--hc-color-border` |
-| `--hc-datagrid-frozen-bg` | `--hc-color-surface` |
-| `--hc-datagrid-selected-bg` | `--hc-color-action-primary-soft-bg` |
-| `--hc-datagrid-highlight-bg` | `--hc-color-action-primary-soft-bg` |
-| `--hc-datagrid-subrow-border` | light line between a record's sub-rows |
-| `--hc-datagrid-current-bg` / `-current-fg` | accent for the active record's lead cell |
-| `--hc-datagrid-max-height` | `70vh` |
-| `--hc-datagrid-truncate-max` | `16rem` (width of a `.hc-datagrid__truncate` cell) |
+```text
+--hc-datagrid-bg | -fg | -border
+--hc-datagrid-head-bg | -head-fg | -frozen-bg
+--hc-datagrid-row-hover-bg | -selected-bg | -highlight-bg
+--hc-datagrid-current-bg | -current-fg | -subrow-border
+--hc-datagrid-cell-padding-x | -cell-padding-y
+--hc-datagrid-head-1-h | -head-2-h
+```
+
+A few knobs are **not** token-backed — set them directly:
+
+```text
+--hc-datagrid-max-height     (default 70vh)
+--hc-datagrid-truncate-max   (default 16rem — width of a .hc-datagrid__truncate cell)
+--hc-datagrid-freeze-shadow  (frozen-column edge shadow; its direction flips per edge)
+```
 
 </details>
 

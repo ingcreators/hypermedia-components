@@ -112,6 +112,24 @@
       "font-size": { "$type": "dimension", "$value": "{semantic.font.size-lg}" }
     }
   },
+  "datagrid": {
+    "bg":             { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "fg":             { "$type": "color",     "$value": "{semantic.color.text}" },
+    "border":         { "$type": "color",     "$value": "{semantic.color.border}" },
+    "head-bg":        { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
+    "head-fg":        { "$type": "color",     "$value": "{semantic.color.text}" },
+    "frozen-bg":      { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "row-hover-bg":   { "$type": "color",     "$value": "color-mix(in srgb, {semantic.color.action.primary.bg} 8%, transparent)" },
+    "selected-bg":    { "$type": "color",     "$value": "{semantic.color.action.primary-soft.bg}" },
+    "highlight-bg":   { "$type": "color",     "$value": "{semantic.color.action.primary-soft.bg}" },
+    "subrow-border":  { "$type": "color",     "$value": "color-mix(in srgb, {semantic.color.border} 55%, {semantic.color.surface})" },
+    "current-bg":     { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "current-fg":     { "$type": "color",     "$value": "{semantic.color.action.primary.fg}" },
+    "cell-padding-x": { "$type": "dimension", "$value": "{primitive.space.3}" },
+    "cell-padding-y": { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "head-1-h":       { "$type": "dimension", "$value": "2rem" },
+    "head-2-h":       { "$type": "dimension", "$value": "1.75rem" }
+  },
   "datepicker": {
     "height":         { "$type": "dimension",  "$value": "{semantic.control.height}" },
     "padding-x":      { "$type": "dimension",  "$value": "{semantic.control.padding-x}" },
