@@ -12,7 +12,7 @@
       "border": { "$type": "color", "$value": "{semantic.color.border}" }
     },
     "default-hover": {
-      "bg": { "$type": "color", "$value": "{primitive.color.gray.100}" }
+      "bg": { "$type": "color", "$value": "{semantic.color.muted-bg}" }
     },
     "primary": {
       "bg":     { "$type": "color", "$value": "{semantic.color.action.primary.bg}" },
@@ -456,10 +456,10 @@
     "border":         { "$type": "color",     "$value": "{semantic.color.border}" },
     "fg":             { "$type": "color",     "$value": "{semantic.color.text}" },
     "font-size":      { "$type": "dimension", "$value": "{semantic.font.size-md}" },
-    "header-bg":      { "$type": "color",     "$value": "{primitive.color.gray.50}" },
+    "header-bg":      { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
     "header-fg":      { "$type": "color",     "$value": "{semantic.color.text}" },
     "header-weight":  { "$type": "fontWeight", "$value": "{semantic.font.weight-semibold}" },
-    "row-hover-bg":   { "$type": "color",     "$value": "{primitive.color.gray.50}" },
+    "row-hover-bg":   { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
     "cell-padding-x": { "$type": "dimension", "$value": "{semantic.space.3}" },
     "cell-padding-y": { "$type": "dimension", "$value": "{semantic.space.2}" }
   },
@@ -625,7 +625,7 @@
     "bg":           { "$type": "color",      "$value": "transparent" },
     "fg":           { "$type": "color",      "$value": "{semantic.color.text}" },
     "border":       { "$type": "color",      "$value": "transparent" },
-    "hover-bg":     { "$type": "color",      "$value": "{primitive.color.gray.100}" },
+    "hover-bg":     { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
     "current-bg":   { "$type": "color",      "$value": "{semantic.color.action.primary.bg}" },
     "current-fg":   { "$type": "color",      "$value": "{semantic.color.action.primary.fg}" },
     "current-border": { "$type": "color",    "$value": "{semantic.color.action.primary.border}" },

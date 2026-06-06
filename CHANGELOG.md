@@ -527,6 +527,15 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **Dark-mode hover / header surfaces no longer hide their text.** A few
+  neutral backgrounds — the default button's hover, pagination's hover,
+  and the table header / row-hover — referenced `primitive.color.gray.*`
+  directly instead of the theme-aware `muted-bg`, so they stayed light
+  under `[data-theme="dark"]` and the (light) text on top vanished (most
+  visibly: hovering a default button hid its label). They now route
+  through `semantic.color.muted-bg` — unchanged in light (gray.100),
+  gray.700 in dark. Regression test in `nested-theme.spec.mjs`.
+
 - **`hc-select` chevron no longer overlaps the text under RTL.** The
   chevron is painted with `background-position`, which has no logical
   (inline-start/end) keyword, so it stayed pinned to the physical right
