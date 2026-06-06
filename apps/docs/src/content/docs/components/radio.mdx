@@ -167,7 +167,7 @@ For form layout, wrap the group in [`hc-field`](/hypermedia-components/component
 to share a label and validation message across radios.
 
 <Demo>
-  <fieldset class="hc-field" style="border:0;padding:0;margin:0;">
+  <fieldset class="hc-field">
     <legend class="hc-field__label">Notification frequency</legend>
     <label class="hc-radio-label">
       <input class="hc-radio" type="radio" name="freq" checked />
@@ -187,8 +187,7 @@ to share a label and validation message across radios.
   <Fragment slot="code">
 
   ```html
-  <!-- A native <fieldset> keeps its border/padding — reset it here. -->
-  <fieldset class="hc-field" style="border:0;padding:0;margin:0;">
+  <fieldset class="hc-field">
     <legend class="hc-field__label">Notification frequency</legend>
     <label class="hc-radio-label">
       <input class="hc-radio" type="radio" name="freq" value="now" checked>

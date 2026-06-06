@@ -527,6 +527,13 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **`hc-field` zeroes native `<fieldset>` chrome.** When applied to a
+  `<fieldset>` (the semantic grouping primitive for related radios), the
+  class now resets `border` / `padding` / `margin` and sets
+  `min-inline-size: 0`, so grouped radio fields no longer need a
+  copy-paste `style="border:0;padding:0;margin:0;"` to suppress the default
+  fieldset border, padding, and min-width.
+
 - **Slider / progress / switch tracks and the avatar fallback darken in
   dark mode.** These last neutral surfaces hardcoded
   `primitive.color.gray.200` (and the avatar initials `gray.700`), so they

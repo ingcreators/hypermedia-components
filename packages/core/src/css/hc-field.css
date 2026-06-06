@@ -13,6 +13,17 @@
     gap: var(--hc-field-gap);
   }
 
+  /* When `hc-field` is applied to a native `<fieldset>` (the semantic
+   * grouping primitive for related radios/checkboxes), strip the default
+   * fieldset chrome so it lays out like the `<div>` form of the field.
+   * `min-inline-size: 0` opts out of the fieldset's min-content width. */
+  fieldset.hc-field {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    min-inline-size: 0;
+  }
+
   .hc-field__label {
     color: var(--hc-field-label-color);
     font-size: var(--hc-field-label-font-size);
