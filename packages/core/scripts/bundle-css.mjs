@@ -65,6 +65,7 @@ const COMPONENTS = [
   'hc-toggle-group.css',
   'hc-menu.css',
   'hc-menubar.css',
+  'hc-navmenu.css',
   'hc-command.css',
   'hc-calendar.css',
   'hc-tooltip.css',

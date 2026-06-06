@@ -1236,6 +1236,33 @@
     </script>
   </section>
 
+  <section id="section-navmenu" data-testid="section-navmenu">
+    <h2>Navmenu</h2>
+
+    <nav class="hc-navmenu" aria-label="Primary" data-testid="navmenu">
+      <ul class="hc-navmenu__list">
+        <li class="hc-navmenu__item">
+          <button class="hc-navmenu__trigger" type="button" data-hc-navmenu-trigger
+                  aria-controls="nm-products" data-testid="nm-products-t">Products</button>
+          <div class="hc-navmenu__panel" id="nm-products" data-testid="nm-products">
+            <a class="hc-navmenu__link" href="#nm-analytics" data-testid="nm-analytics">Analytics</a>
+            <a class="hc-navmenu__link" href="#nm-billing" data-testid="nm-billing">Billing</a>
+          </div>
+        </li>
+        <li class="hc-navmenu__item">
+          <button class="hc-navmenu__trigger" type="button" data-hc-navmenu-trigger
+                  aria-controls="nm-company" data-testid="nm-company-t">Company</button>
+          <div class="hc-navmenu__panel" id="nm-company" data-testid="nm-company">
+            <a class="hc-navmenu__link" href="#nm-about" data-testid="nm-about">About</a>
+          </div>
+        </li>
+        <li class="hc-navmenu__item">
+          <a class="hc-navmenu__link" href="#nm-pricing" data-testid="nm-pricing">Pricing</a>
+        </li>
+      </ul>
+    </nav>
+  </section>
+
   <section id="section-menubar" data-testid="section-menubar">
     <h2>Menubar</h2>
 

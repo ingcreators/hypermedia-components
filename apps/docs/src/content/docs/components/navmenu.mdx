@@ -1,0 +1,132 @@
+---
+title: Navigation menu
+description: Top-level site navigation with content panels (mega-menu).
+---
+
+`hc-navmenu` is a top-level site navigation whose items can open content
+**panels** (a mega-menu). It is a disclosure set: each trigger is a
+`button[aria-expanded]` controlling a `popover` panel anchored under it with
+CSS Anchor Positioning. Panels open on hover / focus, **one at a time**, and
+the links inside stay real `<a>` — so it works for plain MPA navigation and
+htmx alike.
+
+## Basic example
+
+<div class="hc-preview not-content" style="min-block-size: 16rem;">
+  <nav class="hc-navmenu" aria-label="Main">
+    <ul class="hc-navmenu__list">
+      <li class="hc-navmenu__item">
+        <button class="hc-navmenu__trigger" type="button" data-hc-navmenu-trigger aria-controls="doc-nm-products">Products</button>
+        <div class="hc-navmenu__panel" id="doc-nm-products">
+          <a class="hc-navmenu__link" href="#analytics">Analytics</a>
+          <a class="hc-navmenu__link" href="#billing">Billing</a>
+          <a class="hc-navmenu__link" href="#automation">Automation</a>
+        </div>
+      </li>
+      <li class="hc-navmenu__item">
+        <button class="hc-navmenu__trigger" type="button" data-hc-navmenu-trigger aria-controls="doc-nm-company">Company</button>
+        <div class="hc-navmenu__panel" id="doc-nm-company">
+          <a class="hc-navmenu__link" href="#about">About</a>
+          <a class="hc-navmenu__link" href="#careers">Careers</a>
+        </div>
+      </li>
+      <li class="hc-navmenu__item">
+        <a class="hc-navmenu__link" href="#pricing">Pricing</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+```html
+<nav class="hc-navmenu" aria-label="Main">
+  <ul class="hc-navmenu__list">
+    <li class="hc-navmenu__item">
+      <button class="hc-navmenu__trigger" type="button"
+              data-hc-navmenu-trigger aria-controls="nm-products">Products</button>
+      <div class="hc-navmenu__panel" id="nm-products">
+        <a class="hc-navmenu__link" href="/analytics">Analytics</a>
+        <a class="hc-navmenu__link" href="/billing">Billing</a>
+      </div>
+    </li>
+    <!-- A plain top-level link needs no trigger / panel. -->
+    <li class="hc-navmenu__item">
+      <a class="hc-navmenu__link" href="/pricing">Pricing</a>
+    </li>
+  </ul>
+</nav>
+```
+
+```js
+import { installNavmenu } from '@hypermedia-components/core';
+installNavmenu();
+```
+
+A trigger gets `aria-haspopup` / `aria-expanded` / `aria-controls` wired
+automatically; its panel becomes a `popover` anchored beneath it.
+
+## Behaviour
+
+- **Hover / focus** opens a panel after a short intent delay and closes it
+  after a brief grace period (so moving the pointer from the trigger into the
+  panel doesn't dismiss it). Only one panel is open at a time.
+- **Keyboard:** `↓` / `↑` open the panel and move focus to the first / last
+  item inside; `Esc` closes it and returns focus to the trigger; `Tab` moves
+  through triggers and panel links normally.
+- **Links stay links.** The behavior never intercepts clicks on `<a>` inside
+  a panel — navigation is the browser's (or htmx's, if the link carries
+  `data-hx-*`).
+
+## Responsive (mobile)
+
+On narrow screens a horizontal mega-menu doesn't fit. Because the panels are
+plain markup, the same content degrades well: collapse the bar behind a
+toggle (e.g. inside an [`hc-drawer`](/hypermedia-components/components/drawer/))
+and let each section render as a stacked
+[`hc-collapsible`](/hypermedia-components/components/collapsible/). Switch
+layouts with a media query — the links and structure are identical, so no
+duplicate markup is required.
+
+## Accessibility
+
+- Wrap the menu in a `<nav>` with an `aria-label`; each panel trigger is a
+  real `<button>` exposing `aria-expanded` and `aria-controls`.
+- Panels are `popover`s, so `Esc` and outside-click dismissal come from the
+  platform; focus returns to the trigger on `Esc`.
+- Keep panel contents as real links / buttons in source order so they are
+  reachable by Tab and announced normally.
+- Anchor Positioning is **Baseline 2026**; where it is missing,
+  `installNavmenu()` falls back to JS positioning (the panel still opens and
+  dismisses correctly everywhere `popover` is supported).
+
+## Theming tokens
+
+| Token path                     | Purpose                          |
+| ------------------------------ | -------------------------------- |
+| `navmenu.gap`                  | Gap between top items.           |
+| `navmenu.trigger-padding-x` / `-y` | Trigger / top-link padding.  |
+| `navmenu.trigger-radius`       | Trigger / top-link radius.       |
+| `navmenu.trigger-fg`           | Trigger text colour.             |
+| `navmenu.trigger-hover-bg`     | Trigger hover / open background.  |
+| `navmenu.panel-bg` / `-fg` / `-border` | Panel surface.           |
+| `navmenu.panel-radius` / `-padding` / `-min-width` | Panel box. |
+| `navmenu.panel-offset`         | Gap between trigger and panel.    |
+| `navmenu.link-padding-x` / `-y` / `-radius` | Panel link box.     |
+| `navmenu.link-fg` / `-hover-bg` | Panel link colours.             |
+
+## CSS variables
+
+```text
+--hc-navmenu-gap | -trigger-padding-x | -trigger-padding-y | -trigger-radius
+--hc-navmenu-trigger-fg | -trigger-hover-bg
+--hc-navmenu-panel-bg | -panel-fg | -panel-border | -panel-radius | -panel-padding | -panel-min-width | -panel-offset
+--hc-navmenu-link-padding-x | -link-padding-y | -link-radius | -link-fg | -link-hover-bg
+```
+
+## Related
+
+- [Menubar](/hypermedia-components/components/menubar/) — application menu
+  bar (actions), not site navigation.
+- [Menu](/hypermedia-components/components/menu/) — a single dropdown action
+  menu.
+- [Drawer](/hypermedia-components/components/drawer/) — a common host for the
+  mobile version of a site nav.

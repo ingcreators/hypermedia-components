@@ -15,6 +15,7 @@ import { installRemoteDialog } from './remote-dialog.js';
 import { installTabs } from './tabs.js';
 import { installMenu } from './menu.js';
 import { installMenubar } from './menubar.js';
+import { installNavmenu } from './navmenu.js';
 import { installTooltip } from './tooltip.js';
 import { installPopover } from './popover.js';
 import { installSlider } from './slider.js';
@@ -45,6 +46,7 @@ function init() {
   installTabs();
   installMenu();
   installMenubar();
+  installNavmenu();
   installTooltip();
   installPopover();
   installSlider();
@@ -84,6 +86,7 @@ export {
   installTabs,
   installMenu,
   installMenubar,
+  installNavmenu,
   installTooltip,
   installPopover,
   installSlider,
