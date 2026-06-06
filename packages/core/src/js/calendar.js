@@ -27,6 +27,16 @@
 // with `detail { value: 'YYYY-MM-DD', date: Date }`, syncs `data-value`,
 // and (with `data-name`) a hidden `<input>` so it serialises in a form.
 //
+// Range mode (`data-mode="range"`): the first click / Enter sets the start,
+// the next sets the end (auto-swapped so start <= end); a third begins a new
+// range. The band paints `data-in-range` between the ends with
+// `data-range-start` / `data-range-end` markers, and `data-range-preview*`
+// while the second end is still being chosen (pointer or keyboard). Each
+// change dispatches `hc:calendarrangechange` with
+// `detail { start, end, startDate, endDate }`; `data-value` becomes
+// `"START/END"` and `data-name` writes two hidden inputs (`name-start` /
+// `name-end`). Single mode stays the default.
+//
 // installCalendar(root = document) returns an idempotent uninstaller.
 // hc-datepicker (the native `<input type="date">` skin) remains the
 // no-JS baseline; hc-calendar is the opt-in styled grid.
@@ -95,17 +105,6 @@ function el(doc, tag, attrs = {}, text) {
   return node;
 }
 
-function findHiddenInput(root) {
-  let input = root.querySelector(':scope > input[type="hidden"].hc-calendar__value');
-  if (!input) {
-    input = root.ownerDocument.createElement('input');
-    input.type = 'hidden';
-    input.className = 'hc-calendar__value';
-    root.appendChild(input);
-  }
-  return input;
-}
-
 function attach(root, detachers) {
   if (detachers.has(root)) return;
 
@@ -119,11 +118,28 @@ function attach(root, detachers) {
   const name = root.getAttribute('data-name');
   const gridLabel = root.getAttribute('aria-label') || t('calendar.label');
 
-  const state = {
-    selected: root.getAttribute('data-value') || null,
-    focused: null,
-  };
-  state.focused = state.selected || clampToRange(todayISO(), min, max);
+  // data-mode="range" tracks a start / end pair; single (default) tracks one
+  // selected date.
+  const mode = root.getAttribute('data-mode') === 'range' ? 'range' : 'single';
+  const dataValue = root.getAttribute('data-value');
+
+  const state = { selected: null, start: null, end: null, focused: null };
+  if (mode === 'range') {
+    let s = root.getAttribute('data-start') || null;
+    let e = root.getAttribute('data-end') || null;
+    if (!s && dataValue) {
+      const parts = dataValue.split('/');
+      s = parts[0] || null;
+      e = parts[1] || null;
+    }
+    if (s && e && e < s) [s, e] = [e, s]; // normalise so start <= end
+    state.start = s || null;
+    state.end = e || null;
+    state.focused = state.start || clampToRange(todayISO(), min, max);
+  } else {
+    state.selected = dataValue || null;
+    state.focused = state.selected || clampToRange(todayISO(), min, max);
+  }
 
   const today = todayISO();
 
@@ -139,11 +155,59 @@ function attach(root, detachers) {
   const wdShortFmt = new Intl.DateTimeFormat(locale, { weekday: 'short' });
   const wdLongFmt = new Intl.DateTimeFormat(locale, { weekday: 'long' });
 
+  // Maintain hidden <input>s so the value serialises in a form. Single mode
+  // writes one (`name`); range mode writes two (`name-start` / `name-end`).
+  function ensureHidden(suffix) {
+    const cls = `hc-calendar__value${suffix}`;
+    let input = root.querySelector(`:scope > input.${cls}`);
+    if (!input) {
+      input = doc.createElement('input');
+      input.type = 'hidden';
+      input.className = cls;
+      root.appendChild(input);
+    }
+    return input;
+  }
+
   function syncHidden() {
     if (!name) return;
-    const input = findHiddenInput(root);
-    input.name = name;
-    input.value = state.selected || '';
+    if (mode === 'range') {
+      const s = ensureHidden('-start');
+      s.name = `${name}-start`;
+      s.value = state.start || '';
+      const e = ensureHidden('-end');
+      e.name = `${name}-end`;
+      e.value = state.end || '';
+    } else {
+      const input = ensureHidden('');
+      input.name = name;
+      input.value = state.selected || '';
+    }
+  }
+
+  function dayCells() {
+    return root.querySelectorAll('.hc-calendar__day');
+  }
+
+  // Live preview of the tentative band while one end is chosen (the other is
+  // the hovered / focused day). Transient — cleared on the next render.
+  function clearPreview() {
+    for (const c of dayCells()) {
+      c.removeAttribute('data-range-preview');
+      c.removeAttribute('data-range-preview-end');
+    }
+  }
+
+  function paintPreview(toIso) {
+    clearPreview();
+    if (mode !== 'range' || !state.start || state.end || !toIso || toIso === state.start) return;
+    const lo = state.start < toIso ? state.start : toIso;
+    const hi = state.start < toIso ? toIso : state.start;
+    for (const c of dayCells()) {
+      const iso = c.getAttribute('data-date');
+      if (iso >= lo && iso <= hi) c.setAttribute('data-range-preview', '');
+      if (iso === toIso) c.setAttribute('data-range-preview-end', '');
+    }
   }
 
   // Build the month + year dropdowns shown in place of the title when
@@ -180,8 +244,8 @@ function attach(root, detachers) {
   function render() {
     const { y, m0 } = partsOf(state.focused);
 
-    // Preserve the hidden input (if any) across re-render.
-    const hidden = root.querySelector(':scope > input.hc-calendar__value');
+    // Preserve the hidden input(s) (if any) across re-render.
+    const hiddenInputs = [...root.querySelectorAll(':scope > input[type="hidden"]')];
     root.replaceChildren();
 
     const header = el(doc, 'div', { class: 'hc-calendar__header' });
@@ -231,7 +295,20 @@ function attach(root, detachers) {
         }, String(cursor.getDate()));
         if (outside) td.setAttribute('data-outside', '');
         if (iso === today) td.setAttribute('data-today', '');
-        if (iso === state.selected) td.setAttribute('aria-selected', 'true');
+        if (mode === 'range') {
+          const { start, end } = state;
+          if (start && end && iso >= start && iso <= end) td.setAttribute('data-in-range', '');
+          if (start && iso === start) {
+            td.setAttribute('data-range-start', '');
+            td.setAttribute('aria-selected', 'true');
+          }
+          if (end && iso === end) {
+            td.setAttribute('data-range-end', '');
+            td.setAttribute('aria-selected', 'true');
+          }
+        } else if (iso === state.selected) {
+          td.setAttribute('aria-selected', 'true');
+        }
         if (disabled) td.setAttribute('aria-disabled', 'true');
         tr.append(td);
         cursor.setDate(cursor.getDate() + 1);
@@ -241,8 +318,10 @@ function attach(root, detachers) {
     table.append(tbody);
 
     root.append(header, table);
-    if (hidden) root.append(hidden);
+    for (const h of hiddenInputs) root.append(h);
     syncHidden();
+    // Re-apply the keyboard preview band after the grid is rebuilt.
+    if (mode === 'range') paintPreview(state.focused);
   }
 
   function focusDay(iso) {
@@ -269,6 +348,43 @@ function attach(root, detachers) {
     }));
   }
 
+  function dispatchRangeChange() {
+    root.dispatchEvent(new CustomEvent('hc:calendarrangechange', {
+      bubbles: true,
+      detail: {
+        start: state.start,
+        end: state.end,
+        startDate: state.start ? fromParts(partsOf(state.start)) : null,
+        endDate: state.end ? fromParts(partsOf(state.end)) : null,
+      },
+    }));
+  }
+
+  function selectRange(iso) {
+    if (!inRange(iso, min, max)) return;
+    if (!state.start || (state.start && state.end)) {
+      // Begin a new range.
+      state.start = iso;
+      state.end = null;
+    } else if (iso < state.start) {
+      // Second click before the start — swap so start <= end.
+      state.end = state.start;
+      state.start = iso;
+    } else {
+      state.end = iso;
+    }
+    state.focused = iso;
+    root.setAttribute('data-value', state.end ? `${state.start}/${state.end}` : state.start);
+    render();
+    focusDay(iso);
+    dispatchRangeChange();
+  }
+
+  function commit(iso) {
+    if (mode === 'range') selectRange(iso);
+    else select(iso);
+  }
+
   function onClick(event) {
     if (event.target.closest('[data-hc-calendar-prev]')) {
       state.focused = addMonths(state.focused, -1);
@@ -284,8 +400,21 @@ function attach(root, detachers) {
     }
     const day = event.target.closest('.hc-calendar__day');
     if (day && day.getAttribute('aria-disabled') !== 'true') {
-      select(day.getAttribute('data-date'));
+      commit(day.getAttribute('data-date'));
     }
+  }
+
+  // Range preview follows the pointer while one end is chosen.
+  function onPointerover(event) {
+    if (mode !== 'range' || !state.start || state.end) return;
+    const day = event.target.closest?.('.hc-calendar__day');
+    if (day && day.getAttribute('aria-disabled') !== 'true') {
+      paintPreview(day.getAttribute('data-date'));
+    }
+  }
+
+  function onPointerleave() {
+    if (mode === 'range') paintPreview(state.focused);
   }
 
   function onChange(event) {
@@ -325,7 +454,7 @@ function attach(root, detachers) {
       case 'Enter':
       case ' ':
         event.preventDefault();
-        select(cur);
+        commit(cur);
         break;
       default:
         break;
@@ -335,12 +464,18 @@ function attach(root, detachers) {
   root.addEventListener('click', onClick);
   root.addEventListener('keydown', onKeydown);
   if (navSelect) root.addEventListener('change', onChange);
+  if (mode === 'range') {
+    root.addEventListener('pointerover', onPointerover);
+    root.addEventListener('pointerleave', onPointerleave);
+  }
   render();
 
   detachers.set(root, () => {
     root.removeEventListener('click', onClick);
     root.removeEventListener('keydown', onKeydown);
     root.removeEventListener('change', onChange);
+    root.removeEventListener('pointerover', onPointerover);
+    root.removeEventListener('pointerleave', onPointerleave);
   });
 }
 

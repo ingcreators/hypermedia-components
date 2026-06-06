@@ -109,6 +109,42 @@ calendar.addEventListener('hc:calendarchange', (e) => {
 });
 ```
 
+## Range selection
+
+Add `data-mode="range"` to pick a start and end date. The first click (or
+<kbd>Enter</kbd>) sets the start, the next sets the end (auto-swapped so
+start ≤ end), and a third starts a fresh range. While the second end is
+being chosen, the tentative band previews under the pointer or the
+keyboard focus.
+
+```html
+<div class="hc-calendar" data-mode="range"
+     data-value="2026-05-10/2026-05-14"
+     data-name="stay" aria-label="Pick a date range"></div>
+```
+
+The days carry `data-in-range` between the ends (with `data-range-start` /
+`data-range-end` markers, and `data-range-preview*` during selection) so you
+can theme the band. Each change dispatches **`hc:calendarrangechange`**:
+
+```js
+calendar.addEventListener('hc:calendarrangechange', (e) => {
+  const { start, end, startDate, endDate } = e.detail;
+  // start / end: 'YYYY-MM-DD' (end is null until the second pick)
+});
+```
+
+`data-value` becomes `"START/END"`, and with `data-name="stay"` the calendar
+writes **two hidden inputs** — `stay-start` and `stay-end` — so the range
+serialises for htmx without any client-side state:
+
+```html
+<!-- submits stay-start=2026-05-10 & stay-end=2026-05-14 -->
+```
+
+Single-date mode stays the default. (Multiple months side by side and week
+numbers remain out of scope.)
+
 ## Form integration
 
 Set `data-name` and the calendar serialises like a native control via a
@@ -189,11 +225,11 @@ More patterns: [Hyperscript → Reacting to component events](/hypermedia-compon
 
 ## Out of scope
 
-Range selection, multiple months side by side, week numbers, time selection,
-and non-Gregorian calendars are deferred. Month / year dropdown navigation is
-supported — see [Month / year navigation](#month--year-navigation). For a
-no-JS native field, see
-[Datepicker](/hypermedia-components/components/datepicker/).
+Multiple months side by side, week numbers, time selection, and non-Gregorian
+calendars are deferred. Range selection (see
+[Range selection](#range-selection)) and month / year dropdown navigation (see
+[Month / year navigation](#month--year-navigation)) are supported. For a no-JS
+native field, see [Datepicker](/hypermedia-components/components/datepicker/).
 
 ## Related
 

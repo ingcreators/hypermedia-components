@@ -193,6 +193,112 @@ describe('installCalendar', () => {
   });
 });
 
+describe('installCalendar — range mode', () => {
+  // Pre-selected range 2026-05-10 .. 2026-05-14 (May pinned for determinism).
+  const RANGE = `
+    <div class="hc-calendar" data-mode="range" data-value="2026-05-10/2026-05-14"
+         data-name="stay" data-first-day="0" data-locale="en-US" aria-label="Stay"></div>
+  `;
+  const hidden = (n) => cal().querySelector(`input[type="hidden"][name="${n}"]`);
+
+  it('parses data-value="START/END" and paints the band with both ends', () => {
+    document.body.innerHTML = RANGE;
+    uninstall = installCalendar();
+    expect(cell('2026-05-10').getAttribute('data-range-start')).toBe('');
+    expect(cell('2026-05-10').getAttribute('aria-selected')).toBe('true');
+    expect(cell('2026-05-14').getAttribute('data-range-end')).toBe('');
+    expect(cell('2026-05-14').getAttribute('aria-selected')).toBe('true');
+    expect(cell('2026-05-12').hasAttribute('data-in-range')).toBe(true);
+    expect(cell('2026-05-09').hasAttribute('data-in-range')).toBe(false);
+  });
+
+  it('writes two hidden inputs (name-start / name-end)', () => {
+    document.body.innerHTML = RANGE;
+    uninstall = installCalendar();
+    expect(hidden('stay-start').value).toBe('2026-05-10');
+    expect(hidden('stay-end').value).toBe('2026-05-14');
+  });
+
+  it('first click starts a new range; the second sets the end', () => {
+    document.body.innerHTML = RANGE;
+    uninstall = installCalendar();
+
+    click(cell('2026-05-20')); // both ends were set → begin a new range
+    expect(cell('2026-05-20').getAttribute('data-range-start')).toBe('');
+    expect(cell('2026-05-22').hasAttribute('data-in-range')).toBe(false);
+    expect(cal().getAttribute('data-value')).toBe('2026-05-20');
+
+    click(cell('2026-05-22'));
+    expect(cell('2026-05-22').getAttribute('data-range-end')).toBe('');
+    expect(cell('2026-05-21').hasAttribute('data-in-range')).toBe(true);
+    expect(cal().getAttribute('data-value')).toBe('2026-05-20/2026-05-22');
+    expect(hidden('stay-start').value).toBe('2026-05-20');
+    expect(hidden('stay-end').value).toBe('2026-05-22');
+  });
+
+  it('clicking before the start swaps the ends so start <= end', () => {
+    document.body.innerHTML = RANGE;
+    uninstall = installCalendar();
+    click(cell('2026-05-20')); // new start
+    click(cell('2026-05-18')); // earlier than start → swap
+    expect(cell('2026-05-18').getAttribute('data-range-start')).toBe('');
+    expect(cell('2026-05-20').getAttribute('data-range-end')).toBe('');
+    expect(cal().getAttribute('data-value')).toBe('2026-05-18/2026-05-20');
+  });
+
+  it('emits hc:calendarrangechange with start / end / Date objects', () => {
+    document.body.innerHTML = RANGE;
+    uninstall = installCalendar();
+    const detail = vi.fn();
+    cal().addEventListener('hc:calendarrangechange', (e) => detail(e.detail));
+
+    click(cell('2026-05-20'));
+    expect(detail.mock.calls[0][0]).toMatchObject({ start: '2026-05-20', end: null });
+
+    click(cell('2026-05-22'));
+    const d = detail.mock.calls[1][0];
+    expect(d.start).toBe('2026-05-20');
+    expect(d.end).toBe('2026-05-22');
+    expect(d.startDate).toBeInstanceOf(Date);
+    expect(d.endDate).toBeInstanceOf(Date);
+  });
+
+  it('keyboard: Enter sets the start, then the end after moving focus', () => {
+    document.body.innerHTML = RANGE;
+    uninstall = installCalendar();
+    press(cell('2026-05-10'), 'Enter'); // focused start → begin new range at 10
+    expect(cell('2026-05-10').getAttribute('data-range-start')).toBe('');
+    expect(cell('2026-05-14').hasAttribute('data-range-end')).toBe(false);
+
+    press(cell('2026-05-10'), 'ArrowRight'); // focus 11
+    press(cell('2026-05-11'), 'Enter');
+    expect(cell('2026-05-11').getAttribute('data-range-end')).toBe('');
+    expect(cell('2026-05-10').getAttribute('data-range-start')).toBe('');
+  });
+
+  it('previews the tentative band while choosing the second end (keyboard)', () => {
+    document.body.innerHTML = RANGE;
+    uninstall = installCalendar();
+    click(cell('2026-05-20')); // start a new range
+    press(cell('2026-05-20'), 'ArrowRight'); // focus 21 → preview 20..21
+    expect(cell('2026-05-21').getAttribute('data-range-preview-end')).toBe('');
+    expect(cell('2026-05-21').hasAttribute('data-range-preview')).toBe(true);
+  });
+
+  it('refuses a range endpoint outside data-min / data-max', () => {
+    document.body.innerHTML = RANGE.replace(
+      'data-name="stay"',
+      'data-min="2026-05-12" data-max="2026-05-25"',
+    );
+    uninstall = installCalendar();
+    const detail = vi.fn();
+    cal().addEventListener('hc:calendarrangechange', detail);
+    expect(cell('2026-05-05').getAttribute('aria-disabled')).toBe('true');
+    click(cell('2026-05-05')); // disabled → no-op
+    expect(detail).not.toHaveBeenCalled();
+  });
+});
+
 describe('installCalendar — month / year quick nav', () => {
   // data-value 2026-05-15 → May (m0 = 4) 2026.
   const NAV = FIXTURE.replace('class="hc-calendar"', 'class="hc-calendar" data-nav="select"');

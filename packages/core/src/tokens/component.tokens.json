@@ -650,7 +650,9 @@
     "day-selected-fg": { "$type": "color",     "$value": "{semantic.color.action.primary.fg}" },
     "day-today-border": { "$type": "color",    "$value": "{semantic.color.action.primary.bg}" },
     "day-outside-fg": { "$type": "color",      "$value": "{semantic.color.text-muted}" },
-    "day-disabled-fg": { "$type": "color",     "$value": "{semantic.color.text-muted}" }
+    "day-disabled-fg": { "$type": "color",     "$value": "{semantic.color.text-muted}" },
+    "day-range-bg":   { "$type": "color",      "$value": "color-mix(in srgb, {semantic.color.action.primary.bg} 16%, transparent)" },
+    "day-range-preview-bg": { "$type": "color", "$value": "color-mix(in srgb, {semantic.color.action.primary.bg} 8%, transparent)" }
   },
   "command": {
     "bg":              { "$type": "color",      "$value": "{semantic.color.surface}" },

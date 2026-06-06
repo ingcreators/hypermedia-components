@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-calendar` range selection (`data-mode="range"`).** The calendar can now
+  pick a start / end pair: the first click or <kbd>Enter</kbd> sets the start,
+  the next the end (auto-swapped so start ≤ end), a third begins a new range,
+  and the tentative band previews under the pointer / keyboard focus while the
+  second end is chosen. Days carry `data-in-range` between the ends
+  (`data-range-start` / `data-range-end` markers, `data-range-preview*` during
+  selection) for theming — two new themed tokens paint the band. Each change
+  dispatches `hc:calendarrangechange` with `{ start, end, startDate, endDate }`;
+  `data-value` becomes `"START/END"` and `data-name` writes **two** hidden
+  inputs (`name-start` / `name-end`) so a range serialises for htmx without
+  client-side state. Single-date mode stays the default. New Calendar → Range
+  selection docs. 8 Vitest + 5 Playwright tests.
+
 - **`hc-breadcrumb` collapsible ellipsis.** The middle-truncation marker can
   now be a `<button class="hc-breadcrumb__ellipsis" popovertarget="…">` that
   opens a `hc-menu` popover listing the hidden steps. No new JavaScript —
