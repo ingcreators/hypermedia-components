@@ -1,0 +1,149 @@
+---
+title: Kbd
+description: Styled keyboard keys and shortcuts built on the native <kbd> element.
+---
+
+`hc-kbd` is a token-driven skin for the native `<kbd>` element — the
+semantic tag for "user input from the keyboard". Use it for single keys
+(`Esc`, `Enter`) and, with `hc-kbd-group`, for multi-key shortcuts
+(`⌘ + K`). It is presentational only — no JavaScript.
+
+## Basic HTML
+
+<div class="hc-preview not-content" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+  <kbd class="hc-kbd">Esc</kbd>
+  <kbd class="hc-kbd">Enter</kbd>
+  <kbd class="hc-kbd">⌘</kbd>
+  <kbd class="hc-kbd">⇧</kbd>
+  <kbd class="hc-kbd">A</kbd>
+</div>
+
+```html
+<kbd class="hc-kbd">Esc</kbd>
+<kbd class="hc-kbd">Enter</kbd>
+<kbd class="hc-kbd">⌘</kbd>
+```
+
+Single-character keys are centered to a square-ish minimum width
+(`--hc-kbd-min-width`), so `A` and `Esc` line up as a tidy row of caps.
+
+## Shortcuts
+
+Wrap several keys in `hc-kbd-group` to compose a shortcut. The group is
+itself a `<kbd>` (the whole shortcut is one "keyboard input"); the inner
+`<kbd class="hc-kbd">` are the individual caps. Literal text between them
+(`+`, `then`) is rendered in a muted color so the keys stand out.
+
+<div class="hc-preview not-content" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">Ctrl</kbd> + <kbd class="hc-kbd">⇧</kbd> + <kbd class="hc-kbd">P</kbd>
+  </kbd>
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">g</kbd> then <kbd class="hc-kbd">i</kbd>
+  </kbd>
+</div>
+
+```html
+<kbd class="hc-kbd-group">
+  <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+</kbd>
+
+<kbd class="hc-kbd-group">
+  <kbd class="hc-kbd">g</kbd> then <kbd class="hc-kbd">i</kbd>
+</kbd>
+```
+
+## Sizes
+
+Set `data-size="sm"` or `data-size="lg"` on a key — or on the group to
+scale every cap inside it at once. Padding and min-width are `em`-based,
+so one `data-size` resizes the whole cap proportionally.
+
+<div class="hc-preview not-content" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <kbd class="hc-kbd" data-size="sm">Esc</kbd>
+  <kbd class="hc-kbd">Esc</kbd>
+  <kbd class="hc-kbd" data-size="lg">Esc</kbd>
+  <kbd class="hc-kbd-group" data-size="lg">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+</div>
+
+```html
+<kbd class="hc-kbd" data-size="sm">Esc</kbd>
+<kbd class="hc-kbd">Esc</kbd>
+<kbd class="hc-kbd" data-size="lg">Esc</kbd>
+
+<kbd class="hc-kbd-group" data-size="lg">
+  <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+</kbd>
+```
+
+| Size      | Use for                                  |
+| --------- | ---------------------------------------- |
+| `sm`      | Inline hints in dense UI (menus, lists). |
+| _omitted_ | Default — body-text shortcuts.           |
+| `lg`      | Prominent shortcut callouts.             |
+
+## In context
+
+`hc-kbd` slots naturally beside menu items and command rows to advertise
+their shortcut.
+
+<div class="hc-preview not-content" style="display:flex;justify-content:space-between;align-items:center;gap:2rem;max-inline-size:18rem;padding:.4rem .6rem;border:1px solid var(--hc-color-border);border-radius:var(--hc-control-radius);">
+  <span>Command palette</span>
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+</div>
+
+## Accessibility
+
+- A key is announced as its **text content**, so prefer real text
+  (`Ctrl`, `Esc`) where you can.
+- Symbol-only keys (`⌘`, `⇧`, `⌥`) are read inconsistently by screen
+  readers. Give them an explicit label:
+  `<kbd class="hc-kbd" aria-label="Command">⌘</kbd>`.
+- A `<kbd>` is purely descriptive — it is **not** focusable and does not
+  bind the shortcut. The actual key handling stays on the control the
+  shortcut triggers.
+- Don't rely on the cap styling alone to convey "this is a key" — the
+  surrounding text ("Press …") should make the meaning clear.
+
+## Theming tokens
+
+| Token path        | Purpose                                  |
+| ----------------- | ---------------------------------------- |
+| `kbd.bg`          | Keycap background (muted surface).       |
+| `kbd.fg`          | Key text color.                          |
+| `kbd.border`      | Keycap border color.                     |
+| `kbd.radius`      | Keycap corner radius.                    |
+| `kbd.font`        | Monospace font stack for keys.           |
+| `kbd.font-size`   | Default key font size.                   |
+| `kbd.font-weight` | Key font weight.                         |
+| `kbd.padding-x` / `-y` | Cap padding (em-based, scales with size). |
+| `kbd.min-width`   | Minimum cap width (em-based).            |
+| `kbd.sm-font-size` / `lg-font-size` | `data-size` font sizes. |
+
+Colors reference the semantic `muted-bg` / `text` / `border` tokens, so
+keys follow the active light / dark theme without per-component overrides.
+
+## CSS variables
+
+```text
+--hc-kbd-bg | -fg | -border | -radius
+--hc-kbd-font | -font-size | -font-weight
+--hc-kbd-padding-x | -padding-y | -min-width
+--hc-kbd-sm-font-size | -lg-font-size
+```
+
+## Related
+
+- [Command](/hypermedia-components/components/command/) — command palette
+  where shortcut hints commonly appear.
+- [Menu](/hypermedia-components/components/menu/) — menu items often pair a
+  label with its shortcut.
+- [Badge](/hypermedia-components/components/badge/) — another small inline
+  token-driven primitive.
