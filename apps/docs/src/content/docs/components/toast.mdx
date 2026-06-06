@@ -44,8 +44,39 @@ HX-Trigger: {"hc:toast": {"message": "Saved.", "variant": "success"}}
 
 `detail` fields: `message` (required), `title?`, `variant?`
 (`info` · `success` · `warning` · `error`), `duration?` ms (`0` keeps it until
-dismissed). `error` is announced assertively (`role="alert"`); others use
-`role="status"`.
+dismissed), `id?` (see below), `action?` (see below). `error` is announced
+assertively (`role="alert"`); others use `role="status"`.
+
+## Actions & updates
+
+**Action button.** Add `action: { label, event }` and the toast renders a
+button; clicking it dispatches a bubbling `CustomEvent` named `event` (then
+dismisses the toast). Catch it with a plain listener or htmx
+`hx-trigger="<event>"` on any ancestor — handy for **Undo**:
+
+```js
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: { message: 'Item deleted', duration: 0, action: { label: 'Undo', event: 'hc:undo' } },
+}));
+document.body.addEventListener('hc:undo', () => restoreItem());
+```
+
+**Update by id.** Give a toast an `id`; a later `hc:toast` with the **same
+id** updates it **in place** (re-rendering the message / variant and resetting
+the auto-dismiss timer) instead of stacking a new one. That models a
+loading → success / error **promise** without any client state — the network
+stays with htmx:
+
+```text
+# request fires a sticky loading toast
+HX-Trigger: {"hc:toast": {"id": "save-42", "message": "Saving…", "duration": 0}}
+
+# the response updates the same toast
+HX-Trigger: {"hc:toast": {"id": "save-42", "message": "Saved!", "variant": "success", "duration": 4500}}
+```
+
+The toast only models the UI states; htmx performs the actual request.
 
 ## The region
 
