@@ -82,10 +82,11 @@ uses the active colour theme's primary fill.
   <Fragment slot="code">
 
   ```html
-  <input class="hc-radio" type="radio" name="x" checked>
-  <input class="hc-radio" type="radio" name="y" data-variant="success" checked>
-  <input class="hc-radio" type="radio" name="z" data-variant="warning" checked>
-  <input class="hc-radio" type="radio" name="w" data-variant="error" checked>
+  <!-- Separate `name`s here only so each variant can render as checked. -->
+  <input class="hc-radio" type="radio" name="v-default" checked>
+  <input class="hc-radio" type="radio" name="v-success" data-variant="success" checked>
+  <input class="hc-radio" type="radio" name="v-warning" data-variant="warning" checked>
+  <input class="hc-radio" type="radio" name="v-error"   data-variant="error" checked>
   ```
 
   </Fragment>
@@ -151,9 +152,10 @@ fixed across density tiers.
   <Fragment slot="code">
 
   ```html
-  <input class="hc-radio" type="radio" name="x" aria-invalid="true">
-  <input class="hc-radio" type="radio" name="x" disabled>
-  <input class="hc-radio" type="radio" name="x" disabled checked>
+  <input class="hc-radio" type="radio" name="notify" aria-invalid="true">
+  <!-- A disabled group with one option pre-selected. -->
+  <input class="hc-radio" type="radio" name="plan" disabled>
+  <input class="hc-radio" type="radio" name="plan" disabled checked>
   ```
 
   </Fragment>
@@ -185,7 +187,8 @@ to share a label and validation message across radios.
   <Fragment slot="code">
 
   ```html
-  <fieldset class="hc-field">
+  <!-- A native <fieldset> keeps its border/padding — reset it here. -->
+  <fieldset class="hc-field" style="border:0;padding:0;margin:0;">
     <legend class="hc-field__label">Notification frequency</legend>
     <label class="hc-radio-label">
       <input class="hc-radio" type="radio" name="freq" value="now" checked>

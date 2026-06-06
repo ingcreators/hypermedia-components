@@ -33,9 +33,19 @@ to a piece of information. Variants are switched with `data-variant`.
   ```html
   <div class="hc-alert" role="status">
     <strong class="hc-alert__title">Tip</strong>
-    <p class="hc-alert__body">You can press Ctrl+K to open the command bar.</p>
+    <p class="hc-alert__body">You can press <kbd>Ctrl</kbd>+<kbd>K</kbd> to open the command bar.</p>
   </div>
-  
+
+  <div class="hc-alert" data-variant="success" role="status">
+    <strong class="hc-alert__title">Saved</strong>
+    <p class="hc-alert__body">Your changes are saved.</p>
+  </div>
+
+  <div class="hc-alert" data-variant="warning" role="status">
+    <strong class="hc-alert__title">Heads up</strong>
+    <p class="hc-alert__body">This action will affect 3 connected systems.</p>
+  </div>
+
   <div class="hc-alert" data-variant="error" role="alert">
     <strong class="hc-alert__title">Something went wrong</strong>
     <p class="hc-alert__body">The server returned a 500. Please try again.</p>
