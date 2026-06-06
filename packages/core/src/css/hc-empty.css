@@ -1,0 +1,68 @@
+/* hc-empty — a centered empty-state block.
+ *
+ *   <div class="hc-empty">
+ *     <div class="hc-empty__media" aria-hidden="true">📭</div>
+ *     <p class="hc-empty__title">No results</p>
+ *     <p class="hc-empty__description">Try a different search.</p>
+ *     <div class="hc-empty__actions">
+ *       <button class="hc-button" type="button">Clear filters</button>
+ *     </div>
+ *   </div>
+ *
+ * For "no results" / "nothing here yet" states. Token-driven spacing, no JS.
+ * Pairs with htmx: a list endpoint can swap in this block as its empty
+ * partial (wrap the target in aria-live to announce it). The role is left
+ * to the author — see the docs a11y note.
+ */
+@layer hc.components {
+  .hc-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--hc-empty-padding);
+    text-align: center;
+  }
+
+  .hc-empty__media {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-empty-media-size);
+    block-size: var(--hc-empty-media-size);
+    margin-block-end: var(--hc-empty-media-margin);
+    color: var(--hc-empty-media-fg);
+    font-size: var(--hc-empty-media-size);
+    line-height: 1;
+  }
+
+  /* An svg / img illustration fills the media slot. */
+  .hc-empty__media > svg,
+  .hc-empty__media > img {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .hc-empty__title {
+    margin: 0;
+    color: var(--hc-empty-title-fg);
+    font-size: var(--hc-empty-title-font-size);
+    font-weight: var(--hc-empty-title-font-weight);
+  }
+
+  .hc-empty__description {
+    max-inline-size: var(--hc-empty-description-max-width);
+    margin-block: var(--hc-empty-description-margin) 0;
+    margin-inline: 0;
+    color: var(--hc-empty-description-fg);
+    font-size: var(--hc-empty-description-font-size);
+  }
+
+  .hc-empty__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--hc-space-2);
+    justify-content: center;
+    margin-block-start: var(--hc-empty-actions-margin);
+  }
+}

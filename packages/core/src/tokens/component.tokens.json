@@ -495,6 +495,20 @@
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
     }
   },
+  "empty": {
+    "padding":                { "$type": "dimension",  "$value": "{semantic.space.6}" },
+    "media-size":             { "$type": "dimension",  "$value": "3rem" },
+    "media-fg":               { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+    "media-margin":           { "$type": "dimension",  "$value": "{semantic.space.4}" },
+    "title-font-size":        { "$type": "dimension",  "$value": "{semantic.font.size-lg}" },
+    "title-font-weight":      { "$type": "fontWeight", "$value": "{semantic.font.weight-semibold}" },
+    "title-fg":               { "$type": "color",      "$value": "{semantic.color.text}" },
+    "description-font-size":   { "$type": "dimension",  "$value": "{semantic.font.size-sm}" },
+    "description-fg":         { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+    "description-max-width":   { "$type": "dimension",  "$value": "40ch" },
+    "description-margin":     { "$type": "dimension",  "$value": "{primitive.space.1}" },
+    "actions-margin":         { "$type": "dimension",  "$value": "{semantic.space.4}" }
+  },
   "kbd": {
     "bg":          { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
     "fg":          { "$type": "color",      "$value": "{semantic.color.text}" },

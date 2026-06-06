@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-empty` — empty-state block.** A centered block for "no results" /
+  "nothing here yet" states: an optional `__media` (icon / illustration)
+  slot, a `__title`, an optional `__description` (width-capped for
+  readability), and an optional `__actions` row. Token-driven spacing, no
+  JavaScript; pairs with htmx "no results" partial swaps (wrap the target in
+  `aria-live` to announce it). The role is left to the author so it fits the
+  context. New `empty.*` tokens, Empty state docs page (incl. an htmx
+  no-results example), and 5 Playwright tests (incl. axe).
+
 - **`hc-spinner` — documented component + variants/sizes.** The existing
   CSS-only loading ring is now a first-class component with a docs page.
   Adds `data-size` (`sm` / default / `lg`) and `data-variant`
