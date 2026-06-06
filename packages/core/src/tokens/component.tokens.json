@@ -421,10 +421,18 @@
     "invalid-message-color": { "$type": "color", "$value": "{semantic.color.error}" }
   },
   "spinner": {
-    "size":         { "$type": "dimension", "$value": "1rem" },
-    "border-width": { "$type": "dimension", "$value": "2px" },
-    "track-color":  { "$type": "color",     "$value": "{primitive.color.gray.200}" },
-    "indicator-color": { "$type": "color",  "$value": "currentColor" }
+    "size":             { "$type": "dimension", "$value": "1rem" },
+    "sm-size":          { "$type": "dimension", "$value": "0.875rem" },
+    "lg-size":          { "$type": "dimension", "$value": "1.5rem" },
+    "border-width":     { "$type": "dimension", "$value": "2px" },
+    "track-color":      { "$type": "color",     "$value": "{semantic.color.border}" },
+    "indicator-color":  { "$type": "color",     "$value": "currentColor" },
+    "duration":         { "$type": "duration",  "$value": "720ms" },
+    "reduced-duration": { "$type": "duration",  "$value": "2.4s" },
+    "primary-color":    { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "success-color":    { "$type": "color",     "$value": "{semantic.color.success}" },
+    "warning-color":    { "$type": "color",     "$value": "{semantic.color.warning}" },
+    "error-color":      { "$type": "color",     "$value": "{semantic.color.error}" }
   },
   "dialog": {
     "bg":         { "$type": "color",     "$value": "{semantic.color.surface}" },

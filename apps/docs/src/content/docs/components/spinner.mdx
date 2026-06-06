@@ -1,0 +1,142 @@
+---
+title: Spinner
+description: A minimal CSS-only loading indicator for busy and pending states.
+---
+
+`hc-spinner` is a pure-CSS spinning ring for "busy" / pending states. It
+has no JavaScript: it animates with CSS, follows `currentColor` by default,
+and pairs with htmx's `.htmx-indicator` class for request-driven
+visibility.
+
+## Basic HTML
+
+<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+</div>
+
+```html
+<span class="hc-spinner" role="status" aria-label="Loading"></span>
+```
+
+The spinner inherits its indicator colour from the surrounding text
+(`currentColor`), so it sits naturally inside buttons, badges, and prose.
+
+## Sizes
+
+Set `data-size="sm"` or `data-size="lg"`; omit it for the default medium.
+
+<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+  <span class="hc-spinner" data-size="sm" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-size="lg" role="status" aria-label="Loading"></span>
+</div>
+
+```html
+<span class="hc-spinner" data-size="sm" role="status" aria-label="Loading"></span>
+<span class="hc-spinner" role="status" aria-label="Loading"></span>
+<span class="hc-spinner" data-size="lg" role="status" aria-label="Loading"></span>
+```
+
+## Variants
+
+By default the indicator uses `currentColor`. `data-variant` swaps it to a
+semantic accent — handy when the spinner is not inside coloured text.
+
+<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="success" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="warning" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="error" role="status" aria-label="Loading"></span>
+</div>
+
+```html
+<span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading"></span>
+<span class="hc-spinner" data-variant="success" role="status" aria-label="Loading"></span>
+<span class="hc-spinner" data-variant="error" role="status" aria-label="Loading"></span>
+```
+
+| Variant   | Indicator colour            |
+| --------- | --------------------------- |
+| _omitted_ | `currentColor` (inherited). |
+| `primary` | Accent / primary action.    |
+| `success` | Success green.              |
+| `warning` | Warning amber.              |
+| `error`  | Error red.                  |
+
+## With htmx
+
+Add the `htmx-indicator` class so htmx fades the spinner in only while a
+request it drives is in flight — no JS of your own. The button stays the
+network owner.
+
+```html
+<button class="hc-button" data-hx-post="/save" data-hx-disabled-elt="this">
+  Save
+  <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+</button>
+```
+
+Here the spinner is decorative (`aria-hidden="true"`) because the disabled
+button and the swapped response already communicate progress. When the
+spinner is the *only* signal, give it a status name instead — see below.
+
+## Accessibility
+
+A spinner is a visual; the "busy" meaning must reach assistive tech as
+text. Two patterns:
+
+1. **Name the spinner itself** — make it a live region with an accessible
+   name:
+
+   ```html
+   <span class="hc-spinner" role="status" aria-label="Loading"></span>
+   ```
+
+2. **Wrap it with a visually-hidden label** — keep the spinner decorative
+   and put the text in a sibling. Use this when you want richer wording:
+
+   ```html
+   <span role="status">
+     <span class="hc-spinner" aria-hidden="true"></span>
+     <span class="hc-sr-only">Loading results…</span>
+   </span>
+   ```
+
+- **Reduced motion:** under `prefers-reduced-motion: reduce` the spin
+  *slows* but does not stop — it must keep signalling that work is in
+  progress. The accessible name keeps announcing it regardless of motion,
+  so the status is never conveyed by animation alone.
+- Don't leave an empty `role="status"` with no name; an unnamed live
+  region announces nothing.
+
+## Theming tokens
+
+| Token path              | Purpose                                |
+| ----------------------- | -------------------------------------- |
+| `spinner.size`          | Default (medium) diameter.             |
+| `spinner.sm-size` / `lg-size` | `data-size` diameters.           |
+| `spinner.border-width`  | Ring thickness.                        |
+| `spinner.track-color`   | The faint full ring (theme border).    |
+| `spinner.indicator-color` | The leading arc (default currentColor). |
+| `spinner.duration`      | One rotation duration.                 |
+| `spinner.reduced-duration` | Rotation under reduced motion.      |
+| `spinner.{primary,success,warning,error}-color` | `data-variant` indicator colours. |
+
+## CSS variables
+
+```text
+--hc-spinner-size | -sm-size | -lg-size
+--hc-spinner-border-width | -track-color | -indicator-color
+--hc-spinner-duration | -reduced-duration
+--hc-spinner-primary-color | -success-color | -warning-color | -error-color
+```
+
+## Related
+
+- [Progress](/hypermedia-components/components/progress/) — for
+  *determinate* progress with a known percentage.
+- [Skeleton](/hypermedia-components/components/skeleton/) — placeholder
+  shapes for content that is loading.
+- [Button](/hypermedia-components/components/button/) — common host for an
+  inline `htmx-indicator` spinner.

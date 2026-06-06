@@ -1,8 +1,16 @@
 /* hc-spinner — minimal CSS-only loading indicator.
  *
- * Sized via --hc-spinner-size; color follows currentColor so it inherits
- * from its container. Paired with htmx's .htmx-indicator class for
+ *   <span class="hc-spinner" role="status" aria-label="Loading"></span>
+ *
+ * A spinning ring sized via --hc-spinner-size (data-size sm | md | lg) whose
+ * indicator colour follows currentColor by default (data-variant swaps it to
+ * a semantic accent). Paired with htmx's .htmx-indicator class for
  * request-driven visibility.
+ *
+ * The spinner is a visual; the "busy" status is conveyed by a role="status"
+ * accessible name (on the element or a sibling). Under
+ * prefers-reduced-motion the spin slows but does not stop — it must keep
+ * signalling work in progress while the label keeps announcing it.
  */
 @layer hc.components {
   .hc-spinner {
@@ -12,8 +20,25 @@
     border-radius: 50%;
     border: var(--hc-spinner-border-width) solid var(--hc-spinner-track-color);
     border-block-start-color: var(--hc-spinner-indicator-color);
-    animation: hc-spinner-spin 720ms linear infinite;
+    animation: hc-spinner-spin var(--hc-spinner-duration) linear infinite;
   }
+
+  /* Sizes */
+  .hc-spinner[data-size="sm"] {
+    inline-size: var(--hc-spinner-sm-size);
+    block-size: var(--hc-spinner-sm-size);
+  }
+
+  .hc-spinner[data-size="lg"] {
+    inline-size: var(--hc-spinner-lg-size);
+    block-size: var(--hc-spinner-lg-size);
+  }
+
+  /* Variants — swap the indicator (leading) colour. */
+  .hc-spinner[data-variant="primary"] { border-block-start-color: var(--hc-spinner-primary-color); }
+  .hc-spinner[data-variant="success"] { border-block-start-color: var(--hc-spinner-success-color); }
+  .hc-spinner[data-variant="warning"] { border-block-start-color: var(--hc-spinner-warning-color); }
+  .hc-spinner[data-variant="error"]   { border-block-start-color: var(--hc-spinner-error-color); }
 
   @keyframes hc-spinner-spin {
     to { transform: rotate(360deg); }
@@ -21,7 +46,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .hc-spinner {
-      animation-duration: 2.4s;
+      animation-duration: var(--hc-spinner-reduced-duration);
     }
   }
 }
