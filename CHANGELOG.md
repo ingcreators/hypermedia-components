@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: a Blocks showcase page.** A new top-level docs page
+  (`/blocks/`, in the sidebar after Components) that shows components
+  *composed* into realistic UI sections — an account-settings card, a data
+  table with a search/action bar and pager, a sign-in card, an activity
+  feed, and a full app shell with a stat grid. The Components pages and the
+  Kitchen sink show each part in isolation; this fills the gap of showing
+  how they go together (the thing shadcn-style "blocks" pages do). Live
+  previews built from the documented classes; no new component code.
+
 - **`hc-item` — generic list / option row primitive.** A shared row layout —
   `__media` (icon / avatar) + `__content` (`__title` / `__description`) +
   `__actions` — for plain lists, option rows, and as the building block that
