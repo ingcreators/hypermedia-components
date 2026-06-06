@@ -34,7 +34,101 @@ export default defineConfig({
         },
         { label: 'Fundamentals', autogenerate: { directory: 'fundamentals' } },
         { label: 'Kitchen sink', slug: 'kitchen-sink' },
-        { label: 'Components', autogenerate: { directory: 'components' } },
+        {
+          // Grouped by purpose instead of one flat ~50-entry alphabetical
+          // list, so the sidebar is scannable. Every component lives under
+          // exactly one category; `Overview` links the gallery index.
+          label: 'Components',
+          items: [
+            { label: 'Overview', slug: 'components' },
+            {
+              label: 'Actions',
+              items: [
+                'components/button',
+                'components/button-group',
+                'components/toggle-group',
+                'components/toolbar',
+                'components/command',
+                'components/kbd',
+              ],
+            },
+            {
+              label: 'Forms',
+              items: [
+                'components/field',
+                'components/input',
+                'components/input-group',
+                'components/inputotp',
+                'components/select',
+                'components/combobox',
+                'components/multicombobox',
+                'components/checkbox',
+                'components/radio',
+                'components/switch',
+                'components/slider',
+                'components/datepicker',
+                'components/calendar',
+              ],
+            },
+            {
+              label: 'Navigation',
+              items: [
+                'components/breadcrumb',
+                'components/pagination',
+                'components/tabs',
+                'components/menu',
+                'components/menubar',
+                'components/navmenu',
+                'components/context-menu',
+              ],
+            },
+            {
+              label: 'Overlays',
+              items: [
+                'components/dialog',
+                'components/drawer',
+                'components/popover',
+                'components/hovercard',
+                'components/tooltip',
+              ],
+            },
+            {
+              label: 'Data display',
+              items: [
+                'components/table',
+                'components/datagrid',
+                'components/card',
+                'components/item',
+                'components/avatar',
+                'components/badge',
+                'components/separator',
+                'components/accordion',
+                'components/collapsible',
+              ],
+            },
+            {
+              label: 'Feedback',
+              items: [
+                'components/alert',
+                'components/toast',
+                'components/progress',
+                'components/spinner',
+                'components/skeleton',
+                'components/empty',
+              ],
+            },
+            {
+              label: 'Layout',
+              items: [
+                'components/aspect',
+                'components/scroll-area',
+                'components/shell',
+                'components/splitter',
+                'components/carousel',
+              ],
+            },
+          ],
+        },
         { label: 'Recipes', autogenerate: { directory: 'recipes' } },
         { label: 'Tokens', autogenerate: { directory: 'tokens' } },
         { label: 'Integrations', autogenerate: { directory: 'integrations' } },
