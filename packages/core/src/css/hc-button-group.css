@@ -1,0 +1,80 @@
+/* hc-button-group — visually connect adjacent .hc-button into a segmented
+ * cluster (split buttons, icon-button rows, pagination-like groups).
+ *
+ *   <div class="hc-button-group" role="group" aria-label="Text style">
+ *     <button class="hc-button">Bold</button>
+ *     <button class="hc-button">Italic</button>
+ *     <button class="hc-button">Underline</button>
+ *   </div>
+ *
+ * This is PURELY presentational grouping — it has no selected state and no
+ * behavior. For a two-state segmented control use hc-toggle-group instead.
+ *
+ * It collapses the shared inner border-radii, overlaps neighbours by 1px so
+ * adjacent borders read as a single hairline, and rounds only the outer
+ * corners. `data-orientation="vertical"` stacks the buttons. No tokens of
+ * its own — it reuses --hc-button-radius. No JS.
+ *
+ * Keep the group's direct children the buttons themselves; place any menu
+ * popover (for a split button) outside the group, referenced by id.
+ */
+@layer hc.components {
+  .hc-button-group {
+    display: inline-flex;
+
+    /* Keep the lifted hover/focus z-index stacking local to the group. */
+    isolation: isolate;
+  }
+
+  .hc-button-group[data-orientation="vertical"] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Square every grouped button; the outer corners are re-rounded below. */
+  .hc-button-group > .hc-button {
+    border-radius: 0;
+  }
+
+  /* Lift the active button so its full border is not clipped by the
+   * overlapping neighbour. */
+  .hc-button-group > .hc-button:hover:not(:disabled, [aria-disabled="true"]) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hc-button-group > .hc-button:focus-visible {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Horizontal (default): collapse left/right shared borders. */
+  .hc-button-group:not([data-orientation="vertical"]) > .hc-button:not(:first-child) {
+    margin-inline-start: -1px;
+  }
+
+  .hc-button-group:not([data-orientation="vertical"]) > .hc-button:first-child {
+    border-start-start-radius: var(--hc-button-radius);
+    border-end-start-radius: var(--hc-button-radius);
+  }
+
+  .hc-button-group:not([data-orientation="vertical"]) > .hc-button:last-child {
+    border-start-end-radius: var(--hc-button-radius);
+    border-end-end-radius: var(--hc-button-radius);
+  }
+
+  /* Vertical: collapse top/bottom shared borders. */
+  .hc-button-group[data-orientation="vertical"] > .hc-button:not(:first-child) {
+    margin-block-start: -1px;
+  }
+
+  .hc-button-group[data-orientation="vertical"] > .hc-button:first-child {
+    border-start-start-radius: var(--hc-button-radius);
+    border-start-end-radius: var(--hc-button-radius);
+  }
+
+  .hc-button-group[data-orientation="vertical"] > .hc-button:last-child {
+    border-end-start-radius: var(--hc-button-radius);
+    border-end-end-radius: var(--hc-button-radius);
+  }
+}
