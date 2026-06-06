@@ -9,6 +9,21 @@ the server, the `installRemoteDialog` behavior opens it, and
 `installCloseDialog` closes it again when the form inside submits
 successfully.
 
+:::note[Setup]
+This recipe needs **two** behaviors — `installRemoteDialog()` to open the
+fetched dialog and `installCloseDialog()` to close it on success. Install
+every behavior at once with `import '@hypermedia-components/core/behaviors';`,
+or just these two:
+
+```js
+import { installRemoteDialog, installCloseDialog } from '@hypermedia-components/core';
+installRemoteDialog();
+installCloseDialog();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
 ## Basic usage
 
 A trigger and a host element:

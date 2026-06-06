@@ -8,6 +8,19 @@ htmx swaps one page of rows, and `installDatagrid()` re-initialises the
 swapped rows. This recipe wires it to an [`hc-pagination`](/hypermedia-components/components/pagination/)
 pager.
 
+:::note[Setup]
+This recipe needs the `installDatagrid()` behavior to re-initialise the
+rows after each swap. Install every behavior at once with
+`import '@hypermedia-components/core/behaviors';`, or just this one:
+
+```js
+import { installDatagrid } from '@hypermedia-components/core';
+installDatagrid();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
 ## Basic usage
 
 Make the grid's `<tbody>` the swap target and swap **`innerHTML`** (the rows

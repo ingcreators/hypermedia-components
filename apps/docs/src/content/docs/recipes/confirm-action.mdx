@@ -8,6 +8,20 @@ destructive htmx request. The button stays a normal `<button>`; htmx
 remains the sole owner of the network request; a small behavior shim
 opens the dialog and re-emits a `hc:confirmed` event when the user accepts.
 
+:::note[Setup]
+This recipe needs the `installConfirm()` behavior — without it the button
+fires the request immediately, with no confirmation step. Install every
+behavior at once with `import '@hypermedia-components/core/behaviors';`, or
+just this one:
+
+```js
+import { installConfirm } from '@hypermedia-components/core';
+installConfirm();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
 ## Basic usage
 
 Add `data-hc-confirm` to any element that issues an htmx request, and

@@ -8,6 +8,19 @@ filters a results region. When the user clicks **Apply**, htmx swaps
 the results and the `installClosePopover` behavior dismisses the
 popover.
 
+:::note[Setup]
+This recipe needs the `installClosePopover()` behavior to dismiss the
+popover after a successful request. Install every behavior at once with
+`import '@hypermedia-components/core/behaviors';`, or just this one:
+
+```js
+import { installClosePopover } from '@hypermedia-components/core';
+installClosePopover();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
 ## Basic usage
 
 ```html

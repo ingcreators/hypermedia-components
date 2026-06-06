@@ -8,6 +8,19 @@ of the screen. The `installToast` behavior listens for `hc:toast`
 events on `document.body`, renders the toast into the page's toast
 region, and auto-dismisses it after a few seconds.
 
+:::note[Setup]
+This recipe needs the `installToast()` behavior — without it, dispatched
+`hc:toast` events do nothing. Install every behavior at once with
+`import '@hypermedia-components/core/behaviors';`, or just this one:
+
+```js
+import { installToast } from '@hypermedia-components/core';
+installToast();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
 ## Markup
 
 The toast region is a single host element. Place it once near the end
