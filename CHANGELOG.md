@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-aspect` — fixed aspect-ratio box.** Reserves a box of a fixed
+  proportion (no layout shift while media loads) via the native
+  `aspect-ratio` property; a direct media child (`img` / `video` / `iframe` /
+  `picture`) fills it with `object-fit: cover`. Common ratios ship as
+  `data-ratio` presets (`16/9`, `4/3`, `3/2`, `2/1`, `21/9`, `9/16`, default
+  `1/1`) that set `--hc-aspect-ratio`; any other ratio is an inline
+  `style="--hc-aspect-ratio: 3 / 4"`. `data-fit="contain"` letterboxes
+  instead of cropping. Pure CSS, no JavaScript. `aspect-ratio` / `object-fit`
+  are Baseline 2021, so no `@supports` gate (the padding-top fallback is
+  documented as a note). New Aspect ratio docs page and 5 Playwright tests
+  (incl. axe).
+
 - **`hc-kbd` — keyboard keys & shortcuts.** A token-driven skin for the native
   `<kbd>` element: single caps (`Esc`, `⌘`) plus an `hc-kbd-group` wrapper for
   multi-key shortcuts (`⌘ + K`) where literal separators read muted. `data-size`
