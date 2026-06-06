@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-inputotp` per-slot click caret placement.** Clicking a slot now moves
+  the caret into it so you can edit that position — clamped to the typed
+  length, so clicking past the end just parks the caret at the end (no gap).
+  The active slot (`data-active`, with its blinking, `prefers-reduced-motion`-
+  aware caret) follows the caret as it advances on typing, moves with the
+  arrow keys, or jumps to a clicked slot. New Input OTP → Active slot & caret
+  docs; the feature leaves the Out-of-scope list. 3 Vitest + 3 Playwright
+  tests.
+
 - **`hc-command` fuzzy / scored filtering.** Typing now fuzzy-matches and
   re-ranks the palette instead of a plain substring filter: query characters
   must appear in order (subsequence), and matches score higher when they are

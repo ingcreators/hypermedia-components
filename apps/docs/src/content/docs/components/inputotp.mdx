@@ -93,6 +93,19 @@ other form fields.
   </div>
 </div>
 
+## Active slot & caret
+
+The slot the caret is in carries `data-active` and renders a **blinking
+caret** (CSS, so it respects `prefers-reduced-motion: reduce` — the caret
+stays steady instead of blinking). The active slot follows the caret: as you
+type it advances to the next empty slot, and arrow keys move it within the
+value.
+
+**Clicking a slot** moves the caret into it so you can edit that position —
+clamped to the typed length, so clicking an empty slot past the end just
+parks the caret at the end (you can't open a gap). Style the active slot via
+`data-active` and the caret colour via `--hc-inputotp-caret-color`.
+
 ## Events
 
 Both bubble from the container:
@@ -146,7 +159,8 @@ More patterns: [Hyperscript → Reacting to component events](/hypermedia-compon
 - `autocomplete="one-time-code"` lets iOS / password managers offer the
   SMS code; `inputmode="numeric"` shows the numeric keypad.
 - The active slot's border doubles as the focus indicator; the caret
-  blink respects `prefers-reduced-motion: reduce`.
+  blink respects `prefers-reduced-motion: reduce`. Clicking a slot moves
+  the caret into it for editing.
 
 ## Theming tokens
 
@@ -172,9 +186,9 @@ More patterns: [Hyperscript → Reacting to component events](/hypermedia-compon
 
 ## Out of scope
 
-Per-slot click caret placement (clicking a specific slot to edit it) and RTL
-fine-tuning are deferred. Group separators are supported — see
-[Group separators](#group-separators) above.
+RTL fine-tuning is deferred. Per-slot click caret placement (see
+[Active slot & caret](#active-slot--caret)) and group separators (see
+[Group separators](#group-separators)) are supported.
 
 ## Related
 

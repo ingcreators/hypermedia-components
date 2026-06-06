@@ -21,6 +21,11 @@
 // (`detail { value, input }`) on every edit, and `hc:otpcomplete`
 // (same detail) when the value fills every slot.
 //
+// The active slot (where the caret is) carries `data-active` and renders a
+// blinking caret (CSS, `prefers-reduced-motion`-aware). Clicking a slot moves
+// the caret into it — clamped to the typed length so you can't open a gap —
+// and the active slot follows.
+//
 // installInputOtp(root = document) returns an idempotent uninstaller.
 
 const INSTALL_KEY = '__hcInputOtpUninstall';
@@ -129,11 +134,36 @@ function attach(root, detachers) {
     sync();
   }
 
+  // The slot under the pointer, by x position (the input overlays the slots,
+  // so it — not the slot — is the event target). Returns -1 off any slot.
+  function slotIndexAt(clientX) {
+    for (let i = 0; i < slots.length; i += 1) {
+      const r = slots[i].getBoundingClientRect();
+      if (clientX >= r.left && clientX <= r.right) return i;
+    }
+    return -1;
+  }
+
+  // Clicking a slot places the caret in it (clamped to the typed length, so
+  // you can't open a gap), overriding the input's imprecise native hit-test.
+  // The active slot + blinking caret follow via sync().
+  function onClick(event) {
+    const idx = slotIndexAt(event.clientX);
+    if (idx !== -1) {
+      const pos = Math.min(idx, input.value.length);
+      input.focus();
+      try {
+        input.setSelectionRange(pos, pos);
+      } catch { /* some input types disallow setSelectionRange */ }
+    }
+    sync();
+  }
+
   input.addEventListener('input', onInput);
   input.addEventListener('focus', onSelectionMove);
   input.addEventListener('blur', onSelectionMove);
   input.addEventListener('keyup', onSelectionMove);
-  input.addEventListener('click', onSelectionMove);
+  root.addEventListener('click', onClick);
 
   renderSlots();
   if (input.value) input.value = filterValue(input.value);
@@ -144,7 +174,7 @@ function attach(root, detachers) {
     input.removeEventListener('focus', onSelectionMove);
     input.removeEventListener('blur', onSelectionMove);
     input.removeEventListener('keyup', onSelectionMove);
-    input.removeEventListener('click', onSelectionMove);
+    root.removeEventListener('click', onClick);
     for (const el of root.querySelectorAll('.hc-inputotp__slot, .hc-inputotp__separator')) {
       el.remove();
     }

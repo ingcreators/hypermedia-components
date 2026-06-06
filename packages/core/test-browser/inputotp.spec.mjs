@@ -23,6 +23,37 @@ test.describe('hc-inputotp', () => {
     await expect(slots(page).nth(3)).toHaveAttribute('data-active', '');
   });
 
+  test('clicking a slot moves the caret into it (per-slot edit)', async ({ page }) => {
+    const input = page.getByTestId('otp-input');
+    await input.click();
+    await page.keyboard.type('1234');
+    // Click slot 1 — force past the overlaying input; the caret lands there.
+    await slots(page).nth(1).click({ force: true });
+    await expect(slots(page).nth(1)).toHaveAttribute('data-active', '');
+    expect(await input.evaluate((el) => el.selectionStart)).toBe(1);
+  });
+
+  test('the active slot renders a blinking caret pseudo-element', async ({ page }) => {
+    await page.getByTestId('otp-input').click();
+    await page.keyboard.type('12');
+    const active = slots(page).nth(2); // next empty → active
+    await expect(active).toHaveAttribute('data-active', '');
+    const width = await active.evaluate((el) => getComputedStyle(el, '::after').width);
+    expect(parseFloat(width)).toBeGreaterThan(0);
+    const anim = await active.evaluate((el) => getComputedStyle(el, '::after').animationName);
+    expect(anim).not.toBe('none'); // blinks by default
+  });
+
+  test('prefers-reduced-motion stops the caret blink', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.getByTestId('otp-input').click();
+    await page.keyboard.type('12');
+    const anim = await slots(page)
+      .nth(2)
+      .evaluate((el) => getComputedStyle(el, '::after').animationName);
+    expect(anim).toBe('none');
+  });
+
   test('strips characters outside the numeric pattern', async ({ page }) => {
     await page.getByTestId('otp-input').click();
     await page.keyboard.type('1a2b3');
