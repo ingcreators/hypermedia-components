@@ -531,6 +531,17 @@ e.g. on the row or grid:
 </tbody>
 ```
 
+## Accessibility
+
+- It is a real `<table>` with `<thead>` / `<tbody>`, `scope` on header
+  cells, and `aria-label`s on the row-select checkboxes — so it is
+  meaningful without any script.
+- `installDatagrid()` adds full keyboard cell navigation following the
+  [WAI-ARIA grid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/grid/)
+  (see [Behavior](#behavior--installdatagrid) above).
+- The scroll viewport contains focusable controls (the checkboxes), so it
+  is keyboard-reachable.
+
 ## CSS variables
 
 <details>
@@ -555,17 +566,6 @@ just overrides).
 | `--hc-datagrid-truncate-max` | `16rem` (width of a `.hc-datagrid__truncate` cell) |
 
 </details>
-
-## Accessibility
-
-- It is a real `<table>` with `<thead>` / `<tbody>`, `scope` on header
-  cells, and `aria-label`s on the row-select checkboxes — so it is
-  meaningful without any script.
-- `installDatagrid()` adds full keyboard cell navigation following the
-  [WAI-ARIA grid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/grid/)
-  (see [Behavior](#behavior--installdatagrid) above).
-- The scroll viewport contains focusable controls (the checkboxes), so it
-  is keyboard-reachable.
 
 ## Related
 

@@ -97,24 +97,6 @@ drops below `main` in normal flow.
 </div>
 ```
 
-## CSS variables
-
-<details>
-<summary>Show the generated CSS variables</summary>
-
-These are **layout knobs**, not themeable visual tokens — set them inline
-on the shell or in a wrapper rule. Colours and spacing come from the
-shared `--hc-color-*` / `--hc-space-*` tokens.
-
-| Variable | Default | Controls |
-| --- | --- | --- |
-| `--hc-shell-sidebar-width` | `16rem` | Sidebar column width (desktop) / overlay width (mobile, capped at `80vw`). |
-| `--hc-shell-sidebar-collapsed-width` | `4rem` | Sidebar column width when collapsed to a rail (`data-sidebar-collapsed`). |
-| `--hc-shell-aside-width` | `20rem` | Aside column width. |
-| `--hc-shell-pad` | `var(--hc-space-4)` | Inner padding of the regions. |
-
-</details>
-
 ## Responsive behavior
 
 - **Desktop (≥ 60rem):** a CSS Grid with the sidebar spanning full height
@@ -200,6 +182,24 @@ paint (`localStorage` failures degrade silently).
   toggle.
 - Give the toggle an accessible name (`aria-label` or visible text);
   `installShell()` adds a fallback label if neither is present.
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+These are **layout knobs**, not themeable visual tokens — set them inline
+on the shell or in a wrapper rule. Colours and spacing come from the
+shared `--hc-color-*` / `--hc-space-*` tokens.
+
+| Variable | Default | Controls |
+| --- | --- | --- |
+| `--hc-shell-sidebar-width` | `16rem` | Sidebar column width (desktop) / overlay width (mobile, capped at `80vw`). |
+| `--hc-shell-sidebar-collapsed-width` | `4rem` | Sidebar column width when collapsed to a rail (`data-sidebar-collapsed`). |
+| `--hc-shell-aside-width` | `20rem` | Aside column width. |
+| `--hc-shell-pad` | `var(--hc-space-4)` | Inner padding of the regions. |
+
+</details>
 
 ## Related
 
