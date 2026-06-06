@@ -340,4 +340,65 @@ describe('buildTokensCss', () => {
       expect(css).toContain('--hc-button-secondary-bg: #f3f4f6;');
     });
   });
+
+  describe('dark mode component leaf re-emission', () => {
+    // Unlike the colour / density axes (which can be set on a nested
+    // wrapper and so lift their leaves *out* of :root), dark mode is an
+    // override layer: light stays the :root default and
+    // [data-theme="dark"] overrides on top. A component leaf that
+    // resolves through a semantic key `theme.dark` redefines
+    // (surface, text, border, muted-bg, action.secondary, …) must keep
+    // its light value on :root AND gain a dark re-emission — otherwise
+    // it bakes the light value once and buttons / cards / menus stay
+    // light under [data-theme="dark"].
+    const SOURCES_DARK = [
+      { namespace: 'primitive', emit: false },
+      { namespace: 'semantic',  selector: ':root, [data-theme="light"]' },
+      { namespace: 'component', selector: ':root' },
+      { namespace: 'theme.dark', selector: '[data-theme="dark"]' },
+    ];
+
+    const TREES_DARK = {
+      primitive: {
+        color: {
+          white: { $type: 'color', $value: '#ffffff' },
+          gray: { '100': { $type: 'color', $value: '#f3f4f6' }, '800': { $type: 'color', $value: '#1f2937' } },
+        },
+      },
+      semantic: {
+        color: {
+          surface:   { $type: 'color', $value: '{primitive.color.white}' },
+          'muted-bg': { $type: 'color', $value: '{primitive.color.gray.100}' },
+        },
+      },
+      component: {
+        card: { bg: { $type: 'color', $value: '{semantic.color.surface}' } },
+        // A leaf that does NOT resolve through any dark-overridden key.
+        badge: { bg: { $type: 'color', $value: '{primitive.color.gray.100}' } },
+      },
+      'theme.dark': {
+        color: {
+          surface:   { $type: 'color', $value: '{primitive.color.gray.800}' },
+          'muted-bg': { $type: 'color', $value: '{primitive.color.gray.800}' },
+        },
+      },
+    };
+
+    it('keeps the light value on :root and overrides it under [data-theme="dark"]', () => {
+      const { css } = buildTokensCss({ sources: SOURCES_DARK, trees: TREES_DARK });
+      // Light default still baked on the static component block…
+      expect(css).toMatch(/:root\s*\{[^}]*--hc-card-bg:\s*#ffffff;/);
+      // …and re-emitted with the dark-overlaid value under dark.
+      expect(css).toMatch(/\[data-theme="dark"\]\s*\{[^}]*--hc-card-bg:\s*#1f2937;/);
+    });
+
+    it('does not re-emit component leaves that do not depend on a dark-overridden key', () => {
+      const { css } = buildTokensCss({ sources: SOURCES_DARK, trees: TREES_DARK });
+      // badge.bg resolves straight from a primitive, untouched by dark.
+      expect(css).toContain('--hc-badge-bg: #f3f4f6;');
+      const darkBlock = css.match(/\[data-theme="dark"\]\s*\{[^}]+\}/)?.[0] ?? '';
+      expect(darkBlock).toContain('--hc-card-bg');
+      expect(darkBlock).not.toContain('--hc-badge-bg');
+    });
+  });
 });

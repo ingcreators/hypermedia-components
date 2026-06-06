@@ -119,29 +119,46 @@ function tableWithThemeOverlay(baseTable, themeNamespace, trees) {
 }
 
 /**
- * Index every `semantic.<path>` that any runtime-themed source (a
- * `color.*` or `density.*` namespace) redefines. Component-layer
- * leaves whose resolution depends on any of these keys cannot be
- * baked into the static `:root { component }` block — their value
- * changes when a runtime theme is applied to a nested wrapper, so we
- * emit them inside each themed block instead.
+ * Index every `semantic.<path>` that a themed source redefines, so the
+ * component layer knows which leaves are theme-dependent.
+ *
+ * Two kinds of themed source, handled differently:
+ *  - Runtime axes (`color.*` / `density.*`) can be applied to a *nested*
+ *    wrapper. A component leaf that resolves through one of their keys
+ *    therefore cannot be baked into the static `:root { component }`
+ *    block — it is lifted out (via themedAll) and re-emitted inside each
+ *    axis block, the default axis carrying `:root`.
+ *  - Dark mode (`theme.dark`) is an override layer, not a nested axis:
+ *    light stays the `:root` default and `[data-theme="dark"]` overrides
+ *    on top. Its keys go in themedBySource — so the dark block re-emits
+ *    the affected component leaves with dark-resolved values — but NOT in
+ *    themedAll, so the light value stays on `:root`. Without this, a
+ *    component token like `--hc-button-default-bg: {semantic.color.surface}`
+ *    was baked once as the light surface and never re-emitted for dark,
+ *    so buttons / cards / menus stayed light under `[data-theme="dark"]`.
  *
  * Returns: { themedAll: Set<key>, themedBySource: Map<namespace, Set<key>> }
- *  - themedAll: union across all themed sources, used when classifying
- *    component leaves for the `:root { component }` block.
- *  - themedBySource: per-namespace set so each themed block knows
- *    which component leaves it must additionally emit.
+ *  - themedAll: union across the runtime axes only, used to exclude
+ *    leaves from the static `:root { component }` block.
+ *  - themedBySource: per-namespace set so each themed block (axes + dark)
+ *    knows which component leaves it must additionally emit.
  */
 function indexThemedKeys(sources, trees) {
   const themedAll = new Set();
   const themedBySource = new Map();
   for (const src of sources) {
-    if (!src.namespace.startsWith('color.') && !src.namespace.startsWith('density.')) continue;
+    const isRuntimeAxis =
+      src.namespace.startsWith('color.') || src.namespace.startsWith('density.');
+    const isDarkMode = src.namespace === 'theme.dark';
+    if (!isRuntimeAxis && !isDarkMode) continue;
     const keys = new Set();
     walkLeaves(trees[src.namespace], [], (path) => {
       const key = ['semantic', ...path].join('.');
       keys.add(key);
-      themedAll.add(key);
+      // Runtime axes exclude the leaf from `:root` (it moves into each
+      // axis block); dark mode keeps `:root` as the light default and
+      // only adds an override block, so it does not feed themedAll.
+      if (isRuntimeAxis) themedAll.add(key);
     });
     themedBySource.set(src.namespace, keys);
   }
@@ -206,11 +223,12 @@ export function buildTokensCss({ sources, trees }) {
         lines.push(`${cssVarName(path)}: ${resolveValue(raw, table)};`);
       }
     } else if (themedBySource.has(src.namespace)) {
-      // Themed sources (color.X / density.X). First emit the source's
-      // own overrides, then append every component leaf whose
-      // resolution depends on the *paths this source controls*. That
-      // way `color.indigo` redeclares --hc-button-primary-bg etc., but
-      // does not touch density-scoped component vars and vice-versa.
+      // Themed sources (color.X / density.X / theme.dark). First emit the
+      // source's own overrides, then append every component leaf whose
+      // resolution depends on the *paths this source controls*. That way
+      // `color.indigo` redeclares --hc-button-primary-bg, `theme.dark`
+      // redeclares --hc-button-default-bg / --hc-card-bg etc., and none
+      // touches vars outside the paths it owns.
       walkLeaves(trees[src.namespace], [], (path, leaf) => {
         lines.push(`${cssVarName(path)}: ${resolveValue(String(leaf.$value), table)};`);
       });
