@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-kbd` — keyboard keys & shortcuts.** A token-driven skin for the native
+  `<kbd>` element: single caps (`Esc`, `⌘`) plus an `hc-kbd-group` wrapper for
+  multi-key shortcuts (`⌘ + K`) where literal separators read muted. `data-size`
+  (`sm` / default / `lg`) scales a key — or a whole group — via `em`-based
+  padding and min-width. Colors reference the semantic `muted-bg` / `text` /
+  `border` tokens so caps follow the light / dark theme. Pure CSS, no
+  JavaScript. New `kbd.*` tokens, Kbd docs page, and 5 Playwright tests
+  (incl. axe).
+
 - **`hc-accordion` height animation (progressive enhancement).** The panel now
   animates its height open / closed — pure CSS, no JavaScript — via
   `::details-content` + `interpolate-size: allow-keywords` (so the height can

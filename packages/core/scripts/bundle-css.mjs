@@ -51,6 +51,7 @@ const COMPONENTS = [
   'hc-datagrid.css',
   'hc-avatar.css',
   'hc-badge.css',
+  'hc-kbd.css',
   'hc-alert.css',
   'hc-toast.css',
   'hc-toolbar.css',

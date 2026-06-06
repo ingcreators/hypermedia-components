@@ -487,6 +487,20 @@
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
     }
   },
+  "kbd": {
+    "bg":          { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
+    "fg":          { "$type": "color",      "$value": "{semantic.color.text}" },
+    "border":      { "$type": "color",      "$value": "{semantic.color.border}" },
+    "radius":      { "$type": "dimension",  "$value": "{primitive.radius.sm}" },
+    "font":        { "$type": "fontFamily", "$value": "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" },
+    "font-size":   { "$type": "dimension",  "$value": "{semantic.font.size-sm}" },
+    "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
+    "padding-x":   { "$type": "dimension",  "$value": "0.4em" },
+    "padding-y":   { "$type": "dimension",  "$value": "0.15em" },
+    "min-width":   { "$type": "dimension",  "$value": "1.6em" },
+    "sm-font-size": { "$type": "dimension", "$value": "0.75rem" },
+    "lg-font-size": { "$type": "dimension", "$value": "{semantic.font.size-md}" }
+  },
   "popover": {
     "bg":      { "$type": "color",     "$value": "{semantic.color.surface}" },
     "fg":      { "$type": "color",     "$value": "{semantic.color.text}" },
