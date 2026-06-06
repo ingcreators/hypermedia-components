@@ -119,8 +119,10 @@ HX-Trigger: {"hc:toast":{"message":"Saved.","variant":"success"}}
   screen. The htmx attributes can still live on the link; htmx
   intercepts when present, and the anchor's `href` is the fallback.
 - Without `hc.behaviors.js`, the dialog fragment lands in the page
-  but does not auto-open. Add a final `<script>showThis.showModal()</script>`
-  block to the server response, or fall back to inline rendering.
+  but does not auto-open. Add a `<script>` right after the `<dialog>` in
+  the server response that opens it — e.g.
+  `<script>document.currentScript.previousElementSibling.showModal()</script>`
+  — or fall back to inline rendering.
 
 ## Related
 

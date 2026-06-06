@@ -70,14 +70,14 @@ the same.
 ### Per-page or per-request overrides
 
 For a one-off override (a header that should only travel with one
-button), use the `hx-headers` attribute instead. It accepts a JSON
+button), use the `data-hx-headers` attribute instead. It accepts a JSON
 object and merges into the configured headers.
 
 ```html
 <button
   class="hc-button"
   data-hx-post="/items"
-  hx-headers='{"X-Source":"hero"}'>
+  data-hx-headers='{"X-Source":"hero"}'>
   Save
 </button>
 ```

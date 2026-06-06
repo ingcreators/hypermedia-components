@@ -100,7 +100,7 @@ Use it from a page:
 
 ```html
 <form th:action="@{/users}" method="post"
-      data-hx-post="@{/users}"
+      th:attr="data-hx-post=@{/users}"
       data-hx-target="this"
       data-hx-swap="outerHTML">
   <div th:replace="~{fragments/_field :: field('email', 'Email', ${form.email}, ${errors.email}, ${errors.email != null})}"></div>

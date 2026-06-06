@@ -38,7 +38,7 @@ static/
   <script type="module" src="{% static 'assets/hc/macros/index.min.js' %}"></script>
 </head>
 <body
-  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  data-hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
   {% block content %}{% endblock %}
 
@@ -50,7 +50,7 @@ static/
 </html>
 ```
 
-The `hx-headers` attribute on `<body>` makes every htmx request carry
+The `data-hx-headers` attribute on `<body>` makes every htmx request carry
 the CSRF token Django expects. The token comes from the `{% csrf_token %}`
 context processor (enabled by default in new projects).
 
@@ -211,14 +211,14 @@ def hx_trigger(response, events):
 ## CSRF tips
 
 - Django requires a CSRF token on POST / PUT / PATCH / DELETE. The
-  `hx-headers` attribute in `base.html` sends it on every htmx
+  `data-hx-headers` attribute in `base.html` sends it on every htmx
   request.
 - If your htmx setup uses cookies for state, the
   `CSRF_COOKIE_HTTPONLY = False` setting lets a `getCsrfToken()` JS
-  helper read it directly — useful if you set `hx-headers` per
+  helper read it directly — useful if you set `data-hx-headers` per
   element rather than on `<body>`.
 - For DELETE and PATCH, Django needs the standard `X-CSRFToken`
-  header even though there is no form body. `hx-headers` covers this.
+  header even though there is no form body. `data-hx-headers` covers this.
 
 ## Detecting htmx
 
