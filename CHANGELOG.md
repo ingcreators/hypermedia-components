@@ -527,6 +527,15 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **Slider / progress / switch tracks and the avatar fallback darken in
+  dark mode.** These last neutral surfaces hardcoded
+  `primitive.color.gray.200` (and the avatar initials `gray.700`), so they
+  stayed light under `[data-theme="dark"]`. The control tracks now use
+  `semantic.color.border` (gray.300 in light — a touch more visible than
+  before, improving the track-vs-surface non-text contrast — and gray.700
+  in dark), and the avatar fallback uses `muted-bg` + `text` (initials keep
+  8–15:1 contrast in both modes).
+
 - **Status surfaces (`hc-alert` / `hc-toast` / `hc-badge`) get proper dark
   variants.** They referenced light primitive tints (`blue.50`, `green.50`,
   …) directly, so in dark mode they stayed light chips floating on the

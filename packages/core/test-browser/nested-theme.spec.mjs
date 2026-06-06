@@ -111,6 +111,12 @@ test.describe('dark mode recolours neutral hover / surface backgrounds', () => {
     '--hc-datepicker-disabled-bg',
     '--hc-checkbox-disabled-bg',
     '--hc-radio-disabled-bg',
+    // Neutral control tracks (slider / progress / switch) + the avatar
+    // fallback surface — were hardcoded light gray.200, now theme-aware.
+    '--hc-slider-track-bg',
+    '--hc-progress-bg',
+    '--hc-switch-bg',
+    '--hc-avatar-bg',
   ];
 
   for (const name of VARS) {
@@ -149,6 +155,8 @@ test.describe('dark mode tints status surfaces (alert / toast / badge)', () => {
     ['--hc-alert-error-bg', '#450a0a'],
     ['--hc-toast-warning-bg', '#451a03'],
     ['--hc-badge-default-bg', '#1f2937'],
+    // Avatar initials flip to the light text colour on the dark fallback.
+    ['--hc-avatar-fg', '#f3f4f6'],
   ];
 
   for (const [name, hex] of STATUS) {
