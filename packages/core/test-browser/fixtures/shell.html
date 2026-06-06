@@ -18,14 +18,22 @@
         aria-label="Open navigation"
         data-testid="shell-toggle">≡</button>
       <strong>Acme Admin</strong>
+      <button
+        class="hc-button"
+        data-variant="ghost"
+        data-size="sm"
+        data-hc-shell-collapse
+        type="button"
+        data-testid="shell-collapse">⇔</button>
     </header>
 
-    <nav class="hc-shell__sidebar" aria-label="Primary" data-testid="shell-sidebar">
+    <nav class="hc-shell__sidebar" aria-label="Primary" data-testid="shell-sidebar"
+         data-collapsible data-persist="hc-shell-demo">
       <ul class="hc-stack" style="list-style: none; padding: 0; margin: 0; --hc-stack-gap: var(--hc-space-1);">
-        <li><a href="#dashboard" data-testid="shell-link-first">Dashboard</a></li>
-        <li><a href="#orders">Orders</a></li>
-        <li><a href="#customers">Customers</a></li>
-        <li><a href="#settings" data-testid="shell-link-last">Settings</a></li>
+        <li><a href="#dashboard" data-testid="shell-link-first"><span aria-hidden="true">▦</span> <span class="hc-shell__label">Dashboard</span></a></li>
+        <li><a href="#orders"><span aria-hidden="true">▤</span> <span class="hc-shell__label">Orders</span></a></li>
+        <li><a href="#customers"><span aria-hidden="true">☺</span> <span class="hc-shell__label">Customers</span></a></li>
+        <li><a href="#settings" data-testid="shell-link-last"><span aria-hidden="true">⚙</span> <span class="hc-shell__label">Settings</span></a></li>
       </ul>
     </nav>
 

@@ -64,6 +64,43 @@ test.describe('hc-shell — desktop', () => {
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
   });
+
+  test('the collapse button narrows the sidebar to an icon rail and hides labels', async ({
+    page,
+  }) => {
+    const sidebar = page.getByTestId('shell-sidebar');
+    const full = (await rect(sidebar)).width;
+
+    await page.getByTestId('shell-collapse').click();
+    await expect(page.getByTestId('shell')).toHaveAttribute('data-sidebar-collapsed', '');
+    await expect(page.getByTestId('shell-collapse')).toHaveAttribute('aria-expanded', 'false');
+
+    const collapsed = (await rect(sidebar)).width;
+    expect(collapsed).toBeLessThan(full - 50); // narrowed to the rail
+    // The label is visually clipped (but stays in the a11y tree — see the axe
+    // test below), so the rail shows only the icon.
+    const labelWidth = await sidebar
+      .locator('.hc-shell__label')
+      .first()
+      .evaluate((el) => el.getBoundingClientRect().width);
+    expect(labelWidth).toBeLessThanOrEqual(1);
+  });
+
+  test('the collapsed state persists across a reload', async ({ page }) => {
+    await page.getByTestId('shell-collapse').click();
+    await expect(page.getByTestId('shell')).toHaveAttribute('data-sidebar-collapsed', '');
+
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.setViewportSize(DESKTOP);
+    await expect(page.getByTestId('shell')).toHaveAttribute('data-sidebar-collapsed', '');
+    await expect(page.getByTestId('shell-collapse')).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('axe finds no violations with the sidebar collapsed', async ({ page }) => {
+    await page.getByTestId('shell-collapse').click();
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations).toEqual([]);
+  });
 });
 
 test.describe('hc-shell — mobile', () => {

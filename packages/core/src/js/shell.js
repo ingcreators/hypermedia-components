@@ -23,6 +23,23 @@ import { t } from './i18n.js';
 
 const INSTALL_KEY = '__hcShellUninstall';
 
+// localStorage is optional and may throw (privacy mode, disabled). Guard it.
+function readStored(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStored(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* ignore */
+  }
+}
+
 const FOCUSABLE = [
   'a[href]',
   'button:not([disabled])',
@@ -124,6 +141,46 @@ function attach(shell, detachers) {
   toggle.addEventListener('click', onToggle);
   sidebar.addEventListener('click', onSidebarClick);
 
+  // ---- Desktop sidebar collapse-to-icon-rail (opt-in) ----
+  // `data-collapsible` on the sidebar enables it; a `[data-hc-shell-collapse]`
+  // button toggles `data-sidebar-collapsed` on the shell (the CSS narrows the
+  // grid column). `data-persist="<key>"` mirrors the state into localStorage.
+  // Desktop-only: the mobile overlay layout ignores the collapsed column.
+  let collapseCleanup = null;
+  if (sidebar.hasAttribute('data-collapsible')) {
+    const collapseBtn = shell.querySelector('[data-hc-shell-collapse]');
+    const persistKey = sidebar.getAttribute('data-persist');
+    const isCollapsed = () => shell.hasAttribute('data-sidebar-collapsed');
+
+    const setCollapsed = (on, { persist = true } = {}) => {
+      shell.toggleAttribute('data-sidebar-collapsed', on);
+      if (collapseBtn) collapseBtn.setAttribute('aria-expanded', String(!on));
+      if (persist && persistKey) writeStored(persistKey, on ? '1' : '0');
+    };
+
+    // Restore the saved state before first paint.
+    if (persistKey) {
+      const saved = readStored(persistKey);
+      if (saved === '1' || saved === '0') setCollapsed(saved === '1', { persist: false });
+    }
+
+    if (collapseBtn) {
+      if (!collapseBtn.hasAttribute('aria-controls')) {
+        collapseBtn.setAttribute('aria-controls', sidebar.id);
+      }
+      collapseBtn.setAttribute('aria-expanded', String(!isCollapsed()));
+      if (!collapseBtn.hasAttribute('aria-label') && !collapseBtn.textContent.trim()) {
+        collapseBtn.setAttribute('aria-label', t('shell.collapseNav'));
+      }
+      const onCollapseClick = (event) => {
+        event.preventDefault();
+        setCollapsed(!isCollapsed());
+      };
+      collapseBtn.addEventListener('click', onCollapseClick);
+      collapseCleanup = () => collapseBtn.removeEventListener('click', onCollapseClick);
+    }
+  }
+
   // Force-close on the way back to desktop so the overlay never sticks.
   // matchMedia may be unavailable (jsdom) — guard it.
   let mql = null;
@@ -141,6 +198,7 @@ function attach(shell, detachers) {
     toggle.removeEventListener('click', onToggle);
     sidebar.removeEventListener('click', onSidebarClick);
     if (mql && onMql) mql.removeEventListener?.('change', onMql);
+    collapseCleanup?.();
   });
 }
 
