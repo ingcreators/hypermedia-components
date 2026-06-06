@@ -2106,6 +2106,15 @@ Security    — security-relevant changes
   and the Recipes index gained next-steps / child-page links; the Recipes
   index groups its ten recipes by purpose and tags which need a behavior.
 
+- **Docs: consistent component-page structure.** The "how to use this with
+  htmx" section had seven different headings across the component pages
+  (`With htmx`, `htmx integration`, `htmx lazy loading`, …); all 31 are now
+  `## htmx usage`, so the section is always in the same place under the
+  same name. Renamed `Variant` → `Variants` (Item) and `Related recipes` →
+  `Related` (Button) to match every other page, moved Alert's htmx section
+  above Accessibility (the standard order), and added the missing Disabled
+  section to the Date picker (its siblings all have one).
+
 ---
 
 ## [Unreleased — v0.4 implementation]
