@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-accordion` height animation (progressive enhancement).** The panel now
+  animates its height open / closed — pure CSS, no JavaScript — via
+  `::details-content` + `interpolate-size: allow-keywords` (so the height can
+  transition to / from `auto`), with a `content-visibility` discrete transition
+  so the body stays rendered while it collapses. `interpolate-size` /
+  `calc-size()` are Chromium-only as of 2026, so it's gated behind
+  `@supports (interpolate-size: allow-keywords)` and is **fully progressive** —
+  every other engine keeps the native instant open / close, and starts
+  animating automatically once it ships. New
+  `accordion.content.transition-duration` token (default `200ms`); honors
+  `prefers-reduced-motion`. New Accordion → Height animation docs with a
+  baseline note. 2 Playwright tests.
+
 - **`hc-scroll-area` edge shadows (`data-shadows`).** Opt in for a subtle
   shadow at each scrollable edge that shows **only when there is more content**
   to scroll in that direction (fading in as you scroll away from an edge).

@@ -582,7 +582,8 @@
     },
     "content": {
       "padding-block-end":    { "$type": "dimension",  "$value": "{primitive.space.3}" },
-      "fg":                   { "$type": "color",      "$value": "{semantic.color.text-muted}" }
+      "fg":                   { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+      "transition-duration":  { "$type": "duration",   "$value": "200ms" }
     }
   },
   "tooltip": {

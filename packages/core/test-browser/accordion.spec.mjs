@@ -70,6 +70,35 @@ test.describe('hc-accordion — independent (no name)', () => {
   });
 });
 
+test.describe('hc-accordion — height animation (Chromium / @supports)', () => {
+  test('the height animation is gated behind interpolate-size support', async ({ page }) => {
+    // Chromium (the Playwright engine) supports interpolate-size, so the
+    // @supports block engages and the accordion enables keyword interpolation.
+    const value = await page
+      .getByTestId('accordion-exclusive')
+      .evaluate((el) => getComputedStyle(el).interpolateSize);
+    test.skip(value === '' || value == null, 'interpolate-size not supported here');
+    expect(value).toBe('allow-keywords');
+  });
+
+  test('::details-content collapses to 0 when closed and expands when open', async ({ page }) => {
+    const item = page.getByTestId('acc-q1');
+    const supported = await page
+      .getByTestId('accordion-exclusive')
+      .evaluate((el) => getComputedStyle(el).interpolateSize === 'allow-keywords');
+    test.skip(!supported, 'interpolate-size not supported here');
+
+    const contentHeight = () =>
+      item.evaluate((el) => parseFloat(getComputedStyle(el, '::details-content').blockSize) || 0);
+
+    expect(await contentHeight()).toBe(0); // closed
+
+    await page.getByTestId('acc-q1-summary').click();
+    await page.waitForTimeout(350); // let the height transition land
+    expect(await contentHeight()).toBeGreaterThan(0); // expanded
+  });
+});
+
 test.describe('hc-accordion — a11y', () => {
   test('axe finds no violations across the accordion section', async ({ page }) => {
     // Open one item so the open state is exercised too.

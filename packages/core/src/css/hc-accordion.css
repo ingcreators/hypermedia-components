@@ -106,4 +106,35 @@
     padding-block-end: var(--hc-accordion-content-padding-block-end);
     color: var(--hc-accordion-content-fg);
   }
+
+  /* ---- Open / close height animation (progressive enhancement) ----
+   * Animate the panel height via `::details-content` + auto-size
+   * interpolation. `interpolate-size` / `calc-size()` are Chromium-only as of
+   * 2026 (not yet in Firefox / Safari), so this is gated behind @supports —
+   * every other engine keeps the native instant open / close. Fully
+   * progressive: nothing depends on it. `content-visibility` transitions
+   * discretely so the content stays rendered while it collapses. */
+  @supports (interpolate-size: allow-keywords) {
+    .hc-accordion {
+      interpolate-size: allow-keywords;
+    }
+
+    .hc-accordion__item::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        block-size var(--hc-accordion-content-transition-duration) ease,
+        content-visibility var(--hc-accordion-content-transition-duration) allow-discrete;
+    }
+
+    .hc-accordion__item[open]::details-content {
+      block-size: auto;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hc-accordion__item::details-content {
+        transition-duration: 0ms;
+      }
+    }
+  }
 }
