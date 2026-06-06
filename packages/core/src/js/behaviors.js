@@ -24,6 +24,7 @@ import { installHovercard } from './hovercard.js';
 import { installToggleGroup } from './toggle-group.js';
 import { installToolbar } from './toolbar.js';
 import { installAvatar } from './avatar.js';
+import { installPasswordToggle } from './password-toggle.js';
 import { installContextMenu } from './context-menu.js';
 import { installCommand } from './command.js';
 import { installCalendar } from './calendar.js';
@@ -51,6 +52,7 @@ function init() {
   installToggleGroup();
   installToolbar();
   installAvatar();
+  installPasswordToggle();
   installContextMenu();
   installCommand();
   installCalendar();
@@ -87,6 +89,7 @@ export {
   installToggleGroup,
   installToolbar,
   installAvatar,
+  installPasswordToggle,
   installContextMenu,
   installCommand,
   installCalendar,

@@ -1,0 +1,133 @@
+---
+title: Input group
+description: Compose an input with leading and trailing addons on one surface.
+---
+
+`hc-input-group` composes an `hc-input` with leading / trailing **addons**
+— text, an icon, or a real `hc-button` — on one bordered surface with a
+single shared focus ring. It is mostly CSS; the inner `<input>` gives up its
+own border so the group owns it.
+
+:::note
+This is the control's **inner composition**, distinct from
+[`hc-field`](/hypermedia-components/components/field/) (which adds the label
+and help text around a control). Use them together: a `hc-field` wrapping a
+`hc-input-group`.
+:::
+
+## Search with a button
+
+<div class="hc-preview not-content">
+  <div class="hc-input-group" style="max-inline-size: 22rem;">
+    <span class="hc-input-addon" aria-hidden="true">🔍</span>
+    <input class="hc-input" type="search" aria-label="Search" placeholder="Search…" />
+    <button class="hc-button" data-variant="primary" type="submit">Search</button>
+  </div>
+</div>
+
+```html
+<form data-hx-get="/search" data-hx-target="#results">
+  <div class="hc-input-group">
+    <span class="hc-input-addon" aria-hidden="true">🔍</span>
+    <input class="hc-input" type="search" name="q" aria-label="Search" />
+    <button class="hc-button" data-variant="primary" type="submit">Search</button>
+  </div>
+</form>
+```
+
+The inner `<input>` and `<button>` are ordinary elements, so htmx wiring
+(`data-hx-*`) goes on them directly — the group is purely visual.
+
+## Prefix / suffix unit
+
+<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.75rem;max-inline-size:22rem;">
+  <div class="hc-input-group">
+    <span class="hc-input-addon">https://</span>
+    <input class="hc-input" type="text" aria-label="Domain" value="example.com" />
+  </div>
+  <div class="hc-input-group">
+    <span class="hc-input-addon">$</span>
+    <input class="hc-input" type="number" aria-label="Amount" value="42" />
+    <span class="hc-input-addon">USD</span>
+  </div>
+</div>
+
+```html
+<div class="hc-input-group">
+  <span class="hc-input-addon">$</span>
+  <input class="hc-input" type="number" aria-label="Amount" />
+  <span class="hc-input-addon">USD</span>
+</div>
+```
+
+## Password reveal (opt-in behavior)
+
+A trailing button can toggle a password field's visibility. This is the one
+**opt-in behavior** of the group: add `data-hc-password-toggle` and call
+`installPasswordToggle()` (it is included in the auto-init bundle).
+
+<div class="hc-preview not-content">
+  <div class="hc-input-group" style="max-inline-size: 22rem;">
+    <input class="hc-input" type="password" id="doc-pw" aria-label="Password" value="hunter2" />
+    <button type="button" class="hc-button" data-variant="ghost"
+            data-hc-password-toggle aria-controls="doc-pw" aria-label="Show password">👁</button>
+  </div>
+</div>
+
+```html
+<div class="hc-input-group">
+  <input class="hc-input" type="password" id="pw" aria-label="Password" />
+  <button type="button" class="hc-button" data-variant="ghost"
+          data-hc-password-toggle aria-controls="pw"
+          aria-label="Show password">👁</button>
+</div>
+```
+
+```js
+import { installPasswordToggle } from '@hypermedia-components/core';
+installPasswordToggle();
+```
+
+The behavior toggles the input's `type` between `password` and `text` and
+reflects `aria-pressed` plus the `aria-label`. Customize the wording with
+`data-hc-label-show` / `data-hc-label-hide` (defaults "Show password" /
+"Hide password"). It never reads the field value and makes no network call.
+
+## Accessibility
+
+- Give the `<input>` an accessible name (`aria-label` here, or a `<label>`
+  when wrapped in `hc-field`). A decorative icon addon should be
+  `aria-hidden="true"`.
+- A meaningful text addon (a unit like `USD`, a prefix like `https://`) is
+  read in source order — fine for screen readers; keep it short.
+- The focus ring is shared: focusing the field rings the whole group via
+  `:focus-within`. An inner button keeps its own focus outline.
+- The password toggle is a real `<button type="button">` with `aria-pressed`
+  — keyboard operable and announced as a toggle.
+
+## Theming tokens
+
+| Token path                  | Purpose                              |
+| --------------------------- | ------------------------------------ |
+| `input-group.bg`            | Shared surface background.           |
+| `input-group.fg`            | Text colour.                         |
+| `input-group.border`        | Surface border.                      |
+| `input-group.focus-border`  | Border colour while focused.         |
+| `input-group.radius`        | Outer corner radius.                 |
+| `input-group.addon-bg` / `addon-fg` | Addon background / text.     |
+| `input-group.addon-padding-x` | Addon inline padding.              |
+| `input-group.divider`       | Hairline between an addon/button and the field. |
+
+## CSS variables
+
+```text
+--hc-input-group-bg | -fg | -border | -focus-border | -radius
+--hc-input-group-addon-bg | -addon-fg | -addon-padding-x | -divider
+```
+
+## Related
+
+- [Input](/hypermedia-components/components/input/) — the field placed inside.
+- [Field](/hypermedia-components/components/field/) — label + help text wrapper.
+- [Button group](/hypermedia-components/components/button-group/) — connect
+  buttons (rather than an input with addons).

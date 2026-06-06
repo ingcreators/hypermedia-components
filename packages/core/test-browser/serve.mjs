@@ -48,6 +48,7 @@ const ASSET_ALIASES = new Map([
   ['/toggle-group.js',  join(coreDist, 'toggle-group.js')],
   ['/toolbar.js',       join(coreDist, 'toolbar.js')],
   ['/avatar.js',        join(coreDist, 'avatar.js')],
+  ['/password-toggle.js', join(coreDist, 'password-toggle.js')],
   ['/shell.js',         join(coreDist, 'shell.js')],
   ['/datagrid.js',      join(coreDist, 'datagrid.js')],
   ['/macros/index.js',          join(coreDist, 'macros', 'index.js')],

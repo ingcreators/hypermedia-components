@@ -48,6 +48,7 @@ const FILES = [
   ['src/js/toggle-group.js',  'toggle-group.js'],
   ['src/js/toolbar.js',       'toolbar.js'],
   ['src/js/avatar.js',        'avatar.js'],
+  ['src/js/password-toggle.js', 'password-toggle.js'],
   ['src/js/shell.js',         'shell.js'],
   ['src/js/datagrid.js',      'datagrid.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
