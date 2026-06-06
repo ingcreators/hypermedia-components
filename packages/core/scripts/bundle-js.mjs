@@ -46,6 +46,7 @@ const FILES = [
   ['src/js/drawer.js',        'drawer.js'],
   ['src/js/hovercard.js',    'hovercard.js'],
   ['src/js/toggle-group.js',  'toggle-group.js'],
+  ['src/js/carousel.js',      'carousel.js'],
   ['src/js/toolbar.js',       'toolbar.js'],
   ['src/js/avatar.js',        'avatar.js'],
   ['src/js/password-toggle.js', 'password-toggle.js'],

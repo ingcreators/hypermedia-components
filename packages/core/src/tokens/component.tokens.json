@@ -495,6 +495,20 @@
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
     }
   },
+  "carousel": {
+    "gap":              { "$type": "dimension", "$value": "{semantic.space.3}" },
+    "slide-size":       { "$type": "dimension", "$value": "100%" },
+    "control-size":     { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
+    "control-bg":       { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "control-fg":       { "$type": "color",     "$value": "{semantic.color.text}" },
+    "control-border":   { "$type": "color",     "$value": "{semantic.color.border}" },
+    "control-offset":   { "$type": "dimension", "$value": "{semantic.space.2}" },
+    "dot-size":         { "$type": "dimension", "$value": "0.5rem" },
+    "dot-gap":          { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "dot-color":        { "$type": "color",     "$value": "{semantic.color.border}" },
+    "dot-active-color": { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "dots-margin":      { "$type": "dimension", "$value": "{semantic.space.3}" }
+  },
   "input-group": {
     "bg":              { "$type": "color",     "$value": "{semantic.color.surface}" },
     "fg":              { "$type": "color",     "$value": "{semantic.color.text}" },

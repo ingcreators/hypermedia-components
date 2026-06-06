@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-carousel` — scroll-snap carousel (`installCarousel()`).** A carousel
+  whose source of truth is the native scroll position: slides live in a CSS
+  scroll-snap rail and the behavior only tracks the in-view slide (an
+  `IntersectionObserver` sets `data-active`), syncs prev/next + auto-generated
+  dot controls (`aria-current`), scrolls on click and ←/→ on the focused rail,
+  and emits `hc:carouselchange`. **No animation library, no JS transform** —
+  native smooth scrolling does the motion. Optional `data-autoplay="<ms>"` is
+  opt-in only: it pauses on hover / focus and is disabled under
+  `prefers-reduced-motion`. Slides are plain HTML (htmx can lazy-load them).
+  New `carousel.*` tokens, Carousel docs page, 9 Vitest tests, and 6
+  Playwright tests (incl. real scroll + axe).
+
 - **`hc-input-group` — input with leading/trailing addons.** Composes an
   `hc-input` with text, icon, or real `hc-button` addons on **one** bordered
   surface with a single shared focus ring (`:focus-within`); the inner

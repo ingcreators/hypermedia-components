@@ -1,0 +1,126 @@
+---
+title: Carousel
+description: A scroll-snap carousel driven by native scrolling, with optional autoplay.
+---
+
+`hc-carousel` is a carousel whose **source of truth is the native scroll
+position**. Slides live in a CSS scroll-snap rail; `installCarousel()` tracks
+the in-view slide, syncs prev/next and dot controls, adds keyboard support,
+and offers opt-in autoplay. There is **no animation library and no
+JS-driven transform** — native smooth scrolling does the motion.
+
+## Basic example
+
+<div class="hc-preview not-content">
+  <div class="hc-carousel" aria-label="Featured" style="max-inline-size: 22rem;">
+    <div class="hc-carousel__viewport">
+      <div class="hc-carousel__slide" style="block-size:7rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 1</div>
+      <div class="hc-carousel__slide" style="block-size:7rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 2</div>
+      <div class="hc-carousel__slide" style="block-size:7rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 3</div>
+    </div>
+    <button class="hc-carousel__prev" data-hc-carousel-prev aria-label="Previous slide">‹</button>
+    <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide">›</button>
+    <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"></div>
+  </div>
+</div>
+
+```html
+<div class="hc-carousel" aria-label="Featured">
+  <div class="hc-carousel__viewport">
+    <div class="hc-carousel__slide">…</div>
+    <div class="hc-carousel__slide">…</div>
+    <div class="hc-carousel__slide">…</div>
+  </div>
+  <button class="hc-carousel__prev" data-hc-carousel-prev aria-label="Previous slide">‹</button>
+  <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide">›</button>
+  <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"></div>
+</div>
+```
+
+```js
+import { installCarousel } from '@hypermedia-components/core';
+installCarousel();
+```
+
+## What `installCarousel()` does
+
+- Tracks the most-visible slide with an `IntersectionObserver` and marks it
+  `data-active` (style the active slide off that attribute).
+- **Generates one dot per slide** into a `[data-hc-carousel-dots]` container
+  (or reuses author-provided `[data-hc-carousel-dot]` buttons) and keeps
+  `aria-current` in sync.
+- Disables the prev / next buttons at the two ends.
+- Scrolls on prev / next / dot click and on ←/→ while the rail is focused —
+  always via native smooth scrolling.
+- Emits a bubbling `hc:carouselchange` with `detail.index` on every change.
+
+## Slide width
+
+Each slide fills the viewport by default (`--hc-carousel-slide-size: 100%`).
+For a multi-item rail, set the slide basis to show several at once:
+
+```html
+<div class="hc-carousel" style="--hc-carousel-slide-size: 50%">…</div>
+```
+
+## Autoplay (opt-in, motion-safe)
+
+Add `data-autoplay="<ms>"` to advance automatically. It is **opt-in only**
+and:
+
+- **pauses on hover and focus** (so it never moves content out from under a
+  pointer or the keyboard), and
+- is **disabled entirely under `prefers-reduced-motion: reduce`** — no
+  automatic motion for users who ask to avoid it.
+
+```html
+<div class="hc-carousel" data-autoplay="4000" aria-label="Promos">…</div>
+```
+
+## htmx
+
+Slides are plain HTML, so they can be lazy-loaded as partials — e.g. render
+the rail server-side, or swap more slides into the viewport with htmx. The
+behavior re-scans added `.hc-carousel` roots via a `MutationObserver`; for
+slides added to an existing carousel, re-run `installCarousel()`.
+
+## Accessibility
+
+- Give the carousel an `aria-label`; the rail is exposed as a focusable
+  region (`aria-roledescription="carousel"`) so ←/→ work and the scroll
+  container is keyboard reachable.
+- Each slide is a `group` with `aria-roledescription="slide"` and an
+  `aria-label` ("1 of 3" by default — override per slide if you have a
+  better title).
+- Prev / next / dot controls are real `<button>`s with labels; dots expose
+  the active slide with `aria-current`.
+- Autoplay's hover/focus pause and reduced-motion opt-out are the core
+  accessibility guarantees — keep them.
+
+## Theming tokens
+
+| Token path                  | Purpose                                |
+| --------------------------- | -------------------------------------- |
+| `carousel.gap`              | Gap between slides.                     |
+| `carousel.slide-size`       | Slide flex-basis (default `100%`).      |
+| `carousel.control-size`     | Prev / next button diameter.            |
+| `carousel.control-bg` / `-fg` / `-border` | Prev / next button colours. |
+| `carousel.control-offset`   | Inset of the prev / next buttons.       |
+| `carousel.dot-size` / `-gap` | Dot size and spacing.                  |
+| `carousel.dot-color` / `-active-color` | Dot and active-dot colours.  |
+| `carousel.dots-margin`      | Gap above the dot row.                  |
+
+## CSS variables
+
+```text
+--hc-carousel-gap | -slide-size
+--hc-carousel-control-size | -control-bg | -control-fg | -control-border | -control-offset
+--hc-carousel-dot-size | -dot-gap | -dot-color | -dot-active-color | -dots-margin
+```
+
+## Related
+
+- [Scroll area](/hypermedia-components/components/scroll-area/) — a plain
+  scrollable region with edge shadows (no snapping or controls).
+- [Tabs](/hypermedia-components/components/tabs/) — switch between panels
+  rather than scroll through a rail.

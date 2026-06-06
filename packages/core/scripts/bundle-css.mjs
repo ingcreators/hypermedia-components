@@ -61,6 +61,7 @@ const COMPONENTS = [
   'hc-toolbar.css',
   'hc-pagination.css',
   'hc-tabs.css',
+  'hc-carousel.css',
   'hc-toggle-group.css',
   'hc-menu.css',
   'hc-command.css',
