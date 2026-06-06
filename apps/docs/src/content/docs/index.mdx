@@ -48,3 +48,74 @@ hero:
     </div>
   </div>
 </div>
+
+## Standard HTML, composed
+
+Every component is a semantic class on a native element. Here are a few — live, themeable, and built from plain markup. Try the colour / density / dark switchers in the header.
+
+{/* Dogfood: the showcase is composed from HC components inside hc-grid +
+    hc-card. `not-content` keeps Starlight prose styles off the surfaces. */}
+
+<div class="hc-grid not-content" style="--hc-grid-min: 18rem; margin-block-start: 1.5rem;">
+  <div class="hc-card">
+    <div class="hc-card__header"><strong>Actions</strong></div>
+    <div class="hc-card__body">
+      <div class="hc-cluster" style="--hc-cluster-gap: .5rem;">
+        <button class="hc-button" data-variant="primary" type="button">Save</button>
+        <button class="hc-button" type="button">Cancel</button>
+        <button class="hc-button" data-variant="ghost" type="button">More</button>
+      </div>
+      <div class="hc-cluster" style="--hc-cluster-gap: .5rem; margin-block-start: .85rem;">
+        <span class="hc-badge" data-variant="success">Active</span>
+        <span class="hc-badge" data-variant="info">Beta</span>
+        <span class="hc-cluster" style="--hc-cluster-gap: .2rem;">
+          <kbd class="hc-kbd">⌘</kbd><kbd class="hc-kbd">K</kbd>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hc-card">
+    <div class="hc-card__header"><strong>Forms</strong></div>
+    <div class="hc-card__body">
+      <div class="hc-stack" style="--hc-stack-gap: .75rem;">
+        <div class="hc-field">
+          <label class="hc-field__label" for="home-email">Email</label>
+          <input class="hc-input" id="home-email" type="email" placeholder="you@example.com" />
+        </div>
+        <select class="hc-select" aria-label="Plan">
+          <option>Free</option>
+          <option>Pro</option>
+          <option>Team</option>
+        </select>
+        <label class="hc-switch-label">
+          <input class="hc-switch" type="checkbox" role="switch" checked />
+          Email notifications
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="hc-card">
+    <div class="hc-card__header"><strong>Feedback</strong></div>
+    <div class="hc-card__body">
+      <div class="hc-stack" style="--hc-stack-gap: .75rem;">
+        <div class="hc-alert" data-variant="success" role="status">
+          <strong class="hc-alert__title">Saved</strong>
+          <p class="hc-alert__body">Your changes are saved.</p>
+        </div>
+        <div class="hc-item">
+          <span class="hc-item__media" aria-hidden="true">📂</span>
+          <div class="hc-item__content">
+            <span class="hc-item__title">Quarterly report</span>
+            <span class="hc-item__description">Updated 2 days ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="not-content" style="text-align: center; margin-block-start: 2.5rem;">
+  <a class="hc-button" data-variant="primary" href="/hypermedia-components/components/">Browse all components →</a>
+</div>
