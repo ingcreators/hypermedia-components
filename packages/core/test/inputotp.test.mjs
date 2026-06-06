@@ -104,6 +104,49 @@ describe('installInputOtp', () => {
     expect(slots().some((s) => s.hasAttribute('data-active'))).toBe(false);
   });
 
+  it('the active slot follows the caret when it moves into the value', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installInputOtp();
+    const input = field();
+    input.focus();
+    type('1234', 4);
+    expect(slots()[4].hasAttribute('data-active')).toBe(true); // next empty
+
+    // Move the caret between slot 1 and 2 (e.g. ArrowLeft); the active slot
+    // follows the selection, not just the end.
+    input.setSelectionRange(1, 1);
+    input.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowLeft', bubbles: true }));
+    expect(slots()[1].hasAttribute('data-active')).toBe(true);
+    expect(slots()[4].hasAttribute('data-active')).toBe(false);
+  });
+
+  it('clicking a filled slot places the caret in it', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installInputOtp();
+    const input = field();
+    type('1234');
+    // Deterministic slot geometry for the x → index hit-test (jsdom rects are 0).
+    slots().forEach((s, i) => {
+      s.getBoundingClientRect = () => ({ left: i * 40, right: i * 40 + 40, top: 0, bottom: 40, width: 40, height: 40 });
+    });
+    host().dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: 60 })); // slot 1
+    expect(input.selectionStart).toBe(1);
+    expect(slots()[1].hasAttribute('data-active')).toBe(true);
+  });
+
+  it('clicking past the typed length clamps the caret to the end', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installInputOtp();
+    const input = field();
+    type('12');
+    slots().forEach((s, i) => {
+      s.getBoundingClientRect = () => ({ left: i * 40, right: i * 40 + 40, top: 0, bottom: 40, width: 40, height: 40 });
+    });
+    host().dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: 180 })); // slot 4
+    expect(input.selectionStart).toBe(2); // clamped to the typed length
+    expect(slots()[2].hasAttribute('data-active')).toBe(true);
+  });
+
   it('dispatches hc:otpchange on every edit and hc:otpcomplete when full', () => {
     document.body.innerHTML = FIXTURE.replace('data-length="6"', 'data-length="4"');
     uninstall = installInputOtp();
