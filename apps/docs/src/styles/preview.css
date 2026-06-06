@@ -93,3 +93,24 @@
   border: 0;
   border-radius: 0;
 }
+
+/* --- Kitchen-sink gallery: a denser canvas. ---
+ *
+ * The kitchen-sink page opts in with a hidden `.ks-gallery` marker, so
+ * these compaction rules apply only there — component-doc Demos keep the
+ * roomier preview. Dropping the forced min-height + trimming the padding
+ * and the heading-to-preview rhythm fits noticeably more demos per
+ * screen (the live demos still get the room they need from their own
+ * content). */
+.sl-markdown-content:has(.ks-gallery) .hc-preview {
+  min-block-size: 0;
+  padding: 1rem;
+}
+
+.sl-markdown-content:has(.ks-gallery) :is(h3) {
+  margin-block-start: 1.25rem;
+}
+
+.sl-markdown-content:has(.ks-gallery) :is(h3) + .hc-preview {
+  margin-block-start: 0.5rem;
+}
