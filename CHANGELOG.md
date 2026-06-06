@@ -2061,6 +2061,17 @@ Security    — security-relevant changes
   explicit `data-hx-post="@Url.Page("Create")"`; and the htmx and Django
   guides used bare `hx-headers` against their own `data-hx-*` convention.
 
+- **Docs: closed component-reference completeness gaps.** The Input page
+  omitted the `success-border` / `warning-border` tokens its Variants
+  section relies on (only `error-border` was listed); the Button theming
+  table left `secondary` out of the per-variant token pattern; the Shell
+  page never documented `--hc-shell-sidebar-collapsed-width` (the
+  collapsed-rail width); and the Slider page had no disabled example
+  despite shipping disabled styles. Added all of these. Also gave the
+  Variants / Sizes / Disabled demos on the Select, Progress, Slider, and
+  Date picker pages a real Code tab (they were preview-only `<div>`s, so
+  the markup wasn't copyable) by moving them onto the `Demo` component.
+
 ---
 
 ## [Unreleased — v0.4 implementation]

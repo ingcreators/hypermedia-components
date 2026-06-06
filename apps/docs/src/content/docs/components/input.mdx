@@ -148,7 +148,7 @@ Component tokens (in `component.tokens.json`):
 | `input.radius`                          | Border radius.                |
 | `input.bg` / `input.fg`                 | Default colors.               |
 | `input.border` / `input.focus-border`   | Border in normal/focus state. |
-| `input.error-border`                  | Border when `aria-invalid`.   |
+| `input.success-border` / `input.warning-border` / `input.error-border` | Border for `data-variant="success"` / `"warning"` / `aria-invalid`. |
 | `input.placeholder`                     | Placeholder color.            |
 | `input.disabled-bg`                     | Background when disabled.     |
 | `input.{sm,lg}.{height,padding-x,font-size}` | Size-specific overrides. |
@@ -165,7 +165,7 @@ Component tokens (in `component.tokens.json`):
 --hc-input-font-size
 --hc-input-bg | -fg | -border | -placeholder
 --hc-input-focus-border
---hc-input-error-border
+--hc-input-success-border | -warning-border | -error-border
 --hc-input-disabled-bg
 --hc-input-sm-height | -padding-x | -font-size
 --hc-input-lg-height | -padding-x | -font-size

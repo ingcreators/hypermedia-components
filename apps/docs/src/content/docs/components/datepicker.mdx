@@ -46,11 +46,21 @@ all use a calendar glyph.
 Same axes as `hc-input` / `hc-select` — `data-variant` accepts
 `success`, `warning`, and `error` for border-colour cues.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:18rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
   <input class="hc-datepicker" type="date" aria-label="Validated" data-variant="success" />
   <input class="hc-datepicker" type="date" aria-label="Warning" data-variant="warning" />
   <input class="hc-datepicker" type="date" aria-label="Error" data-variant="error" aria-invalid="true" />
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-datepicker" type="date" data-variant="success">
+  <input class="hc-datepicker" type="date" data-variant="warning">
+  <input class="hc-datepicker" type="date" data-variant="error" aria-invalid="true">
+  ```
+
+  </Fragment>
+</Demo>
 
 Set `aria-invalid="true"` together with `data-variant="error"` so
 assistive tech also recognises the field as invalid.
@@ -61,11 +71,21 @@ assistive tech also recognises the field as invalid.
 the same `--hc-control-*` scale as `hc-button` / `hc-input` /
 `hc-select`, so `data-density="compact"` shrinks consistently.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:18rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
   <input class="hc-datepicker" type="date" data-size="sm" aria-label="Small" />
   <input class="hc-datepicker" type="date" aria-label="Default" />
   <input class="hc-datepicker" type="date" data-size="lg" aria-label="Large" />
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-datepicker" type="date" data-size="sm">
+  <input class="hc-datepicker" type="date">
+  <input class="hc-datepicker" type="date" data-size="lg">
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Range pickers
 

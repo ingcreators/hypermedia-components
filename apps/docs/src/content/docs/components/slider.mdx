@@ -62,23 +62,61 @@ JavaScript loads.
 `data-variant` accepts `success`, `warning`, and `error` for
 non-default fill colours. The thumb border tracks the variant too.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <input class="hc-slider" type="range" min="0" max="100" value="60" aria-label="Default" />
   <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="success" aria-label="Success" />
   <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="warning" aria-label="Warning" />
   <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="error" aria-label="Error" />
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-slider" type="range" min="0" max="100" value="60" aria-label="Default">
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="success" aria-label="Success">
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="warning" aria-label="Warning">
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="error" aria-label="Error">
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Sizes
 
 `data-size` accepts `sm`, `md` (default), and `lg`. Track height
 and thumb size scale together.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="sm" aria-label="Small" />
   <input class="hc-slider" type="range" min="0" max="100" value="40" aria-label="Default" />
   <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="lg" aria-label="Large" />
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="sm" aria-label="Small">
+  <input class="hc-slider" type="range" min="0" max="100" value="40" aria-label="Default">
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="lg" aria-label="Large">
+  ```
+
+  </Fragment>
+</Demo>
+
+## Disabled
+
+Use the native `disabled` attribute. The track and thumb dim and the
+control stops responding to pointer and keyboard input.
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <input class="hc-slider" type="range" min="0" max="100" value="40" disabled aria-label="Disabled" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-slider" type="range" min="0" max="100" value="40" disabled aria-label="Disabled">
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Vertical orientation
 
