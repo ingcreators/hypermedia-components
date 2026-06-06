@@ -527,6 +527,16 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **Status surfaces (`hc-alert` / `hc-toast` / `hc-badge`) get proper dark
+  variants.** They referenced light primitive tints (`blue.50`, `green.50`,
+  …) directly, so in dark mode they stayed light chips floating on the
+  dark page. New `semantic.color.status.{neutral,info,success,warning,error}`
+  tokens carry the light values, and the dark theme overrides them to a
+  dark tint (`colour.950` background, `colour.900` border) with light text
+  (`colour.200`). Backed by **completed 50–950 colour ramps** for blue /
+  green / amber / red (the palette only had `50,100,500–800`). Light mode
+  is unchanged.
+
 - **Disabled form controls now darken in dark mode.** The `disabled-bg`
   of `hc-input`, `hc-select`, `hc-datepicker`, `hc-checkbox`, and
   `hc-radio` referenced `primitive.color.gray.100` directly, so a disabled

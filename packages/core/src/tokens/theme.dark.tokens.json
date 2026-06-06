@@ -17,6 +17,33 @@
         "bg":     { "$type": "color", "$value": "{primitive.color.gray.600}" },
         "border": { "$type": "color", "$value": "{primitive.color.gray.600}" }
       }
+    },
+    "status": {
+      "neutral": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.gray.800}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.gray.100}" },
+        "border": { "$type": "color", "$value": "{primitive.color.gray.700}" }
+      },
+      "info": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.blue.950}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.blue.200}" },
+        "border": { "$type": "color", "$value": "{primitive.color.blue.900}" }
+      },
+      "success": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.green.950}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.green.200}" },
+        "border": { "$type": "color", "$value": "{primitive.color.green.900}" }
+      },
+      "warning": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.amber.950}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.amber.200}" },
+        "border": { "$type": "color", "$value": "{primitive.color.amber.900}" }
+      },
+      "error": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.red.950}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.red.200}" },
+        "border": { "$type": "color", "$value": "{primitive.color.red.900}" }
+      }
     }
   }
 }
