@@ -17,7 +17,7 @@ correctly in both light and dark mode with no extra work.
 Size the block from the consumer side — inline `style`, a utility
 class, or a wrapping layout. A skeleton has no intrinsic size.
 
-<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
   <div class="hc-skeleton" style="block-size:1rem;inline-size:80%"></div>
   <div class="hc-skeleton" style="block-size:1rem;inline-size:60%"></div>
   <div class="hc-skeleton" style="block-size:1rem;inline-size:90%"></div>
@@ -38,7 +38,7 @@ class, or a wrapping layout. A skeleton has no intrinsic size.
 - **circle** — fully rounded with `aspect-ratio: 1`. Set one dimension
   (e.g. `inline-size`) and it stays square — for avatar / icon slots.
 
-<div class="hc-preview not-content" style="display:flex;align-items:center;gap:1rem;">
+<div class="hc-preview not-content hc-preview--start">
   <div class="hc-skeleton" data-shape="circle" style="inline-size:3rem"></div>
   <div style="display:flex;flex-direction:column;gap:.4rem;flex:1;">
     <div class="hc-skeleton" data-shape="text" style="inline-size:40%"></div>
@@ -68,7 +68,7 @@ class, or a wrapping layout. A skeleton has no intrinsic size.
 - **none** — a static block. Motion stays off regardless of the OS
   setting — handy when a page is dense with skeletons.
 
-<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
   <div class="hc-skeleton" data-animation="pulse" style="block-size:1.25rem"></div>
   <div class="hc-skeleton" data-animation="wave" style="block-size:1.25rem"></div>
   <div class="hc-skeleton" data-animation="none" style="block-size:1.25rem"></div>

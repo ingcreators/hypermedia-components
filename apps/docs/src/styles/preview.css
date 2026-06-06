@@ -4,7 +4,7 @@
  * `not-content` class on the wrapping element:
  *
  *   <div class="hc-preview not-content">
- *     <button class="hc-button">…</button>
+ *     <table class="hc-table">…</table>
  *   </div>
  *
  * `not-content` is Starlight's official escape hatch. Every prose
@@ -14,21 +14,18 @@
  * rhythm, link colour, inline code background, heading colour, and
  * the `display: block; max-width: 100%` image rule.
  *
- * `.hc-preview` is a self-contained canvas: an elevated surface that
+ * `.hc-preview` is only the canvas *chrome*: an elevated surface that
  * stays distinct from the page in both light and dark mode (it rides
- * `--hc-color-surface`, one step above the `--hc-color-bg` page) with
- * a real border and breathing room. By default it centres its direct
- * children in a wrapping row, so a single demo sits in the middle of
- * the frame. Reach for the modifiers below instead of hand-writing
- * `style="display:flex;…"` on each preview — that kept drifting from
- * page to page.
+ * `--hc-color-surface`, one step above the `--hc-color-bg` page) with a
+ * border, rounded corners, padding, and a minimum height. It imposes no
+ * layout — children flow normally, so a full-width demo (table,
+ * datagrid, shell, carousel) keeps its width. For a row or column of
+ * small demos, add a layout modifier instead of hand-writing
+ * `style="display:flex;…"` on each preview, which kept drifting from
+ * page to page. Genuinely one-off demos can still set a slim inline
+ * dimension (`max-inline-size`, `min-block-size`, …).
  */
 .hc-preview {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
   min-block-size: 7rem;
   padding: 1.5rem;
   border: 1px solid var(--hc-color-border);
@@ -36,22 +33,17 @@
   background: var(--hc-color-surface);
 }
 
-/* Left-align the row instead of centring — long button rows, toolbars,
-   anything that reads better flush to the start. */
+/* Row of small demos — wraps, left-aligned, vertically centred. */
 .hc-preview--start {
-  justify-content: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-/* Stack the children in a column (form fields, lists, vertical demos). */
+/* Column of stacked demos (form fields, lists, vertical demos). */
 .hc-preview--col {
+  display: flex;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-}
-
-/* Cap the demo width and centre it — form controls that look wrong when
-   stretched edge to edge (select, input, field). */
-.hc-preview--narrow > * {
-  inline-size: 100%;
-  max-inline-size: 22rem;
+  gap: 0.75rem;
 }

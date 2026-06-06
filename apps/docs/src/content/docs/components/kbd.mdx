@@ -10,7 +10,7 @@ semantic tag for "user input from the keyboard". Use it for single keys
 
 ## Basic HTML
 
-<div class="hc-preview not-content" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <kbd class="hc-kbd">Esc</kbd>
   <kbd class="hc-kbd">Enter</kbd>
   <kbd class="hc-kbd">⌘</kbd>
@@ -34,7 +34,7 @@ itself a `<kbd>` (the whole shortcut is one "keyboard input"); the inner
 `<kbd class="hc-kbd">` are the individual caps. Literal text between them
 (`+`, `then`) is rendered in a muted color so the keys stand out.
 
-<div class="hc-preview not-content" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <kbd class="hc-kbd-group">
     <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
   </kbd>
@@ -62,7 +62,7 @@ Set `data-size="sm"` or `data-size="lg"` on a key — or on the group to
 scale every cap inside it at once. Padding and min-width are `em`-based,
 so one `data-size` resizes the whole cap proportionally.
 
-<div class="hc-preview not-content" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <kbd class="hc-kbd" data-size="sm">Esc</kbd>
   <kbd class="hc-kbd">Esc</kbd>
   <kbd class="hc-kbd" data-size="lg">Esc</kbd>
