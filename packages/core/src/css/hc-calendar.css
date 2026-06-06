@@ -154,6 +154,43 @@
     color: var(--hc-calendar-day-selected-fg);
   }
 
+  /* ---- Range mode (data-mode="range") ----
+   * The committed band tints the days between the two ends; the ends keep the
+   * solid selected fill. A `data-range-preview*` band tracks the tentative end
+   * while it is being chosen. The band uses square-then-rounded corners so the
+   * two ends read as the caps of a single pill. */
+  .hc-calendar__day[data-in-range]:not([aria-selected="true"]) {
+    background: var(--hc-calendar-day-range-bg);
+    border-radius: 0;
+  }
+
+  .hc-calendar__day[data-range-start] {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  .hc-calendar__day[data-range-end] {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  /* A single-day range (start === end) keeps the full rounding. */
+  .hc-calendar__day[data-range-start][data-range-end] {
+    border-radius: var(--hc-calendar-day-radius);
+  }
+
+  /* Live preview while picking the second end. */
+  .hc-calendar__day[data-range-preview]:not([aria-selected="true"]) {
+    background: var(--hc-calendar-day-range-preview-bg);
+    border-radius: 0;
+  }
+
+  .hc-calendar__day[data-range-preview-end] {
+    background: var(--hc-calendar-day-range-bg);
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
   .hc-calendar__day[aria-disabled="true"] {
     color: var(--hc-calendar-day-disabled-fg);
     cursor: not-allowed;
