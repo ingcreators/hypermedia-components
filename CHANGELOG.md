@@ -527,6 +527,12 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **Disabled form controls now darken in dark mode.** The `disabled-bg`
+  of `hc-input`, `hc-select`, `hc-datepicker`, `hc-checkbox`, and
+  `hc-radio` referenced `primitive.color.gray.100` directly, so a disabled
+  control stayed a light box under `[data-theme="dark"]`. Routed through
+  `semantic.color.muted-bg` (unchanged in light; gray.700 in dark).
+
 - **Dark-mode hover / header surfaces no longer hide their text.** A few
   neutral backgrounds — the default button's hover, pagination's hover,
   and the table header / row-hover — referenced `primitive.color.gray.*`
