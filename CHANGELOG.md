@@ -313,6 +313,14 @@ Security    — security-relevant changes
   no longer also navigates on <kbd>↑</kbd> / <kbd>↓</kbd> (and a vertical one
   ignores <kbd>←</kbd> / <kbd>→</kbd>), matching the WAI-ARIA APG. Home / End,
   Enter / Space, and click activation are unchanged.
+- **`hc-select` documents the customizable-`<select>` roadmap.** A new
+  Select → Native-forward section tracks `appearance: base-select` +
+  `::picker(select)` (styling the *open* native picker): current status
+  (Chrome 135+ stable; Safari Technology Preview / Firefox Nightly; **not
+  Baseline** as of 2026), the progressive per-instance opt-in, and a pointer
+  to `hc-combobox` as the JS escape hatch to style the open dropdown today. No
+  code change — `hc-select` still keeps the native picker by default. Docs
+  only.
 - **Anchor-positioning fallback consolidated and hardened.** The popovers
   (menu, tooltip, hovercard, combobox, multi-combobox) position with CSS
   Anchor Positioning where available and fall back to JS where it isn't (e.g.

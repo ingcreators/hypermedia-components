@@ -15,12 +15,10 @@ Works in every browser that supports `<select>` (every browser). The
 expanded dropdown stays browser-native, which keeps the experience
 consistent with the user's platform.
 
-A modern follow-up — [`appearance: base-select`](https://developer.chrome.com/blog/a-customizable-select)
-(Chromium 135+, Firefox / Safari pending) — will eventually let you
-style the dropdown picker too. The stylesheet leaves that as a
-no-op so the component looks identical everywhere; opt in per-instance
-with `style="appearance: base-select"` if you want the experimental
-path on supporting browsers.
+A modern follow-up — `appearance: base-select` — will eventually let
+you style the **open** picker too without giving up the native
+control. See [Native-forward: styling the open picker](#native-forward-styling-the-open-picker)
+below for the current status and how to opt in today.
 
 ## Basic example
 
@@ -170,8 +168,56 @@ Component tokens (in `component.tokens.json`):
 --hc-color-focus-ring (inherited from data-color)
 ```
 
+## Native-forward: styling the open picker
+
+A native `<select>` gives you keyboard navigation, form participation,
+the OS picker on mobile, and screen-reader semantics for free — but
+historically the **open** dropdown could not be styled. The
+[customizable `<select>`](https://developer.chrome.com/blog/a-customizable-select)
+work changes that: opting an element into `appearance: base-select`
+lets you style the picker — including the
+[`::picker(select)`](https://developer.mozilla.org/docs/Web/CSS/::picker)
+pseudo-element and each `<option>` — while keeping a *real* native
+control. The picker renders in the top layer (like a popover) and can
+be placed with CSS anchor positioning. See the
+[Open UI explainer](https://open-ui.org/components/customizableselect/)
+for the full surface.
+
+:::note[Baseline — not yet]
+`appearance: base-select` + `::picker(select)` are **not Baseline** as
+of 2026. Chrome 135+ ships it stably; Safari has it documented in
+Technology Preview and Firefox is prototyping it behind a flag in
+Nightly. Because the feature is not yet interoperable, `hc-select`
+does **not** turn it on by default — every browser keeps the
+consistent native picker.
+:::
+
+It is **fully progressive**: a browser that doesn't understand
+`appearance: base-select` simply ignores it and keeps the native
+dropdown. If you want the customizable path on supporting browsers
+today, opt in per-instance:
+
+```html
+<select class="hc-select" name="country" style="appearance: base-select">
+  <button type="button">
+    <selectedcontent></selectedcontent>
+  </button>
+  <option value="">Choose a country…</option>
+  <option value="jp">Japan</option>
+</select>
+```
+
+**Need a fully styled dropdown that works everywhere right now?** Use
+[`hc-combobox`](/hypermedia-components/components/combobox/) — the JS
+escape hatch that renders an ARIA listbox in light DOM. HC tracks the
+customizable-`<select>` rollout and will add a first-class, declarative
+opt-in to `hc-select` once the feature reaches Baseline, so the native
+path can replace the JS one where styling the open picker is the only
+reason to reach for `hc-combobox`.
+
 ## Related
 
 - [Input](/hypermedia-components/components/input/) — text and textarea sibling sharing the same control scale.
 - [Field](/hypermedia-components/components/field/) — label + helper text wrapper.
+- [Combobox](/hypermedia-components/components/combobox/) — JS-backed listbox when you need to style the open dropdown today.
 - [Checkbox](/hypermedia-components/components/checkbox/) / [Radio](/hypermedia-components/components/radio/) — boolean / single-pick form controls.
