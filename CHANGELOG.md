@@ -2122,6 +2122,15 @@ Security    — security-relevant changes
   above Accessibility (the standard order), and added the missing Disabled
   section to the Date picker (its siblings all have one).
 
+- **Docs: standard end-block order on Datagrid and Shell.** Both pages
+  placed their `CSS variables` section out of order — Datagrid had it
+  before Accessibility, and Shell had it in the middle of the page (right
+  after the layout sections). Both now follow the standard
+  `… → Accessibility → CSS variables → Related` order. (Neither gains a
+  `Theming tokens` section: their `--hc-*` knobs are defined directly in
+  CSS — layout dimensions for Shell, and Datagrid's are tracked separately
+  for tokenization — so there are no DTCG token paths to list.)
+
 ---
 
 ## [Unreleased — v0.4 implementation]
