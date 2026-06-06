@@ -52,10 +52,19 @@ within a group.
 ## Image fallback
 
 When a photo *might* be missing, wrap the image and an initials fallback
-in a single `.hc-avatar`. The `installAvatar()` behavior (bundled in the
-default behaviors) watches the image's native `load` / `error` events and
-sets `data-state` on the wrapper so the fallback appears automatically
-when the image fails.
+in a single `.hc-avatar`. The `installAvatar()` behavior watches the
+image's native `load` / `error` events and sets `data-state` on the
+wrapper so the fallback appears automatically when the image fails.
+Plain initials and a known-good image need no JavaScript — only this
+auto-fallback does:
+
+```js
+import { installAvatar } from '@hypermedia-components/core';
+installAvatar(); // idempotent; returns an uninstaller
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs it
+automatically.
 
 <Demo previewClass="hc-preview--start">
   <span class="hc-avatar" role="img" aria-label="Broken photo, falls back to initials" data-state="error">

@@ -8,6 +8,20 @@ description: Transient, event-driven notifications — fired from client code or
 renders a `.hc-toast` into a `.hc-toast-region`, auto-dismissing it after a
 delay.
 
+## Setup
+
+Toasts are rendered by the `installToast()` behavior — **without it, firing
+an `hc:toast` event does nothing.** Install it once at startup:
+
+```js
+import { installToast } from '@hypermedia-components/core';
+installToast(); // idempotent; returns an uninstaller
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs it
+automatically. No markup is required — the behavior creates a default
+[`.hc-toast-region`](#the-region) if you don't pre-render one.
+
 ## Appearance
 
 <div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">

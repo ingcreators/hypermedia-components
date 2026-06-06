@@ -2072,6 +2072,16 @@ Security    — security-relevant changes
   Date picker pages a real Code tab (they were preview-only `<div>`s, so
   the markup wasn't copyable) by moving them onto the `Demo` component.
 
+- **Docs: behavior-dependent pages now show how to install the behavior.**
+  Several pages described a JS behavior by name but never showed the
+  `import { installX } from '@hypermedia-components/core'; installX();`
+  step, so a reader who copied the markup got a dead component with no
+  hint why. Added a setup snippet to the Toast (a `## Setup` section —
+  nothing renders without it), Toolbar, Popover, and Avatar component
+  pages, and a `:::note[Setup]` to the behavior-dependent recipes
+  (confirm-action, filter-popover, remote-dialog, toast, datagrid-pager),
+  each pointing at the auto-init `/behaviors` bundle and the install page.
+
 ---
 
 ## [Unreleased — v0.4 implementation]

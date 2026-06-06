@@ -44,14 +44,29 @@ The `popover` attribute defaults to `popover="auto"`, which means:
 For a popover that ignores light-dismiss, use `popover="manual"` and
 close it yourself with `element.hidePopover()`.
 
+## JavaScript
+
+The basic light-dismiss popover above works from the native Popover API
+alone. The **directional placement** and **htmx auto-close** features below
+need behaviors — install the ones you use once at startup:
+
+```js
+import { installPopover, installClosePopover } from '@hypermedia-components/core';
+installPopover();       // data-side / data-align anchoring + aria sync
+installClosePopover();  // close on a successful htmx request (optional)
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs both
+automatically.
+
 ## Directional placement
 
 A bare popover is positioned by the browser (centred in the top layer). To
 **anchor it to its trigger** with a side and alignment, add `data-side`
 (`top` / `right` / `bottom` / `left`) and optionally `data-align` (`start` /
-`center` / `end`, default `center`). `installPopover()` (bundled in the
-default behaviors) wires the anchoring and keeps `aria-expanded` /
-`aria-controls` on the trigger in sync. Add `data-arrow` for a small pointer.
+`center` / `end`, default `center`). `installPopover()` wires the anchoring
+and keeps `aria-expanded` / `aria-controls` on the trigger in sync. Add
+`data-arrow` for a small pointer.
 
 <Demo previewStyle="display:flex;gap:6rem;align-items:center;min-height:8rem;">
   <button class="hc-button" type="button" popovertarget="side-popover">Anchored</button>

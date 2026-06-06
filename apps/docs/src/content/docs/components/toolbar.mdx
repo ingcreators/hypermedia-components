@@ -54,10 +54,24 @@ inputs inside a toolbar keep their normal appearance.
 - **Spacer** — `<span data-hc-spacer="true"></span>` expands to push
   trailing children to the end (e.g. a save button at the right).
 
+## JavaScript
+
+The roving-tabindex keyboard behavior needs `installToolbar()` — **without
+it the arrow keys do nothing** and the toolbar falls back to the native Tab
+order. Install it once at startup:
+
+```js
+import { installToolbar } from '@hypermedia-components/core';
+installToolbar(); // idempotent; returns an uninstaller
+```
+
+The zero-config `@hypermedia-components/core/behaviors` entry installs it
+automatically.
+
 ## Keyboard navigation
 
-`installToolbar()` (bundled in the default behaviors) upgrades every
-`.hc-toolbar[role="toolbar"]` into the [WAI-ARIA APG Toolbar
+`installToolbar()` upgrades every `.hc-toolbar[role="toolbar"]` into the
+[WAI-ARIA APG Toolbar
 pattern](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/): the whole
 toolbar is a **single Tab stop**, and the arrow keys move focus between
 its controls. The plain `.hc-toolbar` layout class (without
