@@ -18,7 +18,18 @@
 //     title?: string,
 //     variant?: 'info' | 'success' | 'warning' | 'error',
 //     duration?: number,                   // ms; 0 = sticky
+//     id?: string,                         // update an existing toast in place
+//     action?: { label: string, event: string },  // a button that fires `event`
 //   }
+//
+// Lifecycle / promise pattern: fire a sticky loading toast with an `id`
+// (`duration: 0`), then a later `hc:toast` with the SAME `id` updates it to
+// success / error in place. The network stays with htmx — typically a request
+// returns `HX-Trigger: {"hc:toast": {...}}` for each phase.
+//
+// Action button: `action: { label, event }` renders a button that, on click,
+// dispatches a bubbling `event` (catchable by htmx `hx-trigger="<event>"` on
+// any ancestor, or a plain listener) and dismisses the toast.
 
 import { t } from './i18n.js';
 
@@ -37,16 +48,19 @@ function getOrCreateRegion(root) {
   return { region, created: true };
 }
 
-function renderToast(ownerDocument, detail) {
+// (Re)populate a toast element from a detail. Used on create AND on an
+// update-by-id, so a loading toast can become a success / error in place.
+function applyContent(ownerDocument, toast, detail) {
   const variant = detail.variant || 'info';
   const isUrgent = variant === 'error';
 
-  const toast = ownerDocument.createElement('div');
-  toast.className = 'hc-toast';
   toast.setAttribute('data-variant', variant);
   toast.setAttribute('role', isUrgent ? 'alert' : 'status');
   toast.setAttribute('aria-live', isUrgent ? 'assertive' : 'polite');
   toast.setAttribute('aria-atomic', 'true');
+  if (detail.id != null) toast.setAttribute('data-toast-id', String(detail.id));
+
+  toast.replaceChildren();
 
   if (detail.title) {
     const title = ownerDocument.createElement('div');
@@ -60,6 +74,26 @@ function renderToast(ownerDocument, detail) {
   body.textContent = String(detail.message ?? '');
   toast.appendChild(body);
 
+  // Optional action button. Clicking it dispatches a bubbling event the
+  // author / htmx can catch (e.g. Undo), then dismisses the toast. The config
+  // is stashed for the delegated click handler so updates keep working.
+  const action = detail.action;
+  if (action && action.label && action.event) {
+    const btn = ownerDocument.createElement('button');
+    btn.className = 'hc-toast__action';
+    btn.type = 'button';
+    btn.textContent = String(action.label);
+    toast.appendChild(btn);
+    toast._hcAction = { id: detail.id ?? null, event: String(action.event), action };
+  } else {
+    toast._hcAction = null;
+  }
+}
+
+function createToast(ownerDocument, detail) {
+  const toast = ownerDocument.createElement('div');
+  toast.className = 'hc-toast';
+  applyContent(ownerDocument, toast, detail);
   return toast;
 }
 
@@ -93,6 +127,9 @@ function wireSwipe(toast) {
 
   function onDown(event) {
     if (event.button != null && event.button !== 0) return; // primary only
+    // Don't start a swipe (or capture the pointer) on the action button — that
+    // would steal its click. Let the button handle its own activation.
+    if (event.target.closest?.('.hc-toast__action')) return;
     dragging = true;
     startX = event.clientX;
     dx = 0;
@@ -131,6 +168,22 @@ function wireSwipe(toast) {
   toast.addEventListener('pointercancel', onUp);
 }
 
+// Wire the action button (once per toast — `_hcAction` is refreshed by
+// applyContent, so the listener survives updates). Clicking dispatches a
+// bubbling event named by `action.event` (so htmx `hx-trigger` or plain
+// listeners on any ancestor can react), then dismisses the toast.
+function wireActions(toast) {
+  toast.addEventListener('click', (event) => {
+    const btn = event.target.closest?.('.hc-toast__action');
+    if (!btn || !toast.contains(btn) || !toast._hcAction) return;
+    const { event: eventName, id, action } = toast._hcAction;
+    toast.dispatchEvent(
+      new CustomEvent(eventName, { bubbles: true, detail: { id, action, toast } }),
+    );
+    removeToast(toast);
+  });
+}
+
 /**
  * @typedef {Object} HcToastDetail
  * @property {string} message              Required body text.
@@ -140,6 +193,11 @@ function wireSwipe(toast) {
  *   `aria-live="assertive"` for assistive technology; other variants
  *   use `role="status"` / `aria-live="polite"`.
  * @property {number} [duration=4500]      Milliseconds until auto-dismiss. `0` keeps the toast indefinitely.
+ * @property {string} [id]                 When set, a later `hc:toast` with the same id updates this toast in place (loading → success / error) instead of stacking a new one; the auto-dismiss timer resets to the new `duration`.
+ * @property {{label: string, event: string}} [action]
+ *   Renders a button labelled `label`; clicking it dispatches a bubbling
+ *   `CustomEvent` named `event` (`detail { id, action, toast }`) and dismisses
+ *   the toast. Catch it with htmx `hx-trigger="<event>"` or `addEventListener`.
  */
 
 /**
@@ -191,10 +249,28 @@ export function installToast(root = (typeof document !== 'undefined' ? document 
     const { region, created } = getOrCreateRegion(root);
     if (created) createdRegion = region;
 
-    const toast = renderToast(root, detail);
-    region.appendChild(toast);
-    enforceLimit(region);
-    wireSwipe(toast);
+    // Update-by-id: a later toast carrying the same `id` updates the existing
+    // one in place (loading → success / error) instead of stacking a new one.
+    let toast = null;
+    if (detail.id != null) {
+      toast = [...region.querySelectorAll('.hc-toast')].find(
+        (el) => el.getAttribute('data-toast-id') === String(detail.id),
+      );
+    }
+
+    if (toast) {
+      if (toast._hcTimer) {
+        clearTimeout(toast._hcTimer);
+        toast._hcTimer = null;
+      }
+      applyContent(root, toast, detail); // re-render content / variant in place
+    } else {
+      toast = createToast(root, detail);
+      region.appendChild(toast);
+      enforceLimit(region);
+      wireSwipe(toast);
+      wireActions(toast);
+    }
 
     const duration = Number.isFinite(detail.duration)
       ? Number(detail.duration)

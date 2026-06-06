@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-toast` actions + update-by-id (`action` / `id`).** A toast can now
+  carry an **action button** — `action: { label, event }` renders a button
+  that, on click, dispatches a bubbling `CustomEvent` (catchable by htmx
+  `hx-trigger` or a plain listener, e.g. Undo) and dismisses the toast. A
+  toast can also carry an **`id`**: a later `hc:toast` with the same id
+  **updates it in place** (re-rendering message / variant and resetting the
+  auto-dismiss timer) instead of stacking a duplicate — modelling a
+  loading → success / error promise without client state (the network stays
+  with htmx via `HX-Trigger`). The swipe gesture yields to the action button.
+  New Toast → Actions & updates docs. 6 Vitest + 3 Playwright tests (incl.
+  axe).
+
 - **`hc-inputotp` per-slot click caret placement.** Clicking a slot now moves
   the caret into it so you can edit that position — clamped to the typed
   length, so clicking past the end just parks the caret at the end (no gap).

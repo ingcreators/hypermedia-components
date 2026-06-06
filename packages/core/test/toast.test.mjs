@@ -169,6 +169,84 @@ describe('installToast', () => {
   });
 });
 
+describe('installToast — actions & update-by-id', () => {
+  function click(el) {
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  }
+
+  it('renders an action button and clicking it fires a bubbling event then dismisses', () => {
+    uninstall = installToast();
+    const fired = vi.fn();
+    document.body.addEventListener('hc:undo', (e) => fired(e.detail));
+    dispatch({ message: 'Deleted item', id: 'del-1', duration: 0, action: { label: 'Undo', event: 'hc:undo' } });
+
+    const toast = document.querySelector('.hc-toast');
+    const btn = toast.querySelector('.hc-toast__action');
+    expect(btn.textContent).toBe('Undo');
+
+    click(btn);
+    expect(fired).toHaveBeenCalledTimes(1);
+    expect(fired.mock.calls[0][0]).toMatchObject({ id: 'del-1' });
+    expect(toast.isConnected).toBe(false); // dismissed after the action
+  });
+
+  it('omits the action button when no action is provided', () => {
+    uninstall = installToast();
+    dispatch({ message: 'Saved' });
+    expect(document.querySelector('.hc-toast__action')).toBeNull();
+  });
+
+  it('updates an existing toast in place by id (no duplicate)', () => {
+    uninstall = installToast();
+    dispatch({ message: 'Saving…', id: 'save', variant: 'info', duration: 0 });
+    expect(document.querySelectorAll('.hc-toast').length).toBe(1);
+
+    dispatch({ message: 'Saved!', id: 'save', variant: 'success', duration: 4500 });
+
+    const toasts = document.querySelectorAll('.hc-toast');
+    expect(toasts.length).toBe(1); // updated, not stacked
+    expect(toasts[0].querySelector('.hc-toast__body').textContent).toBe('Saved!');
+    expect(toasts[0].getAttribute('data-variant')).toBe('success');
+    expect(toasts[0].getAttribute('role')).toBe('status');
+  });
+
+  it('the update resets the auto-dismiss timer (sticky loading → timed success)', () => {
+    uninstall = installToast();
+    dispatch({ message: 'Loading…', id: 'job', duration: 0 }); // sticky
+    vi.advanceTimersByTime(10_000);
+    expect(document.querySelectorAll('.hc-toast').length).toBe(1); // still up
+
+    dispatch({ message: 'Done', id: 'job', variant: 'success', duration: 1000 });
+    vi.advanceTimersByTime(999);
+    expect(document.querySelectorAll('.hc-toast').length).toBe(1);
+    vi.advanceTimersByTime(1);
+    expect(document.querySelectorAll('.hc-toast').length).toBe(0); // dismissed
+  });
+
+  it('a fresh id (no existing toast) just creates a new toast', () => {
+    uninstall = installToast();
+    dispatch({ message: 'First', id: 'a', duration: 0 });
+    dispatch({ message: 'Second', id: 'b', duration: 0 });
+    expect(document.querySelectorAll('.hc-toast').length).toBe(2);
+  });
+
+  it('the action survives an update-by-id (handler still works)', () => {
+    uninstall = installToast();
+    dispatch({ message: 'Working…', id: 'x', duration: 0 });
+    dispatch({
+      message: 'Failed',
+      id: 'x',
+      variant: 'error',
+      duration: 0,
+      action: { label: 'Retry', event: 'hc:retry' },
+    });
+    const fired = vi.fn();
+    document.body.addEventListener('hc:retry', fired);
+    click(document.querySelector('.hc-toast__action'));
+    expect(fired).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('installToast — options', () => {
   function pointer(el, type, clientX) {
     el.dispatchEvent(new MouseEvent(type, { clientX, bubbles: true, button: 0 }));

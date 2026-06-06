@@ -102,6 +102,10 @@
       <button class="hc-button" data-variant="error" id="toast-error" data-testid="toast-error">Error</button>
       <button class="hc-button" id="toast-quick" data-testid="toast-quick">Quick (200ms)</button>
       <button class="hc-button" id="toast-sticky" data-testid="toast-sticky">Sticky</button>
+      <button class="hc-button" id="toast-undo" data-testid="toast-undo">Undo action</button>
+      <button class="hc-button" id="toast-start" data-testid="toast-start">Start job</button>
+      <button class="hc-button" id="toast-finish" data-testid="toast-finish">Finish job</button>
+      <output data-testid="toast-undo-fired"></output>
     </div>
     <script type="module">
       const fire = (detail) =>
@@ -115,6 +119,22 @@
         .addEventListener('click', () => fire({ message: 'Quick toast', duration: 200 }));
       document.querySelector('[data-testid="toast-sticky"]')
         .addEventListener('click', () => fire({ message: 'Sticky toast', duration: 0 }));
+
+      // Action button (Undo): clicking the toast's button fires hc:undo.
+      document.querySelector('[data-testid="toast-undo"]')
+        .addEventListener('click', () => fire({
+          message: 'Item deleted', duration: 0,
+          action: { label: 'Undo', event: 'hc:undo' },
+        }));
+      document.body.addEventListener('hc:undo', () => {
+        document.querySelector('[data-testid="toast-undo-fired"]').textContent = 'undone';
+      });
+
+      // Update-by-id (loading → success): both use id "job".
+      document.querySelector('[data-testid="toast-start"]')
+        .addEventListener('click', () => fire({ message: 'Saving…', id: 'job', duration: 0 }));
+      document.querySelector('[data-testid="toast-finish"]')
+        .addEventListener('click', () => fire({ message: 'Saved!', id: 'job', variant: 'success', duration: 0 }));
     </script>
   </section>
 

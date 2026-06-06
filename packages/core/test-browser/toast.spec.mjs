@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -56,5 +57,35 @@ test.describe('toast behavior', () => {
     const region = page.locator('[data-hc-toast-region]');
     const toasts = region.locator('.hc-toast');
     await expect(toasts).toHaveCount(3);
+  });
+
+  test('the action button fires a bubbling event and dismisses the toast', async ({ page }) => {
+    await page.getByTestId('toast-undo').click();
+    const toast = page.locator('.hc-toast');
+    const action = toast.locator('.hc-toast__action');
+    await expect(action).toHaveText('Undo');
+
+    await action.click();
+    await expect(page.getByTestId('toast-undo-fired')).toHaveText('undone'); // hc:undo caught
+    await expect(toast).toHaveCount(0); // dismissed after the action
+  });
+
+  test('a second toast with the same id updates in place (no duplicate)', async ({ page }) => {
+    await page.getByTestId('toast-start').click();
+    const toast = page.locator('.hc-toast');
+    await expect(toast).toHaveCount(1);
+    await expect(toast.locator('.hc-toast__body')).toHaveText('Saving…');
+
+    await page.getByTestId('toast-finish').click();
+    await expect(toast).toHaveCount(1); // updated, not stacked
+    await expect(toast.locator('.hc-toast__body')).toHaveText('Saved!');
+    await expect(toast).toHaveAttribute('data-variant', 'success');
+  });
+
+  test('axe finds no violations with a toast (and action) showing', async ({ page }) => {
+    await page.getByTestId('toast-undo').click();
+    await expect(page.locator('.hc-toast')).toHaveCount(1);
+    const results = await new AxeBuilder({ page }).include('[data-hc-toast-region]').analyze();
+    expect(results.violations).toEqual([]);
   });
 });

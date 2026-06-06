@@ -101,6 +101,32 @@
     line-height: 1.5;
   }
 
+  /* Optional action button (e.g. Undo). Sits below the message, aligned to the
+   * inline-start; inherits the toast's variant colour with an underline cue. */
+  .hc-toast__action {
+    justify-self: start;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: var(--hc-font-weight-semibold);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+
+  .hc-toast__action:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .hc-toast__action:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hc-toast {
       transition-duration: 0ms;
