@@ -60,22 +60,43 @@ centred gradient instead.
 `data-variant` accepts `success`, `warning`, and `error` for
 non-default fill colours.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <progress class="hc-progress" value="60" max="100" aria-label="Default"></progress>
   <progress class="hc-progress" value="60" max="100" data-variant="success" aria-label="Success"></progress>
   <progress class="hc-progress" value="60" max="100" data-variant="warning" aria-label="Warning"></progress>
   <progress class="hc-progress" value="60" max="100" data-variant="error" aria-label="Error"></progress>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <progress class="hc-progress" value="60" max="100" aria-label="Default"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="success" aria-label="Success"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="warning" aria-label="Warning"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="error" aria-label="Error"></progress>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Sizes
 
 `data-size` accepts `sm`, `md` (default), and `lg`.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <progress class="hc-progress" value="50" max="100" data-size="sm" aria-label="Small"></progress>
   <progress class="hc-progress" value="50" max="100" aria-label="Default"></progress>
   <progress class="hc-progress" value="50" max="100" data-size="lg" aria-label="Large"></progress>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <progress class="hc-progress" value="50" max="100" data-size="sm" aria-label="Small"></progress>
+  <progress class="hc-progress" value="50" max="100" aria-label="Default"></progress>
+  <progress class="hc-progress" value="50" max="100" data-size="lg" aria-label="Large"></progress>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## htmx usage
 

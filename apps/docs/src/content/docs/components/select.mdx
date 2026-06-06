@@ -88,7 +88,7 @@ same `--hc-control-*` scale as `hc-button` / `hc-input`, so
 `data-density="compact"` shrinks them consistently with the other
 controls.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:18rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
   <select class="hc-select" data-size="sm" aria-label="Small">
     <option>Small</option>
   </select>
@@ -98,7 +98,17 @@ controls.
   <select class="hc-select" data-size="lg" aria-label="Large">
     <option>Large</option>
   </select>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <select class="hc-select" data-size="sm">…</select>
+  <select class="hc-select">…</select>
+  <select class="hc-select" data-size="lg">…</select>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Disabled
 
@@ -106,11 +116,21 @@ Use the native `disabled` attribute when the control should not be
 interactive at all. `aria-disabled="true"` is the focusable variant
 for the rare case the control must remain in the tab order.
 
-<div class="hc-preview not-content" style="max-inline-size:18rem;">
+<Demo previewStyle="max-inline-size:18rem;">
   <select class="hc-select" disabled aria-label="Disabled">
     <option>Disabled select</option>
   </select>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <select class="hc-select" disabled>
+    <option>Disabled select</option>
+  </select>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## htmx usage
 
