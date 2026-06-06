@@ -2169,6 +2169,11 @@ Security    — security-relevant changes
   section. Verified: all 51 components present and categorised exactly as
   the sidebar.
 
+- **Docs: denser kitchen-sink canvas.** The page opts into tighter preview
+  chrome via a hidden marker (scoped in `preview.css`), dropping the forced
+  7 rem min-height and trimming preview padding and the heading-to-preview
+  rhythm so more demos fit on screen. Component-doc Demos are untouched.
+
 ---
 
 ## [Unreleased — v0.4 implementation]
