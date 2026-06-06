@@ -1,22 +1,67 @@
 ---
 title: Installation
-description: Install Hypermedia Components via npm or use the CDN-style entry points.
+description: Install Hypermedia Components with npm and a bundler, or copy the prebuilt files into a static folder.
 ---
 
-## npm
+Hypermedia Components ships as one CSS file, one behaviors bundle, and an
+optional macros bundle. Always load the CSS; load the JS only if you use
+the interactive behaviors.
+
+## With a bundler (npm)
 
 ```bash
 npm install @hypermedia-components/core
 ```
 
 ```js
-import '@hypermedia-components/core/css';
-import '@hypermedia-components/core/behaviors';
+import '@hypermedia-components/core/css';       // the styles
+import '@hypermedia-components/core/behaviors';  // auto-installs every behavior
 ```
 
-## CDN-style usage
+The `/behaviors` entry is side-effecting: importing it installs every
+behavior once the DOM is ready. To pull in only the behaviors you use,
+import the individual installers instead — see [Behaviors](#behaviors).
+
+## Without a bundler (static files)
+
+No build step? Copy the prebuilt files out of
+`node_modules/@hypermedia-components/core/dist/` (or a release download)
+into a static folder and reference them directly:
 
 ```html
 <link rel="stylesheet" href="/assets/hc/hc.css">
 <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
 ```
+
+Use the **`.min.js`** bundle here — it is self-contained. (The
+un-minified `hc.behaviors.js` is the bundler entry; it imports sibling
+modules, so it will not load on its own from a `<script>` tag.) The
+[Plain HTML guide](/hypermedia-components/integrations/plain-html/) has a
+complete copy-paste page, including the toast region and an htmx round
+trip.
+
+## Behaviors
+
+CSS components render on their own. Interactive ones — menus, dialogs,
+toasts, comboboxes, and so on — need a small JS *behavior*. You have two
+options:
+
+- **All at once** — `import '@hypermedia-components/core/behaviors';`
+  installs every behavior automatically (this is what the docs site and
+  the integration guides use).
+- **Pick and choose** — import only the installers you need:
+
+  ```js
+  import { installMenu, installToast } from '@hypermedia-components/core';
+  installMenu();
+  installToast();
+  ```
+
+Every `installX()` is **idempotent** (safe to call again — e.g. after an
+htmx swap) and **returns an uninstaller**. Each component and recipe page
+names the behavior it needs.
+
+## Next steps
+
+- [Quick start](/hypermedia-components/start/quick-start/) — a minimal page, built up step by step.
+- [Components](/hypermedia-components/components/) — every component with live examples.

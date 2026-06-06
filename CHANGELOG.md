@@ -2095,6 +2095,17 @@ Security    — security-relevant changes
   omitting examples or collapsing markup to `…`. Alert's basic code shows
   all four variants and keeps the `<kbd>` markup.
 
+- **Docs: fleshed out the onboarding path.** The Installation page was a
+  six-line stub; it now covers the npm/bundler path, the no-bundler
+  static-file path (with the `node_modules/.../dist/` source), and a new
+  **Behaviors** section explaining the auto-init bundle vs individual
+  `installX()` (idempotent, returns an uninstaller). Quick start is now a
+  three-layer walkthrough — styles only → add behaviors → add htmx — with
+  a working appended-list example instead of a snippet that targeted a
+  non-existent element. Introduction, Fundamentals index, Reference index,
+  and the Recipes index gained next-steps / child-page links; the Recipes
+  index groups its ten recipes by purpose and tags which need a behavior.
+
 ---
 
 ## [Unreleased — v0.4 implementation]

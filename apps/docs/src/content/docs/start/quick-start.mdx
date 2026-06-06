@@ -1,18 +1,72 @@
 ---
 title: Quick start
-description: A minimal page that demonstrates the project identity.
+description: Build up a minimal working page step by step — CSS first, then behaviors, then htmx.
 ---
+
+This page builds a minimal page in three layers. Each layer works on its
+own; add the next only when you need it.
+
+## 1. Styles only
+
+Load the stylesheet and use the semantic classes. No JavaScript — buttons,
+inputs, cards, and the rest render from CSS alone.
 
 ```html
 <link rel="stylesheet" href="/assets/hc/hc.css">
-<script src="/assets/htmx.min.js"></script>
+
+<button class="hc-button" data-variant="primary">Save</button>
+<input class="hc-input" type="text" placeholder="Search…">
+```
+
+`data-variant` and `data-size` are styling hooks read by the CSS — they
+work without any JavaScript.
+
+## 2. Add behaviors
+
+Load the behaviors bundle to light up the interactive components (menus,
+dialogs, toasts, …). Here, firing an `hc:toast` event now shows a toast:
+
+```html
+<link rel="stylesheet" href="/assets/hc/hc.css">
 <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
 
-<button
-  class="hc-button"
-  data-variant="primary"
-  data-hx-post="/items"
-  data-hx-target="#items">
+<button class="hc-button"
+        onclick="dispatchEvent(new CustomEvent('hc:toast', { detail: { message: 'Saved' } }))">
   Save
 </button>
 ```
+
+The bundle installs every behavior and creates a toast region for you. To
+install only the behaviors you use, see
+[Installation → Behaviors](/hypermedia-components/start/installation/#behaviors).
+
+## 3. Add htmx
+
+Load [htmx](https://htmx.org) to send the request. `data-hx-*` attributes
+are read by htmx — not by HC; HC only styles the button. Clicking **Add
+item** posts to `/items`; the server returns one `<li>`, which htmx
+appends to the list:
+
+```html
+<link rel="stylesheet" href="/assets/hc/hc.css">
+<script defer src="/assets/htmx.min.js"></script>
+<script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
+
+<button class="hc-button" data-variant="primary"
+        data-hx-post="/items"
+        data-hx-target="#items"
+        data-hx-swap="beforeend">
+  Add item
+</button>
+<ul id="items"></ul>
+```
+
+The [Plain HTML guide](/hypermedia-components/integrations/plain-html/) has
+the same shape as a complete, runnable page (with a static server and a
+toast region).
+
+## Next steps
+
+- [Components](/hypermedia-components/components/) — browse the full set with live examples.
+- [Recipes](/hypermedia-components/recipes/) — htmx patterns (confirm, live search, toasts…).
+- [Integrations](/hypermedia-components/integrations/) — Django, Rails, Go, Razor, and more.
