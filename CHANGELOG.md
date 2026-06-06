@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-shell` collapsible sidebar (`data-collapsible` / `data-persist`).** On
+  desktop the sidebar can collapse to a narrow icon rail: add `data-collapsible`
+  to the `.hc-shell__sidebar` and a `[data-hc-shell-collapse]` button, and
+  `installShell()` toggles `data-sidebar-collapsed` on the shell (the CSS
+  narrows the grid column from `--hc-shell-sidebar-width` to a new
+  `--hc-shell-sidebar-collapsed-width`, default `4rem`) with `aria-expanded`
+  kept in sync. Wrap nav text in `.hc-shell__label` and it is visually hidden
+  in the rail but kept in the a11y tree, so links keep their accessible names.
+  `data-persist="<key>"` mirrors the state to `localStorage` and restores it
+  before first paint (failures degrade silently). Desktop-only — the mobile
+  overlay is unchanged and the collapse button is hidden there. New Shell →
+  Collapsible sidebar docs. 3 Vitest + 3 Playwright tests (incl. axe + reload
+  restores).
+
 - **`hc-drawer` drag to dismiss.** Drag the panel toward its anchored edge to
   close it — the axis follows `data-side` (right/left horizontal, top/bottom
   vertical); past ~40% of the panel size or with a quick flick it slides out

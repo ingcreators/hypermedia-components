@@ -63,6 +63,56 @@ describe('installShell', () => {
     expect($('nav').getAttribute('tabindex')).toBe('-1');
   });
 
+  describe('collapsible sidebar', () => {
+    const COLLAPSIBLE = FIXTURE
+      .replace('class="hc-shell__sidebar"', 'class="hc-shell__sidebar" data-collapsible data-persist="hc-test-sidebar"')
+      .replace(
+        '<span>App</span>',
+        '<span>App</span><button id="collapse" type="button" data-hc-shell-collapse>⇔</button>',
+      );
+
+    beforeEach(() => {
+      try { localStorage.removeItem('hc-test-sidebar'); } catch { /* ignore */ }
+    });
+
+    it('does nothing without data-collapsible', () => {
+      document.body.innerHTML = FIXTURE;
+      uninstall = installShell();
+      expect($('shell').hasAttribute('data-sidebar-collapsed')).toBe(false);
+    });
+
+    it('the collapse button toggles data-sidebar-collapsed and aria-expanded', () => {
+      document.body.innerHTML = COLLAPSIBLE;
+      uninstall = installShell();
+      const shell = $('shell');
+      const btn = $('collapse');
+      expect(btn.getAttribute('aria-controls')).toBe('nav');
+      expect(btn.getAttribute('aria-expanded')).toBe('true'); // expanded by default
+
+      click(btn);
+      expect(shell.hasAttribute('data-sidebar-collapsed')).toBe(true);
+      expect(btn.getAttribute('aria-expanded')).toBe('false');
+
+      click(btn);
+      expect(shell.hasAttribute('data-sidebar-collapsed')).toBe(false);
+      expect(btn.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('persists the collapsed state and restores it on the next install', () => {
+      document.body.innerHTML = COLLAPSIBLE;
+      uninstall = installShell();
+      click($('collapse'));
+      expect(localStorage.getItem('hc-test-sidebar')).toBe('1');
+      uninstall();
+
+      // Re-mount: the saved state restores before paint.
+      document.body.innerHTML = COLLAPSIBLE;
+      uninstall = installShell();
+      expect($('shell').hasAttribute('data-sidebar-collapsed')).toBe(true);
+      expect($('collapse').getAttribute('aria-expanded')).toBe('false');
+    });
+  });
+
   it('generates a sidebar id when one is missing', () => {
     document.body.innerHTML = FIXTURE.replace(' id="nav"', '');
     uninstall = installShell();

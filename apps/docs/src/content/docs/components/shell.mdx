@@ -141,6 +141,44 @@ It is idempotent, returns an uninstaller, and picks up shells added to the
 DOM later (via `MutationObserver`) — so it works with htmx-swapped
 content. It never touches the network.
 
+## Collapsible sidebar
+
+On **desktop**, the sidebar can collapse to a narrow **icon rail**. Opt in
+with `data-collapsible` on the `.hc-shell__sidebar`, add a
+`[data-hc-shell-collapse]` button anywhere in the shell, and (optionally)
+`data-persist="<key>"` to remember the state in `localStorage`:
+
+```html
+<div class="hc-shell">
+  <header class="hc-shell__header">
+    <button data-hc-shell-toggle …>Menu</button>
+    <button data-hc-shell-collapse type="button" aria-label="Collapse sidebar">⇔</button>
+  </header>
+
+  <nav class="hc-shell__sidebar" aria-label="Primary"
+       data-collapsible data-persist="app.sidebar">
+    <ul>
+      <li><a href="/"><span aria-hidden="true">▦</span>
+        <span class="hc-shell__label">Dashboard</span></a></li>
+      …
+    </ul>
+  </nav>
+  …
+</div>
+```
+
+`installShell()` toggles `data-sidebar-collapsed` on the shell (the CSS
+narrows the grid column from `--hc-shell-sidebar-width` to
+`--hc-shell-sidebar-collapsed-width`, default `4rem`) and keeps the button's
+`aria-expanded` in sync. Wrap each nav item's text in `.hc-shell__label`; in
+the rail it is **visually hidden but kept in the accessibility tree**, so the
+links keep their accessible names while only the icon shows.
+
+This is **desktop-only** — below the responsive breakpoint the sidebar uses
+the off-canvas overlay instead, and the collapse button is hidden. With
+`data-persist`, the collapsed state restores on the next visit before first
+paint (`localStorage` failures degrade silently).
+
 ## Accessibility
 
 - Use real landmarks: `<header>`, `<nav aria-label="…">`, `<main>`,
