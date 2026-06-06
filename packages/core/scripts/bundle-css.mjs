@@ -43,6 +43,7 @@ const COMPONENTS = [
   'hc-separator.css',
   'hc-splitter.css',
   'hc-scroll-area.css',
+  'hc-aspect.css',
   'hc-dialog.css',
   'hc-drawer.css',
   'hc-popover.css',

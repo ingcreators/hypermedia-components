@@ -1,0 +1,53 @@
+/* hc-aspect — a fixed aspect-ratio box.
+ *
+ *   <div class="hc-aspect" data-ratio="16/9">
+ *     <img src="…" alt="…">
+ *   </div>
+ *
+ * The box keeps its ratio via the CSS `aspect-ratio` property; a direct
+ * media child (img / video / iframe / picture) fills it with
+ * `object-fit: cover`. Common ratios ship as `data-ratio` presets that set
+ * `--hc-aspect-ratio` (default `1 / 1`); for an arbitrary ratio set the
+ * custom property directly: `style="--hc-aspect-ratio: 3 / 4"`.
+ *
+ * No JS. `aspect-ratio` is widely available (Baseline 2021) — no gate
+ * needed. The legacy fallback is the padding-top hack (see docs).
+ */
+@layer hc.components {
+  .hc-aspect {
+    display: block;
+    aspect-ratio: var(--hc-aspect-ratio, 1 / 1);
+    overflow: hidden;
+  }
+
+  /* Preset ratios. */
+  .hc-aspect[data-ratio="1/1"]   { --hc-aspect-ratio: 1 / 1; }
+  .hc-aspect[data-ratio="16/9"]  { --hc-aspect-ratio: 16 / 9; }
+  .hc-aspect[data-ratio="4/3"]   { --hc-aspect-ratio: 4 / 3; }
+  .hc-aspect[data-ratio="3/2"]   { --hc-aspect-ratio: 3 / 2; }
+  .hc-aspect[data-ratio="2/1"]   { --hc-aspect-ratio: 2 / 1; }
+  .hc-aspect[data-ratio="21/9"]  { --hc-aspect-ratio: 21 / 9; }
+  .hc-aspect[data-ratio="9/16"]  { --hc-aspect-ratio: 9 / 16; }
+
+  /* A direct media child fills the box. */
+  .hc-aspect > img,
+  .hc-aspect > video,
+  .hc-aspect > iframe,
+  .hc-aspect > picture,
+  .hc-aspect > picture > img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .hc-aspect > iframe {
+    border: 0;
+  }
+
+  /* Opt into letterboxing instead of cropping. */
+  .hc-aspect[data-fit="contain"] > img,
+  .hc-aspect[data-fit="contain"] > video,
+  .hc-aspect[data-fit="contain"] > picture > img {
+    object-fit: contain;
+  }
+}
