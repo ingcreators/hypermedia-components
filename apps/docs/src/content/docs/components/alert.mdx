@@ -64,19 +64,6 @@ to a piece of information. Variants are switched with `data-variant`.
 | `warning`   | A caution before a non-destructive action. |
 | `error`    | Error, failure, or destructive warning.|
 
-## Accessibility
-
-- Choose the **role** based on urgency:
-  - `role="status"` (or `aria-live="polite"`) for non-urgent updates —
-    they are announced after the screen reader finishes whatever it was
-    saying.
-  - `role="alert"` (or `aria-live="assertive"`) for errors and urgent
-    failures — they interrupt the screen reader.
-- The component does not set the role for you because the right role
-  depends on context. Be explicit at the call site.
-- Color alone must not carry the meaning. Include a short
-  `.hc-alert__title` so the kind of alert is announced as text.
-
 ## htmx usage
 
 A common server-side pattern returns a `hc-alert` fragment for a
@@ -98,6 +85,19 @@ any other HTML — alerts have no JavaScript of their own.
 For ephemeral notifications across pages, use
 [Toast](/hypermedia-components/components/toast/), which is triggered by an
 `hc:toast` event or an `HX-Trigger` response header.
+
+## Accessibility
+
+- Choose the **role** based on urgency:
+  - `role="status"` (or `aria-live="polite"`) for non-urgent updates —
+    they are announced after the screen reader finishes whatever it was
+    saying.
+  - `role="alert"` (or `aria-live="assertive"`) for errors and urgent
+    failures — they interrupt the screen reader.
+- The component does not set the role for you because the right role
+  depends on context. Be explicit at the call site.
+- Color alone must not carry the meaning. Include a short
+  `.hc-alert__title` so the kind of alert is announced as text.
 
 ## Theming tokens
 

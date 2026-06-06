@@ -87,6 +87,23 @@ the same `--hc-control-*` scale as `hc-button` / `hc-input` /
   </Fragment>
 </Demo>
 
+## Disabled
+
+Use the native `disabled` attribute. The control dims and stops
+accepting input; the value still submits if you instead use `readonly`.
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
+  <input class="hc-datepicker" type="date" value="2026-06-01" disabled aria-label="Disabled" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-datepicker" type="date" value="2026-06-01" disabled>
+  ```
+
+  </Fragment>
+</Demo>
+
 ## Range pickers
 
 A native `<input type="date">` is single-value. For ranges, place
