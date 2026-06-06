@@ -104,6 +104,13 @@ test.describe('dark mode recolours neutral hover / surface backgrounds', () => {
     '--hc-pagination-hover-bg',
     '--hc-table-header-bg',
     '--hc-table-row-hover-bg',
+    // Disabled form-control surfaces (input / select / datepicker /
+    // checkbox / radio) — same primitive-gray.100 trap.
+    '--hc-input-disabled-bg',
+    '--hc-select-disabled-bg',
+    '--hc-datepicker-disabled-bg',
+    '--hc-checkbox-disabled-bg',
+    '--hc-radio-disabled-bg',
   ];
 
   for (const name of VARS) {

@@ -100,7 +100,7 @@
     "error-border": { "$type": "color", "$value": "{semantic.color.error}" },
     "success-border": { "$type": "color", "$value": "{semantic.color.success}" },
     "warning-border": { "$type": "color", "$value": "{semantic.color.warning}" },
-    "disabled-bg": { "$type": "color", "$value": "{primitive.color.gray.100}" },
+    "disabled-bg": { "$type": "color", "$value": "{semantic.color.muted-bg}" },
     "sm": {
       "height":    { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
       "padding-x": { "$type": "dimension", "$value": "{primitive.space.3}" },
@@ -124,7 +124,7 @@
     "error-border": { "$type": "color",      "$value": "{semantic.color.error}" },
     "success-border": { "$type": "color",      "$value": "{semantic.color.success}" },
     "warning-border": { "$type": "color",      "$value": "{semantic.color.warning}" },
-    "disabled-bg":    { "$type": "color",      "$value": "{primitive.color.gray.100}" },
+    "disabled-bg":    { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
     "icon-size":      { "$type": "dimension",  "$value": "1rem" },
     "sm": {
       "height":     { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
@@ -149,7 +149,7 @@
     "error-border": { "$type": "color",      "$value": "{semantic.color.error}" },
     "success-border": { "$type": "color",      "$value": "{semantic.color.success}" },
     "warning-border": { "$type": "color",      "$value": "{semantic.color.warning}" },
-    "disabled-bg":    { "$type": "color",      "$value": "{primitive.color.gray.100}" },
+    "disabled-bg":    { "$type": "color",      "$value": "{semantic.color.muted-bg}" },
     "chevron-size":   { "$type": "dimension",  "$value": "1rem" },
     "sm": {
       "height":     { "$type": "dimension", "$value": "{primitive.size.control.sm}" },
@@ -177,7 +177,7 @@
     "error-checked-bg":      { "$type": "color", "$value": "{semantic.color.error}" },
     "error-checked-border":  { "$type": "color", "$value": "{semantic.color.error}" },
     "error-border":   { "$type": "color",     "$value": "{semantic.color.error}" },
-    "disabled-bg":      { "$type": "color",     "$value": "{primitive.color.gray.100}" },
+    "disabled-bg":      { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
     "label-gap":        { "$type": "dimension", "$value": "{semantic.space.2}" },
     "sm": {
       "size": { "$type": "dimension", "$value": "0.875rem" }
@@ -375,7 +375,7 @@
     "success-checked-bg": { "$type": "color",  "$value": "{semantic.color.success}" },
     "warning-checked-bg": { "$type": "color",  "$value": "{semantic.color.warning}" },
     "error-checked-bg":   { "$type": "color",  "$value": "{semantic.color.error}" },
-    "disabled-bg":     { "$type": "color",     "$value": "{primitive.color.gray.100}" },
+    "disabled-bg":     { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
     "label-gap":       { "$type": "dimension", "$value": "{semantic.space.2}" },
     "sm": {
       "width":      { "$type": "dimension", "$value": "1.75rem" },
@@ -402,7 +402,7 @@
     "error-checked-bg":      { "$type": "color", "$value": "{semantic.color.error}" },
     "error-checked-border":  { "$type": "color", "$value": "{semantic.color.error}" },
     "error-border":   { "$type": "color",     "$value": "{semantic.color.error}" },
-    "disabled-bg":      { "$type": "color",     "$value": "{primitive.color.gray.100}" },
+    "disabled-bg":      { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
     "label-gap":        { "$type": "dimension", "$value": "{semantic.space.2}" },
     "sm": {
       "size": { "$type": "dimension", "$value": "0.875rem" }
