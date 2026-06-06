@@ -33,6 +33,7 @@ const FILES = [
   ['src/js/menu-core.js',     'menu-core.js'],
   ['src/js/submenu.js',       'submenu.js'],
   ['src/js/menu.js',          'menu.js'],
+  ['src/js/menubar.js',       'menubar.js'],
   ['src/js/context-menu.js',  'context-menu.js'],
   ['src/js/command.js',       'command.js'],
   ['src/js/calendar.js',      'calendar.js'],

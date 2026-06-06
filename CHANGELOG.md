@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-menubar` — application menu bar (`installMenubar()`).** The desktop
+  File / Edit / View menu bar pattern: a horizontal `role="menubar"` of menu
+  buttons, each opening an `hc-menu` dropdown. A thin layer over the existing
+  menu machinery — `installMenu()` owns the dropdown internals (ARIA, in-menu
+  keyboard, B1 submenus); `installMenubar()` adds roving-tabindex across the
+  top items (←/→ + Home/End, one Tab stop), ↓/↑/Enter/Space to open, and
+  cross-menu ←/→ switching while a menu is open (a submenu parent still opens
+  its submenu on →). Escape closes via the native popover. New `menubar.*`
+  tokens, Menubar docs page, 8 Vitest tests, and 7 Playwright tests (incl.
+  axe, open + closed).
+
 - **`hc-carousel` — scroll-snap carousel (`installCarousel()`).** A carousel
   whose source of truth is the native scroll position: slides live in a CSS
   scroll-snap rail and the behavior only tracks the in-view slide (an

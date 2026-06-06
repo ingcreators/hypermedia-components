@@ -11,6 +11,7 @@ export { installClosePopover } from './close-popover.js';
 export { installRemoteDialog } from './remote-dialog.js';
 export { installTabs } from './tabs.js';
 export { installMenu } from './menu.js';
+export { installMenubar } from './menubar.js';
 export { installTooltip } from './tooltip.js';
 export { installPopover } from './popover.js';
 export { installSlider } from './slider.js';

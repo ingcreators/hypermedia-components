@@ -1236,6 +1236,34 @@
     </script>
   </section>
 
+  <section id="section-menubar" data-testid="section-menubar">
+    <h2>Menubar</h2>
+
+    <div class="hc-menubar" role="menubar" aria-label="Application" data-testid="menubar">
+      <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="mbar-file"
+              id="mbar-file-t" data-testid="mbar-file">File</button>
+      <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="mbar-edit"
+              id="mbar-edit-t" data-testid="mbar-edit">Edit</button>
+      <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="mbar-view"
+              id="mbar-view-t" data-testid="mbar-view">View</button>
+
+      <div class="hc-menu" id="mbar-file" popover role="menu" aria-labelledby="mbar-file-t"
+           data-testid="mb-file">
+        <button class="hc-menu__item" role="menuitem" type="button" data-testid="mb-file-new">New</button>
+        <button class="hc-menu__item" role="menuitem" type="button">Open…</button>
+      </div>
+      <div class="hc-menu" id="mbar-edit" popover role="menu" aria-labelledby="mbar-edit-t"
+           data-testid="mb-edit">
+        <button class="hc-menu__item" role="menuitem" type="button" data-testid="mb-edit-undo">Undo</button>
+        <button class="hc-menu__item" role="menuitem" type="button">Redo</button>
+      </div>
+      <div class="hc-menu" id="mbar-view" popover role="menu" aria-labelledby="mbar-view-t"
+           data-testid="mb-view">
+        <button class="hc-menu__item" role="menuitem" type="button">Zoom in</button>
+      </div>
+    </div>
+  </section>
+
   <section id="section-carousel" data-testid="section-carousel">
     <h2>Carousel</h2>
 

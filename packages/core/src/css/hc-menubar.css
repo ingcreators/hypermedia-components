@@ -1,0 +1,53 @@
+/* hc-menubar — the desktop application menu bar (File / Edit / …).
+ *
+ *   <div class="hc-menubar" role="menubar" aria-label="Main">
+ *     <button class="hc-menubar__item" role="menuitem" type="button"
+ *             popovertarget="m-file">File</button>
+ *     <div class="hc-menu" id="m-file" popover role="menu" aria-label="File">…</div>
+ *     …
+ *   </div>
+ *
+ * A horizontal bar of menu buttons; each opens a `.hc-menu` popover.
+ * installMenubar() adds roving-tabindex navigation and cross-menu ←/→
+ * switching; installMenu() owns the dropdown internals. The dropdowns reuse
+ * the hc-menu component styles.
+ */
+@layer hc.components {
+  .hc-menubar {
+    display: flex;
+    align-items: center;
+    gap: var(--hc-menubar-gap);
+    padding-inline: var(--hc-menubar-padding-x);
+    padding-block: var(--hc-menubar-padding-y);
+    border: 1px solid var(--hc-menubar-border);
+    border-radius: var(--hc-menubar-radius);
+    background: var(--hc-menubar-bg);
+  }
+
+  .hc-menubar__item {
+    display: inline-flex;
+    align-items: center;
+    padding-inline: var(--hc-menubar-item-padding-x);
+    padding-block: var(--hc-menubar-item-padding-y);
+    border: 0;
+    border-radius: var(--hc-menubar-item-radius);
+    background: transparent;
+    color: var(--hc-menubar-item-fg);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.4;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hc-menubar__item:hover,
+  .hc-menubar__item[aria-expanded="true"] {
+    background: var(--hc-menubar-item-hover-bg);
+  }
+
+  .hc-menubar__item:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+}
