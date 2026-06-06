@@ -3,15 +3,30 @@ title: Recipes
 description: htmx-friendly patterns — confirm action, live search, remote dialog, inline edit, lazy panel, toast, and more.
 ---
 
-Each recipe documents the short form, the expanded HTML, the optional macro, and the server response contract.
+Each recipe documents the short form, the expanded HTML, the optional
+macro, and the server response contract. Recipes tagged **needs a
+behavior** require an `installX()` from
+[`@hypermedia-components/core`](/hypermedia-components/start/installation/#behaviors);
+the rest are pure htmx attributes.
 
-- [Confirm action](/hypermedia-components/recipes/confirm-action/) — guard a destructive request behind a confirmation dialog.
+## Actions &amp; forms
+
+- [Confirm action](/hypermedia-components/recipes/confirm-action/) — guard a destructive request behind a confirmation dialog. *(needs `installConfirm`)*
 - [Request action](/hypermedia-components/recipes/request-action/) — a button that fires an htmx request with a busy state.
-- [Live search](/hypermedia-components/recipes/live-search/) — debounced search-as-you-type that swaps results.
-- [Filter popover](/hypermedia-components/recipes/filter-popover/) — a popover hosting a filter form that closes on success.
 - [Inline edit](/hypermedia-components/recipes/inline-edit/) — swap a value between display and edit modes in place.
+
+## Search &amp; filter
+
+- [Live search](/hypermedia-components/recipes/live-search/) — debounced search-as-you-type that swaps results.
+- [Filter popover](/hypermedia-components/recipes/filter-popover/) — a popover hosting a filter form that closes on success. *(needs `installClosePopover`)*
+
+## Loading &amp; regions
+
 - [Lazy panel](/hypermedia-components/recipes/lazy-panel/) — defer loading a panel until it is revealed.
-- [Remote dialog](/hypermedia-components/recipes/remote-dialog/) — load a dialog's contents from the server on open.
 - [Data region](/hypermedia-components/recipes/data-region/) — a self-refreshing region driven by `HX-Trigger`.
-- [Datagrid pagination](/hypermedia-components/recipes/datagrid-pager/) — server-driven pager with out-of-band row swaps.
-- [Toast](/hypermedia-components/recipes/toast/) — fire toast notifications from the client or an `HX-Trigger` header.
+- [Datagrid pagination](/hypermedia-components/recipes/datagrid-pager/) — server-driven pager with out-of-band row swaps. *(needs `installDatagrid`)*
+
+## Overlays &amp; notifications
+
+- [Remote dialog](/hypermedia-components/recipes/remote-dialog/) — load a dialog's contents from the server on open. *(needs `installRemoteDialog` + `installCloseDialog`)*
+- [Toast](/hypermedia-components/recipes/toast/) — fire toast notifications from the client or an `HX-Trigger` header. *(needs `installToast`)*
