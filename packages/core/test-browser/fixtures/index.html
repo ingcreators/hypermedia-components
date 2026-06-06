@@ -1236,6 +1236,24 @@
     </script>
   </section>
 
+  <section id="section-spinner" data-testid="section-spinner">
+    <h2>Spinner</h2>
+
+    <div class="row">
+      <span class="hc-spinner" role="status" aria-label="Loading" data-testid="spinner-default"></span>
+      <span class="hc-spinner" data-size="sm" role="status" aria-label="Loading small" data-testid="spinner-sm"></span>
+      <span class="hc-spinner" data-size="lg" role="status" aria-label="Loading large" data-testid="spinner-lg"></span>
+      <span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading primary" data-testid="spinner-primary"></span>
+    </div>
+
+    <p>
+      <span role="status" data-testid="spinner-wrapped">
+        <span class="hc-spinner" aria-hidden="true"></span>
+        <span class="hc-sr-only">Loading results…</span>
+      </span>
+    </p>
+  </section>
+
   <section id="section-button-group" data-testid="section-button-group">
     <h2>Button group</h2>
 

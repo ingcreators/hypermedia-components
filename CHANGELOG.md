@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-spinner` — documented component + variants/sizes.** The existing
+  CSS-only loading ring is now a first-class component with a docs page.
+  Adds `data-size` (`sm` / default / `lg`) and `data-variant`
+  (`primary` / `success` / `warning` / `error`, default `currentColor`); the
+  spin duration and reduced-motion duration are now tokens, and the track
+  uses the theme `border` colour so it adapts to dark mode. Documents the
+  `role="status"` + accessible-name a11y pattern (the spin slows but never
+  stops under `prefers-reduced-motion`, and the status name — not the
+  animation — conveys "busy"). New `spinner.{sm-size,lg-size,duration,
+  reduced-duration,primary-color,success-color,warning-color,error-color}`
+  tokens; 6 Playwright tests (incl. reduced-motion + axe).
+
 - **`hc-button-group` — connected button cluster.** Visually joins adjacent
   `.hc-button` elements into one segmented cluster (split buttons,
   icon-button rows, pagination-like groups): collapses the shared inner
