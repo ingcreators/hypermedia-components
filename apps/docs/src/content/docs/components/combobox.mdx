@@ -3,6 +3,8 @@ title: Combobox
 description: Accessible single-select with type-to-filter, built on the WAI-ARIA 1.2 combobox pattern, native popover, and CSS Anchor Positioning.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-combobox` is an accessible **single-select** input with a
 type-to-filter dropdown. Follows the [WAI-ARIA 1.2 combobox
 pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) — the
@@ -31,7 +33,7 @@ positioning hook.
 
 ## Basic example
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-combobox" style="max-inline-size:18rem;">
     <input class="hc-combobox__input hc-input"
            type="text"
@@ -47,26 +49,30 @@ positioning hook.
           aria-disabled="true">Germany (coming soon)</li>
     </ul>
   </div>
-</div>
 
-```html
-<div class="hc-combobox">
-  <input class="hc-combobox__input hc-input"
-         type="text"
-         role="combobox"
-         aria-controls="country-list"
-         aria-label="Country">
+  <Fragment slot="code">
 
-  <ul class="hc-combobox__listbox" id="country-list" role="listbox">
-    <li class="hc-combobox__option" role="option" data-value="jp">Japan</li>
-    <li class="hc-combobox__option" role="option" data-value="us">United States</li>
-    <li class="hc-combobox__option" role="option" data-value="gb">United Kingdom</li>
-    <li class="hc-combobox__option" role="option" data-value="fr">France</li>
-    <li class="hc-combobox__option" role="option" data-value="de"
-        aria-disabled="true">Germany</li>
-  </ul>
-</div>
-```
+  ```html
+  <div class="hc-combobox">
+    <input class="hc-combobox__input hc-input"
+           type="text"
+           role="combobox"
+           aria-controls="country-list"
+           aria-label="Country">
+  
+    <ul class="hc-combobox__listbox" id="country-list" role="listbox">
+      <li class="hc-combobox__option" role="option" data-value="jp">Japan</li>
+      <li class="hc-combobox__option" role="option" data-value="us">United States</li>
+      <li class="hc-combobox__option" role="option" data-value="gb">United Kingdom</li>
+      <li class="hc-combobox__option" role="option" data-value="fr">France</li>
+      <li class="hc-combobox__option" role="option" data-value="de"
+          aria-disabled="true">Germany</li>
+    </ul>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installCombobox } from '@hypermedia-components/core';

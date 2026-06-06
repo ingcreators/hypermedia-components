@@ -3,6 +3,8 @@ title: Navigation menu
 description: Top-level site navigation with content panels (mega-menu).
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-navmenu` is a top-level site navigation whose items can open content
 **panels** (a mega-menu). It is a disclosure set: each trigger is a
 `button[aria-expanded]` controlling a `popover` panel anchored under it with
@@ -12,7 +14,7 @@ htmx alike.
 
 ## Basic example
 
-<div class="hc-preview not-content" style="min-block-size: 16rem;">
+<Demo previewStyle="min-block-size: 16rem;">
   <nav class="hc-navmenu" aria-label="Main">
     <ul class="hc-navmenu__list">
       <li class="hc-navmenu__item">
@@ -35,26 +37,30 @@ htmx alike.
       </li>
     </ul>
   </nav>
-</div>
 
-```html
-<nav class="hc-navmenu" aria-label="Main">
-  <ul class="hc-navmenu__list">
-    <li class="hc-navmenu__item">
-      <button class="hc-navmenu__trigger" type="button"
-              data-hc-navmenu-trigger aria-controls="nm-products">Products</button>
-      <div class="hc-navmenu__panel" id="nm-products">
-        <a class="hc-navmenu__link" href="/analytics">Analytics</a>
-        <a class="hc-navmenu__link" href="/billing">Billing</a>
-      </div>
-    </li>
-    <!-- A plain top-level link needs no trigger / panel. -->
-    <li class="hc-navmenu__item">
-      <a class="hc-navmenu__link" href="/pricing">Pricing</a>
-    </li>
-  </ul>
-</nav>
-```
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-navmenu" aria-label="Main">
+    <ul class="hc-navmenu__list">
+      <li class="hc-navmenu__item">
+        <button class="hc-navmenu__trigger" type="button"
+                data-hc-navmenu-trigger aria-controls="nm-products">Products</button>
+        <div class="hc-navmenu__panel" id="nm-products">
+          <a class="hc-navmenu__link" href="/analytics">Analytics</a>
+          <a class="hc-navmenu__link" href="/billing">Billing</a>
+        </div>
+      </li>
+      <!-- A plain top-level link needs no trigger / panel. -->
+      <li class="hc-navmenu__item">
+        <a class="hc-navmenu__link" href="/pricing">Pricing</a>
+      </li>
+    </ul>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installNavmenu } from '@hypermedia-components/core';

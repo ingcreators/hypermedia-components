@@ -3,13 +3,15 @@ title: Pagination
 description: Semantic page links with current-page emphasis and disabled prev/next.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-pagination` is a `<nav>` containing a flat list of page links. The
 current page is marked with `aria-current="page"` — that single
 attribute drives both the visual state and the assistive-tech signal.
 
 ## Basic HTML
 
-<div class="hc-preview not-content">
+<Demo>
   <nav class="hc-pagination" aria-label="Pagination">
     <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
     <a class="hc-pagination__item" href="#">1</a>
@@ -18,18 +20,22 @@ attribute drives both the visual state and the assistive-tech signal.
     <a class="hc-pagination__item" href="#">4</a>
     <a class="hc-pagination__item" href="#">Next ›</a>
   </nav>
-</div>
 
-```html
-<nav class="hc-pagination" aria-label="Pagination">
-  <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
-  <a class="hc-pagination__item" href="?page=1">1</a>
-  <a class="hc-pagination__item" aria-current="page" href="?page=2">2</a>
-  <a class="hc-pagination__item" href="?page=3">3</a>
-  <a class="hc-pagination__item" href="?page=4">4</a>
-  <a class="hc-pagination__item" href="?page=3">Next ›</a>
-</nav>
-```
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-pagination" aria-label="Pagination">
+    <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
+    <a class="hc-pagination__item" href="?page=1">1</a>
+    <a class="hc-pagination__item" aria-current="page" href="?page=2">2</a>
+    <a class="hc-pagination__item" href="?page=3">3</a>
+    <a class="hc-pagination__item" href="?page=4">4</a>
+    <a class="hc-pagination__item" href="?page=3">Next ›</a>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## States
 

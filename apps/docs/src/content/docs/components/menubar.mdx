@@ -3,6 +3,8 @@ title: Menubar
 description: The desktop application menu bar (File / Edit / …) built on hc-menu.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-menubar` is the desktop application **menu bar** pattern: a horizontal
 row of menu buttons (File / Edit / View …), each opening an
 [`hc-menu`](/hypermedia-components/components/menu/) dropdown. It is a thin
@@ -12,7 +14,7 @@ navigation.
 
 ## Basic example
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-menubar" role="menubar" aria-label="Application">
     <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-file" id="doc-mb-file-t">File</button>
     <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-edit" id="doc-mb-edit-t">Edit</button>
@@ -32,24 +34,28 @@ navigation.
       <button class="hc-menu__item" role="menuitem" type="button">Zoom out</button>
     </div>
   </div>
-</div>
 
-```html
-<div class="hc-menubar" role="menubar" aria-label="Application">
-  <button class="hc-menubar__item" role="menuitem" type="button"
-          popovertarget="mb-file" id="mb-file-t">File</button>
-  <div class="hc-menu" id="mb-file" popover role="menu" aria-labelledby="mb-file-t">
-    <button class="hc-menu__item" role="menuitem" type="button">New</button>
-    <button class="hc-menu__item" role="menuitem" type="button">Open…</button>
-  </div>
+  <Fragment slot="code">
 
-  <button class="hc-menubar__item" role="menuitem" type="button"
-          popovertarget="mb-edit" id="mb-edit-t">Edit</button>
-  <div class="hc-menu" id="mb-edit" popover role="menu" aria-labelledby="mb-edit-t">
-    <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+  ```html
+  <div class="hc-menubar" role="menubar" aria-label="Application">
+    <button class="hc-menubar__item" role="menuitem" type="button"
+            popovertarget="mb-file" id="mb-file-t">File</button>
+    <div class="hc-menu" id="mb-file" popover role="menu" aria-labelledby="mb-file-t">
+      <button class="hc-menu__item" role="menuitem" type="button">New</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Open…</button>
+    </div>
+  
+    <button class="hc-menubar__item" role="menuitem" type="button"
+            popovertarget="mb-edit" id="mb-edit-t">Edit</button>
+    <div class="hc-menu" id="mb-edit" popover role="menu" aria-labelledby="mb-edit-t">
+      <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+    </div>
   </div>
-</div>
-```
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installMenu, installMenubar } from '@hypermedia-components/core';

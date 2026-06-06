@@ -3,6 +3,8 @@ title: Field
 description: Wraps a label, control, and help/error message into a single, validation-aware unit.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-field` is a thin composition class that groups a label, a control,
 and an optional help or error message. Validity is expressed with the
 standard `aria-invalid` attribute on the input, plus
@@ -11,25 +13,29 @@ update together.
 
 ## Basic HTML
 
-<div class="hc-preview not-content" style="max-width:24rem;">
+<Demo previewStyle="max-width:24rem;">
   <div class="hc-field">
     <label class="hc-field__label" htmlFor="email-1">Email</label>
     <input id="email-1" class="hc-input" name="email" type="email" />
     <p class="hc-field__message">Use your work email.</p>
   </div>
-</div>
 
-```html
-<div class="hc-field">
-  <label class="hc-field__label" for="email">Email</label>
-  <input id="email" class="hc-input" name="email" type="email">
-  <p class="hc-field__message">Use your work email.</p>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input id="email" class="hc-input" name="email" type="email">
+    <p class="hc-field__message">Use your work email.</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Invalid state
 
-<div class="hc-preview not-content" style="max-width:24rem;">
+<Demo previewStyle="max-width:24rem;">
   <div class="hc-field" data-invalid="true">
     <label class="hc-field__label" htmlFor="email-2">Email</label>
     <input
@@ -43,23 +49,27 @@ update together.
     />
     <p id="email-2-error" class="hc-field__message">Enter a valid email address.</p>
   </div>
-</div>
 
-```html
-<div class="hc-field" data-invalid="true">
-  <label class="hc-field__label" for="email">Email</label>
-  <input
-    id="email"
-    class="hc-input"
-    name="email"
-    type="email"
-    aria-invalid="true"
-    aria-describedby="email-error">
-  <p id="email-error" class="hc-field__message">
-    Enter a valid email address.
-  </p>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field" data-invalid="true">
+    <label class="hc-field__label" for="email">Email</label>
+    <input
+      id="email"
+      class="hc-input"
+      name="email"
+      type="email"
+      aria-invalid="true"
+      aria-describedby="email-error">
+    <p id="email-error" class="hc-field__message">
+      Enter a valid email address.
+    </p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 Two attributes work together:
 

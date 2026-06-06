@@ -3,6 +3,8 @@ title: Separator
 description: A thin divider line between sections or groups, built on the native <hr> element with horizontal / vertical orientation. Pure CSS, no JavaScript.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-separator` is a thin divider line. Apply `.hc-separator` to a
 native `<hr>` — the element already carries the implicit
 `role="separator"` and `aria-orientation="horizontal"` semantics, so
@@ -13,15 +15,19 @@ from a token. Pure CSS, no JavaScript.
 
 The default. A full-width hairline with margin above and below.
 
-<div class="hc-preview not-content" style="max-inline-size:24rem;">
+<Demo previewStyle="max-inline-size:24rem;">
   <p style="margin:0;">Account settings</p>
   <hr class="hc-separator" />
   <p style="margin:0;">Billing</p>
-</div>
 
-```html
-<hr class="hc-separator">
-```
+  <Fragment slot="code">
+
+  ```html
+  <hr class="hc-separator">
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Vertical
 
@@ -33,23 +39,27 @@ There is no HTML element for a vertical separator, and a plain `<hr>`
 reports `aria-orientation="horizontal"`, so add
 `aria-orientation="vertical"` to keep the semantics correct.
 
-<div class="hc-preview not-content" style="display:flex;align-items:center;gap:.5rem;block-size:1.5rem;">
+<Demo previewStyle="display:flex;align-items:center;gap:.5rem;block-size:1.5rem;">
   <a href="#">Profile</a>
   <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical" />
   <a href="#">Settings</a>
   <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical" />
   <a href="#">Log out</a>
-</div>
 
-```html
-<nav style="display:flex;align-items:center;gap:.5rem;">
-  <a href="/profile">Profile</a>
-  <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
-  <a href="/settings">Settings</a>
-  <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
-  <a href="/logout">Log out</a>
-</nav>
-```
+  <Fragment slot="code">
+
+  ```html
+  <nav style="display:flex;align-items:center;gap:.5rem;">
+    <a href="/profile">Profile</a>
+    <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
+    <a href="/settings">Settings</a>
+    <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
+    <a href="/logout">Log out</a>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
 
 The vertical variant relies on `align-self: stretch`, so its parent
 should be a flex row (the row's height sets the line's length). A

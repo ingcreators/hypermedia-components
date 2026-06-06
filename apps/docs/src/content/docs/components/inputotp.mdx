@@ -3,6 +3,8 @@ title: Input OTP
 description: A segmented one-time-code input built on a single accessible <input> with autocomplete=one-time-code, rendered as visual slots by installInputOtp.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-inputotp` is a segmented one-time-code field — the shadcn
 `InputOTP` equivalent. It uses the accessible **single-input** approach:
 one real `<input autocomplete="one-time-code">` captures all typing,
@@ -15,19 +17,23 @@ This avoids the screen-reader and paste problems of the common
 
 ## Basic usage
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-inputotp" data-length="6">
     <input class="hc-inputotp__input" type="text" name="otp" aria-label="One-time code" />
   </div>
-</div>
 
-```html
-<div class="hc-inputotp" data-length="6">
-  <input class="hc-inputotp__input" type="text" name="otp"
-         inputmode="numeric" autocomplete="one-time-code"
-         aria-label="One-time code">
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-inputotp" data-length="6">
+    <input class="hc-inputotp__input" type="text" name="otp"
+           inputmode="numeric" autocomplete="one-time-code"
+           aria-label="One-time code">
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installInputOtp } from '@hypermedia-components/core';
@@ -57,17 +63,21 @@ submit.
 `data-groups="3-3"` renders a separator between each group of slots — common
 for formatted codes like `123-456`:
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-inputotp" data-length="6" data-groups="3-3">
     <input class="hc-inputotp__input" type="text" aria-label="One-time code" />
   </div>
-</div>
 
-```html
-<div class="hc-inputotp" data-length="6" data-groups="3-3">
-  <input class="hc-inputotp__input" type="text" aria-label="One-time code">
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-inputotp" data-length="6" data-groups="3-3">
+    <input class="hc-inputotp__input" type="text" aria-label="One-time code">
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 The separator is `aria-hidden` (the input value is the source of truth). Set
 `--hc-inputotp-separator` to any CSS `content` value to restyle the glyph

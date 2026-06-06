@@ -3,6 +3,8 @@ title: Select
 description: Native <select> with full styling on the closed state and the OS / browser picker for the dropdown — pure CSS, no JavaScript.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-select` styles a native `<select>` element. The underlying
 element keeps every native behaviour — keyboard navigation, form
 submission, the OS native picker on mobile, screen-reader semantics
@@ -22,23 +24,27 @@ below for the current status and how to opt in today.
 
 ## Basic example
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:18rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
   <select class="hc-select" aria-label="Country">
     <option value="">Choose a country…</option>
     <option value="jp">Japan</option>
     <option value="us">United States</option>
     <option value="gb">United Kingdom</option>
   </select>
-</div>
 
-```html
-<select class="hc-select" name="country">
-  <option value="">Choose a country…</option>
-  <option value="jp">Japan</option>
-  <option value="us">United States</option>
-  <option value="gb">United Kingdom</option>
-</select>
-```
+  <Fragment slot="code">
+
+  ```html
+  <select class="hc-select" name="country">
+    <option value="">Choose a country…</option>
+    <option value="jp">Japan</option>
+    <option value="us">United States</option>
+    <option value="gb">United Kingdom</option>
+  </select>
+  ```
+
+  </Fragment>
+</Demo>
 
 Pair with [`hc-field`](/hypermedia-components/components/field/) to
 get a visible label and helper text on top of the select.
@@ -49,7 +55,7 @@ get a visible label and helper text on top of the select.
 non-default border colours. The default (omitted) variant uses the
 neutral border.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:18rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
   <select class="hc-select" aria-label="Default">
     <option>Default border</option>
   </select>
@@ -62,11 +68,15 @@ neutral border.
   <select class="hc-select" data-variant="error" aria-label="Error" aria-invalid="true">
     <option>Error</option>
   </select>
-</div>
 
-```html
-<select class="hc-select" data-variant="error" aria-invalid="true">…</select>
-```
+  <Fragment slot="code">
+
+  ```html
+  <select class="hc-select" data-variant="error" aria-invalid="true">…</select>
+  ```
+
+  </Fragment>
+</Demo>
 
 Set `aria-invalid="true"` together with `data-variant="error"` so
 assistive tech also recognises the field as invalid.

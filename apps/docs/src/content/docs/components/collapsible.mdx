@@ -3,6 +3,8 @@ title: Collapsible
 description: A standalone show/hide disclosure built on native details/summary.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-collapsible` is a single show/hide disclosure — a lightweight,
 link-styled "show more" toggle for one region. It is pure CSS over the
 native `<details>` / `<summary>` elements: the browser owns the keyboard
@@ -18,7 +20,7 @@ pattern.
 
 ## Basic HTML
 
-<div class="hc-preview not-content">
+<Demo>
   <details class="hc-collapsible">
     <summary class="hc-collapsible__trigger">
       Show details
@@ -32,19 +34,23 @@ pattern.
       </p>
     </div>
   </details>
-</div>
 
-```html
-<details class="hc-collapsible">
-  <summary class="hc-collapsible__trigger">
-    Show details
-    <span class="hc-collapsible__icon" aria-hidden="true">▾</span>
-  </summary>
-  <div class="hc-collapsible__content">
-    <p>This region is hidden until the user opens it.</p>
-  </div>
-</details>
-```
+  <Fragment slot="code">
+
+  ```html
+  <details class="hc-collapsible">
+    <summary class="hc-collapsible__trigger">
+      Show details
+      <span class="hc-collapsible__icon" aria-hidden="true">▾</span>
+    </summary>
+    <div class="hc-collapsible__content">
+      <p>This region is hidden until the user opens it.</p>
+    </div>
+  </details>
+  ```
+
+  </Fragment>
+</Demo>
 
 Add the `open` attribute to `<details>` to have it start expanded.
 

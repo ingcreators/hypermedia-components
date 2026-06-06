@@ -3,6 +3,8 @@ title: Menu
 description: Accessible dropdown menu following the WAI-ARIA APG menu pattern, built on the native popover attribute and CSS Anchor Positioning.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-menu` styles a native `popover` as a WAI-ARIA action menu. The
 trigger is a normal button; the `popovertarget` attribute connects
 the two without any JS, and `installMenu()` adds the
@@ -22,7 +24,7 @@ correctly everywhere `popover` is supported.
 
 ## Basic example
 
-<div class="hc-preview not-content">
+<Demo>
   <button class="hc-button" type="button" popovertarget="doc-account-menu" id="doc-account-trigger">
     Account
   </button>
@@ -34,28 +36,32 @@ correctly everywhere `popover` is supported.
     <hr class="hc-menu__separator" />
     <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Sign out</button>
   </div>
-</div>
 
-```html
-<button class="hc-button"
-        type="button"
-        popovertarget="account-menu"
-        id="account-trigger">
-  Account
-</button>
+  <Fragment slot="code">
 
-<div class="hc-menu"
-     id="account-menu"
-     popover
-     role="menu"
-     aria-labelledby="account-trigger">
-  <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
-  <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
-  <hr class="hc-menu__separator">
-  <button class="hc-menu__item" role="menuitem" type="button"
-          data-variant="error">Sign out</button>
-</div>
-```
+  ```html
+  <button class="hc-button"
+          type="button"
+          popovertarget="account-menu"
+          id="account-trigger">
+    Account
+  </button>
+  
+  <div class="hc-menu"
+       id="account-menu"
+       popover
+       role="menu"
+       aria-labelledby="account-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
+    <hr class="hc-menu__separator">
+    <button class="hc-menu__item" role="menuitem" type="button"
+            data-variant="error">Sign out</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installMenu } from '@hypermedia-components/core';
@@ -107,7 +113,7 @@ The `<span class="hc-menu__label">` element renders a small muted
 heading above a group; pair it with `aria-labelledby` on the
 surrounding `<div role="group">`.
 
-<div class="hc-preview not-content">
+<Demo>
   <button class="hc-button" type="button" popovertarget="doc-view-menu" id="doc-view-trigger">
     View
   </button>
@@ -128,36 +134,40 @@ surrounding `<div role="group">`.
       <button class="hc-menu__item" role="menuitemradio" type="button" aria-checked="false">Dense</button>
     </div>
   </div>
-</div>
 
-```html
-<div class="hc-menu" id="view-menu" popover role="menu"
-     aria-labelledby="view-menu-trigger">
-  <button class="hc-menu__item" role="menuitem" type="button">Refresh</button>
+  <Fragment slot="code">
 
-  <hr class="hc-menu__separator">
-
-  <div role="group" aria-labelledby="view-show-label">
-    <span class="hc-menu__label" id="view-show-label">Show</span>
-    <button class="hc-menu__item" role="menuitemcheckbox" type="button"
-            aria-checked="true">Toolbar</button>
-    <button class="hc-menu__item" role="menuitemcheckbox" type="button"
-            aria-checked="false">Sidebar</button>
+  ```html
+  <div class="hc-menu" id="view-menu" popover role="menu"
+       aria-labelledby="view-menu-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Refresh</button>
+  
+    <hr class="hc-menu__separator">
+  
+    <div role="group" aria-labelledby="view-show-label">
+      <span class="hc-menu__label" id="view-show-label">Show</span>
+      <button class="hc-menu__item" role="menuitemcheckbox" type="button"
+              aria-checked="true">Toolbar</button>
+      <button class="hc-menu__item" role="menuitemcheckbox" type="button"
+              aria-checked="false">Sidebar</button>
+    </div>
+  
+    <hr class="hc-menu__separator">
+  
+    <div role="group" aria-labelledby="view-density-label">
+      <span class="hc-menu__label" id="view-density-label">Density</span>
+      <button class="hc-menu__item" role="menuitemradio" type="button"
+              aria-checked="true">Comfortable</button>
+      <button class="hc-menu__item" role="menuitemradio" type="button"
+              aria-checked="false">Compact</button>
+      <button class="hc-menu__item" role="menuitemradio" type="button"
+              aria-checked="false">Dense</button>
+    </div>
   </div>
+  ```
 
-  <hr class="hc-menu__separator">
-
-  <div role="group" aria-labelledby="view-density-label">
-    <span class="hc-menu__label" id="view-density-label">Density</span>
-    <button class="hc-menu__item" role="menuitemradio" type="button"
-            aria-checked="true">Comfortable</button>
-    <button class="hc-menu__item" role="menuitemradio" type="button"
-            aria-checked="false">Compact</button>
-    <button class="hc-menu__item" role="menuitemradio" type="button"
-            aria-checked="false">Dense</button>
-  </div>
-</div>
-```
+  </Fragment>
+</Demo>
 
 ```js
 document.getElementById('view-menu').addEventListener('hc:menuselect', (e) => {

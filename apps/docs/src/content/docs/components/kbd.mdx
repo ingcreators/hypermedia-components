@@ -3,6 +3,8 @@ title: Kbd
 description: Styled keyboard keys and shortcuts built on the native <kbd> element.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-kbd` is a token-driven skin for the native `<kbd>` element — the
 semantic tag for "user input from the keyboard". Use it for single keys
 (`Esc`, `Enter`) and, with `hc-kbd-group`, for multi-key shortcuts
@@ -10,19 +12,23 @@ semantic tag for "user input from the keyboard". Use it for single keys
 
 ## Basic HTML
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <kbd class="hc-kbd">Esc</kbd>
   <kbd class="hc-kbd">Enter</kbd>
   <kbd class="hc-kbd">⌘</kbd>
   <kbd class="hc-kbd">⇧</kbd>
   <kbd class="hc-kbd">A</kbd>
-</div>
 
-```html
-<kbd class="hc-kbd">Esc</kbd>
-<kbd class="hc-kbd">Enter</kbd>
-<kbd class="hc-kbd">⌘</kbd>
-```
+  <Fragment slot="code">
+
+  ```html
+  <kbd class="hc-kbd">Esc</kbd>
+  <kbd class="hc-kbd">Enter</kbd>
+  <kbd class="hc-kbd">⌘</kbd>
+  ```
+
+  </Fragment>
+</Demo>
 
 Single-character keys are centered to a square-ish minimum width
 (`--hc-kbd-min-width`), so `A` and `Esc` line up as a tidy row of caps.
@@ -34,7 +40,7 @@ itself a `<kbd>` (the whole shortcut is one "keyboard input"); the inner
 `<kbd class="hc-kbd">` are the individual caps. Literal text between them
 (`+`, `then`) is rendered in a muted color so the keys stand out.
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <kbd class="hc-kbd-group">
     <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
   </kbd>
@@ -44,17 +50,21 @@ itself a `<kbd>` (the whole shortcut is one "keyboard input"); the inner
   <kbd class="hc-kbd-group">
     <kbd class="hc-kbd">g</kbd> then <kbd class="hc-kbd">i</kbd>
   </kbd>
-</div>
 
-```html
-<kbd class="hc-kbd-group">
-  <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
-</kbd>
+  <Fragment slot="code">
 
-<kbd class="hc-kbd-group">
-  <kbd class="hc-kbd">g</kbd> then <kbd class="hc-kbd">i</kbd>
-</kbd>
-```
+  ```html
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+  
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">g</kbd> then <kbd class="hc-kbd">i</kbd>
+  </kbd>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Sizes
 
@@ -62,24 +72,28 @@ Set `data-size="sm"` or `data-size="lg"` on a key — or on the group to
 scale every cap inside it at once. Padding and min-width are `em`-based,
 so one `data-size` resizes the whole cap proportionally.
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <kbd class="hc-kbd" data-size="sm">Esc</kbd>
   <kbd class="hc-kbd">Esc</kbd>
   <kbd class="hc-kbd" data-size="lg">Esc</kbd>
   <kbd class="hc-kbd-group" data-size="lg">
     <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
   </kbd>
-</div>
 
-```html
-<kbd class="hc-kbd" data-size="sm">Esc</kbd>
-<kbd class="hc-kbd">Esc</kbd>
-<kbd class="hc-kbd" data-size="lg">Esc</kbd>
+  <Fragment slot="code">
 
-<kbd class="hc-kbd-group" data-size="lg">
-  <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
-</kbd>
-```
+  ```html
+  <kbd class="hc-kbd" data-size="sm">Esc</kbd>
+  <kbd class="hc-kbd">Esc</kbd>
+  <kbd class="hc-kbd" data-size="lg">Esc</kbd>
+  
+  <kbd class="hc-kbd-group" data-size="lg">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+  ```
+
+  </Fragment>
+</Demo>
 
 | Size      | Use for                                  |
 | --------- | ---------------------------------------- |

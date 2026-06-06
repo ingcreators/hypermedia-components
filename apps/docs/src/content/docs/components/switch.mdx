@@ -3,6 +3,8 @@ title: Switch
 description: Native checkbox styled as an iOS-style toggle, with role="switch" for proper screen-reader semantics. Pure CSS, no JavaScript.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-switch` is applied to a standard
 `<input type="checkbox" role="switch">`. The underlying input keeps
 every native behaviour — `Space` toggles, the value participates in
@@ -12,7 +14,7 @@ role override — and only the visual chrome is replaced via
 
 ## Basic example
 
-<div class="hc-preview not-content hc-preview--col">
+<Demo previewClass="hc-preview--col">
   <label class="hc-switch-label">
     <input class="hc-switch" type="checkbox" role="switch" defaultChecked />
     Email notifications
@@ -21,19 +23,23 @@ role override — and only the visual chrome is replaced via
     <input class="hc-switch" type="checkbox" role="switch" />
     SMS notifications
   </label>
-</div>
 
-```html
-<label class="hc-switch-label">
-  <input class="hc-switch" type="checkbox" role="switch" checked>
-  Email notifications
-</label>
+  <Fragment slot="code">
 
-<label class="hc-switch-label">
-  <input class="hc-switch" type="checkbox" role="switch">
-  SMS notifications
-</label>
-```
+  ```html
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" checked>
+    Email notifications
+  </label>
+  
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch">
+    SMS notifications
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
 
 `.hc-switch-label` is an inline-flex helper that clusters the
 switch and its text so a click on the label toggles the input.

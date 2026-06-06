@@ -3,6 +3,8 @@ title: Tabs
 description: Accessible tab panels following the WAI-ARIA APG pattern, with progressive enhancement for browser find-in-page and an optional URL-routed variant.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-tabs` ships two markup patterns under the same classnames and visual
 style:
 
@@ -17,7 +19,7 @@ without firing a request on every arrow key.
 
 ## App-state tabs
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-tabs">
     <div class="hc-tabs__list" role="tablist" aria-label="Account preview">
       <button type="button" class="hc-tabs__tab" role="tab"
@@ -46,31 +48,35 @@ without firing a request on every arrow key.
       Team members.
     </div>
   </div>
-</div>
 
-```html
-<div class="hc-tabs">
-  <div class="hc-tabs__list" role="tablist" aria-label="Account">
-    <button type="button" class="hc-tabs__tab" role="tab"
-            id="tab-general" aria-controls="panel-general"
-            aria-selected="true" tabindex="0">General</button>
-    <button type="button" class="hc-tabs__tab" role="tab"
-            id="tab-billing" aria-controls="panel-billing"
-            aria-selected="false" tabindex="-1">Billing</button>
-  </div>
+  <Fragment slot="code">
 
-  <div class="hc-tabs__panel" role="tabpanel"
-       id="panel-general" aria-labelledby="tab-general"
-       tabindex="0">
-    General settings panel.
+  ```html
+  <div class="hc-tabs">
+    <div class="hc-tabs__list" role="tablist" aria-label="Account">
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="tab-general" aria-controls="panel-general"
+              aria-selected="true" tabindex="0">General</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="tab-billing" aria-controls="panel-billing"
+              aria-selected="false" tabindex="-1">Billing</button>
+    </div>
+  
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="panel-general" aria-labelledby="tab-general"
+         tabindex="0">
+      General settings panel.
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="panel-billing" aria-labelledby="tab-billing"
+         tabindex="0" hidden="until-found">
+      Billing details panel.
+    </div>
   </div>
-  <div class="hc-tabs__panel" role="tabpanel"
-       id="panel-billing" aria-labelledby="tab-billing"
-       tabindex="0" hidden="until-found">
-    Billing details panel.
-  </div>
-</div>
-```
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installTabs } from '@hypermedia-components/core';
@@ -93,7 +99,7 @@ To activate panels as soon as the tab receives focus, opt in with
 
 ### Variants
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-tabs" data-variant="pill">
     <div class="hc-tabs__list" role="tablist" aria-label="View preview">
       <button type="button" class="hc-tabs__tab" role="tab"
@@ -116,11 +122,15 @@ To activate panels as soon as the tab receives focus, opt in with
          id="doc-pill-panel-month" aria-labelledby="doc-pill-month"
          tabindex="0" hidden="until-found">Month view.</div>
   </div>
-</div>
 
-```html
-<div class="hc-tabs" data-variant="pill">…</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-tabs" data-variant="pill">…</div>
+  ```
+
+  </Fragment>
+</Demo>
 
 | `data-variant` | Style |
 | -------------- | ----- |
@@ -177,7 +187,7 @@ column beside its panels. `installTabs()` reflects this onto the tablist's
 indicator moves from the underline to an inline-start bar (logical, so it
 flips in RTL).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-tabs" data-orientation="vertical">
     <div class="hc-tabs__list" role="tablist" aria-orientation="vertical" aria-label="Workspace preview">
       <button type="button" class="hc-tabs__tab" role="tab"
@@ -200,17 +210,21 @@ flips in RTL).
          id="doc-vpanel-settings" aria-labelledby="doc-vtab-settings"
          tabindex="0" hidden="until-found">Settings panel.</div>
   </div>
-</div>
 
-```html
-<div class="hc-tabs" data-orientation="vertical">
-  <div class="hc-tabs__list" role="tablist" aria-orientation="vertical" aria-label="Workspace">
-    <button class="hc-tabs__tab" role="tab" …>Overview</button>
-    <!-- … -->
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-tabs" data-orientation="vertical">
+    <div class="hc-tabs__list" role="tablist" aria-orientation="vertical" aria-label="Workspace">
+      <button class="hc-tabs__tab" role="tab" …>Overview</button>
+      <!-- … -->
+    </div>
+    <!-- panels -->
   </div>
-  <!-- panels -->
-</div>
-```
+  ```
+
+  </Fragment>
+</Demo>
 
 `installTabs()` sets `aria-orientation` for you, but include it in the markup
 too so the orientation is correct before JavaScript runs. Vertical and the
@@ -222,7 +236,7 @@ When each tab is its own route, drop the ARIA tab roles and let the
 browser treat the markup as ordinary navigation. `aria-current="page"`
 marks the active tab; `installTabs()` ignores this variant.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-tabs">
     <nav class="hc-tabs__list" aria-label="Documentation preview">
       <a class="hc-tabs__tab" href="#overview" aria-current="page">Overview</a>
@@ -230,17 +244,21 @@ marks the active tab; `installTabs()` ignores this variant.
       <a class="hc-tabs__tab" href="#changelog">Changelog</a>
     </nav>
   </div>
-</div>
 
-```html
-<div class="hc-tabs">
-  <nav class="hc-tabs__list" aria-label="Documentation">
-    <a class="hc-tabs__tab" href="/docs/overview" aria-current="page">Overview</a>
-    <a class="hc-tabs__tab" href="/docs/api">API</a>
-    <a class="hc-tabs__tab" href="/docs/changelog">Changelog</a>
-  </nav>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-tabs">
+    <nav class="hc-tabs__list" aria-label="Documentation">
+      <a class="hc-tabs__tab" href="/docs/overview" aria-current="page">Overview</a>
+      <a class="hc-tabs__tab" href="/docs/api">API</a>
+      <a class="hc-tabs__tab" href="/docs/changelog">Changelog</a>
+    </nav>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## htmx usage
 

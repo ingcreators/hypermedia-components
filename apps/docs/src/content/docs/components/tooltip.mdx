@@ -3,6 +3,8 @@ title: Tooltip
 description: Short, transient text label that appears on hover or focus, built on the native popover attribute and CSS Anchor Positioning.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-tooltip` styles a `popover` element as a small label that
 describes its trigger. The trigger references the tooltip via
 `aria-describedby` so screen readers announce the description when
@@ -30,7 +32,7 @@ without dismissing each other — in every browser that supports
 
 ## Basic example
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <button class="hc-button" type="button" aria-describedby="doc-save-tip">
     <span aria-hidden="true">💾</span>
     <span>Save</span>
@@ -42,18 +44,22 @@ without dismissing each other — in every browser that supports
     <span>Delete</span>
   </button>
   <div class="hc-tooltip" id="doc-delete-tip">Move to trash</div>
-</div>
 
-```html
-<button class="hc-button" type="button" aria-describedby="save-tip">
-  <span aria-hidden="true">💾</span>
-  <span>Save</span>
-</button>
+  <Fragment slot="code">
 
-<div class="hc-tooltip" id="save-tip">
-  Save document (Ctrl+S)
-</div>
-```
+  ```html
+  <button class="hc-button" type="button" aria-describedby="save-tip">
+    <span aria-hidden="true">💾</span>
+    <span>Save</span>
+  </button>
+  
+  <div class="hc-tooltip" id="save-tip">
+    Save document (Ctrl+S)
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installTooltip } from '@hypermedia-components/core';

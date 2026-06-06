@@ -3,6 +3,8 @@ title: Input group
 description: Compose an input with leading and trailing addons on one surface.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-input-group` composes an `hc-input` with leading / trailing **addons**
 — text, an icon, or a real `hc-button` — on one bordered surface with a
 single shared focus ring. It is mostly CSS; the inner `<input>` gives up its
@@ -17,30 +19,34 @@ and help text around a control). Use them together: a `hc-field` wrapping a
 
 ## Search with a button
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-input-group" style="max-inline-size: 22rem;">
     <span class="hc-input-addon" aria-hidden="true">🔍</span>
     <input class="hc-input" type="search" aria-label="Search" placeholder="Search…" />
     <button class="hc-button" data-variant="primary" type="submit">Search</button>
   </div>
-</div>
 
-```html
-<form data-hx-get="/search" data-hx-target="#results">
-  <div class="hc-input-group">
-    <span class="hc-input-addon" aria-hidden="true">🔍</span>
-    <input class="hc-input" type="search" name="q" aria-label="Search" />
-    <button class="hc-button" data-variant="primary" type="submit">Search</button>
-  </div>
-</form>
-```
+  <Fragment slot="code">
+
+  ```html
+  <form data-hx-get="/search" data-hx-target="#results">
+    <div class="hc-input-group">
+      <span class="hc-input-addon" aria-hidden="true">🔍</span>
+      <input class="hc-input" type="search" name="q" aria-label="Search" />
+      <button class="hc-button" data-variant="primary" type="submit">Search</button>
+    </div>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
 
 The inner `<input>` and `<button>` are ordinary elements, so htmx wiring
 (`data-hx-*`) goes on them directly — the group is purely visual.
 
 ## Prefix / suffix unit
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:22rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:22rem;">
   <div class="hc-input-group">
     <span class="hc-input-addon">https://</span>
     <input class="hc-input" type="text" aria-label="Domain" value="example.com" />
@@ -50,15 +56,19 @@ The inner `<input>` and `<button>` are ordinary elements, so htmx wiring
     <input class="hc-input" type="number" aria-label="Amount" value="42" />
     <span class="hc-input-addon">USD</span>
   </div>
-</div>
 
-```html
-<div class="hc-input-group">
-  <span class="hc-input-addon">$</span>
-  <input class="hc-input" type="number" aria-label="Amount" />
-  <span class="hc-input-addon">USD</span>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-input-group">
+    <span class="hc-input-addon">$</span>
+    <input class="hc-input" type="number" aria-label="Amount" />
+    <span class="hc-input-addon">USD</span>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Password reveal (opt-in behavior)
 
@@ -66,22 +76,26 @@ A trailing button can toggle a password field's visibility. This is the one
 **opt-in behavior** of the group: add `data-hc-password-toggle` and call
 `installPasswordToggle()` (it is included in the auto-init bundle).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-input-group" style="max-inline-size: 22rem;">
     <input class="hc-input" type="password" id="doc-pw" aria-label="Password" value="hunter2" />
     <button type="button" class="hc-button" data-variant="ghost"
             data-hc-password-toggle aria-controls="doc-pw" aria-label="Show password">👁</button>
   </div>
-</div>
 
-```html
-<div class="hc-input-group">
-  <input class="hc-input" type="password" id="pw" aria-label="Password" />
-  <button type="button" class="hc-button" data-variant="ghost"
-          data-hc-password-toggle aria-controls="pw"
-          aria-label="Show password">👁</button>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-input-group">
+    <input class="hc-input" type="password" id="pw" aria-label="Password" />
+    <button type="button" class="hc-button" data-variant="ghost"
+            data-hc-password-toggle aria-controls="pw"
+            aria-label="Show password">👁</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installPasswordToggle } from '@hypermedia-components/core';

@@ -3,13 +3,15 @@ title: Toolbar
 description: Horizontal grouping of related controls with consistent spacing and optional separators.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-toolbar` is a layout primitive for grouping related controls
 horizontally. It does not own styling of the children — buttons and
 inputs inside a toolbar keep their normal appearance.
 
 ## Basic HTML
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
     <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
@@ -20,24 +22,28 @@ inputs inside a toolbar keep their normal appearance.
     <span data-hc-spacer="true"></span>
     <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
   </div>
-</div>
 
-```html
-<div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
-  <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
-  <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
-  <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+  <Fragment slot="code">
 
-  <hr role="separator" aria-orientation="vertical">
+  ```html
+  <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
+    <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+  
+    <hr role="separator" aria-orientation="vertical">
+  
+    <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
+  
+    <span data-hc-spacer="true"></span>
+  
+    <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
+  </div>
+  ```
 
-  <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
-  <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
-
-  <span data-hc-spacer="true"></span>
-
-  <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
-</div>
-```
+  </Fragment>
+</Demo>
 
 ## Anatomy
 

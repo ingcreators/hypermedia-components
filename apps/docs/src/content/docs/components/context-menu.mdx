@@ -3,6 +3,8 @@ title: Context menu
 description: A right-click / keyboard context menu built on the hc-menu surface, opened at the pointer via installContextMenu. WAI-ARIA menu semantics.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-context-menu` shows a menu where the user right-clicks, the shadcn
 `ContextMenu` equivalent. It reuses the [Menu](/hypermedia-components/components/menu/)
 surface entirely — same `.hc-menu` markup, items, separators, labels,
@@ -17,7 +19,7 @@ The behavior lives in `installContextMenu`.
 Add `data-hc-context-menu="<menu-id>"` to the region that should show a
 custom menu on right-click, and point it at a `.hc-menu` popover.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-card" data-hc-context-menu="demo-ctx" tabindex="0" style="padding:1.5rem;min-block-size:5rem;">
     Right-click (or focus + <kbd>Shift</kbd>+<kbd>F10</kbd>) inside this box.
   </div>
@@ -28,19 +30,23 @@ custom menu on right-click, and point it at a `.hc-menu` popover.
     <hr class="hc-menu__separator" />
     <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
   </div>
-</div>
 
-```html
-<div data-hc-context-menu="file-ctx">…right-clickable region…</div>
+  <Fragment slot="code">
 
-<div class="hc-menu" id="file-ctx" popover role="menu" aria-label="File actions">
-  <button class="hc-menu__item" role="menuitem" type="button">Open</button>
-  <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
-  <button class="hc-menu__item" role="menuitemcheckbox" aria-checked="false" type="button">Bookmark</button>
-  <hr class="hc-menu__separator">
-  <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
-</div>
-```
+  ```html
+  <div data-hc-context-menu="file-ctx">…right-clickable region…</div>
+  
+  <div class="hc-menu" id="file-ctx" popover role="menu" aria-label="File actions">
+    <button class="hc-menu__item" role="menuitem" type="button">Open</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
+    <button class="hc-menu__item" role="menuitemcheckbox" aria-checked="false" type="button">Bookmark</button>
+    <hr class="hc-menu__separator">
+    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 The menu surface is identical to the dropdown [Menu](/hypermedia-components/components/menu/),
 so everything documented there — `menuitemcheckbox` / `menuitemradio`,

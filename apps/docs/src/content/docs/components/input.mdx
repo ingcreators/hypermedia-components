@@ -3,13 +3,15 @@ title: Input
 description: Semantic input class that applies to standard input, select, and textarea elements.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-input` is applied to the standard `<input>`, `<select>`, and
 `<textarea>` elements. State (`disabled`, `aria-invalid`) lives on the
 element itself, exactly as in plain HTML.
 
 ## Basic HTML
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <input class="hc-input" type="text" placeholder="Your name" />
   <input class="hc-input" type="email" placeholder="you@example.com" />
   <select class="hc-input">
@@ -18,49 +20,61 @@ element itself, exactly as in plain HTML.
     <option>Three</option>
   </select>
   <textarea class="hc-input" rows="3" placeholder="Notes…"></textarea>
-</div>
 
-```html
-<input class="hc-input" type="text" placeholder="Your name">
-<input class="hc-input" type="email" placeholder="you@example.com">
+  <Fragment slot="code">
 
-<select class="hc-input">
-  <option>One</option>
-  <option>Two</option>
-  <option>Three</option>
-</select>
+  ```html
+  <input class="hc-input" type="text" placeholder="Your name">
+  <input class="hc-input" type="email" placeholder="you@example.com">
+  
+  <select class="hc-input">
+    <option>One</option>
+    <option>Two</option>
+    <option>Three</option>
+  </select>
+  
+  <textarea class="hc-input" rows="3" placeholder="Notes…"></textarea>
+  ```
 
-<textarea class="hc-input" rows="3" placeholder="Notes…"></textarea>
-```
+  </Fragment>
+</Demo>
 
 ## Sizes
 
 `data-size` accepts `sm`, `md` (default), and `lg`.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <input class="hc-input" data-size="sm" placeholder="Small" />
   <input class="hc-input" placeholder="Default" />
   <input class="hc-input" data-size="lg" placeholder="Large" />
-</div>
 
-```html
-<input class="hc-input" data-size="sm" placeholder="Small">
-<input class="hc-input" placeholder="Default">
-<input class="hc-input" data-size="lg" placeholder="Large">
-```
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-input" data-size="sm" placeholder="Small">
+  <input class="hc-input" placeholder="Default">
+  <input class="hc-input" data-size="lg" placeholder="Large">
+  ```
+
+  </Fragment>
+</Demo>
 
 ## States
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <input class="hc-input" placeholder="Focus me to see the ring" />
   <input class="hc-input" aria-invalid="true" defaultValue="not-an-email" />
   <input class="hc-input" disabled defaultValue="Disabled value" />
-</div>
 
-```html
-<input class="hc-input" aria-invalid="true" value="not-an-email">
-<input class="hc-input" disabled value="Disabled value">
-```
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-input" aria-invalid="true" value="not-an-email">
+  <input class="hc-input" disabled value="Disabled value">
+  ```
+
+  </Fragment>
+</Demo>
 
 The `aria-invalid="true"` attribute switches the border to the error
 color and changes the focus-ring color. Pair it with a message via
@@ -74,15 +88,19 @@ vocabulary as [select](/hypermedia-components/components/select/),
 [datepicker](/hypermedia-components/components/datepicker/), and the
 other form fields. (textarea takes the same attribute.)
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <input class="hc-input" data-variant="success" defaultValue="Looks good" />
   <input class="hc-input" data-variant="warning" defaultValue="Double-check this" />
   <input class="hc-input" data-variant="error" defaultValue="Fix this" />
-</div>
 
-```html
-<input class="hc-input" data-variant="success" value="Looks good">
-```
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-input" data-variant="success" value="Looks good">
+  ```
+
+  </Fragment>
+</Demo>
 
 Prefer `aria-invalid="true"` over `data-variant="error"` for the error
 case — it paints the same border *and* announces the state to assistive

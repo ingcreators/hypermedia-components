@@ -3,6 +3,8 @@ title: Progress
 description: Native <progress> element styled with consistent cross-browser chrome, supporting determinate and indeterminate states. Pure CSS, no JavaScript.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-progress` is applied to a standard `<progress>` element. The
 native element retains its ARIA `role="progressbar"` semantics and
 the `value` / `max` attribute pair; only the visual chrome is
@@ -13,17 +15,21 @@ replaced via `appearance: none` and per-vendor pseudo-elements.
 Set `value` and (optionally) `max`. The browser computes the
 percentage automatically.
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <progress class="hc-progress" value="40" max="100" aria-label="Upload progress"></progress>
   <progress class="hc-progress" value="80" max="100" aria-label="Validation progress"></progress>
-</div>
 
-```html
-<progress class="hc-progress"
-          value="40" max="100"
-          aria-label="Upload progress">
-</progress>
-```
+  <Fragment slot="code">
+
+  ```html
+  <progress class="hc-progress"
+            value="40" max="100"
+            aria-label="Upload progress">
+  </progress>
+  ```
+
+  </Fragment>
+</Demo>
 
 The fill transitions smoothly when `value` changes — htmx swaps,
 JS updates, etc.
@@ -33,13 +39,17 @@ JS updates, etc.
 Omit `value` for the "unknown duration" state. A muted gradient
 slides across the track at a steady cadence.
 
-<div class="hc-preview not-content" style="max-inline-size:24rem;">
+<Demo previewStyle="max-inline-size:24rem;">
   <progress class="hc-progress" aria-label="Loading"></progress>
-</div>
 
-```html
-<progress class="hc-progress" aria-label="Loading"></progress>
-```
+  <Fragment slot="code">
+
+  ```html
+  <progress class="hc-progress" aria-label="Loading"></progress>
+  ```
+
+  </Fragment>
+</Demo>
 
 The slide animation respects `prefers-reduced-motion: reduce` —
 when the user has opted out of motion, the track displays a static

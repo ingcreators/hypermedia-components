@@ -3,6 +3,8 @@ title: Datagrid
 description: An interactive, Excel-like data grid — multi-level sticky headers, frozen columns, row selection, keyboard cell navigation, and inline editing — built on a semantic table and position:sticky. For paged data, not a client-side grid framework.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-datagrid` is the heavy-duty grid for business screens: a semantic
 `<table>` with **multi-level sticky headers**, **frozen columns**, row
 selection, keyboard cell navigation, and inline editing. It is built for
@@ -27,7 +29,7 @@ are ordinary `<thead>` rows with `colspan`; frozen columns carry
 freeze line). Scroll the demo horizontally — the checkbox and **ID**
 columns stay pinned:
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-datagrid" style="max-inline-size: 32rem;">
     <div class="hc-datagrid__scroll">
       <table class="hc-datagrid__table">
@@ -72,35 +74,39 @@ columns stay pinned:
       </table>
     </div>
   </div>
-</div>
 
-```html
-<div class="hc-datagrid">
-  <div class="hc-datagrid__scroll">
-    <table class="hc-datagrid__table">
-      <thead class="hc-datagrid__head">
-        <tr>
-          <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col">…</th>
-          <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col">ID</th>
-          <th class="hc-datagrid__headcell" colspan="3">Group A</th>
-          <th class="hc-datagrid__headcell" colspan="3">Group B</th>
-        </tr>
-        <tr>
-          <th class="hc-datagrid__headcell" scope="col">Alpha</th>
-          <!-- …leaf headers… -->
-        </tr>
-      </thead>
-      <tbody class="hc-datagrid__body">
-        <tr class="hc-datagrid__row">
-          <td class="hc-datagrid__cell" data-frozen>…</td>
-          <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">1</th>
-          <td class="hc-datagrid__cell">…</td>
-        </tr>
-      </tbody>
-    </table>
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-datagrid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col">…</th>
+            <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col">ID</th>
+            <th class="hc-datagrid__headcell" colspan="3">Group A</th>
+            <th class="hc-datagrid__headcell" colspan="3">Group B</th>
+          </tr>
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Alpha</th>
+            <!-- …leaf headers… -->
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-frozen>…</td>
+            <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">1</th>
+            <td class="hc-datagrid__cell">…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
-```
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Sticky offsets
 
@@ -128,7 +134,7 @@ header cell — the label reads top-to-bottom (CJK upright, Latin rotated)
 and the column stays as narrow as its data. Use it on the **leaf** header
 row (the bottom sticky row, whose height is unconstrained):
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-datagrid" style="max-inline-size: 22rem;">
     <div class="hc-datagrid__scroll">
       <table class="hc-datagrid__table">
@@ -147,13 +153,17 @@ row (the bottom sticky row, whose height is unconstrained):
       </table>
     </div>
   </div>
-</div>
 
-```html
-<th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">
-  Very long header name
-</th>
-```
+  <Fragment slot="code">
+
+  ```html
+  <th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">
+    Very long header name
+  </th>
+  ```
+
+  </Fragment>
+</Demo>
 
 Two orientations, both pure CSS — no behavior needed:
 
@@ -277,7 +287,7 @@ sub-rows — a `<table>` may have many `<tbody>` elements — and span the lead
 column (No. / select) across them with `rowspan`. The header is the usual
 multi-level `<thead>`, one header row per sub-row.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-datagrid" style="max-inline-size: 30rem;">
     <div class="hc-datagrid__scroll">
       <table class="hc-datagrid__table">
@@ -317,28 +327,32 @@ multi-level `<thead>`, one header row per sub-row.
       </table>
     </div>
   </div>
-</div>
 
-```html
-<table class="hc-datagrid__table">
-  <thead class="hc-datagrid__head"><!-- one header row per sub-row --></thead>
+  <Fragment slot="code">
 
-  <tbody class="hc-datagrid__record">
-    <tr class="hc-datagrid__row">
-      <td class="hc-datagrid__cell" rowspan="2">
-        <input type="checkbox" class="hc-checkbox" aria-label="Select"> 1
-      </td>
-      <td class="hc-datagrid__cell">D0006</td>
-      <td class="hc-datagrid__cell">Better Roast Ham</td>
-    </tr>
-    <tr class="hc-datagrid__row">
-      <td class="hc-datagrid__cell">12 boxes</td>
-      <td class="hc-datagrid__cell">$14,000</td>
-    </tr>
-  </tbody>
-  <!-- one <tbody class="hc-datagrid__record"> per record -->
-</table>
-```
+  ```html
+  <table class="hc-datagrid__table">
+    <thead class="hc-datagrid__head"><!-- one header row per sub-row --></thead>
+  
+    <tbody class="hc-datagrid__record">
+      <tr class="hc-datagrid__row">
+        <td class="hc-datagrid__cell" rowspan="2">
+          <input type="checkbox" class="hc-checkbox" aria-label="Select"> 1
+        </td>
+        <td class="hc-datagrid__cell">D0006</td>
+        <td class="hc-datagrid__cell">Better Roast Ham</td>
+      </tr>
+      <tr class="hc-datagrid__row">
+        <td class="hc-datagrid__cell">12 boxes</td>
+        <td class="hc-datagrid__cell">$14,000</td>
+      </tr>
+    </tbody>
+    <!-- one <tbody class="hc-datagrid__record"> per record -->
+  </table>
+  ```
+
+  </Fragment>
+</Demo>
 
 `installDatagrid()` treats each record `<tbody>` as a **single selectable
 unit**: the record's checkbox (or `Space`) selects all its sub-rows
@@ -359,7 +373,7 @@ detail panel — a nested grid, a form, a chart. Put a
 row of the record `<tbody>`. Click the +/− button (or press `Enter` on its
 cell) to toggle:
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-datagrid" style="max-inline-size: 30rem;">
     <div class="hc-datagrid__scroll">
       <table class="hc-datagrid__table">
@@ -387,25 +401,29 @@ cell) to toggle:
       </table>
     </div>
   </div>
-</div>
 
-```html
-<tbody class="hc-datagrid__record">
-  <tr class="hc-datagrid__row">
-    <td class="hc-datagrid__cell">
-      <button class="hc-datagrid__toggle" data-hc-datagrid-toggle
-              type="button" aria-label="Detail"></button>
-    </td>
-    <td class="hc-datagrid__cell">Beverages</td>
-    <td class="hc-datagrid__cell">Soft drinks, coffees, teas…</td>
-  </tr>
-  <tr class="hc-datagrid__detail-row">
-    <td class="hc-datagrid__detail" colspan="3">
-      <!-- any HTML: a nested hc-datagrid, a form, a chart -->
-    </td>
-  </tr>
-</tbody>
-```
+  <Fragment slot="code">
+
+  ```html
+  <tbody class="hc-datagrid__record">
+    <tr class="hc-datagrid__row">
+      <td class="hc-datagrid__cell">
+        <button class="hc-datagrid__toggle" data-hc-datagrid-toggle
+                type="button" aria-label="Detail"></button>
+      </td>
+      <td class="hc-datagrid__cell">Beverages</td>
+      <td class="hc-datagrid__cell">Soft drinks, coffees, teas…</td>
+    </tr>
+    <tr class="hc-datagrid__detail-row">
+      <td class="hc-datagrid__detail" colspan="3">
+        <!-- any HTML: a nested hc-datagrid, a form, a chart -->
+      </td>
+    </tr>
+  </tbody>
+  ```
+
+  </Fragment>
+</Demo>
 
 `installDatagrid()` toggles `data-expanded` on the record, shows/hides the
 detail row, keeps `aria-expanded` / `aria-controls` in sync, and dispatches

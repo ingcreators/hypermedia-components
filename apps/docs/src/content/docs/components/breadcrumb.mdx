@@ -3,6 +3,8 @@ title: Breadcrumb
 description: Navigation trail from the site root to the current page — pure CSS, semantic HTML, no JavaScript.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-breadcrumb` is a pure CSS skin over a standard `<nav>` →
 `<ol>` → `<li>` structure with `aria-current="page"` on the active
 step. Separators are injected via CSS `::before` so the markup
@@ -11,7 +13,7 @@ content by default.
 
 ## Basic example
 
-<div class="hc-preview not-content">
+<Demo>
   <nav class="hc-breadcrumb" aria-label="Doc breadcrumb">
     <ol class="hc-breadcrumb__list">
       <li class="hc-breadcrumb__item">
@@ -25,30 +27,34 @@ content by default.
       </li>
     </ol>
   </nav>
-</div>
 
-```html
-<nav class="hc-breadcrumb" aria-label="Breadcrumb">
-  <ol class="hc-breadcrumb__list">
-    <li class="hc-breadcrumb__item">
-      <a class="hc-breadcrumb__link" href="/">Home</a>
-    </li>
-    <li class="hc-breadcrumb__item">
-      <a class="hc-breadcrumb__link" href="/docs">Docs</a>
-    </li>
-    <li class="hc-breadcrumb__item">
-      <span class="hc-breadcrumb__current" aria-current="page">Components</span>
-    </li>
-  </ol>
-</nav>
-```
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-breadcrumb" aria-label="Breadcrumb">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="/">Home</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="/docs">Docs</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Components</span>
+      </li>
+    </ol>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Custom separator
 
 Override `--hc-breadcrumb-separator` globally (in a stylesheet) or
 per-instance (inline style) to swap the glyph.
 
-<div class="hc-preview not-content">
+<Demo>
   <nav class="hc-breadcrumb" aria-label="Chevron breadcrumb"
        style="--hc-breadcrumb-separator: '›'">
     <ol class="hc-breadcrumb__list">
@@ -63,14 +69,18 @@ per-instance (inline style) to swap the glyph.
       </li>
     </ol>
   </nav>
-</div>
 
-```html
-<nav class="hc-breadcrumb" aria-label="Breadcrumb"
-     style="--hc-breadcrumb-separator: '›'">
-  …
-</nav>
-```
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-breadcrumb" aria-label="Breadcrumb"
+       style="--hc-breadcrumb-separator: '›'">
+    …
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
 
 Any CSS [`content`](https://developer.mozilla.org/docs/Web/CSS/content)
 value works — quoted strings, `attr()`, escaped Unicode, or an
@@ -83,7 +93,7 @@ the placeholder `aria-hidden="true"` so screen readers ignore it;
 keep the truncated steps reachable elsewhere (a navigation menu,
 the back-button, etc.).
 
-<div class="hc-preview not-content">
+<Demo>
   <nav class="hc-breadcrumb" aria-label="Long breadcrumb">
     <ol class="hc-breadcrumb__list">
       <li class="hc-breadcrumb__item">
@@ -100,13 +110,17 @@ the back-button, etc.).
       </li>
     </ol>
   </nav>
-</div>
 
-```html
-<li class="hc-breadcrumb__item">
-  <span class="hc-breadcrumb__ellipsis" aria-hidden="true">…</span>
-</li>
-```
+  <Fragment slot="code">
+
+  ```html
+  <li class="hc-breadcrumb__item">
+    <span class="hc-breadcrumb__ellipsis" aria-hidden="true">…</span>
+  </li>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Collapsed steps (expandable)
 
@@ -116,7 +130,7 @@ them. No new behavior — `installMenu()` (in the default bundle) wires the
 trigger automatically: the `popovertarget` button gets `aria-haspopup="menu"`
 / `aria-expanded`, the popover anchors under it, and arrow keys / Escape work.
 
-<div class="hc-preview not-content" style="min-height:9rem;">
+<Demo previewStyle="min-height:9rem;">
   <nav class="hc-breadcrumb" aria-label="Collapsible breadcrumb">
     <ol class="hc-breadcrumb__list">
       <li class="hc-breadcrumb__item">
@@ -139,20 +153,24 @@ trigger automatically: the `popovertarget` button gets `aria-haspopup="menu"`
       </li>
     </ol>
   </nav>
-</div>
 
-```html
-<li class="hc-breadcrumb__item">
-  <button class="hc-breadcrumb__ellipsis" type="button"
-          popovertarget="crumb-overflow" aria-label="Show 2 hidden levels">…</button>
+  <Fragment slot="code">
 
-  <div class="hc-menu" id="crumb-overflow" popover role="menu"
-       aria-label="Hidden breadcrumb levels">
-    <a class="hc-menu__item" role="menuitem" href="/products">Products</a>
-    <a class="hc-menu__item" role="menuitem" href="/products/widgets">Widgets</a>
-  </div>
-</li>
-```
+  ```html
+  <li class="hc-breadcrumb__item">
+    <button class="hc-breadcrumb__ellipsis" type="button"
+            popovertarget="crumb-overflow" aria-label="Show 2 hidden levels">…</button>
+  
+    <div class="hc-menu" id="crumb-overflow" popover role="menu"
+         aria-label="Hidden breadcrumb levels">
+      <a class="hc-menu__item" role="menuitem" href="/products">Products</a>
+      <a class="hc-menu__item" role="menuitem" href="/products/widgets">Widgets</a>
+    </div>
+  </li>
+  ```
+
+  </Fragment>
+</Demo>
 
 **Progressive enhancement.** The trail collapses gracefully:
 

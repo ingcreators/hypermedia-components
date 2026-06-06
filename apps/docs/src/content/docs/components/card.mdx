@@ -3,13 +3,15 @@ title: Card
 description: Generic container with optional header, body, and footer parts.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-card` is a thin container with a border, a subtle radius, and
 optional header/body/footer parts. It is a layout primitive — not
 something that owns interaction or state.
 
 ## Basic HTML
 
-<div class="hc-preview not-content" style="max-width:28rem;">
+<Demo previewStyle="max-width:28rem;">
   <article class="hc-card">
     <header class="hc-card__header">Order #123</header>
     <div class="hc-card__body">
@@ -19,19 +21,23 @@ something that owns interaction or state.
       <button class="hc-button" data-size="sm">View</button>
     </footer>
   </article>
-</div>
 
-```html
-<article class="hc-card">
-  <header class="hc-card__header">Order #123</header>
-  <div class="hc-card__body">
-    <p>Two items, shipping on Friday.</p>
-  </div>
-  <footer class="hc-card__footer">
-    <button class="hc-button" data-size="sm">View</button>
-  </footer>
-</article>
-```
+  <Fragment slot="code">
+
+  ```html
+  <article class="hc-card">
+    <header class="hc-card__header">Order #123</header>
+    <div class="hc-card__body">
+      <p>Two items, shipping on Friday.</p>
+    </div>
+    <footer class="hc-card__footer">
+      <button class="hc-button" data-size="sm">View</button>
+    </footer>
+  </article>
+  ```
+
+  </Fragment>
+</Demo>
 
 Parts are optional. A card with only `.hc-card__body` is fine, and so
 is a card with no parts at all — direct children get the same padding

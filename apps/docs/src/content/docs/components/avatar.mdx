@@ -3,21 +3,27 @@ title: Avatar
 description: Circular or rounded user avatar — an <img> when a photo is available, a <span> with initials when not. CSS-only, with an optional behavior that swaps a broken image for its initials fallback.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-avatar` is applied to either an `<img>` for a photo avatar or
 to a `<span>` for an initials fallback when no image is available.
 Both share the same circular surface, sizes, and shape variants.
 
 ## Image avatars
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
   <span class="hc-avatar" aria-label="John Smith">JS</span>
-</div>
 
-```html
-<img class="hc-avatar" src="/users/ada.jpg" alt="Ada Lovelace">
-<img class="hc-avatar" src="/users/john.jpg" alt="John Smith">
-```
+  <Fragment slot="code">
+
+  ```html
+  <img class="hc-avatar" src="/users/ada.jpg" alt="Ada Lovelace">
+  <img class="hc-avatar" src="/users/john.jpg" alt="John Smith">
+  ```
+
+  </Fragment>
+</Demo>
 
 The component sets `object-fit: cover` and `overflow: hidden` so
 images of any aspect ratio render as a centred square crop.
@@ -29,15 +35,19 @@ When no image is available, render a `<span>` instead. Use
 short (1-2 characters) and unique enough to identify the user
 within a group.
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
   <span class="hc-avatar" aria-label="Joan Clarke">JC</span>
   <span class="hc-avatar" aria-label="Hedy Lamarr">HL</span>
-</div>
 
-```html
-<span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
-```
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Image fallback
 
@@ -47,19 +57,23 @@ default behaviors) watches the image's native `load` / `error` events and
 sets `data-state` on the wrapper so the fallback appears automatically
 when the image fails.
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <span class="hc-avatar" role="img" aria-label="Broken photo, falls back to initials" data-state="error">
     <img class="hc-avatar__image" alt="" src="/does-not-exist.jpg" />
     <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
   </span>
-</div>
 
-```html
-<span class="hc-avatar" role="img" aria-label="Ada Lovelace">
-  <img class="hc-avatar__image" src="/users/ada.jpg" alt="">
-  <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
-</span>
-```
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-avatar" role="img" aria-label="Ada Lovelace">
+    <img class="hc-avatar__image" src="/users/ada.jpg" alt="">
+    <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
+  </span>
+  ```
+
+  </Fragment>
+</Demo>
 
 The wrapper carries the accessible name (`role="img"` + `aria-label`); the
 image is decorative (`alt=""`) and the fallback is `aria-hidden` because it
@@ -104,21 +118,25 @@ initials form directly instead.
 
 `data-size` accepts `xs`, `sm`, `md` (default), `lg`, and `xl`.
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <span class="hc-avatar" aria-label="XS" data-size="xs">JS</span>
   <span class="hc-avatar" aria-label="SM" data-size="sm">JS</span>
   <span class="hc-avatar" aria-label="MD">JS</span>
   <span class="hc-avatar" aria-label="LG" data-size="lg">JS</span>
   <span class="hc-avatar" aria-label="XL" data-size="xl">JS</span>
-</div>
 
-```html
-<span class="hc-avatar" data-size="xs" aria-label="…">JS</span>
-<span class="hc-avatar" data-size="sm" aria-label="…">JS</span>
-<span class="hc-avatar"                aria-label="…">JS</span>
-<span class="hc-avatar" data-size="lg" aria-label="…">JS</span>
-<span class="hc-avatar" data-size="xl" aria-label="…">JS</span>
-```
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-avatar" data-size="xs" aria-label="…">JS</span>
+  <span class="hc-avatar" data-size="sm" aria-label="…">JS</span>
+  <span class="hc-avatar"                aria-label="…">JS</span>
+  <span class="hc-avatar" data-size="lg" aria-label="…">JS</span>
+  <span class="hc-avatar" data-size="xl" aria-label="…">JS</span>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Shape
 
@@ -136,23 +154,27 @@ Wrap a row of avatars in `.hc-avatar-group` to overlap them — each
 avatar after the first gets a negative margin pull-back and a ring
 matching the page background so the overlap reads cleanly.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-avatar-group">
     <span class="hc-avatar" aria-label="Ada">A</span>
     <span class="hc-avatar" aria-label="Beatrice">B</span>
     <span class="hc-avatar" aria-label="Catalina">C</span>
     <span class="hc-avatar" aria-label="Dorothée">D</span>
   </div>
-</div>
 
-```html
-<div class="hc-avatar-group">
-  <span class="hc-avatar" aria-label="Ada">A</span>
-  <span class="hc-avatar" aria-label="Beatrice">B</span>
-  <span class="hc-avatar" aria-label="Catalina">C</span>
-  <span class="hc-avatar" aria-label="Dorothée">D</span>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-avatar-group">
+    <span class="hc-avatar" aria-label="Ada">A</span>
+    <span class="hc-avatar" aria-label="Beatrice">B</span>
+    <span class="hc-avatar" aria-label="Catalina">C</span>
+    <span class="hc-avatar" aria-label="Dorothée">D</span>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Accessibility
 

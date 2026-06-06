@@ -27,14 +27,17 @@
  * Props:
  *   previewClass — extra class(es) on the `.hc-preview` (e.g. a layout
  *                  modifier like `hc-preview--start` / `--col`).
+ *   previewStyle — slim inline style for a one-off demo dimension on the
+ *                  `.hc-preview` (e.g. `max-inline-size:18rem`).
  *   label        — aria-label for the tablist (default "Example").
  */
 interface Props {
   previewClass?: string;
+  previewStyle?: string;
   label?: string;
 }
 
-const { previewClass = '', label = 'Example' } = Astro.props;
+const { previewClass = '', previewStyle = '', label = 'Example' } = Astro.props;
 
 // Unique-enough id base per instance (build-time only; baked into the
 // static HTML). Multiple Demos can coexist on a page without id clashes.
@@ -76,7 +79,7 @@ const previewClasses = ['hc-preview', 'not-content', previewClass]
     id={ids.previewPanel}
     aria-labelledby={ids.previewTab}
     tabindex="0">
-    <div class={previewClasses}>
+    <div class={previewClasses} style={previewStyle || undefined}>
       <slot />
     </div>
   </div>

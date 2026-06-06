@@ -3,6 +3,8 @@ title: Button group
 description: Visually connect adjacent buttons into a segmented cluster.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-button-group` connects adjacent [`hc-button`](/hypermedia-components/components/button/)
 elements into one segmented cluster — split buttons, icon-button rows,
 pagination-like groups. It is **purely presentational**: it collapses the
@@ -19,21 +21,25 @@ of independent buttons.
 
 ## Basic HTML
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-button-group" role="group" aria-label="Text style">
     <button class="hc-button" type="button">Bold</button>
     <button class="hc-button" type="button">Italic</button>
     <button class="hc-button" type="button">Underline</button>
   </div>
-</div>
 
-```html
-<div class="hc-button-group" role="group" aria-label="Text style">
-  <button class="hc-button" type="button">Bold</button>
-  <button class="hc-button" type="button">Italic</button>
-  <button class="hc-button" type="button">Underline</button>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-button-group" role="group" aria-label="Text style">
+    <button class="hc-button" type="button">Bold</button>
+    <button class="hc-button" type="button">Italic</button>
+    <button class="hc-button" type="button">Underline</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 Each child is a normal `.hc-button`, so variants, sizes, and `data-hx-*`
 attributes all work unchanged. Set the group's size by setting `data-size`
@@ -44,23 +50,27 @@ on each button.
 A common use is a compact row of icon actions. Give every icon-only button
 an accessible name with `aria-label`.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-button-group" role="group" aria-label="Alignment">
     <button class="hc-button" type="button" aria-label="Align left">⬅</button>
     <button class="hc-button" type="button" aria-label="Align center">↔</button>
     <button class="hc-button" type="button" aria-label="Align right">➡</button>
   </div>
-</div>
 
-```html
-<div class="hc-button-group" role="group" aria-label="Alignment">
-  <button class="hc-button" type="button" aria-label="Align left">
-    <svg aria-hidden="true">…</svg>
-  </button>
-  <button class="hc-button" type="button" aria-label="Align center">…</button>
-  <button class="hc-button" type="button" aria-label="Align right">…</button>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-button-group" role="group" aria-label="Alignment">
+    <button class="hc-button" type="button" aria-label="Align left">
+      <svg aria-hidden="true">…</svg>
+    </button>
+    <button class="hc-button" type="button" aria-label="Align center">…</button>
+    <button class="hc-button" type="button" aria-label="Align right">…</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Split button
 
@@ -68,7 +78,7 @@ Pair a primary action with a caret that opens a [menu](/hypermedia-components/co
 Keep the two buttons as the group's only children and place the `popover`
 menu **outside** the group, referenced by id.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-button-group">
     <button class="hc-button" data-variant="primary" type="button">Save</button>
     <button class="hc-button" data-variant="primary" type="button"
@@ -81,45 +91,53 @@ menu **outside** the group, referenced by id.
     <button class="hc-menu__item" role="menuitem" type="button">Save as draft</button>
     <button class="hc-menu__item" role="menuitem" type="button">Save a copy</button>
   </div>
-</div>
 
-```html
-<div class="hc-button-group">
-  <button class="hc-button" data-variant="primary" type="button">Save</button>
-  <button class="hc-button" data-variant="primary" type="button"
-          popovertarget="save-menu" id="save-caret"
-          aria-label="More save options">▾</button>
-</div>
+  <Fragment slot="code">
 
-<!-- The menu lives outside the group. -->
-<div class="hc-menu" id="save-menu" popover role="menu"
-     aria-labelledby="save-caret">
-  <button class="hc-menu__item" role="menuitem" type="button">Save and close</button>
-  <button class="hc-menu__item" role="menuitem" type="button">Save as draft</button>
-</div>
-```
+  ```html
+  <div class="hc-button-group">
+    <button class="hc-button" data-variant="primary" type="button">Save</button>
+    <button class="hc-button" data-variant="primary" type="button"
+            popovertarget="save-menu" id="save-caret"
+            aria-label="More save options">▾</button>
+  </div>
+  
+  <!-- The menu lives outside the group. -->
+  <div class="hc-menu" id="save-menu" popover role="menu"
+       aria-labelledby="save-caret">
+    <button class="hc-menu__item" role="menuitem" type="button">Save and close</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Save as draft</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Vertical
 
 `data-orientation="vertical"` stacks the buttons and collapses the
 top/bottom shared borders instead.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-button-group" data-orientation="vertical" role="group" aria-label="View">
     <button class="hc-button" type="button">Day</button>
     <button class="hc-button" type="button">Week</button>
     <button class="hc-button" type="button">Month</button>
   </div>
-</div>
 
-```html
-<div class="hc-button-group" data-orientation="vertical"
-     role="group" aria-label="View">
-  <button class="hc-button" type="button">Day</button>
-  <button class="hc-button" type="button">Week</button>
-  <button class="hc-button" type="button">Month</button>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-button-group" data-orientation="vertical"
+       role="group" aria-label="View">
+    <button class="hc-button" type="button">Day</button>
+    <button class="hc-button" type="button">Week</button>
+    <button class="hc-button" type="button">Month</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Accessibility
 
