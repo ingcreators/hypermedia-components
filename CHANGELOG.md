@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-item` — generic list / option row primitive.** A shared row layout —
+  `__media` (icon / avatar) + `__content` (`__title` / `__description`) +
+  `__actions` — for plain lists, option rows, and as the building block that
+  command / menu items can later adopt for a consistent look. Render it as a
+  `<div>`, `<li>`, `<a>`, or `<button>`; interactive elements get the hover
+  highlight and focus ring. States: `[aria-selected]` / `[data-selected]`,
+  disabled, and `data-variant="error"`. **Pure CSS, no behavior.** New
+  `item.*` tokens, Item docs page, and 5 Playwright tests (incl. axe). The
+  PR notes `hc-menu` / `hc-command` as possible future adopters (separate
+  follow-ups, not in this change).
+
 - **`hc-navmenu` — site navigation with content panels (`installNavmenu()`).**
   A top-level mega-menu built as a disclosure set: each trigger is a
   `button[aria-expanded]` controlling a `popover` panel anchored beneath it

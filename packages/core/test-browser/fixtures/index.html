@@ -1236,6 +1236,36 @@
     </script>
   </section>
 
+  <section id="section-item" data-testid="section-item">
+    <h2>Item</h2>
+
+    <div style="max-inline-size: 24rem;">
+      <div class="hc-item" data-testid="item-basic">
+        <span class="hc-item__media" aria-hidden="true" data-testid="item-media">📄</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title" data-testid="item-title">Quarterly report</span>
+          <span class="hc-item__description" data-testid="item-desc">Updated 2 days ago</span>
+        </div>
+        <div class="hc-item__actions" data-testid="item-actions">
+          <button class="hc-button" data-size="sm" type="button">Open</button>
+        </div>
+      </div>
+
+      <button class="hc-item" type="button" data-selected data-testid="item-selected">
+        <span class="hc-item__media" aria-hidden="true">⭐</span>
+        <div class="hc-item__content"><span class="hc-item__title">Selected row</span></div>
+      </button>
+
+      <button class="hc-item" type="button" data-variant="error" data-testid="item-error">
+        <span class="hc-item__media" aria-hidden="true">🗑️</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title" data-testid="item-error-title">Delete project</span>
+          <span class="hc-item__description">This cannot be undone</span>
+        </div>
+      </button>
+    </div>
+  </section>
+
   <section id="section-navmenu" data-testid="section-navmenu">
     <h2>Navmenu</h2>
 

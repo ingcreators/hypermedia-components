@@ -1,0 +1,116 @@
+/* hc-item — a generic list / option row primitive.
+ *
+ *   <div class="hc-item">
+ *     <span class="hc-item__media" aria-hidden="true">📄</span>
+ *     <div class="hc-item__content">
+ *       <span class="hc-item__title">Title</span>
+ *       <span class="hc-item__description">Secondary text</span>
+ *     </div>
+ *     <div class="hc-item__actions">…</div>
+ *   </div>
+ *
+ * A shared row layout — media (icon / avatar) + content (title / description)
+ * + trailing actions — for plain lists, option rows, and the building block
+ * that command items / menu items can later adopt for a consistent look.
+ * Render it as a <div>, <li>, <a>, or <button>; interactive elements get the
+ * hover highlight. States: [aria-selected]/[data-selected], disabled, and
+ * data-variant="error". No JS.
+ */
+@layer hc.components {
+  .hc-item {
+    display: flex;
+    align-items: center;
+    gap: var(--hc-item-gap);
+    inline-size: 100%;
+    padding-inline: var(--hc-item-padding-x);
+    padding-block: var(--hc-item-padding-y);
+    border-radius: var(--hc-item-radius);
+    color: var(--hc-item-fg);
+    text-align: start;
+    text-decoration: none;
+  }
+
+  /* Button / link items reset their native chrome. */
+  button.hc-item {
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  /* Interactive items highlight on hover. */
+  a.hc-item:hover,
+  button.hc-item:hover,
+  .hc-item[data-selectable]:hover {
+    background: var(--hc-item-hover-bg);
+  }
+
+  a.hc-item:focus-visible,
+  button.hc-item:focus-visible,
+  .hc-item[tabindex]:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  /* Selected — option / list selection. */
+  .hc-item[aria-selected="true"],
+  .hc-item[data-selected] {
+    background: var(--hc-item-selected-bg);
+    color: var(--hc-item-selected-fg);
+  }
+
+  .hc-item:disabled,
+  .hc-item[aria-disabled="true"] {
+    opacity: var(--hc-opacity-disabled);
+    cursor: not-allowed;
+  }
+
+  .hc-item__media {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-item-media-size);
+    block-size: var(--hc-item-media-size);
+    color: var(--hc-item-media-fg);
+  }
+
+  .hc-item__media > svg,
+  .hc-item__media > img {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .hc-item__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  .hc-item__title {
+    color: var(--hc-item-title-fg);
+    font-weight: var(--hc-item-title-font-weight);
+    line-height: 1.3;
+  }
+
+  .hc-item__description {
+    color: var(--hc-item-description-fg);
+    font-size: var(--hc-item-description-font-size);
+    line-height: 1.3;
+  }
+
+  .hc-item__actions {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--hc-space-2);
+    margin-inline-start: auto;
+  }
+
+  /* Destructive variant (e.g. a delete / sign-out row). */
+  .hc-item[data-variant="error"] .hc-item__title,
+  .hc-item[data-variant="error"] .hc-item__media {
+    color: var(--hc-color-error);
+  }
+}
