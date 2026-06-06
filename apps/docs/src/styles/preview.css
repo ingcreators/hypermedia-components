@@ -1,9 +1,9 @@
-/* Styles used inside live component previews on documentation pages.
+/* Live component preview canvas on documentation pages.
  *
  * Authoring convention: always pair `hc-preview` with Starlight's
  * `not-content` class on the wrapping element:
  *
- *   <div class="hc-preview not-content" style="display:flex;gap:.5rem;...">
+ *   <div class="hc-preview not-content">
  *     <button class="hc-button">…</button>
  *   </div>
  *
@@ -11,17 +11,47 @@
  * rule in `.sl-markdown-content` is written with a trailing
  * `:not(:where(.not-content *))`, so adding the class excludes the
  * wrapper's descendants from the entire prose layer — vertical
- * rhythm (`margin-top: 1rem` between siblings), link colour, inline
- * code background, heading colour, and the `display: block; max-width:
- * 100%` image rule.
+ * rhythm, link colour, inline code background, heading colour, and
+ * the `display: block; max-width: 100%` image rule.
  *
- * Without `not-content` the prose vertical-rhythm rule offsets every
- * sibling after the first inside a flex `align-items: center` row,
- * which made the variant buttons on the Button page look misaligned.
+ * `.hc-preview` is a self-contained canvas: an elevated surface that
+ * stays distinct from the page in both light and dark mode (it rides
+ * `--hc-color-surface`, one step above the `--hc-color-bg` page) with
+ * a real border and breathing room. By default it centres its direct
+ * children in a wrapping row, so a single demo sits in the middle of
+ * the frame. Reach for the modifiers below instead of hand-writing
+ * `style="display:flex;…"` on each preview — that kept drifting from
+ * page to page.
  */
 .hc-preview {
-  padding: 1rem;
-  border: 1px solid var(--sl-color-gray-5);
-  border-radius: 0.5rem;
-  background: var(--sl-color-bg);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-block-size: 7rem;
+  padding: 1.5rem;
+  border: 1px solid var(--hc-color-border);
+  border-radius: 0.75rem;
+  background: var(--hc-color-surface);
+}
+
+/* Left-align the row instead of centring — long button rows, toolbars,
+   anything that reads better flush to the start. */
+.hc-preview--start {
+  justify-content: flex-start;
+}
+
+/* Stack the children in a column (form fields, lists, vertical demos). */
+.hc-preview--col {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+/* Cap the demo width and centre it — form controls that look wrong when
+   stretched edge to edge (select, input, field). */
+.hc-preview--narrow > * {
+  inline-size: 100%;
+  max-inline-size: 22rem;
 }
