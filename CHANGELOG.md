@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-navmenu` — site navigation with content panels (`installNavmenu()`).**
+  A top-level mega-menu built as a disclosure set: each trigger is a
+  `button[aria-expanded]` controlling a `popover` panel anchored beneath it
+  with CSS Anchor Positioning (JS fallback via `anchor-fallback.js`). Panels
+  open on hover / focus with a short intent + close delay, **one at a time**;
+  `↓` / `↑` open and move focus into the panel; `Esc` closes and returns
+  focus to the trigger. Plain links inside panels stay real `<a>` (the
+  behavior never intercepts them) — MPA / htmx friendly. New `navmenu.*`
+  tokens, Navigation menu docs page (incl. a responsive / mobile note), 10
+  Vitest tests, and 7 Playwright tests (incl. hover, keyboard, click-through,
+  axe).
+
 - **`hc-menubar` — application menu bar (`installMenubar()`).** The desktop
   File / Edit / View menu bar pattern: a horizontal `role="menubar"` of menu
   buttons, each opening an `hc-menu` dropdown. A thin layer over the existing

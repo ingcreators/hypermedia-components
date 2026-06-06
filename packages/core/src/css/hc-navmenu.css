@@ -1,0 +1,109 @@
+/* hc-navmenu — top-level site navigation with content panels (mega-menu).
+ *
+ *   <nav class="hc-navmenu" aria-label="Main">
+ *     <ul class="hc-navmenu__list">
+ *       <li class="hc-navmenu__item">
+ *         <button class="hc-navmenu__trigger" type="button"
+ *                 data-hc-navmenu-trigger aria-controls="nm-products">Products</button>
+ *         <div class="hc-navmenu__panel" id="nm-products">…</div>
+ *       </li>
+ *       <li class="hc-navmenu__item">
+ *         <a class="hc-navmenu__link" href="/pricing">Pricing</a>
+ *       </li>
+ *     </ul>
+ *   </nav>
+ *
+ * Panels are `popover`s anchored under their trigger via CSS Anchor
+ * Positioning (installNavmenu adds the inline anchor-name; a JS fallback in
+ * anchor-fallback.js covers browsers without it). Plain links stay real <a>.
+ */
+@layer hc.components {
+  .hc-navmenu__list {
+    display: flex;
+    align-items: center;
+    gap: var(--hc-navmenu-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hc-navmenu__trigger,
+  .hc-navmenu__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-space-1);
+    border: 0;
+    background: transparent;
+    color: var(--hc-navmenu-trigger-fg);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .hc-navmenu__trigger {
+    padding-inline: var(--hc-navmenu-trigger-padding-x);
+    padding-block: var(--hc-navmenu-trigger-padding-y);
+    border-radius: var(--hc-navmenu-trigger-radius);
+  }
+
+  .hc-navmenu__link {
+    padding-inline: var(--hc-navmenu-trigger-padding-x);
+    padding-block: var(--hc-navmenu-trigger-padding-y);
+    border-radius: var(--hc-navmenu-trigger-radius);
+    color: var(--hc-navmenu-link-fg);
+  }
+
+  .hc-navmenu__trigger:hover,
+  .hc-navmenu__trigger[aria-expanded="true"],
+  .hc-navmenu__list > .hc-navmenu__item > .hc-navmenu__link:hover {
+    background: var(--hc-navmenu-trigger-hover-bg);
+  }
+
+  .hc-navmenu__trigger:focus-visible,
+  .hc-navmenu__link:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  /* Panel (popover). Reset the UA popover box and style as a card. */
+  .hc-navmenu__panel {
+    margin: 0;
+    padding: var(--hc-navmenu-panel-padding);
+    border: 1px solid var(--hc-navmenu-panel-border);
+    border-radius: var(--hc-navmenu-panel-radius);
+    background: var(--hc-navmenu-panel-bg);
+    color: var(--hc-navmenu-panel-fg);
+    min-inline-size: var(--hc-navmenu-panel-min-width);
+    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.12);
+  }
+
+  /* Links inside a panel stack as a readable list. */
+  .hc-navmenu__panel .hc-navmenu__link {
+    display: flex;
+    inline-size: 100%;
+    padding-inline: var(--hc-navmenu-link-padding-x);
+    padding-block: var(--hc-navmenu-link-padding-y);
+    border-radius: var(--hc-navmenu-link-radius);
+  }
+
+  .hc-navmenu__panel .hc-navmenu__link:hover {
+    background: var(--hc-navmenu-link-hover-bg);
+  }
+
+  /* Anchor Positioning path — installNavmenu injects the anchor-name on the
+   * trigger and position-anchor on the panel; browsers without it use the JS
+   * fallback in anchor-fallback.js. */
+  @supports (anchor-name: --x) {
+    .hc-navmenu__panel {
+      position-area: block-end span-inline-end;
+      margin-block-start: var(--hc-navmenu-panel-offset);
+      position-try-fallbacks:
+        flip-block,
+        flip-inline,
+        flip-block flip-inline;
+    }
+  }
+}

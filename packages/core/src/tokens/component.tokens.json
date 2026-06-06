@@ -495,6 +495,26 @@
       "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
     }
   },
+  "navmenu": {
+    "gap":              { "$type": "dimension", "$value": "{primitive.space.1}" },
+    "trigger-padding-x": { "$type": "dimension", "$value": "{semantic.space.3}" },
+    "trigger-padding-y": { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "trigger-radius":   { "$type": "dimension", "$value": "{primitive.radius.sm}" },
+    "trigger-fg":       { "$type": "color",     "$value": "{semantic.color.text}" },
+    "trigger-hover-bg": { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
+    "panel-bg":         { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "panel-fg":         { "$type": "color",     "$value": "{semantic.color.text}" },
+    "panel-border":     { "$type": "color",     "$value": "{semantic.color.border}" },
+    "panel-radius":     { "$type": "dimension", "$value": "{primitive.radius.md}" },
+    "panel-padding":    { "$type": "dimension", "$value": "{semantic.space.3}" },
+    "panel-min-width":  { "$type": "dimension", "$value": "16rem" },
+    "panel-offset":     { "$type": "dimension", "$value": "{primitive.space.1}" },
+    "link-padding-x":   { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "link-padding-y":   { "$type": "dimension", "$value": "{primitive.space.2}" },
+    "link-radius":      { "$type": "dimension", "$value": "{primitive.radius.sm}" },
+    "link-fg":          { "$type": "color",     "$value": "{semantic.color.text}" },
+    "link-hover-bg":    { "$type": "color",     "$value": "{semantic.color.muted-bg}" }
+  },
   "menubar": {
     "gap":            { "$type": "dimension",  "$value": "{primitive.space.1}" },
     "padding-x":      { "$type": "dimension",  "$value": "{primitive.space.1}" },
