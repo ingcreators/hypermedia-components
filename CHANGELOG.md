@@ -2145,6 +2145,21 @@ Security    — security-relevant changes
   match the standard structure. The contextual frozen-edge shadow and the
   `max-height` / `truncate-max` override knobs stay CSS-only.
 
+- **Docs: the kitchen sink now mirrors the Components sidebar.** Its
+  section grouping had drifted from the canonical categorization in
+  `astro.config.mjs` — different names (`Form controls`,
+  `Feedback & status`, `Layout & data`) and wrong placements (Toolbar /
+  Command under Navigation instead of Actions, Badge under Feedback
+  instead of Data display, the data-display and layout components lumped
+  together). It now uses the exact seven sidebar categories (Actions,
+  Forms, Navigation, Overlays, Data display, Feedback, Layout) with the
+  same component in each, adds the three that were missing (Accordion,
+  Collapsible, Input group), points the Toast tile at the component page
+  rather than the recipe, and moves the non-component layout demos
+  (layout utilities, table-scroll) into a separate "Layout patterns"
+  section. Verified: all 51 components present and categorised exactly as
+  the sidebar.
+
 ---
 
 ## [Unreleased — v0.4 implementation]
