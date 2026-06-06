@@ -90,6 +90,20 @@ submit. Native, accessible, declarative.
 Clicking outside the drawer panel (on the `::backdrop` area) closes
 the dialog. The behavior detects this via `event.target === dialog`.
 
+### Drag to dismiss (added by `installDrawer`)
+
+Drag the panel toward its anchored edge to dismiss it. The axis follows
+`data-side` (right / left → horizontal, top / bottom → vertical); past **~40%
+of the panel size**, or with a quick **flick**, the drawer slides out and
+closes — release short of that and it snaps back. Only the outward direction
+moves (an inward drag is clamped, so there's no rubber-banding and
+`prefers-reduced-motion` needs no special case).
+
+The gesture is grabbed from the panel chrome — the `__header` / `__footer` —
+never the scrollable `__body` or an interactive control, so content scrolling
+and buttons keep working. Pointer-Events based, so it works for mouse, touch,
+and pen.
+
 ### JS `.close()`
 
 ```js

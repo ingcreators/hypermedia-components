@@ -1,6 +1,6 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { installDrawer } from '../src/js/drawer.js';
+import { installDrawer, dragShouldDismiss } from '../src/js/drawer.js';
 
 let uninstall = () => {};
 
@@ -84,5 +84,101 @@ describe('installDrawer', () => {
     const closed = vi.spyOn(dialog, 'close');
     dialog.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     expect(closed).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('dragShouldDismiss (threshold math)', () => {
+  it('dismisses past 40% of the panel size', () => {
+    expect(dragShouldDismiss({ delta: 81, size: 200, velocity: 0 })).toBe(true); // > 80
+    expect(dragShouldDismiss({ delta: 79, size: 200, velocity: 0 })).toBe(false);
+  });
+
+  it('dismisses on a quick flick even when short', () => {
+    expect(dragShouldDismiss({ delta: 10, size: 200, velocity: 0.6 })).toBe(true);
+    expect(dragShouldDismiss({ delta: 10, size: 200, velocity: 0.4 })).toBe(false);
+  });
+});
+
+describe('installDrawer — drag to dismiss', () => {
+  let uninstall2 = () => {};
+  function pointer(el, type, { clientX = 0, clientY = 0, timeStamp = 0 } = {}) {
+    const e = new MouseEvent(type, { clientX, clientY, bubbles: true, button: 0 });
+    Object.defineProperty(e, 'timeStamp', { value: timeStamp, configurable: true });
+    el.dispatchEvent(e);
+  }
+  function openDrawer() {
+    const dialog = document.getElementById('dr');
+    dialog.showModal();
+    Object.defineProperty(dialog, 'offsetWidth', { value: 300, configurable: true });
+    Object.defineProperty(dialog, 'offsetHeight', { value: 600, configurable: true });
+    return dialog;
+  }
+  afterEach(() => {
+    uninstall2();
+    uninstall2 = () => {};
+    vi.useRealTimers();
+  });
+
+  it('a long outward drag flies the panel out and closes it', () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = SIMPLE;
+    uninstall2 = installDrawer();
+    const dialog = openDrawer();
+    const closed = vi.spyOn(dialog, 'close');
+    const header = document.getElementById('dr-header');
+
+    pointer(header, 'pointerdown', { clientX: 100, timeStamp: 0 });
+    pointer(header, 'pointermove', { clientX: 260, timeStamp: 50 }); // +160 > 0.4*300=120
+    pointer(header, 'pointerup', { clientX: 260, timeStamp: 60 });
+
+    expect(dialog.style.translate).toBe('100% 0'); // flying out
+    vi.advanceTimersByTime(400); // fallback close (no transitionend in jsdom)
+    expect(closed).toHaveBeenCalled();
+  });
+
+  it('a short drag snaps back without closing', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall2 = installDrawer();
+    const dialog = openDrawer();
+    const closed = vi.spyOn(dialog, 'close');
+    const header = document.getElementById('dr-header');
+
+    pointer(header, 'pointerdown', { clientX: 100, timeStamp: 0 });
+    pointer(header, 'pointermove', { clientX: 130, timeStamp: 100 }); // +30 < 120, slow
+    pointer(header, 'pointerup', { clientX: 130, timeStamp: 200 });
+
+    expect(dialog.style.translate).toBe(''); // snapped back
+    expect(closed).not.toHaveBeenCalled();
+  });
+
+  it('does not start a drag from the scrollable body or a control', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall2 = installDrawer();
+    const dialog = openDrawer();
+    const body = document.getElementById('dr-body');
+
+    pointer(body, 'pointerdown', { clientX: 100, timeStamp: 0 });
+    pointer(body, 'pointermove', { clientX: 260, timeStamp: 50 });
+    pointer(body, 'pointerup', { clientX: 260, timeStamp: 60 });
+
+    expect(dialog.style.translate).toBe(''); // never moved
+    expect(dialog.open).toBe(true);
+  });
+
+  it('honors data-side="left" (drag left dismisses)', () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = SIMPLE.replace('data-side="right"', 'data-side="left"');
+    uninstall2 = installDrawer();
+    const dialog = openDrawer();
+    const closed = vi.spyOn(dialog, 'close');
+    const header = document.getElementById('dr-header');
+
+    pointer(header, 'pointerdown', { clientX: 200, timeStamp: 0 });
+    pointer(header, 'pointermove', { clientX: 30, timeStamp: 50 }); // -170 outward (left)
+    pointer(header, 'pointerup', { clientX: 30, timeStamp: 60 });
+
+    expect(dialog.style.translate).toBe('-100% 0');
+    vi.advanceTimersByTime(400);
+    expect(closed).toHaveBeenCalled();
   });
 });
