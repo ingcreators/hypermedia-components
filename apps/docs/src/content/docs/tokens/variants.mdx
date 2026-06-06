@@ -110,9 +110,9 @@ semantic variant — its on-state is the themed accent — but it does take
 
 | Component | `sm`        | `md` (default) | `lg`        | Notes |
 | --------- | ----------- | -------------- | ----------- | ----- |
-| Button    | 32 px tall  | 40 px tall     | 48 px tall  | Density adjusts the `md` default; `sm` / `lg` stay fixed. |
-| Input     | 32 px tall  | 40 px tall     | 48 px tall  | Same as button — they read from `--hc-control-*` on `md`. |
-| Checkbox  | 0.875 rem (14 px) | 1.125 rem (18 px) | 1.375 rem (22 px) | Density adjusts the `md` default; `sm` / `lg` stay fixed. |
+| Button    | 32 px tall  | 40 px tall     | 48 px tall  | Comfortable tier shown; the whole scale shifts with `data-density`. |
+| Input     | 32 px tall  | 40 px tall     | 48 px tall  | Same as button — both read from `--hc-control-*`. |
+| Checkbox  | 0.875 rem (14 px) | 1.125 rem (18 px) | 1.375 rem (22 px) | Comfortable tier shown; the whole scale shifts with `data-density`. |
 | Radio     | 0.875 rem (14 px) | 1.125 rem (18 px) | 1.375 rem (22 px) | Same. |
 
 **Sizes shift with density.** The whole `sm → md → lg` scale moves together when `data-density` changes — `sm` represents *"smaller than the default"* at every tier, not a fixed pixel value. This way the relative ordering `sm < md < lg` always holds.

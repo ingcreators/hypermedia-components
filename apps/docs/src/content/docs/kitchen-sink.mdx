@@ -44,6 +44,20 @@ splitter, type in the OTP field — it all works.
   </div>
 </div>
 
+### [Button group](/hypermedia-components/components/button-group/) · [Kbd](/hypermedia-components/components/kbd/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-button-group" role="group" aria-label="Text style">
+    <button class="hc-button" type="button">Bold</button>
+    <button class="hc-button" type="button">Italic</button>
+    <button class="hc-button" type="button">Underline</button>
+  </div>
+  <span class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd>
+    <kbd class="hc-kbd">K</kbd>
+  </span>
+</div>
+
 ## Form controls
 
 ### [Field](/hypermedia-components/components/field/) · [Input](/hypermedia-components/components/input/)
@@ -122,18 +136,18 @@ splitter, type in the OTP field — it all works.
 
 <div class="hc-preview not-content hc-preview--col">
   <nav class="hc-breadcrumb" aria-label="Breadcrumb">
-    <ol>
-      <li><a class="hc-breadcrumb__link" href="#">Home</a></li>
-      <li><a class="hc-breadcrumb__link" href="#">Library</a></li>
-      <li><span class="hc-breadcrumb__current" aria-current="page">Data</span></li>
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item"><a class="hc-breadcrumb__link" href="#">Home</a></li>
+      <li class="hc-breadcrumb__item"><a class="hc-breadcrumb__link" href="#">Library</a></li>
+      <li class="hc-breadcrumb__item"><span class="hc-breadcrumb__current" aria-current="page">Data</span></li>
     </ol>
   </nav>
   <nav class="hc-pagination" aria-label="Pagination">
-    <a class="hc-pagination__link" href="#">Prev</a>
-    <a class="hc-pagination__link" href="#">1</a>
-    <a class="hc-pagination__link" href="#" aria-current="page">2</a>
-    <a class="hc-pagination__link" href="#">3</a>
-    <a class="hc-pagination__link" href="#">Next</a>
+    <a class="hc-pagination__item" href="#">‹ Prev</a>
+    <a class="hc-pagination__item" href="#">1</a>
+    <a class="hc-pagination__item" aria-current="page" href="#">2</a>
+    <a class="hc-pagination__item" href="#">3</a>
+    <a class="hc-pagination__item" href="#">Next ›</a>
   </nav>
 </div>
 
@@ -193,6 +207,38 @@ splitter, type in the OTP field — it all works.
     <hr class="hc-menu__separator" />
     <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
   </div>
+</div>
+
+### [Menubar](/hypermedia-components/components/menubar/) · [Navmenu](/hypermedia-components/components/navmenu/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-menubar" role="menubar" aria-label="Application">
+    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="ks-mb-file" id="ks-mb-file-t">File</button>
+    <div class="hc-menu" id="ks-mb-file" popover role="menu" aria-labelledby="ks-mb-file-t">
+      <button class="hc-menu__item" role="menuitem" type="button">New</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Open…</button>
+    </div>
+    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="ks-mb-edit" id="ks-mb-edit-t">Edit</button>
+    <div class="hc-menu" id="ks-mb-edit" popover role="menu" aria-labelledby="ks-mb-edit-t">
+      <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Redo</button>
+    </div>
+  </div>
+
+  <nav class="hc-navmenu" aria-label="Main">
+    <ul class="hc-navmenu__list">
+      <li class="hc-navmenu__item">
+        <button class="hc-navmenu__trigger" type="button" data-hc-navmenu-trigger aria-controls="ks-nm-products">Products</button>
+        <div class="hc-navmenu__panel" id="ks-nm-products">
+          <a class="hc-navmenu__link" href="#">Analytics</a>
+          <a class="hc-navmenu__link" href="#">Billing</a>
+        </div>
+      </li>
+      <li class="hc-navmenu__item">
+        <a class="hc-navmenu__link" href="#">Pricing</a>
+      </li>
+    </ul>
+  </nav>
 </div>
 
 ## Overlays
@@ -275,6 +321,20 @@ splitter, type in the OTP field — it all works.
   </div>
 </div>
 
+### [Empty state](/hypermedia-components/components/empty/)
+
+<div class="hc-preview not-content">
+  <div class="hc-empty" style="max-inline-size:24rem;">
+    <div class="hc-empty__media" aria-hidden="true">📭</div>
+    <p class="hc-empty__title">No results</p>
+    <p class="hc-empty__description">We couldn't find anything matching your search.</p>
+    <div class="hc-empty__actions">
+      <button class="hc-button" data-variant="primary" type="button">Clear filters</button>
+      <button class="hc-button" type="button">Browse all</button>
+    </div>
+  </div>
+</div>
+
 ## Layout &amp; data
 
 ### [Card](/hypermedia-components/components/card/) · [Avatar](/hypermedia-components/components/avatar/)
@@ -320,6 +380,69 @@ splitter, type in the OTP field — it all works.
   <div class="hc-scroll-area" tabindex="0" role="region" aria-label="Scrollable list" style="max-block-size:6rem;max-inline-size:18rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.5rem;">
     <p style="margin-block-start:0">Scroll me.</p>
     <p>Two</p><p>Three</p><p>Four</p><p>Five</p><p style="margin-block-end:0">Six</p>
+  </div>
+</div>
+
+### [Item](/hypermedia-components/components/item/) · [Aspect ratio](/hypermedia-components/components/aspect/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-item" style="max-inline-size:18rem;">
+    <span class="hc-item__media" aria-hidden="true">📄</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Quarterly report</span>
+      <span class="hc-item__description">Updated 2 days ago</span>
+    </div>
+    <div class="hc-item__actions">
+      <button class="hc-button" data-size="sm" type="button">Open</button>
+    </div>
+  </div>
+  <div class="hc-aspect" data-ratio="16/9" style="inline-size:12rem;background:var(--hc-color-muted-bg);border-radius:.5rem;display:grid;place-items:center;">
+    <span>16 / 9</span>
+  </div>
+</div>
+
+### [Carousel](/hypermedia-components/components/carousel/)
+
+<div class="hc-preview not-content">
+  <div class="hc-carousel" aria-label="Featured" style="max-inline-size:18rem;">
+    <div class="hc-carousel__viewport">
+      <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 1</div>
+      <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 2</div>
+      <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 3</div>
+    </div>
+    <button class="hc-carousel__prev" data-hc-carousel-prev aria-label="Previous slide">‹</button>
+    <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide">›</button>
+    <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"></div>
+  </div>
+</div>
+
+### [Datagrid](/hypermedia-components/components/datagrid/)
+
+<div class="hc-preview not-content">
+  <div class="hc-datagrid" style="max-inline-size:28rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col">Role</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <th class="hc-datagrid__cell" scope="row">Ada</th>
+            <td class="hc-datagrid__cell">Engineer</td>
+            <td class="hc-datagrid__cell">Active</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <th class="hc-datagrid__cell" scope="row">Bea</th>
+            <td class="hc-datagrid__cell">Designer</td>
+            <td class="hc-datagrid__cell">Away</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

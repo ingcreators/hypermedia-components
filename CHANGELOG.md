@@ -2015,6 +2015,21 @@ Security    — security-relevant changes
   radio, switch, input, field, and slider component pages plus the density
   and themes token pages. Code samples were already correct.
 
+- **Docs: removed stale "not yet shipped / planned" notes and fixed the
+  kitchen-sink gallery.** Several pages claimed shipped features were
+  unbuilt: the Menu page said `menuitemcheckbox` / `menuitemradio` /
+  submenus were "not in the MVP" (the same page documents them), Popover
+  labelled `installClosePopover` and the Dialog/filter-popover links as
+  "(planned)", Datepicker pointed at an `hc-calendar` "follow-up", and the
+  Fundamentals · Tokens page said density modes were "not yet shipped".
+  The Tokens · Variants size table claimed `sm` / `lg` "stay fixed" across
+  density, contradicting the prose directly below it. The kitchen-sink
+  page used a non-existent `hc-pagination__link` class and dropped the
+  `hc-breadcrumb__list` / `__item` wrappers (so both rendered broken), and
+  was missing nine components it claims to show — button-group, kbd,
+  menubar, navmenu, empty, item, aspect, carousel, and datagrid are now
+  included. The recipes index now lists all ten recipes with links.
+
 ---
 
 ## [Unreleased — v0.4 implementation]

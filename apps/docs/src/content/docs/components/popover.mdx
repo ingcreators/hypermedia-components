@@ -91,8 +91,9 @@ pointer is plain CSS and renders everywhere.
 ## With htmx
 
 A popover can host an htmx-driven form. To close the popover after a
-successful request, add the `hc-close-popover-on-success` behavior
-hook (planned).
+successful request, add the `data-hc-close-popover-on-success` attribute
+and install the `installClosePopover()` behavior (bundled in
+`@hypermedia-components/core/behaviors`).
 
 ```html
 <form
@@ -145,6 +146,7 @@ calls `closest('[popover]').hidePopover()`.
 
 ## Related
 
-- [Dialog](/hypermedia-components/components/dialog/) (planned) — modal
-  variant for confirmation flows.
-- `filter-popover` recipe (planned) — popover + form + htmx.
+- [Dialog](/hypermedia-components/components/dialog/) — modal variant for
+  confirmation flows.
+- [`filter-popover` recipe](/hypermedia-components/recipes/filter-popover/)
+  — popover + form + htmx.
