@@ -1,6 +1,6 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { installCommand } from '../src/js/command.js';
+import { installCommand, commandScore } from '../src/js/command.js';
 
 let uninstall = () => {};
 
@@ -88,11 +88,13 @@ describe('installCommand', () => {
     expect(document.querySelector('.hc-command__empty').hasAttribute('hidden')).toBe(false);
   });
 
-  it('does not match against the shortcut text', () => {
-    document.body.innerHTML = FIXTURE;
+  it('does not match against the shortcut text (substring mode)', () => {
+    // Use substring mode so the assertion is observable: under the default
+    // fuzzy filter "g h" is a subsequence of the *label* "Go home" anyway.
+    document.body.innerHTML = FIXTURE.replace('class="hc-command"', 'class="hc-command" data-filter="substring"');
     uninstall = installCommand();
     const input = $('cmd-input');
-    input.value = 'G H'; // the kbd shortcut on i-home — must NOT match
+    input.value = 'G H'; // the kbd shortcut on i-home — stripped, so no match
     input.dispatchEvent(new Event('input', { bubbles: true }));
     expect($('i-home').hasAttribute('hidden')).toBe(true);
   });
@@ -199,5 +201,75 @@ describe('installCommand', () => {
     document.body.innerHTML = FIXTURE;
     await new Promise((r) => setTimeout(r, 0));
     expect($('i-home').getAttribute('data-active')).toBe('true');
+  });
+
+  describe('fuzzy filtering (default)', () => {
+    const visibleOrder = () =>
+      [...document.querySelectorAll('[role="option"]:not([hidden])')].map((el) => el.id);
+
+    function type(value) {
+      const input = $('cmd-input');
+      input.value = value;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    it('matches a non-contiguous subsequence', () => {
+      document.body.innerHTML = FIXTURE;
+      uninstall = installCommand();
+      type('gh'); // G(o) H(ome)
+      expect($('i-home').hasAttribute('hidden')).toBe(false);
+      expect($('i-new').hasAttribute('hidden')).toBe(true);
+    });
+
+    it('reorders so the best score comes first; ties keep DOM order', () => {
+      document.body.innerHTML = FIXTURE;
+      uninstall = installCommand();
+      // "ne" → "New file" (start, contiguous) beats "Open settings" (O-p-e-N…)
+      type('ne');
+      expect(visibleOrder()[0]).toBe('i-new');
+    });
+
+    it('clearing the query restores the authored order', () => {
+      document.body.innerHTML = FIXTURE;
+      uninstall = installCommand();
+      type('ne'); // reorders
+      type('');
+      // All four return in the authored order (i-del is disabled but visible).
+      expect(visibleOrder()).toEqual(['i-home', 'i-settings', 'i-new', 'i-del']);
+    });
+
+    it('data-filter="substring" keeps the plain filter without reordering', () => {
+      document.body.innerHTML = FIXTURE.replace('class="hc-command"', 'class="hc-command" data-filter="substring"');
+      uninstall = installCommand();
+      type('ne'); // substring: only "New file" contains "ne" (settings has no "ne")
+      expect($('i-new').hasAttribute('hidden')).toBe(false);
+      // "gh" is NOT a substring of any label → no match.
+      type('gh');
+      expect($('i-home').hasAttribute('hidden')).toBe(true);
+    });
+  });
+});
+
+describe('commandScore', () => {
+  it('returns -Infinity when the query is not a subsequence', () => {
+    expect(commandScore('xyz', 'Go home')).toBe(-Infinity);
+    expect(commandScore('oh', 'Go home')).toBeGreaterThan(-Infinity); // o…h in order
+  });
+
+  it('returns 0 for an empty query', () => {
+    expect(commandScore('', 'Anything')).toBe(0);
+  });
+
+  it('scores a start-of-string contiguous match highest', () => {
+    expect(commandScore('set', 'Settings')).toBeGreaterThan(commandScore('set', 'Reset'));
+  });
+
+  it('rewards word-boundary matches over mid-word ones', () => {
+    // "gh": "Go home" (g at start, h after a space) beats "Graph" (g start, h mid)
+    expect(commandScore('gh', 'Go home')).toBeGreaterThan(commandScore('gh', 'Graph'));
+  });
+
+  it('rewards a contiguous run over a scattered one', () => {
+    expect(commandScore('abc', 'abcde')).toBeGreaterThan(commandScore('abc', 'axbxc'));
   });
 });

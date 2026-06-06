@@ -101,11 +101,31 @@ search already binds <kbd>Ctrl</kbd>+<kbd>K</kbd>. Pick a hotkey that
 does not collide with the host app.
 :::
 
+## Filtering & ranking
+
+Typing **fuzzy-filters and re-ranks** the items: the query characters must
+appear in order (a subsequence), and a match scores higher when its
+characters are **contiguous** or land on a **word / camelCase boundary**.
+Items reorder by score — the best match floats to the top, even across
+groups, and ties keep the authored order. Clearing the query restores the
+original sequence. Filtering is always **client-side**; the palette never
+touches the network.
+
+To keep the previous plain behaviour — a case-insensitive **substring** match
+with no reordering — set `data-filter="substring"` on the `.hc-command`:
+
+```html
+<div class="hc-command" data-filter="substring">…</div>
+```
+
+The `.hc-command__shortcut` text is excluded from the match (only the item's
+label is searched).
+
 ## Keyboard
 
 | Key | Action |
 | --- | --- |
-| Type | Filter items; empty groups and their headings hide; an empty state shows when nothing matches. |
+| Type | Fuzzy-filter and re-rank items; empty groups and their headings hide; an empty state shows when nothing matches. |
 | `↓` / `↑` | Move the highlight (wraps; skips disabled items). |
 | `Home` / `End` | First / last visible item. |
 | `Enter` | Run the highlighted item. |

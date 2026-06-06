@@ -25,6 +25,26 @@ test.describe('hc-command', () => {
     await expect(page.getByText('Navigation')).toBeVisible();
   });
 
+  test('fuzzy: a non-contiguous subsequence matches', async ({ page }) => {
+    await page.keyboard.press('Control+k');
+    await page.getByTestId('cmd-input').fill('gh'); // G(o) H(ome)
+    await expect(page.getByTestId('cmd-home')).toBeVisible();
+    await expect(page.getByTestId('cmd-new')).toBeHidden();
+  });
+
+  test('fuzzy: the best match floats to the top, even across groups', async ({ page }) => {
+    await page.keyboard.press('Control+k');
+    await page.getByTestId('cmd-input').fill('n');
+    // "New document" (Actions, starts with n) outranks "Open profile" (mid-word
+    // n) and floats above it; "Go home" has no n and is hidden.
+    await expect(page.getByTestId('cmd-home')).toBeHidden();
+    const firstVisible = page
+      .getByTestId('cmd')
+      .locator('[role="option"]:not([hidden])')
+      .first();
+    await expect(firstVisible).toHaveText(/New document/);
+  });
+
   test('shows the empty state when nothing matches', async ({ page }) => {
     await page.keyboard.press('Control+k');
     await page.getByTestId('cmd-input').fill('zzzzz');

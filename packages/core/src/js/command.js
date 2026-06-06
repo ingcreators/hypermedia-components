@@ -9,6 +9,14 @@
 // are all filtered out are hidden, and a `.hc-command__empty` element
 // is shown when nothing matches.
 //
+// Typing fuzzy-filters AND re-ranks the options: query characters must
+// appear in order (subsequence match), and matches score higher when they
+// are contiguous or land on a word / camelCase boundary. Items reorder by
+// score (ties keep the authored order); clearing the query restores it.
+// Opt out with `data-filter="substring"` on the `.hc-command` to keep the
+// plain case-insensitive substring filter (no reordering). Filtering is
+// always client-side — the palette never touches the network.
+//
 // Selecting an item dispatches a bubbling `hc:commandselect` on the
 // `.hc-command` root with `detail { item, value, command }` (value is
 // the item's `data-value`, falling back to its label text). If the
@@ -23,6 +31,52 @@
 // installCommand(root = document) returns an idempotent uninstaller.
 
 const INSTALL_KEY = '__hcCommandUninstall';
+
+/**
+ * Dependency-free fuzzy score. `query` characters must appear in `text` in
+ * order (a subsequence); the run is rewarded for contiguity and for landing
+ * on a word / camelCase boundary. Returns `-Infinity` when `query` is not a
+ * subsequence of `text`, and `0` for an empty query. Higher is better.
+ *
+ * Exported for unit tests; not part of the package's public entry.
+ *
+ * @param {string} query
+ * @param {string} text
+ * @returns {number}
+ */
+export function commandScore(query, text) {
+  const q = query.trim().toLowerCase();
+  if (q === '') return 0;
+  const lower = text.toLowerCase();
+  let qi = 0;
+  let score = 0;
+  let run = 0;
+  let prevMatch = -2;
+  for (let ti = 0; ti < text.length && qi < q.length; ti += 1) {
+    if (lower[ti] !== q[qi]) continue;
+    let bonus = 1;
+    if (prevMatch === ti - 1) {
+      run += 1;
+      bonus += run * 4; // contiguous run
+    } else {
+      run = 0;
+    }
+    if (ti === 0) {
+      bonus += 10; // start of the string
+    } else {
+      const before = text[ti - 1];
+      if (before === ' ' || before === '-' || before === '_' || before === '/' || before === '.') {
+        bonus += 8; // word boundary
+      } else if (/[a-z]/.test(before) && /[A-Z]/.test(text[ti])) {
+        bonus += 6; // camelCase boundary
+      }
+    }
+    score += bonus;
+    prevMatch = ti;
+    qi += 1;
+  }
+  return qi === q.length ? score : -Infinity;
+}
 
 function findInput(root) {
   return root.querySelector('[role="combobox"]');
@@ -74,6 +128,13 @@ function attach(root, detachers) {
 
   const emptyEl = root.querySelector('.hc-command__empty');
 
+  // Remember the authored order so we can restore it when the query clears.
+  const order = new WeakMap();
+  itemsOf(root).forEach((item, i) => order.set(item, i));
+  const groupOrder = new WeakMap();
+  groupsOf(root).forEach((g, i) => groupOrder.set(g, i));
+  let reordered = false;
+
   function clearActive() {
     for (const i of itemsOf(root)) i.removeAttribute('data-active');
     input.removeAttribute('aria-activedescendant');
@@ -91,23 +152,82 @@ function attach(root, detachers) {
     item.scrollIntoView?.({ block: 'nearest' });
   }
 
-  function applyFilter() {
-    const q = input.value.trim().toLowerCase();
-    let visibleCount = 0;
+  // Reorder by score (descending), keeping the group structure: options sort
+  // within their parent AND groups float by their best option's score, so the
+  // global best match lands first while headings stay intact. A null `scoreFn`
+  // (and ties) fall back to the authored order, restoring the original
+  // sequence when the query clears.
+  function reorderBy(scoreFn) {
+    // 1. Options within each parent.
+    const byParent = new Map();
     for (const item of itemsOf(root)) {
-      const match = q === '' || labelOf(item).toLowerCase().includes(q);
-      if (match) {
-        item.removeAttribute('hidden');
-        visibleCount += 1;
-      } else {
-        item.setAttribute('hidden', '');
-      }
+      const p = item.parentElement;
+      if (!p) continue;
+      if (!byParent.has(p)) byParent.set(p, []);
+      byParent.get(p).push(item);
     }
+    for (const [parent, opts] of byParent) {
+      const decorated = opts.map((el) => ({
+        el,
+        ord: order.get(el) ?? 0,
+        s: scoreFn ? scoreFn(el) : 0,
+      }));
+      decorated.sort((a, b) => b.s - a.s || a.ord - b.ord);
+      for (const d of decorated) parent.append(d.el);
+    }
+
+    // 2. Groups within the listbox, by their best option score.
+    const groups = groupsOf(root);
+    if (groups.length) {
+      const decorated = groups.map((g) => {
+        const opts = [...g.querySelectorAll('[role="option"]')];
+        const best = scoreFn ? Math.max(-1e9, ...opts.map(scoreFn)) : 0;
+        return { g, ord: groupOrder.get(g) ?? 0, s: best };
+      });
+      decorated.sort((a, b) => b.s - a.s || a.ord - b.ord);
+      for (const d of decorated) list.append(d.g);
+    }
+  }
+
+  function applyFilter() {
+    const raw = input.value.trim();
+    const fuzzy = raw !== '' && root.getAttribute('data-filter') !== 'substring';
+    const qLower = raw.toLowerCase();
+    let visibleCount = 0;
+    const score = new Map();
+
+    for (const item of itemsOf(root)) {
+      const label = labelOf(item);
+      let visible;
+      let s = 0;
+      if (raw === '') {
+        visible = true;
+      } else if (!fuzzy) {
+        visible = label.toLowerCase().includes(qLower);
+      } else {
+        s = commandScore(raw, label);
+        visible = s > -Infinity;
+      }
+      score.set(item, s);
+      item.toggleAttribute('hidden', !visible);
+      if (visible) visibleCount += 1;
+    }
+
+    if (fuzzy) {
+      reorderBy((el) => {
+        const s = score.get(el);
+        return Number.isFinite(s) ? s : -1e9;
+      });
+      reordered = true;
+    } else if (reordered) {
+      reorderBy(null); // restore the authored order
+      reordered = false;
+    }
+
     // Hide a group whose every option is now hidden (heading + all).
     for (const group of groupsOf(root)) {
       const anyVisible = group.querySelector('[role="option"]:not([hidden])');
-      if (anyVisible) group.removeAttribute('hidden');
-      else group.setAttribute('hidden', '');
+      group.toggleAttribute('hidden', !anyVisible);
     }
     if (emptyEl) emptyEl.toggleAttribute('hidden', visibleCount > 0);
     return visibleCount;
