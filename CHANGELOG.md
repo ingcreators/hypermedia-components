@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-collapsible` — standalone disclosure.** A single show/hide "show
+  more" toggle built purely on native `<details>` / `<summary>` (the browser
+  owns the keyboard handling and `open` state; no JavaScript). A lighter,
+  link-styled alternative to `hc-accordion` for one region. Reuses the
+  accordion height-animation technique (`::details-content` +
+  `interpolate-size`) behind the same `@supports` gate — Chromium-only as of
+  2026, fully progressive (native instant toggle elsewhere); honors
+  `prefers-reduced-motion`. New `collapsible.*` tokens, Collapsible docs page
+  (with a baseline note), and 5 Playwright tests (incl. axe).
+
 - **`hc-empty` — empty-state block.** A centered block for "no results" /
   "nothing here yet" states: an optional `__media` (icon / illustration)
   slot, a `__title`, an optional `__description` (width-capped for

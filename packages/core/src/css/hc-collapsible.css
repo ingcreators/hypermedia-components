@@ -1,0 +1,106 @@
+/* hc-collapsible — a standalone single disclosure ("show more" toggle).
+ *
+ *   <details class="hc-collapsible">
+ *     <summary class="hc-collapsible__trigger">
+ *       Show more
+ *       <span class="hc-collapsible__icon" aria-hidden="true">▾</span>
+ *     </summary>
+ *     <div class="hc-collapsible__content">…</div>
+ *   </details>
+ *
+ * Pure CSS over native <details> / <summary> — keyboard handling and the
+ * `open` attribute are the browser's. Distinct from hc-accordion (which
+ * groups items and owns the exclusive `<details name>` behaviour): this is a
+ * lighter, link-styled inline toggle for a single region.
+ *
+ * The open/close height animation reuses the accordion technique
+ * (::details-content + interpolate-size), gated behind the same @supports —
+ * Chromium-only as of 2026, fully progressive everywhere else (native
+ * instant toggle).
+ */
+@layer hc.components {
+  .hc-collapsible__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-collapsible-trigger-gap);
+    padding-block: var(--hc-collapsible-trigger-padding-y);
+    padding-inline: var(--hc-collapsible-trigger-padding-x);
+    color: var(--hc-collapsible-trigger-fg);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: var(--hc-collapsible-trigger-font-weight);
+    line-height: 1.4;
+    text-align: start;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  /* WebKit-specific reset for the default triangle. */
+  .hc-collapsible__trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .hc-collapsible__trigger:hover {
+    color: var(--hc-collapsible-trigger-hover-fg);
+  }
+
+  .hc-collapsible__trigger:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .hc-collapsible__icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-collapsible-icon-size);
+    block-size: var(--hc-collapsible-icon-size);
+    transition: rotate var(--hc-collapsible-icon-transition-duration) ease;
+  }
+
+  /* Rotate the chevron when open — driven by the native [open] attribute. */
+  .hc-collapsible[open] > .hc-collapsible__trigger .hc-collapsible__icon {
+    rotate: 180deg;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-collapsible__icon {
+      transition-duration: 0ms;
+    }
+  }
+
+  .hc-collapsible__content {
+    padding-block-start: var(--hc-collapsible-content-padding-block-start);
+    color: var(--hc-collapsible-content-fg);
+  }
+
+  /* ---- Open / close height animation (progressive enhancement) ----
+   * Same technique and gate as hc-accordion. `interpolate-size` /
+   * `calc-size()` are Chromium-only as of 2026, so this is behind @supports;
+   * every other engine keeps the native instant open / close. */
+  @supports (interpolate-size: allow-keywords) {
+    .hc-collapsible {
+      interpolate-size: allow-keywords;
+    }
+
+    .hc-collapsible::details-content {
+      block-size: 0;
+      overflow: hidden;
+      transition:
+        block-size var(--hc-collapsible-content-transition-duration) ease,
+        content-visibility var(--hc-collapsible-content-transition-duration) allow-discrete;
+    }
+
+    .hc-collapsible[open]::details-content {
+      block-size: auto;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hc-collapsible::details-content {
+        transition-duration: 0ms;
+      }
+    }
+  }
+}
