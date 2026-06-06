@@ -11,7 +11,7 @@ free from the browser; only the visual chrome is replaced via
 
 ## Basic example
 
-<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
   <label>
     Volume
     <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" />
@@ -56,7 +56,7 @@ JavaScript loads.
 `data-variant` accepts `success`, `warning`, and `error` for
 non-default fill colours. The thumb border tracks the variant too.
 
-<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
   <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" aria-label="Default" />
   <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" data-variant="success" aria-label="Success" />
   <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" data-variant="warning" aria-label="Warning" />
@@ -68,7 +68,7 @@ non-default fill colours. The thumb border tracks the variant too.
 `data-size` accepts `sm`, `md` (default), and `lg`. Track height
 and thumb size scale together.
 
-<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
   <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-size="sm" aria-label="Small" />
   <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" aria-label="Default" />
   <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-size="lg" aria-label="Large" />

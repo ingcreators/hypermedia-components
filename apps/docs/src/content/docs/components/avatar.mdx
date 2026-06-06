@@ -9,7 +9,7 @@ Both share the same circular surface, sizes, and shape variants.
 
 ## Image avatars
 
-<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
   <span class="hc-avatar" aria-label="John Smith">JS</span>
 </div>
@@ -29,7 +29,7 @@ When no image is available, render a `<span>` instead. Use
 short (1-2 characters) and unique enough to identify the user
 within a group.
 
-<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
   <span class="hc-avatar" aria-label="Joan Clarke">JC</span>
   <span class="hc-avatar" aria-label="Hedy Lamarr">HL</span>
@@ -47,7 +47,7 @@ default behaviors) watches the image's native `load` / `error` events and
 sets `data-state` on the wrapper so the fallback appears automatically
 when the image fails.
 
-<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <span class="hc-avatar" role="img" aria-label="Broken photo, falls back to initials" data-state="error">
     <img class="hc-avatar__image" alt="" src="/does-not-exist.jpg" />
     <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
@@ -104,7 +104,7 @@ initials form directly instead.
 
 `data-size` accepts `xs`, `sm`, `md` (default), `lg`, and `xl`.
 
-<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <span class="hc-avatar" aria-label="XS" data-size="xs">JS</span>
   <span class="hc-avatar" aria-label="SM" data-size="sm">JS</span>
   <span class="hc-avatar" aria-label="MD">JS</span>
@@ -125,7 +125,7 @@ initials form directly instead.
 `data-shape="square"` rounds the corners to a square preset
 instead of a full circle.
 
-<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <span class="hc-avatar" aria-label="Circle">JS</span>
   <span class="hc-avatar" aria-label="Square" data-shape="square">JS</span>
 </div>

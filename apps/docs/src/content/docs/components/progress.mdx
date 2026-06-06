@@ -13,7 +13,7 @@ replaced via `appearance: none` and per-vendor pseudo-elements.
 Set `value` and (optionally) `max`. The browser computes the
 percentage automatically.
 
-<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
   <progress class="hc-progress" value="40" max="100" aria-label="Upload progress"></progress>
   <progress class="hc-progress" value="80" max="100" aria-label="Validation progress"></progress>
 </div>
@@ -50,7 +50,7 @@ centred gradient instead.
 `data-variant` accepts `success`, `warning`, and `error` for
 non-default fill colours.
 
-<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
   <progress class="hc-progress" value="60" max="100" aria-label="Default"></progress>
   <progress class="hc-progress" value="60" max="100" data-variant="success" aria-label="Success"></progress>
   <progress class="hc-progress" value="60" max="100" data-variant="warning" aria-label="Warning"></progress>
@@ -61,7 +61,7 @@ non-default fill colours.
 
 `data-size` accepts `sm`, `md` (default), and `lg`.
 
-<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;max-inline-size:24rem;">
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
   <progress class="hc-progress" value="50" max="100" data-size="sm" aria-label="Small"></progress>
   <progress class="hc-progress" value="50" max="100" aria-label="Default"></progress>
   <progress class="hc-progress" value="50" max="100" data-size="lg" aria-label="Large"></progress>

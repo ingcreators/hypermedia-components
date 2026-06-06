@@ -10,7 +10,7 @@ visibility.
 
 ## Basic HTML
 
-<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <span class="hc-spinner" role="status" aria-label="Loading"></span>
 </div>
 
@@ -25,7 +25,7 @@ The spinner inherits its indicator colour from the surrounding text
 
 Set `data-size="sm"` or `data-size="lg"`; omit it for the default medium.
 
-<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <span class="hc-spinner" data-size="sm" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" data-size="lg" role="status" aria-label="Loading"></span>
@@ -42,7 +42,7 @@ Set `data-size="sm"` or `data-size="lg"`; omit it for the default medium.
 By default the indicator uses `currentColor`. `data-variant` swaps it to a
 semantic accent — handy when the spinner is not inside coloured text.
 
-<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;">
+<div class="hc-preview not-content hc-preview--start">
   <span class="hc-spinner" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" data-variant="success" role="status" aria-label="Loading"></span>

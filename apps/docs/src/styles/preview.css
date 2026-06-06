@@ -1,27 +1,49 @@
-/* Styles used inside live component previews on documentation pages.
+/* Live component preview canvas on documentation pages.
  *
  * Authoring convention: always pair `hc-preview` with Starlight's
  * `not-content` class on the wrapping element:
  *
- *   <div class="hc-preview not-content" style="display:flex;gap:.5rem;...">
- *     <button class="hc-button">…</button>
+ *   <div class="hc-preview not-content">
+ *     <table class="hc-table">…</table>
  *   </div>
  *
  * `not-content` is Starlight's official escape hatch. Every prose
  * rule in `.sl-markdown-content` is written with a trailing
  * `:not(:where(.not-content *))`, so adding the class excludes the
  * wrapper's descendants from the entire prose layer — vertical
- * rhythm (`margin-top: 1rem` between siblings), link colour, inline
- * code background, heading colour, and the `display: block; max-width:
- * 100%` image rule.
+ * rhythm, link colour, inline code background, heading colour, and
+ * the `display: block; max-width: 100%` image rule.
  *
- * Without `not-content` the prose vertical-rhythm rule offsets every
- * sibling after the first inside a flex `align-items: center` row,
- * which made the variant buttons on the Button page look misaligned.
+ * `.hc-preview` is only the canvas *chrome*: an elevated surface that
+ * stays distinct from the page in both light and dark mode (it rides
+ * `--hc-color-surface`, one step above the `--hc-color-bg` page) with a
+ * border, rounded corners, padding, and a minimum height. It imposes no
+ * layout — children flow normally, so a full-width demo (table,
+ * datagrid, shell, carousel) keeps its width. For a row or column of
+ * small demos, add a layout modifier instead of hand-writing
+ * `style="display:flex;…"` on each preview, which kept drifting from
+ * page to page. Genuinely one-off demos can still set a slim inline
+ * dimension (`max-inline-size`, `min-block-size`, …).
  */
 .hc-preview {
-  padding: 1rem;
-  border: 1px solid var(--sl-color-gray-5);
-  border-radius: 0.5rem;
-  background: var(--sl-color-bg);
+  min-block-size: 7rem;
+  padding: 1.5rem;
+  border: 1px solid var(--hc-color-border);
+  border-radius: 0.75rem;
+  background: var(--hc-color-surface);
+}
+
+/* Row of small demos — wraps, left-aligned, vertically centred. */
+.hc-preview--start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Column of stacked demos (form fields, lists, vertical demos). */
+.hc-preview--col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
