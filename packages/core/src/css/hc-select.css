@@ -53,6 +53,14 @@
       background-color 120ms ease;
   }
 
+  /* `background-position` has no logical (inline-start/end) keyword, so the
+   * chevron stays on the physical right under RTL while `padding-inline-end`
+   * correctly reserves space on the (physical) left — the chevron would
+   * overlap the right-aligned text. Flip it to the inline-end explicitly. */
+  .hc-select:dir(rtl) {
+    background-position: left var(--hc-select-padding-x) center;
+  }
+
   .hc-select:focus-visible {
     outline: none;
     border-color: var(--hc-select-focus-border);

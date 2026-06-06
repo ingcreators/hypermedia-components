@@ -14,6 +14,19 @@ test.describe('hc-select', () => {
     expect(bg).toContain('%236b7280');
   });
 
+  test('chevron flips to the inline-end under RTL (no overlap with text)', async ({ page }) => {
+    const sel = page.getByTestId('sel-default');
+    const ltr = await sel.evaluate((el) => getComputedStyle(el).backgroundPositionX);
+    await sel.evaluate((el) => el.setAttribute('dir', 'rtl'));
+    const rtl = await sel.evaluate((el) => getComputedStyle(el).backgroundPositionX);
+    await sel.evaluate((el) => el.removeAttribute('dir'));
+    // The `.hc-select:dir(rtl)` override re-anchors the chevron from the
+    // physical right to the physical left, so it no longer lands on top of
+    // the right-aligned text.
+    expect(rtl).not.toBe(ltr);
+    expect(rtl).toMatch(/^\d+(\.\d+)?px$/);
+  });
+
   test('focus shows the focus-ring box-shadow', async ({ page }) => {
     const sel = page.getByTestId('sel-default');
     await sel.focus();

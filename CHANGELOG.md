@@ -527,6 +527,13 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **`hc-select` chevron no longer overlaps the text under RTL.** The
+  chevron is painted with `background-position`, which has no logical
+  (inline-start/end) keyword, so it stayed pinned to the physical right
+  while `padding-inline-end` correctly reserved space on the (physical)
+  left — the arrow landed on top of the right-aligned text. A
+  `.hc-select:dir(rtl)` rule now flips it to the inline-end.
+
 - **Dark mode now recolours component surfaces, not just the page chrome.**
   Component tokens that resolve through a semantic colour the dark theme
   overrides (`surface`, `text`, `border`, `muted-bg`, `action.secondary`)
