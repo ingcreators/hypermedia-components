@@ -2131,6 +2131,20 @@ Security    — security-relevant changes
   CSS — layout dimensions for Shell, and Datagrid's are tracked separately
   for tokenization — so there are no DTCG token paths to list.)
 
+- **Datagrid colours now flow through the DTCG token pipeline.** Datagrid
+  defined its themeable colours (surface, header, selection, hover,
+  current-cell accent, frozen-column background, sub-row border) directly
+  in `hc-datagrid.css` with `var(--hc-color-*)` references — bypassing the
+  `component.tokens.json` source of truth that every other component uses.
+  Added a `datagrid` token group so those colours, plus the cell padding
+  and header-level heights, are generated like the rest, with automatic
+  light/dark and colour-theme overrides. The resulting `--hc-datagrid-*`
+  values are identical to before in all seven theme scopes (verified
+  default / dark / indigo / emerald / rose / amber), so there is **no
+  visual change**; the Datagrid docs gain a Theming tokens section and
+  match the standard structure. The contextual frozen-edge shadow and the
+  `max-height` / `truncate-max` override knobs stay CSS-only.
+
 ---
 
 ## [Unreleased — v0.4 implementation]
