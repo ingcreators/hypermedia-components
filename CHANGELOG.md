@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-command` fuzzy / scored filtering.** Typing now fuzzy-matches and
+  re-ranks the palette instead of a plain substring filter: query characters
+  must appear in order (subsequence), and matches score higher when they are
+  contiguous or land on a word / camelCase boundary. Items reorder by score —
+  the best match floats to the top, even across groups (groups float by their
+  best item; headings stay) — with ties keeping the authored order, restored
+  when the query clears. Dependency-free and client-side only. Set
+  `data-filter="substring"` to keep the previous plain substring filter (no
+  reordering). New Command → Filtering & ranking docs. 9 Vitest (incl. the
+  exported `commandScore` scorer) + 2 Playwright tests.
+
 - **`hc-calendar` range selection (`data-mode="range"`).** The calendar can now
   pick a start / end pair: the first click or <kbd>Enter</kbd> sets the start,
   the next the end (auto-swapped so start ≤ end), a third begins a new range,
