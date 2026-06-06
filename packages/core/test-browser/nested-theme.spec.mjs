@@ -80,3 +80,41 @@ test.describe('nested data-color wrappers recolour component primitives', () => 
     });
   }
 });
+
+test.describe('dark mode recolours neutral hover / surface backgrounds', () => {
+  // Regression: button.default-hover.bg, pagination.hover-bg, and
+  // table.header-bg / row-hover-bg referenced primitive.color.gray.*
+  // directly, so they stayed light under [data-theme="dark"] — a light
+  // hover/header surface under light text hid the content (the default
+  // button's label vanished on hover). Routing them through
+  // semantic.color.muted-bg lets the dark token re-emission cover them
+  // (gray.700 = #374151), here on a *nested* dark wrapper.
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      const wrap = document.createElement('section');
+      wrap.setAttribute('data-theme', 'dark');
+      wrap.innerHTML = '<span data-testid="dark-probe"></span>';
+      document.body.appendChild(wrap);
+    });
+  });
+
+  const VARS = [
+    '--hc-button-default-hover-bg',
+    '--hc-pagination-hover-bg',
+    '--hc-table-header-bg',
+    '--hc-table-row-hover-bg',
+  ];
+
+  for (const name of VARS) {
+    test(`${name} is dark under [data-theme="dark"]`, async ({ page }) => {
+      const probe = page.getByTestId('dark-probe');
+      const value = await probe.evaluate(
+        (el, prop) => getComputedStyle(el).getPropertyValue(prop).trim().toLowerCase(),
+        name,
+      );
+      // gray.700 under dark — not the shipped-light gray.100 (#f3f4f6) / gray.50.
+      expect(value).toBe('#374151');
+    });
+  }
+});
