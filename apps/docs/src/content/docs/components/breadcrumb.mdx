@@ -108,10 +108,65 @@ the back-button, etc.).
 </li>
 ```
 
-> An interactive ellipsis that expands the hidden steps into a
-> dropdown is a separate behaviour (`installBreadcrumbExpand`)
-> on the roadmap. The pure-CSS placeholder is enough for the common
-> case where users navigate via the parent menu instead.
+## Collapsed steps (expandable)
+
+To make the hidden steps reachable, turn the ellipsis into a `<button>` that
+opens a [`hc-menu`](/hypermedia-components/components/menu/) popover listing
+them. No new behavior — `installMenu()` (in the default bundle) wires the
+trigger automatically: the `popovertarget` button gets `aria-haspopup="menu"`
+/ `aria-expanded`, the popover anchors under it, and arrow keys / Escape work.
+
+<div class="hc-preview not-content" style="min-height:9rem;">
+  <nav class="hc-breadcrumb" aria-label="Collapsible breadcrumb">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Home</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <button class="hc-breadcrumb__ellipsis" type="button"
+                popovertarget="bc-doc-overflow" aria-label="Show 2 hidden levels">…</button>
+        <div class="hc-menu" id="bc-doc-overflow" popover role="menu"
+             aria-label="Hidden breadcrumb levels">
+          <a class="hc-menu__item" role="menuitem" href="#">Products</a>
+          <a class="hc-menu__item" role="menuitem" href="#">Widgets</a>
+        </div>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Blue widget</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Specs</span>
+      </li>
+    </ol>
+  </nav>
+</div>
+
+```html
+<li class="hc-breadcrumb__item">
+  <button class="hc-breadcrumb__ellipsis" type="button"
+          popovertarget="crumb-overflow" aria-label="Show 2 hidden levels">…</button>
+
+  <div class="hc-menu" id="crumb-overflow" popover role="menu"
+       aria-label="Hidden breadcrumb levels">
+    <a class="hc-menu__item" role="menuitem" href="/products">Products</a>
+    <a class="hc-menu__item" role="menuitem" href="/products/widgets">Widgets</a>
+  </div>
+</li>
+```
+
+**Progressive enhancement.** The trail collapses gracefully:
+
+- `popovertarget` is native HTML — the menu opens on click **without
+  JavaScript**; `installMenu()` only adds the anchored placement and keyboard
+  roving.
+- On engines without the `popover` attribute the menu simply renders inline
+  (the hidden steps stay visible), so the full trail is always in the DOM.
+
+**Responsive collapsing.** Whether to collapse is a layout decision. Render
+the full trail by default and switch to the collapsed markup under a width
+threshold — e.g. set `data-collapse` on the `<nav>` and gate the swap with a
+[container query](https://developer.mozilla.org/docs/Web/CSS/CSS_containment/Container_queries),
+or render the collapsed form server-side once the path exceeds N levels.
 
 ## Accessibility
 

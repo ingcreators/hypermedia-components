@@ -75,13 +75,34 @@
     font-weight: var(--hc-breadcrumb-current-font-weight);
   }
 
-  /* Optional middle-truncation marker. Use a `<span>` rather than
-   * a `<button>` for the pure-CSS variant; a dropdown-to-expand
-   * pattern is on the roadmap as a separate behavior. */
+  /* Middle-truncation marker. A `<span aria-hidden>` is the pure-CSS,
+   * non-interactive form; a `<button>` (collapsible variant) turns it into a
+   * `popovertarget` that opens a `.hc-menu` listing the hidden steps —
+   * installMenu wires the ARIA, anchor positioning, and keyboard nav. */
   .hc-breadcrumb__ellipsis {
     display: inline-flex;
     align-items: center;
     color: var(--hc-breadcrumb-separator-fg);
     user-select: none;
+  }
+
+  /* Button variant: drop native chrome and add a hover / focus affordance. */
+  button.hc-breadcrumb__ellipsis {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  button.hc-breadcrumb__ellipsis:hover {
+    color: var(--hc-breadcrumb-link-hover-fg);
+  }
+
+  button.hc-breadcrumb__ellipsis:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 }

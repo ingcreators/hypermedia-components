@@ -49,4 +49,55 @@ test.describe('hc-breadcrumb', () => {
       .analyze();
     expect(results.violations).toEqual([]);
   });
+
+  test.describe('collapsible ellipsis', () => {
+    test('installMenu wires the popover ARIA on the ellipsis button', async ({ page }) => {
+      const trigger = page.getByTestId('bc-overflow-trigger');
+      await expect(trigger).toHaveJSProperty('tagName', 'BUTTON');
+      await expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+      await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      await expect(trigger).toHaveAttribute('aria-controls', 'bc-overflow');
+    });
+
+    test('clicking the ellipsis opens the popover and reveals the hidden links', async ({
+      page,
+    }) => {
+      const menu = page.getByTestId('bc-overflow-menu');
+      await expect(menu).toBeHidden();
+
+      await page.getByTestId('bc-overflow-trigger').click();
+      await expect(menu).toBeVisible();
+      await expect(page.getByTestId('bc-overflow-products')).toBeVisible();
+      await expect(page.getByTestId('bc-overflow-widgets')).toBeVisible();
+      await expect(page.getByTestId('bc-overflow-trigger')).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+    });
+
+    test('opening focuses the first hidden link and ArrowDown moves to the next', async ({
+      page,
+    }) => {
+      await page.getByTestId('bc-overflow-trigger').click();
+      await expect(page.getByTestId('bc-overflow-products')).toBeFocused();
+      await page.keyboard.press('ArrowDown');
+      await expect(page.getByTestId('bc-overflow-widgets')).toBeFocused();
+    });
+
+    test('Escape closes the overflow popover', async ({ page }) => {
+      await page.getByTestId('bc-overflow-trigger').click();
+      await expect(page.getByTestId('bc-overflow-menu')).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(page.getByTestId('bc-overflow-menu')).toBeHidden();
+    });
+
+    test('axe finds no violations with the overflow popover open', async ({ page }) => {
+      await page.getByTestId('bc-overflow-trigger').click();
+      await expect(page.getByTestId('bc-overflow-menu')).toBeVisible();
+      const results = await new AxeBuilder({ page })
+        .include('#section-breadcrumb')
+        .analyze();
+      expect(results.violations).toEqual([]);
+    });
+  });
 });
