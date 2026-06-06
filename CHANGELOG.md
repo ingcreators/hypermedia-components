@@ -2003,6 +2003,18 @@ Security    — security-relevant changes
   `build:js` so the bundler can copy the freshly emitted declarations
   into `dist/`. `typescript` is a new `devDependency`.
 
+### Fixed
+
+- **Docs: live previews now render in their intended state.** The `Demo`
+  preview slots used React-style attributes (`defaultChecked`,
+  `defaultValue`, `htmlFor`) that Astro's MDX renderer emitted verbatim
+  instead of as `checked` / `value` / `for`. As a result every checkbox,
+  radio, and switch preview rendered *unchecked*, text/slider inputs
+  rendered *empty*, and `hc-field` labels were not associated with their
+  inputs. Replaced with the real HTML attributes across the checkbox,
+  radio, switch, input, field, and slider component pages plus the density
+  and themes token pages. Code samples were already correct.
+
 ---
 
 ## [Unreleased — v0.4 implementation]

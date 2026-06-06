@@ -16,7 +16,7 @@ free from the browser; only the visual chrome is replaced via
 <Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <label>
     Volume
-    <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" />
+    <input class="hc-slider" type="range" min="0" max="100" value="40" />
   </label>
 
   <Fragment slot="code">
@@ -63,10 +63,10 @@ JavaScript loads.
 non-default fill colours. The thumb border tracks the variant too.
 
 <div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
-  <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" aria-label="Default" />
-  <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" data-variant="success" aria-label="Success" />
-  <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" data-variant="warning" aria-label="Warning" />
-  <input class="hc-slider" type="range" min="0" max="100" defaultValue="60" data-variant="error" aria-label="Error" />
+  <input class="hc-slider" type="range" min="0" max="100" value="60" aria-label="Default" />
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="success" aria-label="Success" />
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="warning" aria-label="Warning" />
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="error" aria-label="Error" />
 </div>
 
 ## Sizes
@@ -75,9 +75,9 @@ non-default fill colours. The thumb border tracks the variant too.
 and thumb size scale together.
 
 <div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
-  <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-size="sm" aria-label="Small" />
-  <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" aria-label="Default" />
-  <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-size="lg" aria-label="Large" />
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="sm" aria-label="Small" />
+  <input class="hc-slider" type="range" min="0" max="100" value="40" aria-label="Default" />
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="lg" aria-label="Large" />
 </div>
 
 ## Vertical orientation
@@ -91,8 +91,8 @@ screen-reader value announcement all keep working. The maximum sits at the
 top, so <kbd>↑</kbd> increases the value.
 
 <Demo previewStyle="display:flex;gap:1.5rem;align-items:flex-end;block-size:12rem;">
-  <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-orientation="vertical" aria-label="Volume" />
-  <input class="hc-slider" type="range" min="0" max="100" defaultValue="70" data-orientation="vertical" data-variant="success" aria-label="Level" />
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-orientation="vertical" aria-label="Volume" />
+  <input class="hc-slider" type="range" min="0" max="100" value="70" data-orientation="vertical" data-variant="success" aria-label="Level" />
 
   <Fragment slot="code">
 
