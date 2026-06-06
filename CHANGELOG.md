@@ -525,6 +525,20 @@ Security    — security-relevant changes
   `hc-shell`, and the `.hc-table-scroll` pattern), and the Fundamentals
   index links the new pages. Docs only.
 
+### Fixed
+
+- **Dark mode now recolours component surfaces, not just the page chrome.**
+  Component tokens that resolve through a semantic colour the dark theme
+  overrides (`surface`, `text`, `border`, `muted-bg`, `action.secondary`)
+  were baked once as their light value on `:root` and never re-emitted for
+  `[data-theme="dark"]`, so buttons, cards, menus, the command palette,
+  inputs, and item rows stayed light under dark mode while only the page
+  background flipped. The token build (`build-tokens.mjs`) now treats
+  `theme.dark` like the colour / density axes and re-emits every affected
+  `--hc-*` component variable inside the `[data-theme="dark"]` block — the
+  light value stays the `:root` default and dark overrides on top. A
+  regression test in `tokens.test.mjs` locks the behaviour.
+
 ### Added
 
 - **Form-validation depth for `hc-field`.** Native HTML constraint validation
