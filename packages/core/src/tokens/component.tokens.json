@@ -598,7 +598,8 @@
   "scroll-area": {
     "thumb":       { "$type": "color", "$value": "{semantic.color.border}" },
     "thumb-hover": { "$type": "color", "$value": "{semantic.color.text-muted}" },
-    "track":       { "$type": "color", "$value": "transparent" }
+    "track":       { "$type": "color", "$value": "transparent" },
+    "shadow":      { "$type": "color", "$value": "color-mix(in srgb, {semantic.color.text} 15%, transparent)" }
   },
   "splitter": {
     "handle-size":       { "$type": "dimension", "$value": "0.625rem" },

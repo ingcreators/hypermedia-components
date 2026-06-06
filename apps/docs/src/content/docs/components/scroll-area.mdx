@@ -51,6 +51,36 @@ so keyboard users can scroll it (see [Accessibility](#accessibility)).
 `overscroll-behavior: contain` is set, so scrolling to the end of the
 region does not chain to the page behind it.
 
+## Edge shadows
+
+Add `data-shadows` for a subtle shadow at each scrollable edge that appears
+**only when there is more content** to scroll in that direction — it fades in
+as you scroll away from an edge and out as you reach it.
+
+<div class="hc-preview not-content">
+  <div class="hc-scroll-area" data-shadows tabindex="0" role="region" aria-label="Release notes" style="max-block-size:9rem;max-inline-size:20rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.75rem;">
+    <p style="margin-block-start:0">Scroll — the top / bottom shadows show only when there's more above or below.</p>
+    <p>Line two.</p><p>Line three.</p><p>Line four.</p><p>Line five.</p>
+    <p>Line six.</p><p>Line seven.</p><p style="margin-block-end:0">Line eight.</p>
+  </div>
+</div>
+
+```html
+<div class="hc-scroll-area" data-shadows tabindex="0" style="max-block-size:9rem">
+  …long content…
+</div>
+```
+
+It's **pure CSS** — a [scrolling-shadows](https://lea.verou.me/2012/04/background-attachments-and-the-scrolling-shadows/)
+gradient where solid "cover" layers scroll with the content
+(`background-attachment: local`) and hide fixed shadow layers at the flush
+edge. No JavaScript and, deliberately, **no scroll-driven animations**
+(`animation-timeline: scroll()` is not [Baseline](https://caniuse.com/mdn-css_properties_animation-timeline_scroll)
+as of 2026), so it works everywhere `background-attachment: local` does. It
+honors `data-orientation` (vertical / horizontal). Because the cover layers
+paint a solid background, set `--hc-scroll-area-bg` to match whatever the
+region sits on (default: the surface colour).
+
 ## Accessibility
 
 - A region the user can scroll **must be keyboard-focusable**, or
@@ -71,11 +101,16 @@ region does not chain to the page behind it.
 | `scroll-area.thumb` | Scrollbar thumb colour (resting). |
 | `scroll-area.thumb-hover` | Thumb colour while the region is hovered. |
 | `scroll-area.track` | Scrollbar track colour (default transparent). |
+| `scroll-area.shadow` | Edge-shadow colour (`data-shadows`; theme-adaptive). |
 
 ## CSS variables
 
 ```text
 --hc-scroll-area-thumb | -thumb-hover | -track
+--hc-scroll-area-shadow          /* edge-shadow colour (data-shadows) */
+--hc-scroll-area-bg              /* cover colour; default --hc-color-surface */
+--hc-scroll-area-shadow-cover    /* cover band size; default 1.5rem */
+--hc-scroll-area-shadow-size     /* shadow band size; default 0.6rem */
 ```
 
 ## Notes & out of scope
@@ -86,8 +121,9 @@ region does not chain to the page behind it.
   / WebKit you can layer `::-webkit-scrollbar` rules yourself, but note
   Firefox ignores them and the standard `scrollbar-color` overrides
   them where both apply.
-- A fully custom overlay scrollbar (JS-rendered thumb), scroll-edge
-  fade / shadow, and scroll-to buttons are out of scope.
+- Edge shadows are supported — see [Edge shadows](#edge-shadows). A fully
+  custom overlay scrollbar (JS-rendered thumb) and scroll-to buttons remain
+  out of scope (the native, now-stylable scrollbar stays).
 
 ## Related
 

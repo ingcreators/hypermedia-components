@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-scroll-area` edge shadows (`data-shadows`).** Opt in for a subtle
+  shadow at each scrollable edge that shows **only when there is more content**
+  to scroll in that direction (fading in as you scroll away from an edge).
+  Pure CSS — the classic scrolling-shadows gradient where solid cover layers
+  scroll with the content (`background-attachment: local`) and hide fixed
+  shadow layers at the flush edge. Deliberately **no scroll-driven animations**
+  (`animation-timeline: scroll()` is not Baseline as of 2026), so it works
+  everywhere `background-attachment: local` does, and it honors
+  `data-orientation` (vertical / horizontal). New theme-adaptive
+  `scroll-area.shadow` token and `--hc-scroll-area-bg` cover knob. New
+  Scroll area → Edge shadows docs. 3 Playwright tests.
+
 - **`hc-shell` collapsible sidebar (`data-collapsible` / `data-persist`).** On
   desktop the sidebar can collapse to a narrow icon rail: add `data-collapsible`
   to the `.hc-shell__sidebar` and a `[data-hc-shell-collapse]` button, and

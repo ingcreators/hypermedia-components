@@ -47,6 +47,31 @@ test.describe('hc-scroll-area', () => {
     expect(top).toBeGreaterThan(0);
   });
 
+  test('data-shadows paints the edge-shadow gradient layers', async ({ page }) => {
+    const bg = await page
+      .getByTestId('sa-shadows')
+      .evaluate((el) => getComputedStyle(el).backgroundImage);
+    // Two cover (linear) + two shadow (radial) layers.
+    expect(bg).toContain('radial-gradient');
+    expect(bg).toContain('linear-gradient');
+    expect((bg.match(/gradient/g) || []).length).toBe(4);
+  });
+
+  test('a plain scroll-area has no shadow gradients', async ({ page }) => {
+    const bg = await page
+      .getByTestId('sa-vertical')
+      .evaluate((el) => getComputedStyle(el).backgroundImage);
+    expect(bg).toBe('none');
+  });
+
+  test('the shadow region still scrolls natively', async ({ page }) => {
+    const top = await page.getByTestId('sa-shadows').evaluate((el) => {
+      el.scrollTop = 40;
+      return el.scrollTop;
+    });
+    expect(top).toBeGreaterThan(0);
+  });
+
   test('axe finds no violations in the scroll-area section', async ({ page }) => {
     const results = await new AxeBuilder({ page })
       .include('#section-scroll-area')
