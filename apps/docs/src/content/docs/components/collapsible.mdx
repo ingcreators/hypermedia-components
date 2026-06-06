@@ -1,0 +1,116 @@
+---
+title: Collapsible
+description: A standalone show/hide disclosure built on native details/summary.
+---
+
+`hc-collapsible` is a single show/hide disclosure — a lightweight,
+link-styled "show more" toggle for one region. It is pure CSS over the
+native `<details>` / `<summary>` elements: the browser owns the keyboard
+handling and the `open` state; no JavaScript.
+
+:::note
+Use `hc-collapsible` for a **single** inline toggle. To group several
+sections (with an optional one-open-at-a-time behaviour), use
+[`hc-accordion`](/hypermedia-components/components/accordion/) instead —
+it owns the bordered group layout and the exclusive `<details name>`
+pattern.
+:::
+
+## Basic HTML
+
+<div class="hc-preview not-content">
+  <details class="hc-collapsible">
+    <summary class="hc-collapsible__trigger">
+      Show details
+      <span class="hc-collapsible__icon" aria-hidden="true">▾</span>
+    </summary>
+    <div class="hc-collapsible__content">
+      <p>
+        This region is hidden until the user opens it. It is great for
+        secondary details, advanced options, or a long "read more" passage
+        that would otherwise crowd the page.
+      </p>
+    </div>
+  </details>
+</div>
+
+```html
+<details class="hc-collapsible">
+  <summary class="hc-collapsible__trigger">
+    Show details
+    <span class="hc-collapsible__icon" aria-hidden="true">▾</span>
+  </summary>
+  <div class="hc-collapsible__content">
+    <p>This region is hidden until the user opens it.</p>
+  </div>
+</details>
+```
+
+Add the `open` attribute to `<details>` to have it start expanded.
+
+## Anatomy
+
+| Part                       | Purpose                                   |
+| -------------------------- | ----------------------------------------- |
+| `.hc-collapsible`          | The `<details>` element (add `open` to expand). |
+| `.hc-collapsible__trigger` | The `<summary>` — the clickable toggle.   |
+| `.hc-collapsible__icon`    | The chevron; rotates 180° when open.      |
+| `.hc-collapsible__content` | The revealed region.                      |
+
+## Height animation
+
+When open or closed the region **animates its height** — pure CSS, no
+JavaScript — via `::details-content` with `interpolate-size: allow-keywords`
+(so the height can transition to and from `auto`). The chevron rotation and
+the height both respect `prefers-reduced-motion: reduce`.
+
+:::note[Baseline]
+`interpolate-size` / `calc-size()` are **Chromium-only** as of 2026 (not yet
+in Firefox or Safari), so the height animation is gated behind
+`@supports (interpolate-size: allow-keywords)`. It is **fully progressive**:
+every other engine keeps the native **instant** open / close — nothing
+depends on the animation. Tune the duration with
+`--hc-collapsible-content-transition-duration` (default `200ms`); it starts
+animating elsewhere automatically once those engines ship the feature.
+:::
+
+## Accessibility
+
+- `<details>` / `<summary>` give you the right semantics for free: the
+  summary is a button that toggles `aria-expanded`, is keyboard operable
+  (Enter / Space), and is in the tab order — no ARIA to add.
+- Keep the chevron decorative (`aria-hidden="true"`); the summary text is
+  the accessible name, so write it as a clear action ("Show details").
+- The content stays in the DOM when collapsed, so in-page search (and find
+  links) still reach it where the engine supports the height animation.
+
+## Theming tokens
+
+| Token path                          | Purpose                       |
+| ----------------------------------- | ----------------------------- |
+| `collapsible.trigger.gap`           | Gap between label and chevron. |
+| `collapsible.trigger.padding-x` / `-y` | Trigger padding.           |
+| `collapsible.trigger.font-weight`   | Trigger weight.               |
+| `collapsible.trigger.fg` / `hover-fg` | Trigger (link) colour.      |
+| `collapsible.icon.size`             | Chevron size.                 |
+| `collapsible.icon.transition-duration` | Chevron rotation speed.    |
+| `collapsible.content.fg`            | Revealed text colour.         |
+| `collapsible.content.padding-block-start` | Gap below the trigger.  |
+| `collapsible.content.transition-duration` | Height animation speed. |
+
+## CSS variables
+
+```text
+--hc-collapsible-trigger-gap | -trigger-padding-x | -trigger-padding-y
+--hc-collapsible-trigger-font-weight | -trigger-fg | -trigger-hover-fg
+--hc-collapsible-icon-size | -icon-transition-duration
+--hc-collapsible-content-fg | -content-padding-block-start
+--hc-collapsible-content-transition-duration
+```
+
+## Related
+
+- [Accordion](/hypermedia-components/components/accordion/) — a group of
+  collapsible sections with an optional exclusive mode.
+- [Card](/hypermedia-components/components/card/) — a common container for
+  a collapsible block of secondary detail.

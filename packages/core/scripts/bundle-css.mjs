@@ -68,6 +68,7 @@ const COMPONENTS = [
   'hc-hovercard.css',
   'hc-anchored.css',
   'hc-accordion.css',
+  'hc-collapsible.css',
   'hc-breadcrumb.css',
   'hc-shell.css',
 ];
