@@ -3,6 +3,8 @@ title: Carousel
 description: A scroll-snap carousel driven by native scrolling, with optional autoplay.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-carousel` is a carousel whose **source of truth is the native scroll
 position**. Slides live in a CSS scroll-snap rail; `installCarousel()` tracks
 the in-view slide, syncs prev/next and dot controls, adds keyboard support,
@@ -11,7 +13,7 @@ JS-driven transform** — native smooth scrolling does the motion.
 
 ## Basic example
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-carousel" aria-label="Featured" style="max-inline-size: 22rem;">
     <div class="hc-carousel__viewport">
       <div class="hc-carousel__slide" style="block-size:7rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 1</div>
@@ -22,20 +24,24 @@ JS-driven transform** — native smooth scrolling does the motion.
     <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide">›</button>
     <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"></div>
   </div>
-</div>
 
-```html
-<div class="hc-carousel" aria-label="Featured">
-  <div class="hc-carousel__viewport">
-    <div class="hc-carousel__slide">…</div>
-    <div class="hc-carousel__slide">…</div>
-    <div class="hc-carousel__slide">…</div>
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-carousel" aria-label="Featured">
+    <div class="hc-carousel__viewport">
+      <div class="hc-carousel__slide">…</div>
+      <div class="hc-carousel__slide">…</div>
+      <div class="hc-carousel__slide">…</div>
+    </div>
+    <button class="hc-carousel__prev" data-hc-carousel-prev aria-label="Previous slide">‹</button>
+    <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide">›</button>
+    <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"></div>
   </div>
-  <button class="hc-carousel__prev" data-hc-carousel-prev aria-label="Previous slide">‹</button>
-  <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide">›</button>
-  <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"></div>
-</div>
-```
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installCarousel } from '@hypermedia-components/core';

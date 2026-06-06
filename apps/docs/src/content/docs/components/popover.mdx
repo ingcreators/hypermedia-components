@@ -3,13 +3,15 @@ title: Popover
 description: Lightweight floating panel built on the standard popover attribute.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-popover` styles the native `popover` attribute. The browser handles
 open/close, top-layer rendering, light-dismiss, and Escape-to-close —
 no JavaScript required.
 
 ## Basic HTML
 
-<div class="hc-preview not-content" style="display:flex;gap:.5rem;align-items:flex-start;min-height:9rem;">
+<Demo previewStyle="display:flex;gap:.5rem;align-items:flex-start;min-height:9rem;">
   <button class="hc-button" type="button" popovertarget="demo-popover">
     Open popover
   </button>
@@ -17,17 +19,21 @@ no JavaScript required.
   <div id="demo-popover" class="hc-popover" popover>
     <p>A short, focused message. The browser closes me on Escape or by clicking outside.</p>
   </div>
-</div>
 
-```html
-<button class="hc-button" type="button" popovertarget="filter-popover">
-  Filter
-</button>
+  <Fragment slot="code">
 
-<div id="filter-popover" class="hc-popover" popover>
-  <p>Choose filters here.</p>
-</div>
-```
+  ```html
+  <button class="hc-button" type="button" popovertarget="filter-popover">
+    Filter
+  </button>
+  
+  <div id="filter-popover" class="hc-popover" popover>
+    <p>Choose filters here.</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 The `popover` attribute defaults to `popover="auto"`, which means:
 
@@ -47,22 +53,26 @@ A bare popover is positioned by the browser (centred in the top layer). To
 default behaviors) wires the anchoring and keeps `aria-expanded` /
 `aria-controls` on the trigger in sync. Add `data-arrow` for a small pointer.
 
-<div class="hc-preview not-content" style="display:flex;gap:6rem;align-items:center;min-height:8rem;">
+<Demo previewStyle="display:flex;gap:6rem;align-items:center;min-height:8rem;">
   <button class="hc-button" type="button" popovertarget="side-popover">Anchored</button>
   <div id="side-popover" class="hc-popover" popover
        data-side="right" data-align="start" data-arrow>
     <p style="margin:0;">Opens to the inline-end, top-aligned.</p>
   </div>
-</div>
 
-```html
-<button class="hc-button" type="button" popovertarget="filters">Filter</button>
+  <Fragment slot="code">
 
-<div id="filters" class="hc-popover" popover
-     data-side="bottom" data-align="start" data-arrow>
-  …
-</div>
-```
+  ```html
+  <button class="hc-button" type="button" popovertarget="filters">Filter</button>
+  
+  <div id="filters" class="hc-popover" popover
+       data-side="bottom" data-align="start" data-arrow>
+    …
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 Placement uses **CSS Anchor Positioning** (`position-area`) where supported
 and `position-try-fallbacks` to flip at the viewport edge. The same

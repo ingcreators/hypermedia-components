@@ -3,26 +3,32 @@ title: Badge
 description: Small inline status indicator with variant colors.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-badge` is a compact inline pill used to surface status next to a
 label. Variants are switched with `data-variant`.
 
 ## Basic HTML
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <span class="hc-badge">Draft</span>
   <span class="hc-badge" data-variant="info">In review</span>
   <span class="hc-badge" data-variant="success">Active</span>
   <span class="hc-badge" data-variant="warning">Pending</span>
   <span class="hc-badge" data-variant="error">Failed</span>
-</div>
 
-```html
-<span class="hc-badge">Draft</span>
-<span class="hc-badge" data-variant="info">In review</span>
-<span class="hc-badge" data-variant="success">Active</span>
-<span class="hc-badge" data-variant="warning">Pending</span>
-<span class="hc-badge" data-variant="error">Failed</span>
-```
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-badge">Draft</span>
+  <span class="hc-badge" data-variant="info">In review</span>
+  <span class="hc-badge" data-variant="success">Active</span>
+  <span class="hc-badge" data-variant="warning">Pending</span>
+  <span class="hc-badge" data-variant="error">Failed</span>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Variants
 

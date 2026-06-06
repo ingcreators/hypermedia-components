@@ -3,6 +3,8 @@ title: Empty state
 description: A centered block for "no results" and "nothing here yet" states.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-empty` is a centered empty-state block: a media slot (icon or
 illustration), a title, a description, and optional actions. Use it for
 "no results", "nothing here yet", and first-run states. Token-driven
@@ -11,7 +13,7 @@ partial swaps.
 
 ## Basic HTML
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-empty">
     <div class="hc-empty__media" aria-hidden="true">📭</div>
     <p class="hc-empty__title">No results</p>
@@ -24,24 +26,28 @@ partial swaps.
       <button class="hc-button" type="button">Browse all</button>
     </div>
   </div>
-</div>
 
-```html
-<div class="hc-empty">
-  <div class="hc-empty__media" aria-hidden="true">
-    <!-- an icon, emoji, or <svg> illustration -->
-    📭
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-empty">
+    <div class="hc-empty__media" aria-hidden="true">
+      <!-- an icon, emoji, or <svg> illustration -->
+      📭
+    </div>
+    <p class="hc-empty__title">No results</p>
+    <p class="hc-empty__description">
+      We couldn't find anything matching your search.
+    </p>
+    <div class="hc-empty__actions">
+      <button class="hc-button" data-variant="primary" type="button">Clear filters</button>
+      <button class="hc-button" type="button">Browse all</button>
+    </div>
   </div>
-  <p class="hc-empty__title">No results</p>
-  <p class="hc-empty__description">
-    We couldn't find anything matching your search.
-  </p>
-  <div class="hc-empty__actions">
-    <button class="hc-button" data-variant="primary" type="button">Clear filters</button>
-    <button class="hc-button" type="button">Browse all</button>
-  </div>
-</div>
-```
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Anatomy
 

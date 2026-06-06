@@ -3,6 +3,8 @@ title: Accordion
 description: Collapsible section group built entirely on native <details> / <summary> and the modern name attribute — no JavaScript required.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-accordion` is a pure CSS skin over the native `<details>` /
 `<summary>` element. Keyboard handling, the `open` attribute, and
 the `toggle` event are all provided by the browser. The
@@ -22,7 +24,7 @@ JS is needed to enforce the "only one item open at a time" rule.
 Give every `<details>` in the group the **same `name` value** and
 the browser enforces single-open semantics.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-accordion">
     <details class="hc-accordion__item" name="doc-faq">
       <summary class="hc-accordion__trigger">
@@ -61,37 +63,41 @@ the browser enforces single-open semantics.
       </div>
     </details>
   </div>
-</div>
 
-```html
-<div class="hc-accordion">
-  <details class="hc-accordion__item" name="faq">
-    <summary class="hc-accordion__trigger">
-      What is Hypermedia Components?
-      <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
-        <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </summary>
-    <div class="hc-accordion__content">
-      A semantic CSS + htmx UI kit for hypermedia applications.
-    </div>
-  </details>
+  <Fragment slot="code">
 
-  <details class="hc-accordion__item" name="faq">
-    <summary class="hc-accordion__trigger">
-      How do I install it?
-      <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
-        <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </summary>
-    <div class="hc-accordion__content">
-      <code>pnpm add @hypermedia-components/core</code>
-    </div>
-  </details>
-</div>
-```
+  ```html
+  <div class="hc-accordion">
+    <details class="hc-accordion__item" name="faq">
+      <summary class="hc-accordion__trigger">
+        What is Hypermedia Components?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        A semantic CSS + htmx UI kit for hypermedia applications.
+      </div>
+    </details>
+  
+    <details class="hc-accordion__item" name="faq">
+      <summary class="hc-accordion__trigger">
+        How do I install it?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        <code>pnpm add @hypermedia-components/core</code>
+      </div>
+    </details>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Independent (multi-open)
 

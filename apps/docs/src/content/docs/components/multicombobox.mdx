@@ -3,6 +3,8 @@ title: Multicombobox
 description: Multi-select combobox with tag input — type to filter, click to toggle, Backspace to remove the last tag. Built on popover + anchor positioning.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-multicombobox` is a **multi-select** combobox with a tag-input
 control. Selected values render as inline chips inside a single
 visual surface, the filter input lives next to them, and the
@@ -17,7 +19,7 @@ while DOM focus stays on the input.
 
 ## Basic example
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-multicombobox" style="max-inline-size:22rem;">
     <div class="hc-multicombobox__control hc-input">
       <span class="hc-multicombobox__tags"></span>
@@ -36,30 +38,34 @@ while DOM focus stays on the input.
           aria-disabled="true">Rust (coming soon)</li>
     </ul>
   </div>
-</div>
 
-```html
-<div class="hc-multicombobox" data-name="languages">
-  <div class="hc-multicombobox__control hc-input">
-    <span class="hc-multicombobox__tags"></span>
-    <input class="hc-multicombobox__input"
-           type="text"
-           role="combobox"
-           aria-controls="lang-list"
-           aria-label="Languages">
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-multicombobox" data-name="languages">
+    <div class="hc-multicombobox__control hc-input">
+      <span class="hc-multicombobox__tags"></span>
+      <input class="hc-multicombobox__input"
+             type="text"
+             role="combobox"
+             aria-controls="lang-list"
+             aria-label="Languages">
+    </div>
+  
+    <ul class="hc-multicombobox__listbox" id="lang-list" role="listbox">
+      <li class="hc-multicombobox__option" role="option" data-value="js">JavaScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="ts">TypeScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="py"
+          aria-selected="true">Python</li>
+      <li class="hc-multicombobox__option" role="option" data-value="go">Go</li>
+      <li class="hc-multicombobox__option" role="option" data-value="rs"
+          aria-disabled="true">Rust</li>
+    </ul>
   </div>
+  ```
 
-  <ul class="hc-multicombobox__listbox" id="lang-list" role="listbox">
-    <li class="hc-multicombobox__option" role="option" data-value="js">JavaScript</li>
-    <li class="hc-multicombobox__option" role="option" data-value="ts">TypeScript</li>
-    <li class="hc-multicombobox__option" role="option" data-value="py"
-        aria-selected="true">Python</li>
-    <li class="hc-multicombobox__option" role="option" data-value="go">Go</li>
-    <li class="hc-multicombobox__option" role="option" data-value="rs"
-        aria-disabled="true">Rust</li>
-  </ul>
-</div>
-```
+  </Fragment>
+</Demo>
 
 ```js
 import { installMulticombobox } from '@hypermedia-components/core';

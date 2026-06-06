@@ -3,6 +3,8 @@ title: Scroll area
 description: A scrollable region with thin, themed scrollbars using the standard CSS Scrollbars module. Pure CSS, no JavaScript.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-scroll-area` is a scrollable region with thin, theme-coloured
 scrollbars — the shadcn `ScrollArea` equivalent. It is **pure CSS**:
 it uses the standard CSS Scrollbars module (`scrollbar-width` +
@@ -15,38 +17,46 @@ elements — the browser's own (now stylable) scrollbar does the work.
 Give the region a maximum size on its scroll axis. Add `tabindex="0"`
 so keyboard users can scroll it (see [Accessibility](#accessibility)).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-scroll-area" tabindex="0" role="region" aria-label="Changelog" style="max-block-size:9rem;max-inline-size:20rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.75rem;">
     <p style="margin-block-start:0">Scroll this region — the scrollbar is thin and themed.</p>
     <p>Line two.</p><p>Line three.</p><p>Line four.</p><p>Line five.</p>
     <p>Line six.</p><p>Line seven.</p><p style="margin-block-end:0">Line eight.</p>
   </div>
-</div>
 
-```html
-<div class="hc-scroll-area" tabindex="0" role="region" aria-label="Changelog"
-     style="max-block-size:9rem">
-  …long content…
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-scroll-area" tabindex="0" role="region" aria-label="Changelog"
+       style="max-block-size:9rem">
+    …long content…
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Orientation
 
 `data-orientation` chooses the scroll axis: `vertical` (default),
 `horizontal`, or `both`.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-scroll-area" data-orientation="horizontal" tabindex="0" role="region" aria-label="Tags" style="max-inline-size:20rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.75rem;white-space:nowrap;">
     <span>A very long single line of tags that overflows horizontally and scrolls sideways instead of wrapping onto multiple lines.</span>
   </div>
-</div>
 
-```html
-<div class="hc-scroll-area" data-orientation="horizontal" tabindex="0"
-     style="max-inline-size:20rem;white-space:nowrap">
-  …wide content…
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-scroll-area" data-orientation="horizontal" tabindex="0"
+       style="max-inline-size:20rem;white-space:nowrap">
+    …wide content…
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 `overscroll-behavior: contain` is set, so scrolling to the end of the
 region does not chain to the page behind it.
@@ -57,19 +67,23 @@ Add `data-shadows` for a subtle shadow at each scrollable edge that appears
 **only when there is more content** to scroll in that direction — it fades in
 as you scroll away from an edge and out as you reach it.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-scroll-area" data-shadows tabindex="0" role="region" aria-label="Release notes" style="max-block-size:9rem;max-inline-size:20rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.75rem;">
     <p style="margin-block-start:0">Scroll — the top / bottom shadows show only when there's more above or below.</p>
     <p>Line two.</p><p>Line three.</p><p>Line four.</p><p>Line five.</p>
     <p>Line six.</p><p>Line seven.</p><p style="margin-block-end:0">Line eight.</p>
   </div>
-</div>
 
-```html
-<div class="hc-scroll-area" data-shadows tabindex="0" style="max-block-size:9rem">
-  …long content…
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-scroll-area" data-shadows tabindex="0" style="max-block-size:9rem">
+    …long content…
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 It's **pure CSS** — a [scrolling-shadows](https://lea.verou.me/2012/04/background-attachments-and-the-scrolling-shadows/)
 gradient where solid "cover" layers scroll with the content

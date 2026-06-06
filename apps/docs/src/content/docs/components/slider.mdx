@@ -3,6 +3,8 @@ title: Slider
 description: Native input[type=range] styled with consistent cross-browser chrome. Keyboard, form integration, and accessibility come from the browser; a tiny behavior keeps the WebKit fill in sync.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-slider` is applied to a native `<input type="range">`. Keyboard
 navigation (←/→, Home, End, PageUp, PageDown), form participation,
 and screen-reader announcement of role + value + range all come for
@@ -11,19 +13,23 @@ free from the browser; only the visual chrome is replaced via
 
 ## Basic example
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <label>
     Volume
     <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" />
   </label>
-</div>
 
-```html
-<label>
-  Volume
-  <input class="hc-slider" type="range" min="0" max="100" value="40">
-</label>
-```
+  <Fragment slot="code">
+
+  ```html
+  <label>
+    Volume
+    <input class="hc-slider" type="range" min="0" max="100" value="40">
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installSlider } from '@hypermedia-components/core';
@@ -84,15 +90,19 @@ keyboard (<kbd>↑</kbd> / <kbd>↓</kbd> step, <kbd>Home</kbd> / <kbd>End</kbd>
 screen-reader value announcement all keep working. The maximum sits at the
 top, so <kbd>↑</kbd> increases the value.
 
-<div class="hc-preview not-content" style="display:flex;gap:1.5rem;align-items:flex-end;block-size:12rem;">
+<Demo previewStyle="display:flex;gap:1.5rem;align-items:flex-end;block-size:12rem;">
   <input class="hc-slider" type="range" min="0" max="100" defaultValue="40" data-orientation="vertical" aria-label="Volume" />
   <input class="hc-slider" type="range" min="0" max="100" defaultValue="70" data-orientation="vertical" data-variant="success" aria-label="Level" />
-</div>
 
-```html
-<input class="hc-slider" type="range" min="0" max="100" value="40"
-       data-orientation="vertical" aria-label="Volume">
-```
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-slider" type="range" min="0" max="100" value="40"
+         data-orientation="vertical" aria-label="Volume">
+  ```
+
+  </Fragment>
+</Demo>
 
 Set the height with the `--hc-slider-length` custom property (default
 `12rem`):

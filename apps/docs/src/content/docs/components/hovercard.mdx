@@ -3,6 +3,8 @@ title: Hover card
 description: Richer tooltip with structured content. The user can move the cursor into the card and click links inside it.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-hovercard` is the **richer-content sibling of
 [hc-tooltip](/hypermedia-components/components/tooltip/)**. Use it
 when the popup needs an avatar, a title and subtitle, a paragraph
@@ -24,7 +26,7 @@ behavioural differences from tooltip:
 
 ## Basic example
 
-<div class="hc-preview not-content">
+<Demo>
   <p>
     Hover or focus
     <a href="#" id="doc-hc-trigger" aria-describedby="doc-hc-card">Ada Lovelace</a>
@@ -42,24 +44,28 @@ behavioural differences from tooltip:
       <p>First computer programmer. <a href="#">View profile →</a></p>
     </div>
   </div>
-</div>
 
-```html
-<a href="/users/ada" aria-describedby="ada-card">Ada Lovelace</a>
+  <Fragment slot="code">
 
-<div class="hc-hovercard" id="ada-card">
-  <header class="hc-hovercard__header">
-    <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
-    <div>
-      <div class="hc-hovercard__title">Ada Lovelace</div>
-      <div class="hc-hovercard__subtitle">Mathematician</div>
+  ```html
+  <a href="/users/ada" aria-describedby="ada-card">Ada Lovelace</a>
+  
+  <div class="hc-hovercard" id="ada-card">
+    <header class="hc-hovercard__header">
+      <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+      <div>
+        <div class="hc-hovercard__title">Ada Lovelace</div>
+        <div class="hc-hovercard__subtitle">Mathematician</div>
+      </div>
+    </header>
+    <div class="hc-hovercard__body">
+      <p>First computer programmer. <a href="/users/ada">View profile →</a></p>
     </div>
-  </header>
-  <div class="hc-hovercard__body">
-    <p>First computer programmer. <a href="/users/ada">View profile →</a></p>
   </div>
-</div>
-```
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installHovercard } from '@hypermedia-components/core';

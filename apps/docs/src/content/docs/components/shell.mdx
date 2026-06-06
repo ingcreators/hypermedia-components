@@ -3,6 +3,8 @@ title: Shell
 description: A full-viewport application shell for business apps — persistent sidebar, header, main, optional aside and footer — built on CSS Grid. Pure-CSS layout; the only JavaScript is the accessible mobile navigation overlay.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-shell` is the outer layout for an admin / business application: a
 persistent **sidebar**, a **header**, a scrolling **main** region, and an
 optional secondary **aside** and **footer**. The layout is pure CSS Grid.
@@ -27,7 +29,7 @@ theme, density, and colour automatically.
 Author the regions in this source order — on mobile everything stacks in
 flow while the sidebar lifts out as an overlay, so the order matters:
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-shell" style="block-size: 16rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
     <header class="hc-shell__header"><strong>Acme</strong></header>
     <nav class="hc-shell__sidebar" aria-label="Demo navigation">
@@ -38,29 +40,33 @@ flow while the sidebar lifts out as an overlay, so the order matters:
     <main class="hc-shell__main">Main content scrolls here, independently of the chrome.</main>
     <footer class="hc-shell__footer"><small>© Acme</small></footer>
   </div>
-</div>
 
-```html
-<div class="hc-shell">
-  <header class="hc-shell__header">
-    <button class="hc-button" data-variant="ghost"
-            data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
-    <strong>Acme Admin</strong>
-  </header>
+  <Fragment slot="code">
 
-  <nav class="hc-shell__sidebar" aria-label="Primary">
-    <a href="/dashboard">Dashboard</a>
-    <a href="/orders">Orders</a>
-    <a href="/settings">Settings</a>
-  </nav>
+  ```html
+  <div class="hc-shell">
+    <header class="hc-shell__header">
+      <button class="hc-button" data-variant="ghost"
+              data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+      <strong>Acme Admin</strong>
+    </header>
+  
+    <nav class="hc-shell__sidebar" aria-label="Primary">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/orders">Orders</a>
+      <a href="/settings">Settings</a>
+    </nav>
+  
+    <main class="hc-shell__main">
+      <!-- page content -->
+    </main>
+  
+    <footer class="hc-shell__footer">…</footer>
+  </div>
+  ```
 
-  <main class="hc-shell__main">
-    <!-- page content -->
-  </main>
-
-  <footer class="hc-shell__footer">…</footer>
-</div>
-```
+  </Fragment>
+</Demo>
 
 The header's `data-hc-shell-toggle` button is **hidden on desktop** — it
 appears only on the mobile breakpoint.

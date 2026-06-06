@@ -3,6 +3,8 @@ title: Layout utilities
 description: Small, intrinsically responsive layout primitives — stack, cluster, grid, container, sidebar — plus sr-only and hidden helpers. No breakpoints, no utility-first framework.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 Hypermedia Components ships a handful of **layout utilities** in the
 `hc.utilities` cascade layer. They are the responsive building blocks the
 rest of the system leans on — including the
@@ -44,21 +46,25 @@ per-element variant classes:
 Children laid out in a column with one consistent gap. Knob:
 `--hc-stack-gap` (default `--hc-space-3`).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-stack" style="--hc-stack-gap: var(--hc-space-2);">
     <div class="hc-card" style="padding:.5rem .75rem;">First</div>
     <div class="hc-card" style="padding:.5rem .75rem;">Second</div>
     <div class="hc-card" style="padding:.5rem .75rem;">Third</div>
   </div>
-</div>
 
-```html
-<div class="hc-stack">
-  <div>First</div>
-  <div>Second</div>
-  <div>Third</div>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-stack">
+    <div>First</div>
+    <div>Second</div>
+    <div>Third</div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## `.hc-cluster` — wrapping row
 
@@ -66,23 +72,27 @@ A horizontal group that wraps when it runs out of room — button rows,
 tag lists, meta bars, toolbars. Knobs: `--hc-cluster-gap` (default
 `--hc-space-2`), `--hc-cluster-align` (default `center`).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-cluster">
     <button class="hc-button" type="button">Save</button>
     <button class="hc-button" data-variant="secondary" type="button">Duplicate</button>
     <button class="hc-button" data-variant="ghost" type="button">Archive</button>
     <button class="hc-button" data-variant="error" type="button">Delete</button>
   </div>
-</div>
 
-```html
-<div class="hc-cluster">
-  <button class="hc-button">Save</button>
-  <button class="hc-button" data-variant="secondary">Duplicate</button>
-  <button class="hc-button" data-variant="ghost">Archive</button>
-  <button class="hc-button" data-variant="error">Delete</button>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-cluster">
+    <button class="hc-button">Save</button>
+    <button class="hc-button" data-variant="secondary">Duplicate</button>
+    <button class="hc-button" data-variant="ghost">Archive</button>
+    <button class="hc-button" data-variant="error">Delete</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## `.hc-grid` — responsive grid
 
@@ -91,7 +101,7 @@ no breakpoints. Knobs: `--hc-grid-min` (default `16rem`), `--hc-grid-gap`
 (default `--hc-space-4`). The built-in `min(…, 100%)` guard stops a wide
 track from overflowing a narrow container.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-grid" style="--hc-grid-min: 8rem;">
     <div class="hc-card" style="padding:.75rem;">A</div>
     <div class="hc-card" style="padding:.75rem;">B</div>
@@ -100,15 +110,19 @@ track from overflowing a narrow container.
     <div class="hc-card" style="padding:.75rem;">E</div>
     <div class="hc-card" style="padding:.75rem;">F</div>
   </div>
-</div>
 
-```html
-<div class="hc-grid" style="--hc-grid-min: 16rem;">
-  <article class="hc-card">…</article>
-  <article class="hc-card">…</article>
-  <!-- …as many as you like -->
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-grid" style="--hc-grid-min: 16rem;">
+    <article class="hc-card">…</article>
+    <article class="hc-card">…</article>
+    <!-- …as many as you like -->
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 Swap `auto-fill` for `auto-fit` (by setting
 `grid-template-columns` yourself) when you want a few items to stretch
@@ -136,19 +150,23 @@ collapses there too, with no viewport media query. Knobs:
 `--hc-sidebar-width` (default `16rem`), `--hc-sidebar-content-min`
 (default `60%`), `--hc-sidebar-gap` (default `--hc-space-4`).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-sidebar">
     <nav class="hc-card" style="padding:.75rem;" aria-label="Example">Sidebar</nav>
     <div class="hc-card" style="padding:.75rem;">Main content area that keeps its width and wraps the sidebar when space runs out.</div>
   </div>
-</div>
 
-```html
-<div class="hc-sidebar">
-  <nav aria-label="Section">…</nav>
-  <main>…</main>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-sidebar">
+    <nav aria-label="Section">…</nav>
+    <main>…</main>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## `.hc-sr-only` — visually hidden
 

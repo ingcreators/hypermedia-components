@@ -3,6 +3,8 @@ title: Item
 description: A generic list / option row primitive — media, content, and actions.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-item` is a generic **row** primitive: a media slot (icon / avatar), a
 content column (title + description), and trailing actions. Use it for plain
 lists, option rows, and as the shared building block that command and menu
@@ -11,7 +13,7 @@ items can adopt for a consistent look. It is pure CSS — render it as a
 
 ## Basic HTML
 
-<div class="hc-preview not-content" style="max-inline-size: 24rem;">
+<Demo previewStyle="max-inline-size: 24rem;">
   <div class="hc-item">
     <span class="hc-item__media" aria-hidden="true">📄</span>
     <div class="hc-item__content">
@@ -22,20 +24,24 @@ items can adopt for a consistent look. It is pure CSS — render it as a
       <button class="hc-button" data-size="sm" type="button">Open</button>
     </div>
   </div>
-</div>
 
-```html
-<div class="hc-item">
-  <span class="hc-item__media" aria-hidden="true">📄</span>
-  <div class="hc-item__content">
-    <span class="hc-item__title">Quarterly report</span>
-    <span class="hc-item__description">Updated 2 days ago</span>
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-item">
+    <span class="hc-item__media" aria-hidden="true">📄</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Quarterly report</span>
+      <span class="hc-item__description">Updated 2 days ago</span>
+    </div>
+    <div class="hc-item__actions">
+      <button class="hc-button" data-size="sm" type="button">Open</button>
+    </div>
   </div>
-  <div class="hc-item__actions">
-    <button class="hc-button" data-size="sm" type="button">Open</button>
-  </div>
-</div>
-```
+  ```
+
+  </Fragment>
+</Demo>
 
 The media slot and actions are optional; an item can be just a title, or a
 title + description.
@@ -46,7 +52,7 @@ Render the item as an `<a>` or `<button>` (or add `data-selectable`) to get
 the hover highlight and focus ring. Mark selection with `aria-selected` (or
 `data-selected`).
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <button class="hc-item" type="button">
     <span class="hc-item__media" aria-hidden="true">📥</span>
     <div class="hc-item__content"><span class="hc-item__title">Hoverable button row</span></div>
@@ -59,13 +65,17 @@ the hover highlight and focus ring. Mark selection with `aria-selected` (or
     <span class="hc-item__media" aria-hidden="true">🚫</span>
     <div class="hc-item__content"><span class="hc-item__title">Disabled row</span></div>
   </button>
-</div>
 
-```html
-<button class="hc-item" type="button">…</button>
-<button class="hc-item" type="button" data-selected>…</button>
-<button class="hc-item" type="button" disabled>…</button>
-```
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-item" type="button">…</button>
+  <button class="hc-item" type="button" data-selected>…</button>
+  <button class="hc-item" type="button" disabled>…</button>
+  ```
+
+  </Fragment>
+</Demo>
 
 For a real selectable list use the listbox roles — `aria-selected` belongs
 on a `role="option"` inside `role="listbox"`, not on a bare button:
@@ -80,7 +90,7 @@ on a `role="option"` inside `role="listbox"`, not on a bare button:
 
 `data-variant="error"` tints the title and media for a destructive row.
 
-<div class="hc-preview not-content" style="max-inline-size: 24rem;">
+<Demo previewStyle="max-inline-size: 24rem;">
   <button class="hc-item" type="button" data-variant="error">
     <span class="hc-item__media" aria-hidden="true">🗑️</span>
     <div class="hc-item__content">
@@ -88,17 +98,21 @@ on a `role="option"` inside `role="listbox"`, not on a bare button:
       <span class="hc-item__description">This cannot be undone</span>
     </div>
   </button>
-</div>
 
-```html
-<button class="hc-item" type="button" data-variant="error">
-  <span class="hc-item__media" aria-hidden="true">🗑️</span>
-  <div class="hc-item__content">
-    <span class="hc-item__title">Delete project</span>
-    <span class="hc-item__description">This cannot be undone</span>
-  </div>
-</button>
-```
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-item" type="button" data-variant="error">
+    <span class="hc-item__media" aria-hidden="true">🗑️</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Delete project</span>
+      <span class="hc-item__description">This cannot be undone</span>
+    </div>
+  </button>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Accessibility
 

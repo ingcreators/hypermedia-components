@@ -3,6 +3,8 @@ title: Spinner
 description: A minimal CSS-only loading indicator for busy and pending states.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-spinner` is a pure-CSS spinning ring for "busy" / pending states. It
 has no JavaScript: it animates with CSS, follows `currentColor` by default,
 and pairs with htmx's `.htmx-indicator` class for request-driven
@@ -10,13 +12,17 @@ visibility.
 
 ## Basic HTML
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <span class="hc-spinner" role="status" aria-label="Loading"></span>
-</div>
 
-```html
-<span class="hc-spinner" role="status" aria-label="Loading"></span>
-```
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+  ```
+
+  </Fragment>
+</Demo>
 
 The spinner inherits its indicator colour from the surrounding text
 (`currentColor`), so it sits naturally inside buttons, badges, and prose.
@@ -25,36 +31,44 @@ The spinner inherits its indicator colour from the surrounding text
 
 Set `data-size="sm"` or `data-size="lg"`; omit it for the default medium.
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <span class="hc-spinner" data-size="sm" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" data-size="lg" role="status" aria-label="Loading"></span>
-</div>
 
-```html
-<span class="hc-spinner" data-size="sm" role="status" aria-label="Loading"></span>
-<span class="hc-spinner" role="status" aria-label="Loading"></span>
-<span class="hc-spinner" data-size="lg" role="status" aria-label="Loading"></span>
-```
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-spinner" data-size="sm" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-size="lg" role="status" aria-label="Loading"></span>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Variants
 
 By default the indicator uses `currentColor`. `data-variant` swaps it to a
 semantic accent — handy when the spinner is not inside coloured text.
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <span class="hc-spinner" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" data-variant="success" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" data-variant="warning" role="status" aria-label="Loading"></span>
   <span class="hc-spinner" data-variant="error" role="status" aria-label="Loading"></span>
-</div>
 
-```html
-<span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading"></span>
-<span class="hc-spinner" data-variant="success" role="status" aria-label="Loading"></span>
-<span class="hc-spinner" data-variant="error" role="status" aria-label="Loading"></span>
-```
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="success" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="error" role="status" aria-label="Loading"></span>
+  ```
+
+  </Fragment>
+</Demo>
 
 | Variant   | Indicator colour            |
 | --------- | --------------------------- |

@@ -3,6 +3,8 @@ title: Calendar
 description: A styled month-grid date picker rendered by installCalendar, following the WAI-ARIA date-picker grid pattern with full keyboard navigation. Localized via Intl.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-calendar` is a styled, inline month grid for choosing a date — the
 shadcn `Calendar` equivalent. `installCalendar` renders the grid into a
 `.hc-calendar` container and wires the WAI-ARIA date-picker keyboard
@@ -20,15 +22,19 @@ requires JavaScript to render.
 
 ## Basic usage
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-calendar" data-value="2026-05-15" data-locale="en-US" aria-label="Pick a date"></div>
-</div>
 
-```html
-<div class="hc-calendar"
-     data-value="2026-05-15"
-     aria-label="Pick a date"></div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-calendar"
+       data-value="2026-05-15"
+       aria-label="Pick a date"></div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installCalendar } from '@hypermedia-components/core';
@@ -66,15 +72,19 @@ The header shows previous/next-month arrows by default. Add `data-nav="select"`
 to swap the title for **month and year dropdowns**, so users can jump to a far
 month/year in one step:
 
-<div class="hc-preview not-content" style="max-width:20rem;">
+<Demo previewStyle="max-width:20rem;">
   <div class="hc-calendar" data-value="2026-05-15" data-locale="en-US"
        data-nav="select" aria-label="Pick a date (dropdown nav)"></div>
-</div>
 
-```html
-<div class="hc-calendar" data-value="2026-05-15" data-nav="select"
-     aria-label="Pick a date"></div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-calendar" data-value="2026-05-15" data-nav="select"
+       aria-label="Pick a date"></div>
+  ```
+
+  </Fragment>
+</Demo>
 
 The year range spans `data-min`…`data-max` when set, otherwise the focused
 year ±10. The dropdown labels are translatable (`calendar.month` /

@@ -3,12 +3,14 @@ title: Alert
 description: Block-level notice or status message with variant colors.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-alert` is a block-level notice meant to draw the reader's attention
 to a piece of information. Variants are switched with `data-variant`.
 
 ## Basic HTML
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:36rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:36rem;">
   <div class="hc-alert" role="status">
     <strong class="hc-alert__title">Tip</strong>
     <p class="hc-alert__body">You can press <kbd>Ctrl</kbd>+<kbd>K</kbd> to open the command bar.</p>
@@ -25,19 +27,23 @@ to a piece of information. Variants are switched with `data-variant`.
     <strong class="hc-alert__title">Something went wrong</strong>
     <p class="hc-alert__body">The server returned a 500. Please try again.</p>
   </div>
-</div>
 
-```html
-<div class="hc-alert" role="status">
-  <strong class="hc-alert__title">Tip</strong>
-  <p class="hc-alert__body">You can press Ctrl+K to open the command bar.</p>
-</div>
+  <Fragment slot="code">
 
-<div class="hc-alert" data-variant="error" role="alert">
-  <strong class="hc-alert__title">Something went wrong</strong>
-  <p class="hc-alert__body">The server returned a 500. Please try again.</p>
-</div>
-```
+  ```html
+  <div class="hc-alert" role="status">
+    <strong class="hc-alert__title">Tip</strong>
+    <p class="hc-alert__body">You can press Ctrl+K to open the command bar.</p>
+  </div>
+  
+  <div class="hc-alert" data-variant="error" role="alert">
+    <strong class="hc-alert__title">Something went wrong</strong>
+    <p class="hc-alert__body">The server returned a 500. Please try again.</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Variants
 

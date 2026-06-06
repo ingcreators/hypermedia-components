@@ -47,3 +47,49 @@
   flex-direction: column;
   gap: 0.75rem;
 }
+
+/* --- Demo: a live preview + its source in one hc-tabs card. ---
+ *
+ * The `<Demo>` Astro component (src/components/Demo.astro) renders an
+ * `.hc-tabs.hc-demo` with a Preview tab (an `.hc-preview` stage) and a
+ * Code tab (an Expressive Code block, which brings its own copy button).
+ * These rules turn that markup into one framed card so preview and code
+ * read as a single unit instead of two stacked blocks.
+ */
+.hc-demo {
+  gap: 0; /* tab row sits flush on the panel; the list border divides them */
+  border: 1px solid var(--hc-color-border);
+  border-radius: 0.75rem;
+  background: var(--hc-color-surface);
+  overflow: hidden;
+}
+
+.hc-demo > .hc-tabs__list {
+  gap: 0;
+  padding-inline: 0.5rem;
+}
+
+/* Inside the card the preview is just the padded stage — the card itself
+ * already paints the border + surface, so drop the standalone chrome. */
+.hc-demo .hc-preview {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* Each panel's own content controls its spacing. */
+.hc-demo > .hc-tabs__panel {
+  padding-block: 0;
+}
+
+/* Let the Expressive Code block sit flush to the card edges instead of
+ * carrying its own margin + rounded frame nested inside ours. */
+.hc-demo__code .expressive-code {
+  margin: 0;
+}
+
+.hc-demo__code .expressive-code pre,
+.hc-demo__code .expressive-code .frame {
+  border: 0;
+  border-radius: 0;
+}

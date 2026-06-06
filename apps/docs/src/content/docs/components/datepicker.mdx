@@ -3,6 +3,8 @@ title: Date picker
 description: Native date / time input styled to match the HC form-control family, with the OS-native calendar popup preserved.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-datepicker` styles a native `<input>` whose `type` is one of
 `date`, `datetime-local`, `month`, or `time`. The native input
 retains every accessible behaviour — keyboard navigation,
@@ -18,19 +20,23 @@ right default for the vast majority of business forms.
 
 ## Basic example
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:18rem;">
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
   <input class="hc-datepicker" type="date" aria-label="Due date" />
   <input class="hc-datepicker" type="datetime-local" aria-label="Starts at" />
   <input class="hc-datepicker" type="time" aria-label="Time" />
   <input class="hc-datepicker" type="month" aria-label="Reporting month" />
-</div>
 
-```html
-<input class="hc-datepicker" type="date"           name="due"        aria-label="Due date">
-<input class="hc-datepicker" type="datetime-local" name="starts_at"  aria-label="Starts at">
-<input class="hc-datepicker" type="time"           name="time"       aria-label="Time">
-<input class="hc-datepicker" type="month"          name="report_for" aria-label="Reporting month">
-```
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-datepicker" type="date"           name="due"        aria-label="Due date">
+  <input class="hc-datepicker" type="datetime-local" name="starts_at"  aria-label="Starts at">
+  <input class="hc-datepicker" type="time"           name="time"       aria-label="Time">
+  <input class="hc-datepicker" type="month"          name="report_for" aria-label="Reporting month">
+  ```
+
+  </Fragment>
+</Demo>
 
 `type="time"` swaps the trailing icon to a clock; the other types
 all use a calendar glyph.
