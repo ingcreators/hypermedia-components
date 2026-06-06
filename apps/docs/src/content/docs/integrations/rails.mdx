@@ -14,11 +14,9 @@ Put the HC dist files under `app/assets/builds/hc/` (Propshaft) or
 ```text
 app/assets/builds/hc/
   hc.css
-  hc.behaviors.js
+  hc.behaviors.min.js
   macros/
-    index.js
-    confirm-action.js
-    live-search.js
+    index.min.js
 vendor/javascript/
   htmx.min.js
 ```
@@ -28,8 +26,8 @@ Pin htmx via Importmap, or simply reference it from `vendor`:
 ```ruby
 # config/importmap.rb
 pin "htmx",           to: "htmx.min.js"
-pin "hc",             to: "hc/hc.behaviors.js"
-pin "hc-macros",      to: "hc/macros/index.js"
+pin "hc",             to: "hc/hc.behaviors.min.js"
+pin "hc-macros",      to: "hc/macros/index.min.js"
 ```
 
 `app/views/layouts/application.html.erb`:

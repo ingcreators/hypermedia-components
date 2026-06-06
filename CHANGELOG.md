@@ -2030,6 +2030,23 @@ Security    — security-relevant changes
   menubar, navmenu, empty, item, aspect, carousel, and datagrid are now
   included. The recipes index now lists all ten recipes with links.
 
+- **Docs: integration guides now load the self-contained behavior /
+  macro bundles.** The no-bundler guides (Plain HTML, Django, Rails, Go,
+  Razor, Thymeleaf, Hyperscript) and the install / quick-start snippets
+  copied `hc.behaviors.js` into a static folder and loaded it with a
+  `<script type="module">`. That file is the *un-bundled* entry — it
+  imports ~30 sibling modules plus a bare `@hypermedia-components/core`
+  specifier, so without a bundler or import map the browser cannot resolve
+  it and no behavior installs. Switched these references to the
+  esbuild-bundled, self-contained `hc.behaviors.min.js` /
+  `macros/index.min.js` (the Rails importmap pin too), dropped the
+  now-unnecessary `macros/` sibling files from the file-layout examples,
+  corrected the "installs the five default behaviors" wording (it installs
+  every default behavior — ~29 of them), fixed the Hyperscript guide's
+  `/assets/hc/…` asset path, and updated the stale asset sizes. The
+  bundler-based `import '@hypermedia-components/core/behaviors'` snippets
+  were already correct and are unchanged.
+
 ---
 
 ## [Unreleased — v0.4 implementation]

@@ -18,11 +18,9 @@ static/
   assets/
     hc/
       hc.css
-      hc.behaviors.js
+      hc.behaviors.min.js
       macros/
-        index.js
-        confirm-action.js
-        live-search.js
+        index.min.js
     htmx.min.js
 templates/
   layout.html
@@ -63,8 +61,8 @@ blocks.
   <title>{{.Title}}</title>
   <link rel="stylesheet" href="/static/assets/hc/hc.css">
   <script defer src="/static/assets/htmx.min.js"></script>
-  <script type="module" src="/static/assets/hc/hc.behaviors.js"></script>
-  <script type="module" src="/static/assets/hc/macros/index.js"></script>
+  <script type="module" src="/static/assets/hc/hc.behaviors.min.js"></script>
+  <script type="module" src="/static/assets/hc/macros/index.min.js"></script>
 </head>
 <body>
   {{template "content" .}}

@@ -18,11 +18,9 @@ src/main/resources/
     assets/
       hc/
         hc.css
-        hc.behaviors.js
+        hc.behaviors.min.js
         macros/
-          index.js
-          confirm-action.js
-          live-search.js
+          index.min.js
       htmx.min.js
   templates/
     layout.html
@@ -46,8 +44,8 @@ A `layout.html` that loads HC + htmx and reserves the toast region.
 
   <link rel="stylesheet" th:href="@{/assets/hc/hc.css}">
   <script defer th:src="@{/assets/htmx.min.js}"></script>
-  <script type="module" th:src="@{/assets/hc/hc.behaviors.js}"></script>
-  <script type="module" th:src="@{/assets/hc/macros/index.js}"></script>
+  <script type="module" th:src="@{/assets/hc/hc.behaviors.min.js}"></script>
+  <script type="module" th:src="@{/assets/hc/macros/index.min.js}"></script>
 
   <!-- htmx + Spring Security CSRF -->
   <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">

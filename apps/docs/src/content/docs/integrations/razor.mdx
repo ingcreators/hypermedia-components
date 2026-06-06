@@ -17,11 +17,9 @@ wwwroot/
   assets/
     hc/
       hc.css
-      hc.behaviors.js
+      hc.behaviors.min.js
       macros/
-        index.js
-        confirm-action.js
-        live-search.js
+        index.min.js
     htmx.min.js
 Pages/Shared/
   _Layout.cshtml
@@ -39,8 +37,8 @@ Pages/Shared/
 
     <link rel="stylesheet" href="~/assets/hc/hc.css" asp-append-version="true">
     <script defer src="~/assets/htmx.min.js" asp-append-version="true"></script>
-    <script type="module" src="~/assets/hc/hc.behaviors.js" asp-append-version="true"></script>
-    <script type="module" src="~/assets/hc/macros/index.js" asp-append-version="true"></script>
+    <script type="module" src="~/assets/hc/hc.behaviors.min.js" asp-append-version="true"></script>
+    <script type="module" src="~/assets/hc/macros/index.min.js" asp-append-version="true"></script>
 
     @* Antiforgery token for htmx requests *@
     <meta name="request-verification-token"

@@ -26,13 +26,13 @@ attributes.
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="/assets/hc.css">
+    <link rel="stylesheet" href="/assets/hc/hc.css">
 
     <script defer src="https://unpkg.com/htmx.org@2"></script>
     <script defer src="https://unpkg.com/hyperscript.org@0.9"></script>
 
     <!-- Only the bits of HC you still want. See "Mixing approaches" below. -->
-    <script type="module" src="/assets/hc.behaviors.js"></script>
+    <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
   </head>
   <body>
     ...
@@ -55,7 +55,7 @@ wrap `fetch()`. The choice is ergonomic:
   logic outgrows a one-liner.
 - **_hyperscript wins** when the logic is local to a single element,
   when you want the markup to read like prose, or when you cannot
-  ship a bundle that includes `hc.behaviors.js`.
+  ship a bundle that includes `hc.behaviors.min.js`.
 
 Both compose with htmx the same way: dispatch an event, let htmx
 listen for it via `data-hx-trigger`.
@@ -83,7 +83,8 @@ installRemoteDialog();
 ```
 
 The `@hypermedia-components/core/behaviors` auto-init entry installs
-all five at once. Skip that import when you are picking and choosing.
+every default behavior at once. Skip that import when you are picking
+and choosing, and call the individual `installX()` functions you want.
 
 ## Equivalents
 

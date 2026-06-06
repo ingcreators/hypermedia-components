@@ -11,10 +11,10 @@ for a project that is just shipping HTML.
 ## What you need
 
 ```text
-hc.css                # the bundled CSS (≈ 37 KB)
-hc.behaviors.js       # the bundled JS behaviors (≈ 6 KB)
-macros/index.js       # optional — only if you use the <hc-confirm-action> custom elements
-htmx.min.js           # bring your own copy (≈ 30 KB minified+gzipped)
+hc.css                # the bundled CSS (≈ 53 KB gzipped)
+hc.behaviors.min.js   # the self-contained behaviors bundle (≈ 27 KB gzipped)
+macros/index.min.js   # optional — only for the <hc-confirm-action> / <hc-live-search> custom elements (≈ 1 KB gzipped)
+htmx.min.js           # bring your own copy (≈ 14 KB gzipped)
 ```
 
 You can get the first three by `npm install @hypermedia-components/core`
@@ -35,11 +35,9 @@ public/                     # or wwwroot/, static/, etc.
   assets/
     hc/
       hc.css
-      hc.behaviors.js
+      hc.behaviors.min.js
       macros/
-        index.js
-        confirm-action.js
-        live-search.js
+        index.min.js          # self-contained — no sibling files needed
     htmx.min.js
 ```
 
@@ -54,7 +52,7 @@ public/                     # or wwwroot/, static/, etc.
   <title>My app</title>
   <link rel="stylesheet" href="/assets/hc/hc.css">
   <script defer src="/assets/htmx.min.js"></script>
-  <script type="module" src="/assets/hc/hc.behaviors.js"></script>
+  <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
 </head>
 <body>
   <main>
@@ -70,8 +68,8 @@ public/                     # or wwwroot/, static/, etc.
 </html>
 ```
 
-That is the entire integration. `hc.behaviors.js` self-installs the
-five default behaviors on `DOMContentLoaded` so `[data-hc-confirm]`,
+That is the entire integration. `hc.behaviors.min.js` self-installs every
+default behavior on `DOMContentLoaded` so `[data-hc-confirm]`,
 `hc:toast` events, and the various `data-hc-close-*` /
 `data-hc-remote-dialog-root` attributes work without any additional
 wiring.
@@ -93,7 +91,7 @@ those for `file://`).
   <title>HC + htmx demo</title>
   <link rel="stylesheet" href="/assets/hc/hc.css">
   <script defer src="/assets/htmx.min.js"></script>
-  <script type="module" src="/assets/hc/hc.behaviors.js"></script>
+  <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
 </head>
 <body style="padding: 2rem; max-inline-size: 32rem; margin: 0 auto;">
 
