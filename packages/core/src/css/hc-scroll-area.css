@@ -34,4 +34,53 @@
   .hc-scroll-area[data-orientation="both"] {
     overflow: auto;
   }
+
+  /* ---- Edge shadows (opt-in: data-shadows) ----
+   * Pure-CSS scrolling shadows (Lea Verou's technique): two solid "cover"
+   * gradients scroll WITH the content (`background-attachment: local`) and
+   * hide the two fixed shadow gradients (`scroll`) at whichever edge is flush,
+   * so a shadow appears ONLY when there is more content to scroll in that
+   * direction. No JavaScript and no scroll-driven animations (`scroll()` is
+   * not Baseline as of 2026) — it works everywhere `background-attachment:
+   * local` does. The cover colour is `--hc-scroll-area-bg` (default the
+   * surface); set it to match whatever the region sits on. */
+  .hc-scroll-area[data-shadows] {
+    --hc-scroll-area-bg: var(--hc-color-surface);
+    --hc-scroll-area-shadow-cover: 1.5rem;
+    --hc-scroll-area-shadow-size: 0.6rem;
+
+    background-color: var(--hc-scroll-area-bg);
+    background-repeat: no-repeat;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  /* Vertical (default / "both"): top + bottom shadows. */
+  .hc-scroll-area[data-shadows]:not([data-orientation="horizontal"]) {
+    background-image:
+      linear-gradient(var(--hc-scroll-area-bg) 30%, transparent),
+      linear-gradient(transparent 70%, var(--hc-scroll-area-bg)),
+      radial-gradient(farthest-side at 50% 0, var(--hc-scroll-area-shadow), transparent),
+      radial-gradient(farthest-side at 50% 100%, var(--hc-scroll-area-shadow), transparent);
+    background-position: top, bottom, top, bottom;
+    background-size:
+      100% var(--hc-scroll-area-shadow-cover),
+      100% var(--hc-scroll-area-shadow-cover),
+      100% var(--hc-scroll-area-shadow-size),
+      100% var(--hc-scroll-area-shadow-size);
+  }
+
+  /* Horizontal: inline-start + inline-end shadows. */
+  .hc-scroll-area[data-shadows][data-orientation="horizontal"] {
+    background-image:
+      linear-gradient(to right, var(--hc-scroll-area-bg) 30%, transparent),
+      linear-gradient(to left, var(--hc-scroll-area-bg) 30%, transparent),
+      radial-gradient(farthest-side at 0 50%, var(--hc-scroll-area-shadow), transparent),
+      radial-gradient(farthest-side at 100% 50%, var(--hc-scroll-area-shadow), transparent);
+    background-position: left, right, left, right;
+    background-size:
+      var(--hc-scroll-area-shadow-cover) 100%,
+      var(--hc-scroll-area-shadow-cover) 100%,
+      var(--hc-scroll-area-shadow-size) 100%,
+      var(--hc-scroll-area-shadow-size) 100%;
+  }
 }
