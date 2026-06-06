@@ -52,7 +52,7 @@ non-default checked-state tints — the same trio as
 [radio](/hypermedia-components/components/radio/). The default (omitted)
 variant uses the active colour theme's primary fill.
 
-<div class="hc-preview not-content hc-preview--col">
+<Demo previewClass="hc-preview--col">
   <label class="hc-switch-label">
     <input class="hc-switch" type="checkbox" role="switch" checked />
     Default (themed)
@@ -69,13 +69,24 @@ variant uses the active colour theme's primary fill.
     <input class="hc-switch" type="checkbox" role="switch" data-variant="error" checked />
     Error
   </label>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-switch" type="checkbox" role="switch" checked>
+  <input class="hc-switch" type="checkbox" role="switch" data-variant="success" checked>
+  <input class="hc-switch" type="checkbox" role="switch" data-variant="warning" checked>
+  <input class="hc-switch" type="checkbox" role="switch" data-variant="error" checked>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Sizes
 
 `data-size` accepts `sm`, `md` (default), and `lg`.
 
-<div class="hc-preview not-content hc-preview--col">
+<Demo previewClass="hc-preview--col">
   <label class="hc-switch-label">
     <input class="hc-switch" type="checkbox" role="switch" data-size="sm" checked />
     Small
@@ -88,11 +99,21 @@ variant uses the active colour theme's primary fill.
     <input class="hc-switch" type="checkbox" role="switch" data-size="lg" checked />
     Large
   </label>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-switch" type="checkbox" role="switch" data-size="sm" checked>
+  <input class="hc-switch" type="checkbox" role="switch" checked>
+  <input class="hc-switch" type="checkbox" role="switch" data-size="lg" checked>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## States
 
-<div class="hc-preview not-content hc-preview--col">
+<Demo previewClass="hc-preview--col">
   <label class="hc-switch-label">
     <input class="hc-switch" type="checkbox" role="switch" />
     Focus me with the keyboard to see the ring
@@ -105,7 +126,16 @@ variant uses the active colour theme's primary fill.
     <input class="hc-switch" type="checkbox" role="switch" disabled checked />
     Disabled (on)
   </label>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-switch" type="checkbox" role="switch" disabled>
+  <input class="hc-switch" type="checkbox" role="switch" disabled checked>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## htmx usage
 

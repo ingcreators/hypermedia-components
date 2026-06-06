@@ -69,9 +69,18 @@ the hover highlight and focus ring. Mark selection with `aria-selected` (or
   <Fragment slot="code">
 
   ```html
-  <button class="hc-item" type="button">…</button>
-  <button class="hc-item" type="button" data-selected>…</button>
-  <button class="hc-item" type="button" disabled>…</button>
+  <button class="hc-item" type="button">
+    <span class="hc-item__media" aria-hidden="true">📥</span>
+    <div class="hc-item__content"><span class="hc-item__title">Hoverable button row</span></div>
+  </button>
+  <button class="hc-item" type="button" data-selected>
+    <span class="hc-item__media" aria-hidden="true">⭐</span>
+    <div class="hc-item__content"><span class="hc-item__title">Selected row</span></div>
+  </button>
+  <button class="hc-item" type="button" disabled>
+    <span class="hc-item__media" aria-hidden="true">🚫</span>
+    <div class="hc-item__content"><span class="hc-item__title">Disabled row</span></div>
+  </button>
   ```
 
   </Fragment>

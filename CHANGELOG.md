@@ -2082,6 +2082,19 @@ Security    — security-relevant changes
   (confirm-action, filter-popover, remote-dialog, toast, datagrid-pager),
   each pointing at the auto-init `/behaviors` bundle and the install page.
 
+- **Docs: clearer, copy-pasteable component samples.** The Avatar
+  "Image avatars" demo previewed initials while its code showed `<img>`
+  (now a real image preview), and its Sizes/Shape code used a literal
+  `aria-label="…"` (now real names; Shape gained a Code tab). The Switch
+  Variants/Sizes/States demos were preview-only `<div>`s with no copyable
+  code (now on `Demo`, matching checkbox/radio). Radio samples used
+  meaningless `name="x"`/`"y"` (now meaningful names with a note on why
+  they differ). The Input States/Variants, Menu (the `aria-disabled`
+  item), Tooltip, Popover (placement `data-side` + body), and Item
+  (interactive rows) code blocks now mirror their previews instead of
+  omitting examples or collapsing markup to `…`. Alert's basic code shows
+  all four variants and keeps the `<kbd>` markup.
+
 ---
 
 ## [Unreleased — v0.4 implementation]

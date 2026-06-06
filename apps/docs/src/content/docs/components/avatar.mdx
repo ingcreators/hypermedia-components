@@ -12,8 +12,8 @@ Both share the same circular surface, sizes, and shape variants.
 ## Image avatars
 
 <Demo previewClass="hc-preview--start">
-  <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
-  <span class="hc-avatar" aria-label="John Smith">JS</span>
+  <img class="hc-avatar" alt="Ada Lovelace" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='80'%3E%3Crect%20width='80'%20height='80'%20fill='%234f46e5'/%3E%3Ccircle%20cx='40'%20cy='32'%20r='14'%20fill='white'/%3E%3Crect%20x='18'%20y='52'%20width='44'%20height='30'%20rx='16'%20fill='white'/%3E%3C/svg%3E" />
+  <img class="hc-avatar" alt="John Smith" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='80'%3E%3Crect%20width='80'%20height='80'%20fill='%230d9488'/%3E%3Ccircle%20cx='40'%20cy='32'%20r='14'%20fill='white'/%3E%3Crect%20x='18'%20y='52'%20width='44'%20height='30'%20rx='16'%20fill='white'/%3E%3C/svg%3E" />
 
   <Fragment slot="code">
 
@@ -26,7 +26,8 @@ Both share the same circular surface, sizes, and shape variants.
 </Demo>
 
 The component sets `object-fit: cover` and `overflow: hidden` so
-images of any aspect ratio render as a centred square crop.
+images of any aspect ratio render as a centred square crop. (The preview
+above uses inline placeholder images; point `src` at a real photo.)
 
 ## Initials fallback
 
@@ -128,20 +129,20 @@ initials form directly instead.
 `data-size` accepts `xs`, `sm`, `md` (default), `lg`, and `xl`.
 
 <Demo previewClass="hc-preview--start">
-  <span class="hc-avatar" aria-label="XS" data-size="xs">JS</span>
-  <span class="hc-avatar" aria-label="SM" data-size="sm">JS</span>
-  <span class="hc-avatar" aria-label="MD">JS</span>
-  <span class="hc-avatar" aria-label="LG" data-size="lg">JS</span>
-  <span class="hc-avatar" aria-label="XL" data-size="xl">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-size="xs">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-size="sm">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-size="lg">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-size="xl">JS</span>
 
   <Fragment slot="code">
 
   ```html
-  <span class="hc-avatar" data-size="xs" aria-label="…">JS</span>
-  <span class="hc-avatar" data-size="sm" aria-label="…">JS</span>
-  <span class="hc-avatar"                aria-label="…">JS</span>
-  <span class="hc-avatar" data-size="lg" aria-label="…">JS</span>
-  <span class="hc-avatar" data-size="xl" aria-label="…">JS</span>
+  <span class="hc-avatar" data-size="xs" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" data-size="sm" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar"                aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" data-size="lg" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" data-size="xl" aria-label="Jane Smith">JS</span>
   ```
 
   </Fragment>
@@ -152,10 +153,19 @@ initials form directly instead.
 `data-shape="square"` rounds the corners to a square preset
 instead of a full circle.
 
-<div class="hc-preview not-content hc-preview--start">
-  <span class="hc-avatar" aria-label="Circle">JS</span>
-  <span class="hc-avatar" aria-label="Square" data-shape="square">JS</span>
-</div>
+<Demo previewClass="hc-preview--start">
+  <span class="hc-avatar" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-shape="square">JS</span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-avatar" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-shape="square">JS</span>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Group
 
