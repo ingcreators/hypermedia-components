@@ -22,6 +22,7 @@ import { installMulticombobox } from './multicombobox.js';
 import { installDrawer } from './drawer.js';
 import { installHovercard } from './hovercard.js';
 import { installToggleGroup } from './toggle-group.js';
+import { installCarousel } from './carousel.js';
 import { installToolbar } from './toolbar.js';
 import { installAvatar } from './avatar.js';
 import { installPasswordToggle } from './password-toggle.js';
@@ -50,6 +51,7 @@ function init() {
   installDrawer();
   installHovercard();
   installToggleGroup();
+  installCarousel();
   installToolbar();
   installAvatar();
   installPasswordToggle();
@@ -87,6 +89,7 @@ export {
   installDrawer,
   installHovercard,
   installToggleGroup,
+  installCarousel,
   installToolbar,
   installAvatar,
   installPasswordToggle,

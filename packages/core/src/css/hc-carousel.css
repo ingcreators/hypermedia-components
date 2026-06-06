@@ -1,0 +1,117 @@
+/* hc-carousel — a scroll-snap carousel.
+ *
+ *   <div class="hc-carousel" aria-label="Featured">
+ *     <div class="hc-carousel__viewport">
+ *       <div class="hc-carousel__slide">…</div>
+ *       …
+ *     </div>
+ *     <button data-hc-carousel-prev aria-label="Previous">‹</button>
+ *     <button data-hc-carousel-next aria-label="Next">›</button>
+ *     <div class="hc-carousel__dots" data-hc-carousel-dots
+ *          role="group" aria-label="Choose slide"></div>
+ *   </div>
+ *
+ * The native scroll-snap rail is the source of truth; installCarousel() adds
+ * the in-view tracking, prev/next/dot sync, keyboard, and opt-in autoplay.
+ * No JS transform / animation engine — native smooth scrolling does the
+ * motion. See installCarousel.
+ */
+@layer hc.components {
+  .hc-carousel {
+    position: relative;
+  }
+
+  .hc-carousel__viewport {
+    display: flex;
+    gap: var(--hc-carousel-gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+
+    /* The prev/next buttons and ←/→ keys drive navigation, so the native
+     * scrollbar is hidden for a cleaner rail. */
+    scrollbar-width: none;
+  }
+
+  .hc-carousel__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hc-carousel__viewport:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .hc-carousel__slide {
+    flex: 0 0 var(--hc-carousel-slide-size);
+    min-inline-size: 0;
+    scroll-snap-align: start;
+  }
+
+  .hc-carousel__prev,
+  .hc-carousel__next {
+    position: absolute;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-carousel-control-size);
+    block-size: var(--hc-carousel-control-size);
+    border: 1px solid var(--hc-carousel-control-border);
+    border-radius: 50%;
+    background: var(--hc-carousel-control-bg);
+    color: var(--hc-carousel-control-fg);
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .hc-carousel__prev {
+    inset-inline-start: var(--hc-carousel-control-offset);
+  }
+
+  .hc-carousel__next {
+    inset-inline-end: var(--hc-carousel-control-offset);
+  }
+
+  .hc-carousel__prev:focus-visible,
+  .hc-carousel__next:focus-visible,
+  .hc-carousel__dot:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .hc-carousel__prev:disabled,
+  .hc-carousel__next:disabled {
+    opacity: var(--hc-opacity-disabled);
+    cursor: not-allowed;
+  }
+
+  .hc-carousel__dots {
+    display: flex;
+    gap: var(--hc-carousel-dot-gap);
+    justify-content: center;
+    margin-block-start: var(--hc-carousel-dots-margin);
+  }
+
+  .hc-carousel__dot {
+    inline-size: var(--hc-carousel-dot-size);
+    block-size: var(--hc-carousel-dot-size);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--hc-carousel-dot-color);
+    cursor: pointer;
+  }
+
+  .hc-carousel__dot[aria-current="true"] {
+    background: var(--hc-carousel-dot-active-color);
+  }
+
+  /* Respect reduced motion — jump instead of animating the scroll. */
+  @media (prefers-reduced-motion: reduce) {
+    .hc-carousel__viewport {
+      scroll-behavior: auto;
+    }
+  }
+}

@@ -1236,6 +1236,28 @@
     </script>
   </section>
 
+  <section id="section-carousel" data-testid="section-carousel">
+    <h2>Carousel</h2>
+
+    <div class="hc-carousel" aria-label="Demo carousel" data-testid="carousel"
+         style="max-inline-size: 20rem;">
+      <div class="hc-carousel__viewport">
+        <div class="hc-carousel__slide" data-testid="car-0"
+             style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 1</div>
+        <div class="hc-carousel__slide" data-testid="car-1"
+             style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 2</div>
+        <div class="hc-carousel__slide" data-testid="car-2"
+             style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 3</div>
+      </div>
+      <button class="hc-carousel__prev" data-hc-carousel-prev aria-label="Previous slide"
+              data-testid="car-prev">‹</button>
+      <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide"
+              data-testid="car-next">›</button>
+      <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"
+           data-testid="car-dots"></div>
+    </div>
+  </section>
+
   <section id="section-input-group" data-testid="section-input-group">
     <h2>Input group</h2>
 

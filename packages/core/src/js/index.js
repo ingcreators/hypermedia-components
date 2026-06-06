@@ -19,6 +19,7 @@ export { installMulticombobox } from './multicombobox.js';
 export { installDrawer } from './drawer.js';
 export { installHovercard } from './hovercard.js';
 export { installToggleGroup } from './toggle-group.js';
+export { installCarousel } from './carousel.js';
 export { installToolbar } from './toolbar.js';
 export { installAvatar } from './avatar.js';
 export { installPasswordToggle } from './password-toggle.js';
