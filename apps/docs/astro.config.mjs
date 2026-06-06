@@ -139,6 +139,12 @@ export default defineConfig({
         './src/styles/custom.css',
         './src/styles/preview.css',
       ],
+      // Wrap long lines in code blocks instead of a horizontal scrollbar,
+      // so the source in each Demo's Code tab stays readable in the narrow
+      // card. Mirrors shadcn's wrapped code samples.
+      expressiveCode: {
+        defaultProps: { wrap: true },
+      },
       // Pre-apply the saved Hypermedia Components density and colour
       // theme (if any) before first paint so repeat visitors don't see
       // a flash of the comfortable / default state. Mirrors how
