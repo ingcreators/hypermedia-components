@@ -3,10 +3,10 @@ title: Kitchen sink
 description: Every Hypermedia Components component on one page — a live gallery you can scan at a glance, with links to each component's full documentation.
 ---
 
-Every component, live, on one page. Use it to scan the whole library
-at a glance, sanity-check theming (try the colour / density / dark
-switchers in the header), or jump to a component's full docs via its
-heading link.
+Every component, live, on one page, grouped the same way as the
+**Components** sidebar. Use it to scan the whole library at a glance,
+sanity-check theming (try the colour / density / dark switchers in the
+header), or jump to a component's full docs via its heading link.
 
 :::note
 Interactive components run their real behaviors here (the docs site
@@ -29,6 +29,20 @@ splitter, type in the OTP field — it all works.
   <button class="hc-button" disabled>Disabled</button>
 </div>
 
+### [Button group](/hypermedia-components/components/button-group/) · [Kbd](/hypermedia-components/components/kbd/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-button-group" role="group" aria-label="Text style">
+    <button class="hc-button" type="button">Bold</button>
+    <button class="hc-button" type="button">Italic</button>
+    <button class="hc-button" type="button">Underline</button>
+  </div>
+  <span class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd>
+    <kbd class="hc-kbd">K</kbd>
+  </span>
+</div>
+
 ### [Toggle group](/hypermedia-components/components/toggle-group/)
 
 <div class="hc-preview not-content hc-preview--start">
@@ -44,21 +58,37 @@ splitter, type in the OTP field — it all works.
   </div>
 </div>
 
-### [Button group](/hypermedia-components/components/button-group/) · [Kbd](/hypermedia-components/components/kbd/)
+### [Toolbar](/hypermedia-components/components/toolbar/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <div class="hc-button-group" role="group" aria-label="Text style">
-    <button class="hc-button" type="button">Bold</button>
-    <button class="hc-button" type="button">Italic</button>
-    <button class="hc-button" type="button">Underline</button>
+  <div class="hc-toolbar" role="toolbar" aria-label="Format">
+    <button class="hc-button" data-size="sm">Cut</button>
+    <button class="hc-button" data-size="sm">Copy</button>
+    <span class="hc-toolbar__separator"></span>
+    <button class="hc-button" data-size="sm">Paste</button>
   </div>
-  <span class="hc-kbd-group">
-    <kbd class="hc-kbd">⌘</kbd>
-    <kbd class="hc-kbd">K</kbd>
-  </span>
 </div>
 
-## Form controls
+### [Command](/hypermedia-components/components/command/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <button class="hc-button" onclick="this.nextElementSibling.showModal()">Open command palette</button>
+  <dialog class="hc-command-dialog">
+    <div class="hc-command">
+      <input class="hc-command__input" type="text" role="combobox" autofocus aria-label="Command" placeholder="Type a command…" />
+      <div class="hc-command__list" role="listbox">
+        <div class="hc-command__group" role="group" aria-labelledby="ks-cmd-g">
+          <div class="hc-command__group-heading" id="ks-cmd-g">Navigation</div>
+          <div class="hc-command__item" role="option" data-value="home"><span>Go home</span><kbd class="hc-command__shortcut">G H</kbd></div>
+          <div class="hc-command__item" role="option" data-value="search"><span>Search</span></div>
+        </div>
+      </div>
+      <div class="hc-command__empty" hidden>No results.</div>
+    </div>
+  </dialog>
+</div>
+
+## Forms
 
 ### [Field](/hypermedia-components/components/field/) · [Input](/hypermedia-components/components/input/)
 
@@ -71,6 +101,25 @@ splitter, type in the OTP field — it all works.
   <textarea class="hc-input" aria-label="Notes" rows="3" placeholder="Notes…" style="max-inline-size:16rem;"></textarea>
 </div>
 
+### [Input group](/hypermedia-components/components/input-group/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-input-group" style="max-inline-size:20rem;">
+    <span class="hc-input-addon" aria-hidden="true">🔍</span>
+    <input class="hc-input" type="search" aria-label="Search" placeholder="Search…" />
+    <button class="hc-button" data-variant="primary" type="button">Go</button>
+  </div>
+</div>
+
+### [Input OTP](/hypermedia-components/components/inputotp/) · [Slider](/hypermedia-components/components/slider/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-inputotp" data-length="6">
+    <input class="hc-inputotp__input" type="text" aria-label="One-time code" />
+  </div>
+  <input class="hc-slider" type="range" min="0" max="100" value="40" aria-label="Volume" style="inline-size:12rem;" />
+</div>
+
 ### [Select](/hypermedia-components/components/select/) · [Datepicker](/hypermedia-components/components/datepicker/)
 
 <div class="hc-preview not-content hc-preview--start">
@@ -80,24 +129,6 @@ splitter, type in the OTP field — it all works.
     <option>Team</option>
   </select>
   <input class="hc-datepicker" type="date" aria-label="Date" value="2026-05-29" />
-</div>
-
-### [Checkbox](/hypermedia-components/components/checkbox/) · [Radio](/hypermedia-components/components/radio/) · [Switch](/hypermedia-components/components/switch/)
-
-<div class="hc-preview not-content hc-preview--start">
-  <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" checked /> Checkbox</label>
-  <label class="hc-radio-label"><input class="hc-radio" type="radio" name="ks-r" checked /> Radio A</label>
-  <label class="hc-radio-label"><input class="hc-radio" type="radio" name="ks-r" /> Radio B</label>
-  <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked /> Switch</label>
-</div>
-
-### [Slider](/hypermedia-components/components/slider/) · [Input OTP](/hypermedia-components/components/inputotp/)
-
-<div class="hc-preview not-content hc-preview--start">
-  <input class="hc-slider" type="range" min="0" max="100" value="40" aria-label="Volume" style="inline-size:12rem;" />
-  <div class="hc-inputotp" data-length="6">
-    <input class="hc-inputotp__input" type="text" aria-label="One-time code" />
-  </div>
 </div>
 
 ### [Combobox](/hypermedia-components/components/combobox/) · [Multicombobox](/hypermedia-components/components/multicombobox/)
@@ -122,6 +153,15 @@ splitter, type in the OTP field — it all works.
       <li class="hc-multicombobox__option" role="option" data-value="py" aria-selected="true">Python</li>
     </ul>
   </div>
+</div>
+
+### [Checkbox](/hypermedia-components/components/checkbox/) · [Radio](/hypermedia-components/components/radio/) · [Switch](/hypermedia-components/components/switch/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" checked /> Checkbox</label>
+  <label class="hc-radio-label"><input class="hc-radio" type="radio" name="ks-r" checked /> Radio A</label>
+  <label class="hc-radio-label"><input class="hc-radio" type="radio" name="ks-r" /> Radio B</label>
+  <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked /> Switch</label>
 </div>
 
 ### [Calendar](/hypermedia-components/components/calendar/)
@@ -164,48 +204,15 @@ splitter, type in the OTP field — it all works.
   </div>
 </div>
 
-### [Toolbar](/hypermedia-components/components/toolbar/) · [Menu](/hypermedia-components/components/menu/)
+### [Menu](/hypermedia-components/components/menu/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <div class="hc-toolbar" role="toolbar" aria-label="Format">
-    <button class="hc-button" data-size="sm">Cut</button>
-    <button class="hc-button" data-size="sm">Copy</button>
-    <span class="hc-toolbar__separator"></span>
-    <button class="hc-button" data-size="sm">Paste</button>
-  </div>
   <button class="hc-button" type="button" popovertarget="ks-menu" id="ks-menu-trigger">Account ▾</button>
   <div class="hc-menu" id="ks-menu" popover role="menu" aria-labelledby="ks-menu-trigger">
     <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
     <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
     <hr class="hc-menu__separator" />
     <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Sign out</button>
-  </div>
-</div>
-
-### [Command](/hypermedia-components/components/command/) · [Context menu](/hypermedia-components/components/context-menu/)
-
-<div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" onclick="this.nextElementSibling.showModal()">Open command palette</button>
-  <dialog class="hc-command-dialog">
-    <div class="hc-command">
-      <input class="hc-command__input" type="text" role="combobox" autofocus aria-label="Command" placeholder="Type a command…" />
-      <div class="hc-command__list" role="listbox">
-        <div class="hc-command__group" role="group" aria-labelledby="ks-cmd-g">
-          <div class="hc-command__group-heading" id="ks-cmd-g">Navigation</div>
-          <div class="hc-command__item" role="option" data-value="home"><span>Go home</span><kbd class="hc-command__shortcut">G H</kbd></div>
-          <div class="hc-command__item" role="option" data-value="search"><span>Search</span></div>
-        </div>
-      </div>
-      <div class="hc-command__empty" hidden>No results.</div>
-    </div>
-  </dialog>
-
-  <div class="hc-card" data-hc-context-menu="ks-ctx" tabindex="0" style="padding:1rem;">Right-click me</div>
-  <div class="hc-menu" id="ks-ctx" popover role="menu" aria-label="Row actions">
-    <button class="hc-menu__item" role="menuitem" type="button">Open</button>
-    <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
-    <hr class="hc-menu__separator" />
-    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
   </div>
 </div>
 
@@ -239,6 +246,18 @@ splitter, type in the OTP field — it all works.
       </li>
     </ul>
   </nav>
+</div>
+
+### [Context menu](/hypermedia-components/components/context-menu/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-card" data-hc-context-menu="ks-ctx" tabindex="0" style="padding:1rem;">Right-click me</div>
+  <div class="hc-menu" id="ks-ctx" popover role="menu" aria-label="Row actions">
+    <button class="hc-menu__item" role="menuitem" type="button">Open</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
+    <hr class="hc-menu__separator" />
+    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
+  </div>
 </div>
 
 ## Overlays
@@ -283,24 +302,142 @@ splitter, type in the OTP field — it all works.
   </div>
 </div>
 
-## Feedback &amp; status
+## Data display
 
-### [Alert](/hypermedia-components/components/alert/) · [Badge](/hypermedia-components/components/badge/)
+### [Table](/hypermedia-components/components/table/)
 
-<div class="hc-preview not-content" style="display:flex;flex-direction:column;gap:.5rem;align-items:flex-start;">
-  <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-    <span class="hc-badge" data-variant="info">Info</span>
-    <span class="hc-badge" data-variant="success">Success</span>
-    <span class="hc-badge" data-variant="warning">Warning</span>
-    <span class="hc-badge" data-variant="error">Error</span>
+<div class="hc-preview not-content">
+  <table class="hc-table" style="max-inline-size:28rem;">
+    <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Ada</td><td>Engineer</td><td><span class="hc-badge" data-variant="success">Active</span></td></tr>
+      <tr><td>Bea</td><td>Designer</td><td><span class="hc-badge" data-variant="warning">Away</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+### [Datagrid](/hypermedia-components/components/datagrid/)
+
+<div class="hc-preview not-content">
+  <div class="hc-datagrid" style="max-inline-size:28rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col">Role</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <th class="hc-datagrid__cell" scope="row">Ada</th>
+            <td class="hc-datagrid__cell">Engineer</td>
+            <td class="hc-datagrid__cell">Active</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <th class="hc-datagrid__cell" scope="row">Bea</th>
+            <td class="hc-datagrid__cell">Designer</td>
+            <td class="hc-datagrid__cell">Away</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+</div>
+
+### [Card](/hypermedia-components/components/card/) · [Avatar](/hypermedia-components/components/avatar/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-card" style="max-inline-size:18rem;">
+    <div class="hc-card__header"><strong>Card title</strong></div>
+    <div class="hc-card__body">A generic surface for grouped content.</div>
+    <div class="hc-card__footer"><button class="hc-button" data-size="sm" data-variant="primary">Action</button></div>
+  </div>
+  <div class="hc-avatar-group">
+    <span class="hc-avatar" aria-label="Ada">A</span>
+    <span class="hc-avatar" aria-label="Bea">B</span>
+    <span class="hc-avatar" aria-label="Cy">C</span>
+  </div>
+</div>
+
+### [Item](/hypermedia-components/components/item/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-item" style="max-inline-size:18rem;">
+    <span class="hc-item__media" aria-hidden="true">📄</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Quarterly report</span>
+      <span class="hc-item__description">Updated 2 days ago</span>
+    </div>
+    <div class="hc-item__actions">
+      <button class="hc-button" data-size="sm" type="button">Open</button>
+    </div>
+  </div>
+</div>
+
+### [Badge](/hypermedia-components/components/badge/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <span class="hc-badge" data-variant="info">Info</span>
+  <span class="hc-badge" data-variant="success">Success</span>
+  <span class="hc-badge" data-variant="warning">Warning</span>
+  <span class="hc-badge" data-variant="error">Error</span>
+</div>
+
+### [Separator](/hypermedia-components/components/separator/)
+
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:18rem;">
+  <p style="margin:0">Above</p>
+  <hr class="hc-separator" />
+  <p style="margin:0">Below</p>
+</div>
+
+### [Accordion](/hypermedia-components/components/accordion/)
+
+<div class="hc-preview not-content">
+  <div class="hc-accordion" style="max-inline-size:28rem;">
+    <details class="hc-accordion__item" name="ks-acc">
+      <summary class="hc-accordion__trigger">
+        What is Hypermedia Components?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </summary>
+      <div class="hc-accordion__content">A semantic CSS + htmx UI kit for hypermedia applications.</div>
+    </details>
+    <details class="hc-accordion__item" name="ks-acc">
+      <summary class="hc-accordion__trigger">
+        How do I install it?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </summary>
+      <div class="hc-accordion__content"><code>pnpm add @hypermedia-components/core</code></div>
+    </details>
+  </div>
+</div>
+
+### [Collapsible](/hypermedia-components/components/collapsible/)
+
+<div class="hc-preview not-content">
+  <details class="hc-collapsible" style="max-inline-size:28rem;">
+    <summary class="hc-collapsible__trigger">
+      Show details
+      <span class="hc-collapsible__icon" aria-hidden="true">▾</span>
+    </summary>
+    <div class="hc-collapsible__content"><p style="margin:0">This region is hidden until the user opens it.</p></div>
+  </details>
+</div>
+
+## Feedback
+
+### [Alert](/hypermedia-components/components/alert/)
+
+<div class="hc-preview not-content">
   <div class="hc-alert" data-variant="success" role="status" style="max-inline-size:28rem;">
     <strong class="hc-alert__title">Saved</strong>
     <p>Your changes were saved successfully.</p>
   </div>
 </div>
 
-### [Toast](/hypermedia-components/recipes/toast/) · [Progress](/hypermedia-components/components/progress/) · Spinner
+### [Toast](/hypermedia-components/components/toast/) · [Progress](/hypermedia-components/components/progress/) · [Spinner](/hypermedia-components/components/spinner/)
 
 <div class="hc-preview not-content hc-preview--col" style="max-inline-size:28rem;">
   <div style="display:flex;gap:.5rem;align-items:center;">
@@ -335,69 +472,50 @@ splitter, type in the OTP field — it all works.
   </div>
 </div>
 
-## Layout &amp; data
+## Layout
 
-### [Card](/hypermedia-components/components/card/) · [Avatar](/hypermedia-components/components/avatar/)
+### [Aspect ratio](/hypermedia-components/components/aspect/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <div class="hc-card" style="max-inline-size:18rem;">
-    <div class="hc-card__header"><strong>Card title</strong></div>
-    <div class="hc-card__body">A generic surface for grouped content.</div>
-    <div class="hc-card__footer"><button class="hc-button" data-size="sm" data-variant="primary">Action</button></div>
-  </div>
-  <div class="hc-avatar-group">
-    <span class="hc-avatar" aria-label="Ada">A</span>
-    <span class="hc-avatar" aria-label="Bea">B</span>
-    <span class="hc-avatar" aria-label="Cy">C</span>
+  <div class="hc-aspect" data-ratio="16/9" style="inline-size:12rem;background:var(--hc-color-muted-bg);border-radius:.5rem;display:grid;place-items:center;">
+    <span>16 / 9</span>
   </div>
 </div>
 
-### [Table](/hypermedia-components/components/table/)
+### [Scroll area](/hypermedia-components/components/scroll-area/)
 
 <div class="hc-preview not-content">
-  <table class="hc-table" style="max-inline-size:28rem;">
-    <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
-    <tbody>
-      <tr><td>Ada</td><td>Engineer</td><td><span class="hc-badge" data-variant="success">Active</span></td></tr>
-      <tr><td>Bea</td><td>Designer</td><td><span class="hc-badge" data-variant="warning">Away</span></td></tr>
-    </tbody>
-  </table>
-</div>
-
-### [Separator](/hypermedia-components/components/separator/) · [Splitter](/hypermedia-components/components/splitter/) · [Scroll area](/hypermedia-components/components/scroll-area/)
-
-<div class="hc-preview not-content hc-preview--col">
-  <div>
-    <p style="margin:0">Above</p>
-    <hr class="hc-separator" />
-    <p style="margin:0">Below</p>
-  </div>
-  <div class="hc-splitter" data-orientation="horizontal" data-value="40" style="block-size:7rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
-    <div class="hc-splitter__panel" style="padding:.5rem;">Left</div>
-    <div class="hc-splitter__handle" role="separator" tabindex="0" aria-label="Resize panels"></div>
-    <div class="hc-splitter__panel" style="padding:.5rem;">Right</div>
-  </div>
   <div class="hc-scroll-area" tabindex="0" role="region" aria-label="Scrollable list" style="max-block-size:6rem;max-inline-size:18rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.5rem;">
     <p style="margin-block-start:0">Scroll me.</p>
     <p>Two</p><p>Three</p><p>Four</p><p>Five</p><p style="margin-block-end:0">Six</p>
   </div>
 </div>
 
-### [Item](/hypermedia-components/components/item/) · [Aspect ratio](/hypermedia-components/components/aspect/)
+### [Splitter](/hypermedia-components/components/splitter/)
 
-<div class="hc-preview not-content hc-preview--start">
-  <div class="hc-item" style="max-inline-size:18rem;">
-    <span class="hc-item__media" aria-hidden="true">📄</span>
-    <div class="hc-item__content">
-      <span class="hc-item__title">Quarterly report</span>
-      <span class="hc-item__description">Updated 2 days ago</span>
-    </div>
-    <div class="hc-item__actions">
-      <button class="hc-button" data-size="sm" type="button">Open</button>
-    </div>
+<div class="hc-preview not-content">
+  <div class="hc-splitter" data-orientation="horizontal" data-value="40" style="block-size:7rem;max-inline-size:22rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
+    <div class="hc-splitter__panel" style="padding:.5rem;">Left</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0" aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel" style="padding:.5rem;">Right</div>
   </div>
-  <div class="hc-aspect" data-ratio="16/9" style="inline-size:12rem;background:var(--hc-color-muted-bg);border-radius:.5rem;display:grid;place-items:center;">
-    <span>16 / 9</span>
+</div>
+
+### [Shell](/hypermedia-components/components/shell/)
+
+A full application shell, scaled into a box here. On a real page it fills
+the viewport and the sidebar collapses to an off-canvas overlay on mobile.
+
+<div class="hc-preview not-content">
+  <div class="hc-shell" style="block-size:15rem;--hc-shell-sidebar-width:9rem;--hc-shell-pad:var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme</strong></header>
+    <nav class="hc-shell__sidebar" aria-label="Demo">
+      <div>Dashboard</div>
+      <div>Orders</div>
+      <div>Settings</div>
+    </nav>
+    <main class="hc-shell__main">Main content scrolls independently of the chrome.</main>
+    <footer class="hc-shell__footer"><small>© Acme</small></footer>
   </div>
 </div>
 
@@ -416,37 +534,11 @@ splitter, type in the OTP field — it all works.
   </div>
 </div>
 
-### [Datagrid](/hypermedia-components/components/datagrid/)
+## Layout patterns
 
-<div class="hc-preview not-content">
-  <div class="hc-datagrid" style="max-inline-size:28rem;">
-    <div class="hc-datagrid__scroll">
-      <table class="hc-datagrid__table">
-        <thead class="hc-datagrid__head">
-          <tr>
-            <th class="hc-datagrid__headcell" scope="col">Name</th>
-            <th class="hc-datagrid__headcell" scope="col">Role</th>
-            <th class="hc-datagrid__headcell" scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody class="hc-datagrid__body">
-          <tr class="hc-datagrid__row">
-            <th class="hc-datagrid__cell" scope="row">Ada</th>
-            <td class="hc-datagrid__cell">Engineer</td>
-            <td class="hc-datagrid__cell">Active</td>
-          </tr>
-          <tr class="hc-datagrid__row">
-            <th class="hc-datagrid__cell" scope="row">Bea</th>
-            <td class="hc-datagrid__cell">Designer</td>
-            <td class="hc-datagrid__cell">Away</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-## Layout &amp; responsiveness
+Not components — the responsive primitives from
+[Fundamentals · Layout](/hypermedia-components/fundamentals/layout/) and the
+table-overflow helper, shown here for completeness.
 
 ### [Layout utilities](/hypermedia-components/fundamentals/layout/)
 
@@ -469,24 +561,6 @@ and the grid reflows, the cluster wraps, the sidebar collapses.
   <div class="hc-sidebar">
     <nav class="hc-card" style="padding:.75rem;" aria-label="Example">Sidebar</nav>
     <div class="hc-card" style="padding:.75rem;">Main content keeps its width and wraps the sidebar when space runs out.</div>
-  </div>
-</div>
-
-### [Shell](/hypermedia-components/components/shell/)
-
-A full application shell, scaled into a box here. On a real page it fills
-the viewport and the sidebar collapses to an off-canvas overlay on mobile.
-
-<div class="hc-preview not-content">
-  <div class="hc-shell" style="block-size:15rem;--hc-shell-sidebar-width:9rem;--hc-shell-pad:var(--hc-space-3);">
-    <header class="hc-shell__header"><strong>Acme</strong></header>
-    <nav class="hc-shell__sidebar" aria-label="Demo">
-      <div>Dashboard</div>
-      <div>Orders</div>
-      <div>Settings</div>
-    </nav>
-    <main class="hc-shell__main">Main content scrolls independently of the chrome.</main>
-    <footer class="hc-shell__footer"><small>© Acme</small></footer>
   </div>
 </div>
 
