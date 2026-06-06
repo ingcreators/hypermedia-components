@@ -470,29 +470,29 @@
     "font-size":   { "$type": "dimension",  "$value": "{semantic.font.size-sm}" },
     "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
     "default":  {
-      "bg":     { "$type": "color", "$value": "{primitive.color.gray.100}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.gray.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.gray.200}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.neutral.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.neutral.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.neutral.border}" }
     },
     "info":     {
-      "bg":     { "$type": "color", "$value": "{primitive.color.blue.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.blue.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.blue.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.info.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.info.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.info.border}" }
     },
     "success":  {
-      "bg":     { "$type": "color", "$value": "{primitive.color.green.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.green.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.green.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.success.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.success.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.success.border}" }
     },
     "warning":  {
-      "bg":     { "$type": "color", "$value": "{primitive.color.amber.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.amber.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.amber.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.warning.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.warning.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.warning.border}" }
     },
     "error":   {
-      "bg":     { "$type": "color", "$value": "{primitive.color.red.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.red.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.error.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.error.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.error.border}" }
     }
   },
   "navmenu": {
@@ -641,24 +641,24 @@
     "region-gap":  { "$type": "dimension", "$value": "{semantic.space.2}" },
     "region-inset": { "$type": "dimension", "$value": "{semantic.space.4}" },
     "info":     {
-      "bg":     { "$type": "color", "$value": "{primitive.color.blue.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.blue.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.blue.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.info.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.info.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.info.border}" }
     },
     "success":  {
-      "bg":     { "$type": "color", "$value": "{primitive.color.green.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.green.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.green.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.success.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.success.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.success.border}" }
     },
     "warning":  {
-      "bg":     { "$type": "color", "$value": "{primitive.color.amber.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.amber.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.amber.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.warning.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.warning.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.warning.border}" }
     },
     "error":   {
-      "bg":     { "$type": "color", "$value": "{primitive.color.red.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.red.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.error.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.error.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.error.border}" }
     }
   },
   "breadcrumb": {
@@ -897,24 +897,24 @@
     "border-width":   { "$type": "dimension", "$value": "1px" },
     "title-weight":   { "$type": "fontWeight", "$value": "{semantic.font.weight-semibold}" },
     "info":     {
-      "bg":     { "$type": "color", "$value": "{primitive.color.blue.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.blue.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.blue.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.info.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.info.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.info.border}" }
     },
     "success":  {
-      "bg":     { "$type": "color", "$value": "{primitive.color.green.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.green.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.green.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.success.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.success.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.success.border}" }
     },
     "warning":  {
-      "bg":     { "$type": "color", "$value": "{primitive.color.amber.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.amber.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.amber.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.warning.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.warning.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.warning.border}" }
     },
     "error":   {
-      "bg":     { "$type": "color", "$value": "{primitive.color.red.50}" },
-      "fg":     { "$type": "color", "$value": "{primitive.color.red.800}" },
-      "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
+      "bg":     { "$type": "color", "$value": "{semantic.color.status.error.bg}" },
+      "fg":     { "$type": "color", "$value": "{semantic.color.status.error.fg}" },
+      "border": { "$type": "color", "$value": "{semantic.color.status.error.border}" }
     }
   }
 }

@@ -125,3 +125,40 @@ test.describe('dark mode recolours neutral hover / surface backgrounds', () => {
     });
   }
 });
+
+test.describe('dark mode tints status surfaces (alert / toast / badge)', () => {
+  // Status chips used a light primitive tint (blue.50 etc.) + dark text
+  // directly, so they stayed light under [data-theme="dark"]. They now
+  // route through semantic.color.status.*, which the dark theme overrides
+  // to a dark tint (colour.950) + a light tinted text (colour.200).
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      const wrap = document.createElement('section');
+      wrap.setAttribute('data-theme', 'dark');
+      wrap.innerHTML = '<span data-testid="dark-probe"></span>';
+      document.body.appendChild(wrap);
+    });
+  });
+
+  // [var, dark hex] — bg is a colour.950 tint, fg is the colour.200 light text.
+  const STATUS = [
+    ['--hc-badge-info-bg', '#172554'],
+    ['--hc-badge-info-fg', '#bfdbfe'],
+    ['--hc-alert-success-bg', '#022c22'],
+    ['--hc-alert-error-bg', '#450a0a'],
+    ['--hc-toast-warning-bg', '#451a03'],
+    ['--hc-badge-default-bg', '#1f2937'],
+  ];
+
+  for (const [name, hex] of STATUS) {
+    test(`${name} is the dark tint (${hex})`, async ({ page }) => {
+      const probe = page.getByTestId('dark-probe');
+      const value = await probe.evaluate(
+        (el, prop) => getComputedStyle(el).getPropertyValue(prop).trim().toLowerCase(),
+        name,
+      );
+      expect(value).toBe(hex);
+    });
+  }
+});
