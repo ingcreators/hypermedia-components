@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-breadcrumb` collapsible ellipsis.** The middle-truncation marker can
+  now be a `<button class="hc-breadcrumb__ellipsis" popovertarget="…">` that
+  opens a `hc-menu` popover listing the hidden steps. No new JavaScript —
+  `installMenu()` wires the trigger (`aria-haspopup` / `aria-expanded`,
+  anchored placement, arrow-key roving, Escape). Progressive: `popovertarget`
+  opens the menu natively without JS, and on engines without the `popover`
+  attribute the hidden steps render inline so the full trail stays in the DOM.
+  New Breadcrumb → Collapsed steps docs (with a responsive-collapse note); the
+  button variant gets hover / focus-visible styling. 5 Playwright tests (incl.
+  axe with the popover open).
+
 - **Directional placement for tooltip / popover / hovercard (`data-side` /
   `data-align` / `data-arrow`).** All three anchored popovers now take a
   `data-side` (top / right / bottom / left) and optional `data-align` (start /

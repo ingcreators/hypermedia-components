@@ -850,6 +850,34 @@
         </li>
       </ol>
     </nav>
+
+    <h3>Collapsible (ellipsis opens a popover)</h3>
+    <nav class="hc-breadcrumb" aria-label="Collapsible breadcrumb"
+         data-testid="bc-collapsible">
+      <ol class="hc-breadcrumb__list">
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#">Home</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <button class="hc-breadcrumb__ellipsis" type="button"
+                  popovertarget="bc-overflow" aria-label="Show 2 hidden levels"
+                  data-testid="bc-overflow-trigger">…</button>
+          <div class="hc-menu" id="bc-overflow" popover role="menu"
+               aria-label="Hidden breadcrumb levels" data-testid="bc-overflow-menu">
+            <a class="hc-menu__item" role="menuitem" href="#"
+               data-testid="bc-overflow-products">Products</a>
+            <a class="hc-menu__item" role="menuitem" href="#"
+               data-testid="bc-overflow-widgets">Widgets</a>
+          </div>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#">Blue widget</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <span class="hc-breadcrumb__current" aria-current="page">Specs</span>
+        </li>
+      </ol>
+    </nav>
   </section>
 
   <section id="section-accordion" data-testid="section-accordion">
