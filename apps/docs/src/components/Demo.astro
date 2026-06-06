@@ -1,0 +1,93 @@
+---
+/*
+ * Demo — a live preview and its source in one framed widget.
+ *
+ * Dogfoods `hc-tabs`: the Preview / Code switch is a real ARIA tablist
+ * wired by `installTabs()` (loaded once via the behaviors bundle in
+ * Head.astro), so it is keyboard-operable and screen-reader correct.
+ *
+ * The default slot is the live demo (rendered inside an `.hc-preview`
+ * canvas). The `code` slot is a normal fenced code block, so Expressive
+ * Code highlights it and adds its own copy button — we do not reimplement
+ * copy or highlighting.
+ *
+ * Usage in MDX:
+ *
+ *   import Demo from '../../../components/Demo.astro';
+ *
+ *   <Demo previewClass="hc-preview--start">
+ *     <button class="hc-button">Save</button>
+ *     <Fragment slot="code">
+ *     ```html
+ *     <button class="hc-button">Save</button>
+ *     ```
+ *     </Fragment>
+ *   </Demo>
+ *
+ * Props:
+ *   previewClass — extra class(es) on the `.hc-preview` (e.g. a layout
+ *                  modifier like `hc-preview--start` / `--col`).
+ *   label        — aria-label for the tablist (default "Example").
+ */
+interface Props {
+  previewClass?: string;
+  label?: string;
+}
+
+const { previewClass = '', label = 'Example' } = Astro.props;
+
+// Unique-enough id base per instance (build-time only; baked into the
+// static HTML). Multiple Demos can coexist on a page without id clashes.
+const uid = 'demo-' + Math.random().toString(36).slice(2, 9);
+const ids = {
+  previewTab: `${uid}-tab-preview`,
+  codeTab: `${uid}-tab-code`,
+  previewPanel: `${uid}-panel-preview`,
+  codePanel: `${uid}-panel-code`,
+};
+const previewClasses = ['hc-preview', 'not-content', previewClass]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<div class="hc-tabs hc-demo not-content">
+  <div class="hc-tabs__list" role="tablist" aria-label={label}>
+    <button
+      type="button"
+      class="hc-tabs__tab"
+      role="tab"
+      id={ids.previewTab}
+      aria-controls={ids.previewPanel}
+      aria-selected="true"
+      tabindex="0">Preview</button>
+    <button
+      type="button"
+      class="hc-tabs__tab"
+      role="tab"
+      id={ids.codeTab}
+      aria-controls={ids.codePanel}
+      aria-selected="false"
+      tabindex="-1">Code</button>
+  </div>
+
+  <div
+    class="hc-tabs__panel"
+    role="tabpanel"
+    id={ids.previewPanel}
+    aria-labelledby={ids.previewTab}
+    tabindex="0">
+    <div class={previewClasses}>
+      <slot />
+    </div>
+  </div>
+
+  <div
+    class="hc-tabs__panel hc-demo__code"
+    role="tabpanel"
+    id={ids.codePanel}
+    aria-labelledby={ids.codeTab}
+    tabindex="0"
+    hidden="until-found">
+    <slot name="code" />
+  </div>
+</div>

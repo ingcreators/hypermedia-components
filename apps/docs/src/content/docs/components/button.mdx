@@ -3,27 +3,33 @@ title: Button
 description: Semantic button component with variants, sizes, and htmx-friendly request states.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-button` is a thin semantic class applied to the standard `<button>`
 element. Variants and sizes are switched with `data-*` attributes so the
 markup stays close to plain HTML.
 
 ## Basic HTML
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <button class="hc-button">Default</button>
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="secondary">Secondary</button>
   <button class="hc-button" data-variant="error">Delete</button>
   <button class="hc-button" data-variant="ghost">Ghost</button>
-</div>
 
-```html
-<button class="hc-button">Default</button>
-<button class="hc-button" data-variant="primary">Save</button>
-<button class="hc-button" data-variant="secondary">Secondary</button>
-<button class="hc-button" data-variant="error">Delete</button>
-<button class="hc-button" data-variant="ghost">Ghost</button>
-```
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button">Default</button>
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="secondary">Secondary</button>
+  <button class="hc-button" data-variant="error">Delete</button>
+  <button class="hc-button" data-variant="ghost">Ghost</button>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Variants
 
