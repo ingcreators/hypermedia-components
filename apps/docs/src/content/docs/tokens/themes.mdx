@@ -202,44 +202,67 @@ Components and tokens deliberately **not** affected:
 The five built-in themes are not special — each is just a small set
 of accent tokens. Adding your own brand palette takes one of two
 paths, depending on whether you want to ship the theme as part of a
-build or just override it on a live page.
+build or drop it onto a live page without one.
 
-:::tip[Want it generated for you?]
-The interactive [Theme builder](/hypermedia-components/tokens/theme-builder/)
-takes a single brand colour, auto-derives the hover / soft-tint /
-text-on-primary shades, checks the contrast live, and emits both the
-CSS snippet (Path A) and the `color.*.tokens.json` file (Path B)
-below — ready to paste.
+:::tip[Use the Theme builder]
+Don't hand-write either of these. The interactive
+[Theme builder](/hypermedia-components/tokens/theme-builder/) takes a
+single brand colour, derives the hover / soft-tint / text-on-primary
+shades, checks the contrast live, and **generates all three artifacts
+below for you** — the DTCG source (Path B), the ready-to-paste CSS
+block (Path A), and a full token CSS. It does this by running the
+real token build in your browser, so the output is always correct.
 :::
 
-### Path A — override the CSS variables (no rebuild)
+### How the cascade actually works (important)
 
-The fastest route: declare the seven accent variables under your own
-`[data-color="…"]` selector in any stylesheet that loads after
-`@hypermedia-components/core/css`. Nothing needs rebuilding — the
-components already read these through `var()` indirection.
+A colour theme is **not** just the seven `--hc-color-action-primary-*`
+semantic variables. Components don't read those directly — each reads
+its own `--hc-{component}-*` variable (`--hc-button-primary-bg`,
+`--hc-checkbox-checked-bg`, `--hc-pagination-current-bg`, …), and the
+build **bakes a concrete value into each one** per theme block. That
+is why every `[data-color]` block in `hc.tokens.css` redeclares ~50
+component variables, not 7.
 
-```css
-[data-color="brand"] {
-  --hc-color-focus-ring: #7c3aed;
-  --hc-color-action-primary-bg: #7c3aed;
-  --hc-color-action-primary-fg: #ffffff;
-  --hc-color-action-primary-border: #7c3aed;
-  --hc-color-action-primary-hover-bg: #6d28d9;
-  --hc-color-action-primary-hover-border: #6d28d9;
-  /* color-mix keeps one value correct on both light and dark surfaces */
-  --hc-color-action-primary-soft-bg: color-mix(in srgb, #7c3aed 12%, transparent);
-}
-```
+So **overriding only the semantic variables at runtime does not
+recolour buttons, checkboxes, etc.** (a custom-property reference is
+resolved on the element that declares it and then inherited frozen, so
+a nested `[data-color]` wrapper can't re-resolve it). A correct
+runtime override has to redeclare the **component** variables — the
+full block. Generate that block with the Theme builder rather than
+writing it by hand.
+
+### Path A — paste a generated CSS block (no rebuild)
+
+Use the [Theme builder](/hypermedia-components/tokens/theme-builder/) →
+**Theme CSS block**. Add it to any stylesheet loaded after
+`@hypermedia-components/core/css`, then set the attribute. No build
+step. It works site-wide or on a subtree:
 
 ```html
 <html data-color="brand">…</html>
-<!-- or scope it to a subtree -->
+<!-- or scope it to one section -->
 <section data-color="brand">…</section>
 ```
 
-This is also the right tool for a one-off per-section accent or for
-theming an app you don't control the build of.
+The generated block looks like a built-in theme block — every
+affected component variable, resolved to your colour:
+
+```css
+@layer hc.tokens {
+  [data-color="brand"] {
+    --hc-color-action-primary-bg: #7c3aed;
+    --hc-button-primary-bg: #7c3aed;
+    --hc-checkbox-checked-bg: #7c3aed;
+    --hc-pagination-current-bg: #7c3aed;
+    /* …radio, tabs, slider, calendar, focus ring, ::selection tint, … */
+  }
+}
+```
+
+Prefer to replace the whole token stylesheet instead of adding a
+block? The builder's **Full token CSS** export is a complete
+`hc.tokens.css` (every built-in theme plus yours) you can swap in.
 
 ### Path B — add a token source (shipped in the build)
 
@@ -304,9 +327,9 @@ combination:
 
 Verified against [WebAIM's contrast checker](https://webaim.org/resources/contrastchecker/).
 
-If you customise these tokens locally (`:root { --hc-color-action-primary-bg: …; }`),
-re-run the same check against your chosen shade and the text colour
-on top.
+The [Theme builder](/hypermedia-components/tokens/theme-builder/) runs
+this same contrast check live as you pick a colour, so a custom theme
+tells you immediately whether the text-on-primary pair clears AA.
 
 ## Related
 
