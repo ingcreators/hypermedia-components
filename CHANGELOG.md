@@ -20,6 +20,25 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **Theme builder now actually recolours components.** The first cut
+  overrode only the seven `--hc-color-action-primary-*` semantic
+  variables, which components don't read directly (each reads a
+  build-baked `--hc-{component}-*` value), so the primary button /
+  checkbox / radio never changed. The builder now reuses the real
+  `buildTokensCss` transformer (via the new
+  `@hypermedia-components/core/token-transform` export) on the real
+  DTCG sources to generate a complete, correct `[data-color]` block —
+  the same output the library build produces. `tokens/themes` Path A is
+  corrected accordingly, with a new section explaining the cascade.
+
+### Changed
+
+- **Theme builder exports three artifacts.** The DTCG token source
+  (Path B), an additive theme CSS block (Path A), and a full token CSS
+  (drop-in replacement) — all generated from `buildTokensCss`.
+
 ### Added
 
 - **Theme builder (docs).** A new interactive

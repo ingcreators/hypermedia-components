@@ -1,28 +1,28 @@
 ---
 // Interactive theme builder for the docs.
 //
-// Takes one brand colour and derives the full accent token set the
-// `data-color` axis needs (focus ring, primary bg/fg/border, hover,
-// soft tint), checks WCAG contrast for the text-on-primary pair live,
-// and emits both export formats documented in tokens/themes.mdx:
-//   - Path A: a `[data-color="…"]` CSS override block
-//   - Path B: a `color.*.tokens.json` DTCG source
+// Takes one brand colour and generates a complete custom `data-color`
+// accent theme by reusing the REAL token transformer
+// (`@hypermedia-components/core/token-transform`) fed with the REAL DTCG
+// sources. This is the key design point: the preview, the "apply to page"
+// action, and every export are produced by the same `buildTokensCss` the
+// library build uses — so the output is always correct (all ~50 affected
+// component leaves, subtree-safe) and the "DTCG sources → generated CSS
+// variables" model is preserved.
 //
-// All logic is client-side vanilla JS in the <script> below (bundled
-// by Astro). The controls dogfood HC's own .hc-input / .hc-select /
-// .hc-button; the preview reuses the same row as the themes.mdx live
-// preview so the two stay visually consistent.
+// Exports (all derived from buildTokensCss output):
+//   1. DTCG token source   — color.<name>.tokens.json (Path B)
+//   2. Theme CSS block (B)  — just this theme's [data-color] block (additive)
+//   3. Full token CSS (A)   — the complete hc.tokens.css incl. this theme
 ---
 
 <div class="tb not-content" data-theme-builder>
   <div class="tb__grid">
-    {/* ---- Controls ---- */}
     <form class="tb__controls" autocomplete="off">
       <label class="hc-field">
         <span class="hc-field__label">Theme name</span>
         <input class="hc-input" type="text" id="tb-name" value="brand"
-               pattern="[a-z][a-z0-9-]*" spellcheck="false"
-               aria-describedby="tb-name-hint" />
+               pattern="[a-z][a-z0-9-]*" spellcheck="false" aria-describedby="tb-name-hint" />
         <span class="hc-field__message" id="tb-name-hint">
           Used as <code>data-color="…"</code> and the file name. Lowercase, kebab-case.
         </span>
@@ -32,12 +32,9 @@
         <span class="hc-field__label">Brand colour</span>
         <span class="tb__colorrow">
           <input type="color" id="tb-color" value="#7c3aed" aria-label="Brand colour picker" />
-          <input class="hc-input" type="text" id="tb-hex" value="#7c3aed"
-                 spellcheck="false" aria-label="Brand colour hex" />
+          <input class="hc-input" type="text" id="tb-hex" value="#7c3aed" spellcheck="false" aria-label="Brand colour hex" />
         </span>
-        <span class="hc-field__message">
-          The primary action / accent colour. Everything else is derived from it.
-        </span>
+        <span class="hc-field__message">The primary action / accent colour. Everything else is derived from it.</span>
       </label>
 
       <label class="hc-field">
@@ -50,79 +47,105 @@
       </label>
 
       <label class="hc-field">
-        <span class="hc-field__label">
-          Hover darkness <output id="tb-hover-out">12%</output>
-        </span>
+        <span class="hc-field__label">Hover darkness <output id="tb-hover-out">12%</output></span>
         <input class="hc-slider" type="range" id="tb-hover" min="0" max="30" value="12" step="1" />
         <span class="hc-field__message">How much darker the hover / active state is.</span>
       </label>
 
       <label class="hc-field">
-        <span class="hc-field__label">
-          Soft tint <output id="tb-soft-out">12%</output>
-        </span>
+        <span class="hc-field__label">Soft tint <output id="tb-soft-out">12%</output></span>
         <input class="hc-slider" type="range" id="tb-soft" min="6" max="24" value="12" step="1" />
-        <span class="hc-field__message">
-          Ghost-hover / <code>::selection</code> tint, blended with <code>transparent</code>.
-        </span>
+        <span class="hc-field__message">Ghost-hover / <code>::selection</code> tint, blended with <code>transparent</code>.</span>
       </label>
 
       <div class="tb__actions">
-        <button type="button" class="hc-button" data-variant="primary" id="tb-apply">
-          Apply to this page
-        </button>
-        <button type="button" class="hc-button" data-variant="ghost" id="tb-reset">
-          Reset
-        </button>
+        <button type="button" class="hc-button" data-variant="primary" id="tb-apply">Apply to this page</button>
+        <button type="button" class="hc-button" data-variant="ghost" id="tb-reset">Reset</button>
       </div>
     </form>
 
-    {/* ---- Live preview ---- */}
     <div class="tb__preview">
       <div class="tb__contrast" id="tb-contrast" role="status" aria-live="polite"></div>
-
-      <div class="tb__row" id="tb-sample">
+      <div class="tb__row" data-hc-builder-preview>
         <button class="hc-button" data-variant="primary">Save</button>
         <button class="hc-button" data-variant="ghost">Edit</button>
         <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
-        <label class="hc-checkbox-label">
-          <input class="hc-checkbox" type="checkbox" checked />
-          Notify me
-        </label>
-        <label class="hc-radio-label">
-          <input class="hc-radio" type="radio" name="tb-radio" checked />
-          Free
-        </label>
+        <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" checked /> Notify me</label>
+        <label class="hc-radio-label"><input class="hc-radio" type="radio" name="tb-radio" checked /> Free</label>
         <span class="hc-field__message">Select this text to preview ::selection.</span>
       </div>
       <p class="tb__hint">
-        The preview is scoped to this box. Use <strong>Apply to this page</strong>
-        to flip the whole docs site to your theme, or copy an export below.
+        The preview is scoped to this box and rendered by the real token build.
+        Use <strong>Apply to this page</strong> to theme the whole docs site, or download an export below.
       </p>
     </div>
   </div>
 
-  {/* ---- Export ---- */}
   <div class="tb__export">
     <div class="tb__tabs" role="tablist" aria-label="Export format">
-      <button type="button" class="tb__tab" role="tab" aria-selected="true" data-tab="css">CSS override</button>
-      <button type="button" class="tb__tab" role="tab" aria-selected="false" data-tab="json">DTCG token file</button>
+      <button type="button" class="tb__tab" role="tab" aria-selected="true" data-tab="block">Theme CSS block</button>
+      <button type="button" class="tb__tab" role="tab" aria-selected="false" data-tab="dtcg">DTCG token file</button>
+      <button type="button" class="tb__tab" role="tab" aria-selected="false" data-tab="full">Full token CSS</button>
     </div>
 
-    <div class="tb__panel" data-panel="css">
-      <button type="button" class="hc-button tb__copy" data-variant="secondary" data-size="sm" data-copy="tb-css">Copy</button>
-      <pre><code id="tb-css"></code></pre>
+    <div class="tb__panel" data-panel="block">
+      <p class="tb__paneldesc">Additive — keep the stock CSS and add this after it, then set <code>data-color</code>. No build.</p>
+      <div class="tb__panelactions">
+        <button type="button" class="hc-button tb__copy" data-variant="secondary" data-size="sm" data-copy="tb-block">Copy</button>
+        <button type="button" class="hc-button" data-variant="secondary" data-size="sm" data-download="tb-block" data-ext="css">Download .css</button>
+      </div>
+      <pre><code id="tb-block"></code></pre>
     </div>
-    <div class="tb__panel" data-panel="json" hidden>
-      <button type="button" class="hc-button tb__copy" data-variant="secondary" data-size="sm" data-copy="tb-json">Copy</button>
-      <pre><code id="tb-json"></code></pre>
+
+    <div class="tb__panel" data-panel="dtcg" hidden>
+      <p class="tb__paneldesc">Save as <code>color.&lt;name&gt;.tokens.json</code> and register it in <code>build-tokens.mjs</code> (Path B).</p>
+      <div class="tb__panelactions">
+        <button type="button" class="hc-button tb__copy" data-variant="secondary" data-size="sm" data-copy="tb-dtcg">Copy</button>
+        <button type="button" class="hc-button" data-variant="secondary" data-size="sm" data-download="tb-dtcg" data-ext="json">Download .json</button>
+      </div>
+      <pre><code id="tb-dtcg"></code></pre>
+    </div>
+
+    <div class="tb__panel" data-panel="full" hidden>
+      <p class="tb__paneldesc">The complete token CSS (all built-in themes + yours). Drop-in replacement for the stock token stylesheet.</p>
+      <div class="tb__panelactions">
+        <button type="button" class="hc-button tb__copy" data-variant="secondary" data-size="sm" data-copy="tb-full">Copy</button>
+        <button type="button" class="hc-button" data-variant="secondary" data-size="sm" data-download="tb-full" data-ext="css">Download .css</button>
+      </div>
+      <pre><code id="tb-full"></code></pre>
     </div>
   </div>
 </div>
 
 <script>
-  // ---- Colour maths (WCAG 2.x) ----
+  import { buildTokensCss, DEFAULT_SOURCES } from '@hypermedia-components/core/token-transform';
+  import primitive from '@hypermedia-components/core/tokens/primitive.tokens.json';
+  import semantic from '@hypermedia-components/core/tokens/semantic.tokens.json';
+  import component from '@hypermedia-components/core/tokens/component.tokens.json';
+  import themeDark from '@hypermedia-components/core/tokens/theme.dark.tokens.json';
+  import densityComfortable from '@hypermedia-components/core/tokens/density.comfortable.tokens.json';
+  import densityCompact from '@hypermedia-components/core/tokens/density.compact.tokens.json';
+  import densityDense from '@hypermedia-components/core/tokens/density.dense.tokens.json';
+  import colorDefault from '@hypermedia-components/core/tokens/color.default.tokens.json';
+  import colorIndigo from '@hypermedia-components/core/tokens/color.indigo.tokens.json';
+  import colorEmerald from '@hypermedia-components/core/tokens/color.emerald.tokens.json';
+  import colorRose from '@hypermedia-components/core/tokens/color.rose.tokens.json';
+  import colorAmber from '@hypermedia-components/core/tokens/color.amber.tokens.json';
 
+  const BASE_TREES = {
+    primitive, semantic, component,
+    'theme.dark': themeDark,
+    'density.comfortable': densityComfortable,
+    'density.compact': densityCompact,
+    'density.dense': densityDense,
+    'color.default': colorDefault,
+    'color.indigo': colorIndigo,
+    'color.emerald': colorEmerald,
+    'color.rose': colorRose,
+    'color.amber': colorAmber,
+  };
+
+  // ---- Colour maths (WCAG 2.x) ----
   /** @param {string} hex @returns {[number,number,number] | null} */
   function hexToRgb(hex) {
     const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
@@ -130,22 +153,17 @@
     const n = parseInt(m[1], 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
-
-  /** @param {[number,number,number]} rgb @returns {string} */
+  /** @param {[number,number,number]} rgb */
   function rgbToHex([r, g, b]) {
     const h = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
     return `#${h(r)}${h(g)}${h(b)}`;
   }
-
-  /** Darken toward black by `pct` percent, per channel (sRGB). */
   function darken(hex, pct) {
     const rgb = hexToRgb(hex);
     if (!rgb) return hex;
     const k = 1 - pct / 100;
-    return rgbToHex(/** @type {[number,number,number]} */ (rgb.map((c) => c * k)));
+    return rgbToHex(rgb.map((c) => c * k));
   }
-
-  /** Relative luminance per WCAG. */
   function luminance([r, g, b]) {
     const lin = (c) => {
       const s = c / 255;
@@ -153,195 +171,182 @@
     };
     return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
   }
-
-  /** Contrast ratio between two hex colours (1–21). */
-  function contrast(hexA, hexB) {
-    const a = hexToRgb(hexA);
-    const b = hexToRgb(hexB);
-    if (!a || !b) return 1;
-    const la = luminance(a);
-    const lb = luminance(b);
+  function contrast(a, b) {
+    const ra = hexToRgb(a), rb = hexToRgb(b);
+    if (!ra || !rb) return 1;
+    const la = luminance(ra), lb = luminance(rb);
     const [hi, lo] = la > lb ? [la, lb] : [lb, la];
     return (hi + 0.05) / (lo + 0.05);
   }
-
   const WHITE = '#ffffff';
-  const DARK = '#111827'; // gray.900 — matches the amber theme's choice
-
-  // ---- Wiring ----
+  const DARK = '#111827';
 
   const root = document.querySelector('[data-theme-builder]');
   if (root) {
-    /** @param {string} id @returns {any} */
-    const el = (id) => root.querySelector('#' + id);
-
-    const $name = el('tb-name');
-    const $color = el('tb-color');
-    const $hex = el('tb-hex');
-    const $fg = el('tb-fg');
-    const $hover = el('tb-hover');
-    const $hoverOut = el('tb-hover-out');
-    const $soft = el('tb-soft');
-    const $softOut = el('tb-soft-out');
-    const $sample = el('tb-sample');
+    const el = (id) => /** @type {any} */ (root.querySelector('#' + id));
+    const $name = el('tb-name'), $color = el('tb-color'), $hex = el('tb-hex'), $fg = el('tb-fg');
+    const $hover = el('tb-hover'), $hoverOut = el('tb-hover-out');
+    const $soft = el('tb-soft'), $softOut = el('tb-soft-out');
     const $contrast = el('tb-contrast');
-    const $css = el('tb-css');
-    const $json = el('tb-json');
+    const $block = el('tb-block'), $dtcg = el('tb-dtcg'), $full = el('tb-full');
 
-    /** @returns {{name:string,bg:string,fg:string,hover:string,soft:string,ring:string,softPct:number}} */
+    /** @returns {{name,bg,fg,hover,soft,ring}} */
     function model() {
       const bg = /^#[0-9a-f]{6}$/i.test($hex.value) ? $hex.value.toLowerCase() : '#7c3aed';
-      const fgChoice = $fg.value;
-      const fg =
-        fgChoice === 'auto'
-          ? contrast(bg, WHITE) >= contrast(bg, DARK)
-            ? WHITE
-            : DARK
-          : fgChoice;
+      const fg = $fg.value === 'auto'
+        ? (contrast(bg, WHITE) >= contrast(bg, DARK) ? WHITE : DARK)
+        : $fg.value;
       const hover = darken(bg, Number($hover.value));
-      const softPct = Number($soft.value);
-      const soft = `color-mix(in srgb, ${bg} ${softPct}%, transparent)`;
+      const soft = `color-mix(in srgb, ${bg} ${Number($soft.value)}%, transparent)`;
       const name = ($name.value || 'brand').trim() || 'brand';
-      return { name, bg, fg, hover, soft, ring: bg, softPct };
+      return { name, bg, fg, hover, soft, ring: bg };
     }
+
+    /** Build the synthetic color.<name> DTCG tree (mirrors color.indigo shape). */
+    function customTree(m) {
+      return {
+        $description: `${m.name} colour theme. Emitted under [data-color="${m.name}"].`,
+        color: {
+          'focus-ring': { $type: 'color', $value: m.ring },
+          action: {
+            primary: {
+              bg: { $type: 'color', $value: m.bg },
+              fg: { $type: 'color', $value: m.fg },
+              border: { $type: 'color', $value: m.bg },
+            },
+            'primary-hover': {
+              bg: { $type: 'color', $value: m.hover },
+              border: { $type: 'color', $value: m.hover },
+            },
+            'primary-soft': { bg: { $type: 'color', $value: m.soft } },
+          },
+        },
+      };
+    }
+
+    // Just this theme's block (additive). Only color.custom emits.
+    function genBlock(m) {
+      const sources = [
+        { namespace: 'primitive', emit: false },
+        { namespace: 'semantic', selector: ':root', emit: false },
+        { namespace: 'component', selector: ':root', emit: false },
+        { namespace: 'color.custom', selector: `[data-color="${m.name}"]`, emit: true },
+      ];
+      const trees = { primitive, semantic, component, 'color.custom': customTree(m) };
+      return buildTokensCss({ sources, trees }).css;
+    }
+
+    // The complete token CSS, stock + this theme appended as a new axis.
+    function genFull(m) {
+      const sources = [
+        ...DEFAULT_SOURCES,
+        { namespace: 'color.custom', file: '', selector: `[data-color="${m.name}"]`, emit: true },
+      ];
+      const trees = { ...BASE_TREES, 'color.custom': customTree(m) };
+      return buildTokensCss({ sources, trees }).css;
+    }
+
+    function genDTCG(m) {
+      return JSON.stringify(customTree(m), null, 2);
+    }
+
+    // ---- Live preview via injected <style>, scoped to the preview box ----
+    let previewStyle = document.getElementById('hc-builder-preview-style');
+    if (!previewStyle) {
+      previewStyle = document.createElement('style');
+      previewStyle.id = 'hc-builder-preview-style';
+      document.head.appendChild(previewStyle);
+    }
+    let appliedStyle = null;
 
     function render() {
       const m = model();
 
-      // Live preview — set the accent tokens on the scoped box only.
-      const s = $sample.style;
-      s.setProperty('--hc-color-action-primary-bg', m.bg);
-      s.setProperty('--hc-color-action-primary-fg', m.fg);
-      s.setProperty('--hc-color-action-primary-border', m.bg);
-      s.setProperty('--hc-color-action-primary-hover-bg', m.hover);
-      s.setProperty('--hc-color-action-primary-hover-border', m.hover);
-      s.setProperty('--hc-color-action-primary-soft-bg', m.soft);
-      s.setProperty('--hc-color-focus-ring', m.ring);
+      // Preview: reuse the generated block, retargeted to the preview box.
+      const block = genBlock(m);
+      previewStyle.textContent = block.replaceAll(`[data-color="${m.name}"]`, '[data-hc-builder-preview]');
 
       // Contrast read-out.
       const ratio = contrast(m.bg, m.fg);
       const grade = ratio >= 7 ? 'AAA' : ratio >= 4.5 ? 'AA' : ratio >= 3 ? 'AA Large' : 'Fail';
       const ok = ratio >= 4.5;
       $contrast.className = 'tb__contrast' + (ok ? ' is-pass' : ' is-fail');
-      $contrast.textContent =
-        `Text on primary: ${ratio.toFixed(2)} : 1 — ${grade}` +
-        (ok ? '' : ' (below 4.5:1 — pick a darker bg or flip the text colour)');
+      $contrast.textContent = `Text on primary: ${ratio.toFixed(2)} : 1 — ${grade}`
+        + (ok ? '' : ' (below 4.5:1 — pick a darker bg or flip the text colour)');
 
-      // Exports.
-      $css.textContent =
-        `[data-color="${m.name}"] {\n` +
-        `  --hc-color-focus-ring: ${m.ring};\n` +
-        `  --hc-color-action-primary-bg: ${m.bg};\n` +
-        `  --hc-color-action-primary-fg: ${m.fg};\n` +
-        `  --hc-color-action-primary-border: ${m.bg};\n` +
-        `  --hc-color-action-primary-hover-bg: ${m.hover};\n` +
-        `  --hc-color-action-primary-hover-border: ${m.hover};\n` +
-        `  --hc-color-action-primary-soft-bg: ${m.soft};\n` +
-        `}`;
-
-      $json.textContent = JSON.stringify(
-        {
-          $description: `${m.name} colour theme. Emitted under [data-color="${m.name}"].`,
-          color: {
-            'focus-ring': { $type: 'color', $value: m.ring },
-            action: {
-              primary: {
-                bg: { $type: 'color', $value: m.bg },
-                fg: { $type: 'color', $value: m.fg },
-                border: { $type: 'color', $value: m.bg },
-              },
-              'primary-hover': {
-                bg: { $type: 'color', $value: m.hover },
-                border: { $type: 'color', $value: m.hover },
-              },
-              'primary-soft': {
-                bg: { $type: 'color', $value: m.soft },
-              },
-            },
-          },
-        },
-        null,
-        2,
-      );
+      // Exports. Block + DTCG are cheap; the full bundle is generated on demand.
+      $block.textContent = block.trimEnd();
+      $dtcg.textContent = genDTCG(m);
+      const activeFull = root.querySelector('.tb__tab[data-tab="full"][aria-selected="true"]');
+      if (activeFull) $full.textContent = genFull(m).trimEnd();
     }
 
-    // Keep the colour picker and hex text in sync.
-    $color.addEventListener('input', () => {
-      $hex.value = $color.value.toLowerCase();
-      render();
-    });
-    $hex.addEventListener('input', () => {
-      if (/^#[0-9a-f]{6}$/i.test($hex.value)) $color.value = $hex.value;
-      render();
-    });
-    $hover.addEventListener('input', () => {
-      $hoverOut.textContent = $hover.value + '%';
-      render();
-    });
-    $soft.addEventListener('input', () => {
-      $softOut.textContent = $soft.value + '%';
-      render();
-    });
-    $fg.addEventListener('change', render);
-    $name.addEventListener('input', render);
+    for (const ev of ['input', 'change']) {
+      $color.addEventListener(ev, () => { $hex.value = $color.value.toLowerCase(); render(); });
+      $hex.addEventListener(ev, () => { if (/^#[0-9a-f]{6}$/i.test($hex.value)) $color.value = $hex.value; render(); });
+      $fg.addEventListener(ev, render);
+      $name.addEventListener(ev, render);
+    }
+    $hover.addEventListener('input', () => { $hoverOut.textContent = $hover.value + '%'; render(); });
+    $soft.addEventListener('input', () => { $softOut.textContent = $soft.value + '%'; render(); });
 
-    // Apply to the whole page (writes the vars onto <html> under a
-    // dedicated data-color value so it wins over the navbar picker).
+    // Apply to the whole page.
     el('tb-apply').addEventListener('click', () => {
       const m = model();
-      const r = document.documentElement;
-      r.style.setProperty('--hc-color-action-primary-bg', m.bg);
-      r.style.setProperty('--hc-color-action-primary-fg', m.fg);
-      r.style.setProperty('--hc-color-action-primary-border', m.bg);
-      r.style.setProperty('--hc-color-action-primary-hover-bg', m.hover);
-      r.style.setProperty('--hc-color-action-primary-hover-border', m.hover);
-      r.style.setProperty('--hc-color-action-primary-soft-bg', m.soft);
-      r.style.setProperty('--hc-color-focus-ring', m.ring);
-      r.setAttribute('data-color', m.name);
-    });
-
-    el('tb-reset').addEventListener('click', () => {
-      const r = document.documentElement;
-      for (const v of [
-        '--hc-color-action-primary-bg',
-        '--hc-color-action-primary-fg',
-        '--hc-color-action-primary-border',
-        '--hc-color-action-primary-hover-bg',
-        '--hc-color-action-primary-hover-border',
-        '--hc-color-action-primary-soft-bg',
-        '--hc-color-focus-ring',
-      ]) {
-        r.style.removeProperty(v);
+      if (!appliedStyle) {
+        appliedStyle = document.createElement('style');
+        appliedStyle.id = 'hc-builder-applied-style';
+        document.head.appendChild(appliedStyle);
       }
-      r.removeAttribute('data-color');
+      appliedStyle.textContent = genBlock(m);
+      document.documentElement.setAttribute('data-color', m.name);
+    });
+    el('tb-reset').addEventListener('click', () => {
+      if (appliedStyle) appliedStyle.textContent = '';
+      document.documentElement.removeAttribute('data-color');
     });
 
-    // Export tabs.
+    // Tabs.
     for (const tab of root.querySelectorAll('.tb__tab')) {
       tab.addEventListener('click', () => {
         const which = tab.getAttribute('data-tab');
-        for (const t of root.querySelectorAll('.tb__tab')) {
-          t.setAttribute('aria-selected', String(t === tab));
-        }
-        for (const p of root.querySelectorAll('.tb__panel')) {
-          p.hidden = p.getAttribute('data-panel') !== which;
-        }
+        for (const t of root.querySelectorAll('.tb__tab')) t.setAttribute('aria-selected', String(t === tab));
+        for (const p of root.querySelectorAll('.tb__panel')) p.hidden = p.getAttribute('data-panel') !== which;
+        if (which === 'full') $full.textContent = genFull(model()).trimEnd();
       });
     }
 
-    // Copy buttons.
+    // Copy.
     for (const btn of root.querySelectorAll('[data-copy]')) {
       btn.addEventListener('click', async () => {
         const target = root.querySelector('#' + btn.getAttribute('data-copy'));
         if (!target) return;
         try {
           await navigator.clipboard.writeText(target.textContent || '');
-          const prev = btn.textContent;
-          btn.textContent = 'Copied!';
+          const prev = btn.textContent; btn.textContent = 'Copied!';
           setTimeout(() => { btn.textContent = prev; }, 1200);
-        } catch {
-          /* clipboard blocked — the text is still selectable */
-        }
+        } catch { /* clipboard blocked — text is still selectable */ }
+      });
+    }
+
+    // Download.
+    for (const btn of root.querySelectorAll('[data-download]')) {
+      btn.addEventListener('click', () => {
+        const target = root.querySelector('#' + btn.getAttribute('data-download'));
+        if (!target) return;
+        const m = model();
+        const ext = btn.getAttribute('data-ext');
+        const id = btn.getAttribute('data-download');
+        const name = id === 'tb-dtcg' ? `color.${m.name}.tokens.json`
+          : id === 'tb-full' ? 'hc.tokens.css'
+          : `hc.theme.${m.name}.css`;
+        const blob = new Blob([target.textContent || ''], {
+          type: ext === 'json' ? 'application/json' : 'text/css',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; a.click();
+        URL.revokeObjectURL(url);
       });
     }
 
@@ -350,122 +355,39 @@
 </script>
 
 <style>
-  .tb {
-    margin-block: 1.5rem;
-  }
-  .tb__grid {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: 1fr;
-  }
+  .tb { margin-block: 1.5rem; }
+  .tb__grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
   @media (min-width: 56rem) {
-    .tb__grid {
-      grid-template-columns: minmax(16rem, 22rem) 1fr;
-      align-items: start;
-    }
+    .tb__grid { grid-template-columns: minmax(16rem, 22rem) 1fr; align-items: start; }
   }
-
-  .tb__controls {
-    display: grid;
-    gap: 1rem;
-  }
-  .tb__colorrow {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
+  .tb__controls { display: grid; gap: 1rem; }
+  .tb__colorrow { display: flex; gap: 0.5rem; align-items: center; }
   .tb__colorrow input[type='color'] {
-    inline-size: 2.75rem;
-    block-size: 2.5rem;
-    padding: 0;
-    border: 1px solid var(--hc-color-border, #d1d5db);
-    border-radius: var(--hc-radius-md, 0.375rem);
-    background: none;
-    cursor: pointer;
-    flex: none;
+    inline-size: 2.75rem; block-size: 2.5rem; padding: 0; flex: none; cursor: pointer;
+    border: 1px solid var(--hc-color-border, #d1d5db); border-radius: var(--hc-radius-md, 0.375rem); background: none;
   }
-  .tb__actions {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
+  .tb__actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
   .tb__preview {
-    display: grid;
-    gap: 0.75rem;
-    padding: 1.25rem;
-    border: 1px solid var(--hc-color-border, #e5e7eb);
-    border-radius: var(--hc-radius-lg, 0.5rem);
+    display: grid; gap: 0.75rem; padding: 1.25rem;
+    border: 1px solid var(--hc-color-border, #e5e7eb); border-radius: var(--hc-radius-lg, 0.5rem);
     background: var(--hc-color-surface, #fff);
   }
-  .tb__row {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .tb__hint {
-    margin: 0;
-    font-size: var(--sl-text-xs);
-    color: var(--sl-color-gray-3);
-  }
-
-  .tb__contrast {
-    font-size: var(--sl-text-sm);
-    font-weight: 600;
-    padding: 0.4rem 0.7rem;
-    border-radius: var(--hc-radius-md, 0.375rem);
-  }
-  .tb__contrast.is-pass {
-    color: #065f46;
-    background: color-mix(in srgb, #10b981 14%, transparent);
-  }
-  .tb__contrast.is-fail {
-    color: #991b1b;
-    background: color-mix(in srgb, #ef4444 14%, transparent);
-  }
-  :global([data-theme='dark']) .tb__contrast.is-pass {
-    color: #6ee7b7;
-  }
-  :global([data-theme='dark']) .tb__contrast.is-fail {
-    color: #fca5a5;
-  }
-
-  .tb__export {
-    margin-block-start: 1.5rem;
-  }
-  .tb__tabs {
-    display: flex;
-    gap: 0.25rem;
-    border-block-end: 1px solid var(--hc-color-border, #e5e7eb);
-  }
+  .tb__row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+  .tb__hint { margin: 0; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+  .tb__contrast { font-size: var(--sl-text-sm); font-weight: 600; padding: 0.4rem 0.7rem; border-radius: var(--hc-radius-md, 0.375rem); }
+  .tb__contrast.is-pass { color: #065f46; background: color-mix(in srgb, #10b981 14%, transparent); }
+  .tb__contrast.is-fail { color: #991b1b; background: color-mix(in srgb, #ef4444 14%, transparent); }
+  :global([data-theme='dark']) .tb__contrast.is-pass { color: #6ee7b7; }
+  :global([data-theme='dark']) .tb__contrast.is-fail { color: #fca5a5; }
+  .tb__export { margin-block-start: 1.5rem; }
+  .tb__tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; border-block-end: 1px solid var(--hc-color-border, #e5e7eb); }
   .tb__tab {
-    appearance: none;
-    border: none;
-    background: none;
-    padding: 0.5rem 0.9rem;
-    font: inherit;
-    font-size: var(--sl-text-sm);
-    color: var(--sl-color-gray-2);
-    cursor: pointer;
-    border-block-end: 2px solid transparent;
-    margin-block-end: -1px;
+    appearance: none; border: none; background: none; padding: 0.5rem 0.9rem; font: inherit;
+    font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); cursor: pointer;
+    border-block-end: 2px solid transparent; margin-block-end: -1px;
   }
-  .tb__tab[aria-selected='true'] {
-    color: var(--sl-color-text-accent);
-    border-block-end-color: currentColor;
-  }
-  .tb__panel {
-    position: relative;
-  }
-  .tb__panel [data-copy] {
-    position: absolute;
-    inset-block-start: 0.6rem;
-    inset-inline-end: 0.6rem;
-    z-index: 1;
-  }
-  .tb__panel pre {
-    margin-block-start: 0.75rem;
-    overflow-x: auto;
-  }
+  .tb__tab[aria-selected='true'] { color: var(--sl-color-text-accent); border-block-end-color: currentColor; }
+  .tb__paneldesc { margin-block: 0.75rem 0.5rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+  .tb__panelactions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-block-end: 0.5rem; }
+  .tb__panel pre { overflow: auto; max-block-size: 28rem; }
 </style>
