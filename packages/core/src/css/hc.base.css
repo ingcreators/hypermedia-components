@@ -23,11 +23,11 @@
     line-height: 1.5;
   }
 
-  /* Text selection follows the active colour theme. `primary-soft-bg`
-   * is a 12 % (18 % for amber) tint of the theme's primary colour
+  /* Text selection follows the active color theme. `primary-soft-bg`
+   * is a 12 % (18 % for amber) tint of the theme's primary color
    * via color-mix; the transparency means it blends correctly on
    * both light and dark surfaces and inherits the underlying text
-   * colour for readability. */
+   * color for readability. */
   ::selection {
     background-color: var(--hc-color-action-primary-soft-bg);
   }

@@ -1,13 +1,13 @@
 ---
-title: Colour palette
-description: The primitive colour ramps that token references resolve against. These are the raw values behind every semantic and component token — and the shades you reference when authoring a custom theme.
+title: Color palette
+description: The primitive color ramps that token references resolve against. These are the raw values behind every semantic and component token — and the shades you reference when authoring a custom theme.
 sidebar:
   order: 2
 ---
 
 import PrimitivePalette from '../../../components/PrimitivePalette.astro';
 
-These are the **primitive** colour ramps — the bottom layer of the
+These are the **primitive** color ramps — the bottom layer of the
 [four-layer token model](/hypermedia-components/tokens/). Every
 semantic, component, and theme token ultimately resolves to one of the
 shades below.
@@ -17,7 +17,7 @@ Primitives are `emit: false` — they are **not** output as `--hc-*`
 custom properties, so you can't `var()` them. They exist only as the
 values that DTCG `{ref}`s resolve against. Reference them by token path
 (`{primitive.color.indigo.600}`) when authoring a theme, **not** as
-CSS variables. To consume a colour at runtime, use the
+CSS variables. To consume a color at runtime, use the
 [semantic](/hypermedia-components/tokens/) or `data-color` tokens, which
 *are* emitted.
 :::
@@ -27,7 +27,7 @@ the project's default neutral; `slate` / `zinc` / `neutral` / `stone`
 are the alternative neutrals offered by the
 [Theme builder](/hypermedia-components/tokens/theme-builder/). The
 accent / status hues back the built-in `data-color` themes and the
-fixed semantic `info` / `success` / `warning` / `error` colours.
+fixed semantic `info` / `success` / `warning` / `error` colors.
 
 <PrimitivePalette />
 

@@ -17,7 +17,7 @@
  *
  *   2. The HC `data-color` picker (in the navbar) re-tints
  *      --hc-color-action-primary-*. Because we drive Starlight's accent
- *      from those tokens, switching the colour theme re-tints the whole
+ *      from those tokens, switching the color theme re-tints the whole
  *      docs chrome — not just the live component previews.
  *
  * We bridge Starlight's *derived* semantic variables (text, surfaces,
@@ -56,7 +56,7 @@
   --sl-color-hairline-light: var(--hc-color-border);
   --sl-color-hairline-shade: var(--hc-color-border);
 
-  /* Accent — driven by HC's primary action colour, so the navbar
+  /* Accent — driven by HC's primary action color, so the navbar
      data-color picker re-tints the chrome along with the previews. */
   --sl-color-accent: var(--hc-color-action-primary-bg);
   --sl-color-accent-low: var(--hc-color-action-primary-soft-bg);
@@ -68,7 +68,7 @@
 /*
  * Accent *text* (links, active sidebar entry) has to stay legible on
  * whichever background it sits on. On dark backgrounds HC's primary
- * (a blue-600-class colour) is too dark for body-size text, so we lift it
+ * (a blue-600-class color) is too dark for body-size text, so we lift it
  * toward white while keeping its hue — the data-color picker still
  * re-tints it. On light backgrounds the primary is used as-is.
  */

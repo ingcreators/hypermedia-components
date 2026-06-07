@@ -4,7 +4,7 @@
 // Renders Starlight's default icons (the GitHub link from
 // `social: {github: ...}` in astro.config.mjs) and appends two
 // pickers so visitors can preview every component / recipe at any
-// of the Hypermedia Components density tiers and colour themes.
+// of the Hypermedia Components density tiers and color themes.
 // Both choices are persisted to localStorage; an inline head script
 // (see astro.config.mjs) applies them before first paint so there
 // is no flash for repeat visitors.
@@ -17,9 +17,9 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
 
 <Default><slot /></Default>
 
-<label class="hc-picker" aria-label="Colour theme">
+<label class="hc-picker" aria-label="Color theme">
   <span class="hc-picker__label">Color</span>
-  <select id="hc-color-select" class="hc-select" data-size="sm" aria-label="Colour theme">
+  <select id="hc-color-select" class="hc-select" data-size="sm" aria-label="Color theme">
     <option value="default">Default</option>
     <option value="indigo">Indigo</option>
     <option value="emerald">Emerald</option>

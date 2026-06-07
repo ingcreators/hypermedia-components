@@ -25,7 +25,7 @@
  *
  * Variants: default (underline) | pill   (data-variant on .hc-tabs)
  * Sizes:    sm | md (default) | lg       (data-size  on .hc-tabs)
- * Density and colour theme are inherited from the nearest data-density
+ * Density and color theme are inherited from the nearest data-density
  * / data-color ancestor via --hc-control-* and --hc-color-action-*.
  */
 @layer hc.components {

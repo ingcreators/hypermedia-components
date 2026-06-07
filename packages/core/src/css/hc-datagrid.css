@@ -20,18 +20,18 @@
  *   - header levels:  --hc-datagrid-head-1-h, --hc-datagrid-head-2-h
  *   - frozen columns: a per-cell `--hc-datagrid-left` (inline style)
  *
- * Colours and spacing come from the shared semantic tokens, so the grid
- * follows the active theme / density / colour automatically. The blue
+ * Colors and spacing come from the shared semantic tokens, so the grid
+ * follows the active theme / density / color automatically. The blue
  * headers and tinted columns in product screenshots are app overrides of
  * the `--hc-datagrid-*` knobs below.
  */
 @layer hc.components {
   .hc-datagrid {
-    /* Colours, the header-level heights (only the non-last levels need a
+    /* Colors, the header-level heights (only the non-last levels need a
        fixed height so the level below can offset its sticky `top`), and
        cell padding all come from the generated `datagrid.*` tokens
        (component.tokens.json) — themed automatically by the active
-       light/dark + colour theme. Override the resulting `--hc-datagrid-*`
+       light/dark + color theme. Override the resulting `--hc-datagrid-*`
        custom properties for a bespoke look (e.g. the blue headers /
        tinted columns seen in admin apps). */
 

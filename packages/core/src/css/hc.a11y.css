@@ -8,18 +8,18 @@
  * and the cross-component reduced-motion completion (components whose
  * transitions weren't already gated in their own file).
  *
- * Why this is needed: in forced-colors mode the UA replaces author colours
+ * Why this is needed: in forced-colors mode the UA replaces author colors
  * with the user's system palette and *drops box-shadow*. Two HC patterns
  * break as a result:
  *   1. Focus rings drawn with `box-shadow` (and `outline: none`) vanish.
  *   2. State conveyed only by `background` / `color-mix` tints (selected
  *      option, current page, checked control) becomes invisible.
  *
- * The fixes use CSS system colours (Highlight, HighlightText, Canvas,
+ * The fixes use CSS system colors (Highlight, HighlightText, Canvas,
  * CanvasText, ButtonText), which forced-colors mode keeps. `outline`
  * survives forced-colors, so state is re-expressed as an inset outline;
  * the custom toggles opt out with `forced-color-adjust: none` and paint
- * with system colours directly.
+ * with system colors directly.
  *
  * Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors
  */
@@ -50,7 +50,7 @@
     /* ---- 2. Selection / active states (inset outline) ------------------ */
 
     /* Tints disappear, so mark the selected / active item with an outline
-       that forced-colors paints in a system colour. */
+       that forced-colors paints in a system color. */
     .hc-combobox__option[aria-selected="true"],
     .hc-combobox__option[data-active="true"],
     .hc-multicombobox__option[aria-selected="true"],
@@ -84,7 +84,7 @@
     /* ---- 3. Custom toggle controls (checked fill) --------------------- */
 
     /* appearance:none controls can't be re-rendered by the UA, so opt out
-       of forced colours and paint checked with the system Highlight. The
+       of forced colors and paint checked with the system Highlight. The
        embedded white check / dot SVG (a retained background-image) reads
        against Highlight. */
     .hc-checkbox:checked,

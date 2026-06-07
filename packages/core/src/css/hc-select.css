@@ -6,7 +6,7 @@
  * Only the closed-state chrome is replaced via `appearance: none`
  * plus a CSS-injected chevron.
  *
- * Variants: data-variant=success | warning | error → border colour.
+ * Variants: data-variant=success | warning | error → border color.
  * Sizes:    data-size="sm" | "md" (default) | "lg".
  *
  * The expanded dropdown stays browser-native, so users get the OS
@@ -36,7 +36,7 @@
     border-radius: var(--hc-select-radius);
     background-color: var(--hc-select-bg);
 
-    /* Chevron — SVG embedded with a literal stroke colour. Match the
+    /* Chevron — SVG embedded with a literal stroke color. Match the
      * convention used by hc-checkbox / hc-radio for SVG markers. */
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4 6 L8 10 L12 6' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
     background-repeat: no-repeat;
@@ -67,7 +67,7 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
   }
 
-  /* Variants — border colour cues. Mirrors hc-input states. */
+  /* Variants — border color cues. Mirrors hc-input states. */
   .hc-select[data-variant="success"] {
     border-color: var(--hc-select-success-border);
   }

@@ -10,7 +10,7 @@
  * Indeterminate (omit value):
  *   <progress class="hc-progress" aria-label="Loading"></progress>
  *
- * Variants: data-variant="success" | "warning" | "error" → fill colour.
+ * Variants: data-variant="success" | "warning" | "error" → fill color.
  * Sizes:    data-size="sm" | "md" (default) | "lg".
  */
 @layer hc.components {
@@ -45,7 +45,7 @@
     transition: inline-size var(--hc-progress-transition-duration) ease;
   }
 
-  /* Variants — recolour the fill in every vendor's pseudo. */
+  /* Variants — recolor the fill in every vendor's pseudo. */
   .hc-progress[data-variant="success"] {
     color: var(--hc-progress-success-fill);
   }
@@ -155,7 +155,7 @@
   }
 
   /* Respect users who prefer not to see motion: drop the slide
-   * animation; the track stays visible as a flat coloured bar. */
+   * animation; the track stays visible as a flat colored bar. */
   @media (prefers-reduced-motion: reduce) {
     .hc-progress:not([value]) {
       animation-duration: 0ms;

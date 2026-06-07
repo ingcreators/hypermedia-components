@@ -36,7 +36,7 @@ import { installSlider } from '@hypermedia-components/core';
 installSlider();
 ```
 
-## How the fill colour works
+## How the fill color works
 
 Firefox renders the 0→value portion of the track natively via
 `::-moz-range-progress`. WebKit and Chromium have no equivalent
@@ -60,7 +60,7 @@ JavaScript loads.
 ## Variants
 
 `data-variant` accepts `success`, `warning`, and `error` for
-non-default fill colours. The thumb border tracks the variant too.
+non-default fill colors. The thumb border tracks the variant too.
 
 <Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <input class="hc-slider" type="range" min="0" max="100" value="60" aria-label="Default" />
@@ -205,10 +205,10 @@ Component tokens (in `component.tokens.json`):
 | --- | --- |
 | `slider.track-height` / `track-bg` | Track. |
 | `slider.thumb-size` / `thumb-bg` / `thumb-border` | Thumb. |
-| `slider.fill` | Default fill colour (action.primary). |
+| `slider.fill` | Default fill color (action.primary). |
 | `slider.success-fill` / `warning-fill` / `error-fill` | Variant fills. |
 | `slider.success-thumb-border` / `warning-thumb-border` / `error-thumb-border` | Variant thumb borders. |
-| `slider.disabled-fill` | Disabled thumb border colour. |
+| `slider.disabled-fill` | Disabled thumb border color. |
 | `slider.radius` | Track + thumb corner radius. |
 | `slider.sm.*` / `lg.*` | Sized variants. |
 

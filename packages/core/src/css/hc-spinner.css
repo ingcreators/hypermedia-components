@@ -3,7 +3,7 @@
  *   <span class="hc-spinner" role="status" aria-label="Loading"></span>
  *
  * A spinning ring sized via --hc-spinner-size (data-size sm | md | lg) whose
- * indicator colour follows currentColor by default (data-variant swaps it to
+ * indicator color follows currentColor by default (data-variant swaps it to
  * a semantic accent). Paired with htmx's .htmx-indicator class for
  * request-driven visibility.
  *
@@ -34,7 +34,7 @@
     block-size: var(--hc-spinner-lg-size);
   }
 
-  /* Variants — swap the indicator (leading) colour. */
+  /* Variants — swap the indicator (leading) color. */
   .hc-spinner[data-variant="primary"] { border-block-start-color: var(--hc-spinner-primary-color); }
   .hc-spinner[data-variant="success"] { border-block-start-color: var(--hc-spinner-success-color); }
   .hc-spinner[data-variant="warning"] { border-block-start-color: var(--hc-spinner-warning-color); }

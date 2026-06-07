@@ -7,7 +7,7 @@ import Demo from '../../../components/Demo.astro';
 
 `hc-skeleton` is a placeholder you render in place of content while it
 loads. Apply `.hc-skeleton` to any element and give it a size — the
-component supplies the surface colour, corner radius, and animation.
+component supplies the surface color, corner radius, and animation.
 It is pure CSS with no JavaScript: you swap the skeleton for the real
 markup yourself (an htmx swap, a framework re-render, etc.).
 
@@ -73,7 +73,7 @@ class, or a wrapping layout. A skeleton has no intrinsic size.
 
 - **pulse** — the whole block fades in and out.
 - **wave** — a lighter highlight band sweeps across the block. The
-  highlight is derived from the base colour via `color-mix()`, so it
+  highlight is derived from the base color via `color-mix()`, so it
   tracks the active theme automatically.
 - **none** — a static block. Motion stays off regardless of the OS
   setting — handy when a page is dense with skeletons.
@@ -135,7 +135,7 @@ Component tokens (in `component.tokens.json`):
 | Token path | Purpose |
 | --- | --- |
 | `skeleton.bg` | Base surface — `var(--hc-color-muted-bg)`, adapts light / dark. |
-| `skeleton.highlight` | Wave sweep colour, derived from `bg` via `color-mix()`. |
+| `skeleton.highlight` | Wave sweep color, derived from `bg` via `color-mix()`. |
 | `skeleton.radius` | Corner radius for the `rect` shape. |
 | `skeleton.text-radius` | Corner radius for the `text` shape. |
 | `skeleton.text-height` | Line height for the `text` shape (`1em`). |

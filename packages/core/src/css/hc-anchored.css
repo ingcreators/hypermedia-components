@@ -10,7 +10,7 @@
  *
  * Each component sets the shared knobs on its own surface:
  *   --hc-anchored-offset        gap from the anchor (its existing offset)
- *   --hc-anchored-arrow-border  arrow edge colour (its border, or bg if none)
+ *   --hc-anchored-arrow-border  arrow edge color (its border, or bg if none)
  *   --hc-anchored-arrow-size    arrow square size (default 0.5rem)
  *
  * `position-area` / `position-try-fallbacks` are Baseline 2026; older engines

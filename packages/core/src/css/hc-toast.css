@@ -102,7 +102,7 @@
   }
 
   /* Optional action button (e.g. Undo). Sits below the message, aligned to the
-   * inline-start; inherits the toast's variant colour with an underline cue. */
+   * inline-start; inherits the toast's variant color with an underline cue. */
   .hc-toast__action {
     justify-self: start;
     margin: 0;

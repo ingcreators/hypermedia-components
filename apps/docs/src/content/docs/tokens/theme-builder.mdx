@@ -1,15 +1,15 @@
 ---
 title: Theme builder
-description: Build a custom data-color accent theme from a single brand colour. Runs the real token build in your browser, checks WCAG contrast live, and exports the DTCG source, a ready-to-paste CSS block, and a full token CSS.
+description: Build a custom data-color accent theme from a single brand color. Runs the real token build in your browser, checks WCAG contrast live, and exports the DTCG source, a ready-to-paste CSS block, and a full token CSS.
 sidebar:
   order: 3
 ---
 
 import ThemeBuilder from '../../../components/ThemeBuilder.astro';
 
-Pick one brand colour and this builder derives the rest of the
+Pick one brand color and this builder derives the rest of the
 `data-color` accent set — the hover shade, the soft tint, and the
-text-on-primary colour — checks the WCAG contrast for you, and
+text-on-primary color — checks the WCAG contrast for you, and
 generates ready-to-use exports.
 
 Two modes:
@@ -37,19 +37,19 @@ one (every affected component variable, subtree-safe), and the
 
 | Output | Derivation |
 | --- | --- |
-| `action-primary-bg` / `border` | Your chosen brand colour, as-is. |
-| `action-primary-hover-bg` / `border` | Brand colour darkened toward black by the **Hover darkness** percentage. |
-| `action-primary-fg` | **Auto** picks white or `gray.900` (`#111827`) — whichever has the higher contrast against the brand colour. Override it manually if you prefer. |
+| `action-primary-bg` / `border` | Your chosen brand color, as-is. |
+| `action-primary-hover-bg` / `border` | Brand color darkened toward black by the **Hover darkness** percentage. |
+| `action-primary-fg` | **Auto** picks white or `gray.900` (`#111827`) — whichever has the higher contrast against the brand color. Override it manually if you prefer. |
 | `action-primary-soft-bg` | `color-mix(in srgb, <brand> N%, transparent)` — one value that blends correctly on light and dark surfaces. |
-| `focus-ring` | Defaults to the brand colour. |
+| `focus-ring` | Defaults to the brand color. |
 
 The **contrast read-out** is the WCAG 2.x ratio between the brand
-colour and the resolved text colour. Aim for **4.5 : 1** (AA) or
+color and the resolved text color. Aim for **4.5 : 1** (AA) or
 better; the badge turns red below that.
 
 ## The three exports
 
-The builder runs `buildTokensCss` with your colour injected as a
+The builder runs `buildTokensCss` with your color injected as a
 synthetic `color.<name>` source, then hands you the output three ways:
 
 1. **Theme CSS block** — just this theme's `[data-color="<name>"]`
