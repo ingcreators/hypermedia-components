@@ -1,0 +1,146 @@
+---
+title: Icons
+description: Hypermedia Components ships no icon set — bring your own. Recommended libraries that pair cleanly with HC's light-DOM, htmx-first, token-themed model, and how to wire them with currentColor and the .hc-icon utility.
+---
+
+Hypermedia Components **ships no icon set** — by design. Icons are an
+app-level choice, and a CSS + behaviors library shouldn't lock you into
+one. (HC's own chrome — the select chevron, checkbox tick, accordion
+caret — is inline SVG drawn with `currentColor`, so it already tracks
+your theme.)
+
+Pick any set you like; the ones below pair especially cleanly with HC
+because they meet four criteria:
+
+1. **`currentColor`** — the icon inherits the surrounding text / button /
+   accent color, so it tracks `data-color` and `data-neutral` for free.
+2. **Framework-free** — works in plain server-rendered HTML and survives
+   htmx swaps (no React/Vue runtime needed).
+3. **`em`-sizable** — scales with the surrounding text and density.
+4. **Open license.**
+
+## Recommended
+
+### 1. Iconify `<iconify-icon>` — best fit for hypermedia
+
+A framework-free web component. Drop the script once, then reference any
+of 200k+ icons (Lucide, Tabler, Phosphor, Remix, Material, …) by name.
+It colors from CSS `currentColor`, sizes from `font-size`, and
+**re-renders itself after htmx swaps** with no re-init.
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/iconify-icon@2"></script>
+
+<button class="hc-button" data-variant="primary">
+  <iconify-icon icon="lucide:check" class="hc-icon"></iconify-icon> Save
+</button>
+```
+
+Pick the set per-icon via the prefix: `lucide:check`, `tabler:check`,
+`ph:check`, `ri:check-line`, `material-symbols:check`.
+
+### 2. Lucide — best single set for HC's look
+
+24px grid, 1.5–2px stroke, `currentColor` — visually consistent with
+HC's built-in stroke chrome. Use it three ways: copy the inline SVG, the
+`lucide` vanilla initializer, or via Iconify (`lucide:*`).
+
+The vanilla initializer needs re-running after an htmx swap:
+
+```html
+<i data-lucide="check"></i>
+<script>
+  lucide.createIcons();
+  document.body.addEventListener('htmx:afterSwap', () => lucide.createIcons());
+</script>
+```
+
+### 3. SVG sprite — most hypermedia-pure (zero JS)
+
+Bundle the icons you use into one sprite and reference them with `<use>`.
+No runtime, server-renderable, fastest, `currentColor`.
+
+```html
+<button class="hc-button">
+  <svg class="hc-icon" aria-hidden="true"><use href="/icons.svg#check"></use></svg>
+  Save
+</button>
+```
+
+**Other good sets** (all available through Iconify too): Tabler,
+Phosphor (regular / bold / fill / duotone), Remix, Heroicons,
+Material Symbols (variable font). Prefer an **outline / stroke** set to
+match HC's built-in chrome.
+
+## Wiring with HC
+
+### Color — let `currentColor` do the work
+
+Don't set an icon color. Leave the icon on `currentColor` and it inherits
+whatever HC color is in scope — the button's foreground, body text, or the
+active accent. It then tracks `data-color` / `data-neutral` / dark mode
+automatically.
+
+### Size — the `.hc-icon` utility
+
+The `.hc-icon` utility sizes an icon to the surrounding text
+(`--hc-icon-size: 1em`), sets `flex: none`, and aligns it to the
+baseline. Override per-instance:
+
+```html
+<svg class="hc-icon" style="--hc-icon-size: 1.25rem" aria-hidden="true">…</svg>
+```
+
+### Accessibility
+
+- **Decorative** icon next to a text label → `aria-hidden="true"`.
+- **Icon-only** control → give it an accessible name and hide the glyph:
+  ```html
+  <button class="hc-button" aria-label="Search">
+    <svg class="hc-icon" aria-hidden="true"><use href="/icons.svg#search"></use></svg>
+  </button>
+  ```
+  (Or put a visible-to-AT label in `.hc-sr-only`.)
+
+## Live examples
+
+These use inline Lucide SVGs with `.hc-icon` — no library loaded, just
+`currentColor` + the utility. Switch the header **Color** / **Neutral** /
+theme pickers and watch the icons follow.
+
+<div class="hc-preview not-content" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+    Save
+  </button>
+  <button class="hc-button" data-variant="secondary">
+    Continue
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </button>
+  <button class="hc-button" data-variant="ghost" aria-label="Search">
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  </button>
+  <span class="hc-badge" data-variant="success">
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+    Done
+  </span>
+  <span style="display:inline-flex;align-items:center;gap:.35rem;color:var(--hc-color-text-muted);">
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    3 notifications
+  </span>
+</div>
+
+```html
+<button class="hc-button" data-variant="primary">
+  <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M20 6 9 17l-5-5"/>
+  </svg>
+  Save
+</button>
+```
+
+## Related
+
+- [Color themes](/hypermedia-components/tokens/themes/) · [Neutral ramps](/hypermedia-components/tokens/neutral/) — what `currentColor` icons follow.
+- [Accessibility](/hypermedia-components/fundamentals/accessibility/) — icon-only control labelling.
