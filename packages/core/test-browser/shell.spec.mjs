@@ -130,6 +130,19 @@ test.describe('hc-shell — desktop', () => {
     expect(labelWidth).toBeLessThanOrEqual(1);
   });
 
+  test('the directional collapse icon mirrors when the sidebar collapses', async ({ page }) => {
+    const icon = page.getByTestId('shell-collapse-icon');
+    expect(await icon.evaluate((el) => getComputedStyle(el).transform)).toBe('none');
+
+    await page.getByTestId('shell-collapse').click();
+    await expect(page.getByTestId('shell')).toHaveAttribute('data-sidebar-collapsed', '');
+    // scaleX(-1) → the chevron now points the other way (« reads as »).
+    expect(await icon.evaluate((el) => getComputedStyle(el).transform)).toBe('matrix(-1, 0, 0, 1, 0, 0)');
+
+    await page.getByTestId('shell-collapse').click();
+    expect(await icon.evaluate((el) => getComputedStyle(el).transform)).toBe('none');
+  });
+
   test('the collapsed state persists across a reload', async ({ page }) => {
     await page.getByTestId('shell-collapse').click();
     await expect(page.getByTestId('shell')).toHaveAttribute('data-sidebar-collapsed', '');

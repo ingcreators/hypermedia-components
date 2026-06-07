@@ -217,6 +217,22 @@ narrows the grid column from `--hc-shell-sidebar-width` to
 the rail it is **visually hidden but kept in the accessibility tree**, so the
 links keep their accessible names while only the icon shows.
 
+**Directional collapse icon.** A chevron should point the way it will move —
+`«` (collapse) while expanded, `»` (expand) once collapsed. Wrap the glyph in
+`.hc-shell__collapse-icon` and it mirrors automatically when the rail
+collapses (keyed on `data-sidebar-collapsed`, no extra script):
+
+```html
+<button data-hc-shell-collapse type="button" aria-label="Toggle sidebar">
+  <span class="hc-shell__collapse-icon">«</span>
+</button>
+```
+
+Skip the wrapper for a non-directional glyph (e.g. `⇔`, as above, or a
+hamburger) — it should stay put. The button's accessible name can stay
+constant (“Toggle sidebar”); `installShell()` announces the open/closed state
+via `aria-expanded`.
+
 This is **desktop-only** — below the responsive breakpoint the sidebar uses
 the off-canvas overlay instead, and the collapse button is hidden. With
 `data-persist`, the collapsed state restores on the next visit before first

@@ -91,6 +91,21 @@
     }
   }
 
+  /* Collapse-icon helper (opt-in). A directional collapse control should point
+   * the way it will move: a chevron reads `«` (collapse) while expanded and
+   * should read `»` (expand) once collapsed. Wrap the glyph in
+   * `.hc-shell__collapse-icon` and it mirrors when the rail is collapsed —
+   * driven by `data-sidebar-collapsed`, no extra script. Omit the class for a
+   * non-directional glyph (e.g. `⇔` or a hamburger), which should not flip.
+   * `inline-block` gives the (otherwise inline) glyph a box for `transform`. */
+  .hc-shell__collapse-icon {
+    display: inline-block;
+  }
+
+  .hc-shell[data-sidebar-collapsed] .hc-shell__collapse-icon {
+    transform: scaleX(-1);
+  }
+
   /* Optional secondary panel → add a third column. */
   .hc-shell:has(> .hc-shell__aside) {
     grid-template-columns: var(--hc-shell-sidebar-width) 1fr var(--hc-shell-aside-width);
