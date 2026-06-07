@@ -299,16 +299,18 @@ stat [cards](/hypermedia-components/components/card/) with delta
 [table](/hypermedia-components/components/table/). **Click « to collapse the
 sidebar to an icon rail** — it's live, driven by `installShell()`
 (`data-collapsible` on the nav + a `[data-hc-shell-collapse]` button; each
-label is wrapped in `.hc-shell__label`, kept in the a11y tree). The inline
-`block-size` / `--hc-shell-sidebar-width` just scale the shell into the box
-below; drop them to fill the viewport. A real app would also add a
-`[data-hc-shell-toggle]` hamburger for the mobile off-canvas sidebar — left
-out here, since a `position: fixed` overlay would escape this scaled-down
-demo box.
+label is wrapped in `.hc-shell__label`, kept in the a11y tree). **Narrow the
+window below 60rem** and the collapse control gives way to a
+`[data-hc-shell-toggle]` hamburger (`☰`) that slides the nav in as an
+off-canvas overlay — the same `installShell()` handles focus, Escape, and
+scrim click-out. The `--hc-shell-sidebar-width` / `--hc-shell-pad` knobs and
+the demo's fixed height just scale the shell into the box below; drop them to
+fill the viewport.
 
 <Demo>
-  <div class="hc-shell" style="block-size:26rem;--hc-shell-sidebar-width:13rem;--hc-shell-pad:var(--hc-space-3);">
+  <div class="hc-shell hc-demo-shell" style="--hc-shell-sidebar-width:13rem;--hc-shell-pad:var(--hc-space-3);">
     <header class="hc-shell__header" style="display:flex;align-items:center;gap:.75rem;">
+      <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button" data-hc-shell-toggle aria-label="Open navigation" style="font-size:1.1rem;line-height:1;">☰</button>
       <button class="hc-button" data-variant="ghost" type="button" data-hc-shell-collapse aria-label="Collapse sidebar" style="font-size:1.1rem;line-height:1;">«</button>
       <strong style="display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;"><span aria-hidden="true">◆</span> Acme</strong>
       <div class="hc-input-group" style="flex:1;max-inline-size:22rem;">
@@ -376,8 +378,12 @@ demo box.
   <!-- Drop the inline block-size / --hc-shell-sidebar-width to fill the viewport. -->
   <div class="hc-shell">
     <header class="hc-shell__header" style="display:flex;align-items:center;gap:.75rem;">
-      <!-- Desktop collapse-to-rail toggle. Add a [data-hc-shell-toggle]
-           hamburger here too if you want the mobile off-canvas overlay. -->
+      <!-- installShell() wires both controls. The .hc-shell__toggle hamburger
+           shows only at mobile widths (<= 60rem) and opens the off-canvas
+           sidebar; the «-button collapses the sidebar to an icon rail on
+           desktop. -->
+      <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button"
+              data-hc-shell-toggle aria-label="Open navigation">☰</button>
       <button class="hc-button" data-variant="ghost" type="button"
               data-hc-shell-collapse aria-label="Collapse sidebar">«</button>
       <strong style="display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;"><span aria-hidden="true">◆</span> Acme</strong>

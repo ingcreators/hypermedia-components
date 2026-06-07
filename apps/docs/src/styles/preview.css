@@ -114,3 +114,35 @@
 .sl-markdown-content:has(.ks-gallery) :is(h3) + .hc-preview {
   margin-block-start: 0.5rem;
 }
+
+/* --- App-shell demo (Blocks page). ---
+ *
+ * Opt-in via `.hc-demo-shell` on the demo's `.hc-shell` so these demo-only
+ * sizing rules touch *only* that block, never a shell shown elsewhere.
+ *
+ * The shell fills a fixed-height demo box on desktop. At mobile widths
+ * (<= 60rem) hc-shell turns its sidebar into a `position: fixed` off-canvas
+ * overlay with a full-viewport scrim — correct for a real app that owns the
+ * viewport, but inside the docs it would escape this canvas and cover the
+ * whole page. Two demo-only adjustments keep it contained:
+ *   - a `transform` makes the shell its own containing block, so the fixed
+ *     sidebar + scrim resolve to the demo box instead of the viewport;
+ *   - the height follows the stacked content instead of the component's
+ *     `min-block-size: 100dvh`, so the box doesn't balloon to full height.
+ * The `block-size` lives here (not inline on the element) so this rule can
+ * override it at the breakpoint. */
+.hc-preview .hc-demo-shell {
+  block-size: 26rem;
+}
+
+@media (width <= 60rem) {
+  .hc-preview .hc-demo-shell {
+    block-size: auto;
+    min-block-size: 0;
+    transform: translateZ(0);
+    /* The shell is now the containing block for the fixed sidebar, so clipping
+       it keeps the parked (off-canvas) drawer from peeking into the page
+       gutter; the open drawer + scrim sit inside the box and aren't clipped. */
+    overflow: clip;
+  }
+}

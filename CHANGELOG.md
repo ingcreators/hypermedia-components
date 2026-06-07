@@ -29,7 +29,9 @@ Security    — security-relevant changes
   feed, and a full admin-dashboard shell (an `hc-item` sidebar nav with
   icons + an active row that **collapses to a live icon rail** via
   `installShell()`, a search header, stat cards with delta badges, and a
-  recent-orders table). The Components pages and the
+  recent-orders table; narrow the window below 60rem and the sidebar folds
+  into a **mobile hamburger** that opens it as an off-canvas drawer, kept
+  inside the demo box). The Components pages and the
   Kitchen sink show each part in isolation; this fills the gap of showing
   how they go together (the thing shadcn-style "blocks" pages do). Each
   block is a `Demo` with a **Code** tab, so the whole composed section is
