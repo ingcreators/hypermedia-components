@@ -12,7 +12,14 @@ const MOBILE = { width: 480, height: 800 };
 const rect = (loc) =>
   loc.evaluate((el) => {
     const r = el.getBoundingClientRect();
-    return { top: r.top, left: r.left, right: r.right, width: r.width, height: r.height };
+    return {
+      top: r.top,
+      left: r.left,
+      right: r.right,
+      bottom: r.bottom,
+      width: r.width,
+      height: r.height,
+    };
   });
 
 const display = (loc) => loc.evaluate((el) => getComputedStyle(el).display);
@@ -39,14 +46,51 @@ test.describe('hc-shell — desktop', () => {
     expect(Math.abs(r.height - DESKTOP.height)).toBeLessThan(4); // 100dvh
   });
 
-  test('lays sidebar | main | aside left-to-right in one row', async ({ page }) => {
+  test('default layout: a full-width header over a sidebar | main | aside row', async ({
+    page,
+  }) => {
+    const header = await rect(page.getByTestId('shell-header'));
     const sidebar = await rect(page.getByTestId('shell-sidebar'));
     const main = await rect(page.getByTestId('shell-main'));
     const aside = await rect(page.getByTestId('shell-aside'));
+    const footer = await rect(page.getByTestId('shell-footer'));
+    // header spans the full viewport width along the top
+    expect(header.left).toBeLessThan(2);
+    expect(Math.abs(header.right - DESKTOP.width)).toBeLessThan(2);
+    expect(header.top).toBeLessThan(2);
+    // below it: sidebar | main | aside, left-to-right
     expect(sidebar.left).toBeLessThan(main.left);
     expect(main.left).toBeLessThan(aside.left);
-    // sidebar spans the full height on the left
+    expect(sidebar.top).toBeGreaterThanOrEqual(header.bottom - 1);
+    // the footer matches the header — full width, bounding the sidebar bottom
+    expect(footer.left).toBeLessThan(2);
+    expect(Math.abs(footer.right - DESKTOP.width)).toBeLessThan(2);
+    expect(footer.top).toBeGreaterThanOrEqual(sidebar.bottom - 1);
+    // the aside lives in the same middle band as the sidebar — between the
+    // global header and footer, vertically aligned with the left sidebar
+    expect(aside.top).toBeGreaterThanOrEqual(header.bottom - 1);
+    expect(aside.bottom).toBeLessThanOrEqual(footer.top + 1);
+    expect(Math.abs(aside.top - sidebar.top)).toBeLessThan(2);
+    expect(Math.abs(aside.bottom - sidebar.bottom)).toBeLessThan(2);
+  });
+
+  test('data-layout="sidebar-first" spans the sidebar full-height on the left', async ({
+    page,
+  }) => {
+    await page
+      .getByTestId('shell')
+      .evaluate((el) => el.setAttribute('data-layout', 'sidebar-first'));
+    const header = await rect(page.getByTestId('shell-header'));
+    const sidebar = await rect(page.getByTestId('shell-sidebar'));
+    const main = await rect(page.getByTestId('shell-main'));
+    const footer = await rect(page.getByTestId('shell-footer'));
+    // sidebar reaches the very top and spans the full height
+    expect(sidebar.top).toBeLessThan(2);
     expect(Math.abs(sidebar.height - DESKTOP.height)).toBeLessThan(4);
+    // the header AND footer are now inset to the right of the full-height sidebar
+    expect(header.left).toBeGreaterThanOrEqual(sidebar.right - 1);
+    expect(footer.left).toBeGreaterThanOrEqual(sidebar.right - 1);
+    expect(sidebar.left).toBeLessThan(main.left);
   });
 
   test('the hamburger toggle is hidden', async ({ page }) => {

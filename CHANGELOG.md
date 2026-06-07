@@ -445,6 +445,18 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **`hc-shell` now defaults to a full-width global header and footer** that
+  bound the sidebar between them (the SAP Fiori / Google / Salesforce
+  arrangement), instead of a full-height sidebar with the header/footer inset
+  over `main`. This better fits the
+  CRM / admin framing the shell targets, and makes the mobile hamburger sit in
+  the header as expected. Opt back into the previous layout — a full-height
+  sidebar on the left, Slack / Notion / VS Code style — with
+  **`data-layout="sidebar-first"`** on the `.hc-shell`. Pure CSS (grid areas);
+  the collapsible rail, optional aside, and mobile off-canvas overlay are
+  unchanged and work in both modes. New Shell → Layout modes docs + 1
+  Playwright test per layout. (Pre-alpha: no back-compat shim — set
+  `data-layout="sidebar-first"` to keep the old look.)
 - **`hc-tabs` arrow keys are now orientation-specific.** A horizontal tablist
   no longer also navigates on <kbd>↑</kbd> / <kbd>↓</kbd> (and a vertical one
   ignores <kbd>←</kbd> / <kbd>→</kbd>), matching the WAI-ARIA APG. Home / End,
