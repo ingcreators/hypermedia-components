@@ -5,7 +5,7 @@
  * indicator that .hc-input does not provide. Size via
  * `data-size="sm|lg"`. Error via the standard `aria-invalid="true"`
  * (the accessible hook) or `data-variant="error"`; `data-variant`
- * also accepts `success` / `warning` for the other border-colour cues
+ * also accepts `success` / `warning` for the other border-color cues
  * (no native attribute exists for those). Matches hc-select /
  * hc-datepicker so every form field speaks the same vocabulary.
  */
@@ -56,7 +56,7 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
   }
 
-  /* Validation-state variants — border-colour cues. `error` mirrors
+  /* Validation-state variants — border-color cues. `error` mirrors
    * aria-invalid; `success` / `warning` have no native attribute. */
   .hc-input[data-variant="success"] {
     border-color: var(--hc-input-success-border);

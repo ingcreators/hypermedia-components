@@ -79,19 +79,19 @@ No `primary` / `secondary` / `ghost`: these surfaces communicate state, not user
 ### Value-entry fields (Input, Select, Datepicker, Input OTP, Combobox)
 
 Every field that holds a typed / picked value shares one vocabulary —
-`data-variant` recolours the **border** as a validation cue:
+`data-variant` recolors the **border** as a validation cue:
 
 - `success` = green — the value validated / is confirmed
 - `warning` = amber — accepted but needs attention
 - `error` = red — invalid
 
 For `error`, prefer the native `aria-invalid="true"` — it does the same
-recolour **and** exposes the state to assistive tech (pair it with
+recolor **and** exposes the state to assistive tech (pair it with
 `aria-describedby` for the message). `data-variant="error"` is the
 visual-only shorthand. `success` / `warning` have no native attribute,
 so the variant is the only way to express them. The `hc-field` wrapper
 carries `data-invalid="true"` to coordinate the surrounding label and
-message colours.
+message colors.
 
 Earlier releases left `hc-input` variant-free (error via `aria-invalid`
 only) while the other fields grew the `success` / `warning` / `error`
@@ -100,7 +100,7 @@ trio — this unifies them so every form field speaks the same language.
 ### Range & toggle (Slider, Toggle group)
 
 `hc-slider` takes the same `success` / `warning` / `error` trio,
-recolouring the **fill** as a level cue. `hc-toggle-group` has no
+recoloring the **fill** as a level cue. `hc-toggle-group` has no
 semantic variant — its on-state is the themed accent — but it does take
 `data-size`.
 

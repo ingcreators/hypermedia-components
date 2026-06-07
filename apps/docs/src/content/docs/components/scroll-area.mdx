@@ -5,7 +5,7 @@ description: A scrollable region with thin, themed scrollbars using the standard
 
 import Demo from '../../../components/Demo.astro';
 
-`hc-scroll-area` is a scrollable region with thin, theme-coloured
+`hc-scroll-area` is a scrollable region with thin, theme-colored
 scrollbars — the shadcn `ScrollArea` equivalent. It is **pure CSS**:
 it uses the standard CSS Scrollbars module (`scrollbar-width` +
 `scrollbar-color`, Baseline 2025), not the non-standard
@@ -93,7 +93,7 @@ edge. No JavaScript and, deliberately, **no scroll-driven animations**
 as of 2026), so it works everywhere `background-attachment: local` does. It
 honors `data-orientation` (vertical / horizontal). Because the cover layers
 paint a solid background, set `--hc-scroll-area-bg` to match whatever the
-region sits on (default: the surface colour).
+region sits on (default: the surface color).
 
 ## Accessibility
 
@@ -105,17 +105,17 @@ region sits on (default: the surface colour).
 - When the region is a meaningful chunk of content, also give it
   `role="region"` and an `aria-label` so screen-reader users get a
   navigable landmark.
-- Scrollbar colours should keep enough contrast against the track;
+- Scrollbar colors should keep enough contrast against the track;
   the defaults use the border / muted-text tokens.
 
 ## Theming tokens
 
 | Token path | Purpose |
 | --- | --- |
-| `scroll-area.thumb` | Scrollbar thumb colour (resting). |
-| `scroll-area.thumb-hover` | Thumb colour while the region is hovered. |
-| `scroll-area.track` | Scrollbar track colour (default transparent). |
-| `scroll-area.shadow` | Edge-shadow colour (`data-shadows`; theme-adaptive). |
+| `scroll-area.thumb` | Scrollbar thumb color (resting). |
+| `scroll-area.thumb-hover` | Thumb color while the region is hovered. |
+| `scroll-area.track` | Scrollbar track color (default transparent). |
+| `scroll-area.shadow` | Edge-shadow color (`data-shadows`; theme-adaptive). |
 
 ## CSS variables
 
@@ -124,8 +124,8 @@ region sits on (default: the surface colour).
 
 ```text
 --hc-scroll-area-thumb | -thumb-hover | -track
---hc-scroll-area-shadow          /* edge-shadow colour (data-shadows) */
---hc-scroll-area-bg              /* cover colour; default --hc-color-surface */
+--hc-scroll-area-shadow          /* edge-shadow color (data-shadows) */
+--hc-scroll-area-bg              /* cover color; default --hc-color-surface */
 --hc-scroll-area-shadow-cover    /* cover band size; default 1.5rem */
 --hc-scroll-area-shadow-size     /* shadow band size; default 0.6rem */
 ```

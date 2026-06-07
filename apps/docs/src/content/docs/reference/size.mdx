@@ -103,17 +103,17 @@ fingerprints each `hc-*.css` independently.
 ## Theme-axis token files
 
 The token file splits per runtime axis, so you can ship (or author) only
-the colour / density axes you actually switch between:
+the color / density axes you actually switch between:
 
 ```
-hc.tokens.core.css            ← semantic + default colour/density + dark
+hc.tokens.core.css            ← semantic + default color/density + dark
 hc.tokens.color-indigo.css    ← only when you offer the indigo theme
 hc.tokens.density-compact.css ← only when you offer compact density
 …
 ```
 
 `hc.tokens.css` (the full file) is just all of these concatenated. Each
-extra colour axis is ~0.2 KB gzip and each density tier ~0.15 KB, so
+extra color axis is ~0.2 KB gzip and each density tier ~0.15 KB, so
 dropping unused axes saves around **1 KB gzip** — small, but it's also
 the template for adding **your own** custom axis file (copy one and swap
 the values). Dropping an axis means losing its runtime switching.

@@ -1,5 +1,5 @@
 {
-  "$description": "Indigo colour theme. Emitted under [data-color=\"indigo\"]. Purple-leaning blue; works on both light and dark backgrounds with white text on primary (indigo.600 + white = ≈ 6.9:1, AA-clean).",
+  "$description": "Indigo color theme. Emitted under [data-color=\"indigo\"]. Purple-leaning blue; works on both light and dark backgrounds with white text on primary (indigo.600 + white = ≈ 6.9:1, AA-clean).",
   "color": {
     "focus-ring": { "$type": "color", "$value": "{primitive.color.indigo.500}" },
     "action": {

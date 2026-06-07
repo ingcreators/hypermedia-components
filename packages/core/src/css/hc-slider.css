@@ -9,7 +9,7 @@
  * chrome is replaced via `appearance: none` plus per-vendor
  * pseudo-elements.
  *
- * Fill colouring of the 0→value portion:
+ * Fill coloring of the 0→value portion:
  *   - Firefox renders it natively via `::-moz-range-progress`.
  *   - Chromium / WebKit have no equivalent pseudo, so we paint the
  *     same effect via a linear-gradient driven by the
@@ -19,7 +19,7 @@
  *     inline `style="--hc-slider-value: 40"`.
  *
  * Variants: data-variant="success" | "warning" | "error" → fill
- *           and thumb-border colour.
+ *           and thumb-border color.
  * Sizes:    data-size="sm" | "md" (default) | "lg".
  */
 @layer hc.components {
@@ -37,7 +37,7 @@
      * 0 so the gradient renders even before installSlider runs. */
     --hc-slider-value: 0;
 
-    /* The current fill colour and gradient direction. Variants recolour
+    /* The current fill color and gradient direction. Variants recolor
      * `--hc-slider-fill-current`; the vertical orientation flips
      * `--hc-slider-fill-dir`. Only WebKit / Chromium read these — Firefox
      * fills natively via ::-moz-range-progress. */
@@ -109,7 +109,7 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
   }
 
-  /* Variants — recolour the fill (via --hc-slider-fill-current, read by both
+  /* Variants — recolor the fill (via --hc-slider-fill-current, read by both
    * the WebKit gradient and the Firefox progress) + the thumb border. */
   .hc-slider[data-variant="success"] {
     --hc-slider-fill-current: var(--hc-slider-success-fill);

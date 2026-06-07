@@ -42,7 +42,7 @@
    * so a shadow appears ONLY when there is more content to scroll in that
    * direction. No JavaScript and no scroll-driven animations (`scroll()` is
    * not Baseline as of 2026) — it works everywhere `background-attachment:
-   * local` does. The cover colour is `--hc-scroll-area-bg` (default the
+   * local` does. The cover color is `--hc-scroll-area-bg` (default the
    * surface); set it to match whatever the region sits on. */
   .hc-scroll-area[data-shadows] {
     --hc-scroll-area-bg: var(--hc-color-surface);

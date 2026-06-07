@@ -11,7 +11,7 @@ for free. Beyond that, the kit adapts to the user's context in CSS:
 ## Forced Colors (Windows High Contrast)
 
 When a user turns on a high-contrast / forced-colors theme, the browser
-**replaces author colours with the user's system palette and drops
+**replaces author colors with the user's system palette and drops
 `box-shadow`**. Two HC patterns would otherwise break:
 
 1. **Focus rings** drawn with `box-shadow` (the inputs, selects, custom
@@ -21,7 +21,7 @@ When a user turns on a high-contrast / forced-colors theme, the browser
    indistinguishable.
 
 A single forced-colors stylesheet (`hc.a11y.css`, shipped inside the main
-`hc.css` bundle) re-expresses both using **CSS system colours**, which
+`hc.css` bundle) re-expresses both using **CSS system colors**, which
 forced-colors mode preserves:
 
 - **Focus** is restored as a real `outline` (`Highlight`) wherever a

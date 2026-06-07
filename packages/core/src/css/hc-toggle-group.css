@@ -24,7 +24,7 @@
  * `installToggleGroup()` supplies roving tabindex, arrow-key
  * navigation, and the toggle / selection logic. The CSS here is the
  * connected-segmented-control skin and the on / hover / disabled
- * states; the "on" accent (background + border) reads the active colour
+ * states; the "on" accent (background + border) reads the active color
  * theme through the `data-color` cascade.
  *
  * Sizes: data-size="sm" | "md" (default) | "lg" on the group.

@@ -11,7 +11,7 @@
  * rule in `.sl-markdown-content` is written with a trailing
  * `:not(:where(.not-content *))`, so adding the class excludes the
  * wrapper's descendants from the entire prose layer — vertical
- * rhythm, link colour, inline code background, heading colour, and
+ * rhythm, link color, inline code background, heading color, and
  * the `display: block; max-width: 100%` image rule.
  *
  * `.hc-preview` is only the canvas *chrome*: an elevated surface that

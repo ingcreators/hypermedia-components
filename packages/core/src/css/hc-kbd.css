@@ -7,7 +7,7 @@
  *
  * Sizes via data-size: sm | (default) | lg. Padding / min-width are em-based,
  * so a single data-size on the key (or the group) scales the whole cap.
- * Colours reference the semantic surface/text/border tokens, so keycaps adapt
+ * Colors reference the semantic surface/text/border tokens, so keycaps adapt
  * to the dark theme automatically. No JS.
  */
 @layer hc.components {
@@ -33,8 +33,8 @@
   .hc-kbd[data-size="lg"] { font-size: var(--hc-kbd-lg-font-size); }
 
   /* Group: an inline cluster of keys with literal separators ("+", "then").
-   * The group carries the muted colour so the separators read quieter than
-   * the keys; nested .hc-kbd reset to their own keycap colours. */
+   * The group carries the muted color so the separators read quieter than
+   * the keys; nested .hc-kbd reset to their own keycap colors. */
   .hc-kbd-group {
     display: inline-flex;
     align-items: center;
@@ -48,7 +48,7 @@
   .hc-kbd-group[data-size="sm"] { font-size: var(--hc-kbd-sm-font-size); }
   .hc-kbd-group[data-size="lg"] { font-size: var(--hc-kbd-lg-font-size); }
 
-  /* Keys inside a group follow the group's size and keep their own colour. */
+  /* Keys inside a group follow the group's size and keep their own color. */
   .hc-kbd-group .hc-kbd {
     font-size: inherit;
   }

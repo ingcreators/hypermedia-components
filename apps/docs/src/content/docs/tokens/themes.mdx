@@ -24,7 +24,7 @@ ancestor and they all cascade together.
 | `rose`             | `#be123c` (rose.700) | `#9f1239`         | white            | Marketing / CRM / healthcare |
 | `amber`            | `#f59e0b` (amber.500) | `#d97706`        | gray.900         | Energetic / productivity — Notion-yellow |
 
-Two shades land deeper on the colour scale (emerald.700, rose.700) so
+Two shades land deeper on the color scale (emerald.700, rose.700) so
 white text on the button clears the 4.5:1 contrast bar that the
 brighter 600 shades would have missed. Amber is the inverse — the
 500 shade is bright enough that dark text becomes the contrast-clean
@@ -148,7 +148,7 @@ an otherwise neutral app), attach it locally:
 ```
 
 The attribute changes only the accent palette. It does **not** touch
-the surface / background / text colours — those are owned by
+the surface / background / text colors — those are owned by
 [`data-theme`](/hypermedia-components/) (light / dark).
 
 ## What changes
@@ -167,7 +167,7 @@ These tokens are overridden per `data-color` value (under
 ```
 
 `primary-soft-bg` is a 12 % (18 % for amber) tint of the theme's
-primary colour generated with `color-mix()` and `transparent`, so the
+primary color generated with `color-mix()` and `transparent`, so the
 same value blends correctly on both light and dark surfaces — no
 per-mode variant required.
 
@@ -181,7 +181,7 @@ Components and surfaces affected by the cascade:
 
 - [Button](/hypermedia-components/components/button/) — `data-variant="primary"` background and hover state.
 - [Button](/hypermedia-components/components/button/) — `data-variant="ghost"` **hover** background now picks up the theme tint instead of a neutral grey.
-- [Input](/hypermedia-components/components/input/) — the `:focus-visible` border colour follows the theme's focus-ring shade.
+- [Input](/hypermedia-components/components/input/) — the `:focus-visible` border color follows the theme's focus-ring shade.
 - [Checkbox](/hypermedia-components/components/checkbox/) — `:checked` fill (when no per-variant override).
 - [Radio](/hypermedia-components/components/radio/) — `:checked` fill.
 - [Pagination](/hypermedia-components/components/pagination/) — the `aria-current="page"` cell.
@@ -192,9 +192,9 @@ Components and tokens deliberately **not** affected:
 
 - `data-variant="secondary"` (on `hc-button`) — neutral grey by design. Keeps `primary` visually distinct as the brand-themed action, while `secondary` reads as a second-tier neutral CTA in every theme.
 - `data-variant="error"` / `data-variant="success"` — semantic meaning, must stay red / green regardless of accent.
-- Semantic colours (`info`, `success`, `warning`, `error`) — informational palette, fixed.
-- `--hc-color-muted-bg` — generic muted surface bg, swaps only between light and dark, never between colour themes.
-- Surface / background / text colours — owned by `data-theme` (light / dark).
+- Semantic colors (`info`, `success`, `warning`, `error`) — informational palette, fixed.
+- `--hc-color-muted-bg` — generic muted surface bg, swaps only between light and dark, never between color themes.
+- Surface / background / text colors — owned by `data-theme` (light / dark).
 - Container padding / gap — owned by `data-density`.
 
 ## Authoring your own theme
@@ -207,7 +207,7 @@ build or drop it onto a live page without one.
 :::tip[Use the Theme builder]
 Don't hand-write either of these. The interactive
 [Theme builder](/hypermedia-components/tokens/theme-builder/) takes a
-single brand colour, derives the hover / soft-tint / text-on-primary
+single brand color, derives the hover / soft-tint / text-on-primary
 shades, checks the contrast live, and **generates all three artifacts
 below for you** — the DTCG source (Path B), the ready-to-paste CSS
 block (Path A), and a full token CSS. It does this by running the
@@ -216,7 +216,7 @@ real token build in your browser, so the output is always correct.
 
 ### How the cascade actually works (important)
 
-A colour theme is **not** just the seven `--hc-color-action-primary-*`
+A color theme is **not** just the seven `--hc-color-action-primary-*`
 semantic variables. Components don't read those directly — each reads
 its own `--hc-{component}-*` variable (`--hc-button-primary-bg`,
 `--hc-checkbox-checked-bg`, `--hc-pagination-current-bg`, …), and the
@@ -225,7 +225,7 @@ is why every `[data-color]` block in `hc.tokens.css` redeclares ~50
 component variables, not 7.
 
 So **overriding only the semantic variables at runtime does not
-recolour buttons, checkboxes, etc.** (a custom-property reference is
+recolor buttons, checkboxes, etc.** (a custom-property reference is
 resolved on the element that declares it and then inherited frozen, so
 a nested `[data-color]` wrapper can't re-resolve it). A correct
 runtime override has to redeclare the **component** variables — the
@@ -246,7 +246,7 @@ step. It works site-wide or on a subtree:
 ```
 
 The generated block looks like a built-in theme block — every
-affected component variable, resolved to your colour:
+affected component variable, resolved to your color:
 
 ```css
 @layer hc.tokens {
@@ -276,7 +276,7 @@ source and register it with the transformer.
 
    ```json
    {
-     "$description": "Brand colour theme. Emitted under [data-color=\"brand\"].",
+     "$description": "Brand color theme. Emitted under [data-color=\"brand\"].",
      "color": {
        "focus-ring": { "$type": "color", "$value": "{primitive.color.violet.500}" },
        "action": {
@@ -309,7 +309,7 @@ source and register it with the transformer.
    `[data-color="brand"]` automatically — the same machinery the
    built-in themes use.
 
-Either path overrides only the accent tokens; surface / text colours
+Either path overrides only the accent tokens; surface / text colors
 stay owned by `data-theme`, and control sizing by `data-density`.
 
 ## Accessibility
@@ -317,7 +317,7 @@ stay owned by `data-theme`, and control sizing by `data-density`.
 Each theme passes WCAG AA contrast for the button's text-on-primary
 combination:
 
-| Theme    | Text colour | Primary bg | Contrast ratio |
+| Theme    | Text color | Primary bg | Contrast ratio |
 | -------- | ----------- | ---------- | -------------- |
 | default  | white       | #2563eb    | 4.9 : 1        |
 | indigo   | white       | #4f46e5    | 6.9 : 1        |
@@ -328,12 +328,12 @@ combination:
 Verified against [WebAIM's contrast checker](https://webaim.org/resources/contrastchecker/).
 
 The [Theme builder](/hypermedia-components/tokens/theme-builder/) runs
-this same contrast check live as you pick a colour, so a custom theme
+this same contrast check live as you pick a color, so a custom theme
 tells you immediately whether the text-on-primary pair clears AA.
 
 ## Related
 
-- [Theme builder](/hypermedia-components/tokens/theme-builder/) — generate a custom accent palette from one colour, with live contrast checking.
+- [Theme builder](/hypermedia-components/tokens/theme-builder/) — generate a custom accent palette from one color, with live contrast checking.
 - [Density](/hypermedia-components/tokens/density/) — orthogonal axis for tightness.
 - [Tokens overview](/hypermedia-components/tokens/) — the four-layer model.
 - [Button](/hypermedia-components/components/button/), [Checkbox](/hypermedia-components/components/checkbox/), [Radio](/hypermedia-components/components/radio/), [Pagination](/hypermedia-components/components/pagination/) — primary consumers of the theme.

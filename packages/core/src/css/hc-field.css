@@ -53,7 +53,7 @@
   /* Native constraint validation — when a contained control is invalid
    * after user interaction (`:user-invalid`), react like the manual
    * `data-invalid` hook, with no JS required. The control paints its own
-   * border via its `:user-invalid` rule; this colours the help message. */
+   * border via its `:user-invalid` rule; this colors the help message. */
   .hc-field:has(:user-invalid) .hc-field__message {
     color: var(--hc-field-invalid-message-color);
   }
