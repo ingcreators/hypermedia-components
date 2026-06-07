@@ -28,8 +28,9 @@ Security    — security-relevant changes
   table with a search/action bar and pager, a sign-in card, an activity
   feed, and a full app shell with a stat grid. The Components pages and the
   Kitchen sink show each part in isolation; this fills the gap of showing
-  how they go together (the thing shadcn-style "blocks" pages do). Live
-  previews built from the documented classes; no new component code.
+  how they go together (the thing shadcn-style "blocks" pages do). Each
+  block is a `Demo` with a **Code** tab, so the whole composed section is
+  copy-pasteable; built from the documented classes, no new component code.
 
 - **`hc-item` — generic list / option row primitive.** A shared row layout —
   `__media` (icon / avatar) + `__content` (`__title` / `__description`) +
