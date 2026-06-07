@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **Nested `data-density` / `data-theme` no longer freeze a few controls.**
+  `select` height/padding, `multicombobox` control min-height, and
+  `skeleton` bg/highlight used literal `var(--hc-control-*)` /
+  `var(--hc-color-*)` indirection, which CSS resolves on the declaring
+  element (`:root`) and then inherits frozen — so a nested
+  `[data-density]` / `[data-theme="dark"]` wrapper couldn't re-resolve
+  them. Switched these leaves to `{ref}` form so the build re-emits a
+  concrete value in each themed block, matching every other control.
 - **Theme builder now actually recolours components.** The first cut
   overrode only the seven `--hc-color-action-primary-*` semantic
   variables, which components don't read directly (each reads a
