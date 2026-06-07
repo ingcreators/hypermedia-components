@@ -177,15 +177,13 @@
     'color.amber': colorAmber,
   };
 
-  // Neutral ramps. `gray` mirrors the current primitive values exactly; the
-  // rest are the standard Tailwind ramps.
-  const RAMPS = {
-    gray:    { 50:'#f9fafb',100:'#f3f4f6',200:'#e5e7eb',300:'#d0d5dd',400:'#9ca3af',500:'#6b7280',600:'#4b5563',700:'#374151',800:'#1f2937',900:'#111827',950:'#030712' },
-    slate:   { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a',950:'#020617' },
-    zinc:    { 50:'#fafafa',100:'#f4f4f5',200:'#e4e4e7',300:'#d4d4d8',400:'#a1a1aa',500:'#71717a',600:'#52525b',700:'#3f3f46',800:'#27272a',900:'#18181b',950:'#09090b' },
-    neutral: { 50:'#fafafa',100:'#f5f5f5',200:'#e5e5e5',300:'#d4d4d4',400:'#a3a3a3',500:'#737373',600:'#525252',700:'#404040',800:'#262626',900:'#171717',950:'#0a0a0a' },
-    stone:   { 50:'#fafaf9',100:'#f5f5f4',200:'#e7e5e4',300:'#d6d3d1',400:'#a8a29e',500:'#78716c',600:'#57534e',700:'#44403c',800:'#292524',900:'#1c1917',950:'#0c0a09' },
-  };
+  // Neutral ramps live in the primitive tokens (slate/zinc/neutral/stone +
+  // the default gray). Reference them by DTCG path so the builder stays a
+  // single source of truth with the library — buildTokensCss resolves the
+  // {ref} against the imported primitive tree, and the DTCG export shows
+  // proper {primitive.color.*} references rather than baked hex.
+  const NEUTRALS = ['gray', 'slate', 'zinc', 'neutral', 'stone'];
+  const nref = (ramp, shade) => `{primitive.color.${ramp}.${shade}}`;
 
   // ---- Colour maths (WCAG 2.x) ----
   function hexToRgb(hex) { const m=/^#?([0-9a-f]{6})$/i.exec(hex.trim()); if(!m) return null; const n=parseInt(m[1],16); return [(n>>16)&255,(n>>8)&255,n&255]; }
@@ -249,33 +247,33 @@
     };
   }
   function semanticLightPatch(m){
-    const r = RAMPS[m.neutral];
+    const r = (shade) => c(nref(m.neutral, shade));
     return {
       color: {
-        bg: c(r[50]), text: c(r[900]), 'text-muted': c(r[600]), border: c(r[300]), 'muted-bg': c(r[100]),
+        bg: r(50), text: r(900), 'text-muted': r(600), border: r(300), 'muted-bg': r(100),
         'focus-ring': c(m.ring),
         action: {
           primary: { bg: c(m.bg), fg: c(m.fg), border: c(m.bg) },
           'primary-hover': { bg: c(m.hover), border: c(m.hover) },
           'primary-soft': { bg: c(m.soft) },
-          secondary: { bg: c(r[100]), fg: c(r[900]), border: c(r[100]) },
-          'secondary-hover': { bg: c(r[200]), border: c(r[200]) },
+          secondary: { bg: r(100), fg: r(900), border: r(100) },
+          'secondary-hover': { bg: r(200), border: r(200) },
         },
-        status: { neutral: { bg: c(r[100]), fg: c(r[800]), border: c(r[200]) } },
+        status: { neutral: { bg: r(100), fg: r(800), border: r(200) } },
       },
       control: { radius: { $type: 'dimension', $value: `${m.radius}px` } },
     };
   }
   function darkPatch(m){
-    const r = RAMPS[m.neutral];
+    const r = (shade) => c(nref(m.neutral, shade));
     return {
       color: {
-        bg: c(r[900]), surface: c(r[800]), text: c(r[100]), 'text-muted': c(r[400]), border: c(r[700]), 'muted-bg': c(r[700]),
+        bg: r(900), surface: r(800), text: r(100), 'text-muted': r(400), border: r(700), 'muted-bg': r(700),
         action: {
-          secondary: { bg: c(r[700]), fg: c(r[100]), border: c(r[700]) },
-          'secondary-hover': { bg: c(r[600]), border: c(r[600]) },
+          secondary: { bg: r(700), fg: r(100), border: r(700) },
+          'secondary-hover': { bg: r(600), border: r(600) },
         },
-        status: { neutral: { bg: c(r[800]), fg: c(r[100]), border: c(r[700]) } },
+        status: { neutral: { bg: r(800), fg: r(100), border: r(700) } },
       },
     };
   }
@@ -315,7 +313,7 @@
         bg, fg, ring: bg,
         hover: darken(bg, Number($hover.value)),
         soft: `color-mix(in srgb, ${bg} ${Number($soft.value)}%, transparent)`,
-        neutral: $neutral.value in RAMPS ? $neutral.value : 'gray',
+        neutral: NEUTRALS.includes($neutral.value) ? $neutral.value : 'gray',
         radius: Number($radius.value),
       };
     }
