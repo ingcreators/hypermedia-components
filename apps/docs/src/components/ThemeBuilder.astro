@@ -474,6 +474,9 @@
   @media (min-width: 56rem) { .tb__grid { grid-template-columns: minmax(16rem, 22rem) 1fr; align-items: start; } }
   .tb__controls { display: grid; gap: 1rem; }
   #tb-full-controls { display: grid; gap: 1rem; }
+  /* An id selector beats the UA `[hidden] { display: none }`, so re-assert
+     it — otherwise the Full-theme-only controls stay visible in Accent mode. */
+  #tb-full-controls[hidden] { display: none; }
   .tb__colorrow { display: flex; gap: 0.5rem; align-items: center; }
   .tb__colorrow input[type='color'] {
     inline-size: 2.75rem; block-size: 2.5rem; padding: 0; flex: none; cursor: pointer;

@@ -22,6 +22,12 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **Theme builder Accent mode hid no extra controls.** The Full-theme-only
+  controls (neutral ramp, radius) stayed visible in Accent mode: an
+  `#id` selector (`display: grid`) outranked the UA `[hidden]` rule, so
+  `hidden` had no effect. Re-asserted `#tb-full-controls[hidden] { display:
+  none }`. (Output was already correct — Accent mode never read those
+  values — but the UI was misleading.)
 - **`data-neutral` dark mode with `data-theme` on an ancestor.** The dark
   neutral block only matched when `data-theme="dark"` and `data-neutral`
   were on the **same** element, so the common setup (`data-theme` on
