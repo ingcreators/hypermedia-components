@@ -296,13 +296,19 @@ active one selected); the header carries search and an account avatar; the
 main has a toolbar, a [grid](/hypermedia-components/fundamentals/layout/) of
 stat [cards](/hypermedia-components/components/card/) with delta
 [badges](/hypermedia-components/components/badge/), and a recent-orders
-[table](/hypermedia-components/components/table/). The inline `block-size` /
-`--hc-shell-sidebar-width` just scale it into the box below — drop them and
-the shell fills the viewport (the sidebar collapses on mobile).
+[table](/hypermedia-components/components/table/). **Click « to collapse the
+sidebar to an icon rail** — it's live, driven by `installShell()`
+(`data-collapsible` on the nav + a `[data-hc-shell-collapse]` button; each
+label is wrapped in `.hc-shell__label`, kept in the a11y tree). The inline
+`block-size` / `--hc-shell-sidebar-width` just scale the shell into the box
+below; drop them and it fills the viewport (the sidebar becomes an
+off-canvas overlay on mobile).
 
 <Demo>
   <div class="hc-shell" style="block-size:26rem;--hc-shell-sidebar-width:13rem;--hc-shell-pad:var(--hc-space-3);">
     <header class="hc-shell__header" style="display:flex;align-items:center;gap:.75rem;">
+      <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button" data-hc-shell-toggle aria-label="Open navigation" style="font-size:1.1rem;line-height:1;">☰</button>
+      <button class="hc-button" data-variant="ghost" type="button" data-hc-shell-collapse aria-label="Collapse sidebar" style="font-size:1.1rem;line-height:1;">«</button>
       <strong style="display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;"><span aria-hidden="true">◆</span> Acme</strong>
       <div class="hc-input-group" style="flex:1;max-inline-size:22rem;">
         <span class="hc-input-addon" aria-hidden="true">🔍</span>
@@ -311,15 +317,15 @@ the shell fills the viewport (the sidebar collapses on mobile).
       <button class="hc-button" data-variant="ghost" type="button" aria-label="Notifications" style="margin-inline-start:auto;">🔔</button>
       <span class="hc-avatar" aria-label="Your account" data-size="sm">Y</span>
     </header>
-    <nav class="hc-shell__sidebar" aria-label="Primary" style="display:flex;flex-direction:column;gap:.1rem;">
-      <button class="hc-button" data-variant="primary" type="button" style="margin-block-end:.5rem;">+ New order</button>
-      <p style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
-      <a class="hc-item" href="#" data-selected aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><div class="hc-item__content"><span class="hc-item__title">Dashboard</span></div></a>
-      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">📦</span><div class="hc-item__content"><span class="hc-item__title">Orders</span></div></a>
-      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">👤</span><div class="hc-item__content"><span class="hc-item__title">Customers</span></div></a>
-      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">🏷️</span><div class="hc-item__content"><span class="hc-item__title">Products</span></div></a>
-      <p style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
-      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">⚙️</span><div class="hc-item__content"><span class="hc-item__title">Settings</span></div></a>
+    <nav class="hc-shell__sidebar" aria-label="Primary" data-collapsible style="display:flex;flex-direction:column;gap:.1rem;">
+      <button class="hc-button" data-variant="primary" type="button" style="margin-block-end:.5rem;">+ <span class="hc-shell__label">New order</span></button>
+      <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
+      <a class="hc-item" href="#" data-selected aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Dashboard</span></div></a>
+      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">📦</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Orders</span></div></a>
+      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">👤</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Customers</span></div></a>
+      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">🏷️</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Products</span></div></a>
+      <p class="hc-shell__label" style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
+      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">⚙️</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Settings</span></div></a>
     </nav>
     <main class="hc-shell__main">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-block-end:1rem;">
@@ -369,6 +375,13 @@ the shell fills the viewport (the sidebar collapses on mobile).
   <!-- Drop the inline block-size / --hc-shell-sidebar-width to fill the viewport. -->
   <div class="hc-shell">
     <header class="hc-shell__header" style="display:flex;align-items:center;gap:.75rem;">
+      <!-- Mobile hamburger (.hc-shell__toggle is desktop-hidden);
+           required for installShell() to attach to the shell. -->
+      <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button"
+              data-hc-shell-toggle aria-label="Open navigation">☰</button>
+      <!-- Desktop collapse-to-rail toggle (mobile-hidden). -->
+      <button class="hc-button" data-variant="ghost" type="button"
+              data-hc-shell-collapse aria-label="Collapse sidebar">«</button>
       <strong style="display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;"><span aria-hidden="true">◆</span> Acme</strong>
       <div class="hc-input-group" style="flex:1;max-inline-size:22rem;">
         <span class="hc-input-addon" aria-hidden="true">🔍</span>
@@ -378,31 +391,35 @@ the shell fills the viewport (the sidebar collapses on mobile).
       <span class="hc-avatar" aria-label="Your account" data-size="sm">Y</span>
     </header>
 
-    <nav class="hc-shell__sidebar" aria-label="Primary" style="display:flex;flex-direction:column;gap:.1rem;">
-      <button class="hc-button" data-variant="primary" type="button" style="margin-block-end:.5rem;">+ New order</button>
+    <!-- data-collapsible + the [data-hc-shell-collapse] button above let
+         installShell() toggle this to an icon rail; .hc-shell__label hides
+         each label in the rail but keeps it in the accessibility tree. -->
+    <nav class="hc-shell__sidebar" aria-label="Primary" data-collapsible
+         style="display:flex;flex-direction:column;gap:.1rem;">
+      <button class="hc-button" data-variant="primary" type="button">+ <span class="hc-shell__label">New order</span></button>
 
-      <p style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
+      <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
       <a class="hc-item" href="/dashboard" data-selected aria-current="page">
         <span class="hc-item__media" aria-hidden="true">▦</span>
-        <div class="hc-item__content"><span class="hc-item__title">Dashboard</span></div>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Dashboard</span></div>
       </a>
       <a class="hc-item" href="/orders">
         <span class="hc-item__media" aria-hidden="true">📦</span>
-        <div class="hc-item__content"><span class="hc-item__title">Orders</span></div>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Orders</span></div>
       </a>
       <a class="hc-item" href="/customers">
         <span class="hc-item__media" aria-hidden="true">👤</span>
-        <div class="hc-item__content"><span class="hc-item__title">Customers</span></div>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Customers</span></div>
       </a>
       <a class="hc-item" href="/products">
         <span class="hc-item__media" aria-hidden="true">🏷️</span>
-        <div class="hc-item__content"><span class="hc-item__title">Products</span></div>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Products</span></div>
       </a>
 
-      <p style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
+      <p class="hc-shell__label" style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
       <a class="hc-item" href="/settings">
         <span class="hc-item__media" aria-hidden="true">⚙️</span>
-        <div class="hc-item__content"><span class="hc-item__title">Settings</span></div>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Settings</span></div>
       </a>
     </nav>
 
