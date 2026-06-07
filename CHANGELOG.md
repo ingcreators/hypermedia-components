@@ -39,6 +39,12 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Icons guide (docs).** A new
+  [`fundamentals/icons`](apps/docs/src/content/docs/fundamentals/icons.mdx)
+  page: HC ships no icons by design; the guide recommends sets that pair
+  cleanly (Iconify `<iconify-icon>`, Lucide, SVG sprite), explains the
+  `currentColor` + `.hc-icon` wiring, the htmx re-init caveat, and a11y for
+  icon-only controls, with live inline-SVG examples.
 - **`.hc-icon` utility + `--hc-icon-size` token.** A bring-your-own-icon
   sizing helper (HC ships no icons). `.hc-icon` sizes to the surrounding
   text by default (`--hc-icon-size: 1em`) and sets `flex: none` +
