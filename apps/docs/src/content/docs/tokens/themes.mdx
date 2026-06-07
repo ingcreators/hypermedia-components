@@ -31,11 +31,15 @@ semi-transparent, shown over a checkerboard):
 
 | `data-color` value | Primary bg          | Hover bg          | Text on primary | Common use case |
 | ------------------ | ------------------- | ----------------- | --------------- | --------------- |
-| _(none)_ / `default` | `#2563eb` (blue.600) | `#1d4ed8`        | white            | Default neutral SaaS — Linear, AWS-style |
-| `indigo`           | `#4f46e5` (indigo.600) | `#4338ca`       | white            | Modern SaaS — Tailwind, Cal.com |
-| `emerald`          | `#047857` (green.700) | `#065f46`        | white            | Fintech / sustainability — Stripe Atlas |
-| `rose`             | `#be123c` (rose.700) | `#9f1239`         | white            | Marketing / CRM / healthcare |
-| `amber`            | `#f59e0b` (amber.500) | `#d97706`        | gray.900         | Energetic / productivity — Notion-yellow |
+| _(none)_ / `default` | `#2563eb` (blue.600) | `#1d4ed8` (blue.700) | white         | Default neutral SaaS — Linear, AWS-style |
+| `indigo`           | `#4f46e5` (indigo.600) | `#4338ca` (indigo.700) | white      | Modern SaaS — Tailwind, Cal.com |
+| `emerald`          | `#047857` (green.700) | `#065f46` (green.800) | white         | Fintech / sustainability — Stripe Atlas |
+| `rose`             | `#be123c` (rose.700) | `#9f1239` (rose.800) | white           | Marketing / CRM / healthcare |
+| `amber`            | `#f59e0b` (amber.500) | `#d97706` (amber.600) | gray.900       | Energetic / productivity — Notion-yellow |
+
+Every value above resolves to a [primitive ramp](/hypermedia-components/tokens/palette/)
+shade — these themes don't introduce new colors, they re-point the accent
+at a different ramp.
 
 Two shades land deeper on the color scale (emerald.700, rose.700) so
 white text on the button clears the 4.5:1 contrast bar that the
