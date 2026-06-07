@@ -20,6 +20,17 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **`data-neutral` dark mode with `data-theme` on an ancestor.** The dark
+  neutral block only matched when `data-theme="dark"` and `data-neutral`
+  were on the **same** element, so the common setup (`data-theme` on
+  `<html>`, `data-neutral` on a subtree) fell through to the *light* ramp —
+  a light panel with an unreadable dark card in dark mode. The dark block
+  now also matches the descendant form
+  (`[data-theme="dark"] [data-neutral="X"]`). Added a regression test for
+  the ancestor-theme / descendant-neutral case.
+
 ### Added
 
 - **`data-neutral` axis — swap the neutral ramp.** A new runtime axis,
