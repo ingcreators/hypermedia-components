@@ -156,8 +156,8 @@
     }
   },
   "select": {
-    "height":         { "$type": "dimension",  "$value": "var(--hc-control-height)" },
-    "padding-x":      { "$type": "dimension",  "$value": "var(--hc-control-padding-x)" },
+    "height":         { "$type": "dimension",  "$value": "{semantic.control.height}" },
+    "padding-x":      { "$type": "dimension",  "$value": "{semantic.control.padding-x}" },
     "radius":         { "$type": "dimension",  "$value": "{semantic.control.radius}" },
     "font-size":      { "$type": "dimension",  "$value": "{semantic.font.size-md}" },
     "bg":             { "$type": "color",      "$value": "{semantic.color.surface}" },
@@ -233,7 +233,7 @@
       "padding-x":   { "$type": "dimension", "$value": "{primitive.space.2}" },
       "padding-y":   { "$type": "dimension", "$value": "{primitive.space.1}" },
       "gap":         { "$type": "dimension", "$value": "{primitive.space.1}" },
-      "min-height":  { "$type": "dimension", "$value": "var(--hc-control-height)" }
+      "min-height":  { "$type": "dimension", "$value": "{semantic.control.height}" }
     },
     "input": {
       "min-width":   { "$type": "dimension", "$value": "6rem" },
@@ -340,8 +340,8 @@
     }
   },
   "skeleton": {
-    "bg":             { "$type": "color",     "$value": "var(--hc-color-muted-bg)" },
-    "highlight":      { "$type": "color",     "$value": "color-mix(in srgb, var(--hc-skeleton-bg), white 35%)" },
+    "bg":             { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
+    "highlight":      { "$type": "color",     "$value": "color-mix(in srgb, {semantic.color.muted-bg}, white 35%)" },
     "radius":         { "$type": "dimension", "$value": "{primitive.radius.md}" },
     "text-radius":    { "$type": "dimension", "$value": "{primitive.radius.sm}" },
     "text-height":    { "$type": "dimension", "$value": "1em" },
