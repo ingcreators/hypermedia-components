@@ -88,7 +88,9 @@
     "8": { "$type": "dimension", "$value": "{primitive.space.8}" }
   },
   "font": {
-    "family-sans": { "$type": "fontFamily", "$value": "{primitive.font.family.sans}" },
+    "family-sans":    { "$type": "fontFamily", "$value": "{primitive.font.family.sans}" },
+    "family-heading": { "$type": "fontFamily", "$value": "{primitive.font.family.sans}" },
+    "family-mono":    { "$type": "fontFamily", "$value": "{primitive.font.family.mono}" },
     "size-sm":     { "$type": "dimension",  "$value": "{primitive.font.size.sm}" },
     "size-md":     { "$type": "dimension",  "$value": "{primitive.font.size.md}" },
     "size-lg":     { "$type": "dimension",  "$value": "{primitive.font.size.lg}" },
