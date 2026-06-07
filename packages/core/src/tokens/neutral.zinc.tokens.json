@@ -1,0 +1,67 @@
+{
+  "$description": "Zinc neutral ramp (light). Emitted under [data-neutral=\"zinc\"]. Swaps surface-family neutrals; pairs with any data-color accent. Surface stays white (matches the default gray neutral).",
+  "color": {
+    "bg": {
+      "$type": "color",
+      "$value": "{primitive.color.zinc.50}"
+    },
+    "text": {
+      "$type": "color",
+      "$value": "{primitive.color.zinc.900}"
+    },
+    "text-muted": {
+      "$type": "color",
+      "$value": "{primitive.color.zinc.600}"
+    },
+    "border": {
+      "$type": "color",
+      "$value": "{primitive.color.zinc.300}"
+    },
+    "muted-bg": {
+      "$type": "color",
+      "$value": "{primitive.color.zinc.100}"
+    },
+    "action": {
+      "secondary": {
+        "bg": {
+          "$type": "color",
+          "$value": "{primitive.color.zinc.100}"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{primitive.color.zinc.900}"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{primitive.color.zinc.100}"
+        }
+      },
+      "secondary-hover": {
+        "bg": {
+          "$type": "color",
+          "$value": "{primitive.color.zinc.200}"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{primitive.color.zinc.200}"
+        }
+      }
+    },
+    "status": {
+      "neutral": {
+        "bg": {
+          "$type": "color",
+          "$value": "{primitive.color.zinc.100}"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{primitive.color.zinc.800}"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{primitive.color.zinc.200}"
+        }
+      }
+    }
+  }
+}

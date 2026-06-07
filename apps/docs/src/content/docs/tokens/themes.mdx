@@ -10,11 +10,24 @@ Five themes ship out of the box; each accent shade has been picked to
 clear WCAG AA contrast in **both** light and dark mode, so the same
 attribute works regardless of the active `data-theme`.
 
-`data-color` is orthogonal to `data-theme` (light / dark) and
+`data-color` changes **only the accent** — the primary action colour and
+focus ring. It is orthogonal to [`data-neutral`](/hypermedia-components/tokens/neutral/)
+(the surface / text / border ramp), `data-theme` (light / dark), and
 `data-density` (comfortable / compact / dense). Set them on the same
-ancestor and they all cascade together.
+ancestor and they all cascade together — e.g. `data-color="indigo"
+data-neutral="slate"` is an indigo accent on a cool slate UI. To change
+the greys, reach for `data-neutral`; this page is just the accent.
+
+import ColorThemeSwatches from '../../../components/ColorThemeSwatches.astro';
 
 ## Themes
+
+Each built-in theme is accent-only — its palette is the primary / hover /
+soft-tint / text-on-primary / focus-ring set below (the `soft` swatch is
+semi-transparent, shown over a checkerboard):
+
+<ColorThemeSwatches />
+
 
 | `data-color` value | Primary bg          | Hover bg          | Text on primary | Common use case |
 | ------------------ | ------------------- | ----------------- | --------------- | --------------- |

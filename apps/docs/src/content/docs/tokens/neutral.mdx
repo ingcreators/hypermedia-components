@@ -1,0 +1,109 @@
+---
+title: Neutral ramps
+description: Swap the whole UI's neutral ramp — surface, text, border, muted, secondary — via a single data-neutral attribute. Five ramps (gray, slate, zinc, neutral, stone), each tuned for light and dark, orthogonal to the accent colour.
+sidebar:
+  order: 4
+---
+
+The `data-neutral` attribute on `<html>` (or any subtree) swaps the
+**neutral ramp** — the greys behind every surface, border, muted
+background, secondary button, and body text — without touching the
+accent colour. Five ramps ship out of the box, each tuned for **both**
+light and dark.
+
+`data-neutral` is orthogonal to [`data-color`](/hypermedia-components/tokens/themes/)
+(accent), `data-theme` (light / dark), and
+[`data-density`](/hypermedia-components/tokens/density/). Set them on the
+same ancestor and they all cascade together — e.g. an indigo accent on a
+slate neutral in dark mode is `data-color="indigo" data-neutral="slate"
+data-theme="dark"`.
+
+## Ramps
+
+| `data-neutral` value | Character | Light page bg / border | Dark surface |
+| -------------------- | --------- | ---------------------- | ------------ |
+| _(none)_ / `gray`    | Default neutral | `#f9fafb` / `#d0d5dd` | `#1f2937` |
+| `slate`              | Cool, blue-tinted | `#f8fafc` / `#cbd5e1` | `#1e293b` |
+| `zinc`               | Cool, desaturated | `#fafafa` / `#d4d4d8` | `#27272a` |
+| `neutral`            | Pure grey | `#fafafa` / `#d4d4d4` | `#262626` |
+| `stone`              | Warm, brown-tinted | `#fafaf9` / `#d6d3d1` | `#292524` |
+
+In **light** mode the card surface stays white for every ramp (only the
+page background, borders, muted fills, secondary buttons, and text shift)
+— matching the default. In **dark** mode the surface itself re-tints to
+the ramp's 800 shade. Toggle the **theme** switch in the header to see
+the dark variant of each row below.
+
+## Live preview
+
+Each panel below carries a different `data-neutral` value. The outer
+panel uses the ramp's page background; the inner card is a surface.
+
+export const ramps = ['gray', 'slate', 'zinc', 'neutral', 'stone'];
+
+<div class="not-content" style="display:grid;gap:1rem;">
+  {ramps.map((r) => (
+    <div data-neutral={r} style="background:var(--hc-color-bg);border:1px solid var(--hc-color-border);border-radius:.5rem;padding:1rem;">
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-block-end:.75rem;">
+        <strong style="color:var(--hc-color-text);text-transform:capitalize;min-inline-size:4rem;">{r}</strong>
+        <button class="hc-button" data-variant="primary">Save</button>
+        <button class="hc-button" data-variant="secondary">Cancel</button>
+        <input class="hc-input" type="text" value="text" style="inline-size:7rem;" />
+      </div>
+      <div class="hc-card">
+        <div class="hc-card__body">
+          <strong>Card surface</strong>
+          <p class="hc-field__message" style="margin:0;">Muted helper text on this ramp.</p>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+## Applying it to your page
+
+Site-wide, set it on `<html>`:
+
+```html
+<html data-neutral="slate">…</html>
+```
+
+Per-section override:
+
+```html
+<section data-neutral="stone">…</section>
+```
+
+Like the other axes, it works on a subtree because each ramp block
+re-declares the affected component variables with concrete values (no
+frozen `var()` inheritance) — see
+[how the cascade works](/hypermedia-components/tokens/themes/#how-the-cascade-actually-works-important).
+
+## What changes
+
+Each non-default ramp overrides these semantic keys (light in
+`neutral.<ramp>.tokens.json`, dark in `neutral.<ramp>.dark.tokens.json`):
+
+```text
+--hc-color-bg          --hc-color-text         --hc-color-text-muted
+--hc-color-border      --hc-color-muted-bg     --hc-color-surface (dark only)
+--hc-color-action-secondary-*        --hc-color-status-neutral-*
+```
+
+These cascade into every component's `--hc-{component}-*` surface / text /
+border variables. The build re-emits the affected leaves inside
+`[data-neutral="<ramp>"]` (light) and
+`[data-theme="dark"][data-neutral="<ramp>"]` (dark) blocks.
+
+Deliberately **not** affected:
+
+- Accent (`action.primary`, focus ring) — owned by `data-color`.
+- Semantic `info` / `success` / `warning` / `error` — fixed status palette.
+- Control sizing — owned by `data-density`.
+
+## Related
+
+- [Color themes](/hypermedia-components/tokens/themes/) — the accent axis. Pair it with a neutral.
+- [Theme builder](/hypermedia-components/tokens/theme-builder/) — its Full theme mode bakes an accent + neutral together.
+- [Color palette](/hypermedia-components/tokens/palette/) — the primitive ramps these resolve to.
+- [Density](/hypermedia-components/tokens/density/) — orthogonal sizing axis.

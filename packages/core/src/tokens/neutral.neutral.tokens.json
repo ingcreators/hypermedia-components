@@ -1,0 +1,67 @@
+{
+  "$description": "Neutral neutral ramp (light). Emitted under [data-neutral=\"neutral\"]. Swaps surface-family neutrals; pairs with any data-color accent. Surface stays white (matches the default gray neutral).",
+  "color": {
+    "bg": {
+      "$type": "color",
+      "$value": "{primitive.color.neutral.50}"
+    },
+    "text": {
+      "$type": "color",
+      "$value": "{primitive.color.neutral.900}"
+    },
+    "text-muted": {
+      "$type": "color",
+      "$value": "{primitive.color.neutral.600}"
+    },
+    "border": {
+      "$type": "color",
+      "$value": "{primitive.color.neutral.300}"
+    },
+    "muted-bg": {
+      "$type": "color",
+      "$value": "{primitive.color.neutral.100}"
+    },
+    "action": {
+      "secondary": {
+        "bg": {
+          "$type": "color",
+          "$value": "{primitive.color.neutral.100}"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{primitive.color.neutral.900}"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{primitive.color.neutral.100}"
+        }
+      },
+      "secondary-hover": {
+        "bg": {
+          "$type": "color",
+          "$value": "{primitive.color.neutral.200}"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{primitive.color.neutral.200}"
+        }
+      }
+    },
+    "status": {
+      "neutral": {
+        "bg": {
+          "$type": "color",
+          "$value": "{primitive.color.neutral.100}"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{primitive.color.neutral.800}"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{primitive.color.neutral.200}"
+        }
+      }
+    }
+  }
+}

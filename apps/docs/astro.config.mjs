@@ -168,6 +168,12 @@ export default defineConfig({
                 }
               } catch (e) {}
               try {
+                var nu = localStorage.getItem('hc-neutral');
+                if (nu === 'gray' || nu === 'slate' || nu === 'zinc' || nu === 'neutral' || nu === 'stone') {
+                  document.documentElement.setAttribute('data-neutral', nu);
+                }
+              } catch (e) {}
+              try {
                 var dir = localStorage.getItem('hc-dir');
                 if (dir === 'ltr' || dir === 'rtl') {
                   document.documentElement.setAttribute('dir', dir);

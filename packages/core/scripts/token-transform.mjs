@@ -104,11 +104,17 @@ function collectDeps(raw, table, stack = [], deps = new Set()) {
  * to that source's own value. Used to compute the leaf value of a
  * theme-dependent component token *as if that theme were active*.
  */
-function tableWithThemeOverlay(baseTable, themeNamespace, trees) {
+function tableWithThemeOverlay(baseTable, themeNamespaces, trees) {
+  const list = Array.isArray(themeNamespaces) ? themeNamespaces : [themeNamespaces];
   const overlay = new Map(baseTable);
-  walkLeaves(trees[themeNamespace], [], (path, leaf) => {
-    overlay.set(['semantic', ...path].join('.'), String(leaf.$value));
-  });
+  // Apply each namespace in order; later ones win (e.g. dark then neutral,
+  // so a [data-theme="dark"][data-neutral="slate"] block resolves component
+  // leaves with slate-dark surfaces on top of the dark baseline).
+  for (const ns of list) {
+    walkLeaves(trees[ns], [], (path, leaf) => {
+      overlay.set(['semantic', ...path].join('.'), String(leaf.$value));
+    });
+  }
   return overlay;
 }
 
@@ -120,10 +126,13 @@ function tableWithThemeOverlay(baseTable, themeNamespace, trees) {
  *    wrapper, so an affected component leaf is lifted out of the static
  *    `:root { component }` block (themedAll) and re-emitted inside each
  *    axis block.
- *  - Dark mode (`theme.dark`) is an override layer: light stays the
- *    `:root` default and `[data-theme="dark"]` overrides on top. Its keys
- *    go in themedBySource (so the dark block re-emits affected leaves) but
- *    NOT in themedAll (so the light value stays on `:root`).
+ *  - Override layers (`theme.dark`, `neutral.*`) keep the `:root` default
+ *    and override on top via their own selector. Their keys go in
+ *    themedBySource (so the block re-emits affected leaves) but NOT in
+ *    themedAll (so the default value stays on `:root`). The neutral axis is
+ *    an override layer rather than a runtime axis because it redefines the
+ *    same surface/text/border keys dark mode does — those must remain on
+ *    `:root` for the default (gray) neutral.
  *
  * Returns: { themedAll: Set<key>, themedBySource: Map<namespace, Set<key>> }
  */
@@ -133,8 +142,9 @@ function indexThemedKeys(sources, trees) {
   for (const src of sources) {
     const isRuntimeAxis =
       src.namespace.startsWith('color.') || src.namespace.startsWith('density.');
-    const isDarkMode = src.namespace === 'theme.dark';
-    if (!isRuntimeAxis && !isDarkMode) continue;
+    const isOverrideLayer =
+      src.namespace === 'theme.dark' || src.namespace.startsWith('neutral.');
+    if (!isRuntimeAxis && !isOverrideLayer) continue;
     const keys = new Set();
     walkLeaves(trees[src.namespace], [], (path) => {
       const key = ['semantic', ...path].join('.');
@@ -202,14 +212,17 @@ export function buildTokensCss({ sources, trees }) {
         lines.push(`${cssVarName(path)}: ${resolveValue(raw, table)};`);
       }
     } else if (themedBySource.has(src.namespace)) {
-      // Themed sources (color.X / density.X / theme.dark): emit the source's
-      // own overrides, then append every component leaf whose resolution
-      // depends on the paths this source controls.
+      // Themed sources (color.X / density.X / theme.dark / neutral.X): emit
+      // the source's own overrides, then append every component leaf whose
+      // resolution depends on the paths this source controls. `src.overlay`
+      // lets a compound block resolve through several layers — e.g. the
+      // [data-theme="dark"][data-neutral="slate"] block overlays the dark
+      // baseline and then the slate-dark surfaces.
       walkLeaves(trees[src.namespace], [], (path, leaf) => {
         lines.push(`${cssVarName(path)}: ${resolveValue(String(leaf.$value), table)};`);
       });
       const ownedKeys = themedBySource.get(src.namespace);
-      const themeTable = tableWithThemeOverlay(table, src.namespace, trees);
+      const themeTable = tableWithThemeOverlay(table, src.overlay ?? [src.namespace], trees);
       for (const { path, raw, deps } of componentLeaves) {
         if (!depsIntersect(deps, ownedKeys)) continue;
         lines.push(`${cssVarName(path)}: ${resolveValue(raw, themeTable)};`);
@@ -253,13 +266,31 @@ export const DEFAULT_SOURCES = [
   { namespace: 'color.emerald', file: 'color.emerald.tokens.json', selector: '[data-color="emerald"]' },
   { namespace: 'color.rose',    file: 'color.rose.tokens.json',    selector: '[data-color="rose"]' },
   { namespace: 'color.amber',   file: 'color.amber.tokens.json',   selector: '[data-color="amber"]' },
+  // Neutral axis: swaps the surface / text / border / secondary ramp.
+  // Unlike colour, neutrals differ by light/dark, so each non-default ramp
+  // ships a light block and a compound dark block. `overlay` lets the dark
+  // block resolve component leaves through the dark baseline then the
+  // slate-dark surfaces. gray is the default (the :root / theme.dark base),
+  // so it needs no block.
+  { namespace: 'neutral.slate',        file: 'neutral.slate.tokens.json',        selector: '[data-neutral="slate"]' },
+  { namespace: 'neutral.slate.dark',   file: 'neutral.slate.dark.tokens.json',   selector: '[data-theme="dark"][data-neutral="slate"]',   overlay: ['theme.dark', 'neutral.slate.dark'] },
+  { namespace: 'neutral.zinc',         file: 'neutral.zinc.tokens.json',         selector: '[data-neutral="zinc"]' },
+  { namespace: 'neutral.zinc.dark',    file: 'neutral.zinc.dark.tokens.json',    selector: '[data-theme="dark"][data-neutral="zinc"]',    overlay: ['theme.dark', 'neutral.zinc.dark'] },
+  { namespace: 'neutral.neutral',      file: 'neutral.neutral.tokens.json',      selector: '[data-neutral="neutral"]' },
+  { namespace: 'neutral.neutral.dark', file: 'neutral.neutral.dark.tokens.json', selector: '[data-theme="dark"][data-neutral="neutral"]', overlay: ['theme.dark', 'neutral.neutral.dark'] },
+  { namespace: 'neutral.stone',        file: 'neutral.stone.tokens.json',        selector: '[data-neutral="stone"]' },
+  { namespace: 'neutral.stone.dark',   file: 'neutral.stone.dark.tokens.json',   selector: '[data-theme="dark"][data-neutral="stone"]',   overlay: ['theme.dark', 'neutral.stone.dark'] },
 ];
 
 // The "core" axes every consumer needs: the semantic base, the
 // theme-independent component leaves, dark mode, and the default density /
-// colour blocks. The remaining axes ship as their own files.
+// color blocks. The remaining axes ship as their own files.
 export const CORE_NAMESPACES = ['semantic', 'component', 'theme.dark', 'density.comfortable', 'color.default'];
 export const AXIS_NAMESPACES = ['density.compact', 'density.dense', 'color.indigo', 'color.emerald', 'color.rose', 'color.amber'];
+
+// Non-default neutral ramps. Each ships as one axis file carrying both its
+// light and compound-dark blocks.
+export const NEUTRAL_RAMPS = ['slate', 'zinc', 'neutral', 'stone'];
 
 /**
  * Re-flag DEFAULT_SOURCES so only `names` are emitted; the rest stay in the

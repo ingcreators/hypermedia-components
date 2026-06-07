@@ -401,4 +401,58 @@ describe('buildTokensCss', () => {
       expect(darkBlock).not.toContain('--hc-badge-bg');
     });
   });
+
+  describe('neutral axis (light + compound dark)', () => {
+    // The neutral axis swaps the surface-family ramp. It is an override
+    // layer (like dark, not like colour): the default ramp stays on :root,
+    // and a non-default ramp adds a light block plus a compound
+    // [data-theme="dark"][data-neutral="X"] block. The dark block uses
+    // `overlay: ['theme.dark', 'neutral.X.dark']` so component leaves
+    // resolve through the dark baseline and then the ramp's dark surfaces.
+    const SOURCES = [
+      { namespace: 'primitive', emit: false },
+      { namespace: 'semantic',  selector: ':root, [data-theme="light"]' },
+      { namespace: 'component', selector: ':root' },
+      { namespace: 'theme.dark', selector: '[data-theme="dark"]' },
+      { namespace: 'neutral.slate', selector: '[data-neutral="slate"]' },
+      { namespace: 'neutral.slate.dark', selector: '[data-theme="dark"][data-neutral="slate"]', overlay: ['theme.dark', 'neutral.slate.dark'] },
+    ];
+    const TREES = {
+      primitive: { color: {
+        white: { $type: 'color', $value: '#ffffff' },
+        gray:  { 300: { $type: 'color', $value: '#d0d5dd' }, 800: { $type: 'color', $value: '#1f2937' } },
+        slate: { 300: { $type: 'color', $value: '#cbd5e1' }, 800: { $type: 'color', $value: '#1e293b' } },
+      } },
+      semantic: { color: {
+        surface: { $type: 'color', $value: '{primitive.color.white}' },
+        border:  { $type: 'color', $value: '{primitive.color.gray.300}' },
+      } },
+      component: { card: {
+        bg:     { $type: 'color', $value: '{semantic.color.surface}' },
+        border: { $type: 'color', $value: '{semantic.color.border}' },
+      } },
+      'theme.dark': { color: { surface: { $type: 'color', $value: '{primitive.color.gray.800}' } } },
+      'neutral.slate': { color: { border: { $type: 'color', $value: '{primitive.color.slate.300}' } } },
+      'neutral.slate.dark': { color: { surface: { $type: 'color', $value: '{primitive.color.slate.800}' } } },
+    };
+
+    it('keeps the default neutral on :root', () => {
+      const { css } = buildTokensCss({ sources: SOURCES, trees: TREES });
+      expect(css).toMatch(/:root\s*\{[^}]*--hc-card-border: #d0d5dd;/);
+    });
+
+    it('light neutral re-emits the ramp-dependent leaf only', () => {
+      const { css } = buildTokensCss({ sources: SOURCES, trees: TREES });
+      const block = css.match(/\[data-neutral="slate"\]\s*\{[^}]*\}/)[0];
+      expect(block).toContain('--hc-card-border: #cbd5e1;');
+      // surface is not overridden in light, so card.bg is not re-emitted.
+      expect(block).not.toContain('--hc-card-bg');
+    });
+
+    it('compound dark block overlays dark then the ramp dark surface', () => {
+      const { css } = buildTokensCss({ sources: SOURCES, trees: TREES });
+      const block = css.match(/\[data-theme="dark"\]\[data-neutral="slate"\]\s*\{[^}]*\}/)[0];
+      expect(block).toContain('--hc-card-bg: #1e293b;');
+    });
+  });
 });

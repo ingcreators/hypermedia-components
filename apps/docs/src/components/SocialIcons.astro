@@ -28,6 +28,17 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
   </select>
 </label>
 
+<label class="hc-picker" aria-label="Neutral ramp">
+  <span class="hc-picker__label">Neutral</span>
+  <select id="hc-neutral-select" class="hc-select" data-size="sm" aria-label="Neutral ramp">
+    <option value="gray">Gray</option>
+    <option value="slate">Slate</option>
+    <option value="zinc">Zinc</option>
+    <option value="neutral">Neutral</option>
+    <option value="stone">Stone</option>
+  </select>
+</label>
+
 <label class="hc-picker" aria-label="Density">
   <span class="hc-picker__label">Density</span>
   <select id="hc-density-select" class="hc-select" data-size="sm" aria-label="Density">
@@ -50,6 +61,7 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
   const PICKERS = [
     { key: 'hc-density', attr: 'data-density', values: ['comfortable', 'compact', 'dense'], fallback: 'comfortable', id: 'hc-density-select' },
     { key: 'hc-color',   attr: 'data-color',   values: ['default', 'indigo', 'emerald', 'rose', 'amber'], fallback: 'default', id: 'hc-color-select' },
+    { key: 'hc-neutral', attr: 'data-neutral', values: ['gray', 'slate', 'zinc', 'neutral', 'stone'], fallback: 'gray', id: 'hc-neutral-select' },
     { key: 'hc-dir',     attr: 'dir',          values: ['ltr', 'rtl'], fallback: 'ltr', id: 'hc-dir-select' },
   ];
 
@@ -115,6 +127,7 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
      by default, which we don't want in a compact inline navbar. */
   #hc-density-select,
   #hc-color-select,
+  #hc-neutral-select,
   #hc-dir-select {
     inline-size: auto;
   }
