@@ -97,6 +97,9 @@
     "weight-medium":   { "$type": "fontWeight", "$value": "{primitive.font.weight.medium}" },
     "weight-semibold": { "$type": "fontWeight", "$value": "{primitive.font.weight.semibold}" }
   },
+  "icon": {
+    "size": { "$type": "dimension", "$value": "1em" }
+  },
   "opacity": {
     "disabled": { "$type": "number", "$value": "0.5" }
   }
