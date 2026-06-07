@@ -197,6 +197,98 @@ Components and tokens deliberately **not** affected:
 - Surface / background / text colours — owned by `data-theme` (light / dark).
 - Container padding / gap — owned by `data-density`.
 
+## Authoring your own theme
+
+The five built-in themes are not special — each is just a small set
+of accent tokens. Adding your own brand palette takes one of two
+paths, depending on whether you want to ship the theme as part of a
+build or just override it on a live page.
+
+:::tip[Want it generated for you?]
+The interactive [Theme builder](/hypermedia-components/tokens/theme-builder/)
+takes a single brand colour, auto-derives the hover / soft-tint /
+text-on-primary shades, checks the contrast live, and emits both the
+CSS snippet (Path A) and the `color.*.tokens.json` file (Path B)
+below — ready to paste.
+:::
+
+### Path A — override the CSS variables (no rebuild)
+
+The fastest route: declare the seven accent variables under your own
+`[data-color="…"]` selector in any stylesheet that loads after
+`@hypermedia-components/core/css`. Nothing needs rebuilding — the
+components already read these through `var()` indirection.
+
+```css
+[data-color="brand"] {
+  --hc-color-focus-ring: #7c3aed;
+  --hc-color-action-primary-bg: #7c3aed;
+  --hc-color-action-primary-fg: #ffffff;
+  --hc-color-action-primary-border: #7c3aed;
+  --hc-color-action-primary-hover-bg: #6d28d9;
+  --hc-color-action-primary-hover-border: #6d28d9;
+  /* color-mix keeps one value correct on both light and dark surfaces */
+  --hc-color-action-primary-soft-bg: color-mix(in srgb, #7c3aed 12%, transparent);
+}
+```
+
+```html
+<html data-color="brand">…</html>
+<!-- or scope it to a subtree -->
+<section data-color="brand">…</section>
+```
+
+This is also the right tool for a one-off per-section accent or for
+theming an app you don't control the build of.
+
+### Path B — add a token source (shipped in the build)
+
+To make the theme a first-class axis that ships in `hc.tokens.css`
+(and as its own `hc.tokens.color-brand.css` axis file), add a DTCG
+source and register it with the transformer.
+
+1. Create `packages/core/src/tokens/color.brand.tokens.json`, mirroring
+   the shape of [`color.indigo.tokens.json`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/src/tokens/color.indigo.tokens.json).
+   Reference primitive shades where they exist, or inline a raw hex:
+
+   ```json
+   {
+     "$description": "Brand colour theme. Emitted under [data-color=\"brand\"].",
+     "color": {
+       "focus-ring": { "$type": "color", "$value": "{primitive.color.violet.500}" },
+       "action": {
+         "primary":       { "bg": { "$type": "color", "$value": "{primitive.color.violet.600}" },
+                            "fg": { "$type": "color", "$value": "{primitive.color.white}" },
+                            "border": { "$type": "color", "$value": "{primitive.color.violet.600}" } },
+         "primary-hover": { "bg": { "$type": "color", "$value": "{primitive.color.violet.700}" },
+                            "border": { "$type": "color", "$value": "{primitive.color.violet.700}" } },
+         "primary-soft":  { "bg": { "$type": "color", "$value": "color-mix(in srgb, {primitive.color.violet.600} 12%, transparent)" } }
+       }
+     }
+   }
+   ```
+
+2. Register it in [`scripts/build-tokens.mjs`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/scripts/build-tokens.mjs)
+   by adding one entry to `DEFAULT_SOURCES` and the namespace to
+   `AXIS_NAMESPACES`:
+
+   ```js
+   // in DEFAULT_SOURCES, next to the other color.* lines
+   { namespace: 'color.brand', file: 'color.brand.tokens.json', selector: '[data-color="brand"]' },
+
+   // in AXIS_NAMESPACES, so it also ships as a standalone axis file
+   const AXIS_NAMESPACES = [..., 'color.brand'];
+   ```
+
+3. Rebuild: `pnpm --filter @hypermedia-components/core build`. The
+   transformer resolves your references, classifies which component
+   leaves are theme-dependent, and re-emits them under
+   `[data-color="brand"]` automatically — the same machinery the
+   built-in themes use.
+
+Either path overrides only the accent tokens; surface / text colours
+stay owned by `data-theme`, and control sizing by `data-density`.
+
 ## Accessibility
 
 Each theme passes WCAG AA contrast for the button's text-on-primary
@@ -218,6 +310,7 @@ on top.
 
 ## Related
 
+- [Theme builder](/hypermedia-components/tokens/theme-builder/) — generate a custom accent palette from one colour, with live contrast checking.
 - [Density](/hypermedia-components/tokens/density/) — orthogonal axis for tightness.
 - [Tokens overview](/hypermedia-components/tokens/) — the four-layer model.
 - [Button](/hypermedia-components/components/button/), [Checkbox](/hypermedia-components/components/checkbox/), [Radio](/hypermedia-components/components/radio/), [Pagination](/hypermedia-components/components/pagination/) — primary consumers of the theme.
