@@ -12,6 +12,11 @@ The single piece of JavaScript — `installShell()` — only powers the
 **mobile** navigation overlay, where the platform cannot manage focus and
 dismissal for us. On desktop the shell needs no script at all.
 
+By default the **header spans the full width** above the sidebar (the SAP
+Fiori / Google / Salesforce arrangement); `data-layout="sidebar-first"` flips
+to a **full-height sidebar** (Slack / Notion / VS Code style) — see
+[Layout modes](#layout-modes).
+
 It is built on the [layout utilities](/hypermedia-components/fundamentals/layout/)
 and reuses the existing colour and spacing tokens, so it adopts the active
 theme, density, and colour automatically.
@@ -71,12 +76,54 @@ flow while the sidebar lifts out as an overlay, so the order matters:
 The header's `data-hc-shell-toggle` button is **hidden on desktop** — it
 appears only on the mobile breakpoint.
 
+## Layout modes
+
+By default the **header and footer span the full width** (top and bottom),
+bounding a middle band with the sidebar on the left — the arrangement used by
+SAP Fiori, Google Workspace, and Salesforce, where the global chrome carries
+product-wide concerns (brand, global search, account) *around* the contextual
+navigation. That is the demo above.
+
+Set `data-layout="sidebar-first"` to flip it: the **sidebar spans the full
+height** on the left and the header *and* footer sit only over `main` — the
+Slack / Notion / VS Code style, which suits apps where the sidebar is the
+primary surface.
+
+<Demo>
+  <div class="hc-shell" data-layout="sidebar-first" style="block-size: 16rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme</strong></header>
+    <nav class="hc-shell__sidebar" aria-label="Demo navigation">
+      <div>Dashboard</div>
+      <div>Orders</div>
+      <div>Settings</div>
+    </nav>
+    <main class="hc-shell__main">The sidebar runs full-height on the left; the header sits only above this column.</main>
+    <footer class="hc-shell__footer"><small>© Acme</small></footer>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-shell" data-layout="sidebar-first">
+    <header class="hc-shell__header">…</header>
+    <nav class="hc-shell__sidebar" aria-label="Primary">…</nav>
+    <main class="hc-shell__main">…</main>
+    <footer class="hc-shell__footer">…</footer>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+Both modes share everything else — the collapsible icon rail, the optional
+aside, and the mobile off-canvas overlay all behave the same.
+
 ## Regions
 
 | Class | Element (suggested) | Role |
 | --- | --- | --- |
 | `hc-shell__header` | `<header>` | Top bar; holds the mobile toggle. |
-| `hc-shell__sidebar` | `<nav>` | Persistent navigation; full height on desktop. |
+| `hc-shell__sidebar` | `<nav>` | Persistent navigation (full-height in the `sidebar-first` layout). |
 | `hc-shell__main` | `<main>` | Primary content; scrolls independently. |
 | `hc-shell__aside` | `<aside>` | Optional secondary panel (adds a third column). |
 | `hc-shell__footer` | `<footer>` | Optional footer. |
@@ -99,9 +146,11 @@ drops below `main` in normal flow.
 
 ## Responsive behavior
 
-- **Desktop (≥ 60rem):** a CSS Grid with the sidebar spanning full height
-  on the left, header / main / footer in the next column, and main
-  scrolling independently of the chrome (`block-size: 100dvh`).
+- **Desktop (≥ 60rem):** a CSS Grid filling the viewport
+  (`block-size: 100dvh`). By default the header spans the full width with the
+  sidebar below it; with `data-layout="sidebar-first"` the sidebar spans full
+  height on the left instead. Either way main scrolls independently of the
+  chrome.
 - **Mobile (< 60rem):** the regions stack in normal flow and the page
   scrolls. The sidebar becomes a fixed off-canvas overlay, the header
   sticks to the top, and the hamburger toggles the overlay.

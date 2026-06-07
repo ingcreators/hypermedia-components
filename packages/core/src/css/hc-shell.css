@@ -17,10 +17,18 @@
  *     <footer class="hc-shell__footer">…optional…</footer>
  *   </div>
  *
- * Desktop: a fixed-width sidebar spans the full height on the left; the
- * header / main / footer stack in the remaining column, and main scrolls
- * independently of the chrome. An optional aside adds a third column (the
- * presence of `> .hc-shell__aside` is detected with :has()).
+ * Desktop, default ("global header"): the header AND footer span the full
+ * width (top and bottom), bounding a middle band where a fixed-width sidebar
+ * sits on the left with main (and an optional aside) in the remaining
+ * columns. This is the SAP Fiori / Google / Salesforce arrangement, where the
+ * global chrome carries product-wide concerns (brand, global search, account)
+ * around the contextual navigation.
+ *
+ * Set `data-layout="sidebar-first"` for the inverse (Slack / Notion / VS Code
+ * style): the sidebar spans the full height on the left and the header and
+ * footer sit only over main. Either way main scrolls independently of the
+ * chrome, and an optional aside adds a third column (`> .hc-shell__aside`,
+ * detected with :has()).
  *
  * Layout knobs (set inline or on a wrapper; not DTCG tokens because they
  * are per-app layout dimensions, not themeable visual decisions):
@@ -41,9 +49,9 @@
     grid-template-rows: auto 1fr auto;
     grid-template-columns: var(--hc-shell-sidebar-width) 1fr;
     grid-template-areas:
-      'sidebar header'
+      'header  header'
       'sidebar main'
-      'sidebar footer';
+      'footer  footer';
     background-color: var(--hc-color-bg);
     color: var(--hc-color-text);
     transition: grid-template-columns 0.2s ease;
@@ -86,6 +94,25 @@
   /* Optional secondary panel → add a third column. */
   .hc-shell:has(> .hc-shell__aside) {
     grid-template-columns: var(--hc-shell-sidebar-width) 1fr var(--hc-shell-aside-width);
+    grid-template-areas:
+      'header  header header'
+      'sidebar main   aside'
+      'footer  footer footer';
+  }
+
+  /* Sidebar-first layout (opt-in): the sidebar spans the full height on the
+   * left and the header and footer sit only over main — the Slack / Notion /
+   * VS Code arrangement. The default keeps the global full-width header and
+   * footer. Only the grid areas change; columns, the collapse rail, and the
+   * mobile overlay are shared. */
+  .hc-shell[data-layout='sidebar-first'] {
+    grid-template-areas:
+      'sidebar header'
+      'sidebar main'
+      'sidebar footer';
+  }
+
+  .hc-shell[data-layout='sidebar-first']:has(> .hc-shell__aside) {
     grid-template-areas:
       'sidebar header header'
       'sidebar main   aside'
