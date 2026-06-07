@@ -20,6 +20,20 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Colour palette reference (docs).** A new
+  [`tokens/palette`](apps/docs/src/content/docs/tokens/palette.mdx) page
+  renders every primitive ramp as swatches, straight from
+  `primitive.tokens.json`, with the `{primitive.color.*}` path on hover.
+  Clarifies that primitives are `emit: false` (reference values, not a
+  CSS API).
+- **Completed primitive colour ramps.** `indigo` and `rose` now run the
+  full 50–950 scale (were 6 shades), and `violet` / `slate` / `zinc` /
+  `neutral` / `stone` ramps are added. Primitives are `emit: false`, so
+  the generated `hc.tokens.css` is unchanged — these only become
+  available to `{ref}` (and fix the `violet` example in `tokens/themes`).
+
 ### Fixed
 
 - **Nested `data-density` / `data-theme` no longer freeze a few controls.**
