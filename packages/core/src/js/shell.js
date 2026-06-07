@@ -56,90 +56,103 @@ function attach(shell, detachers) {
 
   const toggle = shell.querySelector('[data-hc-shell-toggle]');
   const sidebar = shell.querySelector('.hc-shell__sidebar');
-  if (!toggle || !sidebar) return; // not enough markup to wire
+  if (!sidebar) return; // nothing to wire without a sidebar
 
   if (!sidebar.id) {
     idSeq += 1;
     sidebar.id = `hc-shell-sidebar-${idSeq}`;
   }
-  toggle.setAttribute('aria-controls', sidebar.id);
-  toggle.setAttribute('aria-expanded', 'false');
-  if (!toggle.hasAttribute('aria-label') && !toggle.textContent.trim()) {
-    toggle.setAttribute('aria-label', t('shell.toggleNav'));
-  }
   // Let the sidebar receive programmatic focus as a fallback target.
   if (!sidebar.hasAttribute('tabindex')) sidebar.setAttribute('tabindex', '-1');
 
-  let lastFocused = null;
-  const isOpen = () => shell.getAttribute('data-sidebar') === 'open';
-  const focusables = () => [...sidebar.querySelectorAll(FOCUSABLE)];
-
-  function onKeydown(event) {
-    if (!isOpen()) return;
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      close();
-      return;
-    }
-    if (event.key !== 'Tab') return;
-    const items = focusables();
-    if (items.length === 0) {
-      event.preventDefault();
-      sidebar.focus();
-      return;
-    }
-    const first = items[0];
-    const last = items[items.length - 1];
-    const active = document.activeElement;
-    if (event.shiftKey && (active === first || !sidebar.contains(active))) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && active === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-
-  function onDocPointer(event) {
-    if (!isOpen()) return;
-    if (sidebar.contains(event.target) || toggle.contains(event.target)) return;
-    close();
-  }
-
-  function onSidebarClick(event) {
-    // Activating a link on mobile should dismiss the overlay.
-    if (event.target.closest('a[href], [data-hc-shell-close]')) close();
-  }
-
-  function open() {
-    if (isOpen()) return;
-    lastFocused = document.activeElement;
-    shell.setAttribute('data-sidebar', 'open');
-    toggle.setAttribute('aria-expanded', 'true');
-    document.addEventListener('keydown', onKeydown, true);
-    document.addEventListener('click', onDocPointer, true);
-    const items = focusables();
-    (items[0] ?? sidebar).focus();
-  }
-
-  function close() {
-    if (!isOpen()) return;
-    shell.removeAttribute('data-sidebar');
+  // ---- Mobile off-canvas overlay (opt-in via a [data-hc-shell-toggle]) ----
+  // On desktop the sidebar is always visible, so a shell can ship with only
+  // the collapse control below and no mobile toggle at all.
+  let close = () => {};
+  let overlayCleanup = null;
+  if (toggle) {
+    toggle.setAttribute('aria-controls', sidebar.id);
     toggle.setAttribute('aria-expanded', 'false');
-    document.removeEventListener('keydown', onKeydown, true);
-    document.removeEventListener('click', onDocPointer, true);
-    if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
-    lastFocused = null;
-  }
+    if (!toggle.hasAttribute('aria-label') && !toggle.textContent.trim()) {
+      toggle.setAttribute('aria-label', t('shell.toggleNav'));
+    }
 
-  function onToggle(event) {
-    event.preventDefault();
-    if (isOpen()) close();
-    else open();
-  }
+    let lastFocused = null;
+    const isOpen = () => shell.getAttribute('data-sidebar') === 'open';
+    const focusables = () => [...sidebar.querySelectorAll(FOCUSABLE)];
 
-  toggle.addEventListener('click', onToggle);
-  sidebar.addEventListener('click', onSidebarClick);
+    function onKeydown(event) {
+      if (!isOpen()) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        close();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const items = focusables();
+      if (items.length === 0) {
+        event.preventDefault();
+        sidebar.focus();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !sidebar.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    function onDocPointer(event) {
+      if (!isOpen()) return;
+      if (sidebar.contains(event.target) || toggle.contains(event.target)) return;
+      close();
+    }
+
+    function onSidebarClick(event) {
+      // Activating a link on mobile should dismiss the overlay.
+      if (event.target.closest('a[href], [data-hc-shell-close]')) close();
+    }
+
+    function open() {
+      if (isOpen()) return;
+      lastFocused = document.activeElement;
+      shell.setAttribute('data-sidebar', 'open');
+      toggle.setAttribute('aria-expanded', 'true');
+      document.addEventListener('keydown', onKeydown, true);
+      document.addEventListener('click', onDocPointer, true);
+      const items = focusables();
+      (items[0] ?? sidebar).focus();
+    }
+
+    close = () => {
+      if (!isOpen()) return;
+      shell.removeAttribute('data-sidebar');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('keydown', onKeydown, true);
+      document.removeEventListener('click', onDocPointer, true);
+      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+      lastFocused = null;
+    };
+
+    function onToggle(event) {
+      event.preventDefault();
+      if (isOpen()) close();
+      else open();
+    }
+
+    toggle.addEventListener('click', onToggle);
+    sidebar.addEventListener('click', onSidebarClick);
+    overlayCleanup = () => {
+      close();
+      toggle.removeEventListener('click', onToggle);
+      sidebar.removeEventListener('click', onSidebarClick);
+    };
+  }
 
   // ---- Desktop sidebar collapse-to-icon-rail (opt-in) ----
   // `data-collapsible` on the sidebar enables it; a `[data-hc-shell-collapse]`
@@ -194,9 +207,7 @@ function attach(shell, detachers) {
   }
 
   detachers.set(shell, () => {
-    close();
-    toggle.removeEventListener('click', onToggle);
-    sidebar.removeEventListener('click', onSidebarClick);
+    overlayCleanup?.();
     if (mql && onMql) mql.removeEventListener?.('change', onMql);
     collapseCleanup?.();
   });
