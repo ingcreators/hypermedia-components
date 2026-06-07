@@ -94,4 +94,18 @@
   .hc-hidden {
     display: none !important;
   }
+
+  /* Inline icon sizing. HC ships no icons (bring your own — Lucide, Tabler,
+     Phosphor, an Iconify <iconify-icon>, or an SVG sprite); this only sizes
+     and aligns one consistently. Sizes to the surrounding text by default
+     (--hc-icon-size: 1em) so it scales with context and density; override
+     per-instance via `style="--hc-icon-size: 1.25em"`. Colour comes from the
+     icon's own `currentColor`, so it inherits the button / text / accent
+     colour automatically — no extra wiring. */
+  .hc-icon {
+    inline-size: var(--hc-icon-size);
+    block-size: var(--hc-icon-size);
+    flex: none;
+    vertical-align: -0.125em;
+  }
 }

@@ -39,6 +39,12 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`.hc-icon` utility + `--hc-icon-size` token.** A bring-your-own-icon
+  sizing helper (HC ships no icons). `.hc-icon` sizes to the surrounding
+  text by default (`--hc-icon-size: 1em`) and sets `flex: none` +
+  baseline alignment; color comes from the icon's own `currentColor`, so it
+  inherits the button / text / accent color automatically. Pairs with
+  Lucide, Tabler, Phosphor, an Iconify `<iconify-icon>`, or an SVG sprite.
 - **Theme builder — presets, share links, shuffle, richer preview.**
   - **Start from a preset**: the built-in five (seed Accent mode) plus curated
     full-theme combos (Slate · Indigo, Stone · Amber, Zinc · Emerald,
