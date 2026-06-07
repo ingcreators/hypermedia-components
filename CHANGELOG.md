@@ -38,6 +38,12 @@ Security    — security-relevant changes
 - **Theme builder exports three artifacts.** The DTCG token source
   (Path B), an additive theme CSS block (Path A), and a full token CSS
   (drop-in replacement) — all generated from `buildTokensCss`.
+- **Theme builder gains a Full theme mode.** Beyond the accent, it now
+  customises the default look: a **neutral ramp** (gray / slate / zinc /
+  neutral / stone, driving surface / text / border / secondary across
+  light and dark) and the **control radius**. Full-theme output is the
+  diff of the themed build vs the stock build, so it's exactly the
+  variables that changed. Live preview follows the site's light/dark.
 
 ### Added
 
