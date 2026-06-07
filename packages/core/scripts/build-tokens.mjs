@@ -16,11 +16,12 @@ import {
   DEFAULT_SOURCES,
   CORE_NAMESPACES,
   AXIS_NAMESPACES,
+  NEUTRAL_RAMPS,
   emitOnly,
 } from './token-transform.mjs';
 
 // Re-export so existing importers (tests, tooling) keep working unchanged.
-export { buildTokensCss, DEFAULT_SOURCES, CORE_NAMESPACES, AXIS_NAMESPACES, emitOnly };
+export { buildTokensCss, DEFAULT_SOURCES, CORE_NAMESPACES, AXIS_NAMESPACES, NEUTRAL_RAMPS, emitOnly };
 
 async function main() {
   const here = dirname(fileURLToPath(import.meta.url));
@@ -49,6 +50,15 @@ async function main() {
   for (const ns of AXIS_NAMESPACES) {
     const out = buildTokensCss({ sources: emitOnly([ns]), trees });
     const file = `hc.tokens.${ns.replace('.', '-')}.css`;
+    await writeFile(join(distDir, file), out.css, 'utf8');
+    axisFiles.push(file);
+  }
+
+  // One file per non-default neutral ramp, carrying its light + dark blocks:
+  // hc.tokens.neutral-slate.css etc.
+  for (const ramp of NEUTRAL_RAMPS) {
+    const out = buildTokensCss({ sources: emitOnly([`neutral.${ramp}`, `neutral.${ramp}.dark`]), trees });
+    const file = `hc.tokens.neutral-${ramp}.css`;
     await writeFile(join(distDir, file), out.css, 'utf8');
     axisFiles.push(file);
   }

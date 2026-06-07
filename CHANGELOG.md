@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`data-neutral` axis — swap the neutral ramp.** A new runtime axis,
+  orthogonal to `data-color` / `data-theme` / `data-density`, swaps the
+  surface / text / border / muted / secondary greys between **gray**
+  (default), **slate**, **zinc**, **neutral**, and **stone** — tuned for
+  both light and dark. This makes the built-in themes meaningfully
+  distinct beyond the accent (e.g. an indigo accent on a cool slate UI).
+  Ships in `hc.tokens.css` (and per-ramp `hc.tokens.neutral-*.css` axis
+  files); new [`tokens/neutral`](apps/docs/src/content/docs/tokens/neutral.mdx)
+  docs page + a navbar picker. Implemented as an override layer with a
+  compound `[data-theme="dark"][data-neutral="X"]` block; the
+  transformer's overlay now composes multiple layers (dark + neutral).
+- **Color theme palette swatches (docs).** `tokens/themes` now shows each
+  built-in theme's resolved accent palette (primary / hover / soft / text /
+  ring) as swatches, generated from the token sources.
+
 - **Colour palette reference (docs).** A new
   [`tokens/palette`](apps/docs/src/content/docs/tokens/palette.mdx) page
   renders every primitive ramp as swatches, straight from

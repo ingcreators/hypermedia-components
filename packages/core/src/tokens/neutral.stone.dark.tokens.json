@@ -1,0 +1,71 @@
+{
+  "$description": "Stone neutral ramp (dark). Emitted under [data-theme=\"dark\"][data-neutral=\"stone\"]. Overlays the dark baseline with this ramp's dark surfaces.",
+  "color": {
+    "bg": {
+      "$type": "color",
+      "$value": "{primitive.color.stone.900}"
+    },
+    "surface": {
+      "$type": "color",
+      "$value": "{primitive.color.stone.800}"
+    },
+    "text": {
+      "$type": "color",
+      "$value": "{primitive.color.stone.100}"
+    },
+    "text-muted": {
+      "$type": "color",
+      "$value": "{primitive.color.stone.400}"
+    },
+    "border": {
+      "$type": "color",
+      "$value": "{primitive.color.stone.700}"
+    },
+    "muted-bg": {
+      "$type": "color",
+      "$value": "{primitive.color.stone.700}"
+    },
+    "action": {
+      "secondary": {
+        "bg": {
+          "$type": "color",
+          "$value": "{primitive.color.stone.700}"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{primitive.color.stone.100}"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{primitive.color.stone.700}"
+        }
+      },
+      "secondary-hover": {
+        "bg": {
+          "$type": "color",
+          "$value": "{primitive.color.stone.600}"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{primitive.color.stone.600}"
+        }
+      }
+    },
+    "status": {
+      "neutral": {
+        "bg": {
+          "$type": "color",
+          "$value": "{primitive.color.stone.800}"
+        },
+        "fg": {
+          "$type": "color",
+          "$value": "{primitive.color.stone.100}"
+        },
+        "border": {
+          "$type": "color",
+          "$value": "{primitive.color.stone.700}"
+        }
+      }
+    }
+  }
+}
