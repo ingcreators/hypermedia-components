@@ -111,6 +111,22 @@ describe('installShell', () => {
       expect($('shell').hasAttribute('data-sidebar-collapsed')).toBe(true);
       expect($('collapse').getAttribute('aria-expanded')).toBe('false');
     });
+
+    it('wires the collapse control on a desktop-only shell (no mobile toggle)', () => {
+      // A shell can ship with just the collapse affordance and no
+      // `[data-hc-shell-toggle]` — installShell() must still attach.
+      document.body.innerHTML = COLLAPSIBLE.replace(
+        '<button class="hc-shell__toggle" data-hc-shell-toggle id="toggle" type="button">Menu</button>',
+        '',
+      );
+      uninstall = installShell();
+      const shell = $('shell');
+      const btn = $('collapse');
+      expect(btn.getAttribute('aria-expanded')).toBe('true');
+      click(btn);
+      expect(shell.hasAttribute('data-sidebar-collapsed')).toBe(true);
+      expect(btn.getAttribute('aria-expanded')).toBe('false');
+    });
   });
 
   it('generates a sidebar id when one is missing', () => {

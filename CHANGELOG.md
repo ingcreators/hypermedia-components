@@ -2178,6 +2178,18 @@ Security    — security-relevant changes
   7 rem min-height and trimming preview padding and the heading-to-preview
   rhythm so more demos fit on screen. Component-doc Demos are untouched.
 
+- **`hc-shell`: a sidebar can collapse without a mobile toggle.**
+  `installShell()` early-returned unless the shell had a
+  `[data-hc-shell-toggle]` hamburger, so a desktop-only admin shell that
+  only wanted the collapse-to-rail control never wired up. It now attaches
+  whenever a `.hc-shell__sidebar` is present and treats the mobile overlay
+  (toggle, focus trap, scrim) as opt-in. Also **gated the collapsed-rail
+  label-hiding to desktop** (`@media (width >= 60rem)`) so a lingering
+  `data-sidebar-collapsed` no longer hides the labels in the mobile
+  off-canvas sidebar. The Blocks app-shell drops its (previously required)
+  mobile hamburger — which had let the `position: fixed` overlay escape
+  the scaled-down demo box — and now collapses cleanly to an icon rail.
+
 ---
 
 ## [Unreleased — v0.4 implementation]

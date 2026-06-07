@@ -64,17 +64,23 @@
   /* Label helper: wrap a nav item's text in `.hc-shell__label` and it is
    * visually hidden in the rail, leaving the icon. The text stays in the
    * accessibility tree (visually-hidden, not `display: none`) so the link
-   * keeps its accessible name. */
-  .hc-shell[data-sidebar-collapsed] .hc-shell__label {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
+   * keeps its accessible name.
+   *
+   * Gated to desktop: the rail only exists there. On mobile the sidebar is
+   * the full off-canvas overlay, so a lingering `data-sidebar-collapsed`
+   * (e.g. set on desktop, persisted) must not hide the labels there. */
+  @media (width >= 60rem) {
+    .hc-shell[data-sidebar-collapsed] .hc-shell__label {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
+    }
   }
 
   /* Optional secondary panel → add a third column. */
