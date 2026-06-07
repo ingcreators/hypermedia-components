@@ -3,11 +3,13 @@ title: Blocks
 description: Realistic UI sections built by composing Hypermedia Components — settings panels, data tables, sign-in cards, and a full app shell.
 ---
 
+import Demo from '../../components/Demo.astro';
+
 The [Components](/hypermedia-components/components/) pages show each part on
 its own; **blocks** show them working *together*. Each one below is plain
-HTML using the documented classes — the same components, composed into the
-kind of section you actually ship. Interactive bits (menus, toasts, …)
-install the same way as everywhere else (see
+HTML using the documented classes — flip to the **Code** tab to copy the
+whole section. Interactive bits (menus, toasts, …) install the same way as
+everywhere else (see
 [Installation → Behaviors](/hypermedia-components/start/installation/#behaviors)).
 
 ## Account settings
@@ -15,7 +17,7 @@ install the same way as everywhere else (see
 A form card — [`hc-field`](/hypermedia-components/components/field/) rows
 (input, select, switch) over a footer action bar.
 
-<div class="hc-preview not-content">
+<Demo>
   <form class="hc-card" style="max-inline-size:32rem;inline-size:100%;">
     <div class="hc-card__header"><strong>Account settings</strong></div>
     <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
@@ -43,7 +45,41 @@ A form card — [`hc-field`](/hypermedia-components/components/field/) rows
       <button class="hc-button" data-variant="primary" type="submit">Save changes</button>
     </div>
   </form>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <form class="hc-card" style="max-inline-size:32rem;">
+    <div class="hc-card__header"><strong>Account settings</strong></div>
+    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="hc-field">
+        <label class="hc-field__label" for="name">Name</label>
+        <input class="hc-input" id="name" value="Ada Lovelace">
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="email">Email</label>
+        <input class="hc-input" id="email" type="email" value="ada@example.com">
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="plan">Plan</label>
+        <select class="hc-select" id="plan">
+          <option>Free</option>
+          <option selected>Pro</option>
+          <option>Team</option>
+        </select>
+      </div>
+      <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked> Email notifications</label>
+      <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch"> Product updates</label>
+    </div>
+    <div class="hc-card__footer" style="display:flex;gap:.5rem;justify-content:flex-end;">
+      <button class="hc-button" data-variant="ghost" type="button">Cancel</button>
+      <button class="hc-button" data-variant="primary" type="submit">Save changes</button>
+    </div>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Data table
 
@@ -52,7 +88,7 @@ and actions, a [`hc-table`](/hypermedia-components/components/table/) with
 status [badges](/hypermedia-components/components/badge/), and a
 [pager](/hypermedia-components/components/pagination/).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-card" style="max-inline-size:40rem;inline-size:100%;">
     <div class="hc-card__header" style="display:flex;gap:.75rem;align-items:center;justify-content:space-between;flex-wrap:wrap;">
       <strong>Users</strong>
@@ -85,7 +121,47 @@ status [badges](/hypermedia-components/components/badge/), and a
       </nav>
     </div>
   </div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-card" style="max-inline-size:40rem;">
+    <div class="hc-card__header"
+         style="display:flex;gap:.75rem;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+      <strong>Users</strong>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+        <div class="hc-input-group" style="inline-size:13rem;">
+          <span class="hc-input-addon" aria-hidden="true">🔍</span>
+          <input class="hc-input" type="search" aria-label="Search users" placeholder="Search…">
+        </div>
+        <button class="hc-button" type="button">Filter</button>
+        <button class="hc-button" data-variant="primary" type="button">New user</button>
+      </div>
+    </div>
+    <div class="hc-card__body" style="padding:0;">
+      <table class="hc-table" style="inline-size:100%;">
+        <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Ada Lovelace</td><td>Engineer</td><td><span class="hc-badge" data-variant="success">Active</span></td></tr>
+          <tr><td>Alan Turing</td><td>Researcher</td><td><span class="hc-badge" data-variant="warning">Away</span></td></tr>
+          <tr><td>Grace Hopper</td><td>Admiral</td><td><span class="hc-badge" data-variant="success">Active</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="hc-card__footer" style="display:flex;justify-content:flex-end;">
+      <nav class="hc-pagination" aria-label="Pagination">
+        <a class="hc-pagination__item" href="#">‹ Prev</a>
+        <a class="hc-pagination__item" aria-current="page" href="#">1</a>
+        <a class="hc-pagination__item" href="#">2</a>
+        <a class="hc-pagination__item" href="#">3</a>
+        <a class="hc-pagination__item" href="#">Next ›</a>
+      </nav>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Sign in
 
@@ -93,7 +169,7 @@ A centred auth card — two [fields](/hypermedia-components/components/field/),
 a [checkbox](/hypermedia-components/components/checkbox/), and a full-width
 primary [button](/hypermedia-components/components/button/).
 
-<div class="hc-preview not-content" style="display:grid;place-items:center;">
+<Demo previewStyle="display:grid;place-items:center;">
   <form class="hc-card" style="max-inline-size:24rem;inline-size:100%;">
     <div class="hc-card__header"><strong>Sign in</strong></div>
     <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
@@ -112,7 +188,32 @@ primary [button](/hypermedia-components/components/button/).
       <p style="margin:0;text-align:center;font-size:.875rem;color:var(--hc-color-text-muted);">No account? <a href="#">Create one</a></p>
     </div>
   </form>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <form class="hc-card" style="max-inline-size:24rem;">
+    <div class="hc-card__header"><strong>Sign in</strong></div>
+    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="hc-field">
+        <label class="hc-field__label" for="email">Email</label>
+        <input class="hc-input" id="email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="password">Password</label>
+        <input class="hc-input" id="password" type="password" placeholder="••••••••">
+      </div>
+      <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox"> Remember me</label>
+    </div>
+    <div class="hc-card__footer" style="display:flex;flex-direction:column;gap:.5rem;">
+      <button class="hc-button" data-variant="primary" type="submit" style="inline-size:100%;">Sign in</button>
+      <p style="margin:0;text-align:center;">No account? <a href="/signup">Create one</a></p>
+    </div>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Activity feed
 
@@ -120,7 +221,7 @@ A notification list — [`hc-item`](/hypermedia-components/components/item/)
 rows with [avatars](/hypermedia-components/components/avatar/) and trailing
 [badges](/hypermedia-components/components/badge/).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-card" style="max-inline-size:30rem;inline-size:100%;">
     <div class="hc-card__header"><strong>Recent activity</strong></div>
     <div class="hc-card__body" style="padding:.5rem;">
@@ -149,17 +250,53 @@ rows with [avatars](/hypermedia-components/components/avatar/) and trailing
       </div>
     </div>
   </div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-card" style="max-inline-size:30rem;">
+    <div class="hc-card__header"><strong>Recent activity</strong></div>
+    <div class="hc-card__body" style="padding:.5rem;">
+      <div class="hc-item">
+        <span class="hc-avatar" aria-label="Ada Lovelace">A</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Ada commented on “Q3 report”</span>
+          <span class="hc-item__description">2 minutes ago</span>
+        </div>
+        <span class="hc-badge" data-variant="info">New</span>
+      </div>
+      <div class="hc-item">
+        <span class="hc-avatar" aria-label="Grace Hopper">G</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Grace merged “feat/auth”</span>
+          <span class="hc-item__description">1 hour ago</span>
+        </div>
+      </div>
+      <div class="hc-item">
+        <span class="hc-item__media" aria-hidden="true">📦</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Deploy finished</span>
+          <span class="hc-item__description">Today, 09:14</span>
+        </div>
+        <span class="hc-badge" data-variant="success">OK</span>
+      </div>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## App shell
 
 A full admin layout — [`hc-shell`](/hypermedia-components/components/shell/)
 (header, sidebar, scrolling main, footer) with a stat
 [grid](/hypermedia-components/fundamentals/layout/) of
-[cards](/hypermedia-components/components/card/). Scaled into a box here; on
-a real page it fills the viewport and the sidebar collapses on mobile.
+[cards](/hypermedia-components/components/card/). The inline `block-size` and
+`--hc-shell-sidebar-width` just scale it into the box below — drop them and
+the shell fills the viewport (and the sidebar collapses on mobile).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-shell" style="block-size:20rem;--hc-shell-sidebar-width:11rem;--hc-shell-pad:var(--hc-space-3);">
     <header class="hc-shell__header" style="display:flex;align-items:center;justify-content:space-between;">
       <strong>Acme Admin</strong>
@@ -189,7 +326,46 @@ a real page it fills the viewport and the sidebar collapses on mobile.
     </main>
     <footer class="hc-shell__footer"><small>© Acme</small></footer>
   </div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- Drop the inline block-size / --hc-shell-sidebar-width to fill the viewport. -->
+  <div class="hc-shell">
+    <header class="hc-shell__header"
+            style="display:flex;align-items:center;justify-content:space-between;">
+      <strong>Acme Admin</strong>
+      <span class="hc-avatar" aria-label="Your account" data-size="sm">Y</span>
+    </header>
+    <nav class="hc-shell__sidebar" aria-label="Primary"
+         style="display:flex;flex-direction:column;gap:.25rem;">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/orders">Orders</a>
+      <a href="/customers">Customers</a>
+      <a href="/settings">Settings</a>
+    </nav>
+    <main class="hc-shell__main">
+      <div class="hc-grid" style="--hc-grid-min:8rem;">
+        <div class="hc-card" style="padding:1rem;">
+          <div style="font-size:.8rem;color:var(--hc-color-text-muted);">Revenue</div>
+          <strong style="font-size:1.4rem;">$48.2k</strong>
+        </div>
+        <div class="hc-card" style="padding:1rem;">
+          <div style="font-size:.8rem;color:var(--hc-color-text-muted);">Orders</div>
+          <strong style="font-size:1.4rem;">1,204</strong>
+        </div>
+        <div class="hc-card" style="padding:1rem;">
+          <div style="font-size:.8rem;color:var(--hc-color-text-muted);">Churn</div>
+          <strong style="font-size:1.4rem;">2.1%</strong>
+        </div>
+      </div>
+    </main>
+    <footer class="hc-shell__footer"><small>© Acme</small></footer>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## See also
 
