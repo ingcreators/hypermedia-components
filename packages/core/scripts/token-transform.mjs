@@ -267,19 +267,25 @@ export const DEFAULT_SOURCES = [
   { namespace: 'color.rose',    file: 'color.rose.tokens.json',    selector: '[data-color="rose"]' },
   { namespace: 'color.amber',   file: 'color.amber.tokens.json',   selector: '[data-color="amber"]' },
   // Neutral axis: swaps the surface / text / border / secondary ramp.
-  // Unlike colour, neutrals differ by light/dark, so each non-default ramp
-  // ships a light block and a compound dark block. `overlay` lets the dark
-  // block resolve component leaves through the dark baseline then the
-  // slate-dark surfaces. gray is the default (the :root / theme.dark base),
-  // so it needs no block.
+  // Unlike color, neutrals differ by light/dark, so each non-default ramp
+  // ships a light block and a dark block. `overlay` lets the dark block
+  // resolve component leaves through the dark baseline then the ramp's dark
+  // surfaces. gray is the default (the :root / theme.dark base), so it needs
+  // no block.
+  //
+  // The dark selector matches BOTH the descendant case (data-theme on an
+  // ancestor like <html>, data-neutral on a subtree) AND the same-element
+  // case (both on <html>). Without the descendant form, a page that sets
+  // data-theme="dark" on <html> and data-neutral on an inner element would
+  // wrongly fall through to the LIGHT neutral block.
   { namespace: 'neutral.slate',        file: 'neutral.slate.tokens.json',        selector: '[data-neutral="slate"]' },
-  { namespace: 'neutral.slate.dark',   file: 'neutral.slate.dark.tokens.json',   selector: '[data-theme="dark"][data-neutral="slate"]',   overlay: ['theme.dark', 'neutral.slate.dark'] },
+  { namespace: 'neutral.slate.dark',   file: 'neutral.slate.dark.tokens.json',   selector: '[data-theme="dark"] [data-neutral="slate"], [data-theme="dark"][data-neutral="slate"]',     overlay: ['theme.dark', 'neutral.slate.dark'] },
   { namespace: 'neutral.zinc',         file: 'neutral.zinc.tokens.json',         selector: '[data-neutral="zinc"]' },
-  { namespace: 'neutral.zinc.dark',    file: 'neutral.zinc.dark.tokens.json',    selector: '[data-theme="dark"][data-neutral="zinc"]',    overlay: ['theme.dark', 'neutral.zinc.dark'] },
+  { namespace: 'neutral.zinc.dark',    file: 'neutral.zinc.dark.tokens.json',    selector: '[data-theme="dark"] [data-neutral="zinc"], [data-theme="dark"][data-neutral="zinc"]',       overlay: ['theme.dark', 'neutral.zinc.dark'] },
   { namespace: 'neutral.neutral',      file: 'neutral.neutral.tokens.json',      selector: '[data-neutral="neutral"]' },
-  { namespace: 'neutral.neutral.dark', file: 'neutral.neutral.dark.tokens.json', selector: '[data-theme="dark"][data-neutral="neutral"]', overlay: ['theme.dark', 'neutral.neutral.dark'] },
+  { namespace: 'neutral.neutral.dark', file: 'neutral.neutral.dark.tokens.json', selector: '[data-theme="dark"] [data-neutral="neutral"], [data-theme="dark"][data-neutral="neutral"]', overlay: ['theme.dark', 'neutral.neutral.dark'] },
   { namespace: 'neutral.stone',        file: 'neutral.stone.tokens.json',        selector: '[data-neutral="stone"]' },
-  { namespace: 'neutral.stone.dark',   file: 'neutral.stone.dark.tokens.json',   selector: '[data-theme="dark"][data-neutral="stone"]',   overlay: ['theme.dark', 'neutral.stone.dark'] },
+  { namespace: 'neutral.stone.dark',   file: 'neutral.stone.dark.tokens.json',   selector: '[data-theme="dark"] [data-neutral="stone"], [data-theme="dark"][data-neutral="stone"]',     overlay: ['theme.dark', 'neutral.stone.dark'] },
 ];
 
 // The "core" axes every consumer needs: the semantic base, the

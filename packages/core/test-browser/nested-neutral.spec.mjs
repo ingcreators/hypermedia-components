@@ -18,6 +18,11 @@ test.describe('nested data-neutral wrappers re-tint the surface ramp', () => {
         </div>
         <div data-theme="dark" data-neutral="slate" style="padding:.5rem;">
           <div class="hc-card" data-testid="nn-card-dark"><div class="hc-card__body">x</div></div>
+        </div>
+        <div data-theme="dark" style="padding:.5rem;">
+          <div data-neutral="slate">
+            <div class="hc-card" data-testid="nn-card-dark-descendant"><div class="hc-card__body">x</div></div>
+          </div>
         </div>`;
       document.body.appendChild(wrap);
     });
@@ -31,9 +36,18 @@ test.describe('nested data-neutral wrappers re-tint the surface ramp', () => {
     expect(border).toMatch(/rgb\(\s*203,\s*213,\s*225/); // slate.300 #cbd5e1
   });
 
-  test('dark slate: card surface becomes slate.800', async ({ page }) => {
+  test('dark slate (both attrs on one element): card surface becomes slate.800', async ({ page }) => {
     const card = page.getByTestId('nn-card-dark');
     const bg = await card.evaluate((el) => getComputedStyle(el).backgroundColor);
     expect(bg).toMatch(/rgb\(\s*30,\s*41,\s*59/); // slate.800 #1e293b
+  });
+
+  // The realistic case: data-theme="dark" on an ancestor (e.g. <html>),
+  // data-neutral on a descendant. Must still pick the dark ramp, not the
+  // light one. (Regression: the compound selector alone missed this.)
+  test('dark slate (theme on ancestor, neutral on descendant): card surface becomes slate.800', async ({ page }) => {
+    const card = page.getByTestId('nn-card-dark-descendant');
+    const bg = await card.evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(bg).toMatch(/rgb\(\s*30,\s*41,\s*59/); // slate.800 #1e293b, not light
   });
 });
