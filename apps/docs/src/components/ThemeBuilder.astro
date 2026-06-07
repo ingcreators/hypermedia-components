@@ -40,11 +40,45 @@ const MONO_FONTS = [
   { label: 'IBM Plex Mono', value: "'IBM Plex Mono', ui-monospace, monospace" },
   { label: 'Fira Code', value: "'Fira Code', ui-monospace, monospace" },
 ];
+
+// Starting points. The built-in five seed Accent mode; the curated combos
+// seed Full theme (accent + paired neutral + radius). Selecting one fills
+// the controls — you then tweak from there.
+const PRESETS = [
+  { group: 'Built-in accents', items: [
+    { label: 'Default · blue', mode: 'accent', name: 'brand',   bg: '#2563eb' },
+    { label: 'Indigo',         mode: 'accent', name: 'indigo',  bg: '#4f46e5' },
+    { label: 'Emerald',        mode: 'accent', name: 'emerald', bg: '#047857' },
+    { label: 'Rose',           mode: 'accent', name: 'rose',    bg: '#be123c' },
+    { label: 'Amber',          mode: 'accent', name: 'amber',   bg: '#f59e0b', fg: '#111827' },
+  ] },
+  { group: 'Curated full themes', items: [
+    { label: 'Slate · Indigo',  mode: 'full', name: 'slate-indigo',  bg: '#4f46e5', neutral: 'slate',   radius: 8 },
+    { label: 'Stone · Amber',   mode: 'full', name: 'stone-amber',   bg: '#f59e0b', fg: '#111827', neutral: 'stone', radius: 10 },
+    { label: 'Zinc · Emerald',  mode: 'full', name: 'zinc-emerald',  bg: '#047857', neutral: 'zinc',    radius: 6 },
+    { label: 'Neutral · Rose',  mode: 'full', name: 'neutral-rose',  bg: '#be123c', neutral: 'neutral', radius: 4 },
+  ] },
+];
+// Flatten for stable indexed lookup from the <select>.
+const PRESET_FLAT = PRESETS.flatMap((g) => g.items);
 ---
 
-<div class="tb not-content" data-theme-builder>
+<div class="tb not-content" data-theme-builder data-presets={JSON.stringify(PRESET_FLAT)}>
   <div class="tb__grid">
     <form class="tb__controls" autocomplete="off">
+      <label class="hc-field">
+        <span class="hc-field__label">Start from a preset</span>
+        <select class="hc-select" id="tb-preset">
+          <option value="">Custom</option>
+          {PRESETS.map((g) => (
+            <optgroup label={g.group}>
+              {g.items.map((p) => <option value={String(PRESET_FLAT.indexOf(p))}>{p.label}</option>)}
+            </optgroup>
+          ))}
+        </select>
+        <span class="hc-field__message">Seeds the controls; tweak from there.</span>
+      </label>
+
       <label class="hc-field">
         <span class="hc-field__label">Mode</span>
         <select class="hc-select" id="tb-mode">
@@ -135,6 +169,10 @@ const MONO_FONTS = [
         <button type="button" class="hc-button" data-variant="primary" id="tb-apply">Apply to this page</button>
         <button type="button" class="hc-button" data-variant="ghost" id="tb-reset">Reset</button>
       </div>
+      <div class="tb__actions">
+        <button type="button" class="hc-button" data-variant="secondary" data-size="sm" id="tb-shuffle">🎲 Shuffle</button>
+        <button type="button" class="hc-button" data-variant="secondary" data-size="sm" id="tb-share">Copy share link</button>
+      </div>
     </form>
 
     <div class="tb__preview">
@@ -143,9 +181,19 @@ const MONO_FONTS = [
         <button class="hc-button" data-variant="primary">Save</button>
         <button class="hc-button" data-variant="secondary">Cancel</button>
         <button class="hc-button" data-variant="ghost">Edit</button>
-        <input class="hc-input" type="text" value="focus me" style="inline-size:8rem;" />
+        <input class="hc-input" type="text" value="focus me" style="inline-size:7rem;" />
+        <select class="hc-select" style="inline-size:7rem;"><option>Option</option></select>
         <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" checked /> Notify</label>
         <label class="hc-radio-label"><input class="hc-radio" type="radio" name="tb-radio" checked /> Free</label>
+        <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked /> Sync</label>
+        <span class="hc-badge" data-variant="success">Active</span>
+        <span class="hc-badge">Neutral</span>
+
+        <div class="hc-alert" data-variant="success" role="status" style="flex:1 1 100%;">
+          <strong class="hc-alert__title" style="font-family:var(--hc-font-family-heading);">Saved</strong>
+          <p class="hc-alert__body" style="margin:0;">Semantic status colors (success / warning / error) stay fixed — the accent doesn't touch them.</p>
+        </div>
+
         <div class="hc-card tb__card">
           <div class="hc-card__body">
             <span style="display:block;font-family:var(--hc-font-family-heading);font-weight:600;font-size:1.05rem;color:var(--hc-color-text);">Heading sample</span>
@@ -353,7 +401,54 @@ const MONO_FONTS = [
     const $hover=el('tb-hover'), $hoverOut=el('tb-hover-out'), $soft=el('tb-soft'), $softOut=el('tb-soft-out');
     const $neutral=el('tb-neutral'), $radius=el('tb-radius'), $radiusOut=el('tb-radius-out');
     const $fontBody=el('tb-font-body'), $fontHeading=el('tb-font-heading'), $fontMono=el('tb-font-mono');
+    const $preset=el('tb-preset'), $shuffle=el('tb-shuffle'), $share=el('tb-share');
     const $fullControls=el('tb-full-controls'), $contrast=el('tb-contrast');
+    let PRESETS_DATA = [];
+    try { PRESETS_DATA = JSON.parse(root.getAttribute('data-presets') || '[]'); } catch { /* ignore */ }
+
+    // ---- State (de)serialization: presets, share links, shuffle ----
+    function applyState(s){
+      if (s.mode) $mode.value = s.mode;
+      if (s.name) $name.value = s.name;
+      if (s.hex && /^#[0-9a-f]{6}$/i.test(s.hex)) { $hex.value = s.hex.toLowerCase(); $color.value = s.hex.toLowerCase(); }
+      if (s.fg) $fg.value = s.fg;
+      if (s.hover != null) { $hover.value = s.hover; $hoverOut.textContent = s.hover + '%'; }
+      if (s.soft != null) { $soft.value = s.soft; $softOut.textContent = s.soft + '%'; }
+      if (s.neutral) $neutral.value = s.neutral;
+      if (s.radius != null) { $radius.value = s.radius; $radiusOut.textContent = s.radius + 'px'; }
+      if (Number.isInteger(s.fb)) $fontBody.selectedIndex = s.fb;
+      if (Number.isInteger(s.fh)) $fontHeading.selectedIndex = s.fh;
+      if (Number.isInteger(s.fm)) $fontMono.selectedIndex = s.fm;
+    }
+    function applyPreset(p){
+      if (!p) return;
+      applyState({ mode: p.mode, name: p.name, hex: p.bg, fg: p.fg || 'auto',
+        hover: 12, soft: 12, neutral: p.neutral || 'gray', radius: p.radius ?? 6, fb: 0, fh: 0, fm: 0 });
+    }
+    function currentState(){
+      return { mode: $mode.value, name: $name.value, hex: $hex.value, fg: $fg.value,
+        hover: Number($hover.value), soft: Number($soft.value), neutral: $neutral.value, radius: Number($radius.value),
+        fb: $fontBody.selectedIndex, fh: $fontHeading.selectedIndex, fm: $fontMono.selectedIndex };
+    }
+    function hslToHex(h, s, l){
+      s /= 100; l /= 100;
+      const k = (n) => (n + h / 30) % 12;
+      const a = s * Math.min(l, 1 - l);
+      const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      const to = (x) => Math.round(255 * x).toString(16).padStart(2, '0');
+      return `#${to(f(0))}${to(f(8))}${to(f(4))}`;
+    }
+    function shuffle(){
+      const rnd = (n) => Math.floor(Math.random() * n);
+      applyState({
+        mode: 'full', name: 'shuffled',
+        hex: hslToHex(rnd(360), 52 + rnd(22), 42 + rnd(10)),
+        fg: 'auto', hover: 8 + rnd(12), soft: 8 + rnd(12),
+        neutral: NEUTRALS[rnd(NEUTRALS.length)], radius: rnd(13),
+        fb: rnd($fontBody.options.length), fh: rnd($fontHeading.options.length), fm: rnd($fontMono.options.length),
+      });
+      $preset.value = '';
+    }
     const $block=el('tb-block'), $dtcg=el('tb-dtcg'), $full=el('tb-full');
     const $blockDesc=el('tb-block-desc'), $dtcgDesc=el('tb-dtcg-desc');
 
@@ -467,6 +562,24 @@ const MONO_FONTS = [
     $soft.addEventListener('input', () => { $softOut.textContent = $soft.value + '%'; render(); });
     $radius.addEventListener('input', () => { $radiusOut.textContent = $radius.value + 'px'; render(); });
 
+    // Changing any control by hand drops the preset back to "Custom".
+    for (const c of [$mode, $name, $color, $hex, $fg, $hover, $soft, $neutral, $radius, $fontBody, $fontHeading, $fontMono]) {
+      c.addEventListener('input', () => { $preset.value = ''; });
+    }
+    $preset.addEventListener('change', () => {
+      if ($preset.value !== '') { applyPreset(PRESETS_DATA[Number($preset.value)]); render(); }
+    });
+    $shuffle.addEventListener('click', () => { shuffle(); render(); });
+    $share.addEventListener('click', async () => {
+      try {
+        const code = btoa(JSON.stringify(currentState()));
+        history.replaceState(null, '', '#tb=' + code);
+        await navigator.clipboard.writeText(location.href);
+        const prev = $share.textContent; $share.textContent = 'Link copied!';
+        setTimeout(() => { $share.textContent = prev; }, 1200);
+      } catch { /* clipboard blocked — hash is still in the URL */ }
+    });
+
     el('tb-apply').addEventListener('click', () => {
       const m = model();
       if (!appliedStyle) appliedStyle = document.head.appendChild(Object.assign(document.createElement('style'), { id: 'hc-builder-applied-style' }));
@@ -522,6 +635,10 @@ const MONO_FONTS = [
         URL.revokeObjectURL(url);
       });
     }
+
+    // Restore from a share link (#tb=<base64>) on load.
+    const shared = location.hash.match(/tb=([^&]+)/);
+    if (shared) { try { applyState(JSON.parse(atob(shared[1]))); } catch { /* ignore bad link */ } }
 
     render();
   }

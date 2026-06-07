@@ -39,6 +39,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Theme builder — presets, share links, shuffle, richer preview.**
+  - **Start from a preset**: the built-in five (seed Accent mode) plus curated
+    full-theme combos (Slate · Indigo, Stone · Amber, Zinc · Emerald,
+    Neutral · Rose) that seed accent + neutral + radius.
+  - **Copy share link**: encodes the full config into a `#tb=…` URL hash,
+    restored on load — shareable / bookmarkable.
+  - **Shuffle**: generates a random full theme (random accent with auto
+    contrast, neutral, radius, fonts).
+  - **Richer preview**: now exercises select / switch / badge / alert
+    alongside the existing controls, so accent, neutral, radius, and fonts
+    are all visible at once.
 - **Typography tokens — `--hc-font-family-heading` / `--hc-font-family-mono`.**
   Added a `mono` primitive font stack and `font.family-heading` (defaults to
   sans) / `font.family-mono` semantic tokens. `kbd` now references
