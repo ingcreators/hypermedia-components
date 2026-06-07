@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Theme builder (docs).** A new interactive
+  [`tokens/theme-builder`](apps/docs/src/content/docs/tokens/theme-builder.mdx)
+  page derives a full `data-color` accent set from one brand colour
+  (hover / soft-tint / text-on-primary), checks WCAG contrast live, and
+  exports both the `[data-color="…"]` CSS override and the
+  `color.*.tokens.json` DTCG source. Backed by
+  `apps/docs/src/components/ThemeBuilder.astro`.
+- **Custom-theme authoring guide.** `tokens/themes` now documents both
+  paths for adding your own accent palette — runtime CSS-variable
+  override (no rebuild) and a shipped `color.*.tokens.json` token
+  source — with the exact `build-tokens.mjs` registration steps.
 - **`hc-shell` directional collapse icon (`.hc-shell__collapse-icon`).** A
   chevron on the collapse control should point the way it will move — `«`
   (collapse) while expanded, `»` (expand) once collapsed. Wrap the glyph in

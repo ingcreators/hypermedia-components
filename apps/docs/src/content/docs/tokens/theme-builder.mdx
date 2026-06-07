@@ -1,0 +1,55 @@
+---
+title: Theme builder
+description: Build a custom data-color accent palette from a single brand colour. Auto-derives hover / soft-tint / text-on-primary, checks WCAG contrast live, and exports both the CSS override and the DTCG token file.
+sidebar:
+  order: 3
+---
+
+import ThemeBuilder from '../../../components/ThemeBuilder.astro';
+
+Pick one brand colour and this builder derives the rest of the
+`data-color` accent set — the hover shade, the soft tint, and the
+text-on-primary colour — then checks the WCAG contrast for you and
+emits ready-to-paste exports.
+
+It produces exactly the two formats described in
+[Color themes → Authoring your own theme](/hypermedia-components/tokens/themes/#authoring-your-own-theme):
+a `[data-color="…"]` CSS override (Path A) and a
+`color.*.tokens.json` DTCG source (Path B).
+
+<ThemeBuilder />
+
+## How the derivation works
+
+| Output | Derivation |
+| --- | --- |
+| `action-primary-bg` / `border` | Your chosen brand colour, as-is. |
+| `action-primary-hover-bg` / `border` | Brand colour darkened toward black by the **Hover darkness** percentage (per-channel sRGB). |
+| `action-primary-fg` | **Auto** picks white or `gray.900` (`#111827`) — whichever has the higher contrast against the brand colour. Override it manually if you prefer. |
+| `action-primary-soft-bg` | `color-mix(in srgb, <brand> N%, transparent)` — one value that blends correctly on both light and dark surfaces, so no per-mode variant is needed. |
+| `focus-ring` | Defaults to the brand colour. |
+
+The **contrast read-out** is the WCAG 2.x ratio between the brand
+colour and the resolved text colour. Aim for **4.5 : 1** (AA) or
+better for the button label; the badge turns red below that.
+
+## Using the export
+
+- **CSS override** — drop it in any stylesheet loaded after
+  `@hypermedia-components/core/css`, then set `data-color="<name>"`
+  on `<html>` or any subtree. No rebuild required.
+- **DTCG token file** — save it as
+  `packages/core/src/tokens/color.<name>.tokens.json`, register it in
+  `scripts/build-tokens.mjs`, and rebuild. See
+  [Path B](/hypermedia-components/tokens/themes/#path-b--add-a-token-source-shipped-in-the-build)
+  for the two-line registration.
+
+**Apply to this page** writes the generated variables straight onto
+the docs site's `<html>` so you can browse every component under your
+theme; **Reset** clears them.
+
+## Related
+
+- [Color themes](/hypermedia-components/tokens/themes/) — the built-in five and the full authoring guide.
+- [Density](/hypermedia-components/tokens/density/) — orthogonal sizing axis.
+- [Tokens overview](/hypermedia-components/tokens/) — the four-layer model.
