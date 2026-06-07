@@ -606,7 +606,7 @@
     "fg":          { "$type": "color",      "$value": "{semantic.color.text}" },
     "border":      { "$type": "color",      "$value": "{semantic.color.border}" },
     "radius":      { "$type": "dimension",  "$value": "{primitive.radius.sm}" },
-    "font":        { "$type": "fontFamily", "$value": "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" },
+    "font":        { "$type": "fontFamily", "$value": "{semantic.font.family-mono}" },
     "font-size":   { "$type": "dimension",  "$value": "{semantic.font.size-sm}" },
     "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
     "padding-x":   { "$type": "dimension",  "$value": "0.4em" },

@@ -16,6 +16,30 @@
 //     the changed variables in every block.
 //
 // Exports: DTCG source(s), an additive CSS block, and a full token CSS.
+//
+// Full theme also offers typography (body / heading / mono font-family). The
+// first option in each list is the stock stack, so "System" is a no-op (no
+// diff). HC ships no webfonts — the builder only sets the font-family var;
+// load the chosen face yourself or it falls back down the stack.
+
+const SANS = "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+const MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace";
+
+const BODY_FONTS = [
+  { label: 'System', value: SANS },
+  { label: 'Inter', value: "Inter, system-ui, sans-serif" },
+  { label: 'Geist', value: "Geist, system-ui, sans-serif" },
+  { label: 'Roboto', value: "Roboto, system-ui, sans-serif" },
+  { label: 'IBM Plex Sans', value: "'IBM Plex Sans', system-ui, sans-serif" },
+  { label: 'Source Sans 3', value: "'Source Sans 3', system-ui, sans-serif" },
+];
+const MONO_FONTS = [
+  { label: 'System mono', value: MONO },
+  { label: 'Geist Mono', value: "'Geist Mono', ui-monospace, monospace" },
+  { label: 'JetBrains Mono', value: "'JetBrains Mono', ui-monospace, monospace" },
+  { label: 'IBM Plex Mono', value: "'IBM Plex Mono', ui-monospace, monospace" },
+  { label: 'Fira Code', value: "'Fira Code', ui-monospace, monospace" },
+];
 ---
 
 <div class="tb not-content" data-theme-builder>
@@ -82,6 +106,29 @@
           <input class="hc-slider" type="range" id="tb-radius" min="0" max="16" value="6" step="1" />
           <span class="hc-field__message">Corner radius of buttons / inputs / tabs (<code>--hc-control-radius</code>).</span>
         </label>
+
+        <label class="hc-field">
+          <span class="hc-field__label">Body font</span>
+          <select class="hc-select" id="tb-font-body">
+            {BODY_FONTS.map((f) => <option value={f.value}>{f.label}</option>)}
+          </select>
+        </label>
+
+        <label class="hc-field">
+          <span class="hc-field__label">Heading font</span>
+          <select class="hc-select" id="tb-font-heading">
+            {BODY_FONTS.map((f) => <option value={f.value}>{f.label}</option>)}
+          </select>
+          <span class="hc-field__message">HC has no heading component — apply <code>--hc-font-family-heading</code> to your own headings.</span>
+        </label>
+
+        <label class="hc-field">
+          <span class="hc-field__label">Mono font</span>
+          <select class="hc-select" id="tb-font-mono">
+            {MONO_FONTS.map((f) => <option value={f.value}>{f.label}</option>)}
+          </select>
+          <span class="hc-field__message">HC ships no webfonts — load the chosen face yourself.</span>
+        </label>
       </div>
 
       <div class="tb__actions">
@@ -101,8 +148,8 @@
         <label class="hc-radio-label"><input class="hc-radio" type="radio" name="tb-radio" checked /> Free</label>
         <div class="hc-card tb__card">
           <div class="hc-card__body">
-            <strong>Surface</strong>
-            <p class="hc-field__message" style="margin:0;">Border / text / muted follow the neutral ramp. Select me for ::selection.</p>
+            <span style="display:block;font-family:var(--hc-font-family-heading);font-weight:600;font-size:1.05rem;color:var(--hc-color-text);">Heading sample</span>
+            <p class="hc-field__message" style="margin:.25rem 0 0;">Body text on this ramp — press <kbd class="hc-kbd">⌘K</kbd> (mono). Select me for ::selection.</p>
           </div>
         </div>
       </div>
@@ -262,6 +309,11 @@
         status: { neutral: { bg: r(100), fg: r(800), border: r(200) } },
       },
       control: { radius: { $type: 'dimension', $value: `${m.radius}px` } },
+      font: {
+        'family-sans': { $type: 'fontFamily', $value: m.fontBody },
+        'family-heading': { $type: 'fontFamily', $value: m.fontHeading },
+        'family-mono': { $type: 'fontFamily', $value: m.fontMono },
+      },
     };
   }
   function darkPatch(m){
@@ -300,6 +352,7 @@
     const $mode=el('tb-mode'), $name=el('tb-name'), $color=el('tb-color'), $hex=el('tb-hex'), $fg=el('tb-fg');
     const $hover=el('tb-hover'), $hoverOut=el('tb-hover-out'), $soft=el('tb-soft'), $softOut=el('tb-soft-out');
     const $neutral=el('tb-neutral'), $radius=el('tb-radius'), $radiusOut=el('tb-radius-out');
+    const $fontBody=el('tb-font-body'), $fontHeading=el('tb-font-heading'), $fontMono=el('tb-font-mono');
     const $fullControls=el('tb-full-controls'), $contrast=el('tb-contrast');
     const $block=el('tb-block'), $dtcg=el('tb-dtcg'), $full=el('tb-full');
     const $blockDesc=el('tb-block-desc'), $dtcgDesc=el('tb-dtcg-desc');
@@ -315,6 +368,9 @@
         soft: `color-mix(in srgb, ${bg} ${Number($soft.value)}%, transparent)`,
         neutral: NEUTRALS.includes($neutral.value) ? $neutral.value : 'gray',
         radius: Number($radius.value),
+        fontBody: $fontBody.value,
+        fontHeading: $fontHeading.value,
+        fontMono: $fontMono.value,
       };
     }
 
@@ -403,6 +459,9 @@
       $name.addEventListener(ev, render);
       $mode.addEventListener(ev, render);
       $neutral.addEventListener(ev, render);
+      $fontBody.addEventListener(ev, render);
+      $fontHeading.addEventListener(ev, render);
+      $fontMono.addEventListener(ev, render);
     }
     $hover.addEventListener('input', () => { $hoverOut.textContent = $hover.value + '%'; render(); });
     $soft.addEventListener('input', () => { $softOut.textContent = $soft.value + '%'; render(); });

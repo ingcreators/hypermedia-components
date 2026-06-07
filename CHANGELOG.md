@@ -39,6 +39,12 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Typography tokens — `--hc-font-family-heading` / `--hc-font-family-mono`.**
+  Added a `mono` primitive font stack and `font.family-heading` (defaults to
+  sans) / `font.family-mono` semantic tokens. `kbd` now references
+  `--hc-font-family-mono` (value unchanged). The theme builder's Full theme
+  mode gains body / heading / mono font pickers. (HC ships no webfonts — the
+  builder sets the `font-family` var; load the face yourself.)
 - **`data-neutral` axis — swap the neutral ramp.** A new runtime axis,
   orthogonal to `data-color` / `data-theme` / `data-density`, swaps the
   surface / text / border / muted / secondary greys between **gray**
