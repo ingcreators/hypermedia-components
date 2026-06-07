@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-shell` directional collapse icon (`.hc-shell__collapse-icon`).** A
+  chevron on the collapse control should point the way it will move — `«`
+  (collapse) while expanded, `»` (expand) once collapsed. Wrap the glyph in
+  `.hc-shell__collapse-icon` and it mirrors automatically when the rail
+  collapses (`transform: scaleX(-1)` keyed on `data-sidebar-collapsed`, no
+  extra script); a non-directional glyph (e.g. `⇔`) just omits the class.
+  Fixes the Blocks app-shell, whose static `«` pointed the wrong way when
+  collapsed. Pure CSS + 1 Playwright test; Shell → Collapsible sidebar docs
+  updated.
+
 - **Docs: a Blocks showcase page.** A new top-level docs page
   (`/blocks/`, in the sidebar after Components) that shows components
   *composed* into realistic UI sections — an account-settings card, a data

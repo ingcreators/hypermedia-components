@@ -311,7 +311,7 @@ fill the viewport.
   <div class="hc-shell hc-demo-shell" style="--hc-shell-sidebar-width:13rem;--hc-shell-pad:var(--hc-space-3);">
     <header class="hc-shell__header" style="display:flex;align-items:center;gap:.75rem;">
       <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button" data-hc-shell-toggle aria-label="Open navigation" style="font-size:1.1rem;line-height:1;">☰</button>
-      <button class="hc-button" data-variant="ghost" type="button" data-hc-shell-collapse aria-label="Collapse sidebar" style="font-size:1.1rem;line-height:1;">«</button>
+      <button class="hc-button" data-variant="ghost" type="button" data-hc-shell-collapse aria-label="Toggle sidebar" style="font-size:1.1rem;line-height:1;"><span class="hc-shell__collapse-icon">«</span></button>
       <strong style="display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;"><span aria-hidden="true">◆</span> Acme</strong>
       <div class="hc-input-group" style="flex:1;max-inline-size:22rem;">
         <span class="hc-input-addon" aria-hidden="true">🔍</span>
@@ -385,7 +385,10 @@ fill the viewport.
       <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button"
               data-hc-shell-toggle aria-label="Open navigation">☰</button>
       <button class="hc-button" data-variant="ghost" type="button"
-              data-hc-shell-collapse aria-label="Collapse sidebar">«</button>
+              data-hc-shell-collapse aria-label="Toggle sidebar">
+        <!-- .hc-shell__collapse-icon mirrors the chevron when collapsed: « → » -->
+        <span class="hc-shell__collapse-icon">«</span>
+      </button>
       <strong style="display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;"><span aria-hidden="true">◆</span> Acme</strong>
       <div class="hc-input-group" style="flex:1;max-inline-size:22rem;">
         <span class="hc-input-addon" aria-hidden="true">🔍</span>
