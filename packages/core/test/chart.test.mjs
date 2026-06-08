@@ -88,6 +88,23 @@ describe('installChart', () => {
     expect(calls.dot.length).toBe(1);
   });
 
+  it('pins the categorical x domain to the table row order (no alpha sort)', () => {
+    mount(`
+      <figure class="hc-chart" data-hc-chart="bar">
+        <table><thead><tr><th>Month</th><th>Sales</th></tr></thead>
+        <tbody>
+          <tr><td>Mar</td><td>1</td></tr>
+          <tr><td>Jan</td><td>2</td></tr>
+          <tr><td>Feb</td><td>3</td></tr>
+        </tbody></table>
+      </figure>`);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+
+    // Row order is preserved, not sorted alphabetically (Feb/Jan/Mar).
+    expect(calls.plot[0].x.domain).toEqual(['Mar', 'Jan', 'Feb']);
+  });
+
   it('uses data-hc-chart as the default mark (line)', () => {
     mount(`
       <figure class="hc-chart" data-hc-chart="line">
