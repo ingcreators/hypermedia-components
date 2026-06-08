@@ -187,13 +187,20 @@ function renderFigure(figure, rendered, options) {
   const title = figure.getAttribute('data-title')
     || (table.caption ? table.caption.textContent.trim() : undefined);
 
+  // Preserve the table's row order on a categorical x axis. Plot sorts an
+  // ordinal domain alphabetically by default, which would reorder e.g.
+  // Jan/Feb/Mar → Feb/Jan/Mar; pin the domain to first-appearance order.
+  const xDomain = data.xType === 'category'
+    ? [...new Set(data.rows.map((d) => d.x))]
+    : undefined;
+
   const node = plot.plot({
     width,
     height,
     className: 'hc-chart__plot',
     style: { background: 'transparent', color: 'inherit', fontFamily: 'inherit' },
     title: title || undefined,
-    x: { label: data.xName || undefined, type: xScaleType(data.xType) },
+    x: { label: data.xName || undefined, type: xScaleType(data.xType), domain: xDomain },
     y: { label: figure.getAttribute('data-y-label') || undefined, grid: true },
     color: range ? { range, legend } : { legend },
     marks: buildMarks(plot, data.rows),
