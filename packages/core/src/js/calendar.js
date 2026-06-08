@@ -126,7 +126,16 @@ function attach(root, detachers) {
   // data-mode="range" tracks a start / end pair; single (default) tracks one
   // selected date.
   const mode = root.getAttribute('data-mode') === 'range' ? 'range' : 'single';
-  const dataValue = root.getAttribute('data-value');
+  // Single source of truth: when `data-value` is omitted but the calendar is
+  // linked to a field (`data-target`), inherit the initial selection from
+  // that field's current value — so the date is written once on the input,
+  // not duplicated here. An explicit `data-value` still wins.
+  let dataValue = root.getAttribute('data-value');
+  if (!dataValue && target) {
+    let initField = null;
+    try { initField = doc.querySelector(target); } catch { /* invalid selector */ }
+    if (initField && initField.value) dataValue = initField.value;
+  }
 
   const state = { selected: null, start: null, end: null, focused: null };
   if (mode === 'range') {

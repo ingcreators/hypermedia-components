@@ -55,7 +55,7 @@ All configuration is via `data-*` attributes on the container:
 | `data-first-day` | First day of the week: `0` = Sunday (default) … `6` = Saturday. |
 | `data-locale` | BCP-47 locale for month / weekday names. Falls back to `<html lang>`, then the browser default. |
 | `data-name` | When set, the behavior maintains a hidden `<input name="…">` with the selected ISO value, so the calendar serialises in a form. |
-| `data-target` | A CSS selector for an external field. On each pick the calendar writes the value into it (firing `input` / `change`) and closes the enclosing popover — a [custom date field](#as-a-custom-date-field) with **no per-field JavaScript**. |
+| `data-target` | A CSS selector for an external field. On each pick the calendar writes the value into it (firing `input` / `change`) and closes the enclosing popover — a [custom date field](#as-a-custom-date-field) with **no per-field JavaScript**. It also seeds the calendar's initial selection from that field's value, so you set the date **once** (on the input) and omit `data-value`. |
 | `data-nav` | `"select"` swaps the month/year title for dropdown pickers (see [Month / year navigation](#month--year-navigation)). |
 
 Month and weekday names come from `Intl.DateTimeFormat`. The first day
@@ -191,7 +191,9 @@ day fills the input and closes the popover.
 
 Point the calendar at the field with **`data-target`** — the behavior
 writes the value and closes the popover for you. **No per-field
-JavaScript**, so a page with many date fields stays pure markup.
+JavaScript**, so a page with many date fields stays pure markup. Set the
+initial date **once** on the input (`value="…"`); the calendar inherits it,
+so there is no `data-value` to keep in sync.
 
 <Demo previewStyle="min-block-size:24rem;">
   <div class="hc-input-group" style="max-inline-size:18rem;">
@@ -199,13 +201,14 @@ JavaScript**, so a page with many date fields stays pure markup.
     <button class="hc-button" type="button" popovertarget="datefield-cal" aria-label="Open calendar">📅</button>
   </div>
   <div id="datefield-cal" class="hc-popover" popover data-side="bottom" data-align="end">
-    <div class="hc-calendar" data-value="2026-05-15" data-name="due" data-target="#datefield-demo-input" data-locale="en-US" aria-label="Pick a date"></div>
+    <div class="hc-calendar" data-name="due" data-target="#datefield-demo-input" data-locale="en-US" aria-label="Pick a date"></div>
   </div>
 
   <Fragment slot="code">
 
   ```html
   <div class="hc-input-group">
+    <!-- The value lives here, once. -->
     <input class="hc-input" id="due-field" type="text" readonly
            value="2026-05-15" aria-label="Due date" placeholder="Pick a date">
     <button class="hc-button" type="button" popovertarget="due-cal"
@@ -213,9 +216,9 @@ JavaScript**, so a page with many date fields stays pure markup.
   </div>
 
   <div id="due-cal" class="hc-popover" popover data-side="bottom" data-align="end">
-    <!-- data-target fills #due-field and closes #due-cal on pick. No JS. -->
-    <div class="hc-calendar" data-name="due" data-value="2026-05-15"
-         data-target="#due-field" aria-label="Pick a date"></div>
+    <!-- data-target seeds from #due-field, fills it, and closes #due-cal. No JS. -->
+    <div class="hc-calendar" data-name="due" data-target="#due-field"
+         aria-label="Pick a date"></div>
   </div>
   ```
 
