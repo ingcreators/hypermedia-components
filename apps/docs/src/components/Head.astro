@@ -72,18 +72,11 @@ import Default from '@astrojs/starlight/components/Head.astro';
     if (!cal || !cal.hasAttribute) return;
 
     // Form-integration: reflect the calendar's submitted value (the hidden
-    // input `data-name` maintains) into the readout.
+    // input `data-name` maintains) into the readout. (The custom date field
+    // demo needs no wiring here — it uses the calendar's own `data-target`.)
     if (cal.hasAttribute('data-demo-calendar')) {
       const out = document.getElementById('calendar-form-demo-out');
       if (out) out.textContent = event.detail.value;
-    }
-
-    // Custom date field: fill the visible <input> and close the dropdown.
-    if (cal.hasAttribute('data-demo-datefield')) {
-      const input = document.getElementById('datefield-demo-input');
-      if (input) input.value = event.detail.value;
-      const pop = cal.closest('[popover]');
-      if (pop && pop.hidePopover) pop.hidePopover();
     }
   });
 </script>

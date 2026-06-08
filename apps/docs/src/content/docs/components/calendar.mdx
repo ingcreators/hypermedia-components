@@ -55,6 +55,7 @@ All configuration is via `data-*` attributes on the container:
 | `data-first-day` | First day of the week: `0` = Sunday (default) … `6` = Saturday. |
 | `data-locale` | BCP-47 locale for month / weekday names. Falls back to `<html lang>`, then the browser default. |
 | `data-name` | When set, the behavior maintains a hidden `<input name="…">` with the selected ISO value, so the calendar serialises in a form. |
+| `data-target` | A CSS selector for an external field. On each pick the calendar writes the value into it (firing `input` / `change`) and closes the enclosing popover — a [custom date field](#as-a-custom-date-field) with **no per-field JavaScript**. |
 | `data-nav` | `"select"` swaps the month/year title for dropdown pickers (see [Month / year navigation](#month--year-navigation)). |
 
 Month and weekday names come from `Intl.DateTimeFormat`. The first day
@@ -186,8 +187,11 @@ Don't like the native date control? Pair the calendar with an
 [`hc-input`](/hypermedia-components/components/input/) and a
 [popover](/hypermedia-components/components/popover/): the input is the
 visible field, a trailing button opens a calendar dropdown, and picking a
-day fills the input and closes the popover. The calendar's `data-name`
-hidden input is what submits, so the visible field can stay `readonly`.
+day fills the input and closes the popover.
+
+Point the calendar at the field with **`data-target`** — the behavior
+writes the value and closes the popover for you. **No per-field
+JavaScript**, so a page with many date fields stays pure markup.
 
 <Demo previewStyle="min-block-size:24rem;">
   <div class="hc-input-group" style="max-inline-size:18rem;">
@@ -195,7 +199,7 @@ hidden input is what submits, so the visible field can stay `readonly`.
     <button class="hc-button" type="button" popovertarget="datefield-cal" aria-label="Open calendar">📅</button>
   </div>
   <div id="datefield-cal" class="hc-popover" popover data-side="bottom" data-align="end">
-    <div class="hc-calendar" data-value="2026-05-15" data-name="due" data-locale="en-US" aria-label="Pick a date" data-demo-datefield></div>
+    <div class="hc-calendar" data-value="2026-05-15" data-name="due" data-target="#datefield-demo-input" data-locale="en-US" aria-label="Pick a date"></div>
   </div>
 
   <Fragment slot="code">
@@ -209,20 +213,10 @@ hidden input is what submits, so the visible field can stay `readonly`.
   </div>
 
   <div id="due-cal" class="hc-popover" popover data-side="bottom" data-align="end">
+    <!-- data-target fills #due-field and closes #due-cal on pick. No JS. -->
     <div class="hc-calendar" data-name="due" data-value="2026-05-15"
-         aria-label="Pick a date"></div>
+         data-target="#due-field" aria-label="Pick a date"></div>
   </div>
-
-  <script type="module">
-    // Fill the field and close the dropdown when a day is picked. The
-    // calendar's hidden input (data-name="due") is what the form submits.
-    const cal = document.querySelector('#due-cal .hc-calendar');
-    const field = document.getElementById('due-field');
-    cal.addEventListener('hc:calendarchange', (e) => {
-      field.value = e.detail.value;
-      document.getElementById('due-cal').hidePopover();
-    });
-  </script>
   ```
 
   </Fragment>
@@ -230,8 +224,9 @@ hidden input is what submits, so the visible field can stay `readonly`.
 
 The visible input is `readonly` here so the calendar is the only editor —
 drop `readonly` to also allow typing. Either way the form submits `due=…`
-from the calendar's hidden input. The popover anchors below the trigger via
-`installPopover` (`data-side` / `data-align`).
+from the calendar's hidden `data-name` input. The popover anchors below the
+trigger via `installPopover` (`data-side` / `data-align`). Add as many such
+fields as you like — each is just markup with its own `data-target`.
 
 ## htmx usage
 

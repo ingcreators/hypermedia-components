@@ -116,6 +116,11 @@ function attach(root, detachers) {
   const min = root.getAttribute('data-min') || null;
   const max = root.getAttribute('data-max') || null;
   const name = root.getAttribute('data-name');
+  // data-target: a selector for an external field the calendar drives. On
+  // each commit the calendar writes the value into it and closes the
+  // enclosing popover (if any), so a "custom date field" needs no per-field
+  // JavaScript — just markup.
+  const target = root.getAttribute('data-target');
   const gridLabel = root.getAttribute('aria-label') || t('calendar.label');
 
   // data-mode="range" tracks a start / end pair; single (default) tracks one
@@ -335,6 +340,25 @@ function attach(root, detachers) {
     if (focus) focusDay(iso);
   }
 
+  // Drive an external field declared via `data-target`: set its value, fire
+  // input/change (so forms, validation, and htmx `hx-trigger="change"` see
+  // it), and close the enclosing popover so a dropdown date field needs no
+  // per-field script. No-op without `data-target`.
+  function applyTarget(value) {
+    if (!target) return;
+    let field = null;
+    try { field = doc.querySelector(target); } catch { /* invalid selector → leave null */ }
+    if (field) {
+      if ('value' in field) field.value = value;
+      field.dispatchEvent(new CustomEvent('input', { bubbles: true }));
+      field.dispatchEvent(new CustomEvent('change', { bubbles: true }));
+    }
+    const pop = root.closest('[popover]');
+    if (pop && typeof pop.hidePopover === 'function') {
+      try { pop.hidePopover(); } catch { /* already closed */ }
+    }
+  }
+
   function select(iso) {
     if (!inRange(iso, min, max)) return;
     state.selected = iso;
@@ -346,6 +370,7 @@ function attach(root, detachers) {
       bubbles: true,
       detail: { value: iso, date: fromParts(partsOf(iso)) },
     }));
+    applyTarget(iso);
   }
 
   function dispatchRangeChange() {
@@ -378,6 +403,8 @@ function attach(root, detachers) {
     render();
     focusDay(iso);
     dispatchRangeChange();
+    // Only drive the field / close the popover once a full range is picked.
+    if (state.start && state.end) applyTarget(`${state.start}/${state.end}`);
   }
 
   function commit(iso) {

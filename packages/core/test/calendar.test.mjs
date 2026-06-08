@@ -44,6 +44,31 @@ describe('installCalendar', () => {
     uninstall = u1;
   });
 
+  it('data-target drives an external field and closes the enclosing popover', () => {
+    document.body.innerHTML = `
+      <input id="field" value="2026-05-15">
+      <div popover id="pop">
+        <div class="hc-calendar" data-value="2026-05-15" data-target="#field"
+             data-first-day="0" data-locale="en-US" aria-label="Pick a date"></div>
+      </div>
+    `;
+    const pop = document.getElementById('pop');
+    let closed = 0;
+    pop.hidePopover = () => { closed += 1; };
+
+    uninstall = installCalendar();
+
+    const field = document.getElementById('field');
+    let changed = 0;
+    field.addEventListener('change', () => { changed += 1; });
+
+    click(cell('2026-05-20'));
+
+    expect(field.value).toBe('2026-05-20'); // value written
+    expect(changed).toBe(1);                // change event fired (forms / htmx)
+    expect(closed).toBe(1);                 // enclosing popover closed
+  });
+
   it('renders a grid: title, 7 weekday headers, 42 day cells', () => {
     document.body.innerHTML = FIXTURE;
     uninstall = installCalendar();
