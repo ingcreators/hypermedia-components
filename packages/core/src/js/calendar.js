@@ -347,7 +347,7 @@ function attach(root, detachers) {
   function applyTarget(value) {
     if (!target) return;
     let field = null;
-    try { field = doc.querySelector(target); } catch { field = null; }
+    try { field = doc.querySelector(target); } catch { /* invalid selector → leave null */ }
     if (field) {
       if ('value' in field) field.value = value;
       field.dispatchEvent(new CustomEvent('input', { bubbles: true }));
