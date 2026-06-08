@@ -7,8 +7,8 @@
 //
 //   <figure class="hc-chart" data-hc-chart="bar|line|area|combo">
 //     <table class="hc-table">
-//       <thead><tr><th>月</th><th data-mark="bar">売上</th><th data-mark="line">目標</th></tr></thead>
-//       <tbody><tr><td>1月</td><td>120</td><td>150</td></tr>…</tbody>
+//       <thead><tr><th>Month</th><th data-mark="bar">Sales</th><th data-mark="line">Target</th></tr></thead>
+//       <tbody><tr><td>Jan</td><td>120</td><td>150</td></tr>…</tbody>
 //     </table>
 //   </figure>
 //

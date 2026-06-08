@@ -21,13 +21,13 @@ entry, because Plot is not bundled.
 - Optional `<caption>` — used as the chart title.
 
 ```html
-<figure class="hc-chart" data-hc-chart="line" data-y-label="売上 (万円)">
+<figure class="hc-chart" data-hc-chart="line" data-y-label="Sales ($k)">
   <table class="hc-table">
-    <caption>月次売上</caption>
-    <thead><tr><th>月</th><th>東京</th><th>大阪</th></tr></thead>
+    <caption>Monthly sales</caption>
+    <thead><tr><th>Month</th><th>Tokyo</th><th>Osaka</th></tr></thead>
     <tbody>
-      <tr><td>1月</td><td>120</td><td>80</td></tr>
-      <tr><td>2月</td><td>200</td><td>140</td></tr>
+      <tr><td>Jan</td><td>120</td><td>80</td></tr>
+      <tr><td>Feb</td><td>200</td><td>140</td></tr>
     </tbody>
   </table>
 </figure>
@@ -51,9 +51,9 @@ just the special case where every column shares one mark.
 ```html
 <thead>
   <tr>
-    <th>月</th>
-    <th data-mark="bar">売上</th>
-    <th data-mark="line">目標</th>
+    <th>Month</th>
+    <th data-mark="bar">Sales</th>
+    <th data-mark="line">Target</th>
   </tr>
 </thead>
 ```
@@ -83,13 +83,13 @@ if you wrap fragments in a layout.
 
 ```html
 <!-- GET /reports/sales -->
-<figure class="hc-chart" data-hc-chart="bar" data-y-label="売上 (万円)">
+<figure class="hc-chart" data-hc-chart="bar" data-y-label="Sales ($k)">
   <table class="hc-table">
-    <caption>月次売上</caption>
-    <thead><tr><th>月</th><th>売上</th></tr></thead>
+    <caption>Monthly sales</caption>
+    <thead><tr><th>Month</th><th>Sales</th></tr></thead>
     <tbody>
-      <tr><td>1月</td><td>120</td></tr>
-      <tr><td>2月</td><td>200</td></tr>
+      <tr><td>Jan</td><td>120</td></tr>
+      <tr><td>Feb</td><td>200</td></tr>
     </tbody>
   </table>
 </figure>
