@@ -39,6 +39,12 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-calendar` `data-target`.** Point a calendar at a field with
+  `data-target="#selector"` and `installCalendar` writes the picked value
+  into it (firing `input` / `change`) and closes the enclosing popover —
+  a custom date field (input + popover + calendar) built from **markup
+  only**, with no per-field JavaScript even across many fields. Works in
+  single and range mode.
 - **`chart` recipe + `installChart` behavior.** Upgrades a server-sent
   semantic `<table class="hc-table">` (wrapped in
   `<figure class="hc-chart" data-hc-chart="bar|line|area|combo">`) into an
