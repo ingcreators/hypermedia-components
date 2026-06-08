@@ -3,6 +3,8 @@ title: Chart
 description: Upgrade a server-sent semantic data table into an Observable Plot SVG chart, with the table as the no-JavaScript fallback.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 The chart recipe turns a server-rendered **data table** into an
 [Observable Plot](https://observablehq.com/plot/) SVG chart. The table is
 the data source, the no-JavaScript fallback, and the screen-reader data —
@@ -16,21 +18,45 @@ Plot is never bundled into `@hypermedia-components/core`, so `installChart`
 is **not** part of the auto-init `behaviors` entry. Without Plot the
 behavior is a no-op and the table stays visible.
 
+:::note
+The previews on this page are **live** — this docs page bundles Observable
+Plot and calls `installChart`, so each chart below is rendered from its
+table. Switch to **Code** to copy the markup.
+:::
+
 ## Short form
 
-```html
-<figure class="hc-chart" data-hc-chart="bar" data-y-label="Sales ($k)">
-  <table class="hc-table">
-    <caption>Monthly sales</caption>
-    <thead><tr><th>Month</th><th>Sales</th></tr></thead>
-    <tbody>
-      <tr><td>Jan</td><td>120</td></tr>
-      <tr><td>Feb</td><td>200</td></tr>
-      <tr><td>Mar</td><td>150</td></tr>
-    </tbody>
-  </table>
-</figure>
-```
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="bar" data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Monthly sales</caption>
+      <thead><tr><th>Month</th><th>Sales</th></tr></thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td></tr>
+        <tr><td>Feb</td><td>200</td></tr>
+        <tr><td>Mar</td><td>150</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="bar" data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Monthly sales</caption>
+      <thead><tr><th>Month</th><th>Sales</th></tr></thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td></tr>
+        <tr><td>Feb</td><td>200</td></tr>
+        <tr><td>Mar</td><td>150</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Install the behavior
 
@@ -78,24 +104,49 @@ shares one mark.
 Declare the mark per column with `data-mark`. The default for unmarked
 columns under `combo` is `bar`.
 
-```html
-<figure class="hc-chart" data-hc-chart="combo" data-y-label="Sales ($k)">
-  <table class="hc-table">
-    <caption>Monthly sales vs target</caption>
-    <thead>
-      <tr>
-        <th>Month</th>
-        <th data-mark="bar">Sales</th>
-        <th data-mark="line">Target</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>Jan</td><td>120</td><td>150</td></tr>
-      <tr><td>Feb</td><td>200</td><td>160</td></tr>
-    </tbody>
-  </table>
-</figure>
-```
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="combo" data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Monthly sales vs target</caption>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th data-mark="bar">Sales</th>
+          <th data-mark="line">Target</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td><td>150</td></tr>
+        <tr><td>Feb</td><td>200</td><td>160</td></tr>
+        <tr><td>Mar</td><td>150</td><td>170</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="combo" data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Monthly sales vs target</caption>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th data-mark="bar">Sales</th>
+          <th data-mark="line">Target</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td><td>150</td></tr>
+        <tr><td>Feb</td><td>200</td><td>160</td></tr>
+        <tr><td>Mar</td><td>150</td><td>170</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
 
 Plot places the line on the bars' band scale automatically, so the points
 align to the bar centres. When series share a y range this needs no extra

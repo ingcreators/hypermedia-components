@@ -16,6 +16,9 @@ importers:
       '@hypermedia-components/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@observablehq/plot':
+        specifier: ^0.6.17
+        version: 0.6.17
       astro:
         specifier: ^5.5.5
         version: 5.18.2(@types/node@24.12.4)(rollup@4.60.4)(typescript@6.0.3)

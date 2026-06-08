@@ -18,4 +18,24 @@ import Default from '@astrojs/starlight/components/Head.astro';
 
 <script>
   import '@hypermedia-components/core/behaviors';
+
+  // The chart recipe is opt-in: Observable Plot is not bundled into core,
+  // and installChart is not part of the auto-init behaviors entry. Load
+  // Plot and install the behavior only on pages that actually use a chart,
+  // so every other page stays light. Plot is bundled by Vite into a lazy
+  // chunk (dynamic import) — no CDN, no CSP concerns.
+  async function initCharts() {
+    if (!document.querySelector('[data-hc-chart]')) return;
+    const [{ installChart }, Plot] = await Promise.all([
+      import('@hypermedia-components/core'),
+      import('@observablehq/plot'),
+    ]);
+    installChart(document, { plot: Plot });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCharts, { once: true });
+  } else {
+    initCharts();
+  }
 </script>
