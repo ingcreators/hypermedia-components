@@ -33,6 +33,17 @@
   background: var(--hc-color-surface);
 }
 
+/* Restore native modal-dialog centering inside docs previews. Starlight's
+ * global reset sets `dialog { margin: 0 }`, which clobbers the UA centering
+ * (a :modal dialog is centred with `margin: auto` + `inset: 0`) and pins the
+ * dialog to the top-left. This rule is unlayered with class+pseudo
+ * specificity, so it beats the reset. Only the centred modal dialogs are
+ * targeted — `.hc-drawer` is edge-pinned by hc-drawer.css and excluded. */
+.hc-dialog:modal,
+.hc-command-dialog:modal {
+  margin: auto;
+}
+
 /* Row of small demos — wraps, left-aligned, vertically centred. */
 .hc-preview--start {
   display: flex;
