@@ -24,3 +24,4 @@ documentation pages.
 | [`data-region/`](data-region/)            | Container that re-fetches itself in response to application events.     |
 | [`inline-edit/`](inline-edit/)            | Display ↔ edit toggle that swaps the same DOM node each way.            |
 | [`lazy-panel/`](lazy-panel/)              | Panel whose content loads on first reveal (intersect / details / tab).  |
+| [`chart/`](chart/)                        | Server-sent data table upgraded to an Observable Plot SVG chart. *(needs `installChart` + Plot)* |

@@ -52,6 +52,7 @@ const COMPONENTS = [
   'hc-card.css',
   'hc-empty.css',
   'hc-table.css',
+  'hc-chart.css',
   'hc-datagrid.css',
   'hc-avatar.css',
   'hc-badge.css',

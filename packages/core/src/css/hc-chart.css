@@ -1,0 +1,57 @@
+/* hc-chart — a server-rendered data table upgraded to an Observable Plot
+ * SVG chart by installChart().
+ *
+ * The authored markup is a semantic `<table class="hc-table">` wrapped in
+ * `<figure class="hc-chart" data-hc-chart="bar|line|area|combo">`. Without
+ * JavaScript (or without Plot loaded) the table renders as-is — it is the
+ * data and the accessible fallback. installChart() reads the table, draws
+ * the chart, appends the `<svg>`, and moves the table into the
+ * accessibility tree only (`.hc-sr-only`) so screen-reader users keep the
+ * full tabular data while sighted users see the chart.
+ *
+ * Theming:
+ *   - Chart chrome (ticks, axis labels, grid) inherits `currentColor`,
+ *     which this wrapper sets to `--hc-chart-axis`. The grid uses
+ *     `--hc-chart-grid`.
+ *   - Series colours come from `--hc-chart-series-1..6`, a fixed
+ *     categorical palette resolved by the behavior at render time and
+ *     handed to Plot's colour scale. The palette is intentionally
+ *     theme-independent: chart series must stay mutually distinguishable
+ *     rather than track the brand accent.
+ *
+ * The `<svg>` scales down responsively; Plot draws at the configured
+ * width/height (see `data-width` / `data-height` / `--hc-chart-height`).
+ */
+@layer hc.components {
+  .hc-chart {
+    display: block;
+    margin: 0;
+    max-inline-size: 100%;
+    color: var(--hc-chart-axis);
+    font-family: inherit;
+    font-size: var(--hc-chart-font-size);
+  }
+
+  /* The Plot-rendered node (svg, or a figure wrapping svg + legend). The
+   * className is passed to Plot.plot() so this targets its root. */
+  .hc-chart__plot {
+    max-inline-size: 100%;
+    block-size: auto;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+  }
+
+  /* Plot emits a <figure> when a legend/title is present; keep it flush
+   * with the wrapper. */
+  figure.hc-chart__plot {
+    margin: 0;
+  }
+
+  /* Grid lines: Plot strokes them with currentColor at a low opacity.
+   * Re-point them at the grid token so the grid reads independently of the
+   * axis-label colour. */
+  .hc-chart__plot [aria-label$="grid"] {
+    color: var(--hc-chart-grid);
+  }
+}

@@ -39,6 +39,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`chart` recipe + `installChart` behavior.** Upgrades a server-sent
+  semantic `<table class="hc-table">` (wrapped in
+  `<figure class="hc-chart" data-hc-chart="bar|line|area|combo">`) into an
+  [Observable Plot](https://observablehq.com/plot/) SVG chart. The table is
+  the data source, the no-JavaScript fallback, and the screen-reader data
+  (kept via `.hc-sr-only`; the SVG is `aria-hidden`). Chart type and
+  per-series marks are declared in markup (`data-mark` on `<th>` enables
+  combo charts) — no per-chart JavaScript; swapped-in charts render on
+  `htmx:load`. New `--hc-chart-*` tokens (`series-1..6` palette, `grid`,
+  `axis`, `label`, `height`) and `hc-chart.css`. Observable Plot is an
+  **optional peer dependency** — load it yourself (CDN UMD global or a
+  bundled import); without it the behavior is a no-op. `installChart` is an
+  opt-in named export, not part of the auto-init `behaviors` entry.
 - **Icons guide (docs).** A new
   [`fundamentals/icons`](apps/docs/src/content/docs/fundamentals/icons.mdx)
   page: HC ships no icons by design; the guide recommends sets that pair

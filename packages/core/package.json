@@ -81,6 +81,14 @@
     "dtcg",
     "light-dom"
   ],
+  "peerDependencies": {
+    "@observablehq/plot": ">=0.6"
+  },
+  "peerDependenciesMeta": {
+    "@observablehq/plot": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
     "@eslint/js": "^10.0.1",

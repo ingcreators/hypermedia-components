@@ -481,6 +481,19 @@
     "cell-padding-x": { "$type": "dimension", "$value": "{semantic.space.3}" },
     "cell-padding-y": { "$type": "dimension", "$value": "{semantic.space.2}" }
   },
+  "chart": {
+    "height":    { "$type": "dimension", "$value": "20rem" },
+    "font-size": { "$type": "dimension", "$value": "{semantic.font.size-sm}" },
+    "axis":      { "$type": "color", "$value": "{semantic.color.text-muted}" },
+    "grid":      { "$type": "color", "$value": "{semantic.color.border}" },
+    "label":     { "$type": "color", "$value": "{semantic.color.text}" },
+    "series-1":  { "$type": "color", "$value": "{primitive.color.blue.500}" },
+    "series-2":  { "$type": "color", "$value": "{primitive.color.amber.500}" },
+    "series-3":  { "$type": "color", "$value": "{primitive.color.green.500}" },
+    "series-4":  { "$type": "color", "$value": "{primitive.color.violet.500}" },
+    "series-5":  { "$type": "color", "$value": "{primitive.color.rose.500}" },
+    "series-6":  { "$type": "color", "$value": "{primitive.color.indigo.600}" }
+  },
   "badge": {
     "padding-x":   { "$type": "dimension",  "$value": "{semantic.space.2}" },
     "padding-y":   { "$type": "dimension",  "$value": "{primitive.space.1}" },

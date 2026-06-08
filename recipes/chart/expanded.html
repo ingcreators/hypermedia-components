@@ -1,0 +1,40 @@
+<!-- Fully expanded usage. -->
+
+<!-- 1. Load Observable Plot (an optional peer dependency — bring your own)
+     and install the behavior once per page. Here Plot is the UMD global
+     from a CDN; installChart picks it up via window.Plot automatically,
+     but passing it explicitly is clearer. -->
+<script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/dist/plot.umd.min.js"></script>
+<script type="module">
+  import { installChart } from '@hypermedia-components/core';
+  installChart(document, { plot: window.Plot });
+</script>
+
+<!-- 2. A combo chart — a bar series and a line series, declared per column
+     with data-mark. data-hc-chart="combo" makes "bar" the default for any
+     column without an explicit data-mark. -->
+<figure class="hc-chart" data-hc-chart="combo" data-y-label="売上 (万円)">
+  <table class="hc-table">
+    <caption>月次売上と目標</caption>
+    <thead>
+      <tr>
+        <th>月</th>
+        <th data-mark="bar">売上</th>
+        <th data-mark="line">目標</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1月</td><td>120</td><td>150</td></tr>
+      <tr><td>2月</td><td>200</td><td>160</td></tr>
+      <tr><td>3月</td><td>150</td><td>170</td></tr>
+    </tbody>
+  </table>
+</figure>
+
+<!-- 3. htmx — a region that swaps in a server-rendered chart table.
+     installChart re-renders on htmx:load, so swapped-in charts draw
+     themselves with no extra wiring. -->
+<div data-hx-get="/reports/sales" data-hx-trigger="load" data-hx-swap="innerHTML">
+  <!-- The server returns the <figure class="hc-chart">…</figure> fragment.
+       Without JavaScript this GET still returns a readable table. -->
+</div>
