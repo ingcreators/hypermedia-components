@@ -69,6 +69,18 @@ describe('installCalendar', () => {
     expect(closed).toBe(1);                 // enclosing popover closed
   });
 
+  it('inherits the initial value from data-target when data-value is omitted', () => {
+    document.body.innerHTML = `
+      <input id="field" value="2026-05-15">
+      <div class="hc-calendar" data-target="#field"
+           data-first-day="0" data-locale="en-US" aria-label="Pick a date"></div>
+    `;
+    uninstall = installCalendar();
+    // No data-value on the calendar; it reads the linked field instead.
+    expect(title()).toBe('May 2026');
+    expect(cell('2026-05-15').getAttribute('aria-selected')).toBe('true');
+  });
+
   it('renders a grid: title, 7 weekday headers, 42 day cells', () => {
     document.body.innerHTML = FIXTURE;
     uninstall = installCalendar();
