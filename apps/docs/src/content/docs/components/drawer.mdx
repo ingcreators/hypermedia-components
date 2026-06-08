@@ -3,6 +3,8 @@ title: Drawer
 description: Slide-in side panel built on the native <dialog> element, with edge positioning and CSS-only slide animations via @starting-style.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-drawer` styles a native `<dialog>` element as a panel that
 slides in from any edge of the viewport. The native dialog handles
 focus trapping, `Escape`-to-close, and the `::backdrop` layer for
@@ -23,33 +25,56 @@ transition, but the drawer is still functional.
 
 ## Basic example
 
-```html
-<button class="hc-button" type="button"
-        onclick="document.getElementById('settings-drawer').showModal()">
-  Open settings
-</button>
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" type="button" onclick="document.getElementById('settings-drawer').showModal()">Open settings</button>
+  <dialog class="hc-drawer" data-side="right" id="settings-drawer">
+    <header class="hc-drawer__header">
+      <h2 class="hc-drawer__title">Settings</h2>
+      <form method="dialog">
+        <button class="hc-button" data-variant="ghost" data-size="sm" type="submit" aria-label="Close">×</button>
+      </form>
+    </header>
+    <div class="hc-drawer__body">
+      <p>Form fields, settings, anything.</p>
+    </div>
+    <footer class="hc-drawer__footer">
+      <form method="dialog"><button class="hc-button" type="submit">Cancel</button></form>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </footer>
+  </dialog>
 
-<dialog class="hc-drawer" data-side="right" id="settings-drawer">
-  <header class="hc-drawer__header">
-    <h2 class="hc-drawer__title">Settings</h2>
-    <form method="dialog">
-      <button class="hc-button" data-variant="ghost" data-size="sm"
-              type="submit" aria-label="Close">×</button>
-    </form>
-  </header>
+  <Fragment slot="code">
 
-  <div class="hc-drawer__body">
-    <p>Form fields, settings, anything.</p>
-  </div>
+  ```html
+  <button class="hc-button" type="button"
+          onclick="document.getElementById('settings-drawer').showModal()">
+    Open settings
+  </button>
 
-  <footer class="hc-drawer__footer">
-    <form method="dialog">
-      <button class="hc-button" type="submit">Cancel</button>
-    </form>
-    <button class="hc-button" data-variant="primary">Save</button>
-  </footer>
-</dialog>
-```
+  <dialog class="hc-drawer" data-side="right" id="settings-drawer">
+    <header class="hc-drawer__header">
+      <h2 class="hc-drawer__title">Settings</h2>
+      <form method="dialog">
+        <button class="hc-button" data-variant="ghost" data-size="sm"
+                type="submit" aria-label="Close">×</button>
+      </form>
+    </header>
+
+    <div class="hc-drawer__body">
+      <p>Form fields, settings, anything.</p>
+    </div>
+
+    <footer class="hc-drawer__footer">
+      <form method="dialog">
+        <button class="hc-button" type="submit">Cancel</button>
+      </form>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </footer>
+  </dialog>
+  ```
+
+  </Fragment>
+</Demo>
 
 ```js
 import { installDrawer } from '@hypermedia-components/core';

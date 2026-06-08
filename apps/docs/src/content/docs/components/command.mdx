@@ -3,6 +3,8 @@ title: Command
 description: A command palette (⌘K launcher) — type-to-filter list of actions in a dialog, with grouped results and keyboard navigation. WAI-ARIA combobox pattern.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-command` is a command palette, the shadcn `Command` / `cmdk`
 equivalent. It is the WAI-ARIA combobox pattern used as an action
 launcher: type to filter a grouped list, arrow to highlight, Enter to
@@ -15,7 +17,7 @@ inline.
 
 ## Demo
 
-<div class="hc-preview not-content">
+<Demo previewClass="hc-preview--start">
   <button type="button" class="hc-button" onclick="this.nextElementSibling.showModal()">
     Open command palette
   </button>
@@ -38,7 +40,38 @@ inline.
       <div class="hc-command__empty" hidden>No results.</div>
     </div>
   </dialog>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <button type="button" class="hc-button"
+          onclick="this.nextElementSibling.showModal()">
+    Open command palette
+  </button>
+
+  <dialog class="hc-command-dialog" data-hotkey="k">
+    <div class="hc-command">
+      <input class="hc-command__input" type="text" role="combobox" autofocus
+             aria-label="Command menu" placeholder="Type a command…">
+      <div class="hc-command__list" role="listbox">
+        <div class="hc-command__group" role="group" aria-labelledby="g-nav">
+          <div class="hc-command__group-heading" id="g-nav">Navigation</div>
+          <div class="hc-command__item" role="option" data-value="home">
+            <span>Go home</span>
+            <kbd class="hc-command__shortcut">G H</kbd>
+          </div>
+          <div class="hc-command__item" role="option" data-value="profile">
+            <span>Open profile</span>
+          </div>
+        </div>
+      </div>
+      <div class="hc-command__empty" hidden>No results.</div>
+    </div>
+  </dialog>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Markup
 

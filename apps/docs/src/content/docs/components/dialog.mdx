@@ -3,6 +3,8 @@ title: Dialog
 description: Minimal styling for the standard <dialog> element. Modal flows use showModal(), non-modal use show().
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-dialog` is a thin class applied to the standard `<dialog>`
 element. The browser owns the modal lifecycle — focus trap,
 Escape-to-close, `inert` background, top-layer rendering — and the
@@ -10,31 +12,46 @@ component adds only the visual surface.
 
 ## Basic HTML
 
-```html
-<button class="hc-button" data-variant="primary" id="open">Open</button>
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-variant="primary" onclick="document.getElementById('basic-dialog').showModal()">Open dialog</button>
+  <dialog class="hc-dialog" id="basic-dialog" aria-labelledby="basic-dialog-title">
+    <header class="hc-dialog__header">
+      <h2 class="hc-dialog__title" id="basic-dialog-title">Confirm something</h2>
+    </header>
+    <div class="hc-dialog__body">
+      <p>Body content.</p>
+    </div>
+    <footer class="hc-dialog__footer">
+      <form method="dialog"><button class="hc-button">Cancel</button></form>
+      <form method="dialog"><button class="hc-button" data-variant="primary">OK</button></form>
+    </footer>
+  </dialog>
 
-<dialog class="hc-dialog" id="my-dialog">
-  <header class="hc-dialog__header">
-    <h2 class="hc-dialog__title">Confirm something</h2>
-  </header>
+  <Fragment slot="code">
 
-  <div class="hc-dialog__body">
-    <p>Body content.</p>
-  </div>
+  ```html
+  <button class="hc-button" data-variant="primary"
+          onclick="document.getElementById('my-dialog').showModal()">
+    Open dialog
+  </button>
 
-  <footer class="hc-dialog__footer">
-    <button class="hc-button" id="close">Cancel</button>
-    <button class="hc-button" data-variant="primary">OK</button>
-  </footer>
-</dialog>
+  <dialog class="hc-dialog" id="my-dialog" aria-labelledby="my-dialog-title">
+    <header class="hc-dialog__header">
+      <h2 class="hc-dialog__title" id="my-dialog-title">Confirm something</h2>
+    </header>
+    <div class="hc-dialog__body">
+      <p>Body content.</p>
+    </div>
+    <footer class="hc-dialog__footer">
+      <!-- form method="dialog" closes the dialog natively, no JS needed -->
+      <form method="dialog"><button class="hc-button">Cancel</button></form>
+      <form method="dialog"><button class="hc-button" data-variant="primary">OK</button></form>
+    </footer>
+  </dialog>
+  ```
 
-<script>
-  document.getElementById('open').addEventListener('click',
-    () => document.getElementById('my-dialog').showModal());
-  document.getElementById('close').addEventListener('click',
-    () => document.getElementById('my-dialog').close());
-</script>
-```
+  </Fragment>
+</Demo>
 
 ## Parts
 

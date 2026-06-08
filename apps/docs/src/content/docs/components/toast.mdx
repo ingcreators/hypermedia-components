@@ -3,6 +3,8 @@ title: Toast
 description: Transient, event-driven notifications — fired from client code or an HX-Trigger header, with position, stacking, and swipe-to-dismiss.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `hc-toast` is a transient notification. You don't write toast markup — you
 **fire an event** (or return an `HX-Trigger` header) and `installToast()`
 renders a `.hc-toast` into a `.hc-toast-region`, auto-dismissing it after a
@@ -24,7 +26,9 @@ automatically. No markup is required — the behavior creates a default
 
 ## Appearance
 
-<div class="hc-preview not-content hc-preview--col" style="max-inline-size:24rem;">
+The behavior renders this markup for you — you never write it by hand.
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <div class="hc-toast" role="status">
     <div class="hc-toast__title">Saved</div>
     <div class="hc-toast__body">Your changes were saved.</div>
@@ -36,7 +40,19 @@ automatically. No markup is required — the behavior creates a default
     <div class="hc-toast__title">Upload failed</div>
     <div class="hc-toast__body">The server returned a 500.</div>
   </div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- Rendered by installToast() into the .hc-toast-region -->
+  <div class="hc-toast" data-variant="success" role="status">
+    <div class="hc-toast__title">Saved</div>
+    <div class="hc-toast__body">Your changes were saved.</div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Firing a toast
 
@@ -48,6 +64,30 @@ document.body.dispatchEvent(new CustomEvent('hc:toast', {
   detail: { message: 'Saved.', title: 'Done', variant: 'success', duration: 4500 },
 }));
 ```
+
+Try it — each button fires the event. The toast appears in the page corner
+and auto-dismisses:
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-variant="primary" data-toast-variant="success" data-toast-title="Done" data-toast-message="Saved.">Success</button>
+  <button class="hc-button" data-toast-variant="info" data-toast-message="Heads up — 3 new items.">Info</button>
+  <button class="hc-button" data-toast-variant="warning" data-toast-message="Storage almost full.">Warning</button>
+  <button class="hc-button" data-variant="error" data-toast-variant="error" data-toast-title="Upload failed" data-toast-message="The server returned a 500.">Error</button>
+
+  <Fragment slot="code">
+
+  ```js
+  // installToast() must be installed (it is in the behaviors bundle).
+  successButton.addEventListener('click', () => {
+    document.body.dispatchEvent(new CustomEvent('hc:toast', {
+      bubbles: true,
+      detail: { title: 'Done', message: 'Saved.', variant: 'success' },
+    }));
+  });
+  ```
+
+  </Fragment>
+</Demo>
 
 …or let the server fire it from a response — htmx turns an `HX-Trigger`
 header into the same event:
