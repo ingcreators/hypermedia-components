@@ -3,6 +3,8 @@ title: Confirm action
 description: Show a confirmation dialog before sending a destructive htmx request.
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 `confirm-action` adds a modal confirmation step in front of a
 destructive htmx request. The button stays a normal `<button>`; htmx
 remains the sole owner of the network request; a small behavior shim
@@ -39,6 +41,38 @@ gate the htmx trigger on `hc:confirmed`:
   Delete
 </button>
 ```
+
+Try it — clicking **Delete** opens the shared confirm dialog. (This demo
+has no server, so confirming just reports the outcome instead of firing an
+htmx request.)
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-variant="error" id="confirm-demo-btn"
+    data-hc-confirm="Delete this item? This cannot be undone."
+    data-hc-confirm-title="Delete item"
+    data-hc-confirm-label="Delete"
+    data-hc-cancel-label="Keep">
+    Delete
+  </button>
+  <output id="confirm-demo-out" aria-live="polite" style="margin-inline-start:.75rem;color:var(--hc-color-text-muted);"></output>
+
+  <Fragment slot="code">
+
+  ```html
+  <button
+    class="hc-button"
+    data-variant="error"
+    data-hc-confirm="Delete this item?"
+    data-hx-delete="/items/123"
+    data-hx-trigger="hc:confirmed"
+    data-hx-target="closest tr"
+    data-hx-swap="outerHTML">
+    Delete
+  </button>
+  ```
+
+  </Fragment>
+</Demo>
 
 What happens:
 

@@ -38,4 +38,31 @@ import Default from '@astrojs/starlight/components/Head.astro';
   } else {
     initCharts();
   }
+
+  // Recipe demo wiring (docs-only). The toast / confirm-action recipe pages
+  // show live previews; the markup there is brace-free (MDX would parse `{`
+  // as JSX), so the small dispatch / result logic lives here, delegated and
+  // gated on demo-specific data attributes / ids so it is inert elsewhere.
+
+  // Toast preview: a button carrying data-toast-* fires an hc:toast.
+  document.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-toast-message]');
+    if (!btn) return;
+    document.body.dispatchEvent(new CustomEvent('hc:toast', {
+      bubbles: true,
+      detail: {
+        title: btn.dataset.toastTitle || undefined,
+        message: btn.dataset.toastMessage,
+        variant: btn.dataset.toastVariant || 'info',
+      },
+    }));
+  });
+
+  // Confirm-action preview: surface the result (there is no server here).
+  document.addEventListener('hc:confirmed', (event) => {
+    if (event.target && event.target.id === 'confirm-demo-btn') {
+      const out = document.getElementById('confirm-demo-out');
+      if (out) out.textContent = 'Confirmed — the htmx request would fire now.';
+    }
+  });
 </script>

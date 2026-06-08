@@ -3,6 +3,8 @@ title: Toast
 description: Transient notification dispatched from the server (HX-Trigger) or the client (CustomEvent).
 ---
 
+import Demo from '../../../components/Demo.astro';
+
 A toast is a short, time-limited notification that appears in a corner
 of the screen. The `installToast` behavior listens for `hc:toast`
 events on `document.body`, renders the toast into the page's toast
@@ -50,6 +52,30 @@ document.body.dispatchEvent(
   })
 );
 ```
+
+Try it — each button dispatches the event above. The toast appears in the
+page corner (and auto-dismisses):
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-variant="primary" data-toast-variant="success" data-toast-title="Saved" data-toast-message="Changes saved.">Success</button>
+  <button class="hc-button" data-toast-variant="info" data-toast-message="Heads up — 3 new items.">Info</button>
+  <button class="hc-button" data-toast-variant="warning" data-toast-message="Storage almost full.">Warning</button>
+  <button class="hc-button" data-variant="error" data-toast-variant="error" data-toast-title="Sync failed" data-toast-message="Could not reach the server.">Error</button>
+
+  <Fragment slot="code">
+
+  ```js
+  // installToast() must be installed (it is in the behaviors bundle).
+  saveButton.addEventListener('click', () => {
+    document.body.dispatchEvent(new CustomEvent('hc:toast', {
+      bubbles: true,
+      detail: { title: 'Saved', message: 'Changes saved.', variant: 'success' },
+    }));
+  });
+  ```
+
+  </Fragment>
+</Demo>
 
 ### From the server (htmx)
 
