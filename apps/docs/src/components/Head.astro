@@ -65,4 +65,14 @@ import Default from '@astrojs/starlight/components/Head.astro';
       if (out) out.textContent = 'Confirmed — the htmx request would fire now.';
     }
   });
+
+  // Calendar form-integration preview: reflect the calendar's submitted
+  // value (the hidden input `data-name` maintains) into the readout.
+  document.addEventListener('hc:calendarchange', (event) => {
+    const cal = event.target;
+    if (cal && cal.hasAttribute && cal.hasAttribute('data-demo-calendar')) {
+      const out = document.getElementById('calendar-form-demo-out');
+      if (out) out.textContent = event.detail.value;
+    }
+  });
 </script>
