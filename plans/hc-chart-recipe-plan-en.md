@@ -77,14 +77,14 @@ Per-series mark via `<th data-mark="bar|line|area">` enables combo charts.
 an explicit `data-mark`.
 
 ```html
-<figure class="hc-chart" data-hc-chart="combo" data-y-label="売上(万円)">
+<figure class="hc-chart" data-hc-chart="combo" data-y-label="Sales ($k)">
   <table class="hc-table">
     <thead>
-      <tr><th>月</th><th data-mark="bar">売上</th><th data-mark="line">目標</th></tr>
+      <tr><th>Month</th><th data-mark="bar">Sales</th><th data-mark="line">Target</th></tr>
     </thead>
     <tbody>
-      <tr><td>1月</td><td>120</td><td>150</td></tr>
-      <tr><td>2月</td><td>200</td><td>160</td></tr>
+      <tr><td>Jan</td><td>120</td><td>150</td></tr>
+      <tr><td>Feb</td><td>200</td><td>160</td></tr>
     </tbody>
   </table>
 </figure>
