@@ -26,6 +26,7 @@
   .hc-datepicker {
     appearance: none;
     display: block;
+    position: relative; /* containing block for the picker-indicator overlay */
     inline-size: 100%;
     min-block-size: var(--hc-datepicker-height);
 
@@ -64,10 +65,19 @@
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='5.5' fill='none' stroke='%236b7280' stroke-width='1.5'/><path d='M8 5 L8 8 L10.5 9.5' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round'/></svg>");
   }
 
-  /* Hide the WebKit / Chromium native indicator — clicks anywhere
-   * on the input still open the picker, our background icon stays
-   * visually consistent. */
+  /* Make the WHOLE field open the native calendar/clock picker. The
+   * WebKit/Blink indicator defaults to a small box at the inline-end, so
+   * with `appearance: none` clicks on the rest of the field do nothing —
+   * the calendar appears not to open. Stretch the (transparent) indicator
+   * across the input so a click anywhere opens the picker; our background
+   * icon shows through underneath. */
   .hc-datepicker::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    inline-size: auto;
+    block-size: auto;
+    margin: 0;
+    padding: 0;
     opacity: 0;
     cursor: pointer;
   }
