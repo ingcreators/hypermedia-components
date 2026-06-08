@@ -180,6 +180,59 @@ hidden input — it submits with the surrounding `<form>` exactly like
   </Fragment>
 </Demo>
 
+## As a custom date field
+
+Don't like the native date control? Pair the calendar with an
+[`hc-input`](/hypermedia-components/components/input/) and a
+[popover](/hypermedia-components/components/popover/): the input is the
+visible field, a trailing button opens a calendar dropdown, and picking a
+day fills the input and closes the popover. The calendar's `data-name`
+hidden input is what submits, so the visible field can stay `readonly`.
+
+<Demo previewStyle="min-block-size:24rem;">
+  <div class="hc-input-group" style="max-inline-size:18rem;">
+    <input class="hc-input" id="datefield-demo-input" type="text" readonly value="2026-05-15" aria-label="Due date" placeholder="Pick a date" />
+    <button class="hc-button" type="button" popovertarget="datefield-cal" aria-label="Open calendar">📅</button>
+  </div>
+  <div id="datefield-cal" class="hc-popover" popover data-side="bottom" data-align="end">
+    <div class="hc-calendar" data-value="2026-05-15" data-name="due" data-locale="en-US" aria-label="Pick a date" data-demo-datefield></div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-input-group">
+    <input class="hc-input" id="due-field" type="text" readonly
+           value="2026-05-15" aria-label="Due date" placeholder="Pick a date">
+    <button class="hc-button" type="button" popovertarget="due-cal"
+            aria-label="Open calendar">📅</button>
+  </div>
+
+  <div id="due-cal" class="hc-popover" popover data-side="bottom" data-align="end">
+    <div class="hc-calendar" data-name="due" data-value="2026-05-15"
+         aria-label="Pick a date"></div>
+  </div>
+
+  <script type="module">
+    // Fill the field and close the dropdown when a day is picked. The
+    // calendar's hidden input (data-name="due") is what the form submits.
+    const cal = document.querySelector('#due-cal .hc-calendar');
+    const field = document.getElementById('due-field');
+    cal.addEventListener('hc:calendarchange', (e) => {
+      field.value = e.detail.value;
+      document.getElementById('due-cal').hidePopover();
+    });
+  </script>
+  ```
+
+  </Fragment>
+</Demo>
+
+The visible input is `readonly` here so the calendar is the only editor —
+drop `readonly` to also allow typing. Either way the form submits `due=…`
+from the calendar's hidden input. The popover anchors below the trigger via
+`installPopover` (`data-side` / `data-align`).
+
 ## htmx usage
 
 Fetch off the change event — e.g. load availability for the picked day:
