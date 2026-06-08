@@ -158,15 +158,27 @@ numbers remain out of scope.)
 ## Form integration
 
 Set `data-name` and the calendar serialises like a native control via a
-hidden input:
+hidden input — it submits with the surrounding `<form>` exactly like
+`<input name>`. Pick a date below and watch the submitted value update:
 
-```html
-<form>
-  <div class="hc-calendar" data-name="due" data-value="2026-05-15"
-       aria-label="Due date"></div>
-  <!-- submits due=2026-05-15 -->
-</form>
-```
+<Demo previewStyle="max-inline-size:20rem;">
+  <form data-demo-calendar-form>
+    <div class="hc-calendar" data-name="due" data-value="2026-05-15" data-locale="en-US" aria-label="Due date" data-demo-calendar></div>
+    <p class="hc-field__message">Submits <code>due=<output id="calendar-form-demo-out">2026-05-15</output></code></p>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form>
+    <div class="hc-calendar" data-name="due" data-value="2026-05-15"
+         aria-label="Due date"></div>
+    <!-- submits due=2026-05-15 — the hidden input updates as the user picks -->
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## htmx usage
 
