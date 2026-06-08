@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>hc-chart fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <style>
+    body { padding: 1.5rem; max-inline-size: 56rem; margin: 0 auto; font-family: system-ui, sans-serif; }
+  </style>
+  <script>
+    // Minimal Observable Plot stub: records the options passed to plot()
+    // and returns a real <svg>, so the browser test exercises installChart's
+    // wiring (token resolution, table parsing, htmx:load) without bundling
+    // the real Plot. Plot's own rendering is Plot's responsibility.
+    window.__plotOpts = [];
+    const mark = (name) => (data, opts) => ({ name, data, opts });
+    window.Plot = {
+      barY: mark('barY'),
+      lineY: mark('lineY'),
+      areaY: mark('areaY'),
+      dot: mark('dot'),
+      ruleY: mark('ruleY'),
+      plot(opts) {
+        window.__plotOpts.push(opts);
+        const NS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(NS, 'svg');
+        svg.setAttribute('viewBox', `0 0 ${opts.width} ${opts.height}`);
+        const grid = document.createElementNS(NS, 'g');
+        grid.setAttribute('aria-label', 'y-grid');
+        svg.appendChild(grid);
+        return svg;
+      },
+    };
+  </script>
+</head>
+<body>
+  <h1>hc-chart</h1>
+
+  <section id="section-chart" data-testid="section-chart">
+    <figure class="hc-chart" data-hc-chart="bar" data-y-label="Sales" data-testid="chart-bar">
+      <table class="hc-table">
+        <caption>Monthly sales</caption>
+        <thead><tr><th scope="col">Month</th><th scope="col">Sales</th></tr></thead>
+        <tbody>
+          <tr><td>Jan</td><td>1,200</td></tr>
+          <tr><td>Feb</td><td>2,000</td></tr>
+          <tr><td>Mar</td><td>1,500</td></tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <figure class="hc-chart" data-hc-chart="combo" data-y-label="Sales" data-testid="chart-combo">
+      <table class="hc-table">
+        <caption>Sales vs target</caption>
+        <thead>
+          <tr>
+            <th scope="col">Month</th>
+            <th scope="col" data-mark="bar">Sales</th>
+            <th scope="col" data-mark="line">Target</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Jan</td><td>120</td><td>150</td></tr>
+          <tr><td>Feb</td><td>200</td><td>160</td></tr>
+        </tbody>
+      </table>
+    </figure>
+  </section>
+
+  <button class="hc-button" id="swap-btn" data-testid="swap-btn">Swap in chart</button>
+  <div id="swap-target" data-testid="swap-target"></div>
+
+  <script type="module">
+    import { installChart } from '/chart.js';
+    installChart(document, { plot: window.Plot });
+
+    // Simulate an htmx swap: inject a fresh chart figure and fire htmx:load.
+    document.getElementById('swap-btn').addEventListener('click', () => {
+      const target = document.getElementById('swap-target');
+      target.innerHTML = `
+        <figure class="hc-chart" data-hc-chart="area" data-testid="chart-swapped">
+          <table class="hc-table">
+            <caption>Swapped revenue</caption>
+            <thead><tr><th scope="col">Quarter</th><th scope="col">Revenue</th></tr></thead>
+            <tbody><tr><td>Q1</td><td>10</td></tr><tr><td>Q2</td><td>20</td></tr></tbody>
+          </table>
+        </figure>`;
+      target.dispatchEvent(new CustomEvent('htmx:load', { bubbles: true, detail: {} }));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+---
+title: Chart
+description: Upgrade a server-sent semantic data table into an Observable Plot SVG chart, with the table as the no-JavaScript fallback.
+---
+
+The chart recipe turns a server-rendered **data table** into an
+[Observable Plot](https://observablehq.com/plot/) SVG chart. The table is
+the data source, the no-JavaScript fallback, and the screen-reader data —
+`installChart()` reads it and draws the chart. No per-chart JavaScript:
+the chart type and per-series marks are declared in markup.
+
+This recipe **needs a behavior** —
+[`installChart`](/hypermedia-components/start/installation/#behaviors) —
+and Observable Plot, an **optional peer dependency you load yourself**.
+Plot is never bundled into `@hypermedia-components/core`, so `installChart`
+is **not** part of the auto-init `behaviors` entry. Without Plot the
+behavior is a no-op and the table stays visible.
+
+## Short form
+
+```html
+<figure class="hc-chart" data-hc-chart="bar" data-y-label="売上 (万円)">
+  <table class="hc-table">
+    <caption>月次売上</caption>
+    <thead><tr><th>月</th><th>売上</th></tr></thead>
+    <tbody>
+      <tr><td>1月</td><td>120</td></tr>
+      <tr><td>2月</td><td>200</td></tr>
+      <tr><td>3月</td><td>150</td></tr>
+    </tbody>
+  </table>
+</figure>
+```
+
+## Install the behavior
+
+Load Plot (here the UMD global from a CDN) and install once per page:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/dist/plot.umd.min.js"></script>
+<script type="module">
+  import { installChart } from '@hypermedia-components/core';
+  installChart(document, { plot: window.Plot });
+</script>
+```
+
+`installChart` picks up `window.Plot` automatically, so `installChart()`
+alone also works once the CDN script has run. Passing `plot` explicitly is
+clearer and lets you use a bundled import instead of the global.
+
+## The table contract
+
+For categorical charts the table is read as:
+
+- **Column 1** — the x category.
+- **Columns 2…N** — one series each; the `<thead>` cell is the series name.
+- Each `<td>` is coerced to a number (`1,200` → `1200`; currency and `%`
+  signs are stripped).
+- An optional `<caption>` becomes the chart title.
+
+## Chart types
+
+Set `data-hc-chart` on the figure:
+
+| Value   | Renders                                                          |
+| ------- | --------------------------------------------------------------- |
+| `bar`   | Vertical bars. Multiple series **stack**.                       |
+| `line`  | Lines with node dots, one per series.                           |
+| `area`  | Filled areas with a line edge, one per series.                  |
+| `combo` | Per-column marks — set `<th data-mark="bar\|line\|area">`.       |
+
+`data-hc-chart` is the **default mark** for any column without its own
+`data-mark`. `bar` / `line` / `area` are just the case where every column
+shares one mark.
+
+## Combo charts (bar + line)
+
+Declare the mark per column with `data-mark`. The default for unmarked
+columns under `combo` is `bar`.
+
+```html
+<figure class="hc-chart" data-hc-chart="combo" data-y-label="売上 (万円)">
+  <table class="hc-table">
+    <caption>月次売上と目標</caption>
+    <thead>
+      <tr>
+        <th>月</th>
+        <th data-mark="bar">売上</th>
+        <th data-mark="line">目標</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1月</td><td>120</td><td>150</td></tr>
+      <tr><td>2月</td><td>200</td><td>160</td></tr>
+    </tbody>
+  </table>
+</figure>
+```
+
+Plot places the line on the bars' band scale automatically, so the points
+align to the bar centres. When series share a y range this needs no extra
+configuration; a true secondary y-axis is out of scope for this recipe.
+
+## Options
+
+| Attribute       | Default                      | Effect                                  |
+| --------------- | ---------------------------- | --------------------------------------- |
+| `data-y-label`  | _(none)_                     | y-axis label.                           |
+| `data-title`    | `<caption>`                  | Chart title.                            |
+| `data-x-type`   | `category`                   | `category` \| `number` \| `date`.       |
+| `data-width`    | container width              | Plot width (px).                        |
+| `data-height`   | `--hc-chart-height` (320px)  | Plot height (px).                       |
+| `data-legend`   | auto (on for ≥2 series)      | `false` hides the colour legend.        |
+
+Bars expect a `category` x; `number` / `date` x suit `line` / `area`.
+
+## Theming
+
+Chart chrome (ticks, axis labels, grid) follows the theme via
+`--hc-chart-axis` and `--hc-chart-grid`. Series colours come from a fixed
+categorical palette, `--hc-chart-series-1` … `--hc-chart-series-6`,
+resolved at render time and handed to Plot's colour scale. The palette is
+deliberately **theme-independent** — chart series must stay mutually
+distinguishable rather than track the brand accent.
+
+```css
+:root {
+  --hc-chart-series-1: #2563eb;  /* override per series */
+}
+```
+
+## htmx
+
+`installChart` listens for `htmx:load`, so a chart swapped into the page
+renders automatically — no per-swap JavaScript.
+
+```html
+<div data-hx-get="/reports/sales" data-hx-trigger="load" data-hx-swap="innerHTML">
+  <!-- The server returns the <figure class="hc-chart">…</figure> fragment. -->
+</div>
+```
+
+Return the **same** readable table for a non-htmx request (a full page
+load) so the no-JavaScript path works. Detect htmx via the
+`HX-Request: true` header if you wrap fragments in a layout.
+
+## Accessibility
+
+- The source table is **kept** — moved into the accessibility tree with
+  `.hc-sr-only`, not removed — so assistive tech reads the full data.
+- The rendered `<svg>` is `aria-hidden="true"`: it is a decorative
+  duplicate of the table, so it is not announced twice.
+- Always give the table a `<caption>` describing the chart.
+
+## Progressive enhancement
+
+- **No JavaScript** → the `<table class="hc-table">` renders as a normal,
+  readable table.
+- **JavaScript, no Plot** → same: `installChart` is a no-op without Plot.
+- **JavaScript + Plot** → the table moves into the accessibility tree and
+  the SVG chart is shown.
+
+## Server-side rendering
+
+Charts can also be rendered to SVG on the **server** with Plot under a DOM
+shim ([linkedom](https://github.com/WebReflection/linkedom)) and returned
+inline, with no client Plot. Set explicit `marginLeft` / `marginBottom`
+then — server DOM shims do not measure text for automatic axis margins.
+This recipe ships the client-side path; the SSR path is an alternative.
+
+## Related
+
+- [Table](/hypermedia-components/components/table/) — the semantic table
+  the chart reads from.
+- [Data region](/hypermedia-components/recipes/data-region/) — refresh a
+  region (and its chart) in response to events.
