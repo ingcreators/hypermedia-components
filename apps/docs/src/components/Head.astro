@@ -66,13 +66,24 @@ import Default from '@astrojs/starlight/components/Head.astro';
     }
   });
 
-  // Calendar form-integration preview: reflect the calendar's submitted
-  // value (the hidden input `data-name` maintains) into the readout.
+  // Calendar previews.
   document.addEventListener('hc:calendarchange', (event) => {
     const cal = event.target;
-    if (cal && cal.hasAttribute && cal.hasAttribute('data-demo-calendar')) {
+    if (!cal || !cal.hasAttribute) return;
+
+    // Form-integration: reflect the calendar's submitted value (the hidden
+    // input `data-name` maintains) into the readout.
+    if (cal.hasAttribute('data-demo-calendar')) {
       const out = document.getElementById('calendar-form-demo-out');
       if (out) out.textContent = event.detail.value;
+    }
+
+    // Custom date field: fill the visible <input> and close the dropdown.
+    if (cal.hasAttribute('data-demo-datefield')) {
+      const input = document.getElementById('datefield-demo-input');
+      if (input) input.value = event.detail.value;
+      const pop = cal.closest('[popover]');
+      if (pop && pop.hidePopover) pop.hidePopover();
     }
   });
 </script>
