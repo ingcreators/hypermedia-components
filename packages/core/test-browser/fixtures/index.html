@@ -43,6 +43,59 @@
     </script>
   </section>
 
+  <section id="section-remote-dialog" data-testid="section-remote-dialog">
+    <h2>Remote dialog (installRemoteDialog)</h2>
+    <div class="row">
+      <button class="hc-button" data-variant="primary" id="rd-open" data-testid="rd-open">
+        Edit (remote)
+      </button>
+      <button class="hc-button" id="rd-open-unmarked" data-testid="rd-open-unmarked">
+        Swap into unmarked host
+      </button>
+    </div>
+    <!-- htmx swap target: the server response lands here, then htmx fires
+         htmx:afterSwap and installRemoteDialog opens the <dialog>. -->
+    <div id="rd-root" data-testid="rd-root" data-hc-remote-dialog-root></div>
+    <!-- Control: the same swap into a host WITHOUT the root marker. -->
+    <div id="rd-plain" data-testid="rd-plain"></div>
+    <template id="rd-dialog-template">
+      <dialog class="hc-dialog" data-testid="rd-dialog">
+        <header class="hc-dialog__header">
+          <h2 class="hc-dialog__title">Remote dialog</h2>
+        </header>
+        <div class="hc-dialog__body">
+          <p>Swapped in by the server.</p>
+        </div>
+        <footer class="hc-dialog__footer">
+          <button class="hc-button" data-testid="rd-close">Close</button>
+        </footer>
+      </dialog>
+    </template>
+    <script type="module">
+      // Simulate an htmx swap with no network: inject the server response
+      // into the host, then dispatch the same htmx:afterSwap event htmx
+      // fires. installRemoteDialog reacts to the event only — it never
+      // fetches — so this exercises the real behavior path.
+      const tpl = document.getElementById('rd-dialog-template');
+      function swapInto(host) {
+        host.replaceChildren(tpl.content.cloneNode(true));
+        host.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }));
+      }
+      document
+        .getElementById('rd-open')
+        .addEventListener('click', () => swapInto(document.getElementById('rd-root')));
+      document
+        .getElementById('rd-open-unmarked')
+        .addEventListener('click', () => swapInto(document.getElementById('rd-plain')));
+      // Delegated close for whichever dialog the marked root currently holds.
+      document.getElementById('rd-root').addEventListener('click', (e) => {
+        if (e.target.closest('[data-testid="rd-close"]')) {
+          e.target.closest('dialog')?.close();
+        }
+      });
+    </script>
+  </section>
+
   <section id="section-popover" data-testid="section-popover">
     <h2>Popover</h2>
     <div class="row">
