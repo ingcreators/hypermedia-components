@@ -20,6 +20,11 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.0.1-alpha.0] - 2026-06-09
+
+First published release — the full MVP surface (components, behaviors,
+recipes, tokens, macros, docs) goes out under a single alpha tag.
+
 ### Fixed
 
 - **Theme builder Accent mode hid no extra controls.** The Full-theme-only
@@ -2525,4 +2530,5 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/commits/main
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.0.1-alpha.0...HEAD
+[0.0.1-alpha.0]: https://github.com/ingcreators/hypermedia-components/releases/tag/v0.0.1-alpha.0
