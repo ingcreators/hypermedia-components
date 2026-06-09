@@ -16,6 +16,11 @@
     .row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
     .grid { display: grid; gap: 0.75rem; }
     .small { font-size: 0.875rem; color: var(--hc-color-text-muted); }
+    /* In-prose anchors carry no hc- class, so they fall back to the UA
+       default link blue (#0000ee), which fails contrast on the dark
+       surface. Give them a theme-aware accent that meets WCAG AA in both
+       light (#1e40af) and dark (#bfdbfe) modes. */
+    main a:not([class]) { color: var(--hc-color-status-info-fg); }
   </style>
 </head>
 <body>

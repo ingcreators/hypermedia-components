@@ -20,6 +20,18 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **Error text failed WCAG AA contrast in dark mode.** Error / help text in
+  an invalid field used `semantic.color.error` (red-600 `#dc2626`), which
+  renders at only 3.67:1 on the dark surface (`#111827`) — below the 4.5:1
+  minimum for normal text. The dark theme now lightens `color.error` to
+  red-400 (`#f87171`, ≥4.5:1), so the field error message and every error
+  border/fill that resolves through it inherits a readable red under
+  `[data-theme="dark"]`. Light mode is unchanged. (`hc-field`, `hc-input`,
+  `hc-select`, `hc-datepicker`, and other components that surface error
+  state.)
+
 ## [0.0.1-alpha.0] - 2026-06-09
 
 First published release — the full MVP surface (components, behaviors,

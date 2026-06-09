@@ -1,5 +1,19 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import { describe, it, expect } from 'vitest';
-import { buildTokensCss } from '../scripts/build-tokens.mjs';
+import { buildTokensCss, DEFAULT_SOURCES } from '../scripts/build-tokens.mjs';
+
+const tokensDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'tokens');
+
+/** Build the full token bundle from the real DTCG sources on disk. */
+function buildRealTokens() {
+  const trees = {};
+  for (const src of DEFAULT_SOURCES) {
+    trees[src.namespace] = JSON.parse(readFileSync(join(tokensDir, src.file), 'utf8'));
+  }
+  return buildTokensCss({ sources: DEFAULT_SOURCES, trees });
+}
 
 const SOURCES = [
   { namespace: 'primitive', emit: false },
@@ -453,6 +467,28 @@ describe('buildTokensCss', () => {
       const { css } = buildTokensCss({ sources: SOURCES, trees: TREES });
       const block = css.match(/\[data-theme="dark"\]\[data-neutral="slate"\]\s*\{[^}]*\}/)[0];
       expect(block).toContain('--hc-card-bg: #1e293b;');
+    });
+  });
+
+  describe('dark mode error-text contrast (real tokens)', () => {
+    // Regression: error/help text in an invalid field used semantic
+    // color.error (red-600 #dc2626), which renders at only 3.67:1 on the
+    // dark surface (#111827) — below WCAG AA 4.5:1 for normal text. The
+    // dark theme now lightens color.error to red-400 (#f87171, ≥4.5:1), so
+    // the field error message and every error border/fill that resolves
+    // through it inherits the readable red. Light mode stays red-600.
+    it('lightens color.error and the field error message under [data-theme="dark"]', () => {
+      const { css } = buildRealTokens();
+      const dark = css.match(/\[data-theme="dark"\] \{[\s\S]*?\n {2}\}/)[0];
+      expect(dark).toMatch(/--hc-color-error:\s*#f87171;/);
+      // Component leaf re-emitted with the dark-resolved error colour.
+      expect(dark).toMatch(/--hc-field-invalid-message-color:\s*#f87171;/);
+    });
+
+    it('keeps the light error colour at red-600', () => {
+      const { css } = buildRealTokens();
+      const light = css.match(/:root, \[data-theme="light"\] \{[\s\S]*?\n {2}\}/)[0];
+      expect(light).toMatch(/--hc-color-error:\s*#dc2626;/);
     });
   });
 });
