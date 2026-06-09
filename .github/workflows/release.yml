@@ -25,6 +25,19 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r build
 
-      - run: pnpm --filter @hypermedia-components/core publish --access public --no-git-checks
+      # Derive the npm dist-tag from the package version so pre-releases never
+      # move `latest`: 0.0.1-alpha.0 -> alpha, 0.0.1-beta.2 -> beta,
+      # 0.0.1-rc.0 -> rc, and a plain 0.0.1 -> latest.
+      - name: Publish to npm
+        run: |
+          VERSION=$(node -p "require('./packages/core/package.json').version")
+          if [[ "$VERSION" == *-* ]]; then
+            PRERELEASE="${VERSION#*-}"   # strip "<x.y.z>-"
+            TAG="${PRERELEASE%%.*}"      # keep the label before the first dot
+          else
+            TAG="latest"
+          fi
+          echo "Publishing $VERSION under dist-tag '$TAG'"
+          pnpm --filter @hypermedia-components/core publish --access public --no-git-checks --tag "$TAG"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
