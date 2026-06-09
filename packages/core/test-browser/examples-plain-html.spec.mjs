@@ -20,6 +20,15 @@ test.describe('examples/plain-html — accessibility', () => {
     expect(await axeViolations(page)).toEqual([]);
   });
 
+  test('the whole page has no axe violations in dark mode', async ({ page }) => {
+    // Flip the page chrome's theme toggle, which sets data-theme="dark" on
+    // <html>, then re-scan. Guards the dark-mode color-contrast fixes
+    // (error-text token + in-prose link accent — next-phase plan §5.3).
+    await page.locator('#theme-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    expect(await axeViolations(page)).toEqual([]);
+  });
+
   test('the open dialog has no axe violations', async ({ page }) => {
     await page.locator('#open-dialog').click();
     await expect(page.locator('#demo-dialog')).toBeVisible();

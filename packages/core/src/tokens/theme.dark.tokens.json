@@ -7,6 +7,7 @@
     "text-muted": { "$type": "color", "$value": "{primitive.color.gray.400}" },
     "border":     { "$type": "color", "$value": "{primitive.color.gray.700}" },
     "muted-bg":   { "$type": "color", "$value": "{primitive.color.gray.700}" },
+    "error":      { "$type": "color", "$value": "{primitive.color.red.400}" },
     "action": {
       "secondary": {
         "bg":     { "$type": "color", "$value": "{primitive.color.gray.700}" },
