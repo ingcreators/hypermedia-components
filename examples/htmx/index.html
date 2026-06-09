@@ -6,7 +6,9 @@
   <title>Hypermedia Components — htmx</title>
 
   <link rel="stylesheet" href="/hc.css">
-  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+  <!-- htmx is vendored under ./vendor (pinned 2.0.4) and served at /htmx.js
+       so the demo runs offline; swap this for a CDN URL in your own app. -->
+  <script src="/htmx.js" defer></script>
   <script type="module" src="/hc.behaviors.js"></script>
 
   <style>
@@ -36,6 +38,8 @@
     data-hc-toast-region
     role="region"
     aria-label="Notifications"></div>
+
+  <main>
 
   <section>
     <h2>Live search</h2>
@@ -116,5 +120,7 @@
       <code>DELETE /items/:id</code> request.
     </p>
   </section>
+
+  </main>
 </body>
 </html>

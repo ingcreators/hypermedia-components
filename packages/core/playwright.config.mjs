@@ -22,12 +22,33 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'node test-browser/serve.mjs',
-    port: PORT,
-    reuseExistingServer: !process.env.CI,
-    stdout: 'pipe',
-    stderr: 'pipe',
-    timeout: 10_000,
-  },
+  webServer: [
+    {
+      command: 'node test-browser/serve.mjs',
+      port: PORT,
+      reuseExistingServer: !process.env.CI,
+      stdout: 'pipe',
+      stderr: 'pipe',
+      timeout: 10_000,
+    },
+    // The example apps live outside the pnpm workspace; serve them on
+    // their own ports so the a11y specs can scan them
+    // (see examples-plain-html.spec.mjs / examples-htmx.spec.mjs).
+    {
+      command: 'node ../../examples/plain-html/serve.mjs',
+      port: 4322,
+      reuseExistingServer: !process.env.CI,
+      stdout: 'pipe',
+      stderr: 'pipe',
+      timeout: 10_000,
+    },
+    {
+      command: 'node ../../examples/htmx/server.mjs',
+      port: 4323,
+      reuseExistingServer: !process.env.CI,
+      stdout: 'pipe',
+      stderr: 'pipe',
+      timeout: 10_000,
+    },
+  ],
 });
