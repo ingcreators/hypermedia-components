@@ -28,6 +28,8 @@
     </div>
   </header>
 
+  <main>
+
   <section>
     <h2>Buttons</h2>
     <div class="row">
@@ -51,8 +53,8 @@
   <section>
     <h2>Inputs and fields</h2>
     <div class="grid" style="max-inline-size: 24rem;">
-      <input class="hc-input" type="text" placeholder="Search">
-      <select class="hc-input">
+      <input class="hc-input" type="text" placeholder="Search" aria-label="Search">
+      <select class="hc-input" aria-label="Example select">
         <option>One</option>
         <option>Two</option>
       </select>
@@ -566,6 +568,8 @@
     <p class="small">Dispatches an <code>hc:toast</code> event; the auto-init behavior in
       <code>hc.behaviors.js</code> renders the toast and auto-dismisses it.</p>
   </section>
+
+  </main>
 
   <script type="module">
     // Behaviors auto-install via /hc.behaviors.js. Wire up the buttons.

@@ -15,8 +15,10 @@ pnpm start
 This runs `prestart` (which builds `@hypermedia-components/core`) and
 then starts a zero-dependency Node server on
 [http://localhost:4323/](http://localhost:4323/). The server aliases
-`/hc.css`, `/hc.behaviors.js`, etc. to the workspace `dist`, and
-loads htmx from `unpkg.com` via CDN.
+`/hc.css`, `/hc.behaviors.js`, etc. to the workspace `dist`. htmx is
+vendored under `vendor/htmx.min.js` (pinned 2.0.4) and served at
+`/htmx.js`, so the demo runs fully offline — point that `<script>` at a
+CDN URL in your own app if you prefer.
 
 Set `PORT` to use a different port:
 

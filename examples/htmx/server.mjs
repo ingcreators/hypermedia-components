@@ -12,7 +12,7 @@
 // In-memory state. Restarting the server resets the data.
 
 import { createServer } from 'node:http';
-import { createReadStream, statSync } from 'node:fs';
+import { createReadStream, statSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, normalize, resolve, extname } from 'node:path';
 
@@ -23,6 +23,9 @@ const coreDist = resolve(here, '..', '..', 'packages', 'core', 'dist');
 const PORT = Number(process.env.PORT) || 4323;
 
 const ASSET_ALIASES = new Map([
+  // htmx is vendored under ./vendor (pinned 2.0.4) so the demo runs
+  // offline and its browser tests don't depend on a CDN.
+  ['/htmx.js',         join(here, 'vendor', 'htmx.min.js')],
   ['/hc.css',          join(coreDist, 'hc.css')],
   ['/hc.tokens.css',   join(coreDist, 'hc.tokens.css')],
   ['/hc.htmx.css',     join(coreDist, 'hc.htmx.css')],
@@ -116,6 +119,15 @@ function hxTrigger(events) {
 
 function resolveLocal(urlPath) {
   if (ASSET_ALIASES.has(urlPath)) return ASSET_ALIASES.get(urlPath);
+
+  // Serve any built JS/CSS module from the core dist, so the unbundled
+  // hc.behaviors.js entry can resolve its sibling imports (./combobox.js,
+  // ./menu.js, …) without enumerating every behavior in ASSET_ALIASES.
+  if (/^\/(?:macros\/)?[\w.-]+\.(?:js|css)$/.test(urlPath)) {
+    const candidate = join(coreDist, urlPath.replace(/^\/+/, ''));
+    if (candidate.startsWith(coreDist) && existsSync(candidate)) return candidate;
+  }
+
   let p = urlPath === '/' ? '/index.html' : urlPath;
   p = normalize(p).replace(/^[\\/]+/, '');
   const full = resolve(root, p);
