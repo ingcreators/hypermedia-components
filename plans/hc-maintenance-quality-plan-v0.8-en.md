@@ -5,12 +5,13 @@ Status: **shipped** (created and fully executed on 2026-06-12; PRs
 #215 · R #211 / #221 / #222 · S #220 / #213 · T #223 / #225 / #227 ·
 U #229 / #231 / #233 · V #234 / #235 / #236 · W #237 / #238 / #239 —
 plus one unplanned flake fix found en route (#232, spinner bounding-box
-measurement). Residuals deliberately not picked up here: the two sub-100
-docs-page Lighthouse scores recorded on the reference/performance
-baseline (kitchen-sink A11y 94, theme-builder A11y 93 / SEO 92) and the
-one-time npmjs.com trusted-publisher registration the CLI needs before
-its first `cli-v*` tag. Originally: created after `0.1.0` shipped to npm
-`latest` on 2026-06-12, PRs up to #209.
+measurement). `@hypermedia-components/cli` `0.1.0` reached npm `latest`
+on 2026-06-12 (manual first publish — npm trusted publishing cannot
+create a package; later releases are `cli-v*` tag-driven). Residuals
+deliberately not picked up here: the two sub-100 docs-page Lighthouse
+scores recorded on the reference/performance baseline (kitchen-sink
+A11y 94, theme-builder A11y 93 / SEO 92). Originally: created after
+`0.1.0` shipped to npm `latest` on 2026-06-12, PRs up to #209.
 
 Where [v0.6](./hc-component-depth-plan-v0.6-en.md) and
 [v0.7](./hc-component-breadth-plan-v0.7-en.md) grew the component surface,
