@@ -34,6 +34,12 @@ Security    — security-relevant changes
   frozen-column shadows keep their directional geometry in CSS but read
   their color from the token (datagrid alpha 0.25 → 0.2 normalization).
   No literal-color `box-shadow` remains in the component stylesheets.
+- **Docs: Fundamentals → Anchored positioning.** The shared placement
+  infrastructure (`hc-anchored.css` + the behaviors' JS fallback) now has
+  its own page: `data-side` / `data-align` / `data-arrow`, the
+  `--hc-anchored-offset` / `--hc-anchored-arrow-*` knobs, how the CSS and
+  JS paths cooperate, and the granular `./css/hc-anchored` import.
+  Tooltip / popover / hovercard pages cross-link it.
 
 ### Changed
 

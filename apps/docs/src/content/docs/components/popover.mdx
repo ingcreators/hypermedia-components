@@ -92,7 +92,9 @@ and keeps `aria-expanded` / `aria-controls` on the trigger in sync. Add
 Placement uses **CSS Anchor Positioning** (`position-area`) where supported
 and `position-try-fallbacks` to flip at the viewport edge. The same
 attributes drive a JS fallback (`getBoundingClientRect`) for engines without
-it, so both paths place the popover identically.
+it, so both paths place the popover identically. The shared mechanics —
+both paths, the arrow, and the `--hc-anchored-*` knobs — are documented in
+[Fundamentals → Anchored positioning](/hypermedia-components/fundamentals/anchored/).
 
 :::note[Baseline]
 CSS Anchor Positioning (`position-area` / `position-try-fallbacks`) reached

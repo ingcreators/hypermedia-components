@@ -1,0 +1,98 @@
+---
+title: Anchored positioning
+description: How tooltips, popovers, and hovercards place their floating surfaces — CSS Anchor Positioning driven by data-side / data-align, a JS fallback for older engines, and the shared --hc-anchored-* knobs.
+---
+
+Floating surfaces in Hypermedia Components — tooltips, popovers,
+hovercards, menus, comboboxes — are placed by **shared infrastructure**
+rather than per-component positioning code. Two cooperating pieces keep
+every surface behaving identically:
+
+- **`hc-anchored.css`** — the CSS Anchor Positioning path. Maps
+  `data-side` / `data-align` to `position-area` (with
+  `position-try-fallbacks` to flip at the viewport edge) for
+  `.hc-tooltip`, `.hc-popover`, and `.hc-hovercard`, and renders the
+  optional `data-arrow` pointer.
+- **`anchor-fallback.js`** — the JS fallback inside the behaviors. On
+  engines without Anchor Positioning it measures with
+  `getBoundingClientRect`, flips on overflow, clamps to the viewport,
+  and keeps tracking on scroll / resize. Shared by the tooltip, popover,
+  hovercard, menu / submenu, navmenu, combobox, and multicombobox
+  behaviors.
+
+Both paths key off the **same attributes**, so an element is placed
+identically whichever path the engine takes.
+
+This is internal infrastructure: it ships inside the CSS bundle and the
+behaviors automatically — there is nothing to install. When you compile
+a custom bundle from per-component imports, include it once via the
+granular export:
+
+```css
+@import '@hypermedia-components/core/css/hc-anchored';
+```
+
+## Per-instance attributes
+
+| Attribute | Values | Meaning |
+| --- | --- | --- |
+| `data-side` | `top` / `right` / `bottom` / `left` | Which side of the trigger the surface opens on. Each component documents its own default. |
+| `data-align` | `start` / `center` / `end` | Alignment along the cross axis (default `center`). |
+| `data-arrow` | (boolean) | Renders a small pointer on the anchor-facing edge. |
+
+```html
+<button class="hc-button" type="button" popovertarget="filters">Filter</button>
+
+<div id="filters" class="hc-popover" popover
+     data-side="right" data-align="start" data-arrow>
+  Opens to the inline-end, top-aligned, with a pointer.
+</div>
+```
+
+The component pages show the defaults and live demos:
+[Tooltip](/hypermedia-components/components/tooltip/) (opens above),
+[Popover](/hypermedia-components/components/popover/#directional-placement)
+(browser-centred until you add `data-side`), and
+[Hovercard](/hypermedia-components/components/hovercard/) (opens below).
+
+## Shared knobs
+
+Each component sets these custom properties on its own surface; override
+them per component (or per instance) to tune the shared mechanics:
+
+| Custom property | Default | Meaning |
+| --- | --- | --- |
+| `--hc-anchored-offset` | `0.5rem` | Gap between the trigger and the surface. |
+| `--hc-anchored-arrow-size` | `0.5rem` | Size of the `data-arrow` pointer square. |
+| `--hc-anchored-arrow-border` | `transparent` | Border color of the arrow's exposed edges (match the surface border). |
+
+```css
+/* Tighter tooltips, larger arrow */
+.hc-tooltip {
+  --hc-anchored-offset: 0.25rem;
+  --hc-anchored-arrow-size: 0.625rem;
+}
+```
+
+## How the two paths cooperate
+
+1. With CSS Anchor Positioning, `hc-anchored.css` resolves `data-side` /
+   `data-align` to a `position-area` and lets
+   `position-try-fallbacks: flip-block | flip-inline` handle viewport
+   collisions — no JS runs for placement.
+2. Without it, the behavior detects the gap
+   (`CSS.supports('anchor-name', '--x')`) and positions the surface from
+   JS: same side / alignment semantics, flip on overflow, a final clamp
+   so the surface can never sit fully off-screen, and scroll / resize
+   tracking while open. Geometry is computed in physical `top` / `left`
+   from `getBoundingClientRect`, so right-to-left pages place correctly
+   (the inline axis flips with `dir="rtl"`).
+3. The `data-arrow` pointer is plain CSS and renders on both paths.
+
+:::note[Baseline]
+CSS Anchor Positioning (`position-area` / `position-try-fallbacks`)
+reached [Baseline](https://developer.mozilla.org/docs/Web/CSS/position-area)
+in **2026** (Chrome / Edge 125+, Safari 26, Firefox 147+). On older
+engines the JS fallback positions the surface — functionality is
+identical, only the engine doing the math differs.
+:::
