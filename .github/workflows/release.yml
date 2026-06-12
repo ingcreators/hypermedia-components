@@ -10,7 +10,9 @@ jobs:
     permissions:
       # checkout only — publishing writes to npm, not to the repo
       contents: read
-      # OIDC for npm provenance (future) — harmless otherwise
+      # OIDC for npm trusted publishing (no token; provenance attached
+      # automatically). The trusted publisher is configured on npmjs.com
+      # for this repo + this workflow file (release.yml).
       id-token: write
     steps:
       - uses: actions/checkout@v6
@@ -41,5 +43,6 @@ jobs:
           fi
           echo "Publishing $VERSION under dist-tag '$TAG'"
           pnpm --filter @hypermedia-components/core publish --access public --no-git-checks --tag "$TAG"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # No NODE_AUTH_TOKEN: pnpm exchanges the workflow's OIDC token with
+        # npm (trusted publishing). Renaming this file breaks the trust —
+        # update the publisher config on npmjs.com if it ever moves.
