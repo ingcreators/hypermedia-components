@@ -479,6 +479,53 @@ fill the viewport.
   </Fragment>
 </Demo>
 
+## Page header
+
+A detail-page header — back link, title with a status
+[badge](/hypermedia-components/components/badge/), description, and a
+trailing actions cluster. Pure
+[layout utilities](/hypermedia-components/fundamentals/layout/)
+(`hc-stack` + `hc-cluster` + `hc-spacer`) with logical margins; no
+dedicated component needed.
+
+<Demo>
+  <header class="hc-stack" style="--hc-stack-gap:.5rem;inline-size:100%;max-inline-size:44rem;">
+    <a href="#" style="font-size:.875rem;color:var(--hc-color-text-muted);">← Back to projects</a>
+    <div class="hc-cluster" style="--hc-cluster-gap:.75rem;">
+      <h1 style="margin:0;font-size:1.5rem;line-height:1.2;">Acme widgets</h1>
+      <span class="hc-badge" data-variant="success">Active</span>
+      <span class="hc-spacer"></span>
+      <button class="hc-button" type="button">Share</button>
+      <button class="hc-button" data-variant="primary" type="button">Edit project</button>
+    </div>
+    <p style="margin:0;color:var(--hc-color-text-muted);">Last updated 2 hours ago by Grace Hopper.</p>
+  </header>
+
+  <Fragment slot="code">
+
+  ```html
+  <header class="hc-stack" style="--hc-stack-gap: .5rem;">
+    <a href="/projects">← Back to projects</a>
+    <div class="hc-cluster" style="--hc-cluster-gap: .75rem;">
+      <h1 style="margin: 0;">Acme widgets</h1>
+      <span class="hc-badge" data-variant="success">Active</span>
+      <span class="hc-spacer"></span>
+      <button class="hc-button" type="button">Share</button>
+      <button class="hc-button" data-variant="primary" type="button">Edit project</button>
+    </div>
+    <p style="margin: 0; color: var(--hc-color-text-muted);">
+      Last updated 2 hours ago by Grace Hopper.
+    </p>
+  </header>
+  ```
+
+  </Fragment>
+</Demo>
+
+The `hc-spacer` pushes the actions to the inline-end edge, so the row
+works unchanged under `dir="rtl"`. On narrow viewports the `hc-cluster`
+wraps — actions drop below the title instead of overflowing.
+
 ## See also
 
 - [Components](/hypermedia-components/components/) — every building block, documented.
