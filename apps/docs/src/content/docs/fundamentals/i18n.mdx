@@ -77,6 +77,7 @@ the `i18n` submodule, which has no side effects.
 | `confirm.title` | `Confirm` | confirm dialog title (fallback) |
 | `confirm.confirm` | `Confirm` | confirm button (fallback) |
 | `confirm.cancel` | `Cancel` | cancel button (fallback) |
+| `fieldErrors.unknown` | `Invalid value` | field-errors item with no resolvable key and no text |
 | `shell.toggleNav` | `Toggle navigation` | shell nav-toggle `aria-label` (fallback) |
 | `splitter.resize` | `Resize panels` | splitter handle `aria-label` (fallback) |
 | `toast.label` | `Notifications` | toast region `aria-label` (fallback) |
@@ -84,6 +85,11 @@ the `i18n` submodule, which has no side effects.
 `{name}` placeholders are interpolated from the params the behavior passes —
 `{label}` for `multicombobox.remove`, and `{value}` for the creatable
 `combobox.create` / `multicombobox.create` options.
+
+The catalog also resolves **your own keys**: the
+[field-errors recipe](/hypermedia-components/recipes/field-errors/) looks up
+each server-sent `data-message-key` (e.g. `members.email.duplicate`) in the
+same catalog, with `{field}` / `{code}` available for interpolation.
 
 ## Per-element overrides (server-side localization)
 

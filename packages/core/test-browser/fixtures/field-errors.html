@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc field-errors fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:28rem;">
+    <h1>Field errors</h1>
+    <form id="form" onsubmit="event.preventDefault();">
+      <div id="errors"></div>
+
+      <div class="hc-field" id="email-field">
+        <label class="hc-field__label" for="email">Email</label>
+        <input class="hc-input" id="email" name="email" type="email"
+               aria-describedby="email-help" data-testid="email">
+        <p class="hc-field__message" id="email-help">We never share it.</p>
+      </div>
+
+      <div class="hc-field" id="name-field">
+        <label class="hc-field__label" for="name">Name</label>
+        <input class="hc-input" id="name" name="name" data-testid="name">
+      </div>
+
+      <button type="submit" class="hc-button" data-variant="primary"
+              data-testid="submit">Save</button>
+    </form>
+
+    <!-- Simulates the server's 422 response being swapped in by htmx:
+         exactly the canonical fragment from the TesseraQL brief, with
+         htmx's afterSwap announcement. No custom error-handling JS. -->
+    <button type="button" data-testid="swap-errors" class="hc-button"
+            onclick="simulate422()">Simulate 422</button>
+  </main>
+
+  <script>
+    function simulate422() {
+      const container = document.getElementById('errors');
+      container.innerHTML = `
+        <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors
+             data-error-code="TQL-FIELD-4220" data-testid="alert">
+          <p class="hc-alert__title">Unprocessable Entity</p>
+          <ul class="hc-alert__errors">
+            <li class="hc-alert__error" data-field="email" data-code="duplicate"
+                data-message-key="members.email.duplicate">email: duplicate</li>
+            <li class="hc-alert__error" data-field="unknown-field" data-code="x">
+              Something form-level went wrong</li>
+          </ul>
+          <p class="hc-alert__body">optional hint line</p>
+        </div>`;
+      container.dispatchEvent(
+        new CustomEvent('htmx:afterSwap', { bubbles: true, detail: {} }),
+      );
+    }
+  </script>
+</body>
+</html>

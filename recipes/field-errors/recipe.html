@@ -1,0 +1,21 @@
+<!-- Short recommended usage. -->
+<form data-hx-post="/members" data-hx-target="#form-errors" data-hx-swap="innerHTML">
+  <div id="form-errors"></div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input class="hc-input" id="email" name="email" type="email" required>
+  </div>
+
+  <button type="submit" class="hc-button" data-variant="primary">Save</button>
+</form>
+
+<!-- Server response on validation failure (422). installFieldErrors()
+     distributes each item to the field named by data-field. -->
+<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+  <p class="hc-alert__title">Please fix the errors below.</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error" data-field="email" data-code="duplicate"
+        data-message-key="members.email.duplicate">email: duplicate</li>
+  </ul>
+</div>

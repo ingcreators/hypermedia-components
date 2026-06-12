@@ -152,6 +152,18 @@ the required asterisk. The native `required` attribute remains the accessible
 source of truth.
 :::
 
+## Server-side validation errors
+
+For rules only the server can check (uniqueness, conflicts), the
+[field-errors recipe](/hypermedia-components/recipes/field-errors/)
+defines a small alert fragment the server returns on a failed
+submission. `installFieldErrors()` (also in the auto-init bundle)
+distributes each error into the matching field's `.hc-field__error`
+with exactly the ARIA wiring described above, clears it when the user
+edits the field, and lets `data-message-key` resolve through the
+[i18n catalog](/hypermedia-components/fundamentals/i18n/). Native
+constraint messages take precedence on the same control.
+
 ## Accessibility
 
 - The `<label>` must reference the input's `id` via `for`. Implicit
