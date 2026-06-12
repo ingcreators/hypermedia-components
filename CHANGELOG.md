@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Japanese locale pack `@hypermedia-components/core/locales/ja`** (#217):
+  a flat, frozen map translating every `DEFAULT_MESSAGES` key, ready for
+  `setMessages(ja)` — consumers no longer hand-maintain translations of
+  the built-in strings. The `DEFAULT_MESSAGES` key inventory is documented
+  as part of the public contract (enumerate it to diff your own catalog
+  for completeness in CI), and the kit's own CI now fails when a behavior
+  adds a key a shipped locale pack does not cover
+  (`test/locales.test.mjs`, including `{name}` placeholder parity).
 - **Elevation token scale `--hc-shadow-sm` / `-md` / `-lg` / `-overlay`**
   (`semantic.shadow.*`, with `[data-theme="dark"]` overrides at stronger
   alphas). Dropdown surfaces (menu, combobox, multicombobox, command,
