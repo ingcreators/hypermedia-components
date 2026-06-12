@@ -45,7 +45,14 @@ export const DEFAULT_MESSAGES = Object.freeze({
   'toast.label': 'Notifications',
 });
 
-let messages = { ...DEFAULT_MESSAGES };
+// The dist bundles (hc.min.js, hc.behaviors.min.js) each inline a copy of
+// this module, so module-level state would be one catalog per bundle —
+// setMessages() through one entry would never reach behaviors loaded from
+// another (#216). The catalog lives on a globalThis-keyed singleton instead,
+// so every copy reads and writes the same state.
+const STATE_KEY = Symbol.for('hypermedia-components.i18n');
+const state =
+  globalThis[STATE_KEY] || (globalThis[STATE_KEY] = { messages: { ...DEFAULT_MESSAGES } });
 
 /**
  * Merge translations into the global catalog. Pass a flat `{ key: value }`
@@ -57,10 +64,10 @@ let messages = { ...DEFAULT_MESSAGES };
  * @returns {() => void} restore
  */
 export function setMessages(overrides) {
-  const prev = messages;
-  messages = { ...messages, ...(overrides || {}) };
+  const prev = state.messages;
+  state.messages = { ...state.messages, ...(overrides || {}) };
   return () => {
-    messages = prev;
+    state.messages = prev;
   };
 }
 
@@ -68,7 +75,7 @@ export function setMessages(overrides) {
  * Reset the catalog to the built-in English defaults.
  */
 export function resetMessages() {
-  messages = { ...DEFAULT_MESSAGES };
+  state.messages = { ...DEFAULT_MESSAGES };
 }
 
 /**
@@ -77,7 +84,7 @@ export function resetMessages() {
  * @returns {Record<string, string>}
  */
 export function getMessages() {
-  return { ...messages };
+  return { ...state.messages };
 }
 
 /**
@@ -90,7 +97,7 @@ export function getMessages() {
  * @returns {boolean}
  */
 export function hasMessage(key) {
-  return messages[key] != null || DEFAULT_MESSAGES[key] != null;
+  return state.messages[key] != null || DEFAULT_MESSAGES[key] != null;
 }
 
 /**
@@ -103,7 +110,7 @@ export function hasMessage(key) {
  * @returns {string}
  */
 export function t(key, params) {
-  let str = messages[key];
+  let str = state.messages[key];
   if (str == null) str = DEFAULT_MESSAGES[key];
   if (str == null) str = key;
   if (params) {

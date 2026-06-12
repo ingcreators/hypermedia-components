@@ -51,6 +51,17 @@ Security    — security-relevant changes
   rendering is near-identical; dark mode now gets purpose-tuned shadows
   instead of the light alphas.
 
+### Fixed
+
+- **`setMessages()` now reaches behaviors no matter which dist entry it
+  is imported from** (#216). The minified bundles (`hc.min.js`,
+  `hc.behaviors.min.js`) each inline a copy of the i18n module, so the
+  message catalog was per-bundle state: overrides set through the main
+  entry never reached the auto-init behaviors, which kept rendering the
+  English defaults. The catalog now lives on a `globalThis`-keyed
+  singleton (`Symbol.for('hypermedia-components.i18n')`) shared by every
+  copy of the module; the bundles stay self-contained single files.
+
 ### Security
 
 - **Docs site: Astro 5.18 → 6.4, Starlight 0.32 → 0.40.** Clears the

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc i18n via min bundles fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <!--
+    Regression fixture for #216: hc.min.js and hc.behaviors.min.js each
+    inline their own copy of the i18n module. setMessages() through the
+    main-entry bundle must still reach the behaviors the auto-init bundle
+    installs — the catalog state is shared, not per-bundle.
+  -->
+  <script type="module">
+    import { setMessages } from '/hc.min.js';
+    setMessages({
+      'confirm.title': '確認',
+      'confirm.cancel': 'キャンセル',
+      'confirm.confirm': '実行',
+      'combobox.empty': '一致なし',
+    });
+  </script>
+  <script type="module" src="/hc.behaviors.min.js"></script>
+</head>
+<body>
+  <main>
+    <section id="section-confirm">
+      <h2>Confirm</h2>
+      <button class="hc-button" type="button"
+              data-hc-confirm="この項目を削除しますか?"
+              data-testid="confirm-btn">Delete</button>
+    </section>
+
+    <section id="section-combobox">
+      <h2>Combobox</h2>
+      <div class="hc-combobox" style="max-inline-size:18rem;">
+        <input class="hc-combobox__input hc-input"
+               type="text"
+               role="combobox"
+               aria-controls="cb-country-list"
+               aria-label="Country"
+               data-testid="cb-input">
+        <ul class="hc-combobox__listbox" id="cb-country-list"
+            role="listbox" data-testid="cb-listbox">
+          <li id="cb-jp" class="hc-combobox__option" role="option" data-value="jp">Japan</li>
+          <li id="cb-us" class="hc-combobox__option" role="option" data-value="us">United States</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

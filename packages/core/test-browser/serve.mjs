@@ -25,6 +25,8 @@ const ASSET_ALIASES = new Map([
   ['/hc.tokens.css',   join(coreDist, 'hc.tokens.css')],
   ['/hc.htmx.css',     join(coreDist, 'hc.htmx.css')],
   ['/hc.behaviors.js',  join(coreDist, 'hc.behaviors.js')],
+  ['/hc.behaviors.min.js', join(coreDist, 'hc.behaviors.min.js')],
+  ['/hc.min.js',        join(coreDist, 'hc.min.js')],
   ['/i18n.js',          join(coreDist, 'i18n.js')],
   ['/anchor-fallback.js', join(coreDist, 'anchor-fallback.js')],
   ['/validation.js',    join(coreDist, 'validation.js')],
