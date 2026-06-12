@@ -115,12 +115,15 @@ themes, one PR each, #192–#198):
 | [`plans/tesseraql-2026-06-response-en.md`](plans/tesseraql-2026-06-response-en.md) | Our response: what already existed in alpha.0 vs. what each theme PR added. |
 
 The docs site is deployed at
-`hypermedia-components.ichimura-12c.workers.dev`. The active workstream
-is
-[`plans/hc-maintenance-quality-plan-v0.8-en.md`](plans/hc-maintenance-quality-plan-v0.8-en.md)
-— post-0.1.0 quality debt (shadow tokens, docs truth, CI guards,
-shared-internal tests, hygiene) plus two P3 picks (Lighthouse
-benchmarks, recipe CLI).
+`hypermedia-components.ichimura-12c.workers.dev`. The
+[v0.8 maintenance & quality plan](plans/hc-maintenance-quality-plan-v0.8-en.md)
+**shipped in full** (PRs #210–#239, 2026-06-12): shadow tokens
+(`--hc-shadow-*` + stylelint guard), docs truth, links validation in CI,
+unit tests for the shared internals, hygiene, the TesseraQL docs
+follow-ups, weekly Lighthouse runs (`perf.yml`), and the recipe CLI
+(`@hypermedia-components/cli`; first npm publish pending the
+trusted-publisher registration + a `cli-v*` tag). No active workstream;
+the unreleased changes are patch-eligible as `0.1.1` per VERSIONING.md.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
