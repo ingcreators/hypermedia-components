@@ -236,30 +236,24 @@ checklist.
 
 ---
 
-## Release process
+## Release process and versioning
 
-Until the first alpha, the project ships on `main` only. The release
-process for `0.0.1-alpha.0` and beyond:
+The full policy — what counts as the public API (CSS class names,
+data attributes, `--hc-*` custom properties, JS exports, `hc:*`
+events, i18n keys, export paths, recipe contracts), what semver means
+during 0.x, and how deprecation aliases work — lives in
+[`VERSIONING.md`](VERSIONING.md). The short version for contributors:
 
-1. Move the `Unreleased` block in `CHANGELOG.md` under the new
-   version heading with the release date.
-2. Bump `packages/core/package.json` `version`.
-3. Tag the commit (`v0.0.1-alpha.0`).
-4. Publish via the release workflow (planned).
-
-Public surface contract:
-
-- `@hypermedia-components/core/css` → `dist/hc.css` (bundle).
-- `@hypermedia-components/core/tokens.css` → `dist/hc.tokens.css`.
-- `@hypermedia-components/core/htmx.css` → `dist/hc.htmx.css`.
-- `@hypermedia-components/core/behaviors` → `dist/hc.behaviors.js`
-  (auto-init).
-- `@hypermedia-components/core` → `dist/index.js` (named exports only,
-  no side effects).
-- `@hypermedia-components/core/tokens/*` → raw DTCG JSON sources.
-
-Breaking changes to any of those paths require a CHANGELOG entry
-under **Changed** and a deprecation note.
+- Markup is a wire contract: consumers generate it from server
+  templates and compilers, so renaming a documented class or
+  attribute is a breaking change even if nothing looks different.
+- Renames ship behind a deprecation alias for at least one minor
+  version, with a **Deprecated** CHANGELOG entry naming the
+  replacement.
+- Releasing: move the `Unreleased` CHANGELOG block under the new
+  version heading, bump `packages/core/package.json`, tag `v<version>`
+  — `.github/workflows/release.yml` publishes to npm (pre-releases
+  under their derived dist-tag, releases under `latest`).
 
 ---
 
