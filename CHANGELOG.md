@@ -20,6 +20,33 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-06-12
+
+Graduates from alpha — the first release published under the npm
+`latest` dist-tag. The release answers the TesseraQL improvement brief
+(checked in as
+[`plans/tesseraql-2026-06-brief.md`](plans/tesseraql-2026-06-brief.md),
+with the per-theme response in
+[`plans/tesseraql-2026-06-response-en.md`](plans/tesseraql-2026-06-response-en.md)).
+
+**Markup compatibility with `0.0.1-alpha.0`: fully additive.** No
+documented class name, data attribute, `--hc-*` custom property, JS
+export, or `hc:*` event was renamed or removed — template and codegen
+consumers upgrade without markup changes. The versioning rules these
+guarantees follow are now written down in
+[`VERSIONING.md`](VERSIONING.md).
+
+**Migration (opt-in) — server validation errors.** Consumers that
+invented their own error-fragment markup can adopt the kit's canonical
+contract (`recipes/field-errors/contract.md`) and delete their custom
+error plumbing: `hc-alert hc-alert-error` → `hc-alert` +
+`data-variant="error"` + `data-hc-field-errors`; `hc-alert-message` →
+`hc-alert__title`; `hc-field-errors` / `hc-field-error` →
+`hc-alert__errors` / `hc-alert__error`; `hc-alert-hint` →
+`hc-alert__body`; `data-message` → `data-message-key`. The
+`installFieldErrors()` behavior then distributes errors to fields with
+no custom JS.
+
 ### Added
 
 - **`installThemeToggle()` — light/dark switching with persistence

@@ -104,20 +104,18 @@ All four must be green before merging.
 
 ## Current focus
 
-`0.0.1-alpha.0` shipped (npm, 2026-06-09) and the docs site is deployed
-(`hypermedia-components.ichimura-12c.workers.dev`). Current work is the
-**TesseraQL improvement brief** — requests from the first downstream
-consumer, addressed as one PR per theme:
+`0.1.0` shipped (npm `latest`, 2026-06-12) — the alpha-graduation
+release that closed out the **TesseraQL improvement brief** (all 7
+themes, one PR each, #192–#198):
 
 | Doc | Purpose |
 | --- | --- |
 | [`plans/tesseraql-2026-06-brief.md`](plans/tesseraql-2026-06-brief.md) | The brief as received (7 themes; markup-as-wire-contract framing). |
-| [`plans/tesseraql-2026-06-response-en.md`](plans/tesseraql-2026-06-response-en.md) | Our response: what already exists in alpha.0 vs. what each theme PR adds, and the planned `0.1.0` graduation. |
+| [`plans/tesseraql-2026-06-response-en.md`](plans/tesseraql-2026-06-response-en.md) | Our response: what already existed in alpha.0 vs. what each theme PR added. |
 
-Theme order: 7a versioning policy → 1 field-errors contract +
-`installFieldErrors()` → 2 form-composition docs → 3 status modifiers →
-4 chip / KV table / shell nav → 5 htmx patterns → 6 i18n + theme toggle
-→ 7b cut `0.1.0` (after themes 1–3 merge).
+The docs site is deployed at
+`hypermedia-components.ichimura-12c.workers.dev`. No active workstream
+beyond the v0.5 plan's P3 backlog.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
