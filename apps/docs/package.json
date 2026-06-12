@@ -17,6 +17,6 @@
     "@hypermedia-components/core": "workspace:*",
     "@observablehq/plot": "^0.6.17",
     "astro": "^5.5.5",
-    "sharp": "^0.34.1"
+    "sharp": "^0.35.1"
   }
 }
