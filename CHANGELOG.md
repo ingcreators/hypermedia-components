@@ -20,6 +20,26 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Elevation token scale `--hc-shadow-sm` / `-md` / `-lg` / `-overlay`**
+  (`semantic.shadow.*`, with `[data-theme="dark"]` overrides at stronger
+  alphas). Dropdown surfaces (menu, combobox, multicombobox, command,
+  navmenu, popover, hovercard), dialog, drawer, toast, the switch thumb,
+  and the datagrid drag ghost now read their `box-shadow` from the scale
+  instead of hard-coded `rgb()` literals — elevation stays legible on
+  dark surfaces and full themes can override it like any other token.
+
+### Changed
+
+- Component shadows normalized onto the elevation scale (CSS declaration
+  values are not public API, see `VERSIONING.md`): toast alpha
+  0.08 → 0.1, hovercard 0.14 → 0.12, popover geometry
+  6px/20px → 8px/24px, drawer `0 0 30px` ambient → `0 10px 30px`
+  directional, datagrid drag-ghost alpha 0.25 → 0.12. Light-mode
+  rendering is near-identical; dark mode now gets purpose-tuned shadows
+  instead of the light alphas.
+
 ### Security
 
 - **Docs site: Astro 5.18 → 6.4, Starlight 0.32 → 0.40.** Clears the

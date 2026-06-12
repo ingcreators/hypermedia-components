@@ -491,4 +491,35 @@ describe('buildTokensCss', () => {
       expect(light).toMatch(/--hc-color-error:\s*#dc2626;/);
     });
   });
+
+  describe('elevation shadow scale (real tokens)', () => {
+    // Component box-shadows route through semantic.shadow.* instead of
+    // hard-coded rgb() literals, so a dark page gets stronger alphas (a
+    // light-tuned shadow is nearly invisible on a dark surface) and full
+    // themes can override elevation like any other token.
+    const NAMES = ['sm', 'md', 'lg', 'overlay'];
+
+    it('emits the scale in the light block', () => {
+      const { css } = buildRealTokens();
+      const light = css.match(/:root, \[data-theme="light"\] \{[\s\S]*?\n {2}\}/)[0];
+      expect(light).toMatch(/--hc-shadow-sm:\s*0 1px 2px rgb\(0, 0, 0, 0\.15\);/);
+      expect(light).toMatch(/--hc-shadow-overlay:\s*0 10px 30px rgb\(0, 0, 0, 0\.15\);/);
+      for (const name of NAMES) expect(light).toContain(`--hc-shadow-${name}:`);
+    });
+
+    it('overrides every step with a stronger alpha under [data-theme="dark"]', () => {
+      const { css } = buildRealTokens();
+      const light = css.match(/:root, \[data-theme="light"\] \{[\s\S]*?\n {2}\}/)[0];
+      const dark = css.match(/\[data-theme="dark"\] \{[\s\S]*?\n {2}\}/)[0];
+      for (const name of NAMES) {
+        const re = new RegExp(`--hc-shadow-${name}:\\s*([^;]+);`);
+        const lightValue = light.match(re)?.[1];
+        const darkValue = dark.match(re)?.[1];
+        expect(lightValue, `${name} light`).toBeTruthy();
+        expect(darkValue, `${name} dark`).toBeTruthy();
+        expect(darkValue).not.toBe(lightValue);
+      }
+      expect(dark).toMatch(/--hc-shadow-overlay:\s*0 10px 30px rgb\(0, 0, 0, 0\.6\);/);
+    });
+  });
 });

@@ -14,7 +14,7 @@
     color: var(--hc-dialog-fg);
     max-inline-size: var(--hc-dialog-max-width);
     inline-size: calc(100% - 2 * var(--hc-space-4));
-    box-shadow: 0 10px 30px rgb(0, 0, 0, 0.15);
+    box-shadow: var(--hc-shadow-overlay);
   }
 
   .hc-dialog::backdrop {

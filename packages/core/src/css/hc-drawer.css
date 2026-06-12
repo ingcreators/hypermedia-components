@@ -30,7 +30,7 @@
     background: var(--hc-drawer-bg);
     color: var(--hc-drawer-fg);
     overflow: hidden;
-    box-shadow: 0 0 30px rgb(0, 0, 0, 0.2);
+    box-shadow: var(--hc-shadow-overlay);
 
     /* Default side = right. Specific sides override below. */
     inset-block: 0;

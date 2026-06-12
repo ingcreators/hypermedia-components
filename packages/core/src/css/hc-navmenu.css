@@ -77,7 +77,7 @@
     background: var(--hc-navmenu-panel-bg);
     color: var(--hc-navmenu-panel-fg);
     min-inline-size: var(--hc-navmenu-panel-min-width);
-    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.12);
+    box-shadow: var(--hc-shadow-lg);
   }
 
   /* Links inside a panel stack as a readable list. */

@@ -34,7 +34,7 @@
     color: var(--hc-menu-fg);
     min-inline-size: var(--hc-menu-min-width);
     max-inline-size: var(--hc-menu-max-width);
-    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.12);
+    box-shadow: var(--hc-shadow-lg);
   }
 
   /* Anchor Positioning path. installMenu injects the matching

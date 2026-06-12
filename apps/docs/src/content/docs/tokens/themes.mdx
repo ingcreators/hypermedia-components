@@ -250,6 +250,10 @@ Components and tokens deliberately **not** affected:
 - Semantic colors (`info`, `success`, `warning`, `error`) — informational palette, fixed.
 - `--hc-color-muted-bg` — generic muted surface bg, swaps only between light and dark, never between color themes.
 - Surface / background / text colors — owned by `data-theme` (light / dark).
+- Elevation shadows (`--hc-shadow-sm` / `-md` / `-lg` / `-overlay`) —
+  owned by `data-theme`: the dark steps carry stronger alphas so
+  dropdowns, dialogs, and drawers stay legible on dark surfaces. A full
+  custom theme can override the four steps like any other token.
 - Container padding / gap — owned by `data-density`.
 
 ## Authoring your own theme
