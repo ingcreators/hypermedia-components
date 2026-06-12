@@ -121,6 +121,32 @@ the remaining JSON path with hyphens:
 Add a token only when the value is reused. A value used once is not
 yet a token.
 
+## Development environment
+
+The standard setup is WSL 2 + Docker Desktop + VS Code Dev Containers
+(the same workflow as TesseraQL):
+
+1. Clone the repository into the WSL 2 filesystem (not `/mnt/c/...` —
+   file watching and pnpm are much slower across the Windows mount).
+2. Open the folder in VS Code (`code .` from WSL) and run
+   **Dev Containers: Reopen in Container**.
+3. `postCreateCommand` installs dependencies and Playwright Chromium,
+   then runs `scripts/verify-dev-env.sh`.
+
+The container ships Node.js 24, pnpm, the GitHub CLI, and Claude Code.
+Agent and CLI state persists across rebuilds in named volumes
+(`/home/node/.claude`, `/home/node/.config/gh`, the pnpm store, and the
+Playwright browser cache). Authenticate once inside the container with
+`gh auth login` and `claude` (`/login`); alternatively copy
+`.devcontainer/devcontainer.local.env.example` to
+`.devcontainer/devcontainer.local.env` (gitignored) for token-based
+auth. Do not bind-mount broad host secret directories.
+
+Working directly on the host (any OS with Node.js ≥ 24 and pnpm) also
+works — the devcontainer is the recommended path, not a requirement.
+
+---
+
 ## Building
 
 ```bash
