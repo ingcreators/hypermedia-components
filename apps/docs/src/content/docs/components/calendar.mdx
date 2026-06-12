@@ -183,11 +183,14 @@ hidden input — it submits with the surrounding `<form>` exactly like
 
 ## As a custom date field
 
-Don't like the native date control? Pair the calendar with an
-[`hc-input`](/hypermedia-components/components/input/) and a
-[popover](/hypermedia-components/components/popover/): the input is the
-visible field, a trailing button opens a calendar dropdown, and picking a
-day fills the input and closes the popover.
+Don't like the native date control? This is the **blessed date-field
+pattern**: an [`hc-field`](/hypermedia-components/components/field/) stanza
+whose [`hc-input`](/hypermedia-components/components/input/) is the visible
+field, a trailing button that opens a calendar in a
+[popover](/hypermedia-components/components/popover/), and picking a day
+that fills the input and closes the popover. It is plain markup — code
+generators can emit it verbatim for date columns, and it is stable under
+the [markup versioning policy](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md).
 
 Point the calendar at the field with **`data-target`** — the behavior
 writes the value and closes the popover for you. **No per-field
@@ -195,41 +198,101 @@ JavaScript**, so a page with many date fields stays pure markup. Set the
 initial date **once** on the input (`value="…"`); the calendar inherits it,
 so there is no `data-value` to keep in sync.
 
-<Demo previewStyle="min-block-size:24rem;">
-  <div class="hc-input-group" style="max-inline-size:18rem;">
-    <input class="hc-input" id="datefield-demo-input" type="text" readonly value="2026-05-15" aria-label="Due date" placeholder="Pick a date" />
-    <button class="hc-button" type="button" popovertarget="datefield-cal" aria-label="Open calendar">📅</button>
-  </div>
-  <div id="datefield-cal" class="hc-popover" popover data-side="bottom" data-align="end">
-    <div class="hc-calendar" data-name="due" data-target="#datefield-demo-input" data-locale="en-US" aria-label="Pick a date"></div>
+<Demo previewStyle="min-block-size:26rem;">
+  <div class="hc-field" style="max-inline-size:18rem;">
+    <label class="hc-field__label" for="datefield-demo-input">Due date</label>
+    <div class="hc-input-group">
+      <input class="hc-input" id="datefield-demo-input" name="due" type="text" readonly value="2026-05-15" placeholder="Pick a date" />
+      <button class="hc-button" type="button" popovertarget="datefield-cal" aria-label="Choose date">📅</button>
+    </div>
+    <div id="datefield-cal" class="hc-popover" popover data-side="bottom" data-align="end">
+      <div class="hc-calendar" data-target="#datefield-demo-input" data-locale="en-US" aria-label="Choose date"></div>
+    </div>
+    <p class="hc-field__message">Format: YYYY-MM-DD</p>
   </div>
 
   <Fragment slot="code">
 
   ```html
-  <div class="hc-input-group">
-    <!-- The value lives here, once. -->
-    <input class="hc-input" id="due-field" type="text" readonly
-           value="2026-05-15" aria-label="Due date" placeholder="Pick a date">
-    <button class="hc-button" type="button" popovertarget="due-cal"
-            aria-label="Open calendar">📅</button>
-  </div>
+  <div class="hc-field">
+    <label class="hc-field__label" for="due">Due date</label>
 
-  <div id="due-cal" class="hc-popover" popover data-side="bottom" data-align="end">
-    <!-- data-target seeds from #due-field, fills it, and closes #due-cal. No JS. -->
-    <div class="hc-calendar" data-name="due" data-target="#due-field"
-         aria-label="Pick a date"></div>
+    <div class="hc-input-group">
+      <!-- The value lives here, once — and this input carries the form name. -->
+      <input class="hc-input" id="due" name="due" type="text" readonly
+             value="2026-05-15" placeholder="Pick a date">
+      <button class="hc-button" type="button" popovertarget="due-cal"
+              aria-label="Choose date">📅</button>
+    </div>
+
+    <div id="due-cal" class="hc-popover" popover data-side="bottom" data-align="end">
+      <!-- data-target seeds from #due, fills it on pick, and closes #due-cal. No JS. -->
+      <div class="hc-calendar" data-target="#due" aria-label="Choose date"></div>
+    </div>
+
+    <p class="hc-field__message">Format: YYYY-MM-DD</p>
   </div>
   ```
 
   </Fragment>
 </Demo>
 
-The visible input is `readonly` here so the calendar is the only editor —
-drop `readonly` to also allow typing. Either way the form submits `due=…`
-from the calendar's hidden `data-name` input. The popover anchors below the
-trigger via `installPopover` (`data-side` / `data-align`). Add as many such
-fields as you like — each is just markup with its own `data-target`.
+The popover anchors below the trigger via `installPopover`
+(`data-side` / `data-align`). Add as many such fields as you like — each
+is just markup with its own `data-target`.
+
+### Who carries the form name
+
+The **visible input** carries `name` and submits the value (`due=…`) —
+the calendar drives it through `data-target`, firing `input` / `change`
+so validation and htmx triggers see every pick. Do **not** also set
+`data-name` on the calendar here: that renders a second, hidden control
+with the same value and the field would submit twice. `data-name` is for
+a *standalone* calendar sitting directly in a form (see
+[Form integration](#form-integration) above).
+
+Because the name lives on a real input inside an `hc-field`, the
+[field-errors recipe](/hypermedia-components/recipes/field-errors/) works
+unchanged: a server item with `data-field="due"` finds the input, writes
+its message into this field's error slot, and marks the input
+`aria-invalid`.
+
+### Read-only or free-typed?
+
+The blessed form is **`readonly`**: the calendar is the only editor, so
+input and grid can never disagree, and there is no client-side parsing of
+hand-typed dates (`readonly` inputs still submit; they only block
+typing). If you drop `readonly` to allow typing, know that the calendar
+reads the field **once** (at install) — it does not re-seed from text
+typed afterwards — so validate typed values server-side, e.g. with the
+field-errors recipe.
+
+### Keyboard and focus
+
+- The trigger is a regular `popovertarget` button: <kbd>Enter</kbd> /
+  <kbd>Space</kbd> opens the popover. <kbd>Tab</kbd> then walks the
+  calendar header (previous / next month) and lands in the grid — a
+  single tab stop whose roving tabindex sits on the selected day.
+- Inside the grid the full [calendar keyboard model](#keyboard) applies;
+  <kbd>Enter</kbd> / <kbd>Space</kbd> picks the focused day, which fills
+  the input and closes the popover. Focus returns to the trigger button
+  (native popover focus restoration).
+- <kbd>Esc</kbd> and light dismiss close the popover without changing
+  the field — both native popover behaviors.
+
+These claims are pinned by a browser test against this exact markup
+(`test-browser/datefield.spec.mjs`), so the pattern stays stable for
+generated code.
+
+### Locale
+
+`data-locale` falls back to **`<html lang>`**, and that fallback is the
+intended path for server-localized pages: render `lang` once and every
+date field follows, no per-field attribute. The labels the behavior
+injects (previous / next month, the grid's fallback name) come from the
+[i18n catalog](/hypermedia-components/fundamentals/i18n/); the visible
+`<label>`, the trigger's `aria-label`, and the calendar's `aria-label`
+are yours to localize in markup.
 
 ## htmx usage
 
