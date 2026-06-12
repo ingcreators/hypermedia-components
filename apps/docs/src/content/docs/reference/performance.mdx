@@ -1,0 +1,58 @@
+---
+title: Performance
+description: Lighthouse scores and Core Web Vitals for the deployed docs site — methodology, budgets, and the recorded baseline.
+---
+
+The docs site is itself the kit's biggest consumer — every page loads the
+full CSS bundle, the behaviors, and live component demos — so its
+Lighthouse scores are a practical health check for the kit's runtime
+cost, not just for the site.
+
+## How it's measured
+
+A scheduled GitHub Actions workflow
+([`perf.yml`](https://github.com/ingcreators/hypermedia-components/blob/main/.github/workflows/perf.yml))
+runs Lighthouse 12 weekly (and on demand via *workflow_dispatch*)
+against five representative pages of the **deployed** site:
+
+| Page | Why it's in the set |
+| --- | --- |
+| Landing | First impression; live showcase below the hero. |
+| Button | A typical component page (Demo tabs, API tables). |
+| Kitchen sink | Every component rendered at once — the stress page. |
+| Blocks | Composed sections, the heaviest realistic markup. |
+| Theme builder | The most JavaScript-heavy page (runs the token build in-browser). |
+
+The run **fails when any category drops below 90** on any page —
+nothing merges through it (it is not a PR gate); a red run is the
+regression signal. Reports are uploaded as workflow artifacts for 30
+days, and each run writes a score table into its job summary.
+
+## Baseline (2026-06-12, Lighthouse 12, mobile emulation)
+
+| Page | Perf | A11y | Best practices | SEO | LCP | CLS | TBT |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Landing | 96 | 100 | 96 | 100 | 2.2 s | 0 | 0 ms |
+| Button | 98 | 100 | 96 | 100 | 2.0 s | 0 | 0 ms |
+| Kitchen sink | 98 | 94 | 96 | 100 | 2.0 s | 0 | 0 ms |
+| Blocks | 97 | 100 | 96 | 100 | 2.2 s | 0 | 0 ms |
+| Theme builder | 98 | 93 | 96 | 92 | 2.1 s | 0 | 0 ms |
+
+Zero layout shift and zero blocking time across the board reflect the
+kit's design: CSS-first components, no client framework, behaviors that
+install listeners and get out of the way. The two sub-100 accessibility
+scores (kitchen sink, theme builder) and the theme builder's SEO score
+are tracked as docs-site follow-ups — they concern those pages'
+chrome, not the components.
+
+## Running it yourself
+
+```bash
+npx lighthouse@12 \
+  https://hypermedia-components.ichimura-12c.workers.dev/hypermedia-components/ \
+  --only-categories=performance,accessibility,best-practices,seo \
+  --chrome-flags="--headless=new"
+```
+
+For the kit's payload cost (what *your* pages pay, independent of this
+site), see [Bundle size](/hypermedia-components/reference/size/).

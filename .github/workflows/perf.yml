@@ -1,0 +1,90 @@
+name: Perf (Lighthouse)
+
+# Weekly Lighthouse scores for the DEPLOYED docs site. Deliberately not a
+# PR gate: PRs measure nothing here — the deployed site is what users get,
+# and scheduled runs catch regressions without blocking merges. A failed
+# run means a budget was missed (see BUDGET below).
+
+on:
+  schedule:
+    - cron: '0 21 * * 1' # Mondays 21:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BASE: https://hypermedia-components.ichimura-12c.workers.dev/hypermedia-components
+  # Minimum category scores (0-100). Baselines on 2026-06-12 were 92-100
+  # (see apps/docs reference/performance page); 90 leaves headroom for
+  # network noise while still catching real regressions.
+  BUDGET: '90'
+
+jobs:
+  lighthouse:
+    name: Lighthouse (deployed docs)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Measure key pages
+        run: |
+          mkdir -p reports
+          for entry in \
+            "landing|/" \
+            "button|/components/button/" \
+            "kitchen-sink|/kitchen-sink/" \
+            "blocks|/blocks/" \
+            "theme-builder|/tokens/theme-builder/"; do
+            name="${entry%%|*}"; path="${entry##*|}"
+            echo "::group::$name ($BASE$path)"
+            npx --yes lighthouse@12 "$BASE$path" \
+              --chrome-flags="--headless=new --no-sandbox" \
+              --only-categories=performance,accessibility,best-practices,seo \
+              --skip-audits=full-page-screenshot \
+              --output=json --output-path="reports/$name.json" --quiet
+            echo "::endgroup::"
+          done
+
+      - name: Summarize and enforce the budget
+        run: |
+          node - <<'EOF'
+          const { readdirSync, readFileSync, appendFileSync } = require('node:fs');
+          const budget = Number(process.env.BUDGET);
+          const rows = [];
+          let failed = false;
+          for (const file of readdirSync('reports').sort()) {
+            const r = JSON.parse(readFileSync(`reports/${file}`, 'utf8'));
+            const c = Object.fromEntries(
+              Object.entries(r.categories).map(([k, v]) => [k, Math.round((v.score ?? 0) * 100)]),
+            );
+            const a = r.audits;
+            const under = Object.entries(c).filter(([, score]) => score < budget);
+            if (under.length) failed = true;
+            rows.push(
+              `| ${file.replace('.json', '')} | ${c.performance} | ${c.accessibility} | ` +
+                `${c['best-practices']} | ${c.seo} | ${a['largest-contentful-paint'].displayValue} | ` +
+                `${a['cumulative-layout-shift'].displayValue} | ${a['total-blocking-time'].displayValue} |` +
+                (under.length ? ` ⚠ below ${budget}: ${under.map(([k]) => k).join(', ')}` : ''),
+            );
+          }
+          const table = [
+            `## Lighthouse — deployed docs (budget: every category ≥ ${budget})`,
+            '',
+            '| Page | Perf | A11y | Best practices | SEO | LCP | CLS | TBT |',
+            '| --- | --- | --- | --- | --- | --- | --- | --- |',
+            ...rows,
+          ].join('\n');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, table + '\n');
+          console.log(table);
+          if (failed) {
+            console.error(`\nBudget missed (a category scored below ${budget}).`);
+            process.exit(1);
+          }
+          EOF
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse-reports
+          path: reports/
+          retention-days: 30
