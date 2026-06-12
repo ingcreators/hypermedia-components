@@ -103,6 +103,20 @@ All four must be green before merging.
 - See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full contributor guide.
 - See [`DEPLOYMENT.md`](DEPLOYMENT.md) for the Cloudflare Workers runbook (manual dashboard steps, build / deploy commands, custom domain attach, Worker Route).
 
+## Worktree isolation (parallel sessions)
+
+Multiple Claude Code sessions may run in this repository concurrently.
+Before modifying any file, switching branches, committing, or rebasing,
+enter a dedicated git worktree (EnterWorktree, or
+`git worktree add .claude/worktrees/<name> -b <branch> origin/main`) —
+**never mutate the main checkout**: branch switches, commits, and resets
+there are global and corrupt other sessions' state. Run
+`pnpm install --frozen-lockfile` inside the worktree once before
+building or testing (fast — hardlinked from the pnpm store). Pushes,
+PRs, and other remote operations can be issued from anywhere; only
+working-tree operations need isolation. Remove the worktree and delete
+the local branch after its PR merges.
+
 ## Current focus
 
 `0.1.0` shipped (npm `latest`, 2026-06-12) — the alpha-graduation
