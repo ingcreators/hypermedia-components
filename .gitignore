@@ -29,6 +29,9 @@ Thumbs.db
 .env.*
 !.env.example
 
+# Devcontainer local-only secrets
+.devcontainer/devcontainer.local.env
+
 # Cloudflare
 .wrangler/
 
