@@ -148,7 +148,8 @@ available as per-element overrides.
 The catalog also resolves **your own keys**: the
 [field-errors recipe](/hypermedia-components/recipes/field-errors/) looks up
 each server-sent `data-message-key` (e.g. `members.email.duplicate`) in the
-same catalog, with `{field}` / `{code}` available for interpolation.
+same catalog, with `{field}` / `{code}` — plus any values the server sends
+as `data-message-params` — available for interpolation.
 
 ## Per-element overrides (server-side localization)
 

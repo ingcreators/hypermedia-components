@@ -48,6 +48,14 @@ Security    — security-relevant changes
   `--hc-anchored-offset` / `--hc-anchored-arrow-*` knobs, how the CSS and
   JS paths cooperate, and the granular `./css/hc-anchored` import.
   Tooltip / popover / hovercard pages cross-link it.
+- **`data-message-params` on field-errors items** (#218): an optional
+  JSON object of server-provided interpolation values merged into the
+  params `installFieldErrors` passes to the i18n catalog, so client
+  catalog overrides may use placeholders beyond `{field}`/`{code}`
+  (e.g. `data-message-params='{"stock": 5}'` with a translation using
+  `{stock}`). Item params win over the implicit `field`/`code`;
+  malformed or non-object JSON is ignored and the existing fallback
+  chain (catalog → item text → `fieldErrors.unknown`) is unchanged.
 
 ### Changed
 
