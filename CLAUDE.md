@@ -23,7 +23,7 @@ explicit user approval.
 | `apps/docs/` | Astro Starlight documentation site (`pnpm docs:dev`). |
 | `packages/core/` | `@hypermedia-components/core` — `src/{css,js,macros,tokens}/`, `scripts/`, `test/`, `test-browser/`. |
 | `recipes/<name>/` | `recipe.html` / `expanded.html` / `contract.md` source-format scaffolds. |
-| `examples/<framework>/` | Runnable usage examples (`plain-html/`, `htmx/` — others scaffolded). |
+| `examples/<framework>/` | Runnable usage examples (`plain-html/`, `htmx/`; other stacks are covered by the docs integration guides). |
 | `plans/` | Implementation plans and design documents. |
 | `.github/workflows/` | `ci.yml` (lint / unit / docs / browser) + `release.yml`. |
 
