@@ -102,7 +102,20 @@ The pre-alpha "no back-compat aliases" rule ended when
 3. Tag the commit `v<version>` and push the tag.
 4. `.github/workflows/release.yml` builds and publishes to npm —
    pre-releases under their derived dist-tag (`alpha`, `beta`),
-   releases under `latest`.
+   releases under `latest`. The workflow refuses a tag that does not
+   match the package's `version` field.
 
 Release notes for a version with markup changes must include a
 migration section addressed to template/codegen consumers.
+
+## Packages & release tags
+
+| Package | Tag pattern | Versioning |
+| --- | --- | --- |
+| `@hypermedia-components/core` | `v<version>` | This document's subject. |
+| `@hypermedia-components/cli` | `cli-v<version>` | Independent of core. Its public surface is the command set and flags (`add`, `list`, `--dir`, `--force`) and the copied file set; the recipes it copies are versioned by **core**'s contract rules (§8). |
+
+Both publish from the same `release.yml` via npm **trusted publishing**
+(OIDC, no tokens). Each package name needs its own trusted-publisher
+registration on npmjs.com (this repository + `release.yml`) — the CLI's
+must be created before its first `cli-v*` tag is pushed.
