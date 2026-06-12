@@ -108,4 +108,11 @@
     flex: none;
     vertical-align: -0.125em;
   }
+
+  /* Flexible spacer for any flex row (shell header, clusters): everything
+     after it is pushed to the inline end. The toolbar's own
+     [data-hc-spacer="true"] is the same idea scoped to hc-toolbar. */
+  .hc-spacer {
+    flex: 1;
+  }
 }

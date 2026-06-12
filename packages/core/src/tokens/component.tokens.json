@@ -479,7 +479,19 @@
     "header-weight":  { "$type": "fontWeight", "$value": "{semantic.font.weight-semibold}" },
     "row-hover-bg":   { "$type": "color",     "$value": "{semantic.color.muted-bg}" },
     "cell-padding-x": { "$type": "dimension", "$value": "{semantic.space.3}" },
-    "cell-padding-y": { "$type": "dimension", "$value": "{semantic.space.2}" }
+    "cell-padding-y": { "$type": "dimension", "$value": "{semantic.space.2}" },
+    "kv-key-width":   { "$type": "dimension", "$value": "10rem" },
+    "kv-key-fg":      { "$type": "color",     "$value": "{semantic.color.text-muted}" }
+  },
+  "chip": {
+    "bg":        { "$type": "color",     "$value": "{semantic.color.surface}" },
+    "fg":        { "$type": "color",     "$value": "{semantic.color.text}" },
+    "border":    { "$type": "color",     "$value": "{semantic.color.border}" },
+    "radius":    { "$type": "dimension", "$value": "999px" },
+    "padding-x": { "$type": "dimension", "$value": "{semantic.space.3}" },
+    "padding-y": { "$type": "dimension", "$value": "{primitive.space.1}" },
+    "font-size": { "$type": "dimension", "$value": "{semantic.font.size-sm}" },
+    "gap":       { "$type": "dimension", "$value": "{semantic.space.2}" }
   },
   "chart": {
     "height":    { "$type": "dimension", "$value": "20rem" },

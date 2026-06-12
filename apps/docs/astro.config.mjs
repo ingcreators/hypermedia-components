@@ -101,6 +101,7 @@ export default defineConfig({
                 'components/item',
                 'components/avatar',
                 'components/badge',
+                'components/chip',
                 'components/separator',
                 'components/accordion',
                 'components/collapsible',
