@@ -90,7 +90,7 @@ cd examples/htmx       && pnpm start    # :4323
 
 - **lint** — ESLint + Stylelint
 - **unit** — Vitest (jsdom) + `tsc --noEmit` smoke test of the public type surface
-- **docs** — Astro build (uploads `apps/docs/dist` as artifact)
+- **docs** — Astro build (validates internal links via `starlight-links-validator`; uploads `apps/docs/dist` as artifact)
 - **browser** — Playwright + Chromium (cached browser binaries; uploads report + traces on failure)
 
 All four must be green before merging.

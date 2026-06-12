@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightLinksValidator from 'starlight-links-validator';
 import rehypeHcTables from './rehype-hc-tables.mjs';
 
 export default defineConfig({
@@ -15,6 +16,13 @@ export default defineConfig({
       title: 'Hypermedia Components',
       description:
         'Semantic components and recipes for hypermedia applications.',
+      // Fail `docs:build` on broken internal links / anchors. Build-time
+      // validation over the rendered route graph — no network, no extra
+      // CI job; the existing docs job catches the rot. Same-page hash
+      // links are excluded: live demo markup uses placeholder
+      // href="#" / href="#section" (breadcrumb, pagination, navmenu, …);
+      // page paths and cross-page anchors stay validated.
+      plugins: [starlightLinksValidator({ exclude: ['#*'] })],
       editLink: {
         baseUrl:
           'https://github.com/ingcreators/hypermedia-components/edit/main/apps/docs/',
