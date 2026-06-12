@@ -276,6 +276,15 @@ For a row-level delete:
   (message), so screen readers announce both on open.
 - Focus moves to the **Cancel** button by default — destructive actions
   must require explicit confirmation, not a stray Enter keypress.
+- On close — confirm, cancel, or <kbd>Escape</kbd> — the native
+  `dialog.close()` **returns focus to the trigger** that opened it; the
+  behavior adds no focus code of its own. If the confirmed request then
+  removes that trigger from the DOM (deleting a table row is the
+  canonical case), place the next focus target deliberately in the
+  swap: target the surrounding region and put `autofocus` (or
+  `tabindex="-1"` plus a server-driven focus hint) on the element
+  keyboard users should land on, so they are not silently dropped at
+  `<body>`.
 - The original button keeps its native `<button>` semantics. Use a
   visible, descriptive label (`Delete`, `Discard changes`) rather than
   an icon alone.
