@@ -25,6 +25,23 @@ test.describe('confirm-action behavior', () => {
     await expect(cancel).toBeFocused();
   });
 
+  test('closing the dialog returns focus to the trigger (cancel and confirm)', async ({ page }) => {
+    // Native dialog.close() restores focus to the previously focused
+    // element — the behavior adds no focus code; this pins the contract
+    // documented on the confirm-action recipe page.
+    const trigger = page.getByTestId('trigger-confirm');
+
+    await trigger.click();
+    await page.locator('[data-hc-confirm-cancel]').click();
+    await expect(page.locator('.hc-confirm-dialog')).toBeHidden();
+    await expect(trigger).toBeFocused();
+
+    await trigger.click();
+    await page.locator('[data-hc-confirm-ok]').click();
+    await expect(page.locator('.hc-confirm-dialog')).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
   test('dispatching "confirm" closes the dialog and fires `hc:confirmed` on the source', async ({ page }) => {
     const result = page.getByTestId('confirm-result');
     await expect(result).toHaveText('');
