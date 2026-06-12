@@ -20,6 +20,8 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-06-12
+
 ### Added
 
 - **`@hypermedia-components/cli` workspace package** — `npx
@@ -2774,5 +2776,7 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.0.1-alpha.0...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.0.1-alpha.0...v0.1.0
 [0.0.1-alpha.0]: https://github.com/ingcreators/hypermedia-components/releases/tag/v0.0.1-alpha.0
