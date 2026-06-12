@@ -41,6 +41,7 @@ export const DEFAULT_MESSAGES = Object.freeze({
   'shell.toggleNav': 'Toggle navigation',
   'shell.collapseNav': 'Collapse sidebar',
   'splitter.resize': 'Resize panels',
+  'themeToggle.label': 'Switch color theme',
   'toast.label': 'Notifications',
 });
 

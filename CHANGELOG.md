@@ -22,6 +22,25 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installThemeToggle()` — light/dark switching with persistence
+  (TesseraQL brief Theme 6).** A `[data-hc-theme-toggle]` button flips
+  `data-theme` on `<html>`; the effective theme defaults to the OS
+  preference (`prefers-color-scheme`) until an explicit choice is made.
+  Optional `data-persist="<key>"` mirrors the choice to `localStorage`
+  and restores it at install, with a documented inline `<head>` snippet
+  for a flash-free restore. Toggles reflect `aria-pressed`, icon-only
+  toggles get a default `aria-label` from the i18n catalog (new
+  `themeToggle.label` key), and each change dispatches
+  `hc:themechange`. In the auto-init `/behaviors` bundle. New
+  Themes → "Light / dark toggle" docs; 7 Vitest + 5 Playwright tests
+  (incl. OS-preference emulation, reload persistence, and axe with
+  colour-contrast in both themes).
+- **i18n docs completeness, guarded.** The Fundamentals → i18n catalog
+  table now lists every `DEFAULT_MESSAGES` key (added the missing
+  `shell.collapseNav`) and gains a complete worked **Japanese
+  catalog** example — set once, the kit renders no English. A unit
+  test fails whenever a behavior string key is added without
+  documenting it (or a documented key goes stale).
 - **Blessed htmx patterns + a tested confirm-gating specification
   (TesseraQL brief Theme 5).** The htmx integration guide gains a
   "Common patterns" map (auto-refresh → `data-region`, busy indicator →

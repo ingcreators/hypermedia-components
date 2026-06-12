@@ -79,13 +79,66 @@ the `i18n` submodule, which has no side effects.
 | `confirm.cancel` | `Cancel` | cancel button (fallback) |
 | `fieldErrors.unknown` | `Invalid value` | field-errors item with no resolvable key and no text |
 | `shell.toggleNav` | `Toggle navigation` | shell nav-toggle `aria-label` (fallback) |
+| `shell.collapseNav` | `Collapse sidebar` | shell collapse-button `aria-label` (fallback) |
 | `splitter.resize` | `Resize panels` | splitter handle `aria-label` (fallback) |
+| `themeToggle.label` | `Switch color theme` | icon-only theme toggle `aria-label` (fallback) |
 | `toast.label` | `Notifications` | toast region `aria-label` (fallback) |
+
+This table is the complete list — every string a behavior can render comes
+from `DEFAULT_MESSAGES`, so overriding these keys translates the whole kit.
 
 `{name}` placeholders are interpolated from the params the behavior passes —
 `{label}` for `multicombobox.remove`, and `{value}` for the creatable
 `combobox.create` / `multicombobox.create` options.
 
+## Worked example — a Japanese UI
+
+Set every key once at startup; the kit renders no English afterwards:
+
+```js
+import { setMessages } from '@hypermedia-components/core/i18n';
+
+setMessages({
+  'combobox.empty': '一致する項目がありません',
+  'combobox.loading': '読み込み中…',
+  'combobox.error': '選択肢を読み込めませんでした',
+  'combobox.create': '「{value}」を作成',
+  'multicombobox.empty': '一致する項目がありません',
+  'multicombobox.create': '「{value}」を追加',
+  'multicombobox.remove': '{label} を削除',
+  'calendar.label': 'カレンダー',
+  'calendar.prevMonth': '前の月',
+  'calendar.nextMonth': '次の月',
+  'calendar.month': '月',
+  'calendar.year': '年',
+  'confirm.message': '続行しますか？',
+  'confirm.title': '確認',
+  'confirm.confirm': '実行',
+  'confirm.cancel': 'キャンセル',
+  'fieldErrors.unknown': '入力値が正しくありません',
+  'shell.toggleNav': 'ナビゲーションを開閉',
+  'shell.collapseNav': 'サイドバーを折りたたむ',
+  'splitter.resize': 'パネルの幅を変更',
+  'themeToggle.label': 'カラーテーマを切り替え',
+  'toast.label': '通知',
+});
+```
+
+A destructive action then needs **no per-button attributes** for the
+dialog chrome — only the message itself:
+
+```html
+<button class="hc-button" data-variant="error"
+        data-hc-confirm="ユーザー alice を無効化しますか？"
+        data-hx-post="/users/alice/disable"
+        data-hx-trigger="hc:confirmed">
+  ユーザーを無効化
+</button>
+```
+
+The title (確認), the confirm button (実行), and the cancel button
+(キャンセル) come from the catalog; `data-hc-confirm-*` attributes remain
+available as per-element overrides.
 The catalog also resolves **your own keys**: the
 [field-errors recipe](/hypermedia-components/recipes/field-errors/) looks up
 each server-sent `data-message-key` (e.g. `members.email.duplicate`) in the

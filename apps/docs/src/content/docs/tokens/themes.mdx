@@ -168,6 +168,44 @@ The attribute changes only the accent palette. It does **not** touch
 the surface / background / text colors — those are owned by
 [`data-theme`](/hypermedia-components/) (light / dark).
 
+## Light / dark toggle — `installThemeToggle()`
+
+`data-theme` is yours to set — server-side, or with the bundled
+`installThemeToggle()` behavior (in the auto-init
+[`/behaviors`](/hypermedia-components/start/installation/) entry):
+
+```html
+<button type="button" class="hc-button" data-variant="ghost"
+        data-hc-theme-toggle data-persist="hc-theme">
+  <span aria-hidden="true">◐</span>
+</button>
+```
+
+- **The effective theme** is `data-theme` on `<html>` when present,
+  otherwise the OS preference (`prefers-color-scheme`). Clicking flips
+  it and writes `data-theme="light|dark"` explicitly.
+- **`data-persist="<key>"`** (optional) stores the choice in
+  `localStorage` and restores it on install. For a **flash-free**
+  restore, also inline this in `<head>` *before* the stylesheet (the
+  behavior alone runs after first paint):
+
+  ```html
+  <script>
+    try {
+      var t = localStorage.getItem('hc-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  </script>
+  ```
+
+- The toggle reflects state via `aria-pressed` (`"true"` = dark) and —
+  when icon-only — gets a default `aria-label` from the
+  [i18n catalog](/hypermedia-components/fundamentals/i18n/)
+  (`themeToggle.label`; an authored `aria-label` wins). Each change
+  dispatches a bubbling `hc:themechange` event (`detail.theme`).
+- A page that hardcodes `data-theme="dark"` keeps working unchanged —
+  the toggle simply starts from that explicit value.
+
 ## What changes
 
 These tokens are overridden per `data-color` value (under
