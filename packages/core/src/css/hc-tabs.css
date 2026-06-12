@@ -226,12 +226,12 @@
 
   .hc-tabs__scroll[data-dir="start"] {
     inset-inline-start: 0;
-    box-shadow: 4px 0 6px -4px rgb(0, 0, 0, 0.2);
+    box-shadow: 4px 0 6px -4px var(--hc-shadow-edge);
   }
 
   .hc-tabs__scroll[data-dir="end"] {
     inset-inline-end: 0;
-    box-shadow: -4px 0 6px -4px rgb(0, 0, 0, 0.2);
+    box-shadow: -4px 0 6px -4px var(--hc-shadow-edge);
   }
 
   .hc-tabs__scroll::before {

@@ -497,13 +497,16 @@ describe('buildTokensCss', () => {
     // hard-coded rgb() literals, so a dark page gets stronger alphas (a
     // light-tuned shadow is nearly invisible on a dark surface) and full
     // themes can override elevation like any other token.
-    const NAMES = ['sm', 'md', 'lg', 'overlay'];
+    const NAMES = ['sm', 'md', 'lg', 'overlay', 'edge'];
 
     it('emits the scale in the light block', () => {
       const { css } = buildRealTokens();
       const light = css.match(/:root, \[data-theme="light"\] \{[\s\S]*?\n {2}\}/)[0];
       expect(light).toMatch(/--hc-shadow-sm:\s*0 1px 2px rgb\(0, 0, 0, 0\.15\);/);
       expect(light).toMatch(/--hc-shadow-overlay:\s*0 10px 30px rgb\(0, 0, 0, 0\.15\);/);
+      // edge is colour-only: the directional geometry stays in the CSS
+      // that composes it (tabs scroll fades, datagrid frozen columns).
+      expect(light).toMatch(/--hc-shadow-edge:\s*rgb\(0, 0, 0, 0\.2\);/);
       for (const name of NAMES) expect(light).toContain(`--hc-shadow-${name}:`);
     });
 
@@ -520,6 +523,7 @@ describe('buildTokensCss', () => {
         expect(darkValue).not.toBe(lightValue);
       }
       expect(dark).toMatch(/--hc-shadow-overlay:\s*0 10px 30px rgb\(0, 0, 0, 0\.6\);/);
+      expect(dark).toMatch(/--hc-shadow-edge:\s*rgb\(0, 0, 0, 0\.5\);/);
     });
   });
 });
