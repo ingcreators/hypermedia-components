@@ -22,7 +22,7 @@ explicit user approval.
 | --- | --- |
 | `apps/docs/` | Astro Starlight documentation site (`pnpm docs:dev`). |
 | `packages/core/` | `@hypermedia-components/core` — `src/{css,js,macros,tokens}/`, `scripts/`, `test/`, `test-browser/`. |
-| `recipes/<name>/` | `recipe.html` / `expanded.html` / `contract.md` source-format scaffolds (most still empty — see v0.5 plan). |
+| `recipes/<name>/` | `recipe.html` / `expanded.html` / `contract.md` source-format scaffolds. |
 | `examples/<framework>/` | Runnable usage examples (`plain-html/`, `htmx/` — others scaffolded). |
 | `plans/` | Implementation plans and design documents. |
 | `.github/workflows/` | `ci.yml` (lint / unit / docs / browser) + `release.yml`. |
@@ -46,10 +46,15 @@ explicit user approval.
 
 ## Implemented surface
 
-15 components · 242 `--hc-*` vars (3 density layers attribute-toggleable) · 5 behaviors · 2 macros · 9 recipes · 43 docs pages · 5 integration guides · examples for plain-html + htmx · 75 Vitest tests · 41 Playwright tests (incl. 6 axe-core a11y scans).
+As of `0.0.1-alpha.0` (published 2026-06-09): 52 component stylesheets ·
+30+ behaviors · 2 macros · 11 recipe scaffolds · ~100 docs pages
+(components, tokens, fundamentals, integrations, blocks) · runtime axes
+`data-theme` / `data-color` / `data-neutral` / `data-density` / `dir` ·
+i18n message catalog (`setMessages()`) · examples for plain-html + htmx ·
+34 Vitest suites · 71 Playwright suites (incl. axe scans).
 
-For the full list of what is and is not built, see the
-[next-phase plan](plans/hc-next-phase-plan-v0.5-en.md).
+[`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
+counts here go stale — verify before relying on them.
 
 ## Development
 
@@ -99,29 +104,22 @@ All four must be green before merging.
 
 ## Current focus
 
-The next-phase plan ([`plans/hc-next-phase-plan-v0.5-en.md`](plans/hc-next-phase-plan-v0.5-en.md))
-groups remaining work into four tracks. Track 1 (release readiness)
-progress so far:
+`0.0.1-alpha.0` shipped (npm, 2026-06-09) and the docs site is deployed
+(`hypermedia-components.ichimura-12c.workers.dev`). Current work is the
+**TesseraQL improvement brief** — requests from the first downstream
+consumer, addressed as one PR per theme:
 
-- **§3.1** types — resolved. `packages/core` emits `.d.ts` from JSDoc
-  via `tsc --emitDeclarationOnly --allowJs`; the smoke test runs in
-  the unit CI job.
-- **§3.2** release workflow dry-run — pending.
-- **§3.3** Cloudflare deployment — repo-side prep merged
-  ([`wrangler.jsonc`](wrangler.jsonc), [`worker.mjs`](worker.mjs),
-  [`apps/docs/public/_headers`](apps/docs/public/_headers),
-  [`DEPLOYMENT.md`](DEPLOYMENT.md)). Uses the unified Workers + Static
-  Assets flow (Cloudflare merged Pages into Workers). The Worker still
-  has to be provisioned in the dashboard.
-- **§3.4** cut `0.0.1-alpha.0` — pending §3.2 and §3.3 dashboard work.
+| Doc | Purpose |
+| --- | --- |
+| [`plans/tesseraql-2026-06-brief.md`](plans/tesseraql-2026-06-brief.md) | The brief as received (7 themes; markup-as-wire-contract framing). |
+| [`plans/tesseraql-2026-06-response-en.md`](plans/tesseraql-2026-06-response-en.md) | Our response: what already exists in alpha.0 vs. what each theme PR adds, and the planned `0.1.0` graduation. |
 
-Track 2 (MVP polish) progress:
+Theme order: 7a versioning policy → 1 field-errors contract +
+`installFieldErrors()` → 2 form-composition docs → 3 status modifiers →
+4 chip / KV table / shell nav → 5 htmx patterns → 6 i18n + theme toggle
+→ 7b cut `0.1.0` (after themes 1–3 merge).
 
-- **§4.1** `hc-checkbox` / `hc-radio` — merged. Both wrap a native
-  input via `appearance: none`; variants `default / success / danger`;
-  Playwright covers Space toggle, arrow-key radio navigation, label
-  click, variants, `aria-invalid`, disabled.
-- **§4.2** Density modes — merged. `data-density="comfortable|compact|dense"`
-  attribute swaps `--hc-control-height` / `--hc-control-padding-x`;
-  button and input pick it up via `var()` indirection without
-  per-component CSS changes.
+[`VERSIONING.md`](VERSIONING.md) defines the public API surface
+(class names, data attributes, custom properties, exports, events) and
+the deprecation-alias rule — renames need aliases now that alpha.0 has
+shipped; the pre-alpha "no back-compat" rule is over.
