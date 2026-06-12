@@ -22,6 +22,28 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`field-errors` recipe + `installFieldErrors()` behavior — a wire
+  contract for server-side validation errors.** The server answers a
+  failed submission (e.g. a 422) with a documented `hc-alert` fragment
+  (`data-hc-field-errors`, `.hc-alert__errors` >
+  `.hc-alert__error[data-field][data-code][data-message-key]`); the new
+  behavior (in the auto-init `/behaviors` bundle) distributes each item
+  to the field its `data-field` names — message into the field's
+  `.hc-field__error` (created next to a bare control when there is no
+  `hc-field`), `aria-invalid` + `aria-describedby` on the control,
+  `data-invalid` on the field, first invalid control focused — and
+  clears it on edit / resubmit / the next fragment. Items naming no
+  known control stay visible in the summary
+  (`data-distributed="all|partial|none"` on the alert). Message keys
+  resolve through the existing i18n catalog (`setMessages()`), with the
+  item text as fallback — new `hasMessage()` export and
+  `fieldErrors.unknown` default. Native constraint validation
+  (`installValidation()`) outranks a server error on the same control;
+  the shared ARIA plumbing moved to an internal `field-error-core.js`.
+  Designed for (and with) TesseraQL — improvement-brief Theme 1.
+  New Recipes → Field errors docs page (live demo), Field / Alert /
+  i18n docs sections, `recipes/field-errors/` contract scaffold,
+  16 Vitest + 5 Playwright tests (incl. axe).
 - **Versioning policy ([`VERSIONING.md`](VERSIONING.md) + Reference →
   Versioning & stability docs page).** Defines the public API surface
   the way template/codegen consumers experience it — CSS class names,
