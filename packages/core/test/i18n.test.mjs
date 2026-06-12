@@ -2,6 +2,7 @@ import './dom-setup.mjs';
 import { describe, it, expect, afterEach } from 'vitest';
 import { t, setMessages, resetMessages, getMessages, DEFAULT_MESSAGES } from '../src/js/i18n.js';
 import { installCombobox } from '../src/js/combobox.js';
+import { installConfirm } from '../src/js/confirm.js';
 
 // jsdom shims for popover (combobox integration case).
 if (!HTMLElement.prototype.showPopover) {
@@ -100,5 +101,43 @@ describe('i18n flows into behaviors', () => {
     filterToEmpty();
     expect(document.querySelector('.hc-combobox__empty').textContent).toBe('No countries');
     uninstall();
+  });
+});
+
+describe('catalog state is shared across module copies (#216)', () => {
+  // hc.min.js and hc.behaviors.min.js each inline their own copy of
+  // i18n.js. The query suffix makes Vite instantiate the module a second
+  // time, reproducing that layout: `setMessages` from the second copy must
+  // still reach behaviors that resolved the first.
+  it('setMessages from a second module instance reaches installed behaviors', async () => {
+    const secondCopy = await import('../src/js/i18n.js?copy=hc.min.js');
+    expect(secondCopy.setMessages).not.toBe(setMessages);
+
+    const restore = secondCopy.setMessages({
+      'confirm.cancel': 'キャンセル',
+      'confirm.confirm': '実行',
+    });
+    const uninstall = installConfirm();
+    try {
+      const btn = document.createElement('button');
+      btn.setAttribute('data-hc-confirm', '削除しますか?');
+      document.body.appendChild(btn);
+      btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+      const dialog = document.querySelector('.hc-confirm-dialog');
+      expect(dialog.querySelector('[data-hc-confirm-cancel]').textContent).toBe('キャンセル');
+      expect(dialog.querySelector('[data-hc-confirm-ok]').textContent).toBe('実行');
+    } finally {
+      uninstall();
+      restore();
+    }
+  });
+
+  it('the restore function returned by one copy is visible to the other', async () => {
+    const secondCopy = await import('../src/js/i18n.js?copy=restore');
+    const restore = setMessages({ 'toast.label': '通知' });
+    expect(secondCopy.t('toast.label')).toBe('通知');
+    restore();
+    expect(secondCopy.t('toast.label')).toBe('Notifications');
   });
 });
