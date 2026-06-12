@@ -17,8 +17,11 @@ test.describe('hc-spinner', () => {
   });
 
   test('data-size changes the diameter (sm < default < lg)', async ({ page }) => {
+    // offsetWidth, not getBoundingClientRect: the spinner is mid-rotation
+    // when sampled, and a rotated square's bounding box inflates by up to
+    // √2 — enough for a sm spinner to measure wider than the default one.
     const width = (testId) =>
-      page.getByTestId(testId).evaluate((el) => el.getBoundingClientRect().width);
+      page.getByTestId(testId).evaluate((el) => el.offsetWidth);
     const sm = await width('spinner-sm');
     const md = await width('spinner-default');
     const lg = await width('spinner-lg');
