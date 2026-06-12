@@ -1,0 +1,25 @@
+name: Feature request
+description: Propose a new component, behavior, recipe, or token.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you building, and what does the kit currently make hard? Concrete markup or a screenshot of the target UI helps.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed shape
+      description: |
+        If you have one — the markup you would want to write. Keep HC's principles in mind:
+        native-first / Light DOM, state in HTML attributes, htmx owns the network, semantic classes + `data-variant`/`data-size`.
+      render: html
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Workaround today
+      description: How are you solving it now (custom CSS, another library, copy-pasted recipe)?
