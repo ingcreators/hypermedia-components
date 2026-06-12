@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`.hc-status` utility — semantic status colors on arbitrary
+  elements.** Applies the theme-aware status palette
+  (`--hc-color-status-{neutral,info,success,warning,error}-*`, the same
+  tokens behind alert/badge/toast variants) to a table cell, a whole
+  row, or plain text: `.hc-status` + `data-variant` colours the text,
+  `data-fill` adds the paired tinted background (on a `<tr>` it tints
+  the row and wins over `hc-table`'s hover background — utilities layer
+  ordering). Values re-resolve under `[data-theme="dark"]`, so
+  server-computed status classes need no raw hex or hand-written dark
+  overrides downstream (TesseraQL brief Theme 3). New Tokens → Status
+  colors docs page; 4 Playwright tests (incl. axe colour-contrast in
+  both themes).
 - **Field → Composing a form docs.** A complete worked form — label
   association (`for`/`id`), the automatic required asterisk, help text,
   the error slot, a `fieldset.hc-field` radio group, and a

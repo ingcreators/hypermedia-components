@@ -108,4 +108,46 @@
     flex: none;
     vertical-align: -0.125em;
   }
+
+  /* Status emphasis for arbitrary elements — a table cell, a whole row, a
+     line of text — using the theme-aware semantic status palette without
+     reaching for a component. The variant axis is the usual data-variant
+     (info | success | warning | error; omitted = neutral); the values
+     re-resolve under [data-theme="dark"] automatically.
+
+     `.hc-status` colours the text. Add `data-fill` for the matching
+     tinted background — fg and bg are the designed pair, so contrast
+     holds in both themes. On a <tr> inside hc-table the fill tints the
+     row (this layer comes after components, so the tint also wins over
+     the table's row-hover background). */
+  .hc-status {
+    --hc-status-fg: var(--hc-color-status-neutral-fg);
+    --hc-status-bg: var(--hc-color-status-neutral-bg);
+
+    color: var(--hc-status-fg);
+  }
+
+  .hc-status[data-variant="info"] {
+    --hc-status-fg: var(--hc-color-status-info-fg);
+    --hc-status-bg: var(--hc-color-status-info-bg);
+  }
+
+  .hc-status[data-variant="success"] {
+    --hc-status-fg: var(--hc-color-status-success-fg);
+    --hc-status-bg: var(--hc-color-status-success-bg);
+  }
+
+  .hc-status[data-variant="warning"] {
+    --hc-status-fg: var(--hc-color-status-warning-fg);
+    --hc-status-bg: var(--hc-color-status-warning-bg);
+  }
+
+  .hc-status[data-variant="error"] {
+    --hc-status-fg: var(--hc-color-status-error-fg);
+    --hc-status-bg: var(--hc-color-status-error-bg);
+  }
+
+  .hc-status[data-fill] {
+    background: var(--hc-status-bg);
+  }
 }
