@@ -1,9 +1,24 @@
 # Hypermedia Components — Docs Polish Plan v0.1
 
-Status: **proposed** · Owner: docs · Scope: `apps/docs/` only (no
-`packages/core` component changes) · Approval: this document is the
-sign-off gate for the IA changes it contains (P0-3 sidebar grouping,
-P1-1 component gallery) per `CLAUDE.md` → *Authoritative plans*.
+Status: **shipped** (PRs #138–#183; verified item-by-item against the
+built docs on 2026-06-12 as part of the
+[v0.8 maintenance plan](./hc-maintenance-quality-plan-v0.8-en.md) R3) ·
+Owner: docs · Scope: `apps/docs/` only (no `packages/core` component
+changes) · Approval: this document was the sign-off gate for the IA
+changes it contains (P0-3 sidebar grouping, P1-1 component gallery) per
+`CLAUDE.md` → *Authoritative plans*.
+
+Verification (2026-06-12): P0-1 `Demo.astro` shipped and adopted ·
+P0-2 preview canvas (`preview.css` 4 → 159 lines, `.hc-preview--*`
+helpers, inline preview styles removed) · P0-3 grouped Components
+sidebar (Actions / Forms / Overlays / Navigation / Data display /
+Feedback / Layout in `astro.config.mjs`) · P0-4 landing showcase
+("Standard HTML, composed" live section) · P1-1 `ComponentGallery.astro`
+on `components/index.mdx` · P1-2 `<details>` API-reference sections on
+50 component pages · P2-2 Expressive Code `defaultProps.wrap` ·
+P2-1 (typography / rhythm) has no concrete outstanding ask — fold any
+future tuning into normal docs work. **No residual items**; nothing
+moved to the v0.8 backlog.
 
 ## 1. Why
 
