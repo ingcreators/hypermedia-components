@@ -22,6 +22,7 @@ const FILES = [
   // Behaviors and main entry.
   ['src/js/index.js',         'index.js'],
   ['src/js/i18n.js',          'i18n.js'],
+  ['src/js/locales/ja.js',    'locales/ja.js'],
   ['src/js/anchor-fallback.js', 'anchor-fallback.js'],
   ['src/js/validation.js',    'validation.js'],
   ['src/js/theme-toggle.js',  'theme-toggle.js'],
@@ -81,6 +82,7 @@ function distToTypesPath(distRel) {
 async function main() {
   await mkdir(distDir, { recursive: true });
   await mkdir(join(distDir, 'macros'), { recursive: true });
+  await mkdir(join(distDir, 'locales'), { recursive: true });
 
   let jsCopied = 0;
   let dtsCopied = 0;

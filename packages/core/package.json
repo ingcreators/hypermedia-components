@@ -29,6 +29,10 @@
       "types": "./dist/i18n.d.ts",
       "import": "./dist/i18n.js"
     },
+    "./locales/*": {
+      "types": "./dist/locales/*.d.ts",
+      "import": "./dist/locales/*.js"
+    },
     "./css": "./dist/hc.css",
     "./css/min": "./dist/hc.min.css",
     "./css/core": "./dist/hc.core.css",

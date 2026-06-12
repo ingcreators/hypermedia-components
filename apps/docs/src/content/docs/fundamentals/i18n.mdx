@@ -38,6 +38,26 @@ installCombobox();
 installConfirm();
 ```
 
+### Locale packs
+
+You don't have to translate the built-in strings by hand: official locale
+packs ship with the package as importable modules, ready to pass straight
+to `setMessages()`. Japanese is available today:
+
+```js
+import { setMessages } from '@hypermedia-components/core/i18n';
+import ja from '@hypermedia-components/core/locales/ja';
+
+setMessages(ja);
+
+// App-specific wording layers on top — later merges win:
+setMessages({ 'confirm.confirm': 'OK' });
+```
+
+Every pack covers **every** catalog key: the kit's own CI fails when a
+behavior adds a key a shipped pack doesn't translate, so packs can't
+silently drift behind the catalog across upgrades.
+
 ### Ordering with the auto-init bundle
 
 The zero-config [`/behaviors`](/hypermedia-components/start/installation/) entry
@@ -87,41 +107,27 @@ the `i18n` submodule, which has no side effects.
 This table is the complete list — every string a behavior can render comes
 from `DEFAULT_MESSAGES`, so overriding these keys translates the whole kit.
 
+The key inventory is part of the public API surface (see `VERSIONING.md`
+in the repository): `DEFAULT_MESSAGES` is exported precisely so you can
+enumerate the keys your installed version defines. If you maintain your
+own catalog instead of using a locale pack, diff it against
+`Object.keys(DEFAULT_MESSAGES)` in CI to catch keys a new version added —
+the failure mode is an English fallback, which nobody notices by eye.
+
 `{name}` placeholders are interpolated from the params the behavior passes —
 `{label}` for `multicombobox.remove`, and `{value}` for the creatable
 `combobox.create` / `multicombobox.create` options.
 
 ## Worked example — a Japanese UI
 
-Set every key once at startup; the kit renders no English afterwards:
+Set the catalog once at startup from the Japanese locale pack — it covers
+every key, so the kit renders no English afterwards:
 
 ```js
 import { setMessages } from '@hypermedia-components/core/i18n';
+import ja from '@hypermedia-components/core/locales/ja';
 
-setMessages({
-  'combobox.empty': '一致する項目がありません',
-  'combobox.loading': '読み込み中…',
-  'combobox.error': '選択肢を読み込めませんでした',
-  'combobox.create': '「{value}」を作成',
-  'multicombobox.empty': '一致する項目がありません',
-  'multicombobox.create': '「{value}」を追加',
-  'multicombobox.remove': '{label} を削除',
-  'calendar.label': 'カレンダー',
-  'calendar.prevMonth': '前の月',
-  'calendar.nextMonth': '次の月',
-  'calendar.month': '月',
-  'calendar.year': '年',
-  'confirm.message': '続行しますか？',
-  'confirm.title': '確認',
-  'confirm.confirm': '実行',
-  'confirm.cancel': 'キャンセル',
-  'fieldErrors.unknown': '入力値が正しくありません',
-  'shell.toggleNav': 'ナビゲーションを開閉',
-  'shell.collapseNav': 'サイドバーを折りたたむ',
-  'splitter.resize': 'パネルの幅を変更',
-  'themeToggle.label': 'カラーテーマを切り替え',
-  'toast.label': '通知',
-});
+setMessages(ja);
 ```
 
 A destructive action then needs **no per-button attributes** for the

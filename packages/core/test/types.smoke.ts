@@ -72,6 +72,11 @@ import {
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
 
+import ja from '@hypermedia-components/core/locales/ja';
+
+// Locale packs are flat string maps, directly consumable by setMessages().
+const jaPack: Readonly<Record<string, string>> = ja;
+
 // Each installer accepts an optional Document and returns a no-arg
 // uninstaller. Calling with no argument and with a Document must both
 // type-check.
@@ -141,4 +146,4 @@ const macroClasses: Array<typeof HTMLElement> = [HcConfirmAction, HcLiveSearch];
 
 // Touch the values so unused-variable lint rules stay quiet across
 // strictness levels. None of this code is ever executed.
-export const __smoke = { uninstallers, v, macroClasses };
+export const __smoke = { uninstallers, v, macroClasses, jaPack };
