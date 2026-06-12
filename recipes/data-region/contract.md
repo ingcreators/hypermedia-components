@@ -20,3 +20,6 @@ HX-Trigger: {"items:changed":{}}
 ## Server response
 
 Return the complete `<section>` element (same id, same class, same attributes) so the swap is idempotent. Include an empty state when there are no rows.
+
+Status: `200 OK` with the fragment. A non-2xx response is not swapped
+(htmx ≥ 2 default), so the region keeps its previous rendering.

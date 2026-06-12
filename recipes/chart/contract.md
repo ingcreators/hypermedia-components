@@ -98,6 +98,10 @@ if you wrap fragments in a layout.
 `installChart` listens for `htmx:load`, so a chart swapped into the page
 renders automatically — no per-swap JavaScript.
 
+Status: `200 OK` with the fragment for htmx requests *and* for the
+full-page (no-JavaScript) request. A non-2xx response is not swapped
+(htmx ≥ 2 default), so the previous chart stays.
+
 ## Optional: embedded JSON source
 
 For many series or config-heavy charts you may prefer embedding the data

@@ -42,6 +42,10 @@ resizable/editable columns). Frozen-column `--hc-datagrid-left` offsets and
 resized widths are re-applied automatically after the swap — the server
 does not need to compute them per row.
 
+Status: `200 OK` with the rows (and the out-of-band pager/status
+fragments below). A non-2xx response is not swapped (htmx ≥ 2 default),
+so the current page stays — surface failures via an `HX-Trigger` toast.
+
 ### Updating the pager and status (out-of-band)
 
 Return the new pager and status as out-of-band fragments in the same
