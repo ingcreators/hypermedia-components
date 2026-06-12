@@ -8,6 +8,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe('form validation', () => {
+  test('clicking the label focuses its control (native for/id association)', async ({ page }) => {
+    await page.getByTestId('email-label').click();
+    await expect(page.getByTestId('email')).toBeFocused();
+  });
+
   test('a required field shows an asterisk on its label (CSS)', async ({ page }) => {
     const content = await page
       .getByTestId('email-label')

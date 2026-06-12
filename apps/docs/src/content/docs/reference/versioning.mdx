@@ -1,0 +1,58 @@
+---
+title: Versioning & stability
+description: What counts as the public API — class names, data attributes, custom properties, exports, events — and how breaking changes and deprecations are handled.
+---
+
+Hypermedia Components follows [Semantic Versioning](https://semver.org/).
+The canonical policy lives in
+[`VERSIONING.md`](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)
+in the repository; this page is the summary.
+
+Consumers of this kit emit our markup from server templates and code
+generators, so **the markup itself is a wire contract**. A renamed
+class or attribute breaks a consumer's build output, not just its
+look — and is versioned accordingly.
+
+## What is public API
+
+| Surface | Examples |
+| --- | --- |
+| CSS class names | `hc-button`, `hc-card__header`, `hc-field__error` |
+| Data attributes (config + reflected state) | `data-variant`, `data-hc-confirm`, `data-invalid` |
+| CSS custom properties & token paths | `--hc-button-primary-bg`, `tokens/semantic.tokens.json` |
+| JavaScript named exports & signatures | `installConfirm()`, `setMessages()` |
+| Events and their `detail` shapes | `hc:confirmed`, `hc:toast` |
+| i18n message keys | `confirm.cancel`, `combobox.empty` |
+| Package export paths | `./css`, `./behaviors`, `./css/button` |
+| Recipe server contracts | `recipes/<name>/contract.md` fragments |
+
+**Not** public API: DOM that behaviors create internally without
+documenting it as a hook, the CSS declarations behind a documented
+class, anything marked experimental, and the docs site itself.
+
+When in doubt: if a docs page or contract file tells you to write it,
+it is API.
+
+## Semver during 0.x
+
+- **Patch** — fixes and strictly additive changes only.
+- **Minor** — may contain breaking changes; every one is flagged in
+  the [CHANGELOG](https://github.com/ingcreators/hypermedia-components/blob/main/CHANGELOG.md)
+  and, where feasible, ships behind a deprecation alias first.
+- **Pre-releases** (`-alpha.N`, `-beta.N`) — no stability promise;
+  published under the matching npm dist-tag, never `latest`.
+
+From `1.0.0`, standard semver: breaking changes only in majors.
+
+## Deprecations
+
+A rename keeps the old name working as an alias (duplicated selector,
+re-exported function, forwarded attribute/event) for **at least one
+minor version**, listed under *Deprecated* in the CHANGELOG with its
+replacement, before removal. Where an alias is not feasible, the
+CHANGELOG entry carries an explicit migration note.
+
+## Related
+
+- [Bundle size & imports](/hypermedia-components/reference/size/)
+- [Naming](/hypermedia-components/fundamentals/naming/)

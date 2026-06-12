@@ -37,6 +37,7 @@ import { installShell } from './shell.js';
 import { installDatagrid } from './datagrid.js';
 import { installValidation } from './validation.js';
 import { installThemeToggle } from './theme-toggle.js';
+import { installFieldErrors } from './field-errors.js';
 
 function init() {
   installConfirm();
@@ -69,6 +70,7 @@ function init() {
   installDatagrid();
   installValidation();
   installThemeToggle();
+  installFieldErrors();
 }
 
 if (typeof document !== 'undefined') {
@@ -110,9 +112,10 @@ export {
   installDatagrid,
   installValidation,
   installThemeToggle,
+  installFieldErrors,
 };
 
 // i18n — set the locale before this module's auto-init runs (e.g. inline
 // before the script that imports it), or import the named installers from
 // the main entry for full control over ordering.
-export { setMessages, resetMessages, getMessages, DEFAULT_MESSAGES } from './i18n.js';
+export { setMessages, resetMessages, getMessages, hasMessage, DEFAULT_MESSAGES } from './i18n.js';

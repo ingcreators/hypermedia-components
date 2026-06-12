@@ -77,6 +77,7 @@ the `i18n` submodule, which has no side effects.
 | `confirm.title` | `Confirm` | confirm dialog title (fallback) |
 | `confirm.confirm` | `Confirm` | confirm button (fallback) |
 | `confirm.cancel` | `Cancel` | cancel button (fallback) |
+| `fieldErrors.unknown` | `Invalid value` | field-errors item with no resolvable key and no text |
 | `shell.toggleNav` | `Toggle navigation` | shell nav-toggle `aria-label` (fallback) |
 | `shell.collapseNav` | `Collapse sidebar` | shell collapse-button `aria-label` (fallback) |
 | `splitter.resize` | `Resize panels` | splitter handle `aria-label` (fallback) |
@@ -114,6 +115,7 @@ setMessages({
   'confirm.title': '確認',
   'confirm.confirm': '実行',
   'confirm.cancel': 'キャンセル',
+  'fieldErrors.unknown': '入力値が正しくありません',
   'shell.toggleNav': 'ナビゲーションを開閉',
   'shell.collapseNav': 'サイドバーを折りたたむ',
   'splitter.resize': 'パネルの幅を変更',
@@ -137,6 +139,10 @@ dialog chrome — only the message itself:
 The title (確認), the confirm button (実行), and the cancel button
 (キャンセル) come from the catalog; `data-hc-confirm-*` attributes remain
 available as per-element overrides.
+The catalog also resolves **your own keys**: the
+[field-errors recipe](/hypermedia-components/recipes/field-errors/) looks up
+each server-sent `data-message-key` (e.g. `members.email.duplicate`) in the
+same catalog, with `{field}` / `{code}` available for interpolation.
 
 ## Per-element overrides (server-side localization)
 

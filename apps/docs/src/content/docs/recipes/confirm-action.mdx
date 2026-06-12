@@ -186,6 +186,27 @@ HTML. If you need to step outside the macro's attribute surface
 (custom button content, an extra wrapper class, …), copy the
 expanded HTML and edit it directly.
 
+## Interaction with htmx — the specification
+
+The contract between the confirm gate and htmx, spelled out (these are
+browser-tested guarantees, not implementation details):
+
+- The click is intercepted in the **capture phase** with
+  `preventDefault` + `stopPropagation`, so htmx (and any other click
+  handler on the element) never observes the original activation.
+- `data-hx-trigger="hc:confirmed"` is therefore **required**: only the
+  `hc:confirmed` event — dispatched on the trigger element when the
+  user confirms — starts the request. An element with `data-hc-confirm`
+  but a default click trigger never fires its htmx request.
+- **Cancel dispatches nothing.** No request, no event.
+- Do **not** combine with htmx's own `hx-confirm` — htmx never sees
+  the activation, so `hx-confirm` never runs; you'd be writing dead
+  attributes. Use one mechanism per element.
+- The interception is delegated at the document level, so triggers
+  swapped in by htmx are gated without re-initialization.
+
+See also [htmx integration → Confirm gating](/hypermedia-components/integrations/htmx/#confirm-gating-specification).
+
 ## Hyperscript alternative
 
 If you prefer to keep the orchestration next to the markup, the same

@@ -37,6 +37,7 @@ export const DEFAULT_MESSAGES = Object.freeze({
   'confirm.title': 'Confirm',
   'confirm.confirm': 'Confirm',
   'confirm.cancel': 'Cancel',
+  'fieldErrors.unknown': 'Invalid value',
   'shell.toggleNav': 'Toggle navigation',
   'shell.collapseNav': 'Collapse sidebar',
   'splitter.resize': 'Resize panels',
@@ -77,6 +78,19 @@ export function resetMessages() {
  */
 export function getMessages() {
   return { ...messages };
+}
+
+/**
+ * Whether the catalog can resolve `key` (built-in default or a
+ * `setMessages()` override) — as opposed to `t()` falling back to the key
+ * itself. Lets callers distinguish "translated" from "unknown key" (e.g.
+ * `installFieldErrors` resolving server message keys).
+ *
+ * @param {string} key
+ * @returns {boolean}
+ */
+export function hasMessage(key) {
+  return messages[key] != null || DEFAULT_MESSAGES[key] != null;
 }
 
 /**

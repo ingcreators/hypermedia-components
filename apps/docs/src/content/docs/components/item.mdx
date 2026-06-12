@@ -95,6 +95,14 @@ on a `role="option"` inside `role="listbox"`, not on a bare button:
 </ul>
 ```
 
+In a **navigation list**, the current page's link takes
+`aria-current="page"` and gets the same selected treatment — see
+[Shell → Sidebar navigation items](/hypermedia-components/components/shell/#sidebar-navigation-items):
+
+```html
+<a class="hc-item" href="/studio" aria-current="page">…</a>
+```
+
 ## Variants
 
 `data-variant="error"` tints the title and media for a destructive row.

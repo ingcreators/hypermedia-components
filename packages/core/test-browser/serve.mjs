@@ -13,10 +13,14 @@ import { dirname, join, normalize, resolve, extname } from 'node:path';
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, 'fixtures');
 const coreDist = resolve(here, '..', 'dist');
+const repoRoot = resolve(here, '..', '..', '..');
 
 const PORT = Number(process.env.PORT) || 4400;
 
 const ASSET_ALIASES = new Map([
+  // Real htmx (the copy vendored for examples/htmx, pinned 2.0.4) so
+  // integration fixtures can exercise actual htmx requests offline.
+  ['/htmx.min.js',     join(repoRoot, 'examples', 'htmx', 'vendor', 'htmx.min.js')],
   ['/hc.css',          join(coreDist, 'hc.css')],
   ['/hc.tokens.css',   join(coreDist, 'hc.tokens.css')],
   ['/hc.htmx.css',     join(coreDist, 'hc.htmx.css')],
@@ -25,6 +29,8 @@ const ASSET_ALIASES = new Map([
   ['/anchor-fallback.js', join(coreDist, 'anchor-fallback.js')],
   ['/validation.js',    join(coreDist, 'validation.js')],
   ['/theme-toggle.js',  join(coreDist, 'theme-toggle.js')],
+  ['/field-error-core.js', join(coreDist, 'field-error-core.js')],
+  ['/field-errors.js',  join(coreDist, 'field-errors.js')],
   ['/confirm.js',       join(coreDist, 'confirm.js')],
   ['/toast.js',         join(coreDist, 'toast.js')],
   ['/close-dialog.js',  join(coreDist, 'close-dialog.js')],

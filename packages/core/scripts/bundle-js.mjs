@@ -25,6 +25,8 @@ const FILES = [
   ['src/js/anchor-fallback.js', 'anchor-fallback.js'],
   ['src/js/validation.js',    'validation.js'],
   ['src/js/theme-toggle.js',  'theme-toggle.js'],
+  ['src/js/field-error-core.js', 'field-error-core.js'],
+  ['src/js/field-errors.js',  'field-errors.js'],
   ['src/js/confirm.js',       'confirm.js'],
   ['src/js/toast.js',         'toast.js'],
   ['src/js/close-dialog.js',  'close-dialog.js'],

@@ -34,6 +34,7 @@ export { installShell } from './shell.js';
 export { installDatagrid } from './datagrid.js';
 export { installValidation } from './validation.js';
 export { installThemeToggle } from './theme-toggle.js';
+export { installFieldErrors } from './field-errors.js';
 
 // installChart is opt-in (not part of the auto-init `behaviors` entry): it
 // needs Observable Plot, an optional peer dependency you load yourself.
@@ -41,6 +42,6 @@ export { installChart } from './chart.js';
 
 // i18n — translate the strings behaviors inject (created nodes, default
 // ARIA labels). Call setMessages() once at startup, before installing.
-export { setMessages, resetMessages, getMessages, DEFAULT_MESSAGES } from './i18n.js';
+export { setMessages, resetMessages, getMessages, hasMessage, DEFAULT_MESSAGES } from './i18n.js';
 
 export const version = '0.0.0';

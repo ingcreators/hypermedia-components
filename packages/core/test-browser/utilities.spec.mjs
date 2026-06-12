@@ -114,6 +114,13 @@ test.describe('layout utilities', () => {
     ).toBeAttached();
   });
 
+  test('.hc-spacer pushes the following content to the inline end', async ({ page }) => {
+    const row = await page.getByTestId('util-spacer-row').boundingBox();
+    const end = await page.getByTestId('util-spacer-end').boundingBox();
+    // The trailing item hugs the row's end edge (within the 8px gap).
+    expect(row.x + row.width - (end.x + end.width)).toBeLessThanOrEqual(1);
+  });
+
   test('.hc-hidden is removed from layout', async ({ page }) => {
     const display = await page
       .getByTestId('util-hidden')

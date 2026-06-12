@@ -38,6 +38,27 @@
     padding-block: var(--hc-space-1);
   }
 
+  /* Key-value variant — a two-column definition table for detail views:
+   *
+   *   <table class="hc-table" data-variant="kv">
+   *     <tbody>
+   *       <tr><th scope="row">Realm id</th><td>local</td></tr>
+   *       <tr><th scope="row">Created</th><td>2026-06-01</td></tr>
+   *     </tbody>
+   *   </table>
+   *
+   * Keys are row headers (<th scope="row">) on a fixed inline size with
+   * muted text; values keep the body styling. No <thead> needed. */
+  .hc-table[data-variant="kv"] tbody th {
+    inline-size: var(--hc-table-kv-key-width);
+    color: var(--hc-table-kv-key-fg);
+    font-weight: var(--hc-table-header-weight);
+  }
+
+  .hc-table[data-variant="kv"] tbody tr:hover {
+    background: none;
+  }
+
   /* Horizontal-scroll wrapper for wide tables on narrow viewports. A
    * data table has no intrinsic way to shrink below its columns' content
    * width, so wrap it in this element to confine the overflow to a

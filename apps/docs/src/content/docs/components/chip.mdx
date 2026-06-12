@@ -1,0 +1,103 @@
+---
+title: Chip
+description: A quiet, pill-shaped token for facts and attributes — capabilities, tags, applied filters — with a wrapping list container.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-chip` is a small pill for **facts and attributes**: capabilities on
+a role, tags on a record, applied filters above a list. It is
+deliberately quiet — neutral surface and border, no variant axis. Pure
+CSS, no behavior.
+
+## Basic HTML
+
+<Demo>
+  <ul class="hc-chips">
+    <li class="hc-chip">read:members</li>
+    <li class="hc-chip">write:members</li>
+    <li class="hc-chip">admin:realm</li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-chips">
+    <li class="hc-chip">read:members</li>
+    <li class="hc-chip">write:members</li>
+    <li class="hc-chip">admin:realm</li>
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
+`.hc-chips` strips the list chrome and wraps chips on a consistent gap.
+Keeping the `<ul>`/`<li>` structure makes the set announceable as a
+list ("3 items"). A standalone chip works on any inline element:
+
+```html
+<span class="hc-chip">beta</span>
+```
+
+## Chip, badge, or status?
+
+| Use | For |
+| --- | --- |
+| `hc-chip` | Neutral facts/attributes, usually several at once (capabilities, tags). |
+| [`hc-badge`](/hypermedia-components/components/badge/) | A single **status** label with semantic color (`data-variant`). |
+| [`.hc-status`](/hypermedia-components/tokens/status/) | Status color on text that isn't a pill (table cells, rows). |
+| `hc-multicombobox` tags | Chips with a remove control, managed by the input. |
+
+## With an icon
+
+A chip pairs with the [`.hc-icon`](/hypermedia-components/fundamentals/icons/)
+helper for a leading glyph (the built-in gap handles the spacing):
+
+```html
+<li class="hc-chip">
+  <svg class="hc-icon" aria-hidden="true">…</svg>
+  read:members
+</li>
+```
+
+## Accessibility
+
+- Chips are static text — no roles needed beyond the list semantics of
+  `.hc-chips`.
+- Interactive "chips" (removable, toggleable) are a different pattern:
+  use a real `<button>` (e.g. inside `hc-multicombobox`) or
+  `hc-toggle-group`, not a click handler on a chip.
+
+## Theming tokens
+
+| Token path        | Purpose                  |
+| ----------------- | ------------------------ |
+| `chip.bg`         | Background.              |
+| `chip.fg`         | Text color.              |
+| `chip.border`     | Border color.            |
+| `chip.radius`     | Pill radius.             |
+| `chip.padding-x` / `chip.padding-y` | Padding. |
+| `chip.font-size`  | Font size.               |
+| `chip.gap`        | Gap between chips in `.hc-chips`. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-chip-bg | -fg | -border
+--hc-chip-radius
+--hc-chip-padding-x | -padding-y
+--hc-chip-font-size
+--hc-chip-gap
+```
+
+</details>
+
+## Related
+
+- [Badge](/hypermedia-components/components/badge/) — the status pill.
+- [Multi-combobox](/hypermedia-components/components/multicombobox/) —
+  removable tag input.
