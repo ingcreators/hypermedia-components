@@ -2,7 +2,9 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    # v* releases @hypermedia-components/core; cli-v* releases
+    # @hypermedia-components/cli. Versions are independent.
+    tags: ['v*', 'cli-v*']
 
 jobs:
   release:
@@ -29,20 +31,37 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r build
 
-      # Derive the npm dist-tag from the package version so pre-releases never
-      # move `latest`: 0.0.1-alpha.0 -> alpha, 0.0.1-beta.2 -> beta,
-      # 0.0.1-rc.0 -> rc, and a plain 0.0.1 -> latest.
+      # Route the tag to its package, require the tag to match the
+      # package version, then derive the npm dist-tag from the version so
+      # pre-releases never move `latest`: 0.0.1-alpha.0 -> alpha,
+      # 0.0.1-beta.2 -> beta, 0.0.1-rc.0 -> rc, plain 0.0.1 -> latest.
       - name: Publish to npm
         run: |
-          VERSION=$(node -p "require('./packages/core/package.json').version")
+          if [[ "$GITHUB_REF_NAME" == cli-v* ]]; then
+            FILTER="@hypermedia-components/cli"
+            DIR="packages/cli"
+          else
+            FILTER="@hypermedia-components/core"
+            DIR="packages/core"
+          fi
+          VERSION=$(node -p "require('./$DIR/package.json').version")
+          EXPECTED="${GITHUB_REF_NAME#cli-}"
+          EXPECTED="${EXPECTED#v}"
+          if [[ "$VERSION" != "$EXPECTED" ]]; then
+            echo "Tag $GITHUB_REF_NAME does not match $DIR version $VERSION" >&2
+            exit 1
+          fi
           if [[ "$VERSION" == *-* ]]; then
             PRERELEASE="${VERSION#*-}"   # strip "<x.y.z>-"
             TAG="${PRERELEASE%%.*}"      # keep the label before the first dot
           else
             TAG="latest"
           fi
-          echo "Publishing $VERSION under dist-tag '$TAG'"
-          pnpm --filter @hypermedia-components/core publish --access public --no-git-checks --tag "$TAG"
+          echo "Publishing $FILTER@$VERSION under dist-tag '$TAG'"
+          pnpm --filter "$FILTER" publish --access public --no-git-checks --tag "$TAG"
         # No NODE_AUTH_TOKEN: pnpm exchanges the workflow's OIDC token with
         # npm (trusted publishing). Renaming this file breaks the trust —
         # update the publisher config on npmjs.com if it ever moves.
+        # The CLI package needs its own trusted-publisher registration on
+        # npmjs.com (same repo, same workflow file) before its first
+        # cli-v* tag is pushed.
