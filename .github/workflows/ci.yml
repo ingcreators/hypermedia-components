@@ -59,6 +59,9 @@ jobs:
       - name: Run Vitest
         run: pnpm --filter @hypermedia-components/core test
 
+      - name: Run CLI tests
+        run: pnpm --filter @hypermedia-components/cli test
+
   docs:
     name: Docs build (Astro)
     runs-on: ubuntu-latest

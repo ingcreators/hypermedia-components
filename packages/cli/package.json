@@ -1,0 +1,31 @@
+{
+  "name": "@hypermedia-components/cli",
+  "version": "0.1.0",
+  "description": "Copy Hypermedia Components recipe scaffolds (recipe.html / expanded.html / contract.md) into your project.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ingcreators/hypermedia-components.git",
+    "directory": "packages/cli"
+  },
+  "type": "module",
+  "bin": {
+    "hypermedia-components": "bin/hc-cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "recipes/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "prepack": "node scripts/sync-recipes.mjs",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.8"
+  }
+}
