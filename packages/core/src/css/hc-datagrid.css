@@ -38,7 +38,7 @@
     /* Contextual shadow cast by a frozen column's trailing edge — its
        direction flips per edge (see the frozen-edge rules below), so it
        stays a CSS-local var, not a theme token. */
-    --hc-datagrid-freeze-shadow: 2px 0 4px -2px rgb(0, 0, 0, 0.25);
+    --hc-datagrid-freeze-shadow: 2px 0 4px -2px var(--hc-shadow-edge);
 
     position: relative;
     border: 1px solid var(--hc-datagrid-border);
@@ -173,7 +173,7 @@
 
   /* RTL: the freeze line falls on the other (inline-end) side. */
   .hc-datagrid:dir(rtl) {
-    --hc-datagrid-freeze-shadow: -2px 0 4px -2px rgb(0, 0, 0, 0.25);
+    --hc-datagrid-freeze-shadow: -2px 0 4px -2px var(--hc-shadow-edge);
   }
 
   /* ---- States ----

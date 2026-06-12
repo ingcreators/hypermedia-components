@@ -29,6 +29,11 @@ Security    — security-relevant changes
   and the datagrid drag ghost now read their `box-shadow` from the scale
   instead of hard-coded `rgb()` literals — elevation stays legible on
   dark surfaces and full themes can override it like any other token.
+- **`--hc-shadow-edge` scroll-edge shadow color** (`semantic.shadow.edge`,
+  dark override at 0.5 alpha). The tabs scroll fades and the datagrid
+  frozen-column shadows keep their directional geometry in CSS but read
+  their color from the token (datagrid alpha 0.25 → 0.2 normalization).
+  No literal-color `box-shadow` remains in the component stylesheets.
 
 ### Changed
 

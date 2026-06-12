@@ -108,6 +108,7 @@
     "sm":      { "$type": "shadow", "$value": "0 1px 2px rgb(0, 0, 0, 0.15)" },
     "md":      { "$type": "shadow", "$value": "0 4px 12px rgb(0, 0, 0, 0.1)" },
     "lg":      { "$type": "shadow", "$value": "0 8px 24px rgb(0, 0, 0, 0.12)" },
-    "overlay": { "$type": "shadow", "$value": "0 10px 30px rgb(0, 0, 0, 0.15)" }
+    "overlay": { "$type": "shadow", "$value": "0 10px 30px rgb(0, 0, 0, 0.15)" },
+    "edge":    { "$type": "color",  "$value": "rgb(0, 0, 0, 0.2)" }
   }
 }
