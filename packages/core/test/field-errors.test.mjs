@@ -120,6 +120,84 @@ describe('installFieldErrors', () => {
     ).toBe('email is already registered (duplicate)');
   });
 
+  it('interpolates server-provided data-message-params into catalog overrides', () => {
+    renderForm();
+    uninstall = installFieldErrors();
+    restoreMessages = setMessages({
+      'orders.qty.exceeds': '在庫 {stock} を超えています（{field}/{code}）。',
+    });
+
+    swap(`
+      <div class="hc-alert" data-variant="error" data-hc-field-errors>
+        <ul class="hc-alert__errors">
+          <li class="hc-alert__error" data-field="email" data-code="stock"
+              data-message-key="orders.qty.exceeds"
+              data-message-params='{"stock": 5}'>在庫 5 を超えています。</li>
+        </ul>
+      </div>
+    `);
+    expect(
+      document.getElementById('email-field').querySelector('.hc-field__error').textContent,
+    ).toBe('在庫 5 を超えています（email/stock）。');
+  });
+
+  it('lets data-message-params win over the implicit field/code params', () => {
+    renderForm();
+    uninstall = installFieldErrors();
+    restoreMessages = setMessages({
+      'orders.qty.exceeds': '{field}: {code}',
+    });
+
+    swap(`
+      <div class="hc-alert" data-variant="error" data-hc-field-errors>
+        <ul class="hc-alert__errors">
+          <li class="hc-alert__error" data-field="email" data-code="stock"
+              data-message-key="orders.qty.exceeds"
+              data-message-params='{"field": "数量", "code": "在庫超過"}'>qty: stock</li>
+        </ul>
+      </div>
+    `);
+    expect(
+      document.getElementById('email-field').querySelector('.hc-field__error').textContent,
+    ).toBe('数量: 在庫超過');
+  });
+
+  it('ignores malformed or non-object data-message-params', () => {
+    renderForm();
+    uninstall = installFieldErrors();
+    restoreMessages = setMessages({
+      'orders.qty.exceeds': '在庫 {stock} を超えています（{code}）。',
+    });
+
+    // Malformed JSON → attribute ignored, {stock} stays literal.
+    swap(`
+      <div class="hc-alert" data-variant="error" data-hc-field-errors>
+        <ul class="hc-alert__errors">
+          <li class="hc-alert__error" data-field="email" data-code="stock"
+              data-message-key="orders.qty.exceeds"
+              data-message-params='{stock: 5'>fallback</li>
+        </ul>
+      </div>
+    `);
+    expect(
+      document.getElementById('email-field').querySelector('.hc-field__error').textContent,
+    ).toBe('在庫 {stock} を超えています（stock）。');
+
+    // Non-object JSON (array) → ignored the same way.
+    swap(`
+      <div class="hc-alert" data-variant="error" data-hc-field-errors>
+        <ul class="hc-alert__errors">
+          <li class="hc-alert__error" data-field="email" data-code="stock"
+              data-message-key="orders.qty.exceeds"
+              data-message-params='[5]'>fallback</li>
+        </ul>
+      </div>
+    `);
+    expect(
+      document.getElementById('email-field').querySelector('.hc-field__error').textContent,
+    ).toBe('在庫 {stock} を超えています（stock）。');
+  });
+
   it('falls back to fieldErrors.unknown for an empty item', () => {
     renderForm();
     uninstall = installFieldErrors();

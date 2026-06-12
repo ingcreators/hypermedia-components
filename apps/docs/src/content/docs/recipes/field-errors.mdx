@@ -130,6 +130,7 @@ the summary. Edit the email field and its error clears.
 | `data-field` | item | Control `name` to attach the error to. |
 | `data-code` | item | Optional machine-readable code (available to the resolver as `{code}`). |
 | `data-message-key` | item | Optional i18n catalog key; item text is the fallback. |
+| `data-message-params` | item | Optional JSON object of interpolation values for the catalog lookup; merged over the implicit `{field}`/`{code}`. Malformed JSON is ignored. |
 | `data-summary="auto"` | alert | Hide the whole alert once every item was distributed. |
 | `data-focus="none"` | alert | Don't focus the first invalid control. |
 
@@ -149,9 +150,25 @@ setMessages({
 });
 ```
 
+When a translation needs values beyond `{field}`/`{code}` — constraint
+parameters, validation row columns — the server sends them as a JSON
+object in `data-message-params`; the client resolver merges them into
+the interpolation params (item values win over the implicit ones):
+
+```html
+<li class="hc-alert__error" data-field="qty" data-code="stock"
+    data-message-key="orders.qty.exceeds"
+    data-message-params='{"stock": 5}'>在庫 5 を超えています。</li>
+```
+
+```js
+setMessages({ 'orders.qty.exceeds': '在庫 {stock} を超えています。' });
+```
+
 A key missing from the catalog falls back to the item's own text — so
 when your server starts localizing, emit final text and drop the keys;
-nothing on the client changes.
+nothing on the client changes. Malformed `data-message-params` JSON is
+ignored the same way: the item text still renders.
 
 ## Server response contract
 

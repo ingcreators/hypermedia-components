@@ -27,8 +27,11 @@
 // control is focused (opt out with `data-focus="none"` on the alert).
 //
 // Message resolution per item: `data-message-key` found in the i18n
-// catalog → `t(key, { field, code })`; otherwise the item's own text;
-// otherwise `t('fieldErrors.unknown')`. Localize once via `setMessages()`.
+// catalog → `t(key, { field, code, ...data-message-params })`; otherwise
+// the item's own text; otherwise `t('fieldErrors.unknown')`. Localize once
+// via `setMessages()`. `data-message-params` is an optional JSON object of
+// server-provided interpolation values (constraint declarations, validation
+// row columns) for translations with placeholders beyond {field}/{code}.
 //
 // Server errors are stale the moment the user edits the field or
 // resubmits: cleared on first `input`/`change` per field, on `submit` /
@@ -85,6 +88,22 @@ function resolveMessage(item) {
     field: item.getAttribute('data-field') ?? '',
     code: item.getAttribute('data-code') ?? '',
   };
+  // Optional server-provided interpolation params (a JSON object), so a
+  // catalog translation may use placeholders beyond {field}/{code} — e.g.
+  // data-message-params='{"stock": 5}' for "在庫 {stock} を超えています。".
+  // Item params win over the implicit field/code; malformed or non-object
+  // JSON degrades to the attribute being ignored.
+  const raw = item.getAttribute('data-message-params');
+  if (raw) {
+    try {
+      const extra = JSON.parse(raw);
+      if (extra && typeof extra === 'object' && !Array.isArray(extra)) {
+        Object.assign(params, extra);
+      }
+    } catch {
+      /* malformed JSON — keep the default params */
+    }
+  }
   if (key && hasMessage(key)) return t(key, params);
   const text = item.textContent.trim();
   if (text) return text;

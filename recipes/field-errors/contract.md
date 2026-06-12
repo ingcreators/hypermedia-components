@@ -41,6 +41,7 @@ not swap non-2xx responses by default; see “htmx wiring” below).
 | `data-field` | yes (per item) | The control's `name`. Radio/checkbox groups resolve via `form.elements` (the group's shared field receives the error). Items naming no known control stay visible in the summary. |
 | `data-code` | no | Machine-readable error code; passed to the message resolver as `{code}` and left on the element. |
 | `data-message-key` | no | A lookup key for client-side localization. Resolved through the i18n catalog (`setMessages()`); when the catalog has no such key, the `<li>` text renders instead. Servers that localize themselves just emit final text and omit this attribute. |
+| `data-message-params` | no | A JSON object of interpolation values for the catalog lookup (e.g. `data-message-params='{"stock": 5}'` for a translation using `{stock}`). Merged over the implicit `{field}`/`{code}` params (item values win). Malformed or non-object JSON is ignored — the fallback chain is unchanged. |
 | `data-summary="auto"` | no | Hide the whole alert once every item was distributed (for responses that carry only field errors). |
 | `data-focus="none"` | no | Don't focus the first invalid control. |
 | any other `data-*` (e.g. `data-error-code`) | no | Passed through untouched — consumer-specific metadata is fine. |
@@ -54,7 +55,9 @@ fallback and an install-time scan for full-page renders),
 1. Clears all previous server errors in the target form.
 2. For each `.hc-alert__error[data-field]` whose `data-field` matches a
    control: resolves the message (`data-message-key` via the i18n
-   catalog → `<li>` text → `fieldErrors.unknown`), writes it into the
+   catalog — interpolating `{field}`, `{code}` and any
+   `data-message-params` — → `<li>` text → `fieldErrors.unknown`),
+   writes it into the
    field's `.hc-field__error` (created after a bare control when there
    is no `.hc-field`), sets `aria-invalid="true"` +
    `aria-describedby` on the control and `data-invalid="true"` on the
