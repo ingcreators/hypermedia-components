@@ -1,0 +1,39 @@
+/* hc-chip — a quiet, pill-shaped token for facts and attributes
+ * (capabilities, tags, applied filters). Neutral surface + border by
+ * design: for *status* coloring use hc-badge (variant pills) or the
+ * .hc-status utility instead.
+ *
+ *   <ul class="hc-chips">
+ *     <li class="hc-chip">read:members</li>
+ *     <li class="hc-chip">write:members</li>
+ *   </ul>
+ *
+ * Pure CSS, no behavior. A chip with a trailing remove control is the
+ * multicombobox tag's job — chips here are presentational.
+ */
+@layer hc.components {
+  .hc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-space-1);
+    padding-inline: var(--hc-chip-padding-x);
+    padding-block: var(--hc-chip-padding-y);
+    border: 1px solid var(--hc-chip-border);
+    border-radius: var(--hc-chip-radius);
+    background: var(--hc-chip-bg);
+    color: var(--hc-chip-fg);
+    font-size: var(--hc-chip-font-size);
+    line-height: 1.4;
+  }
+
+  /* List wrapper — strips the list chrome and wraps chips on a gap. The
+   * <ul>/<li> form keeps the set announceable as a list ("3 items"). */
+  .hc-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--hc-chip-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}

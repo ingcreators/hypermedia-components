@@ -22,6 +22,30 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Generic patterns the first downstream consumer had to hand-write
+  (TesseraQL brief Theme 4).**
+  - **`hc-chip` + `.hc-chips`** — a quiet, pill-shaped token for facts
+    and attributes (capabilities, tags, applied filters) with a
+    list-resetting wrap container. Deliberately variant-free: status
+    pills stay `hc-badge`'s job. New `chip.*` tokens and a Chip docs
+    page (incl. a chip / badge / `.hc-status` decision table).
+  - **`hc-table` key-value variant (`data-variant="kv"`)** — a
+    two-column definition table for detail views: `<th scope="row">`
+    keys on a fixed inline size (`--hc-table-kv-key-width`, default
+    `10rem`) with muted text, row hover off. New `table.kv-*` tokens.
+  - **`hc-item` now styles `aria-current`** — the current page's link
+    in a nav list gets the selected treatment, completing the
+    sidebar-nav story (Shell → Sidebar navigation items docs show an
+    `hc-item` sidebar with hover + `aria-current="page"`, so consumers
+    stop styling `hc-shell__sidebar a` internals).
+  - **`.hc-spacer` utility** — a flexible spacer for any flex row;
+    documents the shell-header pattern (title · badge · spacer · back /
+    action links) that previously needed `margin-inline-start: auto`
+    app CSS.
+
+  Already covered without new code (docs cross-links only): empty
+  state → `hc-empty`, hint text → `hc-field__message`, inline status
+  banner → `hc-alert`. 9 new Playwright tests (incl. axe).
 - **`.hc-status` utility — semantic status colors on arbitrary
   elements.** Applies the theme-aware status palette
   (`--hc-color-status-{neutral,info,success,warning,error}-*`, the same

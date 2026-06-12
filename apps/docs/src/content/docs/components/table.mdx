@@ -73,6 +73,41 @@ table is announceable to assistive tech.
 </table>
 ```
 
+## Key-value variant
+
+`data-variant="kv"` turns the table into a two-column definition list
+for detail views — keys are row headers on a fixed inline size with
+muted text, values keep the body styling, and the row hover highlight
+is off (nothing to act on):
+
+<Demo>
+  <table class="hc-table" data-variant="kv" style="max-inline-size:28rem;">
+    <tbody>
+      <tr><th scope="row">Realm id</th><td>local</td></tr>
+      <tr><th scope="row">Display name</th><td>Local development</td></tr>
+      <tr><th scope="row">Created</th><td>2026-06-01</td></tr>
+    </tbody>
+  </table>
+
+  <Fragment slot="code">
+
+  ```html
+  <table class="hc-table" data-variant="kv">
+    <tbody>
+      <tr><th scope="row">Realm id</th><td>local</td></tr>
+      <tr><th scope="row">Display name</th><td>Local development</td></tr>
+      <tr><th scope="row">Created</th><td>2026-06-01</td></tr>
+    </tbody>
+  </table>
+  ```
+
+  </Fragment>
+</Demo>
+
+Override the key column width with `--hc-table-kv-key-width`
+(default `10rem`). Use `<th scope="row">` for the keys — that is what
+the variant styles, and it keeps the pairs announceable.
+
 ## Responsive — horizontal scroll
 
 A data table cannot shrink below the content width of its columns, so a
@@ -144,6 +179,8 @@ This is the exact pattern from plan §24. See the
 | `table.row-hover-bg`   | Row hover background.         |
 | `table.cell-padding-x` | Inline cell padding.          |
 | `table.cell-padding-y` | Block cell padding.           |
+| `table.kv-key-width`   | Key column width (`data-variant="kv"`). |
+| `table.kv-key-fg`      | Key text color (`data-variant="kv"`).   |
 
 ## CSS variables
 
@@ -155,6 +192,7 @@ This is the exact pattern from plan §24. See the
 --hc-table-header-bg | -header-fg | -header-weight
 --hc-table-row-hover-bg
 --hc-table-cell-padding-x | -cell-padding-y
+--hc-table-kv-key-width | -kv-key-fg
 ```
 
 </details>

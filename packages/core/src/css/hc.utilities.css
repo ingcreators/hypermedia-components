@@ -109,6 +109,13 @@
     vertical-align: -0.125em;
   }
 
+  /* Flexible spacer for any flex row (shell header, clusters): everything
+     after it is pushed to the inline end. The toolbar's own
+     [data-hc-spacer="true"] is the same idea scoped to hc-toolbar. */
+  .hc-spacer {
+    flex: 1;
+  }
+
   /* Status emphasis for arbitrary elements — a table cell, a whole row, a
      line of text — using the theme-aware semantic status palette without
      reaching for a component. The variant axis is the usual data-variant

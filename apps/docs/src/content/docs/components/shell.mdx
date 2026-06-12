@@ -129,6 +129,68 @@ aside, and the mobile off-canvas overlay all behave the same.
 | `hc-shell__footer` | `<footer>` | Optional footer. |
 | `hc-shell__toggle` | `<button>` | Mobile hamburger (use with `data-hc-shell-toggle`). |
 
+## Sidebar navigation items
+
+The shell deliberately doesn't style the sidebar's children — nav items
+are [`hc-item`](/hypermedia-components/components/item/)s. Rendered as
+`<a>` elements they get the hover highlight and focus ring for free,
+and `aria-current="page"` on the active link gets the selected
+treatment (it is also the accessibility signal — set it server-side on
+the matching route):
+
+<Demo>
+  <nav aria-label="Demo navigation" style="max-inline-size:14rem;display:grid;gap:2px;">
+    <a class="hc-item" href="#ops"><span class="hc-item__media" aria-hidden="true">⚙</span><span class="hc-item__title">Operations</span></a>
+    <a class="hc-item" href="#studio" aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><span class="hc-item__title">Studio</span></a>
+    <a class="hc-item" href="#iam"><span class="hc-item__media" aria-hidden="true">⛨</span><span class="hc-item__title">IAM Admin</span></a>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-shell__sidebar" aria-label="Primary">
+    <a class="hc-item" href="/ops">
+      <span class="hc-item__media" aria-hidden="true">⚙</span>
+      <span class="hc-item__title hc-shell__label">Operations</span>
+    </a>
+    <a class="hc-item" href="/studio" aria-current="page">
+      <span class="hc-item__media" aria-hidden="true">▦</span>
+      <span class="hc-item__title hc-shell__label">Studio</span>
+    </a>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
+
+Wrap the link text in `.hc-shell__label` (as above) and it hides
+automatically in the [collapsed icon rail](#collapsible-sidebar) while
+staying in the accessibility tree. The
+[Blocks](/hypermedia-components/blocks/) page shows a full sidebar
+composed this way. Plain `<a>` children still work — they just carry no
+hover/current styling of their own.
+
+## Header actions and back link
+
+The header is a flex row (`gap` included), so per-page extras compose
+without custom CSS: put a `.hc-spacer` where the content should split,
+and everything after it — a back link, action links, a badge — sits at
+the inline end:
+
+```html
+<header class="hc-shell__header">
+  <button class="hc-button" data-variant="ghost"
+          data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+  <strong>Outbox events</strong>
+  <span class="hc-badge" data-variant="warning">3 pending</span>
+  <span class="hc-spacer"></span>
+  <nav class="hc-cluster" aria-label="Page actions">
+    <a class="hc-button" data-variant="ghost" data-size="sm" href="/ops/console">← Back</a>
+    <a class="hc-button" data-size="sm" href="/ops/console/outbox/export">Export</a>
+  </nav>
+</header>
+```
+
 ## Optional aside
 
 Add an `<aside class="hc-shell__aside">` as a direct child and the grid

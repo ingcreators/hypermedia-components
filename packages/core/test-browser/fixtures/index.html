@@ -1316,7 +1316,43 @@
           <span class="hc-item__description">This cannot be undone</span>
         </div>
       </button>
+
+      <nav aria-label="Item nav demo">
+        <a class="hc-item" href="#item-nav-other" data-testid="item-nav-other">
+          <div class="hc-item__content"><span class="hc-item__title">Other page</span></div>
+        </a>
+        <a class="hc-item" href="#item-nav-current" aria-current="page" data-testid="item-nav-current">
+          <div class="hc-item__content"><span class="hc-item__title">Current page</span></div>
+        </a>
+      </nav>
     </div>
+  </section>
+
+  <section id="section-chip" data-testid="section-chip">
+    <h2>Chip</h2>
+
+    <ul class="hc-chips" data-testid="chips">
+      <li class="hc-chip" data-testid="chip-first">read:members</li>
+      <li class="hc-chip">write:members</li>
+      <li class="hc-chip">admin:realm</li>
+    </ul>
+  </section>
+
+  <section id="section-table-kv" data-testid="section-table-kv">
+    <h2>Table (key-value)</h2>
+
+    <table class="hc-table" data-variant="kv" style="max-inline-size: 28rem;" data-testid="kv-table">
+      <tbody>
+        <tr>
+          <th scope="row" data-testid="kv-key">Realm id</th>
+          <td data-testid="kv-value">local</td>
+        </tr>
+        <tr>
+          <th scope="row">Created</th>
+          <td>2026-06-01</td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 
   <section id="section-navmenu" data-testid="section-navmenu">
@@ -1575,6 +1611,12 @@
       <div>Stack item 1</div>
       <div>Stack item 2</div>
       <div>Stack item 3</div>
+    </div>
+
+    <div style="display:flex; gap:8px; inline-size:24rem;" data-testid="util-spacer-row">
+      <span data-testid="util-spacer-start">Spacer row title</span>
+      <span class="hc-spacer" data-testid="util-spacer"></span>
+      <span data-testid="util-spacer-end">Trailing</span>
     </div>
 
     <ul class="hc-cluster" data-testid="util-cluster" style="list-style: none; padding: 0;">
