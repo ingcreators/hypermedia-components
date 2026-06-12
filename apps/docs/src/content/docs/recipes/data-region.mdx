@@ -30,6 +30,33 @@ Pieces:
 Always design the polled endpoint to be **cheap** — a fast COUNT
 query or a denormalized read model — and **idempotent**.
 
+### Whole-region self-replacement (`hx-select`)
+
+When the endpoint can only return the **full page** (a server-rendered
+view with no fragment route), let the region cut its replacement out of
+that page and swap itself:
+
+```html
+<div id="page-content"
+     data-hx-get="/ops/console/outbox"
+     data-hx-trigger="every 15s"
+     data-hx-select="#page-content"
+     data-hx-target="this"
+     data-hx-swap="outerHTML">
+  …
+</div>
+```
+
+- `data-hx-select="#page-content"` extracts the matching element from
+  the response; `data-hx-swap="outerHTML"` replaces the region with it,
+  triggers and all.
+- This costs a full page render per tick — prefer the fragment
+  endpoint + `innerHTML` form above when you control the server, and
+  reserve `hx-select` for retrofits.
+- With `outerHTML` the region's `every 15s` timer restarts on each
+  swap; with no `load` in the trigger the first paint is the
+  server-rendered HTML, so there is no flash.
+
 ## Event-driven refresh
 
 Pair polling with an htmx custom event so server actions can ask the

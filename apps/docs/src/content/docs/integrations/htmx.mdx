@@ -207,6 +207,73 @@ and pairs naturally with the spinner pattern above. For destructive
 actions, combine it with `data-hc-confirm` (the
 [`confirm-action` recipe](/hypermedia-components/recipes/confirm-action/)).
 
+## Common patterns — which recipe answers what
+
+The questions every hypermedia app ends up asking, and the blessed
+answer for each:
+
+| You want | Use | Notes |
+| --- | --- | --- |
+| Auto-refresh a region (polling / events) | [`data-region`](/hypermedia-components/recipes/data-region/) | `data-hx-trigger="load, every 15s"`, event-driven via `HX-Trigger`, and whole-region self-replacement with `hx-select` (below). |
+| Busy indicator + double-submit guard | [`request-action`](/hypermedia-components/recipes/request-action/) | `data-hx-indicator` + `data-hx-disabled-elt` — see [Indicators](#indicators). |
+| Confirm before a destructive request | [`confirm-action`](/hypermedia-components/recipes/confirm-action/) | The gate is event-based — read [the specification below](#confirm-gating-specification). |
+| Inline server validation errors | [`field-errors`](/hypermedia-components/recipes/field-errors/) | A documented 422 fragment + `installFieldErrors()` — see [non-2xx responses](#validation-errors-and-non-2xx-responses). |
+| Notify after a request | [`toast`](/hypermedia-components/recipes/toast/) | `HX-Trigger: {"hc:toast": …}` from any endpoint. |
+| Load content into a dialog | [`remote-dialog`](/hypermedia-components/recipes/remote-dialog/) | Swap into `[data-hc-remote-dialog-root]`. |
+
+## Confirm gating specification
+
+`data-hc-confirm` and htmx compose through one rule: **the behavior
+intercepts the activation, and htmx listens for `hc:confirmed`**.
+
+```html
+<button class="hc-button" data-variant="error"
+        data-hc-confirm="Disable user alice?"
+        data-hx-post="/users/alice/disable"
+        data-hx-trigger="hc:confirmed"
+        data-hx-target="#user-row">
+  Disable user
+</button>
+```
+
+The exact semantics (browser-tested):
+
+1. `installConfirm()` intercepts the click in the **capture phase**
+   (`preventDefault` + `stopPropagation`), so no other click handler —
+   htmx's included — ever observes it. The shared dialog opens.
+2. **Cancel** → nothing else happens. No request.
+3. **Confirm** → a bubbling `hc:confirmed` event is dispatched on the
+   trigger element. htmx, wired with
+   `data-hx-trigger="hc:confirmed"`, issues the request now.
+4. Therefore `data-hx-trigger="hc:confirmed"` is **required** on a
+   confirmed element. With the default click trigger the element is
+   inert for htmx — the click never reaches it, and it doesn't listen
+   for the confirm event.
+5. Do **not** combine with `hx-confirm`: htmx never sees the
+   activation, so `hx-confirm` simply never runs. Pick one mechanism.
+6. The interception is delegated (document-level), so buttons swapped
+   in by htmx are confirmed with no re-initialization.
+
+## Validation errors and non-2xx responses
+
+htmx ≥ 2 does not swap non-2xx responses by default. For the
+[`field-errors`](/hypermedia-components/recipes/field-errors/) contract
+(a `422` returning the documented `hc-alert` fragment), allow the swap
+once, globally:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+Alternatives that need no JS: answer `200` with the error fragment, or
+send `HX-Retarget: #form-errors` + `HX-Reswap: innerHTML` to steer the
+response into the error container ([response headers](#response-headers-htmx-understands)).
+
 ## Related
 
 - [Plain HTML](/hypermedia-components/integrations/) — the simplest
