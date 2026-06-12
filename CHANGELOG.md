@@ -46,6 +46,64 @@ Security    — security-relevant changes
   Already covered without new code (docs cross-links only): empty
   state → `hc-empty`, hint text → `hc-field__message`, inline status
   banner → `hc-alert`. 9 new Playwright tests (incl. axe).
+- **`.hc-status` utility — semantic status colors on arbitrary
+  elements.** Applies the theme-aware status palette
+  (`--hc-color-status-{neutral,info,success,warning,error}-*`, the same
+  tokens behind alert/badge/toast variants) to a table cell, a whole
+  row, or plain text: `.hc-status` + `data-variant` colours the text,
+  `data-fill` adds the paired tinted background (on a `<tr>` it tints
+  the row and wins over `hc-table`'s hover background — utilities layer
+  ordering). Values re-resolve under `[data-theme="dark"]`, so
+  server-computed status classes need no raw hex or hand-written dark
+  overrides downstream (TesseraQL brief Theme 3). New Tokens → Status
+  colors docs page; 4 Playwright tests (incl. axe colour-contrast in
+  both themes).
+- **Field → Composing a form docs.** A complete worked form — label
+  association (`for`/`id`), the automatic required asterisk, help text,
+  the error slot, a `fieldset.hc-field` radio group, and a
+  `.hc-cluster` actions row — built from kit classes only, with notes
+  on what app CSS this makes unnecessary (label layout, `width: 100%`
+  on controls, required markers, toolbar rows). Prompted by the
+  TesseraQL improvement brief (Theme 2), whose consumer hand-wrote all
+  of this; the pattern itself already shipped in `0.0.1-alpha.0`.
+  Adds a browser test asserting the native label→focus association.
+- **`field-errors` recipe + `installFieldErrors()` behavior — a wire
+  contract for server-side validation errors.** The server answers a
+  failed submission (e.g. a 422) with a documented `hc-alert` fragment
+  (`data-hc-field-errors`, `.hc-alert__errors` >
+  `.hc-alert__error[data-field][data-code][data-message-key]`); the new
+  behavior (in the auto-init `/behaviors` bundle) distributes each item
+  to the field its `data-field` names — message into the field's
+  `.hc-field__error` (created next to a bare control when there is no
+  `hc-field`), `aria-invalid` + `aria-describedby` on the control,
+  `data-invalid` on the field, first invalid control focused — and
+  clears it on edit / resubmit / the next fragment. Items naming no
+  known control stay visible in the summary
+  (`data-distributed="all|partial|none"` on the alert). Message keys
+  resolve through the existing i18n catalog (`setMessages()`), with the
+  item text as fallback — new `hasMessage()` export and
+  `fieldErrors.unknown` default. Native constraint validation
+  (`installValidation()`) outranks a server error on the same control;
+  the shared ARIA plumbing moved to an internal `field-error-core.js`.
+  Designed for (and with) TesseraQL — improvement-brief Theme 1.
+  New Recipes → Field errors docs page (live demo), Field / Alert /
+  i18n docs sections, `recipes/field-errors/` contract scaffold,
+  16 Vitest + 5 Playwright tests (incl. axe).
+- **Versioning policy ([`VERSIONING.md`](VERSIONING.md) + Reference →
+  Versioning & stability docs page).** Defines the public API surface
+  the way template/codegen consumers experience it — CSS class names,
+  data attributes, `--hc-*` custom properties, JS exports, `hc:*`
+  events, i18n message keys, package export paths, and recipe server
+  contracts — plus the 0.x semver rules (patch = additive only;
+  breaking changes only in minors, flagged in this file) and the
+  deprecation-alias rule (renames keep the old name working for ≥1
+  minor; the pre-alpha "no aliases" rule ended with `0.0.1-alpha.0`).
+  Prompted by the TesseraQL improvement brief
+  ([`plans/tesseraql-2026-06-brief.md`](plans/tesseraql-2026-06-brief.md),
+  Theme 7); the response document
+  ([`plans/tesseraql-2026-06-response-en.md`](plans/tesseraql-2026-06-response-en.md))
+  maps each requested theme to existing alpha.0 features or a planned
+  PR.
 
 ### Fixed
 

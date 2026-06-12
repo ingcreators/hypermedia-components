@@ -1,0 +1,129 @@
+---
+title: Status colors
+description: The theme-aware semantic status palette — and the .hc-status utility that applies it to arbitrary elements like table cells, rows, and plain text.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+Five **status intents** — `neutral`, `info`, `success`, `warning`,
+`error` — each with a `bg` / `fg` / `border` triple that switches with
+[`data-theme`](/hypermedia-components/tokens/themes/). Components like
+[Alert](/hypermedia-components/components/alert/),
+[Badge](/hypermedia-components/components/badge/), and
+[Toast](/hypermedia-components/components/toast/) resolve their
+variants through these tokens; the `.hc-status` utility below applies
+the same palette to **any element** — a table cell, a whole row, a line
+of text — so server-computed status never needs raw hex values or
+hand-written dark-mode overrides.
+
+## Tokens
+
+| Token | CSS variable |
+| --- | --- |
+| `semantic.color.status.{intent}.bg` | `--hc-color-status-{intent}-bg` |
+| `semantic.color.status.{intent}.fg` | `--hc-color-status-{intent}-fg` |
+| `semantic.color.status.{intent}.border` | `--hc-color-status-{intent}-border` |
+
+with `{intent}` one of `neutral | info | success | warning | error`.
+Light values are tints (`*-50` background, `*-800` text); under
+`[data-theme="dark"]` they re-emit as dark tints (`*-950` background,
+`*-200` text), so `fg` works as standalone text **and** on its paired
+`bg` in both themes.
+
+## The `.hc-status` utility
+
+`.hc-status` colours the element's text with the intent's `fg`; the
+intent is the usual `data-variant` (omitted = neutral). Add
+`data-fill` for the paired tinted background.
+
+<Demo>
+  <span class="hc-status" data-variant="info">deploying</span>
+  <span class="hc-status" data-variant="success">completed</span>
+  <span class="hc-status" data-variant="warning">degraded</span>
+  <span class="hc-status" data-variant="error">failed</span>
+  <span class="hc-status" data-variant="success" data-fill style="padding:.125rem .5rem;border-radius:999px;">active</span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-status" data-variant="success">completed</span>
+  <span class="hc-status" data-variant="error">failed</span>
+
+  <!-- data-fill adds the paired tinted background -->
+  <span class="hc-status" data-variant="success" data-fill>active</span>
+  ```
+
+  </Fragment>
+</Demo>
+
+### Table cells and rows
+
+The common server-rendered case: a status column whose class is
+computed server-side, and a row highlight for records needing
+attention. Works inside [Table](/hypermedia-components/components/table/)
+(the row fill also wins over the table's hover background):
+
+<Demo>
+  <table class="hc-table" style="max-inline-size:28rem;">
+    <thead>
+      <tr><th>Job</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>nightly-sync</td>
+        <td class="hc-status" data-variant="success">completed</td>
+      </tr>
+      <tr class="hc-status" data-variant="error" data-fill>
+        <td>outbox-dispatch</td>
+        <td class="hc-status" data-variant="error">failed</td>
+      </tr>
+      <tr>
+        <td>reindex</td>
+        <td class="hc-status" data-variant="info">running</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- status text in a cell (class computed server-side) -->
+  <td class="hc-status" data-variant="success">completed</td>
+
+  <!-- whole-row highlight -->
+  <tr class="hc-status" data-variant="error" data-fill>
+    <td>outbox-dispatch</td>
+    <td class="hc-status" data-variant="error">failed</td>
+  </tr>
+  ```
+
+  </Fragment>
+</Demo>
+
+A Thymeleaf/JSP/ERB template binds the variant directly:
+
+```html
+<td class="hc-status" th:attr="data-variant=${job.statusVariant}"
+    th:text="${job.status}"></td>
+```
+
+…replacing per-status classes with raw hex colors and duplicated
+`[data-theme="dark"]` overrides — the tokens carry the theme switch.
+
+## Accessibility
+
+- `fg` values meet WCAG AA (≥ 4.5:1) as standalone text on the default
+  page/surface backgrounds and on their paired `bg`, in both themes.
+- Color alone is never the message: keep the status **text** (axe has
+  nothing to say about a green dot, but your users do). For a
+  pill-shaped label with a border, use
+  [Badge](/hypermedia-components/components/badge/) instead.
+
+## Related
+
+- [Themes](/hypermedia-components/tokens/themes/) — how `data-theme`
+  switches the palette.
+- [Alert](/hypermedia-components/components/alert/) /
+  [Badge](/hypermedia-components/components/badge/) /
+  [Toast](/hypermedia-components/components/toast/) — components built
+  on the same tokens.
