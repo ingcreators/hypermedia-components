@@ -22,3 +22,7 @@ Purpose: confirm with the user before sending an htmx request.
 - Return HTML for the target area; or
 - Return `HX-Trigger` with events such as `hc:toast`; or
 - Both.
+
+Status: any `2xx` for the swap and/or header. A non-2xx response is not
+swapped (htmx ≥ 2 default); note that `hc:confirmed` has already fired
+by then — the confirmation gates the *request*, not its outcome.

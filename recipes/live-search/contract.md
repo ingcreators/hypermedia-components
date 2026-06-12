@@ -15,3 +15,7 @@ Purpose: send a search request as the user types and swap the results.
 - Return HTML for `#results`.
 - Include empty-state markup when there are no results.
 - Keep the normal form `GET` working without JavaScript.
+
+Status: `200 OK` with the fragment. htmx ≥ 2 does not swap non-2xx
+responses by default, so on a server error the previous results stay in
+place — return `2xx` only when the fragment should replace them.

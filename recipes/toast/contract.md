@@ -65,3 +65,7 @@ Sticky error toasts use `duration: 0`:
 ```text
 HX-Trigger: {"hc:toast":{"title":"Sync failed","message":"Could not reach the server","variant":"error","duration":0}}
 ```
+
+Status: the toast is header-driven, not swap-driven — a `204 No Content`
+plus the `HX-Trigger` header is the minimal success response when
+nothing on the page changes.
