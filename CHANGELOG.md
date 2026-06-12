@@ -20,6 +20,18 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Field → Composing a form docs.** A complete worked form — label
+  association (`for`/`id`), the automatic required asterisk, help text,
+  the error slot, a `fieldset.hc-field` radio group, and a
+  `.hc-cluster` actions row — built from kit classes only, with notes
+  on what app CSS this makes unnecessary (label layout, `width: 100%`
+  on controls, required markers, toolbar rows). Prompted by the
+  TesseraQL improvement brief (Theme 2), whose consumer hand-wrote all
+  of this; the pattern itself already shipped in `0.0.1-alpha.0`.
+  Adds a browser test asserting the native label→focus association.
+
 ### Fixed
 
 - **Error text failed WCAG AA contrast in dark mode.** Error / help text in
