@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc blessed date-field pattern fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem;">
+    <h1>Date field</h1>
+    <!--
+      The blessed date-field pattern, verbatim from the calendar docs
+      ("As a custom date field", #219): hc-field stanza, readonly hc-input
+      carrying the form name, popovertarget trigger, hc-calendar driving
+      the input via data-target. The spec pins the documented keyboard,
+      focus, and sync behavior so the markup stays a stable contract for
+      code generators.
+    -->
+    <form data-testid="form">
+      <div class="hc-field" style="max-inline-size:18rem;">
+        <label class="hc-field__label" for="due">Due date</label>
+
+        <div class="hc-input-group">
+          <input class="hc-input" id="due" name="due" type="text" readonly
+                 value="2026-05-15" placeholder="Pick a date"
+                 data-testid="input">
+          <button class="hc-button" type="button" popovertarget="due-cal"
+                  aria-label="Choose date" data-testid="trigger">📅</button>
+        </div>
+
+        <div id="due-cal" class="hc-popover" popover
+             data-side="bottom" data-align="end" data-testid="popover">
+          <div class="hc-calendar" data-target="#due" data-locale="en-US"
+               data-first-day="0" aria-label="Choose date"
+               data-testid="calendar"></div>
+        </div>
+
+        <p class="hc-field__message">Format: YYYY-MM-DD</p>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

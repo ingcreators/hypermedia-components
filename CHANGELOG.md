@@ -56,6 +56,15 @@ Security    — security-relevant changes
   `{stock}`). Item params win over the implicit `field`/`code`;
   malformed or non-object JSON is ignored and the existing fallback
   chain (catalog → item text → `fieldErrors.unknown`) is unchanged.
+- **Docs: blessed date-field pattern** (#219). The calendar page's
+  "As a custom date field" section is now the canonical, copy-pasteable
+  composition for date form fields (`hc-field` + readonly named
+  `hc-input` + `popovertarget` trigger + `hc-calendar[data-target]`),
+  documenting who carries the form `name`, the readonly-vs-free-typed
+  trade-off, keyboard / focus expectations, and the `<html lang>` locale
+  fallback. A new browser suite (`test-browser/datefield.spec.mjs`,
+  incl. axe) pins the documented behavior against that exact markup so
+  code generators can emit it as a stable contract.
 
 ### Changed
 
