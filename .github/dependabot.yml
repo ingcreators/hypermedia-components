@@ -1,0 +1,20 @@
+# Dependabot version updates. Security updates are enabled separately in
+# the repository settings and open PRs regardless of this schedule.
+version: 2
+updates:
+  # npm — the pnpm workspace root lockfile covers every package.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # Dev tooling moves often and is low-risk to batch.
+      dev-dependencies:
+        dependency-type: development
+
+  # GitHub Actions used by ci.yml / release.yml.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
