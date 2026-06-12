@@ -1,7 +1,7 @@
 # Hypermedia Components — Claude Code instructions
 
 Project: **Hypermedia Components** (ingcreators)
-Prefix: `hc-` · npm scope: `@hypermedia-components` · Docs: Astro Starlight · Deploy: Cloudflare Pages
+Prefix: `hc-` · npm scope: `@hypermedia-components` · Docs: Astro Starlight · Deploy: Cloudflare Workers
 User communication language: **Japanese**.
 
 ## Authoritative plans
@@ -46,12 +46,13 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.0.1-alpha.0` (published 2026-06-09): 52 component stylesheets ·
-30+ behaviors · 2 macros · 11 recipe scaffolds · ~100 docs pages
-(components, tokens, fundamentals, integrations, blocks) · runtime axes
-`data-theme` / `data-color` / `data-neutral` / `data-density` / `dir` ·
-i18n message catalog (`setMessages()`) · examples for plain-html + htmx ·
-34 Vitest suites · 71 Playwright suites (incl. axe scans).
+As of `0.1.0` (published 2026-06-12): 53 component stylesheets ·
+32 behaviors · 2 macros · 12 recipes · 8 integration guides ·
+~100 docs pages (components, tokens, fundamentals, integrations,
+recipes, blocks) · runtime axes `data-theme` / `data-color` /
+`data-neutral` / `data-density` / `dir` · i18n message catalog
+(`setMessages()`) · examples for plain-html + htmx · 37 Vitest suites ·
+77 Playwright suites (incl. axe scans).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
