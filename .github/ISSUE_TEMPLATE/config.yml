@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation site
+    url: https://hypermedia-components.ichimura-12c.workers.dev/hypermedia-components/
+    about: Component docs, recipes, tokens, and integration guides — check here first.
+  - name: Security reports
+    url: https://github.com/ingcreators/hypermedia-components/blob/main/SECURITY.md
+    about: Please do not open public issues for vulnerabilities — follow SECURITY.md instead.

@@ -1,0 +1,20 @@
+name: Documentation
+description: A docs page is wrong, unclear, or missing.
+title: "docs: "
+labels: ["documentation"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: URL or path of the affected page (or where you expected to find the missing content).
+      placeholder: "/components/combobox/ or apps/docs/src/content/docs/…"
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is wrong or missing?
+      description: If a code sample fails as written, include the error and your environment.
+    validations:
+      required: true

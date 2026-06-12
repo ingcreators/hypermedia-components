@@ -1,0 +1,44 @@
+name: Bug report
+description: Something renders or behaves incorrectly.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The `@hypermedia-components/core` version (see `package.json` or `npm ls @hypermedia-components/core`).
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: consumption
+    attributes:
+      label: How do you consume the package?
+      options:
+        - Full bundle (`/css` + `/behaviors`)
+        - Granular imports (`/css/<component>`, named `installXxx()`)
+        - CDN / static asset copy
+        - Other (explain below)
+    validations:
+      required: true
+  - type: input
+    id: htmx
+    attributes:
+      label: htmx version (if relevant)
+      placeholder: "2.0.x / not using htmx"
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction markup
+      description: The smallest HTML (plus any `installXxx()` calls) that shows the problem. Paste markup, not screenshots, where possible.
+      render: html
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: What should happen, and what happens instead? Include browser + OS for rendering issues, and whether dark mode / a `data-color` / `data-density` axis is involved.
+    validations:
+      required: true
