@@ -36,6 +36,7 @@ import { installSplitter } from './splitter.js';
 import { installShell } from './shell.js';
 import { installDatagrid } from './datagrid.js';
 import { installValidation } from './validation.js';
+import { installThemeToggle } from './theme-toggle.js';
 
 function init() {
   installConfirm();
@@ -67,6 +68,7 @@ function init() {
   installShell();
   installDatagrid();
   installValidation();
+  installThemeToggle();
 }
 
 if (typeof document !== 'undefined') {
@@ -107,6 +109,7 @@ export {
   installShell,
   installDatagrid,
   installValidation,
+  installThemeToggle,
 };
 
 // i18n — set the locale before this module's auto-init runs (e.g. inline

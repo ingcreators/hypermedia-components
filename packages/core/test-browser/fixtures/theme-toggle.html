@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc theme-toggle fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <!-- Flash-free restore (the documented head snippet). -->
+  <script>
+    try {
+      var t = localStorage.getItem('hc-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  </script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:32rem;">
+    <h1>Theme toggle</h1>
+
+    <button type="button" class="hc-button" data-variant="ghost"
+            data-hc-theme-toggle data-persist="hc-theme" data-testid="toggle">
+      <span aria-hidden="true">◐</span>
+    </button>
+
+    <div class="hc-card" data-testid="card" style="margin-block-start:1rem;">
+      <div class="hc-card__body">
+        <p>Surface follows the theme.</p>
+        <span class="hc-badge" data-variant="success">active</span>
+        <button type="button" class="hc-button" data-variant="primary">Primary</button>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

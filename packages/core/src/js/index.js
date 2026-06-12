@@ -33,6 +33,7 @@ export { installSplitter } from './splitter.js';
 export { installShell } from './shell.js';
 export { installDatagrid } from './datagrid.js';
 export { installValidation } from './validation.js';
+export { installThemeToggle } from './theme-toggle.js';
 
 // installChart is opt-in (not part of the auto-init `behaviors` entry): it
 // needs Observable Plot, an optional peer dependency you load yourself.
