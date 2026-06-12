@@ -121,6 +121,11 @@ the remaining JSON path with hyphens:
 Add a token only when the value is reused. A value used once is not
 yet a token.
 
+Shadows are an exception with their own scale: `box-shadow` colors must
+come from `--hc-shadow-sm` / `-md` / `-lg` / `-overlay` (or compose the
+`--hc-shadow-edge` color) so dark mode can strengthen them — Stylelint
+rejects literal colors in `box-shadow`.
+
 ## Development environment
 
 The standard setup is WSL 2 + Docker Desktop + VS Code Dev Containers
