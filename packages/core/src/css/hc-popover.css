@@ -14,7 +14,7 @@
     color: var(--hc-popover-fg);
     min-inline-size: var(--hc-popover-min-width);
     max-inline-size: var(--hc-popover-max-width);
-    box-shadow: 0 6px 20px rgb(0, 0, 0, 0.12);
+    box-shadow: var(--hc-shadow-lg);
 
     /* Shared directional placement (hc-anchored.css). Anchoring is opt-in via
      * data-side + installPopover; a bare popover stays browser-positioned. */

@@ -51,7 +51,7 @@
     min-inline-size: var(--hc-combobox-listbox-min-width);
     max-block-size: var(--hc-combobox-listbox-max-height);
     overflow-y: auto;
-    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.12);
+    box-shadow: var(--hc-shadow-lg);
     list-style: none;
   }
 

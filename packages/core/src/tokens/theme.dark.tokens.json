@@ -46,5 +46,12 @@
         "border": { "$type": "color", "$value": "{primitive.color.red.900}" }
       }
     }
+  },
+  "shadow": {
+    "$description": "Stronger alphas than the light scale so elevation stays legible on dark surfaces.",
+    "sm":      { "$type": "shadow", "$value": "0 1px 2px rgb(0, 0, 0, 0.55)" },
+    "md":      { "$type": "shadow", "$value": "0 4px 12px rgb(0, 0, 0, 0.45)" },
+    "lg":      { "$type": "shadow", "$value": "0 8px 24px rgb(0, 0, 0, 0.5)" },
+    "overlay": { "$type": "shadow", "$value": "0 10px 30px rgb(0, 0, 0, 0.6)" }
   }
 }

@@ -36,7 +36,7 @@
     background: var(--hc-command-bg);
     color: var(--hc-command-fg);
     overflow: hidden;
-    box-shadow: 0 8px 24px rgb(0, 0, 0, 0.12);
+    box-shadow: var(--hc-shadow-lg);
   }
 
   .hc-command__input {
