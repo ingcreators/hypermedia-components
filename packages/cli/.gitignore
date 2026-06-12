@@ -1,0 +1,3 @@
+# Created by scripts/sync-recipes.mjs at prepack; the workspace reads
+# the repo's recipes/ directly.
+/recipes/
