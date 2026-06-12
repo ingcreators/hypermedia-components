@@ -135,9 +135,10 @@ The docs site is deployed at
 (`--hc-shadow-*` + stylelint guard), docs truth, links validation in CI,
 unit tests for the shared internals, hygiene, the TesseraQL docs
 follow-ups, weekly Lighthouse runs (`perf.yml`), and the recipe CLI
-(`@hypermedia-components/cli`; first npm publish pending the
-trusted-publisher registration + a `cli-v*` tag). No active workstream;
-the unreleased changes are patch-eligible as `0.1.1` per VERSIONING.md.
+(`@hypermedia-components/cli` `0.1.0`, on npm `latest` since 2026-06-12
+— first publish was manual by necessity; later releases go through
+`cli-v*` tags). No active workstream; the unreleased changes are
+patch-eligible as `0.1.1` per VERSIONING.md.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and

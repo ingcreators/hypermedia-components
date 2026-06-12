@@ -28,8 +28,9 @@ Security    — security-relevant changes
   project; `list` shows the twelve recipes with their purpose lines.
   Zero runtime dependencies; the recipes ship inside the tarball
   (offline-friendly); existing files are never overwritten without
-  `--force`. Publishing is wired separately (first npm release pending
-  the trusted-publisher registration).
+  `--force`. Published as `@hypermedia-components/cli@0.1.0`
+  (2026-06-12); subsequent releases go through `cli-v*` tags
+  (`release.yml`, npm trusted publishing).
 - **Japanese locale pack `@hypermedia-components/core/locales/ja`** (#217):
   a flat, frozen map translating every `DEFAULT_MESSAGES` key, ready for
   `setMessages(ja)` — consumers no longer hand-maintain translations of
