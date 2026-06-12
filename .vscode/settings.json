@@ -1,0 +1,27 @@
+{
+  // Match .editorconfig / devcontainer (files.eol) and CI expectations.
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+
+  // Run ESLint + Stylelint autofixes on save (the CLI is lint-only; there is
+  // no Prettier in this repo, so formatting is driven by the linters).
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  },
+
+  // ESLint uses a flat config (packages/core/eslint.config.mjs). Let the
+  // extension resolve the nearest config per file in this pnpm workspace.
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+
+  // Stylelint owns CSS — turn off VS Code's built-in style linters so they
+  // don't double-report.
+  "stylelint.validate": ["css"],
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false
+}

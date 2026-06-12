@@ -1,0 +1,10 @@
+{
+  // Keep in sync with .devcontainer/devcontainer.json → customizations.vscode.extensions
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "stylelint.vscode-stylelint",
+    "astro-build.astro-vscode",
+    "EditorConfig.EditorConfig",
+    "anthropic.claude-code"
+  ]
+}
