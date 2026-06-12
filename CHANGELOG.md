@@ -44,6 +44,21 @@ Security    — security-relevant changes
   New Recipes → Field errors docs page (live demo), Field / Alert /
   i18n docs sections, `recipes/field-errors/` contract scaffold,
   16 Vitest + 5 Playwright tests (incl. axe).
+- **Versioning policy ([`VERSIONING.md`](VERSIONING.md) + Reference →
+  Versioning & stability docs page).** Defines the public API surface
+  the way template/codegen consumers experience it — CSS class names,
+  data attributes, `--hc-*` custom properties, JS exports, `hc:*`
+  events, i18n message keys, package export paths, and recipe server
+  contracts — plus the 0.x semver rules (patch = additive only;
+  breaking changes only in minors, flagged in this file) and the
+  deprecation-alias rule (renames keep the old name working for ≥1
+  minor; the pre-alpha "no aliases" rule ended with `0.0.1-alpha.0`).
+  Prompted by the TesseraQL improvement brief
+  ([`plans/tesseraql-2026-06-brief.md`](plans/tesseraql-2026-06-brief.md),
+  Theme 7); the response document
+  ([`plans/tesseraql-2026-06-response-en.md`](plans/tesseraql-2026-06-response-en.md))
+  maps each requested theme to existing alpha.0 features or a planned
+  PR.
 
 ### Fixed
 
