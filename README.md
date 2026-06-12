@@ -73,15 +73,15 @@ Or via CDN-style asset paths (see the
 
 ## What's included
 
-| Surface | Count | Highlights |
-| --- | ---:| --- |
-| CSS components | 13 | `hc-button`, `hc-input`, `hc-field`, `hc-card`, `hc-table`, `hc-badge`, `hc-alert`, `hc-dialog`, `hc-popover`, `hc-spinner`, `hc-toast`, `hc-toolbar`, `hc-pagination` |
-| DTCG tokens     | 209 vars | `primitive`, `semantic`, `component`, `theme.dark` layers |
-| Behaviors       | 5 | `installConfirm`, `installToast`, `installCloseDialog`, `installClosePopover`, `installRemoteDialog` |
-| Macros          | 2 | `<hc-confirm-action>`, `<hc-live-search>` |
-| Recipes         | 9 | `request-action`, `confirm-action`, `live-search`, `toast`, `remote-dialog`, `filter-popover`, `data-region`, `inline-edit`, `lazy-panel` |
-| Integration guides | 5 | Thymeleaf, Django, Rails, Go, Razor |
-| Tests | 73 unit + 25 browser | Vitest (jsdom) + Playwright (Chromium) |
+| Surface | Scale | Highlights |
+| --- | --- | --- |
+| CSS components | 50+ | from `hc-button` / `hc-input` / `hc-table` to `hc-dialog`, `hc-combobox`, `hc-datagrid`, `hc-calendar`, `hc-shell` |
+| DTCG tokens | 780+ custom properties | `primitive` / `semantic` / `component` layers × runtime axes `data-theme` / `data-color` / `data-neutral` / `data-density` |
+| Behaviors | 30+ | `installXxx()` helpers — confirm, toast, combobox, datagrid, menu, tabs, theme toggle, validation, … |
+| Macros | 2 | `<hc-confirm-action>`, `<hc-live-search>` |
+| Recipes | 12 | request-action, confirm-action, live-search, field-errors, datagrid-pager, chart, … |
+| Integration guides | 8 | plain HTML, htmx, hyperscript, Thymeleaf, Django, Rails, Go, Razor |
+| Tests | 100+ suites | Vitest (jsdom) + Playwright (Chromium), incl. axe a11y scans |
 
 Full IA: see [`apps/docs/src/content/docs/`](apps/docs/src/content/docs/)
 or run the docs locally (`pnpm docs:dev`).
@@ -101,7 +101,7 @@ packages/core/     @hypermedia-components/core
 examples/
   plain-html/      Static gallery (zero-dep Node server)
   htmx/            Full recipes wired to a 100-line Node API
-plans/             Implementation plan (v0.4)
+plans/             Implementation plans and design documents
 ```
 
 ## Development
@@ -133,9 +133,11 @@ pnpm --filter @hypermedia-components/core exec playwright install chromium
 
 ## CI
 
-GitHub Actions runs three parallel jobs on every push and PR:
+GitHub Actions runs four parallel jobs on every push and PR:
 
-- **unit** — Vitest + jsdom
+- **lint** — ESLint + Stylelint
+- **unit** — Vitest + jsdom, plus a `tsc --noEmit` smoke test of the
+  public type surface
 - **docs** — Astro build (uploads `apps/docs/dist` as an artifact)
 - **browser** — Playwright + Chromium (uploads report + traces on
   failure; Chromium binaries are cached)
@@ -144,11 +146,13 @@ See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Project status
 
-Pre-alpha. The implementation tracks the
-[v0.4 plan](plans/hc-hypermedia-components-implementation-plan-v0.4-en.md);
-breaking changes are expected until the first published alpha. The
-public-export contract for the package is documented in
-[`CONTRIBUTING.md`](CONTRIBUTING.md#release-process).
+`0.1.0` is published on npm under the `latest` dist-tag (2026-06-12).
+The public API surface — class names, data attributes, custom
+properties, exports, events, recipe contracts — and the semver rules
+are defined in [`VERSIONING.md`](VERSIONING.md): 0.x **patch**
+releases are strictly additive, and renames ship behind a deprecation
+alias for at least one minor version. The release process is
+documented in [`CONTRIBUTING.md`](CONTRIBUTING.md#release-process).
 
 ## Contributing
 
