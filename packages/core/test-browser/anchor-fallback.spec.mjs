@@ -8,7 +8,6 @@ import { test, expect } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     const real = CSS.supports.bind(CSS);
-    // eslint-disable-next-line no-global-assign
     CSS.supports = (...args) =>
       /anchor-name|position-anchor/.test(args.join(' ')) ? false : real(...args);
   });

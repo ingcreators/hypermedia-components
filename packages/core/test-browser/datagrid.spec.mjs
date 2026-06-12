@@ -445,7 +445,6 @@ test.describe('hc-datagrid — column resize', () => {
   test('narrowing a column clips its cells', async ({ page }) => {
     await page.getByTestId('h-name').locator('.hc-datagrid__resizer').focus();
     for (let i = 0; i < 20; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
       await page.keyboard.press('Shift+ArrowLeft');
     }
     const { resized, overflow } = await page.getByTestId('c-name-1').evaluate((el) => ({

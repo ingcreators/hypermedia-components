@@ -27,6 +27,11 @@ export default [
       ecmaVersion: 'latest',
       sourceType: 'module',
     },
+    // A disable comment whose rule never fires is dead weight that hides
+    // the next real violation — fail the lint instead of warning.
+    linterOptions: {
+      reportUnusedDisableDirectives: 'error',
+    },
     rules: {
       eqeqeq: ['error', 'smart'],
       'no-var': 'error',
