@@ -33,6 +33,17 @@ test.describe('hc-item', () => {
     expect(bg).not.toBe('transparent');
   });
 
+  test('aria-current="page" gets the selected treatment (nav lists)', async ({ page }) => {
+    const current = await page
+      .getByTestId('item-nav-current')
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+    const other = await page
+      .getByTestId('item-nav-other')
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(current).not.toBe('rgba(0, 0, 0, 0)');
+    expect(other).toBe('rgba(0, 0, 0, 0)');
+  });
+
   test('data-variant="error" tints the title', async ({ page }) => {
     await expect(page.getByTestId('item-error-title')).toHaveCSS('color', 'rgb(220, 38, 38)');
   });

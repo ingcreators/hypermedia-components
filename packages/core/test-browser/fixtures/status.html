@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc status utility fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:40rem;">
+    <h1>Status utility</h1>
+
+    <p>
+      <span class="hc-status" data-testid="neutral">neutral</span>
+      <span class="hc-status" data-variant="info" data-testid="info">info</span>
+      <span class="hc-status" data-variant="success" data-testid="success">success</span>
+      <span class="hc-status" data-variant="warning" data-testid="warning">warning</span>
+      <span class="hc-status" data-variant="error" data-testid="error">error</span>
+      <span data-testid="plain">plain</span>
+    </p>
+
+    <table class="hc-table">
+      <thead>
+        <tr><th>Job</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>nightly-sync</td>
+          <td class="hc-status" data-variant="success" data-testid="cell-success">completed</td>
+        </tr>
+        <tr class="hc-status" data-variant="error" data-fill data-testid="row-error">
+          <td>outbox-dispatch</td>
+          <td class="hc-status" data-variant="error" data-testid="cell-failed">failed</td>
+        </tr>
+        <tr>
+          <td>reindex</td>
+          <td class="hc-status" data-variant="info" data-testid="cell-running">running</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="hc-status" data-variant="warning" data-fill data-testid="filled-line"
+       style="padding:.5rem .75rem;border-radius:6px;">
+      3 events have been pending for more than an hour.
+    </p>
+  </main>
+</body>
+</html>

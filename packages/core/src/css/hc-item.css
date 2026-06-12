@@ -52,9 +52,11 @@
     outline-offset: -2px;
   }
 
-  /* Selected — option / list selection. */
+  /* Selected — option / list selection — and the current page in a nav
+   * list (aria-current="page" on the active sidebar link). */
   .hc-item[aria-selected="true"],
-  .hc-item[data-selected] {
+  .hc-item[data-selected],
+  .hc-item[aria-current]:not([aria-current="false"]) {
     background: var(--hc-item-selected-bg);
     color: var(--hc-item-selected-fg);
   }

@@ -86,6 +86,29 @@ For ephemeral notifications across pages, use
 [Toast](/hypermedia-components/components/toast/), which is triggered by an
 `hc:toast` event or an `HX-Trigger` response header.
 
+## Validation-error fragment
+
+An error alert can carry a **field-error list** — the wire format the
+[field-errors recipe](/hypermedia-components/recipes/field-errors/)
+defines for server-side validation over htmx:
+
+```html
+<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+  <p class="hc-alert__title">Unprocessable Entity</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error" data-field="email" data-code="duplicate">
+      email: duplicate</li>
+  </ul>
+  <p class="hc-alert__body">optional hint line</p>
+</div>
+```
+
+With `installFieldErrors()` active, each `.hc-alert__error` is
+distributed to the field its `data-field` names and hidden in the
+summary (`data-distributed`); items naming no known control stay
+visible. Without the behavior the alert renders all errors as a plain
+list. See the recipe for the full attribute set and server contract.
+
 ## Accessibility
 
 - Choose the **role** based on urgency:
