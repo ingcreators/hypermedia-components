@@ -1,0 +1,44 @@
+<!-- Fully expanded HTML. -->
+
+<!-- The form. The error container is the htmx target for non-2xx
+     responses (wire htmx:beforeSwap to allow 422 swaps — see contract). -->
+<form data-hx-post="/members"
+      data-hx-target="#form-errors"
+      data-hx-swap="innerHTML"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div id="form-errors"></div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input class="hc-input" id="email" name="email" type="email" required
+           aria-describedby="email-help">
+    <p class="hc-field__message" id="email-help">We never share it.</p>
+    <!-- installFieldErrors() / installValidation() fill this slot; it is
+         created automatically when absent. -->
+    <p class="hc-field__error" aria-live="polite"></p>
+  </div>
+
+  <button type="submit" class="hc-button" data-variant="primary">Save</button>
+</form>
+
+<!-- Server fragment, swapped into #form-errors on a 422. -->
+<div class="hc-alert" data-variant="error" role="alert"
+     data-hc-field-errors
+     data-error-code="APP-FIELD-4220">
+  <p class="hc-alert__title">Unprocessable Entity</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error"
+        data-field="email"
+        data-code="duplicate"
+        data-message-key="members.email.duplicate">email: duplicate</li>
+  </ul>
+  <p class="hc-alert__body">Optional hint line (e.g. an optimistic-locking conflict).</p>
+</div>
+
+<!-- After distribution the behavior has:
+     - written the message into the field's .hc-field__error,
+     - set aria-invalid + aria-describedby on the input and
+       data-invalid on the field,
+     - marked the <li> data-distributed="true" (hidden in the summary),
+     - stamped the alert data-distributed="all|partial|none",
+     - focused the first invalid control (opt out: data-focus="none"). -->
