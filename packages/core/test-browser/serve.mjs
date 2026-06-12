@@ -13,10 +13,14 @@ import { dirname, join, normalize, resolve, extname } from 'node:path';
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, 'fixtures');
 const coreDist = resolve(here, '..', 'dist');
+const repoRoot = resolve(here, '..', '..', '..');
 
 const PORT = Number(process.env.PORT) || 4400;
 
 const ASSET_ALIASES = new Map([
+  // Real htmx (the copy vendored for examples/htmx, pinned 2.0.4) so
+  // integration fixtures can exercise actual htmx requests offline.
+  ['/htmx.min.js',     join(repoRoot, 'examples', 'htmx', 'vendor', 'htmx.min.js')],
   ['/hc.css',          join(coreDist, 'hc.css')],
   ['/hc.tokens.css',   join(coreDist, 'hc.tokens.css')],
   ['/hc.htmx.css',     join(coreDist, 'hc.htmx.css')],

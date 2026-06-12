@@ -20,6 +20,23 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Blessed htmx patterns + a tested confirm-gating specification
+  (TesseraQL brief Theme 5).** The htmx integration guide gains a
+  "Common patterns" map (auto-refresh → `data-region`, busy indicator →
+  `request-action`, confirm → `confirm-action`, validation errors →
+  `field-errors`, notify → `toast`, dialog → `remote-dialog`), an
+  explicit **confirm gating specification** (capture-phase interception;
+  `data-hx-trigger="hc:confirmed"` is required; Cancel fires nothing;
+  `hx-confirm` must not be combined; delegated, so swapped-in triggers
+  work), and a **non-2xx swap** section (`htmx:beforeSwap` 422 snippet /
+  `HX-Retarget` alternative). `data-region` documents whole-region
+  self-replacement via `data-hx-select` for full-page endpoints. The
+  specification is enforced by 4 new browser tests running against
+  **real htmx 2.0.4** (the examples/htmx vendored copy, served offline
+  to the fixtures).
+
 ### Fixed
 
 - **Error text failed WCAG AA contrast in dark mode.** Error / help text in

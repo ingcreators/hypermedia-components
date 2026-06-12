@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc confirm + htmx fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:32rem;">
+    <h1>Confirm gating with real htmx</h1>
+
+    <!-- Sanity: ungated htmx request works in this fixture. -->
+    <button type="button" class="hc-button" data-testid="plain"
+            data-hx-get="/fragments/confirmed.html"
+            data-hx-target="#out-plain" data-hx-swap="innerHTML">
+      Plain request
+    </button>
+    <div id="out-plain" data-testid="out-plain"></div>
+
+    <!-- The documented pattern: confirm gate + hc:confirmed trigger. -->
+    <button type="button" class="hc-button" data-variant="error" data-testid="gated"
+            data-hc-confirm="Disable user alice?"
+            data-hc-confirm-title="Confirm disable"
+            data-hx-get="/fragments/confirmed.html"
+            data-hx-trigger="hc:confirmed"
+            data-hx-target="#out-gated" data-hx-swap="innerHTML">
+      Disable user
+    </button>
+    <div id="out-gated" data-testid="out-gated"></div>
+
+    <!-- The documented anti-pattern: confirm gate but default click
+         trigger — htmx never sees the click, hc:confirmed isn't its
+         trigger, so the element is inert for htmx. -->
+    <button type="button" class="hc-button" data-variant="error" data-testid="default-trigger"
+            data-hc-confirm="Really?"
+            data-hx-get="/fragments/confirmed.html"
+            data-hx-target="#out-default" data-hx-swap="innerHTML">
+      Misconfigured
+    </button>
+    <div id="out-default" data-testid="out-default"></div>
+  </main>
+</body>
+</html>
