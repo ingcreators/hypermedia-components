@@ -114,8 +114,12 @@ themes, one PR each, #192–#198):
 | [`plans/tesseraql-2026-06-response-en.md`](plans/tesseraql-2026-06-response-en.md) | Our response: what already existed in alpha.0 vs. what each theme PR added. |
 
 The docs site is deployed at
-`hypermedia-components.ichimura-12c.workers.dev`. No active workstream
-beyond the v0.5 plan's P3 backlog.
+`hypermedia-components.ichimura-12c.workers.dev`. The active workstream
+is
+[`plans/hc-maintenance-quality-plan-v0.8-en.md`](plans/hc-maintenance-quality-plan-v0.8-en.md)
+— post-0.1.0 quality debt (shadow tokens, docs truth, CI guards,
+shared-internal tests, hygiene) plus two P3 picks (Lighthouse
+benchmarks, recipe CLI).
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
