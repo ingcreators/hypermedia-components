@@ -21,6 +21,14 @@
     "at-rule-no-deprecated": [true, { "ignoreAtRules": ["layer"] }],
     "alpha-value-notation": "number",
     "color-function-notation": "legacy",
-    "value-keyword-case": ["lower", { "ignoreKeywords": ["currentColor"] }]
+    "value-keyword-case": ["lower", { "ignoreKeywords": ["currentColor"] }],
+    "declaration-property-value-disallowed-list": [
+      {
+        "box-shadow": ["/rgba?\\(/", "/hsla?\\(/", "/oklch\\(/", "/#[0-9a-fA-F]/"]
+      },
+      {
+        "message": "box-shadow colors must come from the token scale (--hc-shadow-*) — no literal colors."
+      }
+    ]
   }
 }
