@@ -20,6 +20,17 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Security
+
+- **Docs site: Astro 5.18 → 6.4, Starlight 0.32 → 0.40.** Clears the
+  Dependabot alerts against Astro (`define:vars` XSS, server-island
+  parameter replay — docs site only; the published package has no
+  runtime dependencies). Migrations: Starlight ≥0.39 sidebar
+  `autogenerate` groups now use the `items` array form, and ≥0.33
+  `social` takes an array of link items. No content changes; the
+  Demo component, table rehype plugin, and theme-restore script are
+  unaffected (verified in the built output).
+
 ## [0.1.0] - 2026-06-12
 
 Graduates from alpha — the first release published under the npm

@@ -19,9 +19,13 @@ export default defineConfig({
         baseUrl:
           'https://github.com/ingcreators/hypermedia-components/edit/main/apps/docs/',
       },
-      social: {
-        github: 'https://github.com/ingcreators/hypermedia-components',
-      },
+      social: [
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/ingcreators/hypermedia-components',
+        },
+      ],
       sidebar: [
         {
           label: 'Start',
@@ -32,7 +36,7 @@ export default defineConfig({
             { slug: 'start/philosophy' },
           ],
         },
-        { label: 'Fundamentals', autogenerate: { directory: 'fundamentals' } },
+        { label: 'Fundamentals', items: [{ autogenerate: { directory: 'fundamentals' } }] },
         { label: 'Kitchen sink', slug: 'kitchen-sink' },
         {
           // Grouped by purpose instead of one flat ~50-entry alphabetical
@@ -131,10 +135,10 @@ export default defineConfig({
           ],
         },
         { label: 'Blocks', slug: 'blocks' },
-        { label: 'Recipes', autogenerate: { directory: 'recipes' } },
-        { label: 'Tokens', autogenerate: { directory: 'tokens' } },
-        { label: 'Integrations', autogenerate: { directory: 'integrations' } },
-        { label: 'Reference', autogenerate: { directory: 'reference' } },
+        { label: 'Recipes', items: [{ autogenerate: { directory: 'recipes' } }] },
+        { label: 'Tokens', items: [{ autogenerate: { directory: 'tokens' } }] },
+        { label: 'Integrations', items: [{ autogenerate: { directory: 'integrations' } }] },
+        { label: 'Reference', items: [{ autogenerate: { directory: 'reference' } }] },
       ],
       customCss: [
         '@hypermedia-components/core/css',
