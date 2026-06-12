@@ -1,0 +1,211 @@
+---
+title: Field errors
+description: Distribute a server-sent validation-error fragment to the form fields it names — inline messages, ARIA wiring, and localization with zero custom JavaScript.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`field-errors` is the kit's contract for **server-side validation
+errors** over htmx. The server answers a failed submission (typically a
+`422`) with a small alert fragment naming the offending fields; the
+`installFieldErrors()` behavior distributes each error to the matching
+field — message in the field's error slot, `aria-invalid` +
+`aria-describedby` on the control — and clears them again as the user
+fixes things. The fragment is a documented wire format, so template
+engines and code generators can emit it verbatim.
+
+:::note[Setup]
+This recipe needs the `installFieldErrors()` behavior. Install every
+behavior at once with `import '@hypermedia-components/core/behaviors';`,
+or just this one:
+
+```js
+import { installFieldErrors } from '@hypermedia-components/core';
+installFieldErrors();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
+## The fragment
+
+This is the canonical shape the server returns; htmx swaps it into a
+container inside (or pointed at) the form:
+
+```html
+<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+  <p class="hc-alert__title">Unprocessable Entity</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error" data-field="email" data-code="duplicate"
+        data-message-key="members.email.duplicate">email: duplicate</li>
+  </ul>
+  <p class="hc-alert__body">optional hint line</p>
+</div>
+```
+
+- **`data-hc-field-errors`** is the behavior opt-in. Empty: distribute
+  into the closest `<form>`. With a value: a CSS selector for the form
+  (for out-of-band swaps, or an alert rendered outside the form).
+- **`data-field`** names the control (its `name` attribute).
+  Radio/checkbox groups resolve to their shared field. An item naming
+  no known control **stays visible in the summary** — use that for
+  form-level errors.
+- **`data-message-key`** is optional client-side localization (below);
+  the item's text is the fallback. **`data-code`** is passed through
+  for your own styling/tests.
+
+## Try it
+
+Clicking **Simulate 422** inserts exactly the fragment above next to
+the form (standing in for an htmx swap). The email error lands inline
+on its field with full ARIA wiring; the unknown-field item stays in
+the summary. Edit the email field and its error clears.
+
+<Demo previewClass="hc-preview--start">
+  <form id="fe-demo-form" onsubmit="event.preventDefault()" style="display:grid;gap:1rem;max-inline-size:24rem;">
+    <div id="fe-demo-errors"></div>
+    <div class="hc-field">
+      <label class="hc-field__label" for="fe-demo-email">Email</label>
+      <input class="hc-input" id="fe-demo-email" name="email" type="email" aria-describedby="fe-demo-email-help" />
+      <p class="hc-field__message" id="fe-demo-email-help">We never share it.</p>
+    </div>
+    <div style="display:flex;gap:.5rem;">
+      <button type="button" class="hc-button" data-variant="error" onclick="const c = document.getElementById('fe-demo-errors'); c.innerHTML = document.getElementById('fe-demo-template').innerHTML; c.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }))">Simulate 422</button>
+      <button type="submit" class="hc-button">Submit (clears)</button>
+    </div>
+    <template id="fe-demo-template">
+      <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+        <p class="hc-alert__title">Unprocessable Entity</p>
+        <ul class="hc-alert__errors">
+          <li class="hc-alert__error" data-field="email" data-code="duplicate" data-message-key="members.email.duplicate">email: duplicate</li>
+          <li class="hc-alert__error" data-field="unknown-field">Something form-level went wrong</li>
+        </ul>
+        <p class="hc-alert__body">optional hint line</p>
+      </div>
+    </template>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form data-hx-post="/members" data-hx-target="#form-errors" data-hx-swap="innerHTML">
+    <div id="form-errors"></div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="email">Email</label>
+      <input class="hc-input" id="email" name="email" type="email">
+    </div>
+
+    <button type="submit" class="hc-button" data-variant="primary">Save</button>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+## What happens
+
+1. htmx swaps the fragment in; the behavior reacts to
+   `htmx:afterSwap` / `htmx:oobAfterSwap` (with a `MutationObserver`
+   fallback, plus an install-time scan for full-page error renders).
+2. Previous server errors in the form are cleared.
+3. Each `.hc-alert__error[data-field]` matching a control writes its
+   message into the field's `.hc-field__error` (created automatically —
+   even after a bare control with no `hc-field` wrapper), sets
+   `aria-invalid="true"` and `aria-describedby` on the control and
+   `data-invalid="true"` on the field, and is marked
+   `data-distributed="true"` (hidden in the summary so it isn't read
+   twice).
+4. The alert is stamped `data-distributed="all | partial | none"` and
+   the first invalid control receives focus.
+5. A field's server error clears on the user's first `input`/`change`
+   in that field, on submit/reset, and before the next fragment is
+   distributed.
+
+## Fragment attributes
+
+| Attribute | On | Meaning |
+| --- | --- | --- |
+| `data-hc-field-errors` | alert | Opt-in; empty = `closest('form')`, value = CSS selector for the form. |
+| `data-field` | item | Control `name` to attach the error to. |
+| `data-code` | item | Optional machine-readable code (available to the resolver as `{code}`). |
+| `data-message-key` | item | Optional i18n catalog key; item text is the fallback. |
+| `data-summary="auto"` | alert | Hide the whole alert once every item was distributed. |
+| `data-focus="none"` | alert | Don't focus the first invalid control. |
+
+## Localizing message keys
+
+`data-message-key` resolves through the same
+[i18n catalog](/hypermedia-components/fundamentals/i18n/) as every
+other kit string — configure it once at startup:
+
+```js
+import { setMessages } from '@hypermedia-components/core';
+
+setMessages({
+  'members.email.duplicate': 'このメールアドレスは既に登録されています',
+  // `{field}` / `{code}` interpolate if you want generic messages:
+  'errors.required': '{field} is required',
+});
+```
+
+A key missing from the catalog falls back to the item's own text — so
+when your server starts localizing, emit final text and drop the keys;
+nothing on the client changes.
+
+## Server response contract
+
+htmx ≥ 2 does not swap non-2xx responses by default. Allow the `422`
+swap once, globally:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+Alternatively answer `200` with the fragment, or steer any response
+into the error container with `HX-Retarget: #form-errors` +
+`HX-Reswap: innerHTML`. The full contract (required markup, all
+attributes, behavior steps) lives in
+[`recipes/field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md).
+
+## Interplay with client-side validation
+
+[`installValidation()`](/hypermedia-components/components/field/#client-side-validation)
+surfaces *native* constraint errors into the same `.hc-field__error`
+slot with the same ARIA wiring. The two compose: a native message
+outranks a server error on the same control (it reflects the current
+value), and neither clears the other's state prematurely.
+
+## Accessibility
+
+- The summary uses `role="alert"`, so the swap itself is announced;
+  field messages use `aria-live="polite"` and are referenced from the
+  control via `aria-describedby`.
+- The first invalid control is focused — the standard
+  post-submit error pattern. Disable with `data-focus="none"` if your
+  flow manages focus itself.
+- Distributed items are only *visually* removed from the summary; an
+  item that matches no field remains visible, so no error is ever
+  silently dropped.
+
+## Progressive enhancement
+
+- Without JavaScript (full-page re-render), the alert renders all
+  errors as a plain list — distribution is an enhancement, nothing is
+  lost.
+- Without htmx, fragments present in the initial HTML are still
+  distributed by the install-time scan.
+
+## Related
+
+- [Field](/hypermedia-components/components/field/) — the
+  label/control/message composition the errors land in.
+- [Alert](/hypermedia-components/components/alert/) — the summary
+  container.
+- [Data region](/hypermedia-components/recipes/data-region/) — the
+  swap-driven counterpart for non-form content.

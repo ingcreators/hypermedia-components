@@ -22,13 +22,9 @@
 // State lives in HTML attributes; the behavior is idempotent and returns an
 // uninstaller.
 
+import { fieldOf, getOrCreateError } from './field-error-core.js';
+
 const INSTALL_KEY = '__hcValidationUninstall';
-
-let errorIdSeq = 0;
-
-function fieldOf(control) {
-  return control?.closest?.('.hc-field') ?? null;
-}
 
 // A control the browser will constraint-validate, inside a field.
 function isValidatable(el) {
@@ -41,36 +37,18 @@ function isValidatable(el) {
   );
 }
 
-function ensureDescribedBy(control, id) {
-  const existing = (control.getAttribute('aria-describedby') ?? '')
-    .split(/\s+/)
-    .filter(Boolean);
-  if (!existing.includes(id)) {
-    existing.push(id);
-    control.setAttribute('aria-describedby', existing.join(' '));
-  }
-}
-
-function getOrCreateError(field, control) {
-  let error = field.querySelector('.hc-field__error');
-  if (!error) {
-    error = field.ownerDocument.createElement('p');
-    error.className = 'hc-field__error';
-    error.setAttribute('aria-live', 'polite');
-    field.appendChild(error);
-  }
-  if (!error.id) error.id = `hc-field-error-${(errorIdSeq += 1)}`;
-  ensureDescribedBy(control, error.id);
-  return error;
-}
-
 function renderError(control) {
   const field = fieldOf(control);
   if (!field) return;
   control.dataset.hcValidated = '';
   control.setAttribute('aria-invalid', 'true');
   field.setAttribute('data-invalid', 'true');
-  getOrCreateError(field, control).textContent = control.validationMessage;
+  const error = getOrCreateError(field, control);
+  error.textContent = control.validationMessage;
+  // The native message reflects the *current* value, so it supersedes a
+  // server-sent error (installFieldErrors) that may occupy the same slot.
+  delete control.dataset.hcServerInvalid;
+  error.removeAttribute('data-hc-server-error');
 }
 
 function clearError(control) {
@@ -106,6 +84,9 @@ export function installValidation(root = (typeof document !== 'undefined' ? docu
   function onBlur(event) {
     const el = event.target;
     if (!isValidatable(el)) return;
+    // A server-sent error (installFieldErrors) is not ours to clear — the
+    // control may be natively valid yet still rejected by the server.
+    if (el.dataset.hcServerInvalid != null) return;
     // checkValidity() fires `invalid` (→ renderError) when invalid.
     if (el.checkValidity()) clearError(el);
   }
@@ -113,6 +94,7 @@ export function installValidation(root = (typeof document !== 'undefined' ? docu
   function onInput(event) {
     const el = event.target;
     if (!isValidatable(el)) return;
+    if (el.dataset.hcServerInvalid != null) return;
     // Only validate live once the control has been validated at least once,
     // so we never flag a field the user hasn't finished with.
     if (el.dataset.hcValidated == null) return;

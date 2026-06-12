@@ -80,6 +80,93 @@ Two attributes work together:
 
 A server-rendered form should set both atomically when validation fails.
 
+## Composing a form
+
+A complete form needs nothing beyond kit classes — no app CSS for
+label layout, control widths, required markers, help text, or the
+actions row:
+
+<Demo previewStyle="max-width:24rem;">
+  <form style="display:grid;gap:1rem;" onsubmit="event.preventDefault()">
+    <div class="hc-field">
+      <label class="hc-field__label" for="cf-realm">Realm id</label>
+      <input class="hc-input" id="cf-realm" name="realmId" required placeholder="local" aria-describedby="cf-realm-help" />
+      <p class="hc-field__message" id="cf-realm-help">Lowercase letters only.</p>
+    </div>
+    <div class="hc-field">
+      <label class="hc-field__label" for="cf-display">Display name</label>
+      <input class="hc-input" id="cf-display" name="displayName" />
+    </div>
+    <fieldset class="hc-field">
+      <legend class="hc-field__label">Mode</legend>
+      <label><input type="radio" name="mode" value="standard" checked="" /> Standard</label>
+      <label><input type="radio" name="mode" value="strict" /> Strict</label>
+    </fieldset>
+    <div class="hc-cluster">
+      <button type="submit" class="hc-button" data-variant="primary">Create realm</button>
+      <button type="button" class="hc-button" data-variant="ghost">Cancel</button>
+    </div>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form>
+    <div class="hc-field">
+      <label class="hc-field__label" for="realm">Realm id</label>
+      <input class="hc-input" id="realm" name="realmId" required
+             placeholder="local" aria-describedby="realm-help">
+      <p class="hc-field__message" id="realm-help">Lowercase letters only.</p>
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="display">Display name</label>
+      <input class="hc-input" id="display" name="displayName">
+    </div>
+
+    <!-- Related radios/checkboxes: the field is a <fieldset> -->
+    <fieldset class="hc-field">
+      <legend class="hc-field__label">Mode</legend>
+      <label><input type="radio" name="mode" value="standard" checked> Standard</label>
+      <label><input type="radio" name="mode" value="strict"> Strict</label>
+    </fieldset>
+
+    <!-- Actions row -->
+    <div class="hc-cluster">
+      <button type="submit" class="hc-button" data-variant="primary">Create realm</button>
+      <button type="button" class="hc-button" data-variant="ghost">Cancel</button>
+    </div>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+Everything in that form is default behavior:
+
+- **Label association is native** — `for`/`id`; clicking the label
+  focuses the control. (Implicit wrapping also works, but the explicit
+  form is easier to style and target.)
+- **The required asterisk is automatic** — any field containing a
+  `[required]` control marks its label; no `<span class="req">*</span>`.
+- **Controls fill the field** — `.hc-field` is a grid (items stretch)
+  and `hc-input` / `hc-select` are `inline-size: 100%` by default, so
+  `form .hc-input { width: 100% }`-style app CSS is unnecessary.
+- **Help text** is `.hc-field__message`; the error slot
+  (`.hc-field__error`) is filled by [client-side
+  validation](#client-side-validation) or the
+  server — author it only if you want to reserve the space.
+- **A radio/checkbox group is a `fieldset.hc-field`** — the kit strips
+  the native fieldset chrome; the `<legend>` takes the label class.
+- **The actions row** is a [`.hc-cluster`](/hypermedia-components/fundamentals/layout/)
+  (wrapping flex row). For an end-aligned or keyboard-navigable
+  control strip, use [Toolbar](/hypermedia-components/components/toolbar/)
+  with `data-hc-spacer`.
+
+Spacing between fields is the form's concern, not the field's — use
+[`.hc-stack`](/hypermedia-components/fundamentals/layout/) (or a
+`display:grid; gap` rule) on the form.
+
 ## htmx usage
 
 For server-side validation, return the entire field from the server and
@@ -151,6 +238,18 @@ Override `--hc-field-required-color` (e.g. to `transparent`) to restyle or hide
 the required asterisk. The native `required` attribute remains the accessible
 source of truth.
 :::
+
+## Server-side validation errors
+
+For rules only the server can check (uniqueness, conflicts), the
+[field-errors recipe](/hypermedia-components/recipes/field-errors/)
+defines a small alert fragment the server returns on a failed
+submission. `installFieldErrors()` (also in the auto-init bundle)
+distributes each error into the matching field's `.hc-field__error`
+with exactly the ARIA wiring described above, clears it when the user
+edits the field, and lets `data-message-key` resolve through the
+[i18n catalog](/hypermedia-components/fundamentals/i18n/). Native
+constraint messages take precedence on the same control.
 
 ## Accessibility
 

@@ -1,7 +1,10 @@
 /* hc-alert — block-level notice / status message.
  *
  * Variants via data-variant: info (default) | success | warning | error
- * Optional parts: .hc-alert__title, .hc-alert__body
+ * Optional parts: .hc-alert__title, .hc-alert__body,
+ * .hc-alert__errors > .hc-alert__error (field-error list — see the
+ * `field-errors` recipe; `installFieldErrors()` distributes the items
+ * to their fields and marks them `data-distributed`).
  *
  * Accessibility: set role="status" (or aria-live="polite") on the
  * element for transient updates; role="alert" for urgent ones. The
@@ -32,6 +35,31 @@
    * only spacing the consumer needs to reason about. */
   .hc-alert :where(p) {
     margin: 0;
+  }
+
+  /* Field-error list (server validation fragment — `field-errors` recipe). */
+  .hc-alert__errors {
+    margin: 0;
+    padding-inline-start: 1.25em;
+  }
+
+  /* An item that installFieldErrors() has distributed to its field is
+   * hidden in the summary so the message isn't read twice. Items naming
+   * no known control keep rendering here. */
+  .hc-alert[data-hc-field-errors] .hc-alert__error[data-distributed="true"] {
+    display: none;
+  }
+
+  /* …and when every item was distributed, the now-empty list collapses. */
+  .hc-alert[data-hc-field-errors]
+    .hc-alert__errors:not(:has(.hc-alert__error:not([data-distributed="true"]))) {
+    display: none;
+  }
+
+  /* Opt-in: a fragment that carries only field errors (no standalone
+   * summary worth keeping) hides itself entirely once fully distributed. */
+  .hc-alert[data-hc-field-errors][data-summary="auto"][data-distributed="all"] {
+    display: none;
   }
 
   .hc-alert[data-variant="success"] {
