@@ -360,8 +360,11 @@ unit**: the record's checkbox (or `Space`) selects all its sub-rows
 `hc:datagridselectionchange` count by record, and the record holding the
 active cell gets `data-current` (the lead `rowspan` cell is accented).
 A thicker border separates records; sub-rows within a record are divided
-by a lighter line. Keyboard navigation moves by sub-row (↑/↓) and cell
-(←/→), so it spans records and sub-rows transparently. Single-row grids
+by a lighter line. Keyboard navigation moves by **visual position**:
+↑/↓ stay in the same visual column while crossing sub-rows and records
+(`rowspan`/`colspan` are resolved, so ↓ then ↑ returns to the starting
+cell), and a spanning cell — like the lead `rowspan` cell — is a single
+stop reachable with ←/→ from any sub-row it spans. Single-row grids
 (one `<tbody class="hc-datagrid__body">`) are unchanged.
 
 ## Expandable row detail

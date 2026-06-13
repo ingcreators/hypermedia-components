@@ -275,18 +275,18 @@ const FIXTURE_MULTI = `
         </thead>
         <tbody class="hc-datagrid__record" id="rec-1">
           <tr class="hc-datagrid__row" id="r1a">
-            <td class="hc-datagrid__cell" rowspan="2"><input type="checkbox" class="hc-checkbox" aria-label="Select record 1"></td>
+            <td class="hc-datagrid__cell" id="c-r1-lead" rowspan="2"><input type="checkbox" class="hc-checkbox" aria-label="Select record 1"></td>
             <td class="hc-datagrid__cell" id="c-r1-code">D0006</td>
-            <td class="hc-datagrid__cell">Ham</td>
+            <td class="hc-datagrid__cell" id="c-r1-name">Ham</td>
           </tr>
           <tr class="hc-datagrid__row" id="r1b">
             <td class="hc-datagrid__cell" id="c-r1-qty">12</td>
-            <td class="hc-datagrid__cell">14000</td>
+            <td class="hc-datagrid__cell" id="c-r1-price">14000</td>
           </tr>
         </tbody>
         <tbody class="hc-datagrid__record" id="rec-2">
           <tr class="hc-datagrid__row" id="r2a">
-            <td class="hc-datagrid__cell" rowspan="2"><input type="checkbox" class="hc-checkbox" aria-label="Select record 2"></td>
+            <td class="hc-datagrid__cell" id="c-r2-lead" rowspan="2"><input type="checkbox" class="hc-checkbox" aria-label="Select record 2"></td>
             <td class="hc-datagrid__cell" id="c-r2-code">D0004</td>
             <td class="hc-datagrid__cell">Rice</td>
           </tr>
@@ -346,6 +346,36 @@ describe('installDatagrid — multi-row records', () => {
     press($('r1b').querySelector('[data-active]'), 'ArrowDown'); // into record 2
     expect($('rec-2').hasAttribute('data-current')).toBe(true);
     expect($('rec-1').hasAttribute('data-current')).toBe(false);
+  });
+
+  it('↓ keeps the visual column across sub-rows (Code → Qty, not Price)', () => {
+    document.body.innerHTML = FIXTURE_MULTI;
+    uninstall = installDatagrid();
+    $('c-r1-code').focus();
+    press($('c-r1-code'), 'ArrowDown');
+    expect($('c-r1-qty').getAttribute('data-active')).toBe('');
+  });
+
+  it('↓ then ↑ round-trips in the last column', () => {
+    document.body.innerHTML = FIXTURE_MULTI;
+    uninstall = installDatagrid();
+    $('c-r1-name').focus();
+    press($('c-r1-name'), 'ArrowDown');
+    expect($('c-r1-price').getAttribute('data-active')).toBe('');
+    press($('c-r1-price'), 'ArrowUp');
+    expect($('c-r1-name').getAttribute('data-active')).toBe('');
+  });
+
+  it('the rowspan lead cell is one stop: ← reaches it from a sub-row, ↓ leaves to the next record’s lead', () => {
+    document.body.innerHTML = FIXTURE_MULTI;
+    uninstall = installDatagrid();
+    $('c-r1-qty').focus();
+    press($('c-r1-qty'), 'ArrowLeft'); // into the lead cell spanning both sub-rows
+    expect($('c-r1-lead').getAttribute('data-active')).toBe('');
+    press($('c-r1-lead'), 'ArrowDown'); // skips the lead cell's own second slot
+    expect($('c-r2-lead').getAttribute('data-active')).toBe('');
+    press($('c-r2-lead'), 'ArrowRight'); // back out of the span keeps the entry row
+    expect($('c-r2-code').getAttribute('data-active')).toBe('');
   });
 });
 
