@@ -38,6 +38,7 @@ import { installDatagrid } from './datagrid.js';
 import { installValidation } from './validation.js';
 import { installThemeToggle } from './theme-toggle.js';
 import { installFieldErrors } from './field-errors.js';
+import { installCsrfHeader } from './csrf-header.js';
 
 function init() {
   installConfirm();
@@ -71,6 +72,7 @@ function init() {
   installValidation();
   installThemeToggle();
   installFieldErrors();
+  installCsrfHeader();
 }
 
 if (typeof document !== 'undefined') {
@@ -113,6 +115,7 @@ export {
   installValidation,
   installThemeToggle,
   installFieldErrors,
+  installCsrfHeader,
 };
 
 // i18n — set the locale before this module's auto-init runs (e.g. inline

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc csrf-header + htmx fixture</title>
+  <!--
+    The blessed CSRF delivery convention (#246): the server's layout
+    renders the token into <meta name="csrf-token">, and the
+    auto-installed csrf-header behavior attaches it to every htmx
+    request via htmx:configRequest. The spec intercepts real htmx
+    requests and asserts the header.
+  -->
+  <meta name="csrf-token" content="fixture-token-1">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:32rem;">
+    <h1>CSRF header with real htmx</h1>
+
+    <button type="button" class="hc-button" data-testid="post"
+            data-hx-post="/fragments/confirmed.html"
+            data-hx-target="#out" data-hx-swap="innerHTML">
+      Post
+    </button>
+
+    <button type="button" class="hc-button" data-testid="get"
+            data-hx-get="/fragments/confirmed.html"
+            data-hx-target="#out" data-hx-swap="innerHTML">
+      Get
+    </button>
+
+    <!-- A per-request data-hx-headers value must win over the page-level
+         convention. -->
+    <button type="button" class="hc-button" data-testid="override"
+            data-hx-post="/fragments/confirmed.html"
+            data-hx-headers='{"X-CSRF-Token":"per-request"}'
+            data-hx-target="#out" data-hx-swap="innerHTML">
+      Post with explicit header
+    </button>
+
+    <div id="out" data-testid="out"></div>
+  </main>
+</body>
+</html>

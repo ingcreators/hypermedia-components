@@ -22,6 +22,23 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installCsrfHeader()` — blessed CSRF token delivery for htmx** (#246).
+  A new behavior in the auto-init
+  `@hypermedia-components/core/behaviors` bundle (also a named export
+  of the main entry). It reads `<meta name="csrf-token" content="…">`
+  on every `htmx:configRequest` and attaches the token as a request
+  header — read at request time (token rotation is automatic), on every
+  htmx verb, never overwriting an explicit per-request
+  `data-hx-headers` value, and inert when the meta tag is absent. The
+  header name defaults to `X-CSRF-Token` and is overridable per page
+  via `data-header` on the carrier (e.g. `data-header="X-CSRFToken"`
+  for Django). This gives server frameworks and code generators a
+  stable markup target so CSRF enforcement can be on by default; plain
+  `<form method="post">` degradation still needs the framework's hidden
+  CSRF field. Header injection is covered by a unit suite
+  (`test/csrf-header.test.mjs`) and a real-htmx browser test
+  (`test-browser/csrf-header.spec.mjs`); the htmx integration guide
+  documents the convention.
 - **Docs: blessed boolean form-field pattern** (#245) — "As a boolean
   form field" on the checkbox page: an `hc-field` stanza pairing a
   hidden `false` input with the same-name checkbox `true`, so a form
