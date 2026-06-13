@@ -80,6 +80,32 @@ function rowCells(row) {
   );
 }
 
+// The navigation matrix as a VISUAL grid: a cell with rowspan/colspan is
+// entered into every (row, column) slot it covers, so arrow keys move by
+// visual position and multi-row records stay column-aligned (the lead
+// rowspan cell is reachable from every sub-row it spans).
+function buildMatrix(grid) {
+  const rows = bodyRows(grid);
+  const out = rows.map(() => []);
+  rows.forEach((row, r) => {
+    let c = 0;
+    for (const cell of rowCells(row)) {
+      while (out[r][c] !== undefined) c += 1; // slot taken by a rowspan above
+      const cs = cell.colSpan || 1;
+      // rowspan="0" = "to the end of the row group" (HTML spec); either way
+      // a span never crosses into the next record's rows.
+      const rs = cell.rowSpan === 0 ? rows.length - r : cell.rowSpan || 1;
+      for (let dr = 0; dr < rs; dr += 1) {
+        const target = rows[r + dr];
+        if (!target || target.parentNode !== row.parentNode) break;
+        for (let dc = 0; dc < cs; dc += 1) out[r + dr][c + dc] = cell;
+      }
+      c += cs;
+    }
+  });
+  return out;
+}
+
 /** Measure header heights + frozen widths → sticky offset variables. */
 function measure(grid) {
   const headTrs = ownedBy(grid, '.hc-datagrid__head > tr');
@@ -149,7 +175,8 @@ function attach(grid, detachers) {
     for (const h of ownedBy(grid, '.hc-datagrid__headcell')) {
       if (!h.getAttribute('role')) h.setAttribute('role', 'columnheader');
     }
-    matrix.flat().forEach((cell) => {
+    // A spanning cell occupies several matrix slots — visit each cell once.
+    new Set(matrix.flat()).forEach((cell) => {
       cell.setAttribute('role', cell.tagName === 'TH' ? 'rowheader' : 'gridcell');
       cell.tabIndex = -1;
       // Widgets in cells are not separate tab stops — the grid manages focus.
@@ -160,15 +187,16 @@ function attach(grid, detachers) {
   }
 
   function rebuild() {
-    matrix = bodyRows(grid).map(rowCells);
+    matrix = buildMatrix(grid);
     applyRoles();
     applyResizedWidths(); // re-apply column widths to swapped-in rows
-    const cur = matrix[active.r]?.[active.c] ?? matrix[0]?.[0];
-    if (cur) {
-      cur.tabIndex = 0;
-      const pos = locate(cur);
+    let cur = matrix[active.r]?.[active.c];
+    if (!cur) {
+      cur = matrix[0]?.[0];
+      const pos = cur && locate(cur);
       if (pos) active = pos;
     }
+    if (cur) cur.tabIndex = 0;
   }
 
   // ---- Column resize ----
@@ -331,6 +359,23 @@ function attach(grid, detachers) {
     cell.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }
 
+  // Arrow movement: walk from the active slot in direction (dr, dc),
+  // skipping further slots of the same spanning cell so a rowspan/colspan
+  // cell counts as a single stop. The active slot (not the cell's top-left)
+  // is the walk origin, so the entry row/column is kept while crossing a
+  // span — ↓ then ↑ round-trips.
+  function step(dr, dc) {
+    const { r, c } = active;
+    const cur = matrix[r]?.[c];
+    let nr = r + dr;
+    let nc = c + dc;
+    while (cur && matrix[nr]?.[nc] === cur) {
+      nr += dr;
+      nc += dc;
+    }
+    setActive(nr, nc);
+  }
+
   function toggleRow(r) {
     const row = bodyRows(grid)[r];
     if (!row) return;
@@ -386,10 +431,10 @@ function attach(grid, detachers) {
       else if (key === 'ArrowLeft') key = 'ArrowRight';
     }
     switch (key) {
-      case 'ArrowDown': setActive(r + 1, c); break;
-      case 'ArrowUp': setActive(r - 1, c); break;
-      case 'ArrowRight': setActive(r, c + 1); break;
-      case 'ArrowLeft': setActive(r, c - 1); break;
+      case 'ArrowDown': step(1, 0); break;
+      case 'ArrowUp': step(-1, 0); break;
+      case 'ArrowRight': step(0, 1); break;
+      case 'ArrowLeft': step(0, -1); break;
       case 'Home': setActive(event.ctrlKey ? 0 : r, 0); break;
       case 'End':
         if (event.ctrlKey) setActive(matrix.length - 1, Infinity);
@@ -419,9 +464,11 @@ function attach(grid, detachers) {
     if (!cell || !grid.contains(cell)) return;
     const pos = locate(cell);
     if (!pos) return;
-    if (pos.r !== active.r || pos.c !== active.c) {
+    if (matrix[active.r]?.[active.c] !== cell) {
       setActive(pos.r, pos.c, false); // don't re-focus; focus is already here
     } else {
+      // Already the active cell — keep the active slot as-is so a spanning
+      // cell remembers which sub-row/column it was entered from.
       cell.setAttribute('data-active', '');
     }
   }

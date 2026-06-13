@@ -44,6 +44,14 @@ Security    — security-relevant changes
   group has a visible control (a lone hidden control still resolves as
   before).
 
+- **`hc-datagrid`: column-aligned keyboard navigation in multi-row
+  records.** The navigation matrix now resolves `rowspan`/`colspan` into
+  a visual grid: ↑/↓ keep the visual column across sub-rows (previously
+  the cursor drifted sideways on rows with fewer cells and ↓ then ↑ did
+  not return to the starting cell), and a spanning cell — e.g. the lead
+  `rowspan` cell of a record — is one stop, reachable with ←/→ from any
+  sub-row it spans. Single-row grids are unaffected.
+
 ## [0.1.1] - 2026-06-12
 
 ### Added
