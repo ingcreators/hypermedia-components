@@ -10,8 +10,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      # checkout only — publishing writes to npm, not to the repo
-      contents: read
+      # write so the job can create the matching GitHub Release after a
+      # successful publish (the npm publish itself uses OIDC, not this).
+      contents: write
       # OIDC for npm trusted publishing (no token; provenance attached
       # automatically). The trusted publisher is configured on npmjs.com
       # for this repo + this workflow file (release.yml).
@@ -65,3 +66,59 @@ jobs:
         # The CLI package needs its own trusted-publisher registration on
         # npmjs.com (same repo, same workflow file) before its first
         # cli-v* tag is pushed.
+
+      # Mirror the npm publish with a GitHub Release so the Releases page
+      # stays the human-readable record of what shipped (the convention
+      # every prior v* tag followed, previously created by hand). Runs
+      # only after a successful publish. Core (v*) releases pull their
+      # notes from the matching CHANGELOG section and are marked Latest;
+      # CLI (cli-v*) releases use auto-generated notes and never take over
+      # the repo's Latest pointer. Re-runs on an existing tag are a no-op.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists — nothing to do."
+            exit 0
+          fi
+          VERSION="${TAG#cli-}"
+          VERSION="${VERSION#v}"
+
+          FLAGS=()
+          if [[ "$VERSION" == *-* ]]; then
+            FLAGS+=(--prerelease --latest=false)   # pre-release: never Latest
+          elif [[ "$TAG" == cli-v* ]]; then
+            FLAGS+=(--latest=false)                 # CLI: don't usurp core's Latest
+          else
+            FLAGS+=(--latest)                        # stable core release
+          fi
+
+          NOTES=(--generate-notes)
+          if [[ "$TAG" != cli-v* ]]; then
+            # Core: lift the matching CHANGELOG section verbatim. index()==1
+            # anchors on the heading start so the version's dots are literal,
+            # and the next "## [" ends the section.
+            SECTION=$(awk -v v="$VERSION" '
+              index($0, "## [" v "]") == 1 { f = 1; next }
+              f && /^## \[/ { exit }
+              f { print }
+            ' CHANGELOG.md)
+            if [ -n "$(printf '%s' "$SECTION" | tr -d '[:space:]')" ]; then
+              {
+                printf '%s\n\n' "$SECTION"
+                printf 'Full details in [`CHANGELOG.md`](https://github.com/%s/blob/main/CHANGELOG.md).\n' "$GITHUB_REPOSITORY"
+              } > release-notes.md
+              NOTES=(--notes-file release-notes.md)
+            fi
+          fi
+
+          if [[ "$TAG" == cli-v* ]]; then
+            TITLE="@hypermedia-components/cli $VERSION"
+          else
+            TITLE="v$VERSION"
+          fi
+
+          echo "Creating GitHub Release $TAG (title: $TITLE)"
+          gh release create "$TAG" --verify-tag --title "$TITLE" "${FLAGS[@]}" "${NOTES[@]}"
