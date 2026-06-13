@@ -22,6 +22,23 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`mutating-form` recipe — the blessed htmx form composition** (#244).
+  A copy-pasteable form that mutates server state: htmx POST with inline
+  4xx field errors (the [field-errors] fragment swapped into an in-form
+  container), a success **redirect** (branch on `HX-Request` — `204` +
+  `HX-Redirect` for htmx, plain `303 Location` for no-JS), a
+  double-submit guard + busy spinner (`data-hx-disabled-elt` /
+  `data-hx-indicator`), a confirmed destructive variant
+  (`data-hc-confirm` + `data-hx-trigger="hc:confirmed"`), and a no-JS
+  degradation path (keep `method`/`action` alongside `data-hx-post`).
+  Ships as `recipes/mutating-form/` (recipe/expanded/contract — the CLI
+  picks it up automatically) plus a docs page, pinned by a real-htmx
+  browser test (`test-browser/mutating-form.spec.mjs`). `HX-Redirect` is
+  blessed over `HX-Location` (the latter is not post/redirect/get); no
+  new glue behavior — the success redirect is htmx-native.
+
+### Added
+
 - **`installCsrfHeader()` — blessed CSRF token delivery for htmx** (#246).
   A new behavior in the auto-init
   `@hypermedia-components/core/behaviors` bundle (also a named export

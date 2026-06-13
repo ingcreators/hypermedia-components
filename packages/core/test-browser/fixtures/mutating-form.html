@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc mutating-form fixture</title>
+  <!--
+    The blessed mutating-form recipe (#244), verbatim from the docs:
+    htmx POST, inline 4xx field errors, success redirect (HX-Redirect),
+    double-submit guard + busy spinner, and a confirmed destructive
+    variant. The spec drives real htmx against the /mock/form/* routes
+    in serve.mjs and pins each documented claim. No custom JS beyond the
+    one-time htmx:beforeSwap allowance below (which the recipe documents).
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:32rem;">
+    <h1>Mutating form</h1>
+
+    <!-- A: posts to an endpoint that always 422s — inline errors +
+         double-submit guard. -->
+    <form data-testid="form-invalid"
+          method="post" action="/mock/form/invalid"
+          data-hx-post="/mock/form/invalid"
+          data-hx-target="#errors-a"
+          data-hx-swap="innerHTML"
+          data-hx-disabled-elt="find button[type=submit]"
+          data-hx-indicator="find .hc-spinner">
+      <div id="errors-a"></div>
+      <div class="hc-field" id="email-field">
+        <label class="hc-field__label" for="email">Email</label>
+        <input class="hc-input" id="email" name="email" type="email"
+               value="taken@example.com" data-testid="email">
+      </div>
+      <span class="hc-action">
+        <button class="hc-button" data-variant="primary" type="submit"
+                data-testid="submit-invalid">Create</button>
+        <span class="hc-spinner htmx-indicator" aria-hidden="true"
+              data-testid="spinner-a"></span>
+      </span>
+    </form>
+
+    <!-- B: posts to an endpoint that succeeds with HX-Redirect. -->
+    <form data-testid="form-valid"
+          method="post" action="/mock/form/valid"
+          data-hx-post="/mock/form/valid"
+          data-hx-target="#errors-b"
+          data-hx-swap="innerHTML"
+          data-hx-disabled-elt="find button[type=submit]">
+      <div id="errors-b"></div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="name">Display name</label>
+        <input class="hc-input" id="name" name="display_name" type="text"
+               value="Ada" data-testid="name">
+      </div>
+      <button class="hc-button" data-variant="primary" type="submit"
+              data-testid="submit-valid">Create</button>
+    </form>
+
+    <!-- C: confirmed destructive variant — gate then redirect. -->
+    <form data-testid="form-delete"
+          method="post" action="/mock/form/valid"
+          data-hx-post="/mock/form/valid"
+          data-hx-trigger="hc:confirmed"
+          data-hx-target="#errors-c"
+          data-hx-swap="innerHTML">
+      <div id="errors-c"></div>
+      <button class="hc-button" data-variant="error" type="submit"
+              data-hc-confirm="Delete this member? This cannot be undone."
+              data-hc-confirm-title="Delete member"
+              data-testid="delete">Delete</button>
+    </form>
+  </main>
+
+  <script>
+    // Documented one-time allowance: htmx ≥ 2 won't swap non-2xx by default.
+    document.body.addEventListener('htmx:beforeSwap', (event) => {
+      if (event.detail.xhr.status === 422) {
+        event.detail.shouldSwap = true;
+        event.detail.isError = false;
+      }
+    });
+  </script>
+</body>
+</html>

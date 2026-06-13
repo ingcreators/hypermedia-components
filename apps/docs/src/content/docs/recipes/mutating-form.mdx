@@ -1,0 +1,193 @@
+---
+title: Mutating form
+description: The canonical htmx form that mutates server state — inline 4xx field errors, a success redirect, a double-submit guard, and a no-JS degradation path.
+---
+
+`mutating-form` is the blessed composition for a form that **changes
+server state**: an htmx POST, inline validation errors on a 4xx, a
+full-page redirect on success, a double-submit guard with a busy
+spinner, and a no-JS fallback. It wires together three pieces that each
+already have a contract — the [field-errors](/hypermedia-components/recipes/field-errors/)
+fragment, the [request-action](/hypermedia-components/recipes/request-action/)
+busy/disabled pattern, and the [confirm-action](/hypermedia-components/recipes/confirm-action/)
+gate — into one form a code generator can emit verbatim. It is stable
+under the [markup versioning policy](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md).
+
+It needs `installFieldErrors()` (in the auto-init
+[`./behaviors`](/hypermedia-components/start/installation/#behaviors)
+bundle), and `installConfirm()` for the destructive variant.
+
+## The form
+
+```html
+<form
+  method="post" action="/members"
+  data-hx-post="/members"
+  data-hx-target="#member-form-errors"
+  data-hx-swap="innerHTML"
+  data-hx-disabled-elt="find button[type=submit]"
+  data-hx-indicator="find .hc-spinner">
+
+  <!-- The 4xx fragment swaps in here; empty on success. -->
+  <div id="member-form-errors"></div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input class="hc-input" id="email" name="email" type="email" required
+           autocomplete="email">
+  </div>
+
+  <span class="hc-action">
+    <button class="hc-button" data-variant="primary" type="submit">Create</button>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </span>
+</form>
+```
+
+Four things ride on that one element:
+
+- **`method`/`action` mirror `data-hx-post`** (same URL). When the
+  behaviors never load, the form still submits natively — see
+  [No-JS degradation](#no-js-degradation).
+- **`data-hx-target` + `data-hx-swap="innerHTML"`** land the 4xx
+  fragment in the in-form container, leaving the form itself intact.
+- **`data-hx-disabled-elt`** disables the submit button for the
+  duration of the request — the double-submit guard.
+- **`data-hx-indicator`** reveals the spinner while the request is in
+  flight. Both are htmx-native; no custom JS.
+
+## Success: redirect, don't swap
+
+The trap: with `data-hx-post`, htmx follows a raw `303 Location`
+transparently and swaps the **redirected page** into the form's target.
+That is wrong for post/redirect/get. The fix is to branch on the
+`HX-Request` header so each caller gets the right answer:
+
+```text
+POST /members
+  (no HX-Request)   → 303 See Other,  Location: /members/42
+  HX-Request: true  → 204 No Content,  HX-Redirect: /members/42
+```
+
+- **htmx** gets an **empty body** with **`HX-Redirect: /members/42`**.
+  htmx performs a full `window.location` navigation natively — same
+  destination, no DOM swap, no glue behavior needed.
+- **Non-htmx** (the no-JS path) gets a plain **`303 Location`**, which
+  the browser follows itself.
+
+:::note[Why `HX-Redirect`, not `HX-Location`]
+`HX-Location` does an AJAX-style boosted navigation (swap into
+`<body>` plus a history push), which is *not* post/redirect/get and
+pulls full-page-response concerns into a form post. `HX-Redirect` is
+the conservative, native-equivalent answer.
+:::
+
+## Failure: inline field errors (4xx)
+
+On validation failure the server returns **`422`** with the canonical
+[field-errors fragment](/hypermedia-components/recipes/field-errors/),
+swapped into `#member-form-errors`:
+
+```html
+<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+  <p class="hc-alert__title">Please fix the errors below.</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error" data-field="email" data-code="duplicate"
+        data-message-key="members.email.duplicate">email: already registered</li>
+  </ul>
+</div>
+```
+
+`installFieldErrors()` distributes each item to the field it names
+(`aria-invalid`, `aria-describedby`, the `.hc-field__error` slot, and
+focus on the first), and leaves any item naming no control visible in
+the summary as a form-level error.
+
+htmx ≥ 2 does not swap non-2xx responses by default. Allow the 422 swap
+once, globally:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+(Or answer `200` with the fragment, or send `HX-Retarget` +
+`HX-Reswap` — see the [field-errors recipe](/hypermedia-components/recipes/field-errors/#server-response-contract).)
+
+## Confirmed destructive variant
+
+For a delete (or any destructive submit), gate it with the
+[confirm-action](/hypermedia-components/recipes/confirm-action/)
+pattern. The only changes: `data-hc-confirm` on the submit button and
+`data-hx-trigger="hc:confirmed"` on the form, so htmx fires on the
+confirm event instead of the native submit.
+
+```html
+<form
+  method="post" action="/members/42/delete"
+  data-hx-post="/members/42/delete"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="#member-form-errors"
+  data-hx-swap="innerHTML"
+  data-hx-disabled-elt="find button[type=submit]"
+  data-hx-indicator="find .hc-spinner">
+  <span class="hc-action">
+    <button class="hc-button" data-variant="error" type="submit"
+            data-hc-confirm="Delete this member? This cannot be undone."
+            data-hc-confirm-title="Delete member">
+      Delete
+    </button>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </span>
+</form>
+```
+
+Errors, redirect, and the busy/disabled guard are identical to the
+create form. The no-JS path still posts through the plain submit —
+without the confirmation step, the safe degradation for a server that
+re-validates server-side anyway.
+
+## No-JS degradation
+
+Because the form keeps `method`/`action`, nothing is lost when the
+behaviors never load:
+
+- **Submit** posts natively. The server re-renders the full page with
+  the field-errors fragment inline (the summary alert lists every error
+  — nothing is lost; distribution to fields is the enhancement), or
+  sends a `303` redirect on success.
+- The double-submit guard and spinner are htmx enhancements; their
+  absence doesn't break submission.
+- The confirmed variant submits without the dialog.
+
+This is why a generated form should always carry `method`/`action`
+alongside `data-hx-post`. If the page also relies on
+[CSRF](/hypermedia-components/integrations/htmx/#csrf-tokens--the-blessed-convention),
+the no-JS form additionally needs the framework's **hidden CSRF field**
+— `installCsrfHeader()` only covers the htmx path.
+
+## Server response contract
+
+| Request               | Response |
+| --------------------- | -------- |
+| `POST /members` (htmx success) | `204` + `HX-Redirect: /members/42` |
+| `POST /members` (no-JS success) | `303` + `Location: /members/42` |
+| `POST /members` (invalid) | `422` + field-errors fragment, swapped into `#member-form-errors` |
+
+The full wire spec — fragment shape, i18n keys, the `htmx:beforeSwap`
+allowance, accessibility — lives in the
+[recipe source](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/mutating-form/contract.md).
+The keyboard, focus, redirect, and double-submit claims here are pinned
+by a browser test against this exact markup
+(`test-browser/mutating-form.spec.mjs`).
+
+## Related
+
+- [Field errors recipe](/hypermedia-components/recipes/field-errors/) — the 4xx fragment this builds on.
+- [Request action recipe](/hypermedia-components/recipes/request-action/) — the busy/disabled pattern.
+- [Confirm action recipe](/hypermedia-components/recipes/confirm-action/) — the destructive-submit gate.
+- [Checkbox → boolean field](/hypermedia-components/components/checkbox/#as-a-boolean-form-field) — for boolean inputs inside the form.

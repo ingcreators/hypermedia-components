@@ -1,0 +1,100 @@
+<!-- Fully expanded HTML.
+
+  The canonical mutating-form composition: htmx post, inline 4xx field
+  errors, success redirect, double-submit guard + busy spinner, and a
+  confirmed destructive variant. Generated markup can emit this
+  verbatim. The server contract is in contract.md; the client needs
+  installFieldErrors() (auto-init behaviors bundle) and, for the 4xx
+  swap, the one-time htmx:beforeSwap allowance shown at the bottom. -->
+
+<!-- 1. Create form.
+
+     - method/action mirror data-hx-post so a no-JS submit still works
+       (full-page POST → the server re-renders the page with the
+       field-errors fragment inline, or 303-redirects on success).
+     - data-hx-target points at an in-form container the 4xx fragment
+       is swapped into; data-hx-swap="innerHTML" replaces only its
+       contents, leaving the form intact.
+     - data-hx-disabled-elt disables the submit button for the duration
+       of the request (double-submit guard); data-hx-indicator reveals
+       the spinner. Both are htmx-native — no custom JS. -->
+<form
+  method="post" action="/members"
+  data-hx-post="/members"
+  data-hx-target="#member-form-errors"
+  data-hx-swap="innerHTML"
+  data-hx-disabled-elt="find button[type=submit]"
+  data-hx-indicator="find .hc-spinner">
+
+  <!-- Server swaps the 4xx fragment here; empty on success (the page
+       navigates away instead). -->
+  <div id="member-form-errors"></div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input class="hc-input" id="email" name="email" type="email" required
+           autocomplete="email">
+  </div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="display-name">Display name</label>
+    <input class="hc-input" id="display-name" name="display_name" type="text" required>
+  </div>
+
+  <span class="hc-action">
+    <button class="hc-button" data-variant="primary" type="submit">Create</button>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </span>
+</form>
+
+<!-- 2. Validation failure (server returns this with 422). The canonical
+        field-errors fragment; installFieldErrors() distributes each item
+        to the field it names and surfaces unmatched items in the summary.
+        Swapped into #member-form-errors. -->
+<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+  <p class="hc-alert__title">Please fix the errors below.</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error" data-field="email" data-code="duplicate"
+        data-message-key="members.email.duplicate">email: already registered</li>
+  </ul>
+</div>
+
+<!-- 3. Success: the server sends an EMPTY body with an HX-Redirect header
+        (see contract.md). htmx performs a full window.location navigation
+        natively — no glue behavior. There is no success fragment to
+        render here; the browser leaves the page. -->
+
+<!-- 4. Confirmed destructive variant (e.g. a delete form). The confirm
+        behavior gates activation and dispatches hc:confirmed; htmx fires
+        on that trigger instead of the native submit. Keep method/action
+        for the no-JS path (a plain submit posts straight through, just
+        without the confirmation step). -->
+<form
+  method="post" action="/members/42/delete"
+  data-hx-post="/members/42/delete"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="#member-form-errors"
+  data-hx-swap="innerHTML"
+  data-hx-disabled-elt="find button[type=submit]"
+  data-hx-indicator="find .hc-spinner">
+  <span class="hc-action">
+    <button class="hc-button" data-variant="error" type="submit"
+            data-hc-confirm="Delete this member? This cannot be undone."
+            data-hc-confirm-title="Delete member">
+      Delete
+    </button>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </span>
+</form>
+
+<!-- 5. One-time htmx config so 4xx responses are swapped (htmx ≥ 2 does
+        not swap non-2xx by default). Register once, globally. Omit it if
+        you answer 200 with the fragment, or send HX-Retarget/HX-Reswap. -->
+<script>
+  document.body.addEventListener('htmx:beforeSwap', (event) => {
+    if (event.detail.xhr.status === 422) {
+      event.detail.shouldSwap = true;
+      event.detail.isError = false;
+    }
+  });
+</script>
