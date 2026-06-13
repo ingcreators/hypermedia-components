@@ -20,6 +20,30 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Docs: blessed boolean form-field pattern** (#245) — "As a boolean
+  form field" on the checkbox page: an `hc-field` stanza pairing a
+  hidden `false` input with the same-name checkbox `true`, so a form
+  post always carries a value (unchecked → `false`; checked → both,
+  server binds the last). Covers the label-pattern rule
+  (`hc-field__label` + `for` inside a stanza vs the
+  `.hc-checkbox-label` cluster outside) and the `hc-switch` variant,
+  which transfers verbatim. Pinned by a browser test against the exact
+  markup (`test-browser/booleanfield.spec.mjs`) so code generators can
+  emit it as a stable contract.
+
+### Fixed
+
+- **field-errors: same-name groups now resolve to the first visible
+  control** (#245). A `data-field` naming a group that mixes hidden and
+  visible inputs (the boolean-field idiom) used to wire `aria-invalid`,
+  `aria-describedby`, focus, and edit-to-clear to the hidden input —
+  the message rendered, but toggling the checkbox never cleared it and
+  assistive tech heard nothing. Hidden members are now skipped when the
+  group has a visible control (a lone hidden control still resolves as
+  before).
+
 ## [0.1.1] - 2026-06-12
 
 ### Added

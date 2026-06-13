@@ -155,6 +155,12 @@ checkbox. For instant toggles, listen to `change`:
 </label>
 ```
 
+When the switch is part of a plain form post and the server binds a
+declared boolean, remember that an unchecked switch submits nothing —
+use the [blessed boolean-field pattern](/hypermedia-components/components/checkbox/#as-a-boolean-form-field)
+(hidden `false` + switch `true` under one `name`); it applies to
+`hc-switch` verbatim.
+
 ## Accessibility
 
 - Always pair the input with a label. Either wrap both in

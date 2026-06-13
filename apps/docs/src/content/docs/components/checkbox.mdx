@@ -153,6 +153,84 @@ density tier.
 The indeterminate state (set in JS via `input.indeterminate = true`)
 renders as a small horizontal bar in place of the check mark.
 
+## As a boolean form field
+
+An unchecked checkbox submits **nothing** — a server binding a declared
+boolean input from a form post sees an absent field instead of `false`.
+This is the **blessed boolean-field pattern**: a hidden input that
+guarantees a value, paired with the checkbox under the same `name`,
+inside an [`hc-field`](/hypermedia-components/components/field/) stanza.
+It is plain markup — code generators can emit it verbatim for boolean
+columns, and it is stable under the
+[markup versioning policy](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md).
+
+<Demo previewClass="hc-preview--col">
+  <div class="hc-field" style="max-inline-size:18rem;">
+    <label class="hc-field__label" for="boolfield-demo">Active</label>
+    <input type="hidden" name="active" value="false" />
+    <input class="hc-checkbox" id="boolfield-demo" name="active" type="checkbox" value="true" checked />
+    <p class="hc-field__message">Deactivated accounts are hidden from search.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field">
+    <label class="hc-field__label" for="active">Active</label>
+
+    <!-- Unchecked submits nothing — the hidden input guarantees
+         `active=false`. It must come first: when the checkbox is
+         checked, both submit and the server takes the last value. -->
+    <input type="hidden" name="active" value="false">
+    <input class="hc-checkbox" id="active" name="active" type="checkbox" value="true">
+
+    <p class="hc-field__message">Deactivated accounts are hidden from search.</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+The contract: unchecked submits `active=false`; checked submits
+`active=false&active=true`, and the server binds the **last**
+occurrence — the convention mainstream form binders follow (it is how
+Rails' `check_box` helper has worked for years). Keep the hidden input
+**first** in the DOM; document order is what makes last-wins work.
+
+### Which label pattern
+
+Inside an `hc-field` stanza use `hc-field__label` + `for`, exactly as
+above — it keeps the label column consistent with every other field
+type. The `.hc-checkbox-label` cluster is for checkboxes **outside** a
+field stanza: a standalone consent line, or the items of a
+`<fieldset class="hc-field">` group.
+
+### Switch variant
+
+[`hc-switch`](/hypermedia-components/components/switch/) is literally
+`<input type="checkbox" role="switch">` — it participates in form
+submission identically, so the pattern transfers verbatim:
+
+```html
+<div class="hc-field">
+  <label class="hc-field__label" for="notify">Email notifications</label>
+  <input type="hidden" name="notify" value="false">
+  <input class="hc-switch" id="notify" name="notify" type="checkbox" role="switch" value="true">
+</div>
+```
+
+### Field errors
+
+The [field-errors recipe](/hypermedia-components/recipes/field-errors/)
+works unchanged: a server item with `data-field="active"` resolves the
+same-name group and wires the message, `aria-invalid`, focus, and
+edit-to-clear to the **checkbox** — hidden members of a group are
+skipped, so the duplicated `name` never confuses the distribution.
+
+These claims are pinned by a browser test against this exact markup
+(`test-browser/booleanfield.spec.mjs`), so the pattern stays stable for
+generated code.
+
 ## htmx usage
 
 `hc-checkbox` participates in form submissions like any native checkbox.

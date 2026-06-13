@@ -38,7 +38,7 @@ not swap non-2xx responses by default; see “htmx wiring” below).
 | `data-hc-field-errors` | yes | Behavior opt-in. Empty value: distribute into `closest('form')`. Non-empty value: a CSS selector for the form (use for out-of-band swaps or an alert rendered outside the form). |
 | `.hc-alert__title` | no | Summary line. |
 | `.hc-alert__errors` > `.hc-alert__error` | yes (≥ 0 items) | One `<li>` per field error. Repeating a `data-field` is allowed (messages render one per line). |
-| `data-field` | yes (per item) | The control's `name`. Radio/checkbox groups resolve via `form.elements` (the group's shared field receives the error). Items naming no known control stay visible in the summary. |
+| `data-field` | yes (per item) | The control's `name`. Radio/checkbox groups resolve via `form.elements` (the group's shared field receives the error); hidden inputs in a group are skipped, so the boolean idiom (hidden `false` + checkbox `true` under one name) wires to the visible checkbox. Items naming no known control stay visible in the summary. |
 | `data-code` | no | Machine-readable error code; passed to the message resolver as `{code}` and left on the element. |
 | `data-message-key` | no | A lookup key for client-side localization. Resolved through the i18n catalog (`setMessages()`); when the catalog has no such key, the `<li>` text renders instead. Servers that localize themselves just emit final text and omit this attribute. |
 | `data-message-params` | no | A JSON object of interpolation values for the catalog lookup (e.g. `data-message-params='{"stock": 5}'` for a translation using `{stock}`). Merged over the implicit `{field}`/`{code}` params (item values win). Malformed or non-object JSON is ignored — the fallback chain is unchanged. |
