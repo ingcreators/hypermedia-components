@@ -47,9 +47,11 @@ container inside (or pointed at) the form:
   into the closest `<form>`. With a value: a CSS selector for the form
   (for out-of-band swaps, or an alert rendered outside the form).
 - **`data-field`** names the control (its `name` attribute).
-  Radio/checkbox groups resolve to their shared field. An item naming
-  no known control **stays visible in the summary** — use that for
-  form-level errors.
+  Radio/checkbox groups resolve to their shared field, skipping hidden
+  inputs — the [boolean-field idiom](/hypermedia-components/components/checkbox/#as-a-boolean-form-field)
+  (hidden `false` + checkbox `true` under one name) wires to the visible
+  checkbox. An item naming no known control **stays visible in the
+  summary** — use that for form-level errors.
 - **`data-message-key`** is optional client-side localization (below);
   the item's text is the fallback. **`data-code`** is passed through
   for your own styling/tests.

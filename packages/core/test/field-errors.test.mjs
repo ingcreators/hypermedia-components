@@ -271,6 +271,59 @@ describe('installFieldErrors', () => {
     expect(first.getAttribute('aria-invalid')).toBe('true');
   });
 
+  it('wires a boolean field (hidden false + checkbox true) to the checkbox, not the hidden input', () => {
+    renderForm({
+      extraFields: `
+        <div class="hc-field" id="active-field">
+          <label class="hc-field__label" for="active">Active</label>
+          <input type="hidden" name="active" value="false">
+          <input class="hc-checkbox" id="active" name="active" type="checkbox" value="true">
+        </div>
+      `,
+    });
+    uninstall = installFieldErrors();
+    swap(`
+      <div class="hc-alert" data-variant="error" data-hc-field-errors>
+        <ul class="hc-alert__errors">
+          <li class="hc-alert__error" data-field="active">Must be enabled</li>
+        </ul>
+      </div>
+    `);
+
+    const checkbox = document.getElementById('active');
+    const hidden = document.querySelector('input[type="hidden"][name="active"]');
+    const field = document.getElementById('active-field');
+    const error = field.querySelector('.hc-field__error');
+
+    expect(error.textContent).toBe('Must be enabled');
+    expect(checkbox.getAttribute('aria-invalid')).toBe('true');
+    expect(checkbox.getAttribute('aria-describedby')).toContain(error.id);
+    expect(hidden.hasAttribute('aria-invalid')).toBe(false);
+    expect(document.activeElement).toBe(checkbox);
+
+    // Toggling the checkbox clears the server error (edit-to-clear
+    // listens on the flagged control — it must be the checkbox).
+    checkbox.checked = true;
+    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(checkbox.hasAttribute('aria-invalid')).toBe(false);
+    expect(field.hasAttribute('data-invalid')).toBe(false);
+  });
+
+  it('falls back to the hidden input when no visible control shares the name', () => {
+    renderForm({ extraFields: '<input type="hidden" name="token" value="x">' });
+    uninstall = installFieldErrors();
+    swap(`
+      <div class="hc-alert" data-variant="error" data-hc-field-errors>
+        <ul class="hc-alert__errors">
+          <li class="hc-alert__error" data-field="token">Stale token</li>
+        </ul>
+      </div>
+    `);
+    // A lone hidden control still counts as known — the item distributes
+    // (previous behavior, unchanged by the visible-member preference).
+    expect(document.querySelector('.hc-alert').getAttribute('data-distributed')).toBe('all');
+  });
+
   it('creates (and later removes) an error element after a bare control', () => {
     renderForm({ extraFields: '<input name="nickname" id="nickname">' });
     uninstall = installFieldErrors();

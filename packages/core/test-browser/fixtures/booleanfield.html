@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc blessed boolean-field pattern fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:28rem;">
+    <h1>Boolean field</h1>
+    <!--
+      The blessed boolean-field pattern, verbatim from the checkbox docs
+      ("As a boolean form field", #245): an hc-field stanza pairing a
+      hidden `false` input with the real checkbox under one name, so the
+      server always receives a value (unchecked → false; checked → both,
+      last wins). The spec pins the documented submission shape and the
+      field-errors wiring so the markup stays a stable contract for code
+      generators.
+    -->
+    <form data-testid="form" onsubmit="event.preventDefault();">
+      <div id="errors"></div>
+
+      <div class="hc-field" id="active-field" style="max-inline-size:18rem;">
+        <label class="hc-field__label" for="active">Active</label>
+        <input type="hidden" name="active" value="false">
+        <input class="hc-checkbox" id="active" name="active" type="checkbox"
+               value="true" data-testid="checkbox">
+        <p class="hc-field__message">Deactivated accounts are hidden from search.</p>
+      </div>
+
+      <div class="hc-field" id="notify-field" style="max-inline-size:18rem;">
+        <label class="hc-field__label" for="notify">Email notifications</label>
+        <input type="hidden" name="notify" value="false">
+        <input class="hc-switch" id="notify" name="notify" type="checkbox"
+               role="switch" value="true" data-testid="switch">
+      </div>
+
+      <button type="submit" class="hc-button" data-variant="primary"
+              data-testid="submit">Save</button>
+    </form>
+
+    <!-- Simulates the server's 422 response being swapped in by htmx,
+         naming the boolean field — exactly the field-errors recipe
+         fragment. No custom error-handling JS. -->
+    <button type="button" data-testid="swap-errors" class="hc-button"
+            onclick="simulate422()">Simulate 422</button>
+  </main>
+
+  <script>
+    function simulate422() {
+      const container = document.getElementById('errors');
+      container.innerHTML = `
+        <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors
+             data-testid="alert">
+          <p class="hc-alert__title">Unprocessable Entity</p>
+          <ul class="hc-alert__errors">
+            <li class="hc-alert__error" data-field="active" data-code="required">
+              Must be enabled</li>
+          </ul>
+        </div>`;
+      container.dispatchEvent(
+        new CustomEvent('htmx:afterSwap', { bubbles: true, detail: {} }),
+      );
+    }
+  </script>
+</body>
+</html>

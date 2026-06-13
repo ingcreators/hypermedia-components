@@ -68,16 +68,21 @@ function scopeOf(alert, root) {
 }
 
 // First control in the scope whose `name` matches. `form.elements`
-// handles radio/checkbox groups natively (RadioNodeList → first member).
+// handles radio/checkbox groups natively (RadioNodeList). Hidden inputs
+// are skipped when the group has a visible member: the blessed boolean
+// idiom pairs `<input type="hidden" value="false">` with the real
+// checkbox under one name, and the ARIA wiring, focus, and edit-to-clear
+// belong on the control the user can operate.
 function controlFor(scope, name) {
   let found;
   if (scope.elements && typeof scope.elements.namedItem === 'function') {
     found = scope.elements.namedItem(name);
   } else {
-    found = scope.querySelector(`[name="${escapeName(name)}"]`);
+    found = scope.querySelectorAll(`[name="${escapeName(name)}"]`);
   }
   if (found && found.tagName == null && typeof found.length === 'number') {
-    found = found[0] ?? null; // RadioNodeList
+    const members = Array.from(found); // RadioNodeList / NodeList
+    found = members.find((el) => el.type !== 'hidden') ?? members[0];
   }
   return found ?? null;
 }
