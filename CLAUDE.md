@@ -46,13 +46,13 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.1.0` (published 2026-06-12): 53 component stylesheets ·
-32 behaviors · 2 macros · 12 recipes · 8 integration guides ·
+As of `0.1.2` (published 2026-06-13): 53 component stylesheets ·
+33 behaviors · 2 macros · 13 recipes · 8 integration guides ·
 ~100 docs pages (components, tokens, fundamentals, integrations,
 recipes, blocks) · runtime axes `data-theme` / `data-color` /
 `data-neutral` / `data-density` / `dir` · i18n message catalog
-(`setMessages()`) · examples for plain-html + htmx · 37 Vitest suites ·
-77 Playwright suites (incl. axe scans).
+(`setMessages()`) · examples for plain-html + htmx · 38 Vitest suites ·
+79 Playwright suites (incl. axe scans).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -139,6 +139,13 @@ follow-ups, weekly Lighthouse runs (`perf.yml`), and the recipe CLI
 — first publish was manual by necessity; later releases go through
 `cli-v*` tags). No active workstream; the post-0.1.0 quality work
 shipped as core `0.1.1` (2026-06-12, `v0.1.1` tag).
+
+Core `0.1.2` (2026-06-13, `v0.1.2` tag) followed: the three TesseraQL
+downstream form-pattern issues (#244 mutating-form recipe, #245 boolean
+field-pattern docs + the field-errors visible-control fix, #246
+`installCsrfHeader()`), plus the datagrid multi-row keyboard-nav fix
+(#248). CLI shipped `0.1.1` (`cli-v0.1.1` tag) to re-bundle the new
+recipe.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and

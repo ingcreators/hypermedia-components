@@ -20,6 +20,8 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-06-13
+
 ### Added
 
 - **`mutating-form` recipe — the blessed htmx form composition** (#244).
@@ -36,9 +38,9 @@ Security    — security-relevant changes
   browser test (`test-browser/mutating-form.spec.mjs`). `HX-Redirect` is
   blessed over `HX-Location` (the latter is not post/redirect/get); no
   new glue behavior — the success redirect is htmx-native.
-
-### Added
-
+- **CLI `@hypermedia-components/cli@0.1.1`** — re-bundles the recipe set
+  so `npx @hypermedia-components/cli add mutating-form` works; no command
+  or flag changes. (Independent `cli-v0.1.1` tag.)
 - **`installCsrfHeader()` — blessed CSRF token delivery for htmx** (#246).
   A new behavior in the auto-init
   `@hypermedia-components/core/behaviors` bundle (also a named export
