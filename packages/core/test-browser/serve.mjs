@@ -86,8 +86,57 @@ function resolveLocal(urlPath) {
   return full;
 }
 
+// Dynamic mock endpoints for the mutating-form spec (mutating-form.html):
+// a static file server can't set a 422 status or an HX-Redirect header,
+// so these few routes stand in for a server's mutation handler. A small
+// delay keeps the in-flight (disabled + spinner) window observable.
+const FIELD_ERRORS_FRAGMENT = `
+  <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+    <p class="hc-alert__title">Please fix the errors below.</p>
+    <ul class="hc-alert__errors">
+      <li class="hc-alert__error" data-field="email" data-code="duplicate"
+          data-message-key="members.email.duplicate">email: already registered</li>
+    </ul>
+  </div>`;
+
+function handleMock(req, res, url) {
+  if (!url.pathname.startsWith('/mock/form/')) return false;
+  // Drain the request body so the socket settles cleanly.
+  req.resume();
+  const delay = 250;
+  if (url.pathname === '/mock/form/invalid' && req.method === 'POST') {
+    setTimeout(() => {
+      res.statusCode = 422;
+      res.setHeader('Content-Type', MIME['.html']);
+      res.end(FIELD_ERRORS_FRAGMENT);
+    }, delay);
+    return true;
+  }
+  if (url.pathname === '/mock/form/valid' && req.method === 'POST') {
+    setTimeout(() => {
+      res.statusCode = 204;
+      res.setHeader('HX-Redirect', '/mock/form/done');
+      res.end();
+    }, delay);
+    return true;
+  }
+  if (url.pathname === '/mock/form/done' && req.method === 'GET') {
+    // The HX-Redirect destination — a plain page the browser navigates to.
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end('<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+      '<title>Created</title></head><body><h1 data-testid="created-page">Member created</h1>' +
+      '</body></html>');
+    return true;
+  }
+  res.statusCode = 404;
+  res.end('Not found');
+  return true;
+}
+
 const server = createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
+  if (handleMock(req, res, url)) return;
   const file = resolveLocal(url.pathname);
   if (!file) {
     res.statusCode = 404;

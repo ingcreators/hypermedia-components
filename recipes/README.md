@@ -16,6 +16,7 @@ documentation pages.
 | Recipe                                    | Purpose                                                                 |
 | ----------------------------------------- | ----------------------------------------------------------------------- |
 | [`request-action/`](request-action/)      | Button that sends an htmx request with a spinner.                       |
+| [`mutating-form/`](mutating-form/)        | Post a form: inline 4xx field errors, success redirect, double-submit guard. |
 | [`confirm-action/`](confirm-action/)      | Confirm with the user before sending an htmx request.                   |
 | [`live-search/`](live-search/)            | Input that streams results as the user types.                           |
 | [`toast/`](toast/)                        | Transient notification region driven by `hc:toast` events / HX-Trigger. |

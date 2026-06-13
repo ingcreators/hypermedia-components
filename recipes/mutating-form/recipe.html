@@ -1,0 +1,26 @@
+<!-- Short recommended usage.
+
+  A mutating form: htmx posts it, inline field errors land on a 4xx,
+  the server redirects on success, and a double-submit guard + busy
+  spinner ride along. Keep method/action so a no-JS submit still works.
+  See expanded.html for the destructive (confirmed) variant and
+  contract.md for the server response contract. -->
+<form
+  method="post" action="/members"
+  data-hx-post="/members"
+  data-hx-target="#member-form-errors"
+  data-hx-swap="innerHTML"
+  data-hx-disabled-elt="find button[type=submit]"
+  data-hx-indicator="find .hc-spinner">
+  <div id="member-form-errors"></div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input class="hc-input" id="email" name="email" type="email" required>
+  </div>
+
+  <span class="hc-action">
+    <button class="hc-button" data-variant="primary" type="submit">Create</button>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </span>
+</form>
