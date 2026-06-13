@@ -39,17 +39,70 @@ custom attributes.
 Pick one and stay consistent within a project. Mixing inside the same
 markup is fine for htmx but harder to grep.
 
-## Configuration via `htmx:configRequest`
+## CSRF tokens — the blessed convention
 
-`htmx:configRequest` fires once per request, before htmx serializes
-the form data and headers. It is the single most useful hook — every
-framework guide uses it for CSRF, and you can layer additional
-headers (auth, locale, feature flags) the same way.
+Server frameworks validate state-changing browser requests with a CSRF
+token, usually carried in a request header. Hypermedia Components
+blesses one convention so server frameworks and code generators have a
+stable markup target instead of each app inventing its own wiring:
+
+1. **The carrier** — the server's layout renders the token into a meta
+   tag in `<head>`:
+
+   ```html
+   <meta name="csrf-token" content="{{ csrf_token }}">
+   ```
+
+2. **The attachment** — `installCsrfHeader()`, shipped in the auto-init
+   `@hypermedia-components/core/behaviors` bundle, reads that meta tag
+   on every `htmx:configRequest` and adds the header to the request. No
+   per-app JavaScript beyond loading the bundle:
+
+   ```html
+   <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
+   ```
+
+The header name defaults to **`X-CSRF-Token`** (the Rails convention).
+For a backend that expects a different name, set it on the carrier — no
+code change:
+
+```html
+<!-- Django -->
+<meta name="csrf-token" content="{{ csrf_token }}" data-header="X-CSRFToken">
+```
+
+What the behavior guarantees:
+
+- **Read at request time**, so a rotated token (a fresh value swapped
+  into the meta tag) is picked up automatically — nothing is captured
+  at install.
+- **Every htmx request** carries it (not just non-GET). A same-origin
+  header on a GET is harmless; the server enforces only where it
+  enforces, and this sidesteps verb-classification edge cases.
+- **An explicit header wins.** A per-request
+  [`data-hx-headers`](#per-page-or-per-request-overrides) value for the
+  same header name is never overwritten.
+- **No meta tag → inert.** Pages that don't opt in pay nothing.
+
+:::caution[Plain forms need a different mechanism]
+`installCsrfHeader()` only touches htmx requests. A no-JS
+`<form method="post">` never fires `htmx:configRequest`, so it must
+carry the framework's **hidden CSRF field** as well — generated forms
+that keep `method`/`action` for no-JS submit should emit both.
+:::
+
+### Rolling your own in `htmx:configRequest`
+
+If you'd rather not ship the behavior — or you need to layer other
+headers — `htmx:configRequest` is the underlying hook. It fires once
+per request, before htmx serializes the form data and headers, and is
+the single most useful place to add auth, locale, or feature-flag
+headers:
 
 ```html
 <script>
   document.body.addEventListener('htmx:configRequest', (event) => {
-    // CSRF — the framework rendered the token into a <meta> tag.
+    // CSRF — equivalent to installCsrfHeader(), done by hand.
     const csrfMeta = document.querySelector('meta[name="csrf-token"]');
     if (csrfMeta) {
       event.detail.headers['X-CSRF-Token'] = csrfMeta.content;
@@ -63,9 +116,9 @@ headers (auth, locale, feature flags) the same way.
 
 The framework guides spell out the exact header name each backend
 expects (`X-CSRFToken` for Django, `X-CSRF-Token` for Rails,
-`RequestVerificationToken` for ASP.NET Core, `X-XSRF-TOKEN` for
-Spring Security, …). Pick the right one for your stack — the hook is
-the same.
+`RequestVerificationToken` for ASP.NET Core, the Spring Security
+`_csrf` header/token meta pair, …). Pick the right one for your
+stack — the `data-header` attribute and this hook both target it.
 
 ### Per-page or per-request overrides
 
@@ -149,6 +202,7 @@ behaviors hook into a small set of htmx events:
 
 | Event                | Used by                | What it triggers                                  |
 | -------------------- | ---------------------- | -------------------------------------------------- |
+| `htmx:configRequest` | `installCsrfHeader`    | Attach the page's CSRF token (`<meta name="csrf-token">`) as a request header — see [the convention above](#csrf-tokens--the-blessed-convention). |
 | `htmx:afterRequest`  | `installCloseDialog` / `installClosePopover` | Close the closest `<dialog>` / `[popover]` on a successful response. |
 | `htmx:afterSwap`     | `installRemoteDialog`  | Open a `<dialog>` that just appeared inside a `[data-hc-remote-dialog-root]`. |
 | `hc:toast`           | `installToast`         | Render a toast into the region. (Not an htmx event, but htmx is usually the dispatcher via `HX-Trigger`.) |

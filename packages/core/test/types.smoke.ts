@@ -37,6 +37,7 @@ import {
   installInputOtp,
   installSplitter,
   installValidation,
+  installCsrfHeader,
   version,
 } from '@hypermedia-components/core';
 
@@ -68,6 +69,7 @@ import {
   installInputOtp as installInputOtpFromBehaviors,
   installSplitter as installSplitterFromBehaviors,
   installValidation as installValidationFromBehaviors,
+  installCsrfHeader as installCsrfHeaderFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -108,6 +110,7 @@ const uninstallers: Array<() => void> = [
   installInputOtp(document),
   installSplitter(document),
   installValidation(document),
+  installCsrfHeader(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -135,6 +138,7 @@ const uninstallers: Array<() => void> = [
   installInputOtpFromBehaviors(),
   installSplitterFromBehaviors(),
   installValidationFromBehaviors(),
+  installCsrfHeaderFromBehaviors(),
 ];
 
 // `version` is a string literal export.

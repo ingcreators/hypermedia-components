@@ -35,6 +35,7 @@ export { installDatagrid } from './datagrid.js';
 export { installValidation } from './validation.js';
 export { installThemeToggle } from './theme-toggle.js';
 export { installFieldErrors } from './field-errors.js';
+export { installCsrfHeader } from './csrf-header.js';
 
 // installChart is opt-in (not part of the auto-init `behaviors` entry): it
 // needs Observable Plot, an optional peer dependency you load yourself.
