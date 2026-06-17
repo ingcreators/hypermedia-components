@@ -20,6 +20,25 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`hc-code` — read-only code surface** (#253, #256). A monospace block
+  styled from the kit's tokens, in three script-free (CSP-safe) modes that
+  share one decoration mechanism: a plain `<pre class="hc-code">` block
+  (horizontal scroll, or `data-wrap="on"` to soft-wrap); a line-numbered
+  `<ol class="hc-code" data-gutter="line-numbers">` whose
+  `<li class="hc-code__line">` rows take a per-line `data-state`
+  (`covered` / `missed`, tinted from the semantic status palette) with a
+  matching `hc-code__swatch` legend chip; and a unified diff
+  (`data-mode="diff"`) where each line carries `data-state`
+  (`added` / `removed` / `context`) plus `data-old` / `data-new` line
+  numbers and a `+` / `-` sign so the change is not conveyed by colour
+  alone. The server emits the markup — there is no client-side diffing or
+  highlighting. New `--hc-code-*` custom properties and a component docs
+  page; pinned by `test-browser/code.spec.mjs` (incl. axe in light and
+  dark). A side-by-side diff layout and syntax highlighting are out of
+  scope for this release.
+
 ## [0.1.2] - 2026-06-13
 
 ### Added

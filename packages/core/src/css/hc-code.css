@@ -1,0 +1,198 @@
+/* hc-code — read-only code surface (issues #253, #256).
+ *
+ * A monospace block styled from the kit's tokens, with three modes that
+ * share one decoration mechanism. All state lives in HTML attributes; no
+ * script is required (CSP `default-src 'self'` safe). Syntax highlighting
+ * is out of scope — the lines are plain text (a server-tokenized or
+ * behavior-driven follow-up may add it additively later).
+ *
+ * 1. Plain block — apply to a <pre>:
+ *
+ *      <pre class="hc-code"><code>SELECT 1
+ *      FROM t</code></pre>
+ *
+ *    Overflow is a horizontal scroll by default; `data-wrap="on"` soft-wraps
+ *    long lines instead.
+ *
+ * 2. Line-numbered / decorable — apply to an <ol>, one <li class="hc-code__line">
+ *    per line, with `data-gutter="line-numbers"`:
+ *
+ *      <ol class="hc-code" data-gutter="line-numbers">
+ *        <li class="hc-code__line">SELECT *</li>
+ *        <li class="hc-code__line" data-state="covered">  FROM orders</li>
+ *        <li class="hc-code__line" data-state="missed"> WHERE total &gt; 0</li>
+ *      </ol>
+ *
+ * 3. Unified diff — apply `data-mode="diff"` to the <ol>; each line carries a
+ *    `data-state` of added | removed | context and `data-old` / `data-new`
+ *    line numbers (the server computes the hunks — the kit only styles them):
+ *
+ *      <ol class="hc-code" data-mode="diff">
+ *        <li class="hc-code__line" data-state="context" data-old="12" data-new="12">  SELECT id</li>
+ *        <li class="hc-code__line" data-state="removed" data-old="13">  FROM users</li>
+ *        <li class="hc-code__line" data-state="added"   data-new="13">  FROM app_users</li>
+ *      </ol>
+ *
+ * Per-line `data-state` colours from semantic status tokens, so the same
+ * markup themes correctly in light and dark:
+ *   added / covered  → success    removed / missed → error    context → muted
+ *
+ * Legend: `.hc-code__swatch[data-state]` is a small colour chip the consumer
+ * composes into a legend next to a coverage block.
+ *
+ * Accessibility: a horizontally scrollable block must be keyboard-reachable,
+ * so make it a focusable, labelled region — `tabindex="0"` plus
+ * `role="region"` and an `aria-label`. Colour is never the only diff cue: the
+ * unified-diff gutter prints a `+` / `-` sign glyph alongside the tint.
+ */
+@layer hc.components {
+  .hc-code {
+    margin: 0;
+    border: 1px solid var(--hc-code-border);
+    border-radius: var(--hc-code-radius);
+    background: var(--hc-code-bg);
+    color: var(--hc-code-fg);
+    font-family: var(--hc-code-font-family);
+    font-size: var(--hc-code-font-size);
+    line-height: var(--hc-code-line-height);
+    overflow-x: auto;
+    tab-size: 2;
+  }
+
+  /* Plain block on a <pre>. */
+  .hc-code:where(pre) {
+    padding: var(--hc-code-padding-block) var(--hc-code-padding-inline);
+    white-space: pre;
+  }
+
+  .hc-code:where(pre)[data-wrap="on"] {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* Line-based modes on an <ol>: reset the list, keep the inline padding on
+   * the lines so a line's background tint spans the full block width. */
+  .hc-code:where(ol) {
+    padding-block: var(--hc-code-padding-block);
+    padding-inline: 0;
+    list-style: none;
+    counter-reset: hc-code-line;
+  }
+
+  .hc-code__line {
+    padding-inline: var(--hc-code-padding-inline);
+    white-space: pre;
+  }
+
+  .hc-code[data-wrap="on"] .hc-code__line {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* --- Line-number gutter ------------------------------------------------ */
+
+  .hc-code[data-gutter="line-numbers"] .hc-code__line {
+    position: relative;
+    counter-increment: hc-code-line;
+    padding-inline-start: var(--hc-code-gutter-width);
+  }
+
+  .hc-code[data-gutter="line-numbers"] .hc-code__line::before {
+    content: counter(hc-code-line);
+    position: absolute;
+    inset-inline-start: 0;
+    inline-size: calc(var(--hc-code-gutter-width) - var(--hc-code-gutter-gap));
+    color: var(--hc-code-gutter-fg);
+    text-align: end;
+    user-select: none;
+  }
+
+  /* --- Unified diff ------------------------------------------------------ */
+
+  .hc-code[data-mode="diff"] .hc-code__line {
+    position: relative;
+
+    /* Reserve two right-aligned number columns; the sign + code follow. */
+    padding-inline-start: calc(var(--hc-code-num-width) * 2 + var(--hc-code-gutter-gap));
+    list-style-position: inside;
+  }
+
+  .hc-code[data-mode="diff"] .hc-code__line::before {
+    content: attr(data-old);
+    position: absolute;
+    inset-inline-start: 0;
+    inline-size: var(--hc-code-num-width);
+    color: var(--hc-code-gutter-fg);
+    text-align: end;
+    user-select: none;
+  }
+
+  .hc-code[data-mode="diff"] .hc-code__line::after {
+    content: attr(data-new);
+    position: absolute;
+    inset-inline-start: var(--hc-code-num-width);
+    inline-size: var(--hc-code-num-width);
+    color: var(--hc-code-gutter-fg);
+    text-align: end;
+    user-select: none;
+  }
+
+  /* The +/- sign rides the list marker, so it is never selected when the
+   * code text is copied. A neutral two-space marker keeps context lines and
+   * the code column aligned. */
+  .hc-code[data-mode="diff"] .hc-code__line::marker {
+    content: "  ";
+    color: var(--hc-code-gutter-fg);
+  }
+
+  .hc-code[data-mode="diff"] .hc-code__line[data-state="added"]::marker {
+    content: "+ ";
+    color: var(--hc-code-added-marker);
+  }
+
+  .hc-code[data-mode="diff"] .hc-code__line[data-state="removed"]::marker {
+    content: "- ";
+    color: var(--hc-code-removed-marker);
+  }
+
+  /* --- Per-line state (shared by gutter + diff modes) -------------------- */
+
+  .hc-code__line[data-state="added"],
+  .hc-code__line[data-state="covered"] {
+    background: var(--hc-code-added-bg);
+    box-shadow: inset 0.1875rem 0 0 var(--hc-code-added-marker);
+  }
+
+  .hc-code__line[data-state="removed"],
+  .hc-code__line[data-state="missed"] {
+    background: var(--hc-code-removed-bg);
+    box-shadow: inset 0.1875rem 0 0 var(--hc-code-removed-marker);
+  }
+
+  .hc-code__line[data-state="context"] {
+    color: var(--hc-code-context-fg);
+  }
+
+  /* --- Legend swatch ----------------------------------------------------- */
+
+  .hc-code__swatch {
+    display: inline-block;
+    inline-size: 0.75em;
+    block-size: 0.75em;
+    border: 1px solid var(--hc-code-border);
+    border-radius: 2px;
+    vertical-align: middle;
+  }
+
+  .hc-code__swatch[data-state="added"],
+  .hc-code__swatch[data-state="covered"] {
+    background: var(--hc-code-added-bg);
+    border-color: var(--hc-code-added-marker);
+  }
+
+  .hc-code__swatch[data-state="removed"],
+  .hc-code__swatch[data-state="missed"] {
+    background: var(--hc-code-removed-bg);
+    border-color: var(--hc-code-removed-marker);
+  }
+}

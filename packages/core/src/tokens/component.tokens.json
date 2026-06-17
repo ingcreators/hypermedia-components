@@ -506,6 +506,26 @@
     "series-5":  { "$type": "color", "$value": "{primitive.color.rose.500}" },
     "series-6":  { "$type": "color", "$value": "{primitive.color.indigo.600}" }
   },
+  "code": {
+    "bg":             { "$type": "color",      "$value": "{semantic.color.surface}" },
+    "fg":             { "$type": "color",      "$value": "{semantic.color.text}" },
+    "border":         { "$type": "color",      "$value": "{semantic.color.border}" },
+    "radius":         { "$type": "dimension",  "$value": "{primitive.radius.md}" },
+    "padding-block":  { "$type": "dimension",  "$value": "{semantic.space.3}" },
+    "padding-inline": { "$type": "dimension",  "$value": "{semantic.space.4}" },
+    "font-family":    { "$type": "fontFamily", "$value": "{semantic.font.family-mono}" },
+    "font-size":      { "$type": "dimension",  "$value": "{semantic.font.size-sm}" },
+    "line-height":    { "$type": "number",     "$value": "1.6" },
+    "gutter-fg":      { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+    "gutter-width":   { "$type": "dimension",  "$value": "3.25rem" },
+    "num-width":      { "$type": "dimension",  "$value": "2.25rem" },
+    "gutter-gap":     { "$type": "dimension",  "$value": "{semantic.space.3}" },
+    "context-fg":     { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+    "added-bg":       { "$type": "color",      "$value": "{semantic.color.status.success.bg}" },
+    "added-marker":   { "$type": "color",      "$value": "{semantic.color.status.success.fg}" },
+    "removed-bg":     { "$type": "color",      "$value": "{semantic.color.status.error.bg}" },
+    "removed-marker": { "$type": "color",      "$value": "{semantic.color.status.error.fg}" }
+  },
   "badge": {
     "padding-x":   { "$type": "dimension",  "$value": "{semantic.space.2}" },
     "padding-y":   { "$type": "dimension",  "$value": "{primitive.space.1}" },
