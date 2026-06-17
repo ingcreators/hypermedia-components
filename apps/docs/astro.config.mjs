@@ -108,6 +108,7 @@ export default defineConfig({
               label: 'Data display',
               items: [
                 'components/table',
+                'components/code',
                 'components/datagrid',
                 'components/card',
                 'components/item',

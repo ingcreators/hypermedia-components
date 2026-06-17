@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-code fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body>
+  <main id="section-code" style="padding:1rem; max-inline-size:48rem;">
+    <h1>Code surface</h1>
+
+    <section>
+      <h2>Plain block</h2>
+      <pre class="hc-code" data-testid="plain" tabindex="0" role="region"
+           aria-label="Example query"><code>SELECT id, email
+FROM members
+WHERE active = true</code></pre>
+    </section>
+
+    <section>
+      <h2>Line numbers + coverage</h2>
+      <ol class="hc-code" data-gutter="line-numbers" data-testid="coverage"
+          aria-label="Coverage of members.sql" tabindex="0">
+        <li class="hc-code__line" data-testid="cov-plain">SELECT *</li>
+        <li class="hc-code__line" data-state="covered" data-testid="cov-covered">  FROM orders</li>
+        <li class="hc-code__line" data-state="missed" data-testid="cov-missed"> WHERE total &gt; 0</li>
+      </ol>
+      <p class="hc-code__legend" style="display:flex; gap:1rem; align-items:center;">
+        <span><span class="hc-code__swatch" data-state="covered" data-testid="swatch-covered"></span> Covered</span>
+        <span><span class="hc-code__swatch" data-state="missed" data-testid="swatch-missed"></span> Missed</span>
+      </p>
+    </section>
+
+    <section>
+      <h2>Unified diff</h2>
+      <ol class="hc-code" data-mode="diff" data-testid="diff"
+          aria-label="Draft vs saved members.sql" tabindex="0">
+        <li class="hc-code__line" data-state="context" data-old="12" data-new="12" data-testid="diff-context">  SELECT id</li>
+        <li class="hc-code__line" data-state="removed" data-old="13" data-testid="diff-removed">  FROM users</li>
+        <li class="hc-code__line" data-state="added" data-new="13" data-testid="diff-added">  FROM app_users</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,173 @@
+---
+title: Code
+description: Read-only monospace code surface with a line-number gutter, per-line state decoration, and a unified-diff mode.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-code` is a read-only code surface styled from the kit's tokens. It has
+three modes that share one decoration mechanism, and needs **no script** —
+all state lives in HTML attributes, so it works under a strict
+`default-src 'self'` Content-Security-Policy. Syntax highlighting is out of
+scope; the line text is rendered verbatim.
+
+## Basic HTML
+
+Apply `hc-code` to a `<pre>`. Lines overflow into a horizontal scroll by
+default. Because a scrollable region must be keyboard-reachable, make a
+scrollable block a focusable, labelled region (`tabindex="0"`,
+`role="region"`, `aria-label`).
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <pre class="hc-code" tabindex="0" role="region" aria-label="Example query"><code>SELECT id, email
+FROM members
+WHERE active = true</code></pre>
+
+  <Fragment slot="code">
+
+  ```html
+  <pre class="hc-code" tabindex="0" role="region" aria-label="Example query"><code>SELECT id, email
+  FROM members
+  WHERE active = true</code></pre>
+  ```
+
+  </Fragment>
+</Demo>
+
+### Wrapping
+
+Long lines scroll horizontally by default. Set `data-wrap="on"` to soft-wrap
+them instead.
+
+```html
+<pre class="hc-code" data-wrap="on"><code>SELECT a_very_long_column_name, another_long_one FROM a_table_with_a_long_name</code></pre>
+```
+
+## Line numbers &amp; per-line state
+
+Apply `hc-code` to an `<ol>` with `data-gutter="line-numbers"`, one
+`<li class="hc-code__line">` per line. Each line takes an optional
+`data-state` that tints it from the semantic status tokens — `covered`
+(success) and `missed` (error) are built in, for test-coverage gutters.
+`hc-code__swatch[data-state]` is a matching legend chip.
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <ol class="hc-code" data-gutter="line-numbers" tabindex="0" aria-label="Coverage of members.sql">
+    <li class="hc-code__line">SELECT *</li>
+    <li class="hc-code__line" data-state="covered">FROM orders</li>
+    <li class="hc-code__line" data-state="missed">WHERE total &gt; 0</li>
+  </ol>
+  <p style="display:flex; gap:1rem; align-items:center; margin:0;">
+    <span><span class="hc-code__swatch" data-state="covered"></span> Covered</span>
+    <span><span class="hc-code__swatch" data-state="missed"></span> Missed</span>
+  </p>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-code" data-gutter="line-numbers" tabindex="0" aria-label="Coverage of members.sql">
+    <li class="hc-code__line">SELECT *</li>
+    <li class="hc-code__line" data-state="covered">  FROM orders</li>
+    <li class="hc-code__line" data-state="missed"> WHERE total &gt; 0</li>
+  </ol>
+
+  <p class="hc-code__legend">
+    <span><span class="hc-code__swatch" data-state="covered"></span> Covered</span>
+    <span><span class="hc-code__swatch" data-state="missed"></span> Missed</span>
+  </p>
+  ```
+
+  </Fragment>
+</Demo>
+
+## Unified diff
+
+Set `data-mode="diff"` on the `<ol>`. Each line carries a `data-state` of
+`added`, `removed`, or `context`, plus `data-old` / `data-new` line numbers.
+The gutter prints a `+` / `-` sign alongside the tint, so the change is not
+conveyed by colour alone. **The server computes the hunks** — the kit only
+styles them, so there is no client-side diffing and no script.
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <ol class="hc-code" data-mode="diff" tabindex="0" aria-label="Draft vs saved members.sql">
+    <li class="hc-code__line" data-state="context" data-old="12" data-new="12">SELECT id</li>
+    <li class="hc-code__line" data-state="removed" data-old="13">FROM users</li>
+    <li class="hc-code__line" data-state="added" data-new="13">FROM app_users</li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-code" data-mode="diff" tabindex="0" aria-label="Draft vs saved members.sql">
+    <li class="hc-code__line" data-state="context" data-old="12" data-new="12">  SELECT id</li>
+    <li class="hc-code__line" data-state="removed" data-old="13">  FROM users</li>
+    <li class="hc-code__line" data-state="added"   data-new="13">  FROM app_users</li>
+  </ol>
+  ```
+
+  </Fragment>
+</Demo>
+
+A side-by-side (split) layout is not part of this release; the unified view
+above is the supported diff presentation.
+
+## Accessibility
+
+- A horizontally scrollable block must be reachable by keyboard. Make it a
+  focusable, labelled region: `tabindex="0"` plus `role="region"` and an
+  `aria-label` naming the file or snippet.
+- In diff mode, colour is never the only cue — the gutter prints a `+`
+  (added) or `-` (removed) sign. The sign rides the list marker, so copying
+  the block copies the code text without the signs or line numbers.
+- The line text is rendered verbatim; preserve meaningful leading whitespace
+  in the markup (`white-space: pre`). Set `data-wrap="on"` only when wrapping
+  long lines is preferable to a scroll.
+
+## Theming tokens
+
+| Token path           | Purpose                                         |
+| -------------------- | ----------------------------------------------- |
+| `code.bg`            | Surface background.                             |
+| `code.fg`            | Code text colour.                               |
+| `code.border`        | Border colour.                                  |
+| `code.radius`        | Corner radius.                                  |
+| `code.padding-block` / `code.padding-inline` | Block padding.          |
+| `code.font-family`   | Monospace font stack.                           |
+| `code.font-size`     | Code font size.                                 |
+| `code.line-height`   | Code line height.                               |
+| `code.gutter-fg`     | Line-number / sign colour.                      |
+| `code.gutter-width`  | Width of the line-number gutter.                |
+| `code.num-width`     | Width of each diff line-number column.          |
+| `code.gutter-gap`    | Gap between gutter and code.                    |
+| `code.context-fg`    | Diff context-line text colour.                  |
+| `code.added-bg` / `code.added-marker`     | `added` / `covered` tint &amp; bar.  |
+| `code.removed-bg` / `code.removed-marker` | `removed` / `missed` tint &amp; bar. |
+
+The tinted-state tokens resolve through the semantic status palette, so they
+re-resolve automatically under `data-theme="dark"`.
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-code-bg | -fg | -border | -radius
+--hc-code-padding-block | -padding-inline
+--hc-code-font-family | -font-size | -line-height
+--hc-code-gutter-fg | -gutter-width | -num-width | -gutter-gap
+--hc-code-context-fg
+--hc-code-added-bg | -added-marker
+--hc-code-removed-bg | -removed-marker
+```
+
+</details>
+
+## Related
+
+- [Table](/hypermedia-components/components/table/) — for tabular data;
+  often hosts a code or status column.
+- [Status colors](/hypermedia-components/tokens/status/) — the same
+  semantic palette the per-line `data-state` tints resolve through.
+- [kbd](/hypermedia-components/components/kbd/) — inline monospace key
+  hints, as opposed to a multi-line block.
