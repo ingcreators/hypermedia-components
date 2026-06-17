@@ -38,6 +38,19 @@ Security    — security-relevant changes
   page; pinned by `test-browser/code.spec.mjs` (incl. axe in light and
   dark). A side-by-side diff layout and syntax highlighting are out of
   scope for this release.
+- **`hc-sparkline` — inline trend sparkline** (#254). A word-sized line
+  chart for a metric's recent direction next to the number. CSP-safe with
+  **no charting dependency**: `installSparkline()` draws the inline `<svg>`
+  from a `data-values` series with the DOM API (no `innerHTML`), and a
+  server can emit the same SVG directly (the markup convention — it must
+  supply its own `role="img"`/`aria-label`). `data-area` fills under the
+  line; `data-variant` (`success` / `warning` / `error`) recolours it
+  through the semantic status palette (so it re-resolves in dark mode);
+  `data-min` / `data-max` pin the domain. A labelled host is exposed as
+  `role="img"`, an unlabelled one as decorative (`aria-hidden`). Auto-init
+  via the `behaviors` bundle; new `--hc-sparkline-*` tokens; component docs
+  page; unit tests (`test/sparkline.test.mjs`) + browser tests
+  (`test-browser/sparkline.spec.mjs`, incl. axe in light and dark).
 
 ## [0.1.2] - 2026-06-13
 

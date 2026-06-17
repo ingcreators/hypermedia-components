@@ -526,6 +526,16 @@
     "removed-bg":     { "$type": "color",      "$value": "{semantic.color.status.error.bg}" },
     "removed-marker": { "$type": "color",      "$value": "{semantic.color.status.error.fg}" }
   },
+  "sparkline": {
+    "width":        { "$type": "dimension", "$value": "5rem" },
+    "height":       { "$type": "dimension", "$value": "1.25rem" },
+    "color":        { "$type": "color",     "$value": "{semantic.color.action.primary.bg}" },
+    "stroke-width": { "$type": "dimension", "$value": "1.5px" },
+    "area-opacity": { "$type": "number",    "$value": "0.15" },
+    "success":      { "$type": "color",     "$value": "{semantic.color.success}" },
+    "warning":      { "$type": "color",     "$value": "{semantic.color.warning}" },
+    "error":        { "$type": "color",     "$value": "{semantic.color.error}" }
+  },
   "badge": {
     "padding-x":   { "$type": "dimension",  "$value": "{semantic.space.2}" },
     "padding-y":   { "$type": "dimension",  "$value": "{primitive.space.1}" },

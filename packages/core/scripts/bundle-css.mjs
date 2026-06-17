@@ -54,6 +54,7 @@ const COMPONENTS = [
   'hc-table.css',
   'hc-chart.css',
   'hc-code.css',
+  'hc-sparkline.css',
   'hc-datagrid.css',
   'hc-avatar.css',
   'hc-badge.css',
