@@ -20,6 +20,8 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-06-17
+
 ### Added
 
 - **`hc-code` — read-only code surface** (#253, #256). A monospace block
