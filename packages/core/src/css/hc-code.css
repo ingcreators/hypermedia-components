@@ -1,10 +1,11 @@
-/* hc-code — read-only code surface (issues #253, #256).
+/* hc-code — code surface (issues #253, #256, #255).
  *
- * A monospace block styled from the kit's tokens, with three modes that
- * share one decoration mechanism. All state lives in HTML attributes; no
- * script is required (CSP `default-src 'self'` safe). Syntax highlighting
- * is out of scope — the lines are plain text (a server-tokenized or
- * behavior-driven follow-up may add it additively later).
+ * A monospace surface styled from the kit's tokens. The read-only modes
+ * need no script (CSP `default-src 'self'` safe); the editable mode is a
+ * real <textarea> that `installCodeEditor()` upgrades with a synced
+ * line-number gutter. Syntax highlighting is out of scope — the lines are
+ * plain text (a server-tokenized or behavior-driven follow-up may add it
+ * additively later).
  *
  * 1. Plain block — apply to a <pre>:
  *
@@ -32,6 +33,16 @@
  *        <li class="hc-code__line" data-state="removed" data-old="13">  FROM users</li>
  *        <li class="hc-code__line" data-state="added"   data-new="13">  FROM app_users</li>
  *      </ol>
+ *
+ * 4. Editable — a <div class="hc-code" data-editable> wrapping a real
+ *    <textarea class="hc-code__input" name="…">. The value submits in forms
+ *    and with htmx; without JS it is a plain monospace textarea.
+ *    `installCodeEditor()` adds a synced line-number gutter when
+ *    `data-gutter="line-numbers"` is set:
+ *
+ *      <div class="hc-code" data-editable data-gutter="line-numbers">
+ *        <textarea class="hc-code__input" name="content" spellcheck="false">SELECT 1</textarea>
+ *      </div>
  *
  * Per-line `data-state` colours from semantic status tokens, so the same
  * markup themes correctly in light and dark:
@@ -194,5 +205,71 @@
   .hc-code__swatch[data-state="missed"] {
     background: var(--hc-code-removed-bg);
     border-color: var(--hc-code-removed-marker);
+  }
+
+  /* --- Editable field (#255) --------------------------------------------- */
+
+  /* A real <textarea> on the same surface. The textarea drives the height;
+   * installCodeEditor() overlays the line-number gutter as an absolutely
+   * positioned column so it tracks the textarea's visible box (not its own
+   * content height) and scrolls in sync. Without JS it is just the textarea,
+   * full width. */
+  .hc-code[data-editable] {
+    position: relative;
+    display: block;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .hc-code[data-editable]:focus-within {
+    border-color: var(--hc-code-focus-border);
+    box-shadow: inset 0 0 0 1px var(--hc-code-focus-border);
+  }
+
+  /* The synced line-number gutter (created by the behavior, decorative).
+   * inset-block:0 ties its height to the textarea's visible box; overflow is
+   * hidden and the behavior matches its scrollTop to the textarea. */
+  .hc-code__gutter {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: var(--hc-code-gutter-width);
+    box-sizing: border-box;
+    padding-block: var(--hc-code-padding-block);
+    padding-inline-end: var(--hc-code-gutter-gap);
+    overflow: hidden;
+    color: var(--hc-code-gutter-fg);
+    text-align: end;
+    white-space: pre;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hc-code__input {
+    display: block;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: var(--hc-code-input-min-height);
+    margin: 0;
+    padding-block: var(--hc-code-padding-block);
+    padding-inline: var(--hc-code-padding-inline);
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    resize: vertical;
+    tab-size: inherit;
+  }
+
+  /* Make room for the gutter overlay. */
+  .hc-code[data-editable][data-gutter="line-numbers"] .hc-code__input {
+    padding-inline-start: var(--hc-code-gutter-width);
+  }
+
+  /* The container shows the :focus-within ring instead. */
+  .hc-code__input:focus {
+    outline: none;
   }
 }

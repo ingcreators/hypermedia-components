@@ -51,6 +51,20 @@ Security    — security-relevant changes
   via the `behaviors` bundle; new `--hc-sparkline-*` tokens; component docs
   page; unit tests (`test/sparkline.test.mjs`) + browser tests
   (`test-browser/sparkline.spec.mjs`, incl. axe in light and dark).
+- **`hc-code` editable field + `installCodeEditor()`** (#255). An editable
+  counterpart to the read-only block, on the same surface: a
+  `<div class="hc-code" data-editable>` wrapping a real
+  `<textarea class="hc-code__input" name>`. The value is a native form
+  control (submits in forms and with htmx) and degrades to a plain monospace
+  textarea with no JavaScript. With `data-gutter="line-numbers"`,
+  `installCodeEditor()` (auto-init `behaviors` bundle) overlays a synced
+  line-number gutter — re-numbering on input, matching the textarea's scroll,
+  and pinning `wrap="off"` so the numbers stay aligned. New
+  `--hc-code-focus-border` / `--hc-code-input-min-height` tokens and
+  `hc-code__input` / `hc-code__gutter` classes; unit tests
+  (`test/code-editor.test.mjs`) + browser tests
+  (`test-browser/code-editable.spec.mjs`, incl. axe). Syntax highlighting
+  remains out of scope.
 
 ## [0.1.2] - 2026-06-13
 
