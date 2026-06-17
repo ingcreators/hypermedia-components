@@ -20,6 +20,42 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`hc-code` live syntax highlighting for the editable field** (#264).
+  `installCodeEditor()` now honours an opt-in `data-lang`: when the value
+  resolves to a registered grammar it overlays a decorative, `aria-hidden`
+  `hc-code__highlight` layer behind the textarea, re-tokenizes on input
+  (throttled to one render per animation frame), and matches the textarea's
+  `scrollTop`/`scrollLeft`. The textarea glyphs are hidden (the caret stays
+  visible) so the coloured overlay shows through, reusing the very same
+  `hc-code__tok` spans and `--hc-code-tok-*` palette as the read-only
+  server-tokenized path (#261) — the editor matches the read-only / diff
+  surfaces. CSP-safe (self-hosted, no `eval`/`new Function`) and **purely
+  additive**: with no JS, an unknown `data-lang`, or no registered grammar the
+  field stays a plain monospace textarea whose value still submits (no
+  regression to #255).
+- **`registerCodeLanguage(name, tokenizer)` — pluggable code grammars**
+  (#264). A new named export (from the main entry and the `./behaviors`
+  bundle) that plugs a tokenizer into the live overlay, keyed by `data-lang`.
+  Built-in grammars cover `sql`, `json`, `yaml`, and `html` (`yml` / `xml`
+  aliases); a registration overrides a built-in of the same name and returns
+  an uninstaller. A tokenizer maps text to `{ tok, text }` tokens that must
+  reconstruct the source — a dialect tokenizer can classify constructs a
+  generic grammar can't (e.g. TesseraQL's 2-way SQL directives as `meta`). If
+  a tokenizer throws or its tokens don't reconstruct the source, the overlay
+  declines to highlight that buffer rather than desync. Register before the
+  field is enhanced (same ordering rule as `setMessages()`).
+- **Structured-markup syntax tokens** (#264). Three additive `data-tok`
+  values — `property` (object / mapping keys), `tag`, and `attribute` — with
+  matching `--hc-code-tok-property` / `-tag` / `-attribute` custom properties
+  and `--hc-color-syntax-*` semantic tokens (themed light + dark, WCAG AA
+  verified). They benefit the read-only server-tokenized path (#261) as well
+  as the live overlay, so YAML / JSON keys and HTML tags / attributes read
+  correctly. Pinned by `test-browser/code-highlight.spec.mjs` and
+  `code-syntax.spec.mjs` (incl. axe in light and dark) and unit-tested in
+  `test/code-syntax.test.mjs`.
+
 ## [0.1.4] - 2026-06-17
 
 ### Added

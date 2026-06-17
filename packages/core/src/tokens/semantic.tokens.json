@@ -79,7 +79,10 @@
       "comment":    { "$type": "color", "$value": "{primitive.color.gray.600}" },
       "operator":   { "$type": "color", "$value": "{primitive.color.slate.600}" },
       "identifier": { "$type": "color", "$value": "{primitive.color.gray.900}" },
-      "meta":       { "$type": "color", "$value": "{primitive.color.rose.700}" }
+      "meta":       { "$type": "color", "$value": "{primitive.color.rose.700}" },
+      "property":   { "$type": "color", "$value": "{primitive.color.blue.700}" },
+      "tag":        { "$type": "color", "$value": "{primitive.color.red.700}" },
+      "attribute":  { "$type": "color", "$value": "{primitive.color.indigo.700}" }
     }
   },
   "control": {

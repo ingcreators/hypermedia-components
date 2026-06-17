@@ -21,6 +21,18 @@ test.describe('hc-code syntax tokens', () => {
     expect(seen.size).toBe(6);
   });
 
+  test('property / tag / attribute each colour distinctly (and differ from plain)', async ({
+    page,
+  }) => {
+    const plain = await color(page.getByTestId('plain'));
+    const prop = await color(page.getByTestId('prop'));
+    const tag = await color(page.getByTestId('tag'));
+    const attr = await color(page.getByTestId('attr'));
+    const set = new Set([prop, tag, attr]);
+    expect(set.size).toBe(3); // three distinct hues
+    for (const c of set) expect(c).not.toBe(plain);
+  });
+
   test('an unknown data-tok inherits the plain code colour', async ({ page }) => {
     const plain = await color(page.getByTestId('plain'));
     expect(await color(page.getByTestId('unknown'))).toBe(plain);

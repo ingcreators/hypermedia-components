@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-code live highlight fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module">
+    // Custom grammars must be registered *before* the field is enhanced (the
+    // same ordering rule as i18n's setMessages). The named-installer path gives
+    // full control over ordering: register, then install. This dialect marks
+    // 2-way-SQL directives as `meta` — the case a generic grammar can't cover.
+    import { installCodeEditor, registerCodeLanguage } from '/code-editor.js';
+    registerCodeLanguage('tql-sql', (text) => {
+      const tokens = [];
+      const re = /\/\*[%#@][\s\S]*?\*\/|\b(?:SELECT|FROM|WHERE|AND|OR|LIMIT)\b/gi;
+      let last = 0;
+      let m;
+      while ((m = re.exec(text))) {
+        if (m.index > last) tokens.push({ tok: '', text: text.slice(last, m.index) });
+        tokens.push({ tok: m[0].startsWith('/*') ? 'meta' : 'keyword', text: m[0] });
+        last = m.index + m[0].length;
+      }
+      if (last < text.length) tokens.push({ tok: '', text: text.slice(last) });
+      return tokens;
+    });
+    installCodeEditor();
+  </script>
+</head>
+<body>
+  <main id="section-code-highlight" style="padding:1rem; max-inline-size:40rem;">
+    <h1>Editable code field — live highlight</h1>
+
+    <h2>Built-in SQL grammar</h2>
+    <div class="hc-code" data-editable data-gutter="line-numbers" data-lang="sql"
+         data-testid="sql" style="max-inline-size:22rem;">
+      <textarea class="hc-code__input" name="sql" spellcheck="false" aria-label="Route SQL"
+                data-testid="sql-ta"
+                style="block-size:4rem; min-block-size:0">SELECT id, email FROM members WHERE active = true
+ORDER BY id
+LIMIT 10</textarea>
+    </div>
+
+    <h2>Registered dialect grammar (tql-sql)</h2>
+    <div class="hc-code" data-editable data-lang="tql-sql" data-testid="tql">
+      <textarea class="hc-code__input" name="tql" spellcheck="false" aria-label="TesseraQL SQL"
+                data-testid="tql-ta">SELECT id FROM members /*%if active */ WHERE active = true /*%end*/</textarea>
+    </div>
+
+    <h2>Degradation — unknown language, plain field</h2>
+    <div class="hc-code" data-editable data-lang="does-not-exist" data-testid="unknown">
+      <textarea class="hc-code__input" name="unknown" aria-label="Unknown lang">SELECT 1</textarea>
+    </div>
+    <div class="hc-code" data-editable data-testid="plain">
+      <textarea class="hc-code__input" name="plain" aria-label="Plain notes">just notes</textarea>
+    </div>
+  </main>
+</body>
+</html>

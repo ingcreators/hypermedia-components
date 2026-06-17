@@ -124,6 +124,11 @@ export {
   installCodeEditor,
 };
 
+// registerCodeLanguage — plug a tokenizer into the editable-code highlight
+// overlay. Register before the field is enhanced (e.g. inline before this
+// module loads, or call installCodeEditor() again afterwards).
+export { registerCodeLanguage } from './code-syntax.js';
+
 // i18n — set the locale before this module's auto-init runs (e.g. inline
 // before the script that imports it), or import the named installers from
 // the main entry for full control over ordering.

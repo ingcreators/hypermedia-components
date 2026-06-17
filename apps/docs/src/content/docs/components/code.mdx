@@ -5,11 +5,13 @@ description: Read-only monospace code surface with a line-number gutter, per-lin
 
 import Demo from '../../../components/Demo.astro';
 
-`hc-code` is a read-only code surface styled from the kit's tokens. It has
-three modes that share one decoration mechanism, and needs **no script** —
-all state lives in HTML attributes, so it works under a strict
-`default-src 'self'` Content-Security-Policy. Syntax highlighting is out of
-scope; the line text is rendered verbatim.
+`hc-code` is a code surface styled from the kit's tokens. Its three read-only
+modes share one decoration mechanism and need **no script** — all state lives
+in HTML attributes, so they work under a strict `default-src 'self'`
+Content-Security-Policy. A fourth, editable mode is a real `<textarea>` that
+`installCodeEditor()` upgrades with a line-number gutter and an optional live
+syntax-highlight overlay. Syntax highlighting (read-only or live) reuses one
+token palette and stays CSP-safe.
 
 ## Basic HTML
 
@@ -144,9 +146,86 @@ WHERE active = true</textarea>
 
 To keep the numbers aligned the behavior sets the textarea to not soft-wrap
 (`wrap="off"`); long lines scroll horizontally. Label the textarea
-(`aria-label` or a `<label for>`) — it is a form control. A live highlight
-overlay for the editable field is a possible follow-up; the read-only
-[syntax highlighting](#syntax-highlighting) below works today.
+(`aria-label` or a `<label for>`) — it is a form control.
+
+### Live highlight
+
+Add `data-lang` to opt the editable field into a **live highlight overlay**.
+When the value resolves to a registered grammar, `installCodeEditor()` inserts
+a decorative, `aria-hidden` `hc-code__highlight` layer behind the textarea,
+re-tokenizes on input, and matches the textarea's scroll. The textarea glyphs
+are hidden (its caret stays visible) so the coloured overlay — the same
+`hc-code__tok` spans and `--hc-code-tok-*` palette as the read-only
+[syntax highlighting](#syntax-highlighting) below — shows through. It is
+**CSP-safe** (self-hosted, no `eval`), and **purely additive**: with no JS, an
+unknown `data-lang`, or no registered grammar, the field stays the plain
+monospace textarea and its value still submits.
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <div class="hc-code" data-editable data-gutter="line-numbers" data-lang="sql" style="max-inline-size:28rem;">
+    <textarea class="hc-code__input" name="content" spellcheck="false" rows="4" aria-label="Route SQL">SELECT id, email
+FROM members
+WHERE active = true</textarea>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-code" data-editable data-gutter="line-numbers" data-lang="sql">
+    <textarea class="hc-code__input" name="content" spellcheck="false"
+              aria-label="Route SQL">SELECT id, email
+  FROM members
+  WHERE active = true</textarea>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+Built-in grammars cover `sql`, `json`, `yaml`, and `html` (with `yml` / `xml`
+aliases). Tokenization is throttled to one render per animation frame, so large
+buffers stay responsive.
+
+#### Custom grammars
+
+A generic grammar can't know dialect constructs — TesseraQL's 2-way SQL
+directives (`/*%if … */`, binds) should read as `meta`, which only its own
+tokenizer knows. Register one with `registerCodeLanguage(name, tokenizer)`. A
+tokenizer maps source text to `{ tok, text }` tokens whose `text` parts
+reconstruct the input exactly; `tok` is an [`hc-code__tok`
+value](#syntax-highlighting) (or falsy for plain text).
+
+Register **before the field is enhanced** — like
+[`setMessages()`](/hypermedia-components/fundamentals/i18n/), the auto-init
+`behaviors` bundle scans on load, so use the named installers from the main
+entry for full control over ordering:
+
+```js
+import { registerCodeLanguage, installCodeEditor } from '@hypermedia-components/core';
+
+// A dialect tokenizer that classifies 2-way-SQL directives as `meta`.
+registerCodeLanguage('tql-sql', (text) => {
+  const tokens = [];
+  const re = /\/\*[%#@][\s\S]*?\*\/|\b(?:SELECT|FROM|WHERE|LIMIT)\b/gi;
+  let last = 0;
+  let m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) tokens.push({ tok: '', text: text.slice(last, m.index) });
+    tokens.push({ tok: m[0].startsWith('/*') ? 'meta' : 'keyword', text: m[0] });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) tokens.push({ tok: '', text: text.slice(last) });
+  return tokens;
+});
+
+installCodeEditor(); // now enhances <div class="hc-code" data-editable data-lang="tql-sql">
+```
+
+If a tokenizer throws or its tokens don't reconstruct the source, the overlay
+declines to highlight that buffer rather than desync from the textarea — the
+text stays visible, just uncoloured. A registration overrides a built-in of the
+same name and returns an uninstaller. Registering server-side? Port the same
+tokenizer to JS and the editor matches the server-rendered read-only view.
 
 ## Syntax highlighting
 
@@ -159,9 +238,12 @@ deterministic. Tokens nest inside `<pre><code>` (plain) or `hc-code__line`
 gutter.
 
 `data-tok` is a generic, language-agnostic vocabulary — `keyword`, `string`,
-`number`, `comment`, `operator`, `identifier`, and `meta` (a catch-all for
-language-specific constructs, e.g. 2-way SQL directives and binds). An
-unknown or absent `data-tok` renders as plain code.
+`number`, `comment`, `operator`, `identifier`, the structured-markup set
+`property` (object / mapping keys), `tag`, and `attribute`, plus `meta` (a
+catch-all for language-specific constructs, e.g. 2-way SQL directives and
+binds). An unknown or absent `data-tok` renders as plain code. The editable
+field's [live highlight](#live-highlight) overlay renders these very same
+spans, so the editor matches the read-only / diff surfaces.
 
 <Demo previewClass="hc-preview--col hc-preview--start">
   <pre class="hc-code" tabindex="0" role="region" aria-label="Highlighted query"><code><span class="hc-code__tok" data-tok="keyword">SELECT</span> <span class="hc-code__tok" data-tok="identifier">id</span><span class="hc-code__tok" data-tok="operator">,</span> <span class="hc-code__tok" data-tok="number">1</span>
@@ -192,6 +274,10 @@ code surface in both themes (verified by `code-syntax.spec.mjs`).
 - The line text is rendered verbatim; preserve meaningful leading whitespace
   in the markup (`white-space: pre`). Set `data-wrap="on"` only when wrapping
   long lines is preferable to a scroll.
+- The editable field's live-highlight overlay is decorative (`aria-hidden`):
+  the textarea stays the labelled control and the value submits unchanged.
+  Tokenization is throttled to one render per frame, so large buffers stay
+  responsive while typing.
 
 ## Theming tokens
 
@@ -215,6 +301,7 @@ code surface in both themes (verified by `code-syntax.spec.mjs`).
 | `code.focus-border` | Focus ring on the editable field.               |
 | `code.input-min-height` | Minimum height of the editable textarea.    |
 | `code.tok-keyword` / `-string` / `-number` / `-comment` / `-operator` / `-identifier` / `-meta` | Syntax-token foregrounds (`data-tok`). |
+| `code.tok-property` / `-tag` / `-attribute` | Structured-markup token foregrounds (keys, HTML tags &amp; attributes). |
 
 The tinted-state tokens resolve through the semantic status palette, so they
 re-resolve automatically under `data-theme="dark"`.
@@ -235,6 +322,7 @@ re-resolve automatically under `data-theme="dark"`.
 --hc-code-focus-border | -input-min-height
 --hc-code-tok-keyword | -tok-string | -tok-number | -tok-comment
 --hc-code-tok-operator | -tok-identifier | -tok-meta
+--hc-code-tok-property | -tok-tag | -tok-attribute
 ```
 
 </details>

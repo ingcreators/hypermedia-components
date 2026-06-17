@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { installCodeEditor } from '../src/js/code-editor.js';
+import { registerCodeLanguage } from '../src/js/code-syntax.js';
 
 let uninstall = () => {};
 
@@ -9,6 +10,14 @@ const FIELD = (gutter = true) => `
 FROM t</textarea>
   </div>
 `;
+
+const LANG_FIELD = (lang) => `
+  <div class="hc-code" data-editable data-lang="${lang}">
+    <textarea class="hc-code__input" name="content">SELECT 1</textarea>
+  </div>
+`;
+
+const highlightOf = () => document.querySelector('.hc-code__highlight');
 
 const gutterOf = () => document.querySelector('.hc-code__gutter');
 const lineCount = (el) => el.textContent.split('\n').length;
@@ -90,6 +99,63 @@ describe('installCodeEditor', () => {
     u();
     expect(gutterOf()).toBeNull();
     expect(document.querySelector('.hc-code__input').getAttribute('wrap')).toBeNull();
+    uninstall = () => {};
+  });
+});
+
+describe('installCodeEditor — live highlight overlay (#264)', () => {
+  it('builds a decorative overlay with token spans when data-lang has a grammar', () => {
+    document.body.innerHTML = LANG_FIELD('sql');
+    uninstall = installCodeEditor();
+    const layer = highlightOf();
+    expect(layer).not.toBeNull();
+    expect(layer.getAttribute('aria-hidden')).toBe('true');
+    // SELECT is a SQL keyword.
+    const kw = layer.querySelector('.hc-code__tok[data-tok="keyword"]');
+    expect(kw).not.toBeNull();
+    expect(kw.textContent).toBe('SELECT');
+    // The overlay text reconstructs the textarea value exactly.
+    expect(layer.textContent).toBe('SELECT 1');
+  });
+
+  it('does not overlay (or transparent-ise) a field whose data-lang has no grammar', () => {
+    document.body.innerHTML = LANG_FIELD('does-not-exist');
+    uninstall = installCodeEditor();
+    expect(highlightOf()).toBeNull();
+    // No grammar → field left a plain editable: not even wrap is touched.
+    expect(document.querySelector('.hc-code__input').getAttribute('wrap')).toBeNull();
+  });
+
+  it('classifies a registered dialect grammar (e.g. directives as meta)', () => {
+    const off = registerCodeLanguage('tql-sql', (text) => [{ tok: 'meta', text }]);
+    document.body.innerHTML = `
+      <div class="hc-code" data-editable data-lang="tql-sql">
+        <textarea class="hc-code__input" name="content">/*%if x */</textarea>
+      </div>`;
+    uninstall = installCodeEditor();
+    const meta = highlightOf().querySelector('.hc-code__tok[data-tok="meta"]');
+    expect(meta).not.toBeNull();
+    expect(meta.textContent).toBe('/*%if x */');
+    off();
+  });
+
+  it('runs the gutter and the overlay together', () => {
+    document.body.innerHTML = `
+      <div class="hc-code" data-editable data-gutter="line-numbers" data-lang="sql">
+        <textarea class="hc-code__input" name="content">SELECT 1
+FROM t</textarea>
+      </div>`;
+    uninstall = installCodeEditor();
+    expect(gutterOf()).not.toBeNull();
+    expect(highlightOf()).not.toBeNull();
+  });
+
+  it('uninstall removes the overlay', () => {
+    document.body.innerHTML = LANG_FIELD('sql');
+    const u = installCodeEditor();
+    expect(highlightOf()).not.toBeNull();
+    u();
+    expect(highlightOf()).toBeNull();
     uninstall = () => {};
   });
 });

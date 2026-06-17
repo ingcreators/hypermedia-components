@@ -53,7 +53,10 @@
       "comment":    { "$type": "color", "$value": "{primitive.color.gray.400}" },
       "operator":   { "$type": "color", "$value": "{primitive.color.slate.300}" },
       "identifier": { "$type": "color", "$value": "{primitive.color.gray.100}" },
-      "meta":       { "$type": "color", "$value": "{primitive.color.rose.300}" }
+      "meta":       { "$type": "color", "$value": "{primitive.color.rose.300}" },
+      "property":   { "$type": "color", "$value": "{primitive.color.blue.300}" },
+      "tag":        { "$type": "color", "$value": "{primitive.color.red.300}" },
+      "attribute":  { "$type": "color", "$value": "{primitive.color.indigo.300}" }
     }
   },
   "shadow": {
