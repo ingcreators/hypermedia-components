@@ -46,13 +46,13 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.1.2` (published 2026-06-13): 53 component stylesheets ·
-33 behaviors · 2 macros · 13 recipes · 8 integration guides ·
-~100 docs pages (components, tokens, fundamentals, integrations,
+As of `0.1.3` (published 2026-06-17): 55 component stylesheets ·
+35 behaviors · 2 macros · 13 recipes · 8 integration guides ·
+~102 docs pages (components, tokens, fundamentals, integrations,
 recipes, blocks) · runtime axes `data-theme` / `data-color` /
 `data-neutral` / `data-density` / `dir` · i18n message catalog
-(`setMessages()`) · examples for plain-html + htmx · 38 Vitest suites ·
-79 Playwright suites (incl. axe scans).
+(`setMessages()`) · examples for plain-html + htmx · 40 Vitest suites ·
+82 Playwright suites (incl. axe scans).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -146,6 +146,13 @@ field-pattern docs + the field-errors visible-control fix, #246
 `installCsrfHeader()`), plus the datagrid multi-row keyboard-nav fix
 (#248). CLI shipped `0.1.1` (`cli-v0.1.1` tag) to re-bundle the new
 recipe.
+
+Core `0.1.3` (2026-06-17, `v0.1.3` tag) followed: the four TesseraQL
+component issues — `hc-code` (read-only code block + line-number /
+coverage gutter + unified diff, #253/#256), `hc-sparkline`
+(scriptless inline trend, #254), and the editable `hc-code` field with
+`installCodeEditor()` (#255). All strictly additive, so a patch per
+VERSIONING.md.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
