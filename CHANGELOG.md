@@ -20,6 +20,8 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-06-17
+
 ### Added
 
 - **`hc-code` syntax highlighting — server-tokenized, read-only** (#261).
