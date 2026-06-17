@@ -46,13 +46,13 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.1.4` (published 2026-06-17): 55 component stylesheets ·
+As of `0.1.5` (published 2026-06-17): 55 component stylesheets ·
 35 behaviors · 2 macros · 13 recipes · 8 integration guides ·
 ~102 docs pages (components, tokens, fundamentals, integrations,
 recipes, blocks) · runtime axes `data-theme` / `data-color` /
 `data-neutral` / `data-density` / `dir` · i18n message catalog
-(`setMessages()`) · examples for plain-html + htmx · 40 Vitest suites ·
-83 Playwright suites (incl. axe scans).
+(`setMessages()`) · examples for plain-html + htmx · 41 Vitest suites ·
+84 Playwright suites (incl. axe scans).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -157,8 +157,14 @@ VERSIONING.md.
 Core `0.1.4` (2026-06-17, `v0.1.4` tag) followed: opt-in, server-tokenized
 syntax highlighting for the read-only `hc-code` surfaces — the
 `hc-code__tok[data-tok]` markup contract and the `--hc-code-tok-*` palette
-(#261, Phase A). Additive, so a patch. The editable highlight overlay
-(Phase B) remains a follow-on.
+(#261, Phase A). Additive, so a patch.
+
+Core `0.1.5` (2026-06-17, `v0.1.5` tag) followed: live syntax highlighting
+for the editable `hc-code` field (#264, Phase B) — `installCodeEditor()`'s
+opt-in `data-lang` overlay, a pluggable `registerCodeLanguage()` API with
+built-in `sql` / `json` / `yaml` / `html` grammars, and the additive
+`property` / `tag` / `attribute` syntax tokens (which also enrich the Phase A
+read-only path). Additive, so a patch.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
