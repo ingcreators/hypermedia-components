@@ -20,6 +20,8 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-06-17
+
 ### Added
 
 - **`hc-code` live syntax highlighting for the editable field** (#264).
