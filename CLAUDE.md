@@ -46,13 +46,13 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.1.3` (published 2026-06-17): 55 component stylesheets ·
+As of `0.1.4` (published 2026-06-17): 55 component stylesheets ·
 35 behaviors · 2 macros · 13 recipes · 8 integration guides ·
 ~102 docs pages (components, tokens, fundamentals, integrations,
 recipes, blocks) · runtime axes `data-theme` / `data-color` /
 `data-neutral` / `data-density` / `dir` · i18n message catalog
 (`setMessages()`) · examples for plain-html + htmx · 40 Vitest suites ·
-82 Playwright suites (incl. axe scans).
+83 Playwright suites (incl. axe scans).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -153,6 +153,12 @@ coverage gutter + unified diff, #253/#256), `hc-sparkline`
 (scriptless inline trend, #254), and the editable `hc-code` field with
 `installCodeEditor()` (#255). All strictly additive, so a patch per
 VERSIONING.md.
+
+Core `0.1.4` (2026-06-17, `v0.1.4` tag) followed: opt-in, server-tokenized
+syntax highlighting for the read-only `hc-code` surfaces — the
+`hc-code__tok[data-tok]` markup contract and the `--hc-code-tok-*` palette
+(#261, Phase A). Additive, so a patch. The editable highlight overlay
+(Phase B) remains a follow-on.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
