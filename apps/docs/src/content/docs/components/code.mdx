@@ -111,6 +111,42 @@ styles them, so there is no client-side diffing and no script.
 A side-by-side (split) layout is not part of this release; the unified view
 above is the supported diff presentation.
 
+## Editable field
+
+Apply `data-editable` to a `<div class="hc-code">` wrapping a real
+`<textarea class="hc-code__input" name="…">`. The value is a native form
+control, so it submits in forms and with htmx (`data-hx-post`,
+`data-hx-include`) and **degrades to a plain monospace textarea with no
+JavaScript**. Add `data-gutter="line-numbers"` and `installCodeEditor()`
+(shipped in the auto-init `behaviors` bundle) overlays a line-number gutter
+that re-numbers on input and scrolls in sync.
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <div class="hc-code" data-editable data-gutter="line-numbers" style="max-inline-size:28rem;">
+    <textarea class="hc-code__input" name="content" spellcheck="false" rows="4" aria-label="Route SQL">SELECT id
+FROM members
+WHERE active = true</textarea>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-code" data-editable data-gutter="line-numbers">
+    <textarea class="hc-code__input" name="content" spellcheck="false"
+              aria-label="Route SQL">SELECT id
+  FROM members
+  WHERE active = true</textarea>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+To keep the numbers aligned the behavior sets the textarea to not soft-wrap
+(`wrap="off"`); long lines scroll horizontally. Label the textarea
+(`aria-label` or a `<label for>`) — it is a form control. Syntax
+highlighting is out of scope (a CSP-safe overlay is a possible follow-up).
+
 ## Accessibility
 
 - A horizontally scrollable block must be reachable by keyboard. Make it a
@@ -142,6 +178,8 @@ above is the supported diff presentation.
 | `code.context-fg`    | Diff context-line text colour.                  |
 | `code.added-bg` / `code.added-marker`     | `added` / `covered` tint &amp; bar.  |
 | `code.removed-bg` / `code.removed-marker` | `removed` / `missed` tint &amp; bar. |
+| `code.focus-border` | Focus ring on the editable field.               |
+| `code.input-min-height` | Minimum height of the editable textarea.    |
 
 The tinted-state tokens resolve through the semantic status palette, so they
 re-resolve automatically under `data-theme="dark"`.
@@ -159,6 +197,7 @@ re-resolve automatically under `data-theme="dark"`.
 --hc-code-context-fg
 --hc-code-added-bg | -added-marker
 --hc-code-removed-bg | -removed-marker
+--hc-code-focus-border | -input-min-height
 ```
 
 </details>

@@ -61,6 +61,7 @@ const FILES = [
   ['src/js/datagrid.js',      'datagrid.js'],
   ['src/js/chart.js',         'chart.js'],
   ['src/js/sparkline.js',     'sparkline.js'],
+  ['src/js/code-editor.js',   'code-editor.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
 
   // Macros — kept under dist/macros/ so the entry module's relative

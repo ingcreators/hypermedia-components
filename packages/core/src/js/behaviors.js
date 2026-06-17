@@ -40,6 +40,7 @@ import { installThemeToggle } from './theme-toggle.js';
 import { installFieldErrors } from './field-errors.js';
 import { installCsrfHeader } from './csrf-header.js';
 import { installSparkline } from './sparkline.js';
+import { installCodeEditor } from './code-editor.js';
 
 function init() {
   installConfirm();
@@ -75,6 +76,7 @@ function init() {
   installFieldErrors();
   installCsrfHeader();
   installSparkline();
+  installCodeEditor();
 }
 
 if (typeof document !== 'undefined') {
@@ -119,6 +121,7 @@ export {
   installFieldErrors,
   installCsrfHeader,
   installSparkline,
+  installCodeEditor,
 };
 
 // i18n — set the locale before this module's auto-init runs (e.g. inline

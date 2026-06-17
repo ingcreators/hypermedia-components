@@ -524,7 +524,9 @@
     "added-bg":       { "$type": "color",      "$value": "{semantic.color.status.success.bg}" },
     "added-marker":   { "$type": "color",      "$value": "{semantic.color.status.success.fg}" },
     "removed-bg":     { "$type": "color",      "$value": "{semantic.color.status.error.bg}" },
-    "removed-marker": { "$type": "color",      "$value": "{semantic.color.status.error.fg}" }
+    "removed-marker": { "$type": "color",      "$value": "{semantic.color.status.error.fg}" },
+    "focus-border":   { "$type": "color",      "$value": "{semantic.color.focus-ring}" },
+    "input-min-height": { "$type": "dimension", "$value": "8rem" }
   },
   "sparkline": {
     "width":        { "$type": "dimension", "$value": "5rem" },
