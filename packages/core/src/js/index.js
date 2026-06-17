@@ -39,6 +39,10 @@ export { installCsrfHeader } from './csrf-header.js';
 export { installSparkline } from './sparkline.js';
 export { installCodeEditor } from './code-editor.js';
 
+// registerCodeLanguage — plug a tokenizer into installCodeEditor()'s live
+// highlight overlay (built-in grammars: sql, json, yaml, html).
+export { registerCodeLanguage } from './code-syntax.js';
+
 // installChart is opt-in (not part of the auto-init `behaviors` entry): it
 // needs Observable Plot, an optional peer dependency you load yourself.
 export { installChart } from './chart.js';

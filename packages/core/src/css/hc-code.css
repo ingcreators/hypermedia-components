@@ -7,8 +7,11 @@
  *
  * Read-only syntax highlighting is server-tokenized (#261): the server emits
  * `<span class="hc-code__tok" data-tok="…">` spans, coloured from the
- * `--hc-code-tok-*` palette — no client tokenizer (an editable highlight
- * overlay is a possible follow-up). See "Syntax tokens" below.
+ * `--hc-code-tok-*` palette — no client tokenizer. The editable field gets the
+ * same palette via a live overlay (#264): `installCodeEditor()` renders the
+ * very same `hc-code__tok` spans into a synced `.hc-code__highlight` layer
+ * behind the textarea when `data-lang` resolves to a grammar. See "Syntax
+ * tokens" and "Live highlight overlay" below.
  *
  * 1. Plain block — apply to a <pre>:
  *
@@ -276,10 +279,64 @@
     outline: none;
   }
 
+  /* --- Live highlight overlay (#264) ------------------------------------- */
+
+  /* A decorative, aria-hidden layer the behavior creates behind the textarea
+   * when `data-lang` resolves to a registered grammar. It mirrors the
+   * textarea's box and metrics exactly (same padding, font, line-height,
+   * `white-space: pre`); the behavior re-tokenizes on input and matches the
+   * textarea's scrollTop/scrollLeft. The textarea sits on top with transparent
+   * text but a visible caret, so the coloured spans below show through. No
+   * grammar (or no JS) → no overlay element → the textarea keeps its own text
+   * colour: the field stays a plain editable surface (no regression to #255). */
+  .hc-code__highlight {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding-block: var(--hc-code-padding-block);
+    padding-inline: var(--hc-code-padding-inline);
+    overflow: hidden;
+    color: var(--hc-code-fg);
+    white-space: pre;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Match the gutter offset so the overlay text aligns with the textarea. */
+  .hc-code[data-editable][data-gutter="line-numbers"] .hc-code__highlight {
+    padding-inline-start: var(--hc-code-gutter-width);
+  }
+
+  /* When the overlay is live, the textarea glyphs go transparent (the caret
+   * stays visible) and the textarea rides above the overlay so the caret and
+   * selection are never occluded; the gutter sits above both. Driven by the
+   * overlay element's presence, so it only applies once the behavior attaches.
+   *
+   * Glyphs are hidden with `-webkit-text-fill-color`, not `color`: the visible
+   * text the user reads is the overlay (coloured from the validated
+   * `--hc-code-tok-*` palette), while the textarea keeps its real `color` so
+   * the caret resolves to the code foreground and contrast tooling still sees
+   * a legible control. */
+  .hc-code[data-editable]:has(.hc-code__highlight) .hc-code__input {
+    position: relative;
+    z-index: 1;
+    caret-color: var(--hc-code-fg);
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hc-code[data-editable]:has(.hc-code__highlight) .hc-code__gutter {
+    z-index: 2;
+  }
+
   /* --- Syntax tokens (#261) ---------------------------------------------- */
 
-  /* Server-emitted token spans, inside <pre><code> or an hc-code__line.
-   * `data-tok` is a generic, language-agnostic vocabulary; `meta` is the
+  /* Token spans — server-emitted in read-only modes, or rendered by the live
+   * overlay into `.hc-code__highlight`. Inside <pre><code>, an hc-code__line,
+   * or the overlay. `data-tok` is a generic, language-agnostic vocabulary:
+   * keyword / string / number / comment / operator / identifier plus the
+   * structured-markup set property / tag / attribute, and `meta` as the
    * catch-all for language-specific constructs (e.g. 2-way SQL directives).
    * An unknown or absent `data-tok` inherits the plain code colour. Token
    * colour wins over a context-line's muted text; line tints (data-state)
@@ -311,5 +368,20 @@
 
   .hc-code__tok[data-tok="meta"] {
     color: var(--hc-code-tok-meta);
+  }
+
+  /* Structured-markup tokens: object/mapping keys (JSON, YAML), and HTML/XML
+   * tag and attribute names. Used by both the server-tokenized read-only path
+   * and the live editable overlay. */
+  .hc-code__tok[data-tok="property"] {
+    color: var(--hc-code-tok-property);
+  }
+
+  .hc-code__tok[data-tok="tag"] {
+    color: var(--hc-code-tok-tag);
+  }
+
+  .hc-code__tok[data-tok="attribute"] {
+    color: var(--hc-code-tok-attribute);
   }
 }

@@ -67,6 +67,7 @@ const ASSET_ALIASES = new Map([
   ['/chart.js',         join(coreDist, 'chart.js')],
   ['/sparkline.js',     join(coreDist, 'sparkline.js')],
   ['/code-editor.js',   join(coreDist, 'code-editor.js')],
+  ['/code-syntax.js',   join(coreDist, 'code-syntax.js')],
   ['/macros/index.js',          join(coreDist, 'macros', 'index.js')],
   ['/macros/confirm-action.js', join(coreDist, 'macros', 'confirm-action.js')],
   ['/macros/live-search.js',    join(coreDist, 'macros', 'live-search.js')],

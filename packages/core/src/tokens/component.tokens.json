@@ -533,7 +533,10 @@
     "tok-comment":    { "$type": "color",      "$value": "{semantic.color.syntax.comment}" },
     "tok-operator":   { "$type": "color",      "$value": "{semantic.color.syntax.operator}" },
     "tok-identifier": { "$type": "color",      "$value": "{semantic.color.syntax.identifier}" },
-    "tok-meta":       { "$type": "color",      "$value": "{semantic.color.syntax.meta}" }
+    "tok-meta":       { "$type": "color",      "$value": "{semantic.color.syntax.meta}" },
+    "tok-property":   { "$type": "color",      "$value": "{semantic.color.syntax.property}" },
+    "tok-tag":        { "$type": "color",      "$value": "{semantic.color.syntax.tag}" },
+    "tok-attribute":  { "$type": "color",      "$value": "{semantic.color.syntax.attribute}" }
   },
   "sparkline": {
     "width":        { "$type": "dimension", "$value": "5rem" },
