@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-code syntax highlighting fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body>
+  <main id="section-code-syntax" style="padding:1rem; max-inline-size:48rem;">
+    <h1>Syntax tokens</h1>
+
+    <section>
+      <h2>Plain block</h2>
+      <pre class="hc-code" tabindex="0" role="region" aria-label="Highlighted query"><code data-testid="plain"><span class="hc-code__tok" data-tok="keyword" data-testid="kw">SELECT</span> <span class="hc-code__tok" data-tok="identifier" data-testid="id">id</span><span class="hc-code__tok" data-tok="operator" data-testid="op">,</span> <span class="hc-code__tok" data-tok="number" data-testid="num">1</span> <span class="hc-code__tok" data-tok="comment" data-testid="cm">-- note</span>
+<span class="hc-code__tok" data-tok="keyword">FROM</span> <span class="hc-code__tok" data-tok="string" data-testid="str">'members'</span> <span class="hc-code__tok" data-tok="meta" data-testid="meta">/*%if x */</span>
+<span class="hc-code__tok" data-tok="bogus" data-testid="unknown">plainish</span></code></pre>
+    </section>
+
+    <section>
+      <h2>Line numbers + state</h2>
+      <ol class="hc-code" data-gutter="line-numbers" tabindex="0" aria-label="Covered query">
+        <li class="hc-code__line" data-state="covered" data-testid="cov-line"><span class="hc-code__tok" data-tok="keyword" data-testid="cov-kw">SELECT</span> <span class="hc-code__tok" data-tok="operator">*</span></li>
+        <li class="hc-code__line" data-state="missed"><span class="hc-code__tok" data-tok="keyword">FROM</span> orders</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Diff with tokens</h2>
+      <ol class="hc-code" data-mode="diff" tabindex="0" aria-label="Diff with tokens">
+        <li class="hc-code__line" data-state="context" data-old="1" data-new="1"><span class="hc-code__tok" data-tok="keyword">SELECT</span> id</li>
+        <li class="hc-code__line" data-state="added" data-new="2" data-testid="diff-add"><span class="hc-code__tok" data-tok="keyword" data-testid="add-kw">FROM</span> <span class="hc-code__tok" data-tok="string">'app_users'</span></li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>

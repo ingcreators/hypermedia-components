@@ -1,11 +1,14 @@
-/* hc-code — code surface (issues #253, #256, #255).
+/* hc-code — code surface (issues #253, #256, #255, #261).
  *
  * A monospace surface styled from the kit's tokens. The read-only modes
  * need no script (CSP `default-src 'self'` safe); the editable mode is a
  * real <textarea> that `installCodeEditor()` upgrades with a synced
- * line-number gutter. Syntax highlighting is out of scope — the lines are
- * plain text (a server-tokenized or behavior-driven follow-up may add it
- * additively later).
+ * line-number gutter.
+ *
+ * Read-only syntax highlighting is server-tokenized (#261): the server emits
+ * `<span class="hc-code__tok" data-tok="…">` spans, coloured from the
+ * `--hc-code-tok-*` palette — no client tokenizer (an editable highlight
+ * overlay is a possible follow-up). See "Syntax tokens" below.
  *
  * 1. Plain block — apply to a <pre>:
  *
@@ -271,5 +274,42 @@
   /* The container shows the :focus-within ring instead. */
   .hc-code__input:focus {
     outline: none;
+  }
+
+  /* --- Syntax tokens (#261) ---------------------------------------------- */
+
+  /* Server-emitted token spans, inside <pre><code> or an hc-code__line.
+   * `data-tok` is a generic, language-agnostic vocabulary; `meta` is the
+   * catch-all for language-specific constructs (e.g. 2-way SQL directives).
+   * An unknown or absent `data-tok` inherits the plain code colour. Token
+   * colour wins over a context-line's muted text; line tints (data-state)
+   * and the diff gutter are unaffected. */
+  .hc-code__tok[data-tok="keyword"] {
+    color: var(--hc-code-tok-keyword);
+  }
+
+  .hc-code__tok[data-tok="string"] {
+    color: var(--hc-code-tok-string);
+  }
+
+  .hc-code__tok[data-tok="number"] {
+    color: var(--hc-code-tok-number);
+  }
+
+  .hc-code__tok[data-tok="comment"] {
+    color: var(--hc-code-tok-comment);
+    font-style: italic;
+  }
+
+  .hc-code__tok[data-tok="operator"] {
+    color: var(--hc-code-tok-operator);
+  }
+
+  .hc-code__tok[data-tok="identifier"] {
+    color: var(--hc-code-tok-identifier);
+  }
+
+  .hc-code__tok[data-tok="meta"] {
+    color: var(--hc-code-tok-meta);
   }
 }

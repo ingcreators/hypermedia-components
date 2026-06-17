@@ -71,6 +71,15 @@
         "fg":     { "$type": "color", "$value": "{primitive.color.red.800}" },
         "border": { "$type": "color", "$value": "{primitive.color.red.100}" }
       }
+    },
+    "syntax": {
+      "keyword":    { "$type": "color", "$value": "{primitive.color.violet.700}" },
+      "string":     { "$type": "color", "$value": "{primitive.color.green.700}" },
+      "number":     { "$type": "color", "$value": "{primitive.color.amber.700}" },
+      "comment":    { "$type": "color", "$value": "{primitive.color.gray.600}" },
+      "operator":   { "$type": "color", "$value": "{primitive.color.slate.600}" },
+      "identifier": { "$type": "color", "$value": "{primitive.color.gray.900}" },
+      "meta":       { "$type": "color", "$value": "{primitive.color.rose.700}" }
     }
   },
   "control": {
