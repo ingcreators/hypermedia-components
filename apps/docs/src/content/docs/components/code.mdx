@@ -144,8 +144,42 @@ WHERE active = true</textarea>
 
 To keep the numbers aligned the behavior sets the textarea to not soft-wrap
 (`wrap="off"`); long lines scroll horizontally. Label the textarea
-(`aria-label` or a `<label for>`) — it is a form control. Syntax
-highlighting is out of scope (a CSP-safe overlay is a possible follow-up).
+(`aria-label` or a `<label for>`) — it is a form control. A live highlight
+overlay for the editable field is a possible follow-up; the read-only
+[syntax highlighting](#syntax-highlighting) below works today.
+
+## Syntax highlighting
+
+Read-only highlighting is **server-tokenized**: the server wraps each token
+in `<span class="hc-code__tok" data-tok="…">`, coloured from the
+`--hc-code-tok-*` palette. There is **no client tokenizer** — like the diff
+hunks, the kit only styles what the server emits, so it stays CSP-safe and
+deterministic. Tokens nest inside `<pre><code>` (plain) or `hc-code__line`
+(line-numbered / diff) and compose with `data-state` tints and the diff
+gutter.
+
+`data-tok` is a generic, language-agnostic vocabulary — `keyword`, `string`,
+`number`, `comment`, `operator`, `identifier`, and `meta` (a catch-all for
+language-specific constructs, e.g. 2-way SQL directives and binds). An
+unknown or absent `data-tok` renders as plain code.
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <pre class="hc-code" tabindex="0" role="region" aria-label="Highlighted query"><code><span class="hc-code__tok" data-tok="keyword">SELECT</span> <span class="hc-code__tok" data-tok="identifier">id</span><span class="hc-code__tok" data-tok="operator">,</span> <span class="hc-code__tok" data-tok="number">1</span>
+<span class="hc-code__tok" data-tok="keyword">FROM</span> <span class="hc-code__tok" data-tok="identifier">members</span> <span class="hc-code__tok" data-tok="comment">-- active only</span></code></pre>
+
+  <Fragment slot="code">
+
+  ```html
+  <pre class="hc-code"><code><span class="hc-code__tok" data-tok="keyword">SELECT</span> <span class="hc-code__tok" data-tok="identifier">id</span>
+  <span class="hc-code__tok" data-tok="keyword">FROM</span> <span class="hc-code__tok" data-tok="identifier">members</span></code></pre>
+  ```
+
+  </Fragment>
+</Demo>
+
+Token colour wins over a context line's muted text; line tints (`data-state`)
+and the diff gutter are unaffected. The palette meets WCAG AA contrast on the
+code surface in both themes (verified by `code-syntax.spec.mjs`).
 
 ## Accessibility
 
@@ -180,6 +214,7 @@ highlighting is out of scope (a CSP-safe overlay is a possible follow-up).
 | `code.removed-bg` / `code.removed-marker` | `removed` / `missed` tint &amp; bar. |
 | `code.focus-border` | Focus ring on the editable field.               |
 | `code.input-min-height` | Minimum height of the editable textarea.    |
+| `code.tok-keyword` / `-string` / `-number` / `-comment` / `-operator` / `-identifier` / `-meta` | Syntax-token foregrounds (`data-tok`). |
 
 The tinted-state tokens resolve through the semantic status palette, so they
 re-resolve automatically under `data-theme="dark"`.
@@ -198,6 +233,8 @@ re-resolve automatically under `data-theme="dark"`.
 --hc-code-added-bg | -added-marker
 --hc-code-removed-bg | -removed-marker
 --hc-code-focus-border | -input-min-height
+--hc-code-tok-keyword | -tok-string | -tok-number | -tok-comment
+--hc-code-tok-operator | -tok-identifier | -tok-meta
 ```
 
 </details>

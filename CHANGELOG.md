@@ -20,6 +20,23 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`hc-code` syntax highlighting — server-tokenized, read-only** (#261).
+  An opt-in token markup contract: the server wraps tokens in
+  `<span class="hc-code__tok" data-tok="…">` and the kit colours them from a
+  new `--hc-code-tok-*` palette (themed light + dark, WCAG AA verified). The
+  `data-tok` vocabulary is generic and language-agnostic — `keyword`,
+  `string`, `number`, `comment`, `operator`, `identifier`, and `meta` (a
+  catch-all for language-specific constructs such as 2-way SQL directives);
+  an unknown or absent `data-tok` renders as plain code. Tokens nest inside
+  `<pre><code>` and `hc-code__line`, composing with `data-state` tints and
+  the diff gutter. No client tokenizer — like the diff hunks, the server
+  emits the spans (CSP-safe). New `--hc-code-tok-*` (and underlying
+  `--hc-color-syntax-*`) custom properties; docs section; pinned by
+  `test-browser/code-syntax.spec.mjs` (incl. axe in light and dark). A live
+  highlight overlay for the editable field is tracked as a follow-on.
+
 ## [0.1.3] - 2026-06-17
 
 ### Added
