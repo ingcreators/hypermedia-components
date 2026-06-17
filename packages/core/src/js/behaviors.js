@@ -39,6 +39,7 @@ import { installValidation } from './validation.js';
 import { installThemeToggle } from './theme-toggle.js';
 import { installFieldErrors } from './field-errors.js';
 import { installCsrfHeader } from './csrf-header.js';
+import { installSparkline } from './sparkline.js';
 
 function init() {
   installConfirm();
@@ -73,6 +74,7 @@ function init() {
   installThemeToggle();
   installFieldErrors();
   installCsrfHeader();
+  installSparkline();
 }
 
 if (typeof document !== 'undefined') {
@@ -116,6 +118,7 @@ export {
   installThemeToggle,
   installFieldErrors,
   installCsrfHeader,
+  installSparkline,
 };
 
 // i18n — set the locale before this module's auto-init runs (e.g. inline

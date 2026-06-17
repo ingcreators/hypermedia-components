@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-sparkline fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main id="section-sparkline" style="padding:1rem; max-inline-size:40rem;">
+    <h1>Sparkline</h1>
+
+    <p>
+      Line coverage
+      <span class="hc-sparkline" data-values="0.62,0.66,0.7,0.72,0.78,0.82"
+            data-testid="default" aria-label="SQL line coverage trend"></span>
+      82%
+    </p>
+
+    <p>
+      Pass rate
+      <span class="hc-sparkline" data-variant="success" data-area
+            data-values="0.9,0.92,0.95,0.97,0.99" data-testid="success"
+            aria-label="Pass rate trend"></span>
+      99%
+    </p>
+
+    <p>
+      Error rate
+      <span class="hc-sparkline" data-variant="error"
+            data-values="0.01,0.02,0.05,0.08,0.12" data-testid="error"
+            aria-label="Error rate trend"></span>
+      12%
+    </p>
+
+    <p>
+      Decorative
+      <span class="hc-sparkline" data-values="3,1,4,1,5,9,2,6" data-testid="decorative"></span>
+    </p>
+
+    <p>
+      Server-rendered (markup convention)
+      <span class="hc-sparkline" data-values="1,2,3" data-testid="server"
+            role="img" aria-label="Prebuilt trend">
+        <svg class="hc-sparkline__svg" viewBox="0 0 100 100" preserveAspectRatio="none"
+             aria-hidden="true" focusable="false" data-server="1">
+          <polyline class="hc-sparkline__line" points="0,90 50,50 100,10"></polyline>
+        </svg>
+      </span>
+    </p>
+  </main>
+</body>
+</html>

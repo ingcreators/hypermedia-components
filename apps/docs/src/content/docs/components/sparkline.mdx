@@ -1,0 +1,129 @@
+---
+title: Sparkline
+description: A word-sized inline trend line, drawn from a numeric series — CSP-safe, with no charting dependency.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-sparkline` is a tiny inline trend chart for showing a metric's recent
+direction next to the number — a coverage or pass-rate trend, say. It is
+**CSP-safe** (`default-src 'self'`): there is no charting dependency and no
+inline script. `installSparkline()` draws the `<svg>` from a `data-values`
+attribute with the DOM API, and a server may emit the same SVG directly (the
+[markup convention](#markup-convention)).
+
+For full charts with axes, legends, and multiple series, use
+[chart](/hypermedia-components/recipes/chart/) instead — that one upgrades a
+data table with Observable Plot.
+
+## Basic HTML
+
+Give the host a comma-separated `data-values` series and an `aria-label`. The
+behavior renders an inline line that fills the host box; size comes from
+`--hc-sparkline-width` / `--hc-sparkline-height`.
+
+<Demo previewClass="hc-preview--start">
+  <span>Line coverage <span class="hc-sparkline" data-values="0.62,0.66,0.7,0.72,0.78,0.82" aria-label="SQL line coverage trend"></span> 82%</span>
+
+  <Fragment slot="code">
+
+  ```html
+  Line coverage
+  <span class="hc-sparkline"
+        data-values="0.62,0.66,0.7,0.72,0.78,0.82"
+        aria-label="SQL line coverage trend"></span>
+  82%
+  ```
+
+  </Fragment>
+</Demo>
+
+## Area &amp; variants
+
+Add `data-area` to fill under the line. `data-variant` recolours the whole
+mark — `success`, `warning`, or `error` — through the semantic status
+palette, so it re-resolves under `data-theme="dark"`.
+
+<Demo previewClass="hc-preview--start">
+  <span>Pass rate <span class="hc-sparkline" data-variant="success" data-area="" data-values="0.9,0.92,0.95,0.97,0.99" aria-label="Pass-rate trend"></span></span>
+  <span>Error rate <span class="hc-sparkline" data-variant="error" data-values="0.01,0.02,0.05,0.08,0.12" aria-label="Error-rate trend"></span></span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-sparkline" data-variant="success" data-area
+        data-values="0.9,0.92,0.95,0.97,0.99" aria-label="Pass-rate trend"></span>
+
+  <span class="hc-sparkline" data-variant="error"
+        data-values="0.01,0.02,0.05,0.08,0.12" aria-label="Error-rate trend"></span>
+  ```
+
+  </Fragment>
+</Demo>
+
+Pin the value domain with `data-min` / `data-max` (default: the series'
+own min and max) — useful to lock a `0..1` ratio or share one scale across
+several rows.
+
+## Markup convention
+
+Because the rendered SVG is plain markup, a server can emit it directly and
+skip the behavior entirely — the styling is still kit-owned. Use this shape;
+note that **you supply `role="img"` and `aria-label` yourself** (the behavior
+only adds them when it renders), or mark it `aria-hidden` if decorative:
+
+```html
+<span class="hc-sparkline" role="img" aria-label="SQL line coverage trend">
+  <svg class="hc-sparkline__svg" viewBox="0 0 100 100"
+       preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <polyline class="hc-sparkline__line" points="0,84 20,76 40,60 60,52 80,28 100,16"></polyline>
+  </svg>
+</span>
+```
+
+`installSparkline()` skips any host that already contains an
+`.hc-sparkline__svg`, so the two paths can coexist on one page.
+
+## Accessibility
+
+- A sparkline is a visual summary; the real numbers should live next to it in
+  the text. Give the host an `aria-label` describing the trend — the behavior
+  then exposes it as `role="img"`. Without a label it is treated as decorative
+  (`aria-hidden`).
+- The inner `<svg>` is always hidden from the accessibility tree
+  (`aria-hidden`, `focusable="false"`).
+- `data-variant` colour is reinforcement only — keep the meaning in the
+  adjacent text, not the hue.
+
+## Theming tokens
+
+| Token path               | Purpose                               |
+| ------------------------ | ------------------------------------- |
+| `sparkline.width`        | Default host inline-size.             |
+| `sparkline.height`       | Default host block-size.              |
+| `sparkline.color`        | Default line colour (the accent).     |
+| `sparkline.stroke-width` | Line thickness (non-scaling).         |
+| `sparkline.area-opacity` | Fill opacity for `data-area`.         |
+| `sparkline.success` / `sparkline.warning` / `sparkline.error` | `data-variant` colours. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-sparkline-width | -height
+--hc-sparkline-color | -stroke-width | -area-opacity
+--hc-sparkline-success | -warning | -error
+```
+
+</details>
+
+## Related
+
+- [chart](/hypermedia-components/recipes/chart/) — full charts (axes,
+  legends, series) from a data table, via Observable Plot.
+- [Status colors](/hypermedia-components/tokens/status/) — the palette the
+  `data-variant` trend colours resolve through.
+- [Progress](/hypermedia-components/components/progress/) — a single-value
+  bar, where a sparkline shows a series.

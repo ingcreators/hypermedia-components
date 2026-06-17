@@ -118,6 +118,7 @@ export default defineConfig({
                 'components/separator',
                 'components/accordion',
                 'components/collapsible',
+                'components/sparkline',
               ],
             },
             {

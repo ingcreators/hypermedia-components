@@ -1,0 +1,62 @@
+/* hc-sparkline — a tiny inline trend chart (issue #254).
+ *
+ * A word-sized line (optionally filled) for showing a metric's recent
+ * direction next to the number, e.g. a coverage or pass-rate trend. It is
+ * CSP-safe (`default-src 'self'`): there is no charting dependency and no
+ * inline script — `installSparkline()` draws the SVG from `data-values` with
+ * the DOM API, and a server may emit the same SVG directly.
+ *
+ *   <span class="hc-sparkline" data-values="0.7,0.74,0.8,0.78,0.82"
+ *         aria-label="SQL line coverage trend"></span>
+ *
+ * The stroke and fill use `currentColor`, so a single `color` declaration
+ * themes the whole mark; `data-variant` swaps it for a success / warning /
+ * error trend colour. Size comes from `--hc-sparkline-width` / `-height`
+ * (or set the host's inline-size / block-size directly).
+ */
+@layer hc.components {
+  .hc-sparkline {
+    display: inline-block;
+    inline-size: var(--hc-sparkline-width);
+    block-size: var(--hc-sparkline-height);
+    color: var(--hc-sparkline-color);
+    vertical-align: middle;
+  }
+
+  .hc-sparkline__svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  .hc-sparkline__line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--hc-sparkline-stroke-width);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    /* Keep the stroke crisp regardless of how the viewBox stretches to the
+     * host's aspect ratio (preserveAspectRatio="none"). */
+    vector-effect: non-scaling-stroke;
+  }
+
+  .hc-sparkline__area {
+    fill: currentColor;
+    opacity: var(--hc-sparkline-area-opacity);
+    stroke: none;
+  }
+
+  .hc-sparkline[data-variant="success"] {
+    color: var(--hc-sparkline-success);
+  }
+
+  .hc-sparkline[data-variant="warning"] {
+    color: var(--hc-sparkline-warning);
+  }
+
+  .hc-sparkline[data-variant="error"] {
+    color: var(--hc-sparkline-error);
+  }
+}
