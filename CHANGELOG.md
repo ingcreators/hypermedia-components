@@ -20,6 +20,23 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **Anchor-positioning JS fallback now decisively overrides native CSS
+  anchor positioning.** When `installPopover` / `installMenu` /
+  `installTooltip` / `installHovercard` / `installNavmenu` (etc.) take the
+  JS fallback path, `positionFloating` now clears `position-area`,
+  `position-try-fallbacks`, and `position-anchor` and resets insets via the
+  physical `inset: auto` shorthand before writing `top`/`left`. Previously
+  it set the logical `inset-block-start` / `inset-inline-start` to `auto`
+  *after* `top`/`left`; those are aliases, and Chrome 149 resolves the
+  logical longhand last, clobbering the computed `top`/`left` so a forced
+  fallback placed the popover in the viewport corner. Surfaced by the
+  Playwright 1.61 Chromium bump (`test-browser/anchor-fallback.spec.mjs`).
+  Real browsers never hit this in production — the fallback only runs where
+  anchor positioning is unsupported, so these resets are inert there — but
+  the hardening keeps the fallback authoritative whenever it runs.
+
 ### Added
 
 - **`installCopy()` — declarative copy-to-clipboard** (#270). A new

@@ -75,6 +75,14 @@ export function readSideAlign(el, fallback = {}) {
  */
 export function positionFloating(floating, anchor, opts = {}) {
   const { side = 'block-end', align = 'start', gap = 4, matchWidth = false } = opts;
+  // When the JS fallback runs, it owns placement: neutralise any CSS Anchor
+  // Positioning the engine may still apply. A browser without anchor support
+  // ignores these (a no-op), but one that supports them would otherwise let
+  // the stylesheet's `position-area` / `position-try-fallbacks` override our
+  // inline top/left (observed in Chrome 149 / Playwright 1.61).
+  floating.style.setProperty('position-area', 'none');
+  floating.style.setProperty('position-try-fallbacks', 'none');
+  floating.style.setProperty('position-anchor', 'none');
   const a = anchor.getBoundingClientRect();
   const f = floating.getBoundingClientRect();
   const view = floating.ownerDocument.defaultView;
@@ -110,10 +118,13 @@ export function positionFloating(floating, anchor, opts = {}) {
     left = clamp(left, gap, Math.max(gap, vw - f.width - gap));
 
     floating.style.position = 'fixed';
+    // Clear any CSS-set insets first. `inset` covers the logical longhands the
+    // anchor-positioning stylesheet sets; setting `inset-block-start: auto`
+    // after `top` would instead clobber it (they are aliases — last wins,
+    // and Chrome 149 orders logical after physical).
+    floating.style.setProperty('inset', 'auto');
     floating.style.top = `${top}px`;
     floating.style.left = `${left}px`;
-    floating.style.insetInlineStart = 'auto';
-    floating.style.insetBlockStart = 'auto';
     floating.style.margin = '0';
     if (matchWidth) floating.style.minWidth = `${a.width}px`;
     return;
@@ -151,10 +162,10 @@ export function positionFloating(floating, anchor, opts = {}) {
   left = clamp(left, gap, Math.max(gap, vw - f.width - gap));
 
   floating.style.position = 'fixed';
+  // Clear any CSS-set insets first (see the inline-side branch above).
+  floating.style.setProperty('inset', 'auto');
   floating.style.top = `${top}px`;
   floating.style.left = `${left}px`;
-  floating.style.insetInlineStart = 'auto';
-  floating.style.insetBlockStart = 'auto';
   floating.style.margin = '0';
   if (matchWidth) floating.style.minWidth = `${a.width}px`;
 }
@@ -163,8 +174,10 @@ const CLEARED = [
   'position',
   'top',
   'left',
-  'inset-inline-start',
-  'inset-block-start',
+  'inset',
+  'position-area',
+  'position-try-fallbacks',
+  'position-anchor',
   'margin',
   'min-width',
 ];
