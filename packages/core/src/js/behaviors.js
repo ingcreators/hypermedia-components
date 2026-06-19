@@ -41,6 +41,7 @@ import { installFieldErrors } from './field-errors.js';
 import { installCsrfHeader } from './csrf-header.js';
 import { installCopy } from './copy.js';
 import { installSpy } from './spy.js';
+import { installNavCurrent } from './nav-current.js';
 import { installSparkline } from './sparkline.js';
 import { installCodeEditor } from './code-editor.js';
 
@@ -79,6 +80,7 @@ function init() {
   installCsrfHeader();
   installCopy();
   installSpy();
+  installNavCurrent();
   installSparkline();
   installCodeEditor();
 }
@@ -126,6 +128,7 @@ export {
   installCsrfHeader,
   installCopy,
   installSpy,
+  installNavCurrent,
   installSparkline,
   installCodeEditor,
 };

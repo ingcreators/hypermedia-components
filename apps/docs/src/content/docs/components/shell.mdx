@@ -170,6 +170,42 @@ staying in the accessibility tree. The
 composed this way. Plain `<a>` children still work — they just carry no
 hover/current styling of their own.
 
+### Marking the active item by URL — `data-hc-nav-current`
+
+Setting `aria-current="page"` server-side on the matching route is the
+canonical approach. When that's inconvenient — a static sidebar shared
+across pages, or one that persists across htmx swaps — add
+`data-hc-nav-current` to the nav container and the `installNavCurrent()`
+behavior marks the right link from the URL, with no inline JS (so it works
+under a strict `Content-Security-Policy: default-src 'self'`):
+
+```html
+<nav class="hc-shell__sidebar" data-hc-nav-current aria-label="Primary">
+  <a class="hc-item" href="/app/explorer">Explorer</a>
+  <a class="hc-item" href="/app/docs">Docs</a>
+  <a class="hc-item" href="/app/docs/coverage">Coverage</a>
+</nav>
+```
+
+Among the container's same-origin `a[href]`, it sets `aria-current="page"`
+on the link whose pathname equals `location.pathname`, or — failing an
+exact match — the **longest** link pathname that is a path-segment prefix
+of it, so a section link (`/app/docs`) stays current on its subpages
+(`/app/docs/coverage`). Root `/` matches only exactly, never as a prefix.
+It re-marks after htmx history navigation (`htmx:pushedIntoHistory`) and
+back/forward (`popstate`), and clears the link it previously set so exactly
+one is current.
+
+```js
+import { installNavCurrent } from '@hypermedia-components/core';
+installNavCurrent(); // or the auto-init bundle: @hypermedia-components/core/behaviors
+```
+
+`data-hc-nav-current` is opt-in and works on **any** nav container, not
+only the shell sidebar — pair it with `.hc-item` (or any element you style
+via `[aria-current="page"]`). With no JavaScript the links still work; only
+the active mark is missing — progressive enhancement.
+
 ## Header actions and back link
 
 The header is a flex row (`gap` included), so per-page extras compose

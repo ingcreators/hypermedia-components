@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc nav-current fixture</title>
+  <!--
+    data-hc-nav-current (#272): the auto-installed behavior marks the
+    link whose pathname matches location.pathname (longest path-segment
+    prefix wins; root "/" only exactly) with aria-current="page", and
+    re-marks after htmx history nav / popstate. The spec drives those
+    events and asserts the active link tracks the URL.
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:20rem;">
+    <nav class="hc-shell__sidebar" data-hc-nav-current aria-label="Primary">
+      <a class="hc-item" data-testid="nav-here" href="/nav-current.html">This page</a>
+      <a class="hc-item" data-testid="nav-explorer" href="/app/explorer">Explorer</a>
+      <a class="hc-item" data-testid="nav-docs" href="/app/docs">Docs</a>
+      <a class="hc-item" data-testid="nav-cov" href="/app/docs/coverage">Coverage</a>
+      <a class="hc-item" data-testid="nav-ext" href="https://example.com/app/docs">External</a>
+    </nav>
+  </main>
+</body>
+</html>
