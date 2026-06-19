@@ -46,13 +46,13 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.1.5` (published 2026-06-17): 55 component stylesheets ·
-35 behaviors · 2 macros · 13 recipes · 8 integration guides ·
-~102 docs pages (components, tokens, fundamentals, integrations,
+As of `0.1.6` (published 2026-06-19): 56 component stylesheets ·
+38 behaviors · 2 macros · 14 recipes · 8 integration guides ·
+~104 docs pages (components, tokens, fundamentals, integrations,
 recipes, blocks) · runtime axes `data-theme` / `data-color` /
 `data-neutral` / `data-density` / `dir` · i18n message catalog
-(`setMessages()`) · examples for plain-html + htmx · 41 Vitest suites ·
-84 Playwright suites (incl. axe scans).
+(`setMessages()`) · examples for plain-html + htmx · 48 Vitest suites ·
+91 Playwright suites (incl. axe scans).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -165,6 +165,19 @@ opt-in `data-lang` overlay, a pluggable `registerCodeLanguage()` API with
 built-in `sql` / `json` / `yaml` / `html` grammars, and the additive
 `property` / `tag` / `attribute` syntax tokens (which also enrich the Phase A
 read-only path). Additive, so a patch.
+
+Core `0.1.6` (2026-06-19, `v0.1.6` tag) followed: the three TesseraQL
+Studio platform-UX issues, one PR each — `installCopy()` / `data-hc-copy`
+clipboard behavior (#270, PR #273), the `hc-toc` component +
+`installSpy()` scrollspy (#271, PR #274), and `installNavCurrent()` /
+`data-hc-nav-current` active-link marking (#272, PR #275). All CSP-safe
+(declarative markup, no inline JS) and strictly additive, so a patch.
+Also a fix (#276): the CSS Anchor Positioning JS fallback now clears
+`position-area` / `position-try-fallbacks` / `position-anchor` and resets
+insets with the physical `inset: auto` before writing `top`/`left`, so it
+stays authoritative under Chrome 149 (surfaced by the Playwright 1.61
+dev-dependencies bump, #268). Routine dependency bumps landed too
+(#267 actions/checkout 7, #269 astro 6.4.8, #268 dev-deps group).
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
