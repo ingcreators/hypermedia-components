@@ -18,7 +18,7 @@ jobs:
       # for this repo + this workflow file (release.yml).
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # pnpm version comes from the root package.json "packageManager" field.
       - uses: pnpm/action-setup@v6
