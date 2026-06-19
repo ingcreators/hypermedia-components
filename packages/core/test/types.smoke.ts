@@ -39,6 +39,7 @@ import {
   installValidation,
   installCsrfHeader,
   installCopy,
+  installSpy,
   version,
 } from '@hypermedia-components/core';
 
@@ -72,6 +73,7 @@ import {
   installValidation as installValidationFromBehaviors,
   installCsrfHeader as installCsrfHeaderFromBehaviors,
   installCopy as installCopyFromBehaviors,
+  installSpy as installSpyFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -114,6 +116,7 @@ const uninstallers: Array<() => void> = [
   installValidation(document),
   installCsrfHeader(document),
   installCopy(document),
+  installSpy(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -143,6 +146,7 @@ const uninstallers: Array<() => void> = [
   installValidationFromBehaviors(),
   installCsrfHeaderFromBehaviors(),
   installCopyFromBehaviors(),
+  installSpyFromBehaviors(),
 ];
 
 // `version` is a string literal export.

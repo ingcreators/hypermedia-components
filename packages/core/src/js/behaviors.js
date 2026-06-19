@@ -40,6 +40,7 @@ import { installThemeToggle } from './theme-toggle.js';
 import { installFieldErrors } from './field-errors.js';
 import { installCsrfHeader } from './csrf-header.js';
 import { installCopy } from './copy.js';
+import { installSpy } from './spy.js';
 import { installSparkline } from './sparkline.js';
 import { installCodeEditor } from './code-editor.js';
 
@@ -77,6 +78,7 @@ function init() {
   installFieldErrors();
   installCsrfHeader();
   installCopy();
+  installSpy();
   installSparkline();
   installCodeEditor();
 }
@@ -123,6 +125,7 @@ export {
   installFieldErrors,
   installCsrfHeader,
   installCopy,
+  installSpy,
   installSparkline,
   installCodeEditor,
 };

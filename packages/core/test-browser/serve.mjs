@@ -35,6 +35,7 @@ const ASSET_ALIASES = new Map([
   ['/field-errors.js',  join(coreDist, 'field-errors.js')],
   ['/csrf-header.js',   join(coreDist, 'csrf-header.js')],
   ['/copy.js',          join(coreDist, 'copy.js')],
+  ['/spy.js',           join(coreDist, 'spy.js')],
   ['/confirm.js',       join(coreDist, 'confirm.js')],
   ['/toast.js',         join(coreDist, 'toast.js')],
   ['/close-dialog.js',  join(coreDist, 'close-dialog.js')],

@@ -1,0 +1,138 @@
+---
+title: Table of contents
+description: An "On this page" jump list — pure-CSS hc-toc, with an optional data-hc-spy scrollspy that marks the section currently in view.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-toc` is a pure-CSS skin over a labeled `<nav>` wrapping a list of
+in-page anchor links — the familiar "On this page" jump list for long
+reference pages. It works with no JavaScript. Add `data-hc-spy` and the
+[`installSpy`](#scrollspy-data-hc-spy) behavior marks the link of the
+section currently in view as the reader scrolls.
+
+## Basic example
+
+The active link below is marked statically with `aria-current="location"`
+to show the styling; with `data-hc-spy` the behavior sets it for you.
+
+<Demo previewClass="hc-preview--start">
+  <nav class="hc-toc" aria-label="On this page">
+    <ul class="hc-toc__list">
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#" aria-current="location">Inputs</a></li>
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#">SQL</a></li>
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#">Tests</a></li>
+    </ul>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-toc" aria-label="On this page">
+    <ul class="hc-toc__list">
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#sec-inputs">Inputs</a></li>
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#sec-sql">SQL</a></li>
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#sec-tests">Tests</a></li>
+    </ul>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
+
+The `<li class="hc-toc__item">` wrappers are optional — the styling keys
+off `.hc-toc__list` / `.hc-toc__link`, so a flat list of links directly
+inside the nav works too.
+
+## Scrollspy (`data-hc-spy`)
+
+Add `data-hc-spy` to the nav and install the behavior. It resolves each
+link's `#fragment` to its target section, observes them with an
+`IntersectionObserver`, and marks the link of the section at the top of
+the viewport with `aria-current="location"` plus a `data-active` hook.
+
+:::note[Setup]
+Scrollspy needs the `installSpy()` behavior. Install every behavior at
+once with `import '@hypermedia-components/core/behaviors';`, or just this
+one:
+
+```js
+import { installSpy } from '@hypermedia-components/core';
+installSpy();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
+```html
+<nav class="hc-toc" data-hc-spy aria-label="On this page">
+  <a class="hc-toc__link" href="#sec-inputs">Inputs</a>
+  <a class="hc-toc__link" href="#sec-sql">SQL</a>
+  <a class="hc-toc__link" href="#sec-tests">Tests</a>
+</nav>
+…
+<section id="sec-inputs">…</section>
+<section id="sec-sql">…</section>
+<section id="sec-tests">…</section>
+```
+
+The behavior only tracks sections that exist, and resolves links once at
+install (re-install after swapping the tracked content). It never forces
+smooth scrolling — clicking a link is the browser's native anchor jump —
+so there is nothing for `prefers-reduced-motion` to gate.
+
+## States
+
+| State | How it is set | Styling |
+| --- | --- | --- |
+| Active section | `installSpy` sets `aria-current="location"` + `data-active` (or author it directly) | `--hc-toc-active-fg`, `--hc-toc-active-font-weight`, and the inline-start marker (`--hc-toc-active-marker`) |
+| Hover | `:hover` | `--hc-toc-link-fg` → `--hc-toc-link-hover-fg` |
+| Focus | `:focus-visible` | `2px` outline in `--hc-color-focus-ring` |
+
+The active rule matches **both** `[aria-current="location"]` and
+`[data-active]`, so the highlight works whether it comes from the
+behavior or from server-rendered markup.
+
+## Accessibility
+
+- Label the `<nav>` (`aria-label="On this page"` or `aria-labelledby`) so
+  the landmark has a name.
+- The active link carries `aria-current="location"` — the ARIA value for
+  "the current location within a set" — which drives both the visual
+  state and the screen-reader signal.
+- Without JavaScript the nav is still a working list of anchor links (no
+  active highlight) — progressive enhancement.
+- Keep the focus outline; the default uses `--hc-color-focus-ring` to
+  match the rest of the system.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `toc.font-size` | Text size for the whole list. |
+| `toc.gap` | Vertical space between links. |
+| `toc.indent` | Inline-start padding (room for the active marker). |
+| `toc.link.fg` / `hover-fg` | Inactive link color, rest and hover. |
+| `toc.active.fg` / `font-weight` | Active link appearance. |
+| `toc.active.marker` | Color of the inline-start marker on the active link. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-toc-font-size | -gap | -indent
+--hc-toc-link-fg | -link-hover-fg
+--hc-toc-active-fg | -active-font-weight | -active-marker
+--hc-color-focus-ring   (inherited from data-color)
+```
+
+</details>
+
+## Related
+
+- [Breadcrumb](/hypermedia-components/components/breadcrumb/) — trail from the site root to the current page.
+- [Tabs](/hypermedia-components/components/tabs/) — switch between sibling sections.

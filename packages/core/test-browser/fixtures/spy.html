@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc toc + scrollspy fixture</title>
+  <!--
+    The hc-toc scrollspy (#271): a data-hc-spy nav whose links resolve to
+    page sections; installSpy marks the link of the section at the top of
+    the viewport with aria-current="location". The spec scrolls each
+    section to the top and asserts the active link tracks it.
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+  <style>
+    body { margin: 0; }
+    .layout { display: grid; grid-template-columns: 14rem 1fr; gap: 2rem; padding: 1rem; }
+    .hc-toc { position: sticky; top: 0; align-self: start; }
+    section { min-block-size: 120vh; padding-block: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="hc-toc" data-hc-spy aria-label="On this page">
+      <ul class="hc-toc__list">
+        <li class="hc-toc__item"><a class="hc-toc__link" data-testid="link-inputs" href="#sec-inputs">Inputs</a></li>
+        <li class="hc-toc__item"><a class="hc-toc__link" data-testid="link-sql" href="#sec-sql">SQL</a></li>
+        <li class="hc-toc__item"><a class="hc-toc__link" data-testid="link-tests" href="#sec-tests">Tests</a></li>
+        <li class="hc-toc__item"><a class="hc-toc__link" data-testid="link-missing" href="#nope">Missing</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section id="sec-inputs"><h2>Inputs</h2></section>
+      <section id="sec-sql"><h2>SQL</h2></section>
+      <section id="sec-tests"><h2>Tests</h2></section>
+    </main>
+  </div>
+</body>
+</html>

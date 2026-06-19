@@ -759,6 +759,20 @@
       "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" }
     }
   },
+  "toc": {
+    "font-size":     { "$type": "dimension",  "$value": "{semantic.font.size-sm}" },
+    "gap":           { "$type": "dimension",  "$value": "{primitive.space.1}" },
+    "indent":        { "$type": "dimension",  "$value": "{primitive.space.3}" },
+    "link": {
+      "fg":          { "$type": "color",      "$value": "{semantic.color.text-muted}" },
+      "hover-fg":    { "$type": "color",      "$value": "{semantic.color.text}" }
+    },
+    "active": {
+      "fg":          { "$type": "color",      "$value": "{semantic.color.text}" },
+      "font-weight": { "$type": "fontWeight", "$value": "{semantic.font.weight-medium}" },
+      "marker":      { "$type": "color",      "$value": "{semantic.color.text}" }
+    }
+  },
   "accordion": {
     "item": {
       "border-color":         { "$type": "color",     "$value": "{semantic.color.border}" }
