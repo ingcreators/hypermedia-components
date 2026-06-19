@@ -31,6 +31,7 @@ const FILES = [
   ['src/js/csrf-header.js',   'csrf-header.js'],
   ['src/js/copy.js',          'copy.js'],
   ['src/js/spy.js',           'spy.js'],
+  ['src/js/nav-current.js',   'nav-current.js'],
   ['src/js/confirm.js',       'confirm.js'],
   ['src/js/toast.js',         'toast.js'],
   ['src/js/close-dialog.js',  'close-dialog.js'],

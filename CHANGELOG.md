@@ -62,6 +62,29 @@ Security    — security-relevant changes
   Covered by a unit suite (`test/spy.test.mjs`, IntersectionObserver
   stubbed) and a real-scroll browser test (`test-browser/spy.spec.mjs`,
   incl. axe), with a docs component page.
+- **`installNavCurrent()` — mark the active nav item by URL** (#272). A
+  new behavior in the auto-init `@hypermedia-components/core/behaviors`
+  bundle (also a named export of the main entry) that sets
+  `aria-current="page"` on the navigation link matching the current URL,
+  from declarative markup — so it works under a strict
+  `Content-Security-Policy: default-src 'self'` with no inline JS. Opt in
+  per container with `data-hc-nav-current` (any nav, not only the shell
+  sidebar). Among the container's same-origin `a[href]`, the link whose
+  pathname equals `location.pathname` wins; failing an exact match, the
+  longest link pathname that is a path-segment prefix of it (a section
+  link stays current on its subpages). Root `/` matches only exactly
+  (never as a prefix), trailing slashes are normalized, and the
+  `/users` vs `/users-archive` substring trap is avoided via a
+  path-segment boundary. It re-marks after htmx history navigation
+  (`htmx:pushedIntoHistory`) and back/forward (`popstate`), wires
+  containers added later via a MutationObserver, and clears the link it
+  previously set so exactly one is current (an author's own
+  `aria-current` is left alone). No new CSS — the kit already styles
+  `.hc-item[aria-current]`. The matching is a pure, exported
+  `pickCurrent()` helper covered by a table-driven unit suite
+  (`test/nav-current.test.mjs`) alongside a real history-navigation
+  browser test (`test-browser/nav-current.spec.mjs`, incl. axe); the
+  shell and item docs pages document it.
 
 ## [0.1.5] - 2026-06-17
 
