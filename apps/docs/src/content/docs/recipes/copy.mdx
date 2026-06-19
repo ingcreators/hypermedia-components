@@ -1,0 +1,122 @@
+---
+title: Copy to clipboard
+description: A declarative copy button — data-hc-copy reads a named element (or a literal) and writes it to the clipboard, with no inline JS.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+A read-only value that exists to be copied — a share URL, an API token, a
+generated SQL / config snippet — should not force a manual select-all +
+Ctrl/Cmd-C (especially poor on touch). The `installCopy` behavior wires a
+plain `<button>` to copy a named element's value, signals success, and
+fires an event you can chain — all from declarative markup, so it works
+under a strict `Content-Security-Policy: default-src 'self'` (no inline JS).
+
+:::note[Setup]
+This recipe needs the `installCopy()` behavior. Install every behavior at
+once with `import '@hypermedia-components/core/behaviors';`, or just this one:
+
+```js
+import { installCopy } from '@hypermedia-components/core';
+installCopy();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
+## Markup
+
+Point `data-hc-copy` at the element to copy with a CSS selector. The
+behavior copies a form control's `value` (`input` / `textarea` / `select`)
+or any other element's `textContent`.
+
+<Demo previewClass="hc-preview--start">
+  <div class="hc-cluster">
+    <input id="share-url" class="hc-input" type="text" readonly value="https://app.example.com/s/abc123" aria-label="Share URL" />
+    <button class="hc-button" data-variant="ghost" data-hc-copy="#share-url" data-hc-copy-ok="Copied">Copy</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-cluster">
+    <input id="share-url" class="hc-input" type="text" readonly
+           value="https://app.example.com/s/abc123" aria-label="Share URL">
+    <button class="hc-button" data-variant="ghost"
+            data-hc-copy="#share-url" data-hc-copy-ok="Copied">
+      Copy
+    </button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+To copy a fixed string instead of a referenced element, use
+`data-hc-copy-text`:
+
+```html
+<button class="hc-button" data-hc-copy-text="npm i @hypermedia-components/core">
+  Copy install command
+</button>
+```
+
+## Attributes
+
+| Attribute             | Required          | Notes                                                                 |
+| --------------------- | ----------------- | --------------------------------------------------------------------- |
+| `data-hc-copy`        | one source        | CSS selector of the element to copy (`value` or `textContent`).       |
+| `data-hc-copy-text`   | one source        | A literal string to copy (used instead of `data-hc-copy`).            |
+| `data-hc-copy-ok`     | _(optional)_      | Success text announced to assistive tech. Defaults to `copy.ok` ("Copied") from the [i18n catalog](/hypermedia-components/fundamentals/i18n/). |
+
+## Success state
+
+On a successful copy the behavior:
+
+- sets `data-hc-copied` on the button for ~1.5 s — style the transient
+  affordance however you like (the button's own accessible name is never
+  changed):
+
+  ```css
+  .hc-button[data-hc-copied] { /* e.g. show a check, tint the button */ }
+  ```
+
+- announces the success label through a behavior-owned, visually-hidden
+  `role="status"` live region;
+- dispatches a bubbling `hc:copied` event with `detail: { text }`.
+
+## Chaining to a toast
+
+`hc:copied` is a normal bubbling event — copy never opens a
+[toast](/hypermedia-components/recipes/toast/) itself. To raise one on
+copy with **no inline JS**, listen for the event and dispatch `hc:toast`:
+
+```js
+document.addEventListener('hc:copied', () => {
+  document.body.dispatchEvent(new CustomEvent('hc:toast', {
+    bubbles: true,
+    detail: { message: 'Copied to clipboard', variant: 'success' },
+  }));
+});
+```
+
+## Accessibility
+
+- The trigger is a real `<button>` — keyboard-activatable and touch-friendly
+  (click, not hover).
+- Success is announced via a `role="status"` region; the button keeps its
+  own accessible name throughout (it is never relabeled to "Copied").
+
+## Progressive enhancement
+
+The Clipboard API needs a secure context (https / localhost). Where it is
+unavailable the click is a graceful no-op; for a form-control target the
+behavior best-effort selects its text so the user can copy manually. The
+underlying value is always visible and selectable without the behavior.
+
+## Related
+
+- [Toast](/hypermedia-components/recipes/toast/) — pair with `hc:copied`
+  to confirm the copy.
+- [i18n](/hypermedia-components/fundamentals/i18n/) — translate the
+  `copy.ok` success label.

@@ -20,6 +20,28 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`installCopy()` — declarative copy-to-clipboard** (#270). A new
+  behavior in the auto-init `@hypermedia-components/core/behaviors`
+  bundle (also a named export of the main entry) that copies a value to
+  the clipboard from declarative markup, so it works under a strict
+  `Content-Security-Policy: default-src 'self'` with no inline JS. A
+  `data-hc-copy="<css-selector>"` button copies the referenced element's
+  `value` (form controls) or `textContent` (anything else);
+  `data-hc-copy-text="<literal>"` copies a literal instead. On success it
+  sets `data-hc-copied` on the button for ~1.5 s (CSS can reflect it),
+  announces the label through a behavior-owned visually-hidden
+  `role="status"` region (`data-hc-copy-ok`, default from the i18n key
+  `copy.ok`), and fires a bubbling `hc:copied` event (`detail: { text }`)
+  you can chain to `hc-toast`. The button keeps its own accessible name
+  throughout; copy never touches the network. The Clipboard API needs a
+  secure context — where unavailable the click is a graceful no-op (a
+  form-control target is best-effort selected for manual copy). Ships as
+  `recipes/copy/` (recipe/expanded/contract — the CLI picks it up) plus a
+  docs page, a unit suite (`test/copy.test.mjs`) and a real-Clipboard
+  browser test (`test-browser/copy.spec.mjs`).
+
 ## [0.1.5] - 2026-06-17
 
 ### Added

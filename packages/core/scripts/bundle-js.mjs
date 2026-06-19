@@ -29,6 +29,7 @@ const FILES = [
   ['src/js/field-error-core.js', 'field-error-core.js'],
   ['src/js/field-errors.js',  'field-errors.js'],
   ['src/js/csrf-header.js',   'csrf-header.js'],
+  ['src/js/copy.js',          'copy.js'],
   ['src/js/confirm.js',       'confirm.js'],
   ['src/js/toast.js',         'toast.js'],
   ['src/js/close-dialog.js',  'close-dialog.js'],

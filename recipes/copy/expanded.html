@@ -1,0 +1,24 @@
+<!-- Fully expanded HTML. -->
+<div class="hc-cluster">
+  <input id="share-url" class="hc-input" type="text" readonly
+         value="https://app.example.com/s/abc123" aria-label="Share URL">
+
+  <!-- Copy the named element's value. data-hc-copy-text="…" would copy a
+       literal string instead. data-hc-copy-ok sets the success text the
+       behavior announces via its own role="status" live region; it falls
+       back to the i18n catalog key `copy.ok` when omitted. -->
+  <button class="hc-button" data-variant="ghost" type="button"
+          data-hc-copy="#share-url" data-hc-copy-ok="Copied">
+    Copy
+  </button>
+</div>
+
+<!-- On success the behavior sets data-hc-copied on the button for ~1.5s
+     (style it however you like) and fires a bubbling hc:copied event.
+     Chain it to a toast without any inline JS:
+
+       <button … data-hc-copy="#share-url"
+               data-hx-trigger="hc:copied"
+               data-hx-post="/noop">Copy</button>
+
+     or listen for hc:copied and dispatch hc:toast yourself. -->

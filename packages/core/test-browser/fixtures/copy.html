@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc copy behavior fixture</title>
+  <!--
+    The copy-to-clipboard behavior (#270): a declarative data-hc-copy
+    button reads a named element's value and writes it to the clipboard,
+    sets data-hc-copied, announces success via a role="status" region,
+    and fires hc:copied. The spec grants clipboard permissions and
+    asserts the real Clipboard API path on localhost (a secure context).
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:32rem;">
+    <h1>Copy to clipboard</h1>
+
+    <div class="hc-cluster">
+      <input id="share-url" class="hc-input" type="text" readonly
+             value="https://app.example.com/s/abc123" aria-label="Share URL">
+      <button class="hc-button" data-variant="ghost" data-testid="copy-url"
+              data-hc-copy="#share-url" data-hc-copy-ok="Copied">
+        Copy
+      </button>
+    </div>
+
+    <p>
+      <code id="snippet">SELECT 1;</code>
+      <button class="hc-button" data-testid="copy-snippet" data-hc-copy="#snippet">
+        Copy SQL
+      </button>
+    </p>
+
+    <p>
+      <button class="hc-button" data-testid="copy-literal"
+              data-hc-copy-text="literal-value">
+        Copy literal
+      </button>
+    </p>
+  </main>
+</body>
+</html>

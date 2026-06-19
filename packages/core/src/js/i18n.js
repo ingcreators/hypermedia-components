@@ -38,6 +38,7 @@ export const DEFAULT_MESSAGES = Object.freeze({
   'confirm.confirm': 'Confirm',
   'confirm.cancel': 'Cancel',
   'fieldErrors.unknown': 'Invalid value',
+  'copy.ok': 'Copied',
   'shell.toggleNav': 'Toggle navigation',
   'shell.collapseNav': 'Collapse sidebar',
   'splitter.resize': 'Resize panels',
