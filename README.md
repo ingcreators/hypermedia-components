@@ -146,7 +146,7 @@ See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Project status
 
-`0.1.5` is published on npm under the `latest` dist-tag (2026-06-17).
+`0.1.6` is published on npm under the `latest` dist-tag (2026-06-19).
 The public API surface — class names, data attributes, custom
 properties, exports, events, recipe contracts — and the semver rules
 are defined in [`VERSIONING.md`](VERSIONING.md): 0.x **patch**
