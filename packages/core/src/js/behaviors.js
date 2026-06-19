@@ -39,6 +39,7 @@ import { installValidation } from './validation.js';
 import { installThemeToggle } from './theme-toggle.js';
 import { installFieldErrors } from './field-errors.js';
 import { installCsrfHeader } from './csrf-header.js';
+import { installCopy } from './copy.js';
 import { installSparkline } from './sparkline.js';
 import { installCodeEditor } from './code-editor.js';
 
@@ -75,6 +76,7 @@ function init() {
   installThemeToggle();
   installFieldErrors();
   installCsrfHeader();
+  installCopy();
   installSparkline();
   installCodeEditor();
 }
@@ -120,6 +122,7 @@ export {
   installThemeToggle,
   installFieldErrors,
   installCsrfHeader,
+  installCopy,
   installSparkline,
   installCodeEditor,
 };

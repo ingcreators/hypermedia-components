@@ -34,6 +34,7 @@ const ja = Object.freeze({
   'confirm.confirm': '実行',
   'confirm.cancel': 'キャンセル',
   'fieldErrors.unknown': '入力値が正しくありません',
+  'copy.ok': 'コピーしました',
   'shell.toggleNav': 'ナビゲーションを開閉',
   'shell.collapseNav': 'サイドバーを折りたたむ',
   'splitter.resize': 'パネルの幅を変更',
