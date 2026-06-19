@@ -41,6 +41,27 @@ Security    — security-relevant changes
   `recipes/copy/` (recipe/expanded/contract — the CLI picks it up) plus a
   docs page, a unit suite (`test/copy.test.mjs`) and a real-Clipboard
   browser test (`test-browser/copy.spec.mjs`).
+- **`hc-toc` component + `installSpy()` scrollspy** (#271). A pure-CSS
+  "On this page" jump list (`hc-toc` / `hc-toc__list` / `hc-toc__item` /
+  `hc-toc__link`) over a labeled `<nav>` of in-page anchor links — usable
+  with no JavaScript. Add `data-hc-spy` to the nav and the new
+  `installSpy()` behavior (in the auto-init
+  `@hypermedia-components/core/behaviors` bundle, also a named export of
+  the main entry) marks the link of the section currently at the top of
+  the viewport with `aria-current="location"` plus a `data-active` CSS
+  hook. Selection uses the standard top-band `IntersectionObserver`
+  trick (`rootMargin: 0px 0px -70% 0px`), picks the top-most section in
+  document order, and keeps the most recently passed heading active
+  through gaps — not "largest intersection ratio" (which lets a tall
+  section win). It only tracks sections that exist, forces no smooth
+  scroll (native anchor jump; nothing for `prefers-reduced-motion` to
+  gate), and is a no-op where `IntersectionObserver` is unavailable
+  (the nav stays a working anchor list). CSP-safe (declarative markup,
+  no inline JS). New `toc.*` component tokens (`--hc-toc-*`); the CSS
+  ships in the bundle and as `@hypermedia-components/core/css/toc`.
+  Covered by a unit suite (`test/spy.test.mjs`, IntersectionObserver
+  stubbed) and a real-scroll browser test (`test-browser/spy.spec.mjs`,
+  incl. axe), with a docs component page.
 
 ## [0.1.5] - 2026-06-17
 

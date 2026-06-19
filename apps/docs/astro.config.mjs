@@ -86,6 +86,7 @@ export default defineConfig({
               label: 'Navigation',
               items: [
                 'components/breadcrumb',
+                'components/toc',
                 'components/pagination',
                 'components/tabs',
                 'components/menu',

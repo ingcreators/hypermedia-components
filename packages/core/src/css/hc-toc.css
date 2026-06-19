@@ -1,0 +1,63 @@
+/* hc-toc — in-page "On this page" table of contents (#271).
+ *
+ * Pure CSS. The semantic skeleton is a labeled nav wrapping a list of
+ * in-page anchor links:
+ *
+ *   <nav class="hc-toc" aria-label="On this page">
+ *     <ul class="hc-toc__list">
+ *       <li class="hc-toc__item">
+ *         <a class="hc-toc__link" href="#sec-inputs">Inputs</a>
+ *       </li>
+ *       …
+ *     </ul>
+ *   </nav>
+ *
+ * It works with no JavaScript as a plain jump list. Add `data-hc-spy` to
+ * the nav and `installSpy()` marks the link of the section currently in
+ * view with `aria-current="location"` (plus a `data-active` hook). The
+ * active styling below keys off BOTH, so it lights up whether the state
+ * comes from the behavior or from server-rendered markup.
+ */
+@layer hc.components {
+  .hc-toc {
+    font-size: var(--hc-toc-font-size);
+  }
+
+  .hc-toc__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hc-toc-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hc-toc__link {
+    display: block;
+    color: var(--hc-toc-link-fg);
+    text-decoration: none;
+    line-height: 1.4;
+    border-inline-start: 2px solid transparent;
+    padding-inline-start: var(--hc-toc-indent);
+  }
+
+  .hc-toc__link:hover {
+    color: var(--hc-toc-link-hover-fg);
+  }
+
+  .hc-toc__link:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Active section. Set by installSpy (aria-current="location" +
+   * data-active) or authored directly; both forms style identically so
+   * the list highlights with or without the behavior. */
+  .hc-toc__link[aria-current="location"],
+  .hc-toc__link[data-active] {
+    color: var(--hc-toc-active-fg);
+    font-weight: var(--hc-toc-active-font-weight);
+    border-inline-start-color: var(--hc-toc-active-marker);
+  }
+}

@@ -37,6 +37,7 @@ export { installThemeToggle } from './theme-toggle.js';
 export { installFieldErrors } from './field-errors.js';
 export { installCsrfHeader } from './csrf-header.js';
 export { installCopy } from './copy.js';
+export { installSpy } from './spy.js';
 export { installSparkline } from './sparkline.js';
 export { installCodeEditor } from './code-editor.js';
 
