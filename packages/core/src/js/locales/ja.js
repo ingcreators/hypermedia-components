@@ -33,6 +33,7 @@ const ja = Object.freeze({
   'confirm.title': '確認',
   'confirm.confirm': '実行',
   'confirm.cancel': 'キャンセル',
+  'datagrid.selected': '{selected} 件選択中',
   'fieldErrors.unknown': '入力値が正しくありません',
   'copy.ok': 'コピーしました',
   'shell.toggleNav': 'ナビゲーションを開閉',

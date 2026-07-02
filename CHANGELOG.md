@@ -20,6 +20,25 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`installDatagridActions()` — the datagrid selection actions bar**
+  (#280). A bar (typically an `hc-toolbar`) declares its grid with
+  `data-hc-datagrid-actions="<selector>"`; its `[data-hc-datagrid-count]`
+  child shows the translated selection count (new i18n key
+  `datagrid.selected`, `{selected}` / `{total}` params, default
+  `role="status"`), and the bar is `hidden` while nothing is selected.
+  Driven entirely by the grid's public `hc:datagridselectionchange`
+  events — the behavior never touches the network; ids travel by native
+  form serialization (bulk-actions recipe follows). Auto-installed via
+  `@hypermedia-components/core/behaviors`.
+- **Datagrid selection now survives htmx row swaps truthfully.** After a
+  swap inside `.hc-datagrid__body`, the grid re-derives each unit's
+  selection from its checkbox (adopting server-rendered `checked` rows),
+  re-syncs the header select-all `checked`/`indeterminate` state, and
+  re-emits `hc:datagridselectionchange` — previously both went stale
+  after pagination or a bulk-action re-render.
+
 ## [0.1.6] - 2026-06-19
 
 ### Fixed

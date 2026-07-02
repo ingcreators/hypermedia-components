@@ -62,6 +62,7 @@ const FILES = [
   ['src/js/password-toggle.js', 'password-toggle.js'],
   ['src/js/shell.js',         'shell.js'],
   ['src/js/datagrid.js',      'datagrid.js'],
+  ['src/js/datagrid-actions.js', 'datagrid-actions.js'],
   ['src/js/chart.js',         'chart.js'],
   ['src/js/sparkline.js',     'sparkline.js'],
   ['src/js/code-editor.js',   'code-editor.js'],

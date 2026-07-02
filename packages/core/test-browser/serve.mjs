@@ -6,7 +6,7 @@
 // freshly-built dist of @hypermedia-components/core.
 
 import { createServer } from 'node:http';
-import { createReadStream, statSync } from 'node:fs';
+import { createReadStream, existsSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, normalize, resolve, extname } from 'node:path';
 
@@ -85,6 +85,18 @@ const MIME = {
 
 function resolveLocal(urlPath) {
   if (ASSET_ALIASES.has(urlPath)) return ASSET_ALIASES.get(urlPath);
+
+  // Serve any built JS/CSS module from the core dist, so the unbundled
+  // hc.behaviors.js entry can resolve its sibling imports (./combobox.js,
+  // ./menu.js, …) without enumerating every behavior in ASSET_ALIASES —
+  // same fallback as examples/*/serve. A new behavior module missing from
+  // the alias map otherwise 404s and takes the whole module graph (and
+  // every behavior on every fixture page) down with it.
+  if (/^\/(?:macros\/|locales\/)?[\w.-]+\.(?:js|css)$/.test(urlPath)) {
+    const candidate = join(coreDist, urlPath.replace(/^\/+/, ''));
+    if (candidate.startsWith(coreDist) && existsSync(candidate)) return candidate;
+  }
+
   let p = urlPath === '/' ? '/index.html' : urlPath;
   p = normalize(p).replace(/^[\\/]+/, '');
   const full = resolve(root, p);

@@ -35,6 +35,7 @@ import { installInputOtp } from './inputotp.js';
 import { installSplitter } from './splitter.js';
 import { installShell } from './shell.js';
 import { installDatagrid } from './datagrid.js';
+import { installDatagridActions } from './datagrid-actions.js';
 import { installValidation } from './validation.js';
 import { installThemeToggle } from './theme-toggle.js';
 import { installFieldErrors } from './field-errors.js';
@@ -74,6 +75,7 @@ function init() {
   installSplitter();
   installShell();
   installDatagrid();
+  installDatagridActions();
   installValidation();
   installThemeToggle();
   installFieldErrors();
@@ -122,6 +124,7 @@ export {
   installSplitter,
   installShell,
   installDatagrid,
+  installDatagridActions,
   installValidation,
   installThemeToggle,
   installFieldErrors,
