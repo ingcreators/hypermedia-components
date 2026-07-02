@@ -110,7 +110,7 @@ jobs:
       # Cache the Playwright browsers separately from pnpm.
       - name: Cache Playwright browsers
         id: pw-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: pw-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
