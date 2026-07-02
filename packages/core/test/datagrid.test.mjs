@@ -143,6 +143,52 @@ describe('installDatagrid', () => {
     expect($('select-all').indeterminate).toBe(true);
   });
 
+  it('re-syncs select-all and re-emits the count after a row swap', async () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const rowCb = $('row-1').querySelector('input[type="checkbox"]');
+    rowCb.checked = true;
+    rowCb.dispatchEvent(new Event('change', { bubbles: true }));
+    expect($('select-all').indeterminate).toBe(true);
+
+    const onSel = vi.fn();
+    $('grid').addEventListener('hc:datagridselectionchange', (e) => onSel(e.detail));
+    document.querySelector('.hc-datagrid__body').innerHTML = `
+      <tr class="hc-datagrid__row" id="row-3">
+        <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" aria-label="Select row 3"></td>
+        <th class="hc-datagrid__cell" scope="row">3</th>
+        <td class="hc-datagrid__cell">a3</td>
+        <td class="hc-datagrid__cell">b3</td>
+      </tr>`;
+    await new Promise((r) => setTimeout(r, 0)); // let the tbody observer run
+    expect(onSel.mock.calls.at(-1)[0]).toMatchObject({ selected: 0, total: 1 });
+    expect($('select-all').checked).toBe(false);
+    expect($('select-all').indeterminate).toBe(false);
+  });
+
+  it('adopts server-rendered checked rows after a swap', async () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    document.querySelector('.hc-datagrid__body').innerHTML = `
+      <tr class="hc-datagrid__row" id="row-3">
+        <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" checked aria-label="Select row 3"></td>
+        <th class="hc-datagrid__cell" scope="row">3</th>
+        <td class="hc-datagrid__cell">a3</td>
+        <td class="hc-datagrid__cell">b3</td>
+      </tr>
+      <tr class="hc-datagrid__row" id="row-4">
+        <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" aria-label="Select row 4"></td>
+        <th class="hc-datagrid__cell" scope="row">4</th>
+        <td class="hc-datagrid__cell">a4</td>
+        <td class="hc-datagrid__cell">b4</td>
+      </tr>`;
+    await new Promise((r) => setTimeout(r, 0)); // let the tbody observer run
+    expect($('row-3').getAttribute('aria-selected')).toBe('true');
+    expect($('row-3').hasAttribute('data-selected')).toBe(true);
+    expect($('row-4').getAttribute('aria-selected')).toBe('false');
+    expect($('select-all').indeterminate).toBe(true);
+  });
+
   it('uninstall removes the listeners', () => {
     document.body.innerHTML = FIXTURE;
     const u = installDatagrid();

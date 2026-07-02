@@ -278,6 +278,40 @@ State is expressed with attributes, styled by the component:
 | `data-highlight` | `.hc-datagrid__cell` | Column / cell highlight band. |
 | `data-editing` | `.hc-datagrid__cell` | Edit mode — padding drops so the editor fills the cell. |
 
+## Selection actions bar
+
+`installDatagridActions()` mirrors a grid's selection into a bar that
+holds bulk-action controls. The bar declares its grid with
+`data-hc-datagrid-actions="<selector>"`; a `[data-hc-datagrid-count]`
+child shows the translated count and the bar is `hidden` while nothing
+is selected:
+
+```html
+<div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+     data-hc-datagrid-actions="#grid" hidden>
+  <span data-hc-datagrid-count></span>
+  <button class="hc-button" type="submit" name="action" value="archive"
+          data-hx-post="/products/bulk"
+          data-hx-target="#rows" data-hx-swap="innerHTML"
+          data-hx-disabled-elt="this">Archive</button>
+</div>
+
+<div class="hc-datagrid" id="grid">…</div>
+```
+
+The bar listens to the grid's `hc:datagridselectionchange` events — the
+initial state is read from the selection attributes at install, and the
+grid re-emits after every row swap inside the tbody (the select-all
+checkbox is re-synced too), so a bulk action that re-renders the rows
+clears the bar without extra wiring.
+
+The count message is the i18n key `datagrid.selected`
+(default `{selected} selected`; a `{total}` param is also available), and
+the count element gets a default `role="status"` so changes are announced
+politely. For the full wire contract — native form serialization of the
+row-checkbox ids, the server response shape, the no-JS path — see the
+bulk-actions recipe.
+
 ## Multi-row records
 
 Dense business screens often show **one record across several rows** (e.g.

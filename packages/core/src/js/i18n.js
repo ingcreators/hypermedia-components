@@ -37,6 +37,7 @@ export const DEFAULT_MESSAGES = Object.freeze({
   'confirm.title': 'Confirm',
   'confirm.confirm': 'Confirm',
   'confirm.cancel': 'Cancel',
+  'datagrid.selected': '{selected} selected',
   'fieldErrors.unknown': 'Invalid value',
   'copy.ok': 'Copied',
   'shell.toggleNav': 'Toggle navigation',

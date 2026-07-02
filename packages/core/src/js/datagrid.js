@@ -17,7 +17,9 @@
 //
 //   3. Row selection: Space toggles the active row's checkbox and
 //      aria-selected; the header select-all checkbox toggles every row.
-//      Emits `hc:datagridselectionchange` on the grid.
+//      Emits `hc:datagridselectionchange` on the grid — including after a
+//      row swap inside the tbody (selection state is re-derived from the
+//      new rows' checkboxes and the select-all checkbox is re-synced).
 //
 // installDatagrid(root = document) returns an uninstaller. Repeated calls
 // on the same root return the same uninstaller (idempotent).
@@ -165,6 +167,19 @@ function attach(grid, detachers) {
         detail: { selected, total },
       }),
     );
+  }
+
+  // Derive the select-all checkbox's checked/indeterminate state from the
+  // per-unit checkboxes.
+  function syncSelectAll() {
+    const all = selectAll();
+    if (!all) return;
+    const boxes = recordUnits(grid)
+      .map((u) => u.querySelector('input[type="checkbox"]'))
+      .filter(Boolean);
+    const checked = boxes.filter((b) => b.checked).length;
+    all.checked = checked > 0 && checked === boxes.length;
+    all.indeterminate = checked > 0 && checked < boxes.length;
   }
 
   function applyRoles() {
@@ -486,15 +501,7 @@ function attach(grid, detachers) {
     } else {
       const unit = unitOf(cb, grid);
       if (unit) setUnitSelected(unit, cb.checked);
-      const all = selectAll();
-      if (all) {
-        const boxes = recordUnits(grid)
-          .map((u) => u.querySelector('input[type="checkbox"]'))
-          .filter(Boolean);
-        const checked = boxes.filter((b) => b.checked).length;
-        all.checked = checked > 0 && checked === boxes.length;
-        all.indeterminate = checked > 0 && checked < boxes.length;
-      }
+      syncSelectAll();
     }
     emitSelection();
   }
@@ -840,6 +847,17 @@ function attach(grid, detachers) {
     mo = new MutationObserver(() => {
       rebuild();
       measure(grid);
+      // Swapped-in rows carry their own selection state (usually none;
+      // possibly server-rendered `checked` + aria-selected). Normalize the
+      // unit attributes from the checkboxes — the form truth — then tell
+      // selection consumers, so a selection actions bar clears itself after
+      // a bulk action re-renders the page.
+      for (const unit of recordUnits(grid)) {
+        const cb = unit.querySelector('input[type="checkbox"]');
+        if (cb) setUnitSelected(unit, cb.checked);
+      }
+      syncSelectAll();
+      emitSelection();
     });
     mo.observe(tbody, { childList: true });
   }

@@ -32,6 +32,7 @@ export { installInputOtp } from './inputotp.js';
 export { installSplitter } from './splitter.js';
 export { installShell } from './shell.js';
 export { installDatagrid } from './datagrid.js';
+export { installDatagridActions } from './datagrid-actions.js';
 export { installValidation } from './validation.js';
 export { installThemeToggle } from './theme-toggle.js';
 export { installFieldErrors } from './field-errors.js';
