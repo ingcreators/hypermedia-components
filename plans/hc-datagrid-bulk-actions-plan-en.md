@@ -1,6 +1,6 @@
 # datagrid-bulk-actions — recipe + behavior plan
 
-Status: **approved; PR 1 (behavior + core sync) implemented; PR 2 (recipe) pending.**
+Status: **shipped — PR 1 (behavior + core sync, #280) and PR 2 (recipe + docs + browser test, #281).**
 Net-new scope; bulk actions are not covered by the v0.4/v0.5 plans. The
 recipe composes existing blessed patterns (`request-action`,
 `confirm-action`, `toast`, the CSRF header convention, the

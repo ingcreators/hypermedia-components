@@ -117,8 +117,87 @@ const FIELD_ERRORS_FRAGMENT = `
     </ul>
   </div>`;
 
+// Mock bulk handler for the datagrid-bulk-actions spec
+// (datagrid-bulk-actions.html): three products, stateless — the response
+// is derived from the posted ids/action per the recipe contract (htmx:
+// 200 + re-rendered rows + OOB status + HX-Trigger toast; native post
+// without HX-Request: 303 post/redirect/get).
+const BULK_PRODUCTS = [
+  { id: 101, name: 'Anvil' },
+  { id: 102, name: 'Rocket skates' },
+  { id: 103, name: 'Tornado seeds' },
+];
+
+function bulkRow(product, archived) {
+  return `
+  <tr class="hc-datagrid__row">
+    <td class="hc-datagrid__cell">
+      <input type="checkbox" class="hc-checkbox" name="ids" value="${product.id}"
+             aria-label="Select ${product.name}" data-testid="cb-${product.id}">
+    </td>
+    <th class="hc-datagrid__cell" scope="row">${product.id}</th>
+    <td class="hc-datagrid__cell">${product.name}</td>
+    <td class="hc-datagrid__cell">${archived ? 'Archived' : 'Active'}</td>
+  </tr>`;
+}
+
+function readBody(req) {
+  return new Promise((resolveBody) => {
+    let data = '';
+    req.on('data', (chunk) => { data += chunk; });
+    req.on('end', () => resolveBody(data));
+  });
+}
+
+function handleBulk(req, res, url) {
+  if (url.pathname === '/mock/bulk' && req.method === 'POST') {
+    readBody(req).then((body) => {
+      const params = new URLSearchParams(body);
+      const ids = params.getAll('ids');
+      const action = params.get('action');
+      if (!req.headers['hx-request']) {
+        // Native (no-JS) post → classic post/redirect/get.
+        res.statusCode = 303;
+        res.setHeader('Location', '/mock/bulk/done');
+        return res.end();
+      }
+      setTimeout(() => {
+        const remaining = action === 'delete'
+          ? BULK_PRODUCTS.filter((p) => !ids.includes(String(p.id)))
+          : BULK_PRODUCTS;
+        const rows = remaining
+          .map((p) => bulkRow(p, action === 'archive' && ids.includes(String(p.id))))
+          .join('');
+        const status = `<p id="rows-status" hx-swap-oob="true" aria-live="polite" data-testid="status">${remaining.length} products</p>`;
+        const verb = action === 'delete' ? 'deleted' : 'archived';
+        const toast = ids.length === 0
+          ? { message: 'Nothing selected', variant: 'info' }
+          : { message: `${ids.length} ${verb}`, variant: 'success' };
+        res.statusCode = 200;
+        res.setHeader('Content-Type', MIME['.html']);
+        res.setHeader('HX-Trigger', JSON.stringify({ 'hc:toast': toast }));
+        res.end(rows + status);
+      }, 250);
+    });
+    return true;
+  }
+  if (url.pathname === '/mock/bulk/done' && req.method === 'GET') {
+    // The 303 destination for the native path.
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end('<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+      '<title>Done</title></head><body><h1 data-testid="bulk-done-page">Bulk action done</h1>' +
+      '</body></html>');
+    return true;
+  }
+  res.statusCode = 404;
+  res.end('Not found');
+  return true;
+}
+
 function handleMock(req, res, url) {
-  if (!url.pathname.startsWith('/mock/form/')) return false;
+  if (!url.pathname.startsWith('/mock/')) return false;
+  if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
   req.resume();
   const delay = 250;

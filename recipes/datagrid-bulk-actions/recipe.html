@@ -1,0 +1,44 @@
+<!-- Short recommended usage.
+
+  Bulk actions on a datagrid: one <form> wraps the grid and the
+  selection bar, row checkboxes carry name="ids", and each action is a
+  submit button with name="action" plus data-hx-post — the ids travel
+  by native form serialization (unchecked boxes never serialize; the
+  select-all checkbox has NO name). The bar shows the count and hides
+  itself while nothing is selected (installDatagridActions). See
+  expanded.html for the full grid and the confirmed destructive
+  variant, contract.md for the server response contract. -->
+<form method="post" action="/products/bulk">
+  <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+       data-hc-datagrid-actions="#grid" hidden>
+    <span data-hc-datagrid-count></span>
+    <button class="hc-button" type="submit" name="action" value="archive"
+            data-hx-post="/products/bulk"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Archive</button>
+  </div>
+
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell">
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="rows">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox"
+                     name="ids" value="101" aria-label="Select Anvil">
+            </td>
+            <td class="hc-datagrid__cell">Anvil</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>

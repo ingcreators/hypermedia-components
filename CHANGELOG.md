@@ -22,6 +22,32 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`datagrid-bulk-actions` recipe — the blessed bulk-operations
+  composition** (#281). Select rows with the grid's checkboxes, act
+  from the selection bar, POST over htmx: the ids travel by **native
+  form serialization** (row checkboxes `name="ids"` inside the wrapping
+  `<form>`; the select-all checkbox carries no `name`), each action is
+  a `type="submit" name="action"` button with `data-hx-post`, and the
+  server always answers htmx with **200 + the re-rendered rows** (tbody
+  `innerHTML`, datagrid-pager shape) + OOB fragments + an `HX-Trigger`
+  toast — partial failures and empty selections included; no-JS posts
+  get a `303` (post/redirect/get, branch on `HX-Request`). The
+  destructive variant composes confirm-action unchanged. Ships as
+  `recipes/datagrid-bulk-actions/` (recipe/expanded/contract — the CLI
+  picks it up automatically) plus a docs page, pinned by a real-htmx
+  browser test (`test-browser/datagrid-bulk-actions.spec.mjs`)
+  including the enclosing-form serialization semantics the contract
+  stands on. The `recipes/README.md` index also gains its missing
+  `datagrid-pager` and `field-errors` rows.
+
+### Fixed
+
+- **`.hc-toolbar[hidden]` now actually hides.** The toolbar's
+  `display: flex` defeated the UA's `[hidden]` rule, so a state-toggled
+  toolbar (the selection actions bar) stayed visible. Restored with an
+  explicit `[hidden] { display: none }` — the same pattern hc-tabs and
+  hc-command already use. Caught by the new recipe's browser test
+  (#281).
 - **`installDatagridActions()` — the datagrid selection actions bar**
   (#280). A bar (typically an `hc-toolbar`) declares its grid with
   `data-hc-datagrid-actions="<selector>"`; its `[data-hc-datagrid-count]`
