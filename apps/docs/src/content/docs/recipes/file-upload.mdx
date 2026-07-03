@@ -78,9 +78,16 @@ Escape non-ASCII in `HX-Trigger` headers as `\uXXXX`
 ## Degradation and follow-ups
 
 Without JavaScript the same form posts a correct multipart request
-natively; progress and inline errors are enhancements. A drag-and-drop
-surface (**hc-dropzone**) is the natural follow-up component and slots
-into this exact contract.
+natively; progress and inline errors are enhancements.
+
+## Dropzone variant
+
+Swap the plain field for an
+[hc-dropzone](/hypermedia-components/components/dropzone/) — nothing
+else changes. Drops assign the same native input and fire a normal
+`change`, so serialization, progress, the OOB reset and the `422` path
+are identical; the fresh form the server re-sends simply contains the
+pristine dropzone markup.
 
 The claims here — live progress reaching 100, the out-of-band form
 reset, the retargeted `422` — are pinned by a real-multipart browser

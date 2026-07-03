@@ -69,6 +69,45 @@ test.describe('file upload', () => {
     await expect(page.getByTestId('submit')).toBeEnabled();
   });
 
+  test('dropzone variant: a real drop runs the whole pipeline and the OOB reset restores a pristine zone', async ({ page }) => {
+    const zone = page.locator('#upload-form-dz .hc-dropzone');
+
+    // Construct a real DataTransfer + File in the page and drop it.
+    await zone.evaluate((el) => {
+      const dt = new DataTransfer();
+      dt.items.add(new File([new Uint8Array(64 * 1024).fill(7)], 'dropped.pdf', { type: 'application/pdf' }));
+      el.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt }));
+      el.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    });
+
+    // The zone accepted the file: names shown, input filled.
+    await expect(page.getByTestId('names-dz')).toHaveText('dropped.pdf');
+
+    await page.getByTestId('submit-dz').click();
+
+    // The shipped pipeline, unchanged: item appended…
+    await expect(page.getByTestId('files').locator('li').first()).toContainText('dropped.pdf');
+    await expect(page.locator('.hc-toast')).toContainText('dropped.pdf');
+
+    // …and the OOB fresh form restored a pristine dropzone.
+    await expect(page.getByTestId('names-dz')).toHaveText('');
+    await expect(page.getByTestId('file-dz')).toHaveValue('');
+  });
+
+  test('dropzone variant: dragover state sets and clears', async ({ page }) => {
+    const zone = page.locator('#upload-form-dz .hc-dropzone');
+    await zone.evaluate((el) => {
+      const dt = new DataTransfer();
+      dt.items.add(new File(['x'], 'x.pdf'));
+      el.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    });
+    await expect(zone).toHaveAttribute('data-dragover', '');
+    await zone.evaluate((el) => {
+      el.dispatchEvent(new DragEvent('dragleave', { bubbles: true, relatedTarget: document.body }));
+    });
+    await expect(zone).not.toHaveAttribute('data-dragover', '');
+  });
+
   test('axe finds no violations, idle and after an upload', async ({ page }) => {
     const idle = await new AxeBuilder({ page }).analyze();
     expect(idle.violations).toEqual([]);

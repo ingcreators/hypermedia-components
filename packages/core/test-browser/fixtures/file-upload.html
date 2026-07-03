@@ -43,6 +43,32 @@
               data-testid="submit">Upload</button>
     </form>
 
+    <h2>Dropzone variant</h2>
+    <form id="upload-form-dz" method="post" action="/mock/upload"
+          enctype="multipart/form-data"
+          data-hx-post="/mock/upload"
+          data-hx-encoding="multipart/form-data"
+          data-hx-target="#files" data-hx-swap="afterbegin"
+          data-hx-indicator="find progress"
+          data-hx-disabled-elt="find button[type=submit]"
+          data-testid="form-dz">
+      <div id="upload-errors-dz" data-testid="errors-dz"></div>
+      <label class="hc-dropzone">
+        <input class="hc-dropzone__input" id="doc-dz" name="doc" type="file" required
+               data-testid="file-dz">
+        <span class="hc-dropzone__body">
+          <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+          <span class="hc-dropzone__files" data-testid="names-dz"></span>
+        </span>
+      </label>
+      <input type="hidden" name="variant" value="dz">
+      <progress class="hc-progress htmx-indicator" data-hc-upload-progress
+                value="0" max="100" aria-label="Upload progress"
+                data-testid="bar-dz"></progress>
+      <button class="hc-button" data-variant="primary" type="submit"
+              data-testid="submit-dz">Upload</button>
+    </form>
+
     <ul id="files" data-testid="files">
       <li class="hc-item">spec.pdf — 340 KB</li>
     </ul>

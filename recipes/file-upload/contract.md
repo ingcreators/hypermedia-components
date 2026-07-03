@@ -125,10 +125,30 @@ breaks nothing.
   `aria-invalid` / `aria-describedby` / focus handling.
 - Success is announced by the toast (`role="status"`).
 
+## Dropzone variant
+
+Swap the plain field for an [hc-dropzone](../../packages/core/src/css/hc-dropzone.css)
+— **nothing else changes**. The dropzone assigns dropped files to the
+same native input and fires a normal `change`, so serialization, the
+progress bridge, the OOB fresh-form reset and the `422` path are
+identical:
+
+```html
+<label class="hc-dropzone">
+  <input class="hc-dropzone__input" id="doc" name="doc" type="file" required>
+  <span class="hc-dropzone__body">
+    <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+    <span class="hc-dropzone__files"></span>
+  </span>
+</label>
+```
+
+The OOB fresh form the server re-sends simply contains the pristine
+dropzone markup (the empty `__files` span collapses again).
+`installDropzone()` ships in the auto-init behaviors bundle.
+
 ## Notes
 
-- **hc-dropzone** (drag-and-drop UI over this same contract) is the
-  natural follow-up component — deliberately out of scope here.
 - Multiple-file inputs (`multiple`) work unchanged: the server returns
   one fragment per stored file (or a wrapping fragment) and the same
   OOB fresh form.
