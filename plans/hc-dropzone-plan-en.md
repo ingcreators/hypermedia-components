@@ -1,6 +1,6 @@
 # hc-dropzone — drag-and-drop upload surface
 
-Status: **approved; implementation pending (two PRs, §6).**
+Status: **shipped — PR 1 (component, #300) and PR 2 (file-upload variant + E2E, #301).**
 The follow-up the file-upload recipe (#295–#297) names explicitly: a
 drag-and-drop surface that plugs into the shipped contract **without
 changing it** — the dropzone is a decorated wrapper around the native

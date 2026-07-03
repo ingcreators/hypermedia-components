@@ -302,6 +302,7 @@ function handleUpload(req, res, url) {
     const body = Buffer.concat(chunks).toString('latin1');
     const filename = body.match(/filename="([^"]*)"/)?.[1] ?? 'upload.bin';
     const size = chunks.reduce((n, c) => n + c.length, 0);
+    const variant = body.match(/name="variant"\r\n\r\n(\w+)/)?.[1] ?? 'input';
     setTimeout(() => {
       res.setHeader('Content-Type', MIME['.html']);
       if (filename.startsWith('fail')) {
@@ -320,26 +321,39 @@ function handleUpload(req, res, url) {
       res.setHeader('HX-Trigger', hxTrigger({
         'hc:toast': { message: `"${filename}" uploaded`, variant: 'success' },
       }));
+      const field = variant === 'dz'
+        ? `<label class="hc-dropzone">
+            <input class="hc-dropzone__input" id="doc-dz" name="doc" type="file" required
+                   data-testid="file-dz">
+            <span class="hc-dropzone__body">
+              <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+              <span class="hc-dropzone__files" data-testid="names-dz"></span>
+            </span>
+          </label>
+          <input type="hidden" name="variant" value="dz">`
+        : `<div class="hc-field" id="doc-field">
+            <label class="hc-field__label" for="doc">Document</label>
+            <input class="hc-input" id="doc" name="doc" type="file" required
+                   data-testid="file">
+          </div>`;
+      const formId = variant === 'dz' ? 'upload-form-dz' : 'upload-form';
+      const tid = variant === 'dz' ? '-dz' : '';
       res.end(`<li class="hc-item">${filename} — ${Math.round(size / 1024)} KB</li>
-        <form id="upload-form" method="post" action="/mock/upload"
+        <form id="${formId}" method="post" action="/mock/upload"
               enctype="multipart/form-data"
               data-hx-post="/mock/upload"
               data-hx-encoding="multipart/form-data"
               data-hx-target="#files" data-hx-swap="afterbegin"
               data-hx-indicator="find progress"
               data-hx-disabled-elt="find button[type=submit]"
-              data-testid="form" hx-swap-oob="true">
-          <div id="upload-errors" data-testid="errors"></div>
-          <div class="hc-field" id="doc-field">
-            <label class="hc-field__label" for="doc">Document</label>
-            <input class="hc-input" id="doc" name="doc" type="file" required
-                   data-testid="file">
-          </div>
+              data-testid="form${tid}" hx-swap-oob="true">
+          <div id="upload-errors${tid}" data-testid="errors${tid}"></div>
+          ${field}
           <progress class="hc-progress htmx-indicator" data-hc-upload-progress
                     value="0" max="100" aria-label="Upload progress"
-                    data-testid="bar"></progress>
+                    data-testid="bar${tid}"></progress>
           <button class="hc-button" data-variant="primary" type="submit"
-                  data-testid="submit">Upload</button>
+                  data-testid="submit${tid}">Upload</button>
         </form>`);
     }, 400);
   });

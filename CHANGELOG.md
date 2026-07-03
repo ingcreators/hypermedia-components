@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **file-upload recipe: the dropzone variant** (#301). Swap the plain
+  field for an `hc-dropzone` — nothing else changes: drops assign the
+  same native input and fire a normal `change`, so serialization, the
+  progress bridge, the OOB fresh-form reset (now returning the pristine
+  dropzone markup) and the `422` path are identical. Contract, expanded
+  scaffold and docs page gain the variant; a real-drop browser E2E
+  (page-constructed `DataTransfer` + `File`) runs the whole pipeline
+  end-to-end, including the reset restoring an empty zone.
+
 - **`hc-dropzone` — drag-and-drop upload surface** (#300). A
   `<label class="hc-dropzone">` decorating a native file input:
   click-to-browse and keyboard stay 100 % native (the hidden-in-place

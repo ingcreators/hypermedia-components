@@ -43,3 +43,15 @@
     <li class="hc-alert__error" data-field="doc" data-code="type">doc: only PDF or PNG files are allowed</li>
   </ul>
 </div>
+
+<!-- 4. Dropzone variant of the field (hc-dropzone component): drops
+     assign the same input and fire a normal change — the rest of the
+     form, the responses and the OOB reset are identical. -->
+<label class="hc-dropzone">
+  <input class="hc-dropzone__input" id="doc" name="doc" type="file" required
+         accept=".pdf,.png">
+  <span class="hc-dropzone__body">
+    <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+    <span class="hc-dropzone__files"></span>
+  </span>
+</label>
