@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese locale (`/ja/`)** (#314, docs-facing). Starlight
+  `locales` scaffolding — English stays at the root URLs; Japanese
+  lives under `/ja/` with built-in fallback for untranslated pages
+  (English content + a localized notice, so every route exists in both
+  locales). Sidebar group labels translated; the first 11 pages
+  translated: the landing page, `start/*` (introduction, installation,
+  quick-start, philosophy), `fundamentals/naming` + `tokens`,
+  `components/button` + `field`, and `recipes/confirm-action` +
+  `live-search`. CONTRIBUTING gains the translation maintenance policy
+  (edits to a translated English page update the `ja/` counterpart in
+  the same PR).
+
 - **`lazy-tree` recipe** (#312). The hypermedia lazy subtree: a branch
   ships an **empty group** and its children arrive as server-rendered
   `<li class="hc-tree__item">` fragments on first expand —

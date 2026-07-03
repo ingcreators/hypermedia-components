@@ -1,0 +1,144 @@
+---
+title: 命名規則
+description: Hypermedia Components における CSS クラス・data 属性・カスタム要素・カスタムプロパティ・イベントの命名方法。
+---
+
+一貫した命名体系が、プロジェクトを外から見て予測可能なものにします。
+公開されるすべての表面は `hc-` プレフィックスを使います。
+
+## hc- プレフィックス
+
+```text
+CSS classes:           hc-button, hc-field, hc-card
+Custom elements:       hc-confirm-action, hc-live-search
+Data attributes:       data-hc-confirm, data-hc-close-dialog-on-success
+CSS custom properties: --hc-color-bg, --hc-button-height
+Events:                hc:toast, hc:confirm, hc:close-dialog
+```
+
+このプレフィックスは短く、曖昧さがなく、grep しやすいものです。
+
+## CSS クラス
+
+コンポーネントのクラスはコンポーネント指向であり、ユーティリティ指向では
+ありません。
+
+```text
+hc-button
+hc-input
+hc-field
+hc-card
+hc-alert
+hc-badge
+hc-table
+hc-dialog
+hc-popover
+hc-toolbar
+hc-pagination
+```
+
+コンポーネントが安定した内部構造を持つ場合は、パーツを表す子クラスを
+使います(BEM スタイルの `__` 区切り。モディファイアクラスは使いません):
+
+```text
+hc-card__header
+hc-card__body
+hc-card__footer
+hc-dialog__title
+hc-field__label
+hc-field__message
+```
+
+### バリアントとサイズ — モディファイアクラスにしない
+
+バリアントとサイズの軸は、追加のクラス名ではなく `data-*` 属性に置きます。
+これによりマークアップが短く保たれ、バリアントの集合が読み取りやすくなり、
+サーバは属性 1 つの変更で視覚状態を更新できます。
+
+```html
+<button class="hc-button" data-variant="primary" data-size="sm">
+  Save
+</button>
+```
+
+避けるべき形:
+
+```html
+<button class="hc-button hc-button--primary hc-button--sm">Save</button>
+```
+
+推奨バリアント名(該当する場合):
+
+```text
+default · primary · secondary · error · warning · success · ghost · link
+```
+
+推奨サイズ名:
+
+```text
+sm · md · lg
+```
+
+## data 属性
+
+2 つの系統があります:
+
+- `data-hc-*` — Hypermedia Components のビヘイビアフック。例:
+  `data-hc-confirm`、`data-hc-close-dialog-on-success`。
+- `data-hx-*` — htmx の属性。Hypermedia Components のドキュメントでは、
+  短い `hx-*` ではなく常に `data-hx-*` 形式を使います。妥当な HTML5
+  構文であり、テンプレートエンジンとの相性も良いためです。
+
+ビヘイビア属性は**明示的で読みやすく**保ってください。
+`data-hc="delete item confirm toast reload"` のような不透明な単一 DSL を
+発明してはいけません — 各ビヘイビアが、自明な値を持つ専用の属性を持ちます。
+
+## カスタム要素
+
+マクロ(任意)は同じ `hc-` プレフィックスを使い、ケバブケースです:
+
+```text
+<hc-confirm-action>
+<hc-live-search>
+<hc-remote-dialog>
+```
+
+すべてのマクロは[展開後の HTML](/hypermedia-components/ja/recipes/confirm-action/#展開後の-html)を
+ドキュメント化する必要があります。利用者はそれをそのままコピーして
+カスタマイズできます。
+
+## CSS カスタムプロパティ
+
+カスタムプロパティは DTCG トークンから生成され、ファイルの名前空間を
+除いた **JSON パス**に従って命名されます。
+
+```text
+semantic.color.bg                   → --hc-color-bg
+component.button.primary.bg         → --hc-button-primary-bg
+component.field.label-font-size     → --hc-field-label-font-size
+```
+
+レイヤー戦略は[トークン](/hypermedia-components/ja/fundamentals/tokens/)を
+参照してください。
+
+## イベント
+
+ビヘイビアが発火するカスタムイベントは、コロン区切りの名前空間を使います:
+
+```text
+hc:toast        — 一時的なトーストを表示する
+hc:confirm      — 確認ダイアログ内部のライフサイクル
+hc:close-dialog — 最寄りのダイアログを閉じる
+```
+
+カスタムイベントはデフォルトでバブリングするため、リスナーはツリーの
+高い位置(通常は `document.body`)に付けられます。
+
+## 似ているが HC の一部ではないもの
+
+- htmx のクラス — `htmx-request`、`htmx-indicator`。これらは htmx が
+  付与し、`hc.htmx.css` がスタイルを当てます。名前の所有者は HC では
+  ありません。
+- ブラウザネイティブの属性 — `disabled`、`aria-invalid`、`popover`。
+  HC はこれらを直接スタイルするため、利用者が影のモディファイアを
+  用意する必要はありません。

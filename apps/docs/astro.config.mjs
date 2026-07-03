@@ -16,13 +16,29 @@ export default defineConfig({
       title: 'Hypermedia Components',
       description:
         'Semantic components and recipes for hypermedia applications.',
+      // English stays at the root URLs (zero churn for existing links
+      // and the Lighthouse probes); Japanese lives under /ja/.
+      // Untranslated pages are served under /ja/** via Starlight's
+      // built-in fallback (English content + a localized notice), so
+      // every route exists in both locales.
+      defaultLocale: 'root',
+      locales: {
+        root: { label: 'English', lang: 'en' },
+        ja: { label: '日本語', lang: 'ja' },
+      },
       // Fail `docs:build` on broken internal links / anchors. Build-time
       // validation over the rendered route graph — no network, no extra
       // CI job; the existing docs job catches the rot. Same-page hash
       // links are excluded: live demo markup uses placeholder
       // href="#" / href="#section" (breadcrumb, pagination, navmenu, …);
       // page paths and cross-page anchors stay validated.
-      plugins: [starlightLinksValidator({ exclude: ['#*'] })],
+      // errorOnFallbackPages: false — ja pages may link to /ja/ routes
+      // whose content is still the English fallback; every route exists
+      // in both locales, so those links resolve. Translated pages that
+      // arrive later simply take the fallback's place.
+      plugins: [
+        starlightLinksValidator({ exclude: ['#*'], errorOnFallbackPages: false }),
+      ],
       editLink: {
         baseUrl:
           'https://github.com/ingcreators/hypermedia-components/edit/main/apps/docs/',
@@ -36,7 +52,7 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: 'Start',
+          label: 'Start', translations: { ja: 'はじめに' },
           items: [
             { slug: 'start/introduction' },
             { slug: 'start/installation' },
@@ -44,17 +60,17 @@ export default defineConfig({
             { slug: 'start/philosophy' },
           ],
         },
-        { label: 'Fundamentals', items: [{ autogenerate: { directory: 'fundamentals' } }] },
-        { label: 'Kitchen sink', slug: 'kitchen-sink' },
+        { label: 'Fundamentals', translations: { ja: '基礎' }, items: [{ autogenerate: { directory: 'fundamentals' } }] },
+        { label: 'Kitchen sink', translations: { ja: 'キッチンシンク' }, slug: 'kitchen-sink' },
         {
           // Grouped by purpose instead of one flat ~50-entry alphabetical
           // list, so the sidebar is scannable. Every component lives under
           // exactly one category; `Overview` links the gallery index.
-          label: 'Components',
+          label: 'Components', translations: { ja: 'コンポーネント' },
           items: [
-            { label: 'Overview', slug: 'components' },
+            { label: 'Overview', translations: { ja: '概要' }, slug: 'components' },
             {
-              label: 'Actions',
+              label: 'Actions', translations: { ja: 'アクション' },
               items: [
                 'components/button',
                 'components/button-group',
@@ -65,7 +81,7 @@ export default defineConfig({
               ],
             },
             {
-              label: 'Forms',
+              label: 'Forms', translations: { ja: 'フォーム' },
               items: [
                 'components/field',
                 'components/input',
@@ -83,7 +99,7 @@ export default defineConfig({
               ],
             },
             {
-              label: 'Navigation',
+              label: 'Navigation', translations: { ja: 'ナビゲーション' },
               items: [
                 'components/breadcrumb',
                 'components/toc',
@@ -96,7 +112,7 @@ export default defineConfig({
               ],
             },
             {
-              label: 'Overlays',
+              label: 'Overlays', translations: { ja: 'オーバーレイ' },
               items: [
                 'components/dialog',
                 'components/drawer',
@@ -106,7 +122,7 @@ export default defineConfig({
               ],
             },
             {
-              label: 'Data display',
+              label: 'Data display', translations: { ja: 'データ表示' },
               items: [
                 'components/table',
                 'components/code',
@@ -123,7 +139,7 @@ export default defineConfig({
               ],
             },
             {
-              label: 'Feedback',
+              label: 'Feedback', translations: { ja: 'フィードバック' },
               items: [
                 'components/alert',
                 'components/toast',
@@ -134,7 +150,7 @@ export default defineConfig({
               ],
             },
             {
-              label: 'Layout',
+              label: 'Layout', translations: { ja: 'レイアウト' },
               items: [
                 'components/aspect',
                 'components/scroll-area',
@@ -145,11 +161,11 @@ export default defineConfig({
             },
           ],
         },
-        { label: 'Blocks', slug: 'blocks' },
-        { label: 'Recipes', items: [{ autogenerate: { directory: 'recipes' } }] },
-        { label: 'Tokens', items: [{ autogenerate: { directory: 'tokens' } }] },
-        { label: 'Integrations', items: [{ autogenerate: { directory: 'integrations' } }] },
-        { label: 'Reference', items: [{ autogenerate: { directory: 'reference' } }] },
+        { label: 'Blocks', translations: { ja: 'ブロック' }, slug: 'blocks' },
+        { label: 'Recipes', translations: { ja: 'レシピ' }, items: [{ autogenerate: { directory: 'recipes' } }] },
+        { label: 'Tokens', translations: { ja: 'トークン' }, items: [{ autogenerate: { directory: 'tokens' } }] },
+        { label: 'Integrations', translations: { ja: 'インテグレーション' }, items: [{ autogenerate: { directory: 'integrations' } }] },
+        { label: 'Reference', translations: { ja: 'リファレンス' }, items: [{ autogenerate: { directory: 'reference' } }] },
       ],
       customCss: [
         '@hypermedia-components/core/css',

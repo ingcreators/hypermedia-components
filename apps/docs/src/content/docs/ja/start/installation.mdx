@@ -1,0 +1,68 @@
+---
+title: インストール
+description: npm とバンドラーで Hypermedia Components を導入するか、ビルド済みファイルを静的フォルダにコピーして使います。
+---
+
+Hypermedia Components は、CSS ファイル 1 つ・ビヘイビアバンドル 1 つ・
+任意のマクロバンドル 1 つとして配布されます。CSS は常に読み込み、JS は
+インタラクティブなビヘイビアを使う場合のみ読み込んでください。
+
+## バンドラーを使う場合(npm)
+
+```bash
+npm install @hypermedia-components/core
+```
+
+```js
+import '@hypermedia-components/core/css';       // the styles
+import '@hypermedia-components/core/behaviors';  // auto-installs every behavior
+```
+
+`/behaviors` エントリは副作用を持ちます: インポートすると、DOM の準備が
+できた時点ですべてのビヘイビアがインストールされます。使うビヘイビアだけを
+取り込みたい場合は、個別のインストーラをインポートしてください —
+[ビヘイビア](#ビヘイビア)を参照。
+
+## バンドラーを使わない場合(静的ファイル)
+
+ビルドステップがない場合は、
+`node_modules/@hypermedia-components/core/dist/`(またはリリースの
+ダウンロード)からビルド済みファイルを静的フォルダにコピーし、直接参照します:
+
+```html
+<link rel="stylesheet" href="/assets/hc/hc.css">
+<script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
+```
+
+ここでは **`.min.js`** バンドルを使ってください — 単体で完結しています。
+(未圧縮の `hc.behaviors.js` はバンドラー用エントリで、兄弟モジュールを
+インポートするため `<script>` タグからは単体で動きません。)
+[Plain HTML ガイド](/hypermedia-components/ja/integrations/plain-html/)には、
+トースト領域と htmx のラウンドトリップを含む、コピー&ペーストで動く
+完全なページがあります。
+
+## ビヘイビア
+
+CSS コンポーネントは単体で描画されます。インタラクティブなもの — メニュー、
+ダイアログ、トースト、コンボボックスなど — には小さな JS *ビヘイビア*が
+必要です。選択肢は 2 つ:
+
+- **一括** — `import '@hypermedia-components/core/behaviors';` で
+  すべてのビヘイビアが自動インストールされます(docs サイトと
+  各インテグレーションガイドはこの方式です)。
+- **個別** — 必要なインストーラだけをインポートします:
+
+  ```js
+  import { installMenu, installToast } from '@hypermedia-components/core';
+  installMenu();
+  installToast();
+  ```
+
+すべての `installX()` は**冪等**で(再呼び出しが安全 — 例: htmx スワップ後)、
+**アンインストーラを返します**。各コンポーネント / レシピのページに、
+必要なビヘイビアが明記されています。
+
+## 次のステップ
+
+- [クイックスタート](/hypermedia-components/ja/start/quick-start/) — 最小構成のページを一歩ずつ組み立てます。
+- [コンポーネント](/hypermedia-components/ja/components/) — 全コンポーネントをライブ例つきで。

@@ -1,0 +1,196 @@
+---
+title: ボタン
+description: バリアント・サイズ・htmx フレンドリーなリクエスト状態を備えたセマンティックなボタンコンポーネント。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-button` は、標準の `<button>` 要素に適用する薄いセマンティック
+クラスです。バリアントとサイズは `data-*` 属性で切り替えるため、
+マークアップは素の HTML に近いまま保たれます。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button">Default</button>
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="secondary">Secondary</button>
+  <button class="hc-button" data-variant="error">Delete</button>
+  <button class="hc-button" data-variant="ghost">Ghost</button>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button">Default</button>
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="secondary">Secondary</button>
+  <button class="hc-button" data-variant="error">Delete</button>
+  <button class="hc-button" data-variant="ghost">Ghost</button>
+  ```
+
+  </Fragment>
+</Demo>
+
+## バリアント
+
+`data-variant` は `default`(暗黙)、`primary`、`secondary`、`error`、
+`ghost` を受け付けます。バリアントはサイズや状態と組み合わせられます。
+
+| バリアント  | 用途                                                            |
+| ----------- | --------------------------------------------------------------- |
+| _省略_      | 中立的なデフォルトアクション — アウトライン表示。               |
+| `primary`   | ページまたはダイアログ内の主アクション。アクティブなカラーテーマに従います。 |
+| `secondary` | `primary` の次に位置する塗りつぶしアクション。中立的なグレーで、primary が際立つよう意図的にテーマ色を**帯びません**。 |
+| `error`    | 破壊的アクション — 確認 UI と組み合わせてください。             |
+| `ghost`     | 低強調のアクション。背景は透明です。                            |
+
+強調の視覚的ヒエラルキー(高い順):
+
+`primary`(テーマ色の塗り)→ `secondary`(中立色の塗り)→ `default`(アウトライン)→ `ghost`(面なし)。
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-size="sm">Small</button>
+  <button class="hc-button">Default</button>
+  <button class="hc-button" data-size="lg">Large</button>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button" data-size="sm">Small</button>
+  <button class="hc-button">Default</button>
+  <button class="hc-button" data-size="lg">Large</button>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 状態
+
+状態は HTML 属性に属します — モディファイアクラスではありません。この
+コンポーネントは `:disabled`、`[aria-disabled="true"]`、`:focus-visible`、
+`[data-loading="true"]` を直接スタイルします。
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-variant="primary" disabled>Disabled</button>
+  <button class="hc-button" data-variant="primary" aria-disabled="true">aria-disabled</button>
+  <button class="hc-button" data-variant="primary" data-loading="true">Saving…</button>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button" data-variant="primary" disabled>Disabled</button>
+  <button class="hc-button" data-variant="primary" aria-disabled="true">aria-disabled</button>
+  <button class="hc-button" data-variant="primary" data-loading="true">Saving…</button>
+  ```
+
+  </Fragment>
+</Demo>
+
+アクションが本当に実行不能なときは `disabled` を使います。コントロールが
+フォーカス可能であり続けるべきとき(たとえばスクリーンリーダーの利用者が
+「なぜ使えないのか」を読めるように)は `aria-disabled="true"` を使います。
+
+## htmx での利用
+
+`hc-button` は普通の `<button>` なので、あらゆる htmx 属性がそのまま
+使えます。ドキュメントでは、例が妥当な HTML であり続け、テンプレート
+エンジンとも相性が良いように `data-hx-*` を使います。
+
+```html
+<button
+  class="hc-button"
+  data-variant="primary"
+  data-hx-post="/items"
+  data-hx-target="#items"
+  data-hx-swap="outerHTML">
+  Save
+</button>
+```
+
+確認フローは、ボタンを `confirm-action` レシピと組み合わせます:
+
+```html
+<button
+  class="hc-button"
+  data-variant="error"
+  data-hc-confirm="Delete this item?"
+  data-hx-delete="/items/123"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="closest tr">
+  Delete
+</button>
+```
+
+## アクセシビリティ
+
+- 常にネイティブの `<button>` 要素を使ってください。`hc-button` を
+  `<div>` や `<span>` に適用してはいけません。
+- 見える説明的なラベルを付けてください。アイコンのみのボタンには
+  `aria-label` か視覚的に隠したテキストが必要です。
+- フォーカスは `:focus-visible` と `--hc-color-focus-ring` トークンで
+  可視化されます。同等に明確な代替なしにアウトラインを消さないでください。
+- `disabled` 属性はボタンをタブ順から外します。フォーカス可能であり
+  続けるべき場合は代わりに `aria-disabled="true"` を使ってください。
+- 破壊的アクションでは、誤操作で実行されないよう確認ダイアログと
+  組み合わせてください。
+
+## テーマ用トークン
+
+`hc-button` は次の component トークン(`component.tokens.json` で定義)を
+読みます:
+
+| トークンパス                  | 用途                                 |
+| ----------------------------- | ------------------------------------ |
+| `button.height`               | デフォルトのブロックサイズ。         |
+| `button.padding-x`            | インライン方向のパディング。         |
+| `button.radius`               | 角丸。                               |
+| `button.font-size`            | デフォルトのフォントサイズ。         |
+| `button.{default,primary,secondary,error,ghost}.{bg,fg,border}` | バリアントごとの色。 |
+| `button.{default,primary,secondary,error,ghost}-hover.{bg,border}` | バリアントごとのホバー色。 |
+| `button.{sm,lg}.{height,padding-x,font-size}` | サイズ別の上書き。 |
+
+primitive・semantic・component のどのレベルでも、対応する `--hc-*`
+カスタムプロパティをスコープに設定すれば上書きできます。
+
+```css
+:root {
+  --hc-button-radius: 999px;             /* fully rounded */
+  --hc-button-primary-bg: #6d28d9;       /* purple primary */
+}
+```
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+このコンポーネントが直接消費する、生成済みの `--hc-*` カスタム
+プロパティ:
+
+```text
+--hc-button-height
+--hc-button-padding-x
+--hc-button-radius
+--hc-button-font-size
+--hc-button-font-weight
+--hc-button-default-bg | -fg | -border | -hover-bg
+--hc-button-primary-bg   | -fg | -border | -hover-bg | -hover-border
+--hc-button-secondary-bg | -fg | -border | -hover-bg | -hover-border
+--hc-button-error-bg    | -fg | -border | -hover-bg | -hover-border
+--hc-button-ghost-bg     | -fg | -border | -hover-bg
+--hc-button-sm-height | -padding-x | -font-size
+--hc-button-lg-height | -padding-x | -font-size
+--hc-color-focus-ring
+--hc-opacity-disabled
+```
+
+</details>
+
+## 関連
+
+- `request-action` — ボタンをスピナーと disabled 状態で包むレシピ。
+- `confirm-action` — 確認ダイアログつきの破壊的アクション。

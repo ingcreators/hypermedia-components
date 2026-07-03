@@ -1,0 +1,74 @@
+---
+title: クイックスタート
+description: 最小構成の動くページを一歩ずつ組み立てます — まず CSS、次にビヘイビア、最後に htmx。
+---
+
+このページでは、最小構成のページを 3 つの層で組み立てます。各層は単体で
+動作します。次の層は必要になったときにだけ足してください。
+
+## 1. スタイルのみ
+
+スタイルシートを読み込み、セマンティックなクラスを使います。JavaScript は
+不要です — ボタン、入力欄、カードなどは CSS だけで描画されます。
+
+```html
+<link rel="stylesheet" href="/assets/hc/hc.css">
+
+<button class="hc-button" data-variant="primary">Save</button>
+<input class="hc-input" type="text" placeholder="Search…">
+```
+
+`data-variant` と `data-size` は CSS が読むスタイリング用フックです —
+JavaScript なしで機能します。
+
+## 2. ビヘイビアを足す
+
+ビヘイビアバンドルを読み込むと、インタラクティブなコンポーネント(メニュー、
+ダイアログ、トーストなど)が動き出します。ここでは `hc:toast` イベントを
+発火するとトーストが表示されるようになります:
+
+```html
+<link rel="stylesheet" href="/assets/hc/hc.css">
+<script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
+
+<button class="hc-button"
+        onclick="dispatchEvent(new CustomEvent('hc:toast', { detail: { message: 'Saved' } }))">
+  Save
+</button>
+```
+
+このバンドルはすべてのビヘイビアをインストールし、トースト領域も自動で
+作成します。使うビヘイビアだけをインストールしたい場合は
+[インストール → ビヘイビア](/hypermedia-components/ja/start/installation/#ビヘイビア)を
+参照してください。
+
+## 3. htmx を足す
+
+リクエスト送信のために [htmx](https://htmx.org) を読み込みます。
+`data-hx-*` 属性を読むのは htmx であって HC ではありません — HC はボタンの
+スタイルだけを担当します。**Add item** をクリックすると `/items` に POST し、
+サーバが返す `<li>` 1 件を htmx がリストに追加します:
+
+```html
+<link rel="stylesheet" href="/assets/hc/hc.css">
+<script defer src="/assets/htmx.min.js"></script>
+<script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
+
+<button class="hc-button" data-variant="primary"
+        data-hx-post="/items"
+        data-hx-target="#items"
+        data-hx-swap="beforeend">
+  Add item
+</button>
+<ul id="items"></ul>
+```
+
+[Plain HTML ガイド](/hypermedia-components/ja/integrations/plain-html/)には、
+同じ構成を完全な実行可能ページ(静的サーバとトースト領域つき)として
+まとめてあります。
+
+## 次のステップ
+
+- [コンポーネント](/hypermedia-components/ja/components/) — 全コンポーネントをライブ例つきで。
+- [レシピ](/hypermedia-components/ja/recipes/) — htmx パターン集(確認、ライブ検索、トースト…)。
+- [インテグレーション](/hypermedia-components/ja/integrations/) — Django、Rails、Go、Razor ほか。

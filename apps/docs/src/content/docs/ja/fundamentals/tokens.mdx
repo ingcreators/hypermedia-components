@@ -1,0 +1,124 @@
+---
+title: トークン
+description: DTCG トークンのレイヤー — primitive・semantic・component・theme — と --hc-* CSS カスタムプロパティへの対応。
+---
+
+Hypermedia Components の視覚上の決定は DTCG 形式の JSON ファイルに
+置かれ、`--hc-*` CSS カスタムプロパティとして出力されます。CSS の
+コンポーネント層は変数を読むだけで、16 進カラーやピクセルサイズを
+ハードコードすることはありません。
+
+## レイヤー
+
+トークンには 4 つのレイヤーがあり、それぞれ単一の目的を持ちます:
+
+```text
+1. Primitive  → 生の値: カラースケール、スペーシング、角丸、フォントサイズ。
+2. Semantic   → UI 上の意味: bg, surface, text, border, action.primary。
+3. Component  → コンポーネントの値: ボタンの高さ、入力欄の枠線、カードの角丸。
+4. Theme / density → light / dark、comfortable / compact / dense。
+```
+
+コンポーネント CSS が消費するのは **component** または **semantic** の
+変数です — primitive を直接使うことはありません。primitive は匿名のまま
+にし、semantic レイヤーで意味を与えることで昇格させます。
+
+## ソース構成
+
+```text
+packages/core/src/tokens/
+  primitive.tokens.json      ← 値のみ。CSS 変数としては出力されない
+  semantic.tokens.json       ← :root, [data-theme="light"]
+  component.tokens.json      ← :root
+  theme.dark.tokens.json     ← [data-theme="dark"]
+```
+
+小さなビルドスクリプト([`scripts/build-tokens.mjs`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/scripts/build-tokens.mjs))が
+レイヤーをまたぐ `{group.path}` 参照を解決し、`@layer hc.tokens` で包んだ
+`dist/hc.tokens.css` を出力します。
+
+## DTCG の参照構文
+
+トークンは `$type` と `$value` を持つ葉ノードです。参照は波かっこと、
+ファイル名前空間からのドット区切りパスで書きます。
+
+```json
+{
+  "color": {
+    "bg": {
+      "$type": "color",
+      "$value": "{primitive.color.gray.50}"
+    }
+  }
+}
+```
+
+解決は再帰的です — semantic トークンは primitive を、component トークンは
+semantic トークンを参照でき、以下同様です。
+
+## 変数の命名
+
+出力される変数名は、ファイルのトップレベル名前空間を除いた残りの JSON
+パスをハイフンで連結し、`--hc-` を前置したものです:
+
+| JSON パス                                  | CSS 変数                           |
+| ------------------------------------------ | ---------------------------------- |
+| `semantic.color.bg`                        | `--hc-color-bg`                    |
+| `semantic.color.action.primary.bg`         | `--hc-color-action-primary-bg`     |
+| `component.button.primary.bg`              | `--hc-button-primary-bg`           |
+| `component.field.label-font-size`          | `--hc-field-label-font-size`       |
+
+## ライトとダーク
+
+ライトのデフォルト値は `semantic.tokens.json` にあり、
+`:root, [data-theme="light"]` に載ります。ダークの上書きは
+`theme.dark.tokens.json` にあり、`[data-theme="dark"]` に載ります。
+
+テーマを切り替えるには、`<html>` または `<body>` に属性を設定します:
+
+```html
+<html data-theme="dark">…</html>
+```
+
+密度モード(`comfortable`、`compact`、`dense`)も同じ属性パターン
+(`data-density="compact"`)に従います。スケール全体とライブプレビューは
+[トークン · 密度](/hypermedia-components/ja/tokens/density/)を参照して
+ください。
+
+## 利用側での上書き
+
+すべてが CSS カスタムプロパティなので、下流のアプリケーションはソース
+トークンをフォークすることなく、任意のスコープで上書きできます。
+
+```css
+/* App-wide: rounder buttons, purple primary */
+:root {
+  --hc-button-radius: 999px;
+  --hc-button-primary-bg: #6d28d9;
+  --hc-button-primary-hover-bg: #5b21b6;
+}
+
+/* Per-region: compact controls inside a sidebar */
+.app-sidebar {
+  --hc-control-height: 32px;
+}
+```
+
+これが HC をテーマ化する推奨方法です — `@hypermedia-components/core` の
+ソース CSS を直接編集しないでください。
+
+## トークンに*入れない*もの
+
+- レイアウトの基礎値(特定機能内のマージンやグリッドギャップ)。
+- 一度きりのイラスト用カラー。
+- ページ固有のスタイリング。
+
+トークンは**コンポーネント間で再利用される決定**のためのものです。
+一度しか使わない値をトークンにする必要はありません。
+
+## 関連
+
+- [命名規則](/hypermedia-components/ja/fundamentals/naming/) — CSS 変数、
+  クラス、属性の命名方法。
+- [ボタン](/hypermedia-components/ja/components/button/) — component
+  トークンで完全に駆動されるコンポーネントの例。
