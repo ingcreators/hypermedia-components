@@ -1,0 +1,34 @@
+<!-- Short recommended usage.
+
+  Multipart upload with a live progress bar. BOTH encodings are
+  required: data-hx-encoding drives the htmx request, enctype drives
+  the native no-JS submit. The progress bar is an htmx indicator
+  (visibility) whose value is driven by installUploadProgress
+  (auto-init behaviors bundle). On success the server appends the new
+  file's fragment to #files and resets the form via an out-of-band
+  swap; validation failures come back as a 422 field-errors fragment.
+  See contract.md for the server contract. -->
+<form id="upload-form" method="post" action="/files"
+      enctype="multipart/form-data"
+      data-hx-post="/files"
+      data-hx-encoding="multipart/form-data"
+      data-hx-target="#files" data-hx-swap="afterbegin"
+      data-hx-indicator="find progress"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div id="upload-errors"></div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="doc">Document</label>
+    <input class="hc-input" id="doc" name="doc" type="file" required
+           accept=".pdf,.png">
+  </div>
+
+  <progress class="hc-progress htmx-indicator" data-hc-upload-progress
+            value="0" max="100" aria-label="Upload progress"></progress>
+
+  <button class="hc-button" data-variant="primary" type="submit">Upload</button>
+</form>
+
+<ul id="files">
+  <li class="hc-item">spec.pdf — 340 KB</li><!-- server-rendered current files -->
+</ul>

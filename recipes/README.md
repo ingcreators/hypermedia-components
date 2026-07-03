@@ -35,4 +35,5 @@ documentation pages.
 | [`sse-updates/`](sse-updates/)            | Server-pushed fragment updates over Server-Sent Events.                 |
 | [`sse-toast/`](sse-toast/)                | Server-pushed notifications / domain events via the SSE dispatch bridge. |
 | [`undo-delete/`](undo-delete/)            | Undo instead of confirm — soft delete + grace period + tombstone restore. |
+| [`file-upload/`](file-upload/)            | Multipart upload with a live progress bar and an out-of-band form reset. |
 | [`chart/`](chart/)                        | Server-sent data table upgraded to an Observable Plot SVG chart. *(needs `installChart` + Plot)* |

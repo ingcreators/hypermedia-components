@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc file-upload fixture</title>
+  <!--
+    The blessed file-upload recipe, verbatim from the docs: multipart
+    htmx post with a live progress bar (installUploadProgress drives
+    the value; htmx's indicator mechanism drives visibility), success
+    appends the item to #files and resets the form via an out-of-band
+    swap, validation failures come back as a retargeted 422
+    field-errors fragment. The /mock/upload route (serve.mjs) stands in
+    for the server. One documented allowance (422 beforeSwap), no other
+    custom JS.
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:36rem;">
+    <h1>File upload</h1>
+
+    <form id="upload-form" method="post" action="/mock/upload"
+          enctype="multipart/form-data"
+          data-hx-post="/mock/upload"
+          data-hx-encoding="multipart/form-data"
+          data-hx-target="#files" data-hx-swap="afterbegin"
+          data-hx-indicator="find progress"
+          data-hx-disabled-elt="find button[type=submit]"
+          data-testid="form">
+      <div id="upload-errors" data-testid="errors"></div>
+      <div class="hc-field" id="doc-field">
+        <label class="hc-field__label" for="doc">Document</label>
+        <input class="hc-input" id="doc" name="doc" type="file" required
+               data-testid="file">
+      </div>
+      <progress class="hc-progress htmx-indicator" data-hc-upload-progress
+                value="0" max="100" aria-label="Upload progress"
+                data-testid="bar"></progress>
+      <button class="hc-button" data-variant="primary" type="submit"
+              data-testid="submit">Upload</button>
+    </form>
+
+    <ul id="files" data-testid="files">
+      <li class="hc-item">spec.pdf — 340 KB</li>
+    </ul>
+
+    <div class="hc-toast-region" data-hc-toast-region data-position="bottom-right"
+         role="region" aria-label="Notifications"></div>
+  </main>
+
+  <script>
+    // Documented one-time allowance: htmx ≥ 2 won't swap non-2xx by default.
+    document.body.addEventListener('htmx:beforeSwap', (event) => {
+      if (event.detail.xhr.status === 422) {
+        event.detail.shouldSwap = true;
+        event.detail.isError = false;
+      }
+    });
+  </script>
+</body>
+</html>

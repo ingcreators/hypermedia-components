@@ -1,0 +1,45 @@
+<!-- Fully expanded HTML — the client form plus the two server-rendered
+  response fragments (contract.md). The client authors only fragment 1;
+  fragments 2 and 3 are what the server returns. -->
+
+<!-- 1. The upload form (initial render — and what the out-of-band
+     reset re-sends after every successful upload). -->
+<form id="upload-form" method="post" action="/files"
+      enctype="multipart/form-data"
+      data-hx-post="/files"
+      data-hx-encoding="multipart/form-data"
+      data-hx-target="#files" data-hx-swap="afterbegin"
+      data-hx-indicator="find progress"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div id="upload-errors"></div>
+  <div class="hc-field">
+    <label class="hc-field__label" for="doc">Document</label>
+    <input class="hc-input" id="doc" name="doc" type="file" required
+           accept=".pdf,.png">
+  </div>
+  <progress class="hc-progress htmx-indicator" data-hc-upload-progress
+            value="0" max="100" aria-label="Upload progress"></progress>
+  <button class="hc-button" data-variant="primary" type="submit">Upload</button>
+</form>
+
+<ul id="files">
+  <li class="hc-item">spec.pdf — 340 KB</li>
+</ul>
+
+<!-- 2. Success response (200): the new item lands afterbegin in #files
+     (the form's declared target); the same body carries the pristine
+     form as an out-of-band swap — the blessed reset, since file inputs
+     cannot be cleared from markup. Plus:
+     HX-Trigger: {"hc:toast":{"message":"\"report.pdf\" uploaded","variant":"success"}} -->
+<li class="hc-item" id="file-317">report.pdf — 1.2 MB</li>
+<!-- …followed by fragment 1 again, with hx-swap-oob="true" on the form. -->
+
+<!-- 3. Validation failure (422 + HX-Retarget: #upload-errors +
+     HX-Reswap: innerHTML): the canonical field-errors fragment, steered
+     into the in-form container; installFieldErrors distributes it. -->
+<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+  <p class="hc-alert__title">The file was not accepted.</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error" data-field="doc" data-code="type">doc: only PDF or PNG files are allowed</li>
+  </ul>
+</div>

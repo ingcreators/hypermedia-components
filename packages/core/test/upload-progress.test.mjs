@@ -85,6 +85,18 @@ describe('installUploadProgress', () => {
     expect(() => fire($('other'), 'htmx:afterRequest')).not.toThrow();
   });
 
+  it('ignores ancestor-level re-dispatches (detached requester after an OOB form reset)', () => {
+    uninstall = installUploadProgress();
+    // htmx re-dispatches lifecycle events on a surviving ancestor (the
+    // old form's parent, or <body>) when the requester left the DOM —
+    // unattributable to one form, must not touch any bar.
+    for (const target of [document.body, $('form').parentElement]) {
+      fire(target, 'htmx:afterRequest');
+      fire(target, 'htmx:xhr:progress', { lengthComputable: true, loaded: 50, total: 100 });
+    }
+    expect($('bar').value).toBe(0);
+  });
+
   it('uninstall stops updates', () => {
     const u = installUploadProgress();
     u();

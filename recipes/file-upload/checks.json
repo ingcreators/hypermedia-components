@@ -1,0 +1,30 @@
+{
+  "detect": "form[data-hx-encoding=\"multipart/form-data\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "native-enctype",
+      "level": "error",
+      "message": "data-hx-encoding only affects the htmx request — the native no-JS submit needs the real enctype=\"multipart/form-data\" attribute too.",
+      "attr": { "on": "form", "name": "enctype", "assert": "present", "value": "multipart/form-data" }
+    },
+    {
+      "id": "has-file-input",
+      "level": "error",
+      "message": "A multipart form needs a file input (input[type=file]).",
+      "exists": { "selector": "input[type=\"file\"]" }
+    },
+    {
+      "id": "double-submit-guard",
+      "level": "warn",
+      "message": "Disable the submit button during the upload (data-hx-disabled-elt).",
+      "attr": { "on": "form", "name": "data-hx-disabled-elt", "assert": "present" }
+    },
+    {
+      "id": "has-progress",
+      "level": "warn",
+      "message": "Uploads are long — show progress: <progress class=\"hc-progress htmx-indicator\" data-hc-upload-progress> inside the form.",
+      "exists": { "selector": "[data-hc-upload-progress]" }
+    }
+  ]
+}
