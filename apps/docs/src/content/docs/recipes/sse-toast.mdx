@@ -1,0 +1,90 @@
+---
+title: SSE toast
+description: Server-pushed notifications — SSE events with JSON payloads become allow-listed DOM events via the dispatch bridge; toasts and data-region invalidations work unchanged.
+---
+
+`sse-toast` is the blessed pattern for **server-initiated
+notifications**: the server pushes a named SSE event with a JSON
+payload, and one hidden bridge element turns it into a DOM
+`CustomEvent` — so the existing
+[toast](/hypermedia-components/recipes/toast/) contract and the
+[data-region](/hypermedia-components/recipes/data-region/) invalidation
+contract work exactly as they do when `HX-Trigger` initiates, just
+without a request. It is stable under the
+[markup versioning policy](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md).
+
+It needs `installSseDispatch()` and `installToast()` (both in the
+auto-init
+[`./behaviors`](/hypermedia-components/start/installation/#behaviors)
+bundle) plus the
+[SSE extension](/hypermedia-components/integrations/htmx/#server-sent-events).
+
+## The markup
+
+```html
+<div data-hx-ext="sse" data-sse-connect="/events">
+  <span hidden data-hc-sse-dispatch
+        data-sse-swap="hc:toast, items:changed"></span>
+</div>
+```
+
+The bridge never renders and never receives focus. For each SSE event
+named in its `data-sse-swap`, `installSseDispatch()` cancels the swap
+and dispatches a bubbling `CustomEvent` instead — the SSE event name
+becomes the DOM event name, the JSON payload becomes `detail`.
+
+## The stream
+
+```text
+event: hc:toast
+data: {"message":"Build #42 finished","variant":"success"}
+
+event: items:changed
+data: {}
+```
+
+- **`hc:toast`** payloads are the toast `detail` shape, unchanged:
+  `message` (required), `title`, `variant`, `duration`, `id`, `action`.
+  Server-pushed progress can use the update-by-`id` pattern — repeated
+  events with the same `id` update one toast in place
+  (loading → success).
+- **Domain events** are usually `{}`: any data-region listening with
+  `data-hx-trigger="items:changed from:body"` refetches itself. The
+  server pushes the *invalidation*; the region pulls the re-render —
+  pushes stay tiny, re-renders stay idempotent, and reconnect gaps
+  self-heal on the next event.
+
+## Payload rules
+
+| `data:` | Result |
+| --- | --- |
+| empty / missing | dispatched, `detail = {}` |
+| a JSON **object** | dispatched, that object is `detail` |
+| anything else (array, string, number, malformed JSON) | dropped — swap still cancelled, nothing dispatched |
+
+**The markup is the allowlist.** Only event names the page lists in
+`data-sse-swap` can ever be dispatched — the server cannot mint DOM
+event names the page did not declare. Payloads are inert
+`CustomEvent.detail` data: never markup, never evaluated.
+
+## Accessibility
+
+The toast behavior's semantics apply unchanged — `variant: "error"`
+renders `role="alert"` (assertive), everything else `role="status"`
+(polite). Server-pushed toasts arrive without user action, so prefer
+polite variants and reserve `error` for interruptions worth making.
+State the user must not miss belongs in the page (an
+[sse-updates](/hypermedia-components/recipes/sse-updates/) region), not
+only in a transient toast.
+
+The full contract lives in
+[`recipes/sse-toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-toast/contract.md);
+the payload rules and the region-invalidation composition are pinned by
+a real-EventSource browser test (`test-browser/sse.spec.mjs`).
+
+## Related
+
+- [SSE live updates recipe](/hypermedia-components/recipes/sse-updates/) — server-pushed fragments; this recipe's sibling.
+- [Toast recipe](/hypermedia-components/recipes/toast/) — the `hc:toast` detail shape and region knobs.
+- [Data region recipe](/hypermedia-components/recipes/data-region/) — the invalidation contract the domain events drive.
+- [htmx integration — Server-sent events](/hypermedia-components/integrations/htmx/#server-sent-events) — extension setup and lifecycle.

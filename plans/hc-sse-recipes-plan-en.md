@@ -1,6 +1,6 @@
 # SSE (Server-Sent Events) — recipes + bridge behavior plan
 
-Status: **approved; implementation pending (two PRs, §8).**
+Status: **shipped — PR 1 (bridge behavior, #283) and PR 2 (recipes + vendored extension + browser test, #284).**
 Net-new scope. Server-push is the one delivery mode the kit does not
 cover — today "live" means polling (`data-hx-trigger="every Ns"`). The
 htmx **SSE extension** (`htmx-ext-sse`, vendored pinned like htmx

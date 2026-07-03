@@ -26,6 +26,7 @@ const ASSET_ALIASES = new Map([
   // htmx is vendored under ./vendor (pinned 2.0.4) so the demo runs
   // offline and its browser tests don't depend on a CDN.
   ['/htmx.js',         join(here, 'vendor', 'htmx.min.js')],
+  ['/sse.min.js',      join(here, 'vendor', 'sse.min.js')],
   ['/hc.css',          join(coreDist, 'hc.css')],
   ['/hc.tokens.css',   join(coreDist, 'hc.tokens.css')],
   ['/hc.htmx.css',     join(coreDist, 'hc.htmx.css')],
