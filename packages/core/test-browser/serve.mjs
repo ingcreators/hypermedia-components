@@ -287,6 +287,65 @@ function hxTrigger(payload) {
   );
 }
 
+// Mock multipart upload handler for the file-upload spec
+// (file-upload.html). Consumes the multipart body (filename extracted
+// from the Content-Disposition line), then answers after a short delay
+// so the in-flight window (indicator visible, bar at 100) is
+// observable. A filename starting with "fail" takes the 422 path:
+// HX-Retarget + HX-Reswap steer the field-errors fragment into the
+// in-form container (the recipe contract's exceptional path).
+function handleUpload(req, res, url) {
+  if (url.pathname !== '/mock/upload' || req.method !== 'POST') return false;
+  const chunks = [];
+  req.on('data', (chunk) => chunks.push(chunk));
+  req.on('end', () => {
+    const body = Buffer.concat(chunks).toString('latin1');
+    const filename = body.match(/filename="([^"]*)"/)?.[1] ?? 'upload.bin';
+    const size = chunks.reduce((n, c) => n + c.length, 0);
+    setTimeout(() => {
+      res.setHeader('Content-Type', MIME['.html']);
+      if (filename.startsWith('fail')) {
+        res.statusCode = 422;
+        res.setHeader('HX-Retarget', '#upload-errors');
+        res.setHeader('HX-Reswap', 'innerHTML');
+        res.end(`<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+          <p class="hc-alert__title">The file was not accepted.</p>
+          <ul class="hc-alert__errors">
+            <li class="hc-alert__error" data-field="doc" data-code="type">doc: this file type is not allowed</li>
+          </ul>
+        </div>`);
+        return;
+      }
+      res.statusCode = 200;
+      res.setHeader('HX-Trigger', hxTrigger({
+        'hc:toast': { message: `"${filename}" uploaded`, variant: 'success' },
+      }));
+      res.end(`<li class="hc-item">${filename} — ${Math.round(size / 1024)} KB</li>
+        <form id="upload-form" method="post" action="/mock/upload"
+              enctype="multipart/form-data"
+              data-hx-post="/mock/upload"
+              data-hx-encoding="multipart/form-data"
+              data-hx-target="#files" data-hx-swap="afterbegin"
+              data-hx-indicator="find progress"
+              data-hx-disabled-elt="find button[type=submit]"
+              data-testid="form" hx-swap-oob="true">
+          <div id="upload-errors" data-testid="errors"></div>
+          <div class="hc-field" id="doc-field">
+            <label class="hc-field__label" for="doc">Document</label>
+            <input class="hc-input" id="doc" name="doc" type="file" required
+                   data-testid="file">
+          </div>
+          <progress class="hc-progress htmx-indicator" data-hc-upload-progress
+                    value="0" max="100" aria-label="Upload progress"
+                    data-testid="bar"></progress>
+          <button class="hc-button" data-variant="primary" type="submit"
+                  data-testid="submit">Upload</button>
+        </form>`);
+    }, 400);
+  });
+  return true;
+}
+
 function handleUndo(req, res, url) {
   const del = url.pathname.match(/^\/mock\/items\/(\d+)$/);
   if (del && req.method === 'DELETE') {
@@ -343,6 +402,7 @@ function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
   if (handleUndo(req, res, url)) return true;
+  if (handleUpload(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
   req.resume();

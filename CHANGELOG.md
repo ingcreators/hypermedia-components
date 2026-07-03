@@ -22,6 +22,26 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`file-upload` recipe — multipart upload with a live progress bar**
+  (#297). The form carries **both encodings** —
+  `enctype="multipart/form-data"` for the native no-JS submit and
+  `data-hx-encoding` for the htmx request (shipping only one is the
+  classic mistake; `hc validate` errors on it) — plus the
+  `data-hc-upload-progress` bar (#296) whose visibility stays
+  htmx-native (`data-hx-indicator`). Success is `200` with the new
+  item fragment (`afterbegin` into the list) **plus the pristine form
+  as an out-of-band swap** — the blessed reset, since file inputs
+  cannot be cleared from markup — and an escaped `HX-Trigger` toast.
+  Validation failures are the server's job (client `accept` hints are
+  UX only): `422` + `HX-Retarget`/`HX-Reswap` steer the field-errors
+  fragment into the in-form container, keeping the primary path
+  attribute-declared. Proxy-level `413` and the no-JS `303` path are
+  documented. Ships as `recipes/file-upload/`
+  (recipe/expanded/contract/checks — 19th recipe) plus a docs page,
+  pinned by a real-multipart browser test: the bar reaches 100 while
+  the request is in flight, the OOB reset empties the file input, and
+  the retargeted `422` distributes inline.
+
 - **`installUploadProgress()` — drive a native `<progress>` from htmx
   upload progress** (#296). A
   `<progress class="hc-progress htmx-indicator" data-hc-upload-progress>`
@@ -145,6 +165,14 @@ Security    — security-relevant changes
   `datagrid-pager` and `field-errors` rows.
 
 ### Fixed
+
+- **`installUploadProgress()` only acts when the bar's own form is the
+  requesting element** (#297). htmx re-dispatches lifecycle events on a
+  surviving ancestor (the old form's parent, or `<body>`) when the
+  requester has left the DOM — exactly what the file-upload recipe's
+  out-of-band fresh-form reset produces — and the ancestor-level event
+  was setting the pristine replacement bar (and would touch other
+  forms' bars) to 100. Caught by the recipe's browser test.
 
 - **`inline-edit` recipe scaffold: the display fragment now declares
   `data-hx-swap="outerHTML"`** (#286). Without it htmx's default

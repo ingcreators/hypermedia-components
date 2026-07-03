@@ -29,7 +29,14 @@ const BAR = '[data-hc-upload-progress]';
 
 function barsOf(event) {
   const elt = event.target;
-  return elt?.querySelectorAll ? elt.querySelectorAll(BAR) : [];
+  if (!elt?.querySelectorAll) return [];
+  // Only act when the bar's own form is the requesting element. htmx
+  // re-dispatches lifecycle events on a surviving ancestor (the parent,
+  // or <body>) when the requester has left the DOM — e.g. after the
+  // out-of-band fresh-form reset the recipe blesses — and an ancestor
+  // event must not touch other forms' bars (or the pristine
+  // replacement's).
+  return [...elt.querySelectorAll(BAR)].filter((bar) => bar.closest('form') === elt);
 }
 
 /**

@@ -1,6 +1,6 @@
 # file-upload — recipe + progress-bridge behavior plan
 
-Status: **approved; implementation pending (two PRs, §7).**
+Status: **shipped — PR 1 (bridge, #296) and PR 2 (recipe + browser test, #297).**
 The last big everyday gap in the recipe layer: multipart uploads with a
 real progress bar. htmx owns the transport (`data-hx-encoding` +
 `htmx:xhr:progress` are native); one ~60-line bridge behavior drives the
