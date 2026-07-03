@@ -1,0 +1,308 @@
+---
+title: フィールド
+description: ラベル・コントロール・ヘルプ/エラーメッセージを、バリデーションを認識する 1 つの単位にまとめます。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-field` は、ラベル・コントロール・任意のヘルプまたはエラーメッセージを
+まとめる薄い合成クラスです。妥当性は、入力側の標準 `aria-invalid` 属性と、
+ラッパー側の `data-invalid="true"` で表現します。これによりメッセージの
+色と枠線の色が一緒に更新されます。
+
+## 基本の HTML
+
+<Demo previewStyle="max-width:24rem;">
+  <div class="hc-field">
+    <label class="hc-field__label" for="email-1">Email</label>
+    <input id="email-1" class="hc-input" name="email" type="email" />
+    <p class="hc-field__message">Use your work email.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input id="email" class="hc-input" name="email" type="email">
+    <p class="hc-field__message">Use your work email.</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 無効(invalid)状態
+
+<Demo previewStyle="max-width:24rem;">
+  <div class="hc-field" data-invalid="true">
+    <label class="hc-field__label" for="email-2">Email</label>
+    <input
+      id="email-2"
+      class="hc-input"
+      name="email"
+      type="email"
+      aria-invalid="true"
+      aria-describedby="email-2-error"
+      value="not-an-email"
+    />
+    <p id="email-2-error" class="hc-field__message">Enter a valid email address.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field" data-invalid="true">
+    <label class="hc-field__label" for="email">Email</label>
+    <input
+      id="email"
+      class="hc-input"
+      name="email"
+      type="email"
+      aria-invalid="true"
+      aria-describedby="email-error">
+    <p id="email-error" class="hc-field__message">
+      Enter a valid email address.
+    </p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+2 つの属性が連携します:
+
+- ラッパーの `data-invalid="true"` はメッセージの色を切り替え、入力欄の
+  枠線を強調します。これは視覚用のフックです。
+- 入力側の `aria-invalid="true"` がアクセシビリティ上のシグナルで、
+  `aria-describedby` がエラーメッセージを指します。
+
+サーバレンダリングされるフォームでは、バリデーション失敗時にこの 2 つを
+アトミックに設定してください。
+
+## フォームを組み立てる
+
+完全なフォームに必要なのはキットのクラスだけです — ラベルのレイアウト、
+コントロールの幅、必須マーカー、ヘルプテキスト、アクション行のための
+アプリ側 CSS は不要です:
+
+<Demo previewStyle="max-width:24rem;">
+  <form style="display:grid;gap:1rem;" onsubmit="event.preventDefault()">
+    <div class="hc-field">
+      <label class="hc-field__label" for="cf-realm">Realm id</label>
+      <input class="hc-input" id="cf-realm" name="realmId" required placeholder="local" aria-describedby="cf-realm-help" />
+      <p class="hc-field__message" id="cf-realm-help">Lowercase letters only.</p>
+    </div>
+    <div class="hc-field">
+      <label class="hc-field__label" for="cf-display">Display name</label>
+      <input class="hc-input" id="cf-display" name="displayName" />
+    </div>
+    <fieldset class="hc-field">
+      <legend class="hc-field__label">Mode</legend>
+      <label><input type="radio" name="mode" value="standard" checked="" /> Standard</label>
+      <label><input type="radio" name="mode" value="strict" /> Strict</label>
+    </fieldset>
+    <div class="hc-cluster">
+      <button type="submit" class="hc-button" data-variant="primary">Create realm</button>
+      <button type="button" class="hc-button" data-variant="ghost">Cancel</button>
+    </div>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form>
+    <div class="hc-field">
+      <label class="hc-field__label" for="realm">Realm id</label>
+      <input class="hc-input" id="realm" name="realmId" required
+             placeholder="local" aria-describedby="realm-help">
+      <p class="hc-field__message" id="realm-help">Lowercase letters only.</p>
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="display">Display name</label>
+      <input class="hc-input" id="display" name="displayName">
+    </div>
+
+    <!-- Related radios/checkboxes: the field is a <fieldset> -->
+    <fieldset class="hc-field">
+      <legend class="hc-field__label">Mode</legend>
+      <label><input type="radio" name="mode" value="standard" checked> Standard</label>
+      <label><input type="radio" name="mode" value="strict"> Strict</label>
+    </fieldset>
+
+    <!-- Actions row -->
+    <div class="hc-cluster">
+      <button type="submit" class="hc-button" data-variant="primary">Create realm</button>
+      <button type="button" class="hc-button" data-variant="ghost">Cancel</button>
+    </div>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+このフォームのすべてはデフォルトの挙動です:
+
+- **ラベルの関連付けはネイティブ** — `for`/`id`。ラベルをクリックすると
+  コントロールにフォーカスが移ります。(暗黙のラップも動きますが、明示的な
+  形のほうがスタイルもターゲットもしやすいです。)
+- **必須アスタリスクは自動** — `[required]` コントロールを含むフィールドは
+  ラベルに印を付けます。`<span class="req">*</span>` は不要です。
+- **コントロールはフィールドいっぱいに広がる** — `.hc-field` はグリッド
+  (アイテムは伸長)で、`hc-input` / `hc-select` はデフォルトで
+  `inline-size: 100%` です。`form .hc-input { width: 100% }` のような
+  アプリ CSS は不要です。
+- **ヘルプテキスト**は `.hc-field__message`。エラースロット
+  (`.hc-field__error`)は[クライアントサイドバリデーション](#クライアントサイドバリデーション)
+  またはサーバが埋めます — 領域を確保したい場合にだけ書いてください。
+- **ラジオ / チェックボックスのグループは `fieldset.hc-field`** — キットが
+  ネイティブ fieldset の装飾を取り除き、`<legend>` がラベルクラスを
+  受け持ちます。
+- **アクション行**は [`.hc-cluster`](/hypermedia-components/ja/fundamentals/layout/)
+  (折り返すフレックス行)です。端寄せやキーボード操作可能なコントロール列には
+  `data-hc-spacer` つきの[ツールバー](/hypermedia-components/ja/components/toolbar/)を
+  使ってください。
+
+フィールド間の余白はフォームの責務で、フィールドの責務ではありません —
+フォーム側で [`.hc-stack`](/hypermedia-components/ja/fundamentals/layout/)
+(または `display:grid; gap` ルール)を使ってください。
+
+## htmx での利用
+
+サーバサイドバリデーションでは、フィールド全体をサーバから返して同じ場所に
+スワップします。返す HTML に `data-invalid` と `aria-invalid` を設定して
+おけば、フィールドは自動で再スタイルされます。
+
+```html
+<form
+  class="hc-form"
+  data-hx-post="/users"
+  data-hx-target="this"
+  data-hx-swap="outerHTML">
+  <div class="hc-field" id="email-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input id="email" class="hc-input" name="email" type="email">
+    <p class="hc-field__message">Use your work email.</p>
+  </div>
+
+  <button class="hc-button" data-variant="primary" type="submit">
+    Create account
+  </button>
+</form>
+```
+
+サーバは同じ `<form>`(または失敗した
+`<div class="hc-field" id="email-field" data-invalid="true">…` だけ)を、
+適切な属性と説明的なメッセージつきで返します。
+
+## クライアントサイドバリデーション
+
+ネイティブの HTML 制約バリデーション(`required`、`type="email"`、
+`pattern`、`min` / `max`、`minlength`…)は、フィールドごとのコードなしで
+フィールドに配線されます。
+
+**スタイリングに JavaScript は不要です。** 各コントロールは標準の
+[`:user-invalid`](https://developer.mozilla.org/en-US/docs/Web/CSS/:user-invalid)
+疑似クラスに反応します — **ユーザーが操作した後**(フィールドからフォーカスを
+外した、またはフォームを送信した)にだけ invalid になり、初回描画では
+なりません。必須コントロールは、そのフィールドのラベルに自動で
+アスタリスクを付けます。
+
+**メッセージと ARIA は `installValidation()` が担当します**(自動初期化の
+[`/behaviors`](/hypermedia-components/ja/start/installation/) バンドルに
+含まれます)。フォーカスが外れたとき — 以降はリアルタイムに — コントロールの
+ネイティブでローカライズ済みの `validationMessage` を `.hc-field__error`
+要素(なければ作成)へ書き込み、コントロールに `aria-invalid="true"`、
+フィールドに `data-invalid="true"` を設定し、コントロールの
+`aria-describedby` をエラーへ向けます。コントロールが再び valid になると
+すべてを解除します。送信時は、ブラウザ標準のバルーンがインラインメッセージに
+置き換わり、無効な送信は引き続きブロックされます。
+
+```html
+<form>
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input id="email" class="hc-input" name="email" type="email" required>
+    <!-- installValidation() fills this on demand; you can also author it -->
+    <p class="hc-field__error" aria-live="polite"></p>
+  </div>
+  <button class="hc-button" data-variant="primary" type="submit">Submit</button>
+</form>
+```
+
+メッセージテキスト(`--hc-field-invalid-message-color`)と `:user-invalid`
+の枠線は、手動の `aria-invalid` / `data-invalid` フックと同じエラートークンを
+共有するので、サーバレンダリングのエラーとクライアントサイドのエラーは
+見た目が揃います。両者は組み合わせられます: ネイティブ制約はクライアントが
+即座に捕まえ、一意性などサーバにしか検査できないルールはサーバが
+`data-invalid="true"` を返します。
+
+:::tip
+必須アスタリスクの見た目を変えたり隠したりするには
+`--hc-field-required-color` を上書きします(例: `transparent`)。
+アクセシブルな情報源はあくまでネイティブの `required` 属性です。
+:::
+
+## サーバサイドバリデーションエラー
+
+サーバにしか検査できないルール(一意性、競合)については、
+[field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)が、
+送信失敗時にサーバが返す小さなアラートフラグメントを定義しています。
+`installFieldErrors()`(同じく自動初期化バンドルに含まれます)が各エラーを
+対応するフィールドの `.hc-field__error` へ、上で説明したとおりの ARIA
+配線つきで振り分け、ユーザーがフィールドを編集するとクリアし、
+`data-message-key` を [i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)で
+解決できるようにします。同じコントロールではネイティブ制約メッセージが
+優先されます。
+
+## アクセシビリティ
+
+- `<label>` は `for` で入力の `id` を参照する必要があります。暗黙のラベル
+  (`<label>` で入力を包む)も妥当ですがスタイルしにくいため、明示的な形を
+  推奨します。
+- 無効なフィールドでは `aria-invalid="true"` を設定し、`aria-describedby`
+  でメッセージ要素を指して、スクリーンリーダーがエラーを読み上げられるように
+  してください。
+- メッセージはヘルプテキストに `--hc-field-message-color`、エラーに
+  `--hc-field-invalid-message-color` を使います — どちらもデフォルトの
+  トークンで `--hc-color-surface` に対して WCAG AA コントラストを
+  満たします。
+- 色だけに頼らないでください。エラーメッセージのテキストそのものが第一の
+  アクセシビリティシグナルです。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス                          | 用途                          |
+| ------------------------------------- | ----------------------------- |
+| `field.gap`                           | 縦方向の間隔。                |
+| `field.label-color`                   | ラベルの色。                  |
+| `field.label-weight`                  | ラベルのフォントウェイト。    |
+| `field.label-font-size`               | ラベルのフォントサイズ。      |
+| `field.message-color`                 | ヘルプテキストの色。          |
+| `field.message-font-size`             | ヘルプテキストのフォントサイズ。 |
+| `field.invalid-message-color`         | エラーメッセージの色。        |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-field-gap
+--hc-field-label-color | -weight | -font-size
+--hc-field-message-color | -font-size
+--hc-field-invalid-message-color
+--hc-field-required-color   /* the required asterisk; defaults to --hc-color-error */
+```
+
+</details>
+
+## 関連
+
+- [インプット](/hypermedia-components/ja/components/input/) — フィールドの
+  中のコントロール。
+- [ボタン](/hypermedia-components/ja/components/button/) — フィールドが属する
+  フォームを送信します。

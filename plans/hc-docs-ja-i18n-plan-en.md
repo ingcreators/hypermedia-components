@@ -1,6 +1,6 @@
 # Docs Japanese i18n — phase 1 plan
 
-Status: **approved; implementation pending (one PR, §7).**
+Status: **shipped (#314).**
 
 The v0.5 plan's P3 backlog item: *"Japanese i18n — translate the first
 10 docs pages (§7.6) after the English IA settles."* The English IA

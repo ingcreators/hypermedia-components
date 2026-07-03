@@ -248,7 +248,33 @@ The docs are first-class. They must teach, not just list APIs.
   loaded into the Starlight site so `<button class="hc-button">` in
   MDX renders correctly.
 
-Docs are written in English. Japanese i18n is deferred.
+Docs are written in English first — English is the source of truth.
+
+### Japanese translations
+
+The site has a `ja` locale (Starlight `locales`; English stays at the
+root URLs). Translated pages live under
+`apps/docs/src/content/docs/ja/**`, mirroring the English paths;
+untranslated pages are served under `/ja/**` automatically via
+Starlight's fallback (English content + a notice), so never copy an
+English page unchanged into `ja/`.
+
+- **If you edit an English page that has a `ja/` counterpart, update
+  the translation in the same PR.** The translated set is small and
+  curated (see `plans/hc-docs-ja-i18n-plan-en.md`); keeping the pair in
+  one PR is what stops drift.
+- Identifiers stay in English: class names, attributes, tokens, file
+  paths, `installXxx()`, code blocks and their comments, and all markup
+  inside `<Demo>` slots (preview and code slot must stay identical).
+- Prose is です・ます体. Reuse the glossary pinned in the plan
+  (behavior → ビヘイビア, recipe → レシピ, …).
+- Cross-page links from `ja/` pages point at
+  `/hypermedia-components/ja/...` — fallback routes exist for every
+  page, so links to untranslated targets resolve. Anchors on translated
+  pages use the translated heading's slug.
+- Sidebar group labels are translated via `translations: { ja: … }` in
+  `apps/docs/astro.config.mjs`; page titles come from each page's own
+  frontmatter.
 
 ---
 

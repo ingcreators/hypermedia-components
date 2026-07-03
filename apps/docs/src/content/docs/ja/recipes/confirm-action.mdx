@@ -1,0 +1,310 @@
+---
+title: 確認アクション
+description: 破壊的な htmx リクエストを送る前に確認ダイアログを表示します。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`confirm-action` は、破壊的な htmx リクエストの前段にモーダルの確認
+ステップを追加します。ボタンは普通の `<button>` のまま、ネットワーク
+リクエストの所有者は htmx のまま — 小さなビヘイビアがダイアログを開き、
+ユーザーが承認したときに `hc:confirmed` イベントを発火し直すだけです。
+
+:::note[セットアップ]
+このレシピには `installConfirm()` ビヘイビアが必要です — ない場合、
+ボタンは確認ステップなしで即座にリクエストを送ります。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを一括
+インストールするか、これだけをインストールします:
+
+```js
+import { installConfirm } from '@hypermedia-components/core';
+installConfirm();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+## 基本の使い方
+
+htmx リクエストを発行する要素に `data-hc-confirm` を追加し、htmx の
+トリガーを `hc:confirmed` でゲートします:
+
+```html
+<button
+  class="hc-button"
+  data-variant="error"
+  data-hc-confirm="Delete this item?"
+  data-hx-delete="/items/123"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="closest tr"
+  data-hx-swap="outerHTML">
+  Delete
+</button>
+```
+
+試してみてください — **Delete** をクリックすると共有の確認ダイアログが
+開きます。(このデモにはサーバがないため、承認すると htmx リクエストの
+代わりに結果を表示します。)
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-variant="error" id="confirm-demo-btn"
+    data-hc-confirm="Delete this item? This cannot be undone."
+    data-hc-confirm-title="Delete item"
+    data-hc-confirm-label="Delete"
+    data-hc-cancel-label="Keep">
+    Delete
+  </button>
+  <output id="confirm-demo-out" aria-live="polite" style="margin-inline-start:.75rem;color:var(--hc-color-text-muted);"></output>
+
+  <Fragment slot="code">
+
+  ```html
+  <button
+    class="hc-button"
+    data-variant="error"
+    data-hc-confirm="Delete this item?"
+    data-hx-delete="/items/123"
+    data-hx-trigger="hc:confirmed"
+    data-hx-target="closest tr"
+    data-hx-swap="outerHTML">
+    Delete
+  </button>
+  ```
+
+  </Fragment>
+</Demo>
+
+流れは次のとおり:
+
+1. ユーザーがボタンをクリックします。
+2. ビヘイビアがクリックをインターセプトし、共有の確認ダイアログを
+   表示します。元のクリックは抑止され、htmx はまだ発火しません。
+3. ユーザーが承認すると、ビヘイビアは元のボタン上でバブリングする
+   `hc:confirmed` イベントを発火します。
+4. `data-hx-trigger="hc:confirmed"` で待ち受けている htmx がリクエストを
+   送信します。
+5. サーバはターゲット領域の HTML(および任意で `HX-Trigger` イベント)を
+   返します。
+
+ユーザーがキャンセルした場合、イベントは発火されず、何も起きません。
+
+## ダイアログのカスタマイズ
+
+メッセージは `data-hc-confirm` から取られます。残りの属性は任意です:
+
+| 属性                        | デフォルト                      |
+| --------------------------- | ------------------------------- |
+| `data-hc-confirm`           | _(必須)_ ダイアログの本文       |
+| `data-hc-confirm-title`     | `Confirm`                       |
+| `data-hc-confirm-label`     | `Confirm`                       |
+| `data-hc-cancel-label`      | `Cancel`                        |
+| `data-hc-confirm-variant`   | 発火元の `data-variant`、なければ `primary` |
+
+```html
+<button
+  class="hc-button"
+  data-variant="error"
+  data-hc-confirm="Permanently delete invoice #123? This cannot be undone."
+  data-hc-confirm-title="Delete invoice"
+  data-hc-confirm-label="Delete"
+  data-hc-cancel-label="Keep"
+  data-hx-delete="/invoices/123"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="closest tr">
+  Delete
+</button>
+```
+
+## 展開後の HTML
+
+ボタンを `.hc-action` で包み htmx インジケーターを付けると、計画 §24 の
+破壊的アクション体験一式になります:
+
+```html
+<span class="hc-action">
+  <button
+    class="hc-button"
+    data-variant="error"
+    type="button"
+    data-hc-confirm="Delete this item?"
+    data-hx-delete="/items/123"
+    data-hx-trigger="hc:confirmed"
+    data-hx-target="closest tr"
+    data-hx-swap="outerHTML"
+    data-hx-disabled-elt="this"
+    data-hx-indicator="closest .hc-action">
+    Delete
+  </button>
+  <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+</span>
+```
+
+## マクロ形式
+
+`@hypermedia-components/core/macros` をインポートすれば、同じパターンを
+単一のカスタム要素として書けます:
+
+```html
+<hc-confirm-action
+  method="delete"
+  action="/items/123"
+  target="closest tr"
+  swap="outerHTML"
+  variant="error"
+  message="Delete this item?"
+  confirm-label="Delete"
+  cancel-label="Keep">
+  Delete
+</hc-confirm-action>
+```
+
+この要素は `connectedCallback` で一度だけ実行され、自身の子を上に示した
+展開後の HTML に置き換えてから `htmx.process(this)` を呼び、htmx が新しい
+属性を認識できるようにします。アップグレードは冪等です — 要素を再アタッチ
+しても再展開はされません。
+
+属性:
+
+| 属性             | デフォルト                 | 対応先                           |
+| ---------------- | -------------------------- | -------------------------------- |
+| `action`         | _(必須)_                   | htmx リクエストの URL            |
+| `method`         | `post`                     | `data-hx-{method}`               |
+| `target`         | _(省略)_                   | `data-hx-target`                 |
+| `swap`           | `outerHTML`                | `data-hx-swap`                   |
+| `variant`        | _(省略)_                   | ボタンの `data-variant`          |
+| `message`        | `Continue?`                | `data-hc-confirm`                |
+| `title`          | _(省略)_                   | `data-hc-confirm-title`          |
+| `confirm-label`  | _(省略)_                   | `data-hc-confirm-label`          |
+| `cancel-label`   | _(省略)_                   | `data-hc-cancel-label`           |
+| `disabled-elt`   | `this`                     | `data-hx-disabled-elt`           |
+| `indicator`      | `closest .hc-action`       | `data-hx-indicator`              |
+| `no-spinner`     | _(真偽値)_                 | 設定時は `.hc-spinner` を省略    |
+
+マクロは**任意**です — ドキュメント化された契約は展開後の HTML のほうです。
+マクロの属性面から外れる必要がある場合(独自のボタン内容、追加のラッパー
+クラスなど)は、展開後の HTML をコピーして直接編集してください。
+
+## htmx との相互作用 — 仕様
+
+確認ゲートと htmx の間の契約を明文化します(これらはブラウザテストで
+保証される事項であり、実装詳細ではありません):
+
+- クリックは**キャプチャフェーズ**で `preventDefault` +
+  `stopPropagation` によりインターセプトされます。したがって htmx
+  (および要素上の他のクリックハンドラ)が元のアクティベーションを
+  観測することはありません。
+- そのため `data-hx-trigger="hc:confirmed"` は**必須**です: リクエストを
+  開始できるのは、ユーザーが承認したときにトリガー要素上で発火される
+  `hc:confirmed` イベントだけです。`data-hc-confirm` があるのにトリガーが
+  デフォルトのクリックのままの要素は、htmx リクエストを一切発火しません。
+- **キャンセルは何も発火しません。** リクエストもイベントもなしです。
+- htmx 自身の `hx-confirm` と**組み合わせないでください** — htmx は
+  アクティベーションを観測しないため `hx-confirm` は決して実行されず、
+  死んだ属性を書くことになります。1 要素につき 1 つの機構に絞ってください。
+- インターセプトは document レベルで委譲されているため、htmx によって
+  スワップインされたトリガーも再初期化なしでゲートされます。
+
+[htmx インテグレーション → 確認ゲートの仕様](/hypermedia-components/ja/integrations/htmx/#confirm-gating-specification)も参照。
+
+## Hyperscript による代替
+
+オーケストレーションをマークアップの隣に置きたい場合は、
+`installConfirm()` に頼らず同じフローを
+[_hyperscript](https://hyperscript.org) で表現できます。`data-hc-confirm`
+属性を外し、確認ステップをインラインで書き、htmx がすでに待ち受けている
+のと同じ `hc:confirmed` イベントを送ります:
+
+```html
+<button
+  class="hc-button"
+  data-variant="error"
+  data-hx-delete="/items/123"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="closest tr"
+  data-hx-swap="outerHTML"
+  _="on click
+       if confirm('Delete this item?')
+         send hc:confirmed to me
+       end">
+  Delete
+</button>
+```
+
+ここでの `confirm(...)` はブラウザのブロッキングプリミティブで、
+スタイルが当たらず、破壊的アクションには必ずしも望ましくありません。
+ページレベルの単一要素から共有の `<dialog class="hc-confirm-dialog">`
+マークアップを再利用するには、
+[hyperscript インテグレーションページ](/hypermedia-components/ja/integrations/hyperscript/#confirm-action)を
+参照してください。
+
+この形式が向くケース:
+
+- 確認ステップが本当に一度きり(ページクローム内の削除ボタン 1 つ)で、
+  `installConfirm` をインポートしたくない。
+- ほかの理由ですでに `_hyperscript` を読み込んでいる。
+
+vanilla 側に留まるべきケース:
+
+- 複数の要素が同じ確認フローを必要とする — `installConfirm()` 1 回の
+  呼び出しで全部カバーできます。
+- マークアップを自分で書かずに、共有のスタイル済みダイアログを使いたい。
+
+## サーバレスポンス契約
+
+サーバのレスポンスは htmx 属性が指定するとおりです — 確認ビヘイビアは
+リクエストの形を変えません。
+
+行単位の削除の場合:
+
+- **成功時:** ターゲット領域の HTML を返すか、htmx が何もスワップしない
+  ステータスで空ボディを返します。上のレシピは最寄り `<tr>` の
+  `outerHTML` をスワップするので、サーバは新しい行の HTML(行が消えた
+  なら何も)を返します。
+- **トースト通知を出すには:** レスポンスヘッダーに
+  `HX-Trigger: {"hc:toast":{"message":"Deleted","variant":"success"}}`
+  を含めます。
+- **バリデーション失敗時:** 失敗を説明する HTML を 4xx で返すか、
+  `HX-Reswap` / `HX-Retarget` でスワップ先を誘導します。
+
+## アクセシビリティノート
+
+- 共有ダイアログは標準の `<dialog>` 要素を `showModal()` で開きます。
+  フォーカストラップ、Escape で閉じる、背後コンテンツの `inert` は
+  ブラウザが処理します。
+- ダイアログは `aria-labelledby`(タイトル)と `aria-describedby`
+  (メッセージ)を宣言しているので、スクリーンリーダーは開いたときに
+  両方を読み上げます。
+- フォーカスはデフォルトで **Cancel** ボタンに移ります — 破壊的
+  アクションは、迷い込んだ Enter キーではなく明示的な承認を要求すべき
+  です。
+- 閉じるとき — 承認、キャンセル、<kbd>Escape</kbd> のいずれでも —
+  ネイティブの `dialog.close()` が**フォーカスを開いたトリガーへ返します**。
+  ビヘイビア自身はフォーカスコードを追加しません。承認されたリクエストが
+  そのトリガーを DOM から取り除く場合(テーブル行の削除が典型例)、次の
+  フォーカス先をスワップの中に意図的に置いてください: 周辺領域を
+  ターゲットにし、キーボードユーザーが着地すべき要素に `autofocus`
+  (または `tabindex="-1"` + サーバ駆動のフォーカスヒント)を付けます。
+  そうしないと、ユーザーは静かに `<body>` に落とされてしまいます。
+- 元のボタンはネイティブ `<button>` のセマンティクスを保ちます。
+  アイコンだけでなく、見える説明的なラベル(`Delete`、`Discard changes`)
+  を使ってください。
+
+## プログレッシブエンハンスメント
+
+ビヘイビアが読み込まれていなくても、ボタンは壊れません:
+
+- htmx なしでは、ボタンは何のアクションも実行しません — マークアップの
+  記述どおりです。より安全な非 JS フォールバックは、ボタンを
+  `<form method="post" action="/items/123/delete">` の中に置くことです。
+  送信は確認ステップなしで通ります。
+- `hc.behaviors.js` なしでは、クリックは普通にバブリングします。htmx は
+  `hc:confirmed` イベントを観測せず、何もしません。`<noscript>` の告知を
+  足すか、完全にサーバサイドの確認ページを描画するのが推奨の
+  グレースフルデグラデーションです。
+
+## 関連
+
+- [ボタン](/hypermedia-components/ja/components/button/) — アクションの
+  視覚面。
+- `request-action` レシピ — 確認なし・スピナーつきのバージョン。
+- `live-search` レシピ — 同じ htmx トリガーモデルを使います。

@@ -1,0 +1,163 @@
+---
+title: ライブ検索
+description: 入力に応じてデバウンスされた htmx リクエストを発行し、結果領域を差し替える検索入力。
+---
+
+ライブ検索は、htmx に配線された検索入力です。ユーザーの入力に応じて
+結果領域が更新されます。フォームは JavaScript なしでも動きます —
+htmx 属性は本物の `<form action="/items" method="get">` にぶら下がって
+いるだけです。
+
+## 展開後の HTML
+
+```html
+<form class="hc-search" action="/items" method="get" role="search">
+  <input
+    class="hc-input"
+    type="search"
+    name="q"
+    placeholder="Search"
+    data-hx-get="/items"
+    data-hx-trigger="input changed delay:300ms, search"
+    data-hx-target="#results"
+    data-hx-swap="innerHTML"
+    data-hx-sync="closest form:replace">
+
+  <button class="hc-button" type="submit">Search</button>
+</form>
+
+<div id="results" aria-live="polite"></div>
+```
+
+## 仕組み
+
+| 属性                                              | 効果                                                           |
+| ------------------------------------------------- | -------------------------------------------------------------- |
+| `data-hx-get="/items"`                            | 検索エンドポイントに GET。                                     |
+| `data-hx-trigger="input changed delay:300ms, search"` | 入力が止まってから 300ms 後、**または**ネイティブの `search` イベントで即時発火。 |
+| `data-hx-target="#results"`                       | 結果コンテナを差し替える。                                     |
+| `data-hx-swap="innerHTML"`                        | ターゲットの内側の HTML をスワップ。                           |
+| `data-hx-sync="closest form:replace"`             | 実行中のリクエストがあるうちに新しいリクエストが始まったら、古いほうをキャンセル。 |
+
+フォーム自体は妥当なまま保たれます:
+
+- `<form action="/items" method="get">` は JavaScript なしで動きます —
+  送信ボタンは同じ `q` パラメータを同じ URL に送ります。
+- `type="search"` はネイティブのクリアボタンと、htmx が待ち受ける
+  `search` イベントを提供します。
+- `role="search"` はフォームを検索ランドマークとして支援技術に公開します。
+
+## マクロ形式
+
+`@hypermedia-components/core/macros` をインポートすれば、同じフォームを
+単一のカスタム要素として書けます:
+
+```html
+<hc-live-search
+  action="/items"
+  target="#results"
+  name="q"
+  placeholder="Search items"
+  label="Search items"
+  delay="200ms"
+  submit-label="Search">
+</hc-live-search>
+
+<div id="results" aria-live="polite"></div>
+```
+
+`<hc-live-search>` は `connectedCallback` で自身の子を展開後のフォームに
+置き換えます。マクロは結果コンテナを**作りません** — 検索フォームだけを
+出力するので、結果はページの好きな場所に置けます。
+
+属性:
+
+| 属性           | デフォルト     | 備考                                                          |
+| -------------- | -------------- | ------------------------------------------------------------- |
+| `action`       | _(必須)_       | 検索エンドポイント。`<form action>` と `data-hx-get` の両方になります。 |
+| `target`       | _(必須)_       | 結果コンテナを指す `data-hx-target` セレクタ。                |
+| `name`         | `q`            | 入力のクエリパラメータ名。                                    |
+| `placeholder`  | `Search`       | 入力のプレースホルダー。                                      |
+| `label`        | _(省略)_       | 見える `<label>` のテキスト。省略時は入力に `aria-label` が付きます。 |
+| `aria-label`   | `Search`       | 見えるラベルがないときのフォールバック aria-label。           |
+| `delay`        | `300ms`        | htmx のデバウンス遅延(`data-hx-trigger` に代入されます)。   |
+| `submit-label` | `Search`       | 送信ボタンのテキスト。                                        |
+| `swap`         | `innerHTML`    | `data-hx-swap` のモード。                                     |
+| `no-submit`    | _(真偽値)_     | 送信ボタンを省略。                                            |
+
+マクロは**任意**です — これらの属性を超えるカスタマイズは、展開後の HTML を
+コピーして直接編集してください。
+
+## サーバレスポンス契約
+
+サーバは **`#results` の内側の HTML だけ**を返すべきです — 外側の
+`<div>` は含めません。
+
+```html
+<!-- /items?q=foo -->
+<ul class="hc-list">
+  <li><a href="/items/1">Item one</a></li>
+  <li><a href="/items/2">Item two</a></li>
+</ul>
+```
+
+空の状態では、検索が実行されたことがユーザーに伝わるよう、明示的な
+空状態マークアップを返します:
+
+```html
+<!-- /items?q=zzz -->
+<p class="hc-field__message">No results for "zzz".</p>
+```
+
+htmx 以外のリクエスト(JavaScript なしでフォーム送信されたあとのフルページ
+ロード)が来たときも同じ HTML を返します。サーバは `HX-Request: true`
+ヘッダーで htmx リクエストを検知し、レスポンスをフルページレイアウトで
+包むかフラグメントだけ送るかを決められます。
+
+## ローディングインジケーター
+
+検索の実行中にスピナーを表示するには、結果領域を指す htmx インジケーターを
+追加します:
+
+```html
+<div id="results" aria-live="polite">
+  <!-- During a request htmx adds the `.htmx-request` class to the
+       triggering element; the `.htmx-indicator` spinner below reacts to
+       it. Drive a busy state from that class if you want one. -->
+</div>
+
+<span class="hc-spinner htmx-indicator" id="search-spinner" aria-hidden="true"></span>
+```
+
+入力に `data-hx-indicator="#search-spinner"` を追加してください。
+
+## アクセシビリティ
+
+- `<form>` の `role="search"` が検索ランドマークを公開します。
+- `#results` の `aria-live="polite"` が、ユーザーのタイピングを遮らずに
+  新しい結果(または空状態)を読み上げます。
+- ネイティブの `type="search"` 入力が正しいプリミティブです — クリア
+  ボタン、IME フレンドリーな挙動、Enter / フォーム送信時の `search`
+  イベントが手に入ります。
+- 結果リストへフォーカスを自動で移さないでください。キーボードユーザーは
+  入力に留まるべきです。結果へのキーボードナビゲーションを提供する場合は、
+  キーを明確にドキュメント化してください。
+
+## プログレッシブエンハンスメント
+
+- JavaScript なしでは、フォームは `action="/items"` に送信され、サーバが
+  完全な結果ページを描画します。
+- htmx ありでは、同じ送信エンドポイントが結果フラグメントを返します。
+- JavaScript はあるが htmx が未読み込みの場合(遅延読み込みなど)でも、
+  フォームは Enter で普通に送信されます。
+
+要点は、**htmx 属性がフォームの基本を決して置き換えない**ことです。
+`action` と `method` はそのまま残り、htmx は増強するだけです。
+
+## 関連
+
+- [インプット](/hypermedia-components/ja/components/input/) — コントロール。
+- [フィールド](/hypermedia-components/ja/components/field/) — ラベルが
+  必要なときに入力と組み合わせます。
+- [リクエストアクション](/hypermedia-components/ja/recipes/request-action/) —
+  スピナーつき htmx の汎用パターン。
