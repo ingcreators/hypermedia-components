@@ -1,0 +1,164 @@
+---
+title: レイジーパネル
+description: コンテンツの取得を初回表示まで遅延するパネル — タブのアクティブ化、交差、アコーディオンの展開。
+---
+
+**レイジーパネル**は、初期ページ描画時にはコンテンツを取得しない領域
+です。パネルが初めて意味を持つとき — `<details>` が開く、タブが
+アクティブになる、パネルがビューポートへスクロールインする — に
+読み込まれます。パターンは純粋に htmx 属性だけで、ビヘイビアヘルパーは
+不要です。
+
+## 交差時(ビューポート内)
+
+最もシンプルなトリガー: ユーザーがパネルをスクロールで視界に入れたら
+読み込みます。
+
+```html
+<section
+  data-hx-get="/dashboards/usage"
+  data-hx-trigger="intersect once"
+  data-hx-swap="innerHTML">
+  <p class="hc-field__message">Loading when visible…</p>
+</section>
+```
+
+- `intersect once` は内部で IntersectionObserver を使います。
+- パネルが 25% 見えるまで待つには `intersect once threshold:0.25` を
+  足します。
+
+## `<details>` の展開時(アコーディオン)
+
+ネイティブの `<details>` 要素の中では、toggle イベントを待ち受けます:
+
+```html
+<details>
+  <summary>Advanced settings</summary>
+  <div
+    data-hx-get="/settings/advanced"
+    data-hx-trigger="toggle from:closest details once"
+    data-hx-swap="innerHTML">
+    <p class="hc-field__message">Loading…</p>
+  </div>
+</details>
+```
+
+- `from:closest details` は、祖先の `<details>` 要素上のイベントを
+  待ち受けます。
+- `once` により、初回展開の後にパネルが再取得されることはありません。
+- ユーザーは追加のリクエストなしで畳んだり再展開したりできます。
+
+パネル内の明示的な更新ボタンが欲しいときは、独自の htmx トリガーを持つ
+別のボタンを足してください。
+
+## タブのアクティブ化時
+
+タブは少しだけ独自の作法があります。レイジーパターンはタブ
+コントロールではなくタブ**パネル**に適用します:
+
+```html
+<div role="tablist" aria-label="Reports">
+  <button role="tab" aria-controls="panel-overview" aria-selected="true"
+          data-tab-target="panel-overview">Overview</button>
+  <button role="tab" aria-controls="panel-revenue" aria-selected="false"
+          data-tab-target="panel-revenue">Revenue</button>
+</div>
+
+<section id="panel-overview" role="tabpanel"
+         data-hx-get="/reports/overview"
+         data-hx-trigger="load"
+         data-hx-swap="innerHTML">
+</section>
+
+<section id="panel-revenue" role="tabpanel" hidden
+         data-hx-get="/reports/revenue"
+         data-hx-trigger="reveal once"
+         data-hx-swap="innerHTML">
+</section>
+```
+
+タブ切り替えの JavaScript(スタックが何であれ)が `aria-selected` と
+`hidden` を切り替えます。タブが見えるようになる(`hidden` が外れる)と、
+htmx の `reveal` イベントが発火します — 一度だけ。
+
+## インジケーター
+
+レイジーパネルには、目に見えるローディングインジケーターがほぼ常に
+有効です。ユーザーが能動的に取得をトリガーしたからです。
+
+```html
+<section
+  data-hx-get="/reports/revenue"
+  data-hx-trigger="intersect once"
+  data-hx-swap="innerHTML"
+  data-hx-indicator="this">
+  <div class="hc-action">
+    <p class="hc-field__message">Loading…</p>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </div>
+</section>
+```
+
+`data-hx-indicator="this"` の自己ターゲットにより、スワップがセトリング
+するまでスピナーが見え続けます。レスポンスが着地すると、プレース
+ホルダーのコンテンツ(スピナーを含む)は置き換えられます。
+
+## サーバレスポンス契約
+
+エンドポイントはパネルの**内側の HTML** を返します:
+
+```html
+<!-- GET /reports/revenue -->
+<dl class="hc-stack">
+  <div><dt>This month</dt><dd>$12,400</dd></div>
+  <div><dt>Last month</dt><dd>$10,900</dd></div>
+</dl>
+```
+
+エラー状態には、アラートフラグメントを 200 で返します(htmx は
+デフォルトで 2xx をスワップします):
+
+```html
+<div class="hc-alert" data-variant="error" role="alert">
+  <strong class="hc-alert__title">Could not load</strong>
+  <p class="hc-alert__body">Try again in a moment.</p>
+</div>
+```
+
+## アクセシビリティ
+
+- 取得が着地する前でもパネルが読み上げられるよう、常に意味のある
+  プレースホルダーを描画してください。空の `<section>` は AT には
+  見えません。
+- タブパネルでは、パネルが空でも `role="tabpanel"` + タブへの
+  `aria-labelledby` のリンクを保ってください。
+- `<details>` ベースのパネルでは、ネイティブの `<summary>` がすでに
+  開閉状態を公開しています。追加の ARIA は不要です。
+- 隠れたレイジーパネル内のポーリングは無駄です — 更新は可視性で
+  ゲートし(`from:closest details`、`intersect` など)、ユーザーが
+  決して見ないコンテンツの取得を避けてください。
+
+## プログレッシブエンハンスメント
+
+- JavaScript なしでは、パネルはプレースホルダーだけを描画します。
+  本当に役に立つプレースホルダー(意味のある初期値、またはフルページ
+  版へのリンク)を選んでください。
+- `<details>` ベースのパネルは特にうまくデグレードします: ネイティブの
+  開閉は htmx なしでも動きます。
+
+## ヒント
+
+- ユーザーが能動的に見ているのでない限り、**レイジーパネル内の
+  `every Ns` は避けてください**。初回読み込みの `intersect once` と、
+  別のイベント駆動の更新を組み合わせます。
+- **ファーストビューをレイジーロードしない。** ページロード時に見える
+  パネルなら、遅延された取得のラウンドトリップはただレイテンシを
+  足すだけです。
+- **レスポンスをキャッシュする。** レイジーパネルのエンドポイントは
+  変化の遅いコンテンツを返すことが多く、`Cache-Control: max-age=60`
+  が仕事を節約します。
+
+## 関連
+
+- [データ領域レシピ](/hypermedia-components/ja/recipes/data-region/) — eager + 自動更新の兄弟。
+- [カードコンポーネント](/hypermedia-components/ja/components/card/) — レイジーパネルの定番の視覚ラッパー。

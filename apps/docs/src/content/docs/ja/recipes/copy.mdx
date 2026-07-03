@@ -1,0 +1,129 @@
+---
+title: クリップボードにコピー
+description: 宣言的なコピーボタン — data-hc-copy が名前で指した要素(またはリテラル)を読み、インライン JS なしでクリップボードへ書き込みます。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+コピーされるために存在する読み取り専用の値 — 共有 URL、API トークン、
+生成された SQL / 設定スニペット — に、手動の全選択 + Ctrl/Cmd-C を
+強いるべきではありません(タッチでは特に劣悪です)。`installCopy`
+ビヘイビアは、素の `<button>` を「名前で指した要素の値をコピーし、
+成功を伝え、連鎖可能なイベントを発火する」ように配線します — すべて
+宣言的なマークアップからなので、厳格な
+`Content-Security-Policy: default-src 'self'`(インライン JS なし)の
+下でも機能します。
+
+:::note[セットアップ]
+このレシピには `installCopy()` ビヘイビアが必要です。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを一括
+インストールするか、これだけを:
+
+```js
+import { installCopy } from '@hypermedia-components/core';
+installCopy();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+## マークアップ
+
+`data-hc-copy` に、コピーする要素を CSS セレクタで指定します。
+ビヘイビアは、フォームコントロールなら `value`
+(`input` / `textarea` / `select`)、それ以外の要素なら
+`textContent` をコピーします。
+
+<Demo previewClass="hc-preview--start">
+  <div class="hc-cluster">
+    <input id="share-url" class="hc-input" type="text" readonly value="https://app.example.com/s/abc123" aria-label="Share URL" />
+    <button class="hc-button" data-variant="ghost" data-hc-copy="#share-url" data-hc-copy-ok="Copied">Copy</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-cluster">
+    <input id="share-url" class="hc-input" type="text" readonly
+           value="https://app.example.com/s/abc123" aria-label="Share URL">
+    <button class="hc-button" data-variant="ghost"
+            data-hc-copy="#share-url" data-hc-copy-ok="Copied">
+      Copy
+    </button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+参照した要素の代わりに固定文字列をコピーするには `data-hc-copy-text` を
+使います:
+
+```html
+<button class="hc-button" data-hc-copy-text="npm i @hypermedia-components/core">
+  Copy install command
+</button>
+```
+
+## 属性
+
+| 属性                  | 必須              | 備考                                                                  |
+| --------------------- | ----------------- | --------------------------------------------------------------------- |
+| `data-hc-copy`        | ソースを 1 つ     | コピーする要素の CSS セレクタ(`value` または `textContent`)。       |
+| `data-hc-copy-text`   | ソースを 1 つ     | コピーするリテラル文字列(`data-hc-copy` の代わりに使用)。           |
+| `data-hc-copy-ok`     | _(任意)_        | 支援技術へ通知する成功テキスト。デフォルトは [i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)の `copy.ok`("Copied")。 |
+
+## 成功状態
+
+コピーに成功すると、ビヘイビアは:
+
+- ボタンに約 1.5 秒間 `data-hc-copied` を設定します — この一時的な
+  合図は好きなようにスタイルできます(ボタン自身のアクセシブルな名前は
+  決して変わりません):
+
+  ```css
+  .hc-button[data-hc-copied] { /* e.g. show a check, tint the button */ }
+  ```
+
+- ビヘイビアが所有する視覚的に隠した `role="status"` ライブ領域を通じて
+  成功ラベルを読み上げさせます。
+- `detail: { text }` を持つバブリングする `hc:copied` イベントを発火
+  します。
+
+## トーストへの連鎖
+
+`hc:copied` は普通のバブリングイベントです — コピー自体が
+[トースト](/hypermedia-components/ja/recipes/toast/)を開くことは決して
+ありません。**インライン JS なしで**コピー時にトーストを上げるには、
+イベントを待ち受けて `hc:toast` を発火します:
+
+```js
+document.addEventListener('hc:copied', () => {
+  document.body.dispatchEvent(new CustomEvent('hc:toast', {
+    bubbles: true,
+    detail: { message: 'Copied to clipboard', variant: 'success' },
+  }));
+});
+```
+
+## アクセシビリティ
+
+- トリガーは本物の `<button>` — キーボードで起動でき、タッチにも優しい
+  (ホバーではなくクリック)。
+- 成功は `role="status"` 領域で読み上げられます。ボタンは一貫して自身の
+  アクセシブルな名前を保ちます(「Copied」に付け替えられることは
+  ありません)。
+
+## プログレッシブエンハンスメント
+
+Clipboard API にはセキュアコンテキスト(https / localhost)が必要です。
+使えない環境ではクリックは穏やかな no-op になり、フォームコントロールが
+ターゲットの場合はベストエフォートでテキストを選択して手動コピーできる
+ようにします。背後の値は、ビヘイビアなしでも常に見えて選択可能です。
+
+## 関連
+
+- [トースト](/hypermedia-components/ja/recipes/toast/) — `hc:copied` と
+  組み合わせてコピーを確認。
+- [i18n](/hypermedia-components/ja/fundamentals/i18n/) — 成功ラベル
+  `copy.ok` の翻訳。

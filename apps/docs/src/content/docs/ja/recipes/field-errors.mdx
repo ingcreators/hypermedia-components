@@ -1,0 +1,235 @@
+---
+title: フィールドエラー
+description: サーバが送るバリデーションエラーフラグメントを、名前の一致するフォームフィールドへ振り分け — インラインメッセージ、ARIA 配線、ローカライズをカスタム JavaScript ゼロで。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`field-errors` は、htmx 越しの**サーバサイドバリデーションエラー**の
+ためのキットの契約です。サーバは失敗した送信(通常 `422`)に、問題の
+フィールドを名指しする小さなアラートフラグメントで答えます。
+`installFieldErrors()` ビヘイビアが各エラーを一致するフィールドへ
+振り分け — メッセージはフィールドのエラースロットへ、コントロールには
+`aria-invalid` + `aria-describedby` — ユーザーが直すたびにクリア
+します。フラグメントはドキュメント化されたワイヤ形式なので、
+テンプレートエンジンやコードジェネレーターはそのまま出力できます。
+
+:::note[セットアップ]
+このレシピには `installFieldErrors()` ビヘイビアが必要です。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを一括
+インストールするか、これだけを:
+
+```js
+import { installFieldErrors } from '@hypermedia-components/core';
+installFieldErrors();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+## フラグメント
+
+サーバが返す正準の形はこれです。htmx がフォーム内(またはフォームを
+指す)コンテナへスワップします:
+
+```html
+<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+  <p class="hc-alert__title">Unprocessable Entity</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error" data-field="email" data-code="duplicate"
+        data-message-key="members.email.duplicate">email: duplicate</li>
+  </ul>
+  <p class="hc-alert__body">optional hint line</p>
+</div>
+```
+
+- **`data-hc-field-errors`** がビヘイビアのオプトインです。空なら
+  最寄りの `<form>` へ振り分け。値があればフォームを指す CSS セレクタ
+  (out-of-band スワップや、フォーム外に描画されるアラート用)。
+- **`data-field`** がコントロール(その `name` 属性)を名指しします。
+  ラジオ / チェックボックスグループは共有フィールドに解決され、隠し
+  input はスキップされます —
+  [真偽値フィールドのイディオム](/hypermedia-components/ja/components/checkbox/#as-a-boolean-form-field)
+  (同名の 隠し `false` + チェックボックス `true`)は見える
+  チェックボックスに配線されます。既知のコントロールを名指ししない
+  項目は**サマリーに見えたまま残ります** — フォームレベルのエラーに
+  使ってください。
+- **`data-message-key`** は任意のクライアントサイドローカライズ
+  (後述)。項目のテキストがフォールバックです。**`data-code`** は
+  スタイリングやテストのためにそのまま通されます。
+
+## 試してみる
+
+**Simulate 422** をクリックすると、まさに上のフラグメントがフォームの
+隣に挿入されます(htmx スワップの代役)。email のエラーは完全な ARIA
+配線つきでフィールドのインラインに着地し、未知フィールドの項目は
+サマリーに残ります。email フィールドを編集するとエラーがクリアされ
+ます。
+
+<Demo previewClass="hc-preview--start">
+  <form id="fe-demo-form" onsubmit="event.preventDefault()" style="display:grid;gap:1rem;max-inline-size:24rem;">
+    <div id="fe-demo-errors"></div>
+    <div class="hc-field">
+      <label class="hc-field__label" for="fe-demo-email">Email</label>
+      <input class="hc-input" id="fe-demo-email" name="email" type="email" aria-describedby="fe-demo-email-help" />
+      <p class="hc-field__message" id="fe-demo-email-help">We never share it.</p>
+    </div>
+    <div style="display:flex;gap:.5rem;">
+      <button type="button" class="hc-button" data-variant="error" onclick="const c = document.getElementById('fe-demo-errors'); c.innerHTML = document.getElementById('fe-demo-template').innerHTML; c.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }))">Simulate 422</button>
+      <button type="submit" class="hc-button">Submit (clears)</button>
+    </div>
+    <template id="fe-demo-template">
+      <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+        <p class="hc-alert__title">Unprocessable Entity</p>
+        <ul class="hc-alert__errors">
+          <li class="hc-alert__error" data-field="email" data-code="duplicate" data-message-key="members.email.duplicate">email: duplicate</li>
+          <li class="hc-alert__error" data-field="unknown-field">Something form-level went wrong</li>
+        </ul>
+        <p class="hc-alert__body">optional hint line</p>
+      </div>
+    </template>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form data-hx-post="/members" data-hx-target="#form-errors" data-hx-swap="innerHTML">
+    <div id="form-errors"></div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="email">Email</label>
+      <input class="hc-input" id="email" name="email" type="email">
+    </div>
+
+    <button type="submit" class="hc-button" data-variant="primary">Save</button>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 何が起きるか
+
+1. htmx がフラグメントをスワップし、ビヘイビアが
+   `htmx:afterSwap` / `htmx:oobAfterSwap` に反応します
+   (`MutationObserver` フォールバックと、フルページのエラー描画向けの
+   インストール時スキャンつき)。
+2. フォーム内の以前のサーバエラーがクリアされます。
+3. コントロールに一致する各 `.hc-alert__error[data-field]` は、
+   メッセージをフィールドの `.hc-field__error`(自動作成 —
+   `hc-field` ラッパーのない素のコントロールの後にも)へ書き込み、
+   コントロールに `aria-invalid="true"` と `aria-describedby`、
+   フィールドに `data-invalid="true"` を設定し、
+   `data-distributed="true"` の印が付きます(二重に読まれないよう
+   サマリーでは非表示)。
+4. アラートに `data-distributed="all | partial | none"` が刻印され、
+   最初の無効なコントロールにフォーカスが移ります。
+5. フィールドのサーバエラーは、そのフィールドでの最初の
+   `input`/`change`、submit / reset、および次のフラグメントの振り分け
+   前にクリアされます。
+
+## フラグメントの属性
+
+| 属性 | 対象 | 意味 |
+| --- | --- | --- |
+| `data-hc-field-errors` | アラート | オプトイン。空 = `closest('form')`、値 = フォームを指す CSS セレクタ。 |
+| `data-field` | 項目 | エラーを付けるコントロールの `name`。 |
+| `data-code` | 項目 | 任意の機械可読コード(リゾルバから `{code}` として利用可)。 |
+| `data-message-key` | 項目 | 任意の i18n カタログキー。項目テキストがフォールバック。 |
+| `data-message-params` | 項目 | カタログ検索の補間値の JSON オブジェクト(任意)。暗黙の `{field}`/`{code}` の上にマージ。不正な JSON は無視。 |
+| `data-summary="auto"` | アラート | すべての項目が振り分けられたらアラート全体を隠す。 |
+| `data-focus="none"` | アラート | 最初の無効なコントロールへフォーカスしない。 |
+
+## メッセージキーのローカライズ
+
+`data-message-key` は、他のすべてのキット文字列と同じ
+[i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)で解決され
+ます — 起動時に一度設定してください:
+
+```js
+import { setMessages } from '@hypermedia-components/core';
+
+setMessages({
+  'members.email.duplicate': 'このメールアドレスは既に登録されています',
+  // `{field}` / `{code}` interpolate if you want generic messages:
+  'errors.required': '{field} is required',
+});
+```
+
+翻訳が `{field}`/`{code}` 以外の値 — 制約パラメータ、バリデーション行の
+カラム — を必要とするときは、サーバが `data-message-params` に JSON
+オブジェクトとして送り、クライアントのリゾルバが補間パラメータへ
+マージします(項目の値が暗黙のものに勝ちます):
+
+```html
+<li class="hc-alert__error" data-field="qty" data-code="stock"
+    data-message-key="orders.qty.exceeds"
+    data-message-params='{"stock": 5}'>在庫 5 を超えています。</li>
+```
+
+```js
+setMessages({ 'orders.qty.exceeds': '在庫 {stock} を超えています。' });
+```
+
+カタログにないキーは項目自身のテキストへフォールバックします — サーバが
+ローカライズを始めたら、最終テキストを出力してキーを落とせばよく、
+クライアント側は何も変わりません。不正な `data-message-params` JSON も
+同様に無視され、項目テキストがそのまま描画されます。
+
+## サーバレスポンス契約
+
+htmx ≥ 2 はデフォルトで非 2xx をスワップしません。一度だけグローバルに
+`422` のスワップを許可します:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+代わりにフラグメントを `200` で返すか、`HX-Retarget: #form-errors` +
+`HX-Reswap: innerHTML` で任意のレスポンスをエラーコンテナへ誘導しても
+構いません。完全な契約(必須マークアップ、全属性、ビヘイビアの
+ステップ)は
+[`recipes/field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md)に
+あります。
+
+## クライアントサイドバリデーションとの関係
+
+[`installValidation()`](/hypermedia-components/ja/components/field/#クライアントサイドバリデーション)は、
+*ネイティブ*制約エラーを同じ `.hc-field__error` スロットへ、同じ ARIA
+配線で表出させます。両者は合成します: 同じコントロール上では
+ネイティブメッセージがサーバエラーより優先され(現在の値を反映して
+いるため)、どちらも相手の状態を早まってクリアしません。
+
+## アクセシビリティ
+
+- サマリーは `role="alert"` を使うため、スワップ自体が読み上げられ
+  ます。フィールドメッセージは `aria-live="polite"` で、コントロール
+  から `aria-describedby` で参照されます。
+- 最初の無効なコントロールにフォーカスが移ります — 送信後エラーの
+  標準パターンです。フローが自前でフォーカスを管理するなら
+  `data-focus="none"` で無効化してください。
+- 振り分けられた項目はサマリーから*視覚的に*除かれるだけです。どの
+  フィールドにも一致しない項目は見えたまま残るため、エラーが静かに
+  落ちることはありません。
+
+## プログレッシブエンハンスメント
+
+- JavaScript なし(フルページ再描画)では、アラートがすべてのエラーを
+  素のリストとして描画します — 振り分けはエンハンスメントで、何も
+  失われません。
+- htmx なしでも、初期 HTML に存在するフラグメントはインストール時
+  スキャンによって振り分けられます。
+
+## 関連
+
+- [フィールド](/hypermedia-components/ja/components/field/) — エラーが
+  着地するラベル / コントロール / メッセージの合成。
+- [アラート](/hypermedia-components/ja/components/alert/) — サマリーの
+  コンテナ。
+- [データ領域](/hypermedia-components/ja/recipes/data-region/) —
+  フォーム以外のコンテンツ向けの、スワップ駆動の対応物。
