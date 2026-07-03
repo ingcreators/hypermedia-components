@@ -1,0 +1,105 @@
+---
+title: チップ
+description: 事実や属性のための控えめなピル型トークン — 権限、タグ、適用中のフィルタ — 折り返すリストコンテナつき。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-chip` は**事実と属性**のための小さなピルです: ロールの権限、
+レコードのタグ、リストの上の適用中フィルタ。意図的に控えめです —
+中立の面と枠線、バリアント軸なし。純 CSS、ビヘイビアなし。
+
+## 基本の HTML
+
+<Demo>
+  <ul class="hc-chips">
+    <li class="hc-chip">read:members</li>
+    <li class="hc-chip">write:members</li>
+    <li class="hc-chip">admin:realm</li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-chips">
+    <li class="hc-chip">read:members</li>
+    <li class="hc-chip">write:members</li>
+    <li class="hc-chip">admin:realm</li>
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
+`.hc-chips` はリストの装飾を取り除き、一定のギャップでチップを折り返し
+ます。`<ul>`/`<li>` 構造を保つことで、集合がリストとして
+(「3 項目」)読み上げ可能になります。単独のチップは任意のインライン
+要素で機能します:
+
+```html
+<span class="hc-chip">beta</span>
+```
+
+## チップか、バッジか、ステータスか
+
+| 使うもの | 対象 |
+| --- | --- |
+| `hc-chip` | 中立の事実 / 属性。通常は複数同時(権限、タグ)。 |
+| [`hc-badge`](/hypermedia-components/ja/components/badge/) | セマンティックな色(`data-variant`)を持つ単一の**ステータス**ラベル。 |
+| [`.hc-status`](/hypermedia-components/ja/tokens/status/) | ピルではないテキスト(テーブルのセル、行)へのステータス色。 |
+| `hc-multicombobox` のタグ | 入力が管理する、削除コントロールつきのチップ。 |
+
+## アイコンつき
+
+チップは、先頭のグリフのために
+[`.hc-icon`](/hypermedia-components/ja/fundamentals/icons/) ヘルパーと
+組み合います(間隔は組み込みのギャップが処理します):
+
+```html
+<li class="hc-chip">
+  <svg class="hc-icon" aria-hidden="true">…</svg>
+  read:members
+</li>
+```
+
+## アクセシビリティ
+
+- チップは静的なテキストです — `.hc-chips` のリストセマンティクス
+  以上の role は不要です。
+- インタラクティブな「チップ」(削除可能、トグル可能)は別の
+  パターンです: チップへのクリックハンドラではなく、本物の
+  `<button>`(例: `hc-multicombobox` の中)や `hc-toggle-group` を
+  使ってください。
+
+## テーマ用トークン
+
+| トークンパス      | 用途                     |
+| ----------------- | ------------------------ |
+| `chip.bg`         | 背景。                   |
+| `chip.fg`         | テキストの色。           |
+| `chip.border`     | 枠線の色。               |
+| `chip.radius`     | ピルの角丸。             |
+| `chip.padding-x` / `chip.padding-y` | パディング。 |
+| `chip.font-size`  | フォントサイズ。         |
+| `chip.gap`        | `.hc-chips` 内のチップ間ギャップ。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-chip-bg | -fg | -border
+--hc-chip-radius
+--hc-chip-padding-x | -padding-y
+--hc-chip-font-size
+--hc-chip-gap
+```
+
+</details>
+
+## 関連
+
+- [バッジ](/hypermedia-components/ja/components/badge/) — ステータスのピル。
+- [マルチコンボボックス](/hypermedia-components/ja/components/multicombobox/) —
+  削除可能なタグ入力。

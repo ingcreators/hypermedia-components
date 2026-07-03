@@ -1,0 +1,102 @@
+---
+title: ステッパー
+description: ゼロ JavaScript のステップインジケーター — マーカーを含むすべての状態をサーバが描画。ナビゲーションはステップのフォームの仕事です。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-stepper` はマルチステップフローの進行を表示します。**JavaScript を
+一切**同梱しません: サーバがステップのたびにインジケーター全体 —
+マーカーの内容(ステップ番号、完了したら `✓`)を含む — を描画するため、
+すべての状態変化はマークアップとして届きます。インジケーターは表示
+し、ナビゲーションはステップのフォームの仕事です
+([マルチステップフォームレシピ](/hypermedia-components/ja/recipes/multi-step-form/)を
+参照)。
+
+## 基本の HTML
+
+<Demo>
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account
+        <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 状態
+
+| 状態 | セレクタ | 効果 |
+| --- | --- | --- |
+| 現在 | `[aria-current="step"]` | アクセントのマーカー(`data-color` に追従)、強調されたラベル。 |
+| 完了 | `[data-state="complete"]` | ティントのマーカー。サーバがマーカー内容として `✓` を描画。 |
+| 未到達 | *(属性なし)* | ミュートのマーカーとラベル。 |
+
+**マーカーの内容はサーバが描画します。** 保留中のステップには番号、
+完了したものには `✓` — CSS content の小細工も、クライアントの変更も
+ありません。完了したラベルには視覚的に隠した `(completed)` の接尾辞を
+足して状態が読み上げられるようにします。現在のステップは
+`aria-current="step"` がカバーします。
+
+## クリック可能な完了ステップ
+
+フローが再訪を許すなら、完了ステップの内容をそのステップ URL への
+リンクとして描画してください — ステッパーはそれを控えめにスタイル
+します(ホバー / フォーカスで下線)。これはステップごとのサーバの
+選択です。インジケーターがナビゲーションを発明することはありません。
+
+## サイズ
+
+`data-size="sm"` は密なレイアウト向けにマーカーを縮めます。水平のみ —
+縦の向きは当面の意図的な非目標です。
+
+## アクセシビリティ
+
+- 順序つきリストが正しい骨格です:「リスト、3 項目」+
+  `aria-current="step"` が標準のイディオムです。
+- マーカーは `aria-hidden`(位置の装飾的な複製)です。意味を運ぶのは
+  ラベルのテキスト + sr-only の接尾辞です。
+- RTL は無料で機能します(コネクタを含め、全体が論理プロパティ)。
+
+## テーマ用トークン
+
+`--hc-stepper-marker-size` / `-marker-bg` / `-marker-fg` /
+`-current-bg` / `-current-fg` / `-complete-bg` / `-complete-fg` /
+`-connector` / `-label` / `-gap` — semantic 参照なので、テーマ、
+アクセント、ダークモードが自動で適用されます。
+
+## 関連
+
+- [マルチステップフォームレシピ](/hypermedia-components/ja/recipes/multi-step-form/) — これが示すウィザード。
+- [パンくずリスト](/hypermedia-components/ja/components/breadcrumb/) — フローの進行ではなく、階層内の位置。
+- [プログレス](/hypermedia-components/ja/components/progress/) — 離散的なステップではなく、連続的な進捗。

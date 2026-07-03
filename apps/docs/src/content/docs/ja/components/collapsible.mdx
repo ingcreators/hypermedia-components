@@ -1,0 +1,131 @@
+---
+title: コラプシブル
+description: ネイティブの details / summary の上に構築された単体の表示 / 非表示ディスクロージャ。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-collapsible` は単一の表示 / 非表示ディスクロージャです — 1 つの
+領域のための、軽量でリンク風の「もっと見る」トグル。ネイティブの
+`<details>` / `<summary>` 要素の上の純 CSS です: キーボード処理と
+`open` 状態はブラウザが所有します。JavaScript なし。
+
+:::note
+`hc-collapsible` は**単一**のインライントグルに使ってください。複数の
+セクションをグルーピングする(任意で同時に 1 つだけ開く挙動つき)には
+[`hc-accordion`](/hypermedia-components/ja/components/accordion/)を —
+そちらが枠つきグループレイアウトと排他の `<details name>` パターンを
+所有します。
+:::
+
+## 基本の HTML
+
+<Demo>
+  <details class="hc-collapsible">
+    <summary class="hc-collapsible__trigger">
+      Show details
+      <span class="hc-collapsible__icon" aria-hidden="true">▾</span>
+    </summary>
+    <div class="hc-collapsible__content">
+      <p>
+        This region is hidden until the user opens it. It is great for
+        secondary details, advanced options, or a long "read more" passage
+        that would otherwise crowd the page.
+      </p>
+    </div>
+  </details>
+
+  <Fragment slot="code">
+
+  ```html
+  <details class="hc-collapsible">
+    <summary class="hc-collapsible__trigger">
+      Show details
+      <span class="hc-collapsible__icon" aria-hidden="true">▾</span>
+    </summary>
+    <div class="hc-collapsible__content">
+      <p>This region is hidden until the user opens it.</p>
+    </div>
+  </details>
+  ```
+
+  </Fragment>
+</Demo>
+
+最初から展開しておくには、`<details>` に `open` 属性を足します。
+
+## 構造
+
+| パーツ                     | 用途                                      |
+| -------------------------- | ----------------------------------------- |
+| `.hc-collapsible`          | `<details>` 要素(展開するには `open` を追加)。 |
+| `.hc-collapsible__trigger` | `<summary>` — クリック可能なトグル。      |
+| `.hc-collapsible__icon`    | シェブロン。開くと 180° 回転。            |
+| `.hc-collapsible__content` | 表示される領域。                          |
+
+## 高さのアニメーション
+
+開閉時に領域は**高さをアニメーション**します — 純 CSS、JavaScript
+なし — `interpolate-size: allow-keywords` つきの
+`::details-content` によって(高さが `auto` との間でトランジション
+できます)。シェブロンの回転も高さも
+`prefers-reduced-motion: reduce` を尊重します。
+
+:::note[Baseline]
+`interpolate-size` / `calc-size()` は 2026 年時点で **Chromium のみ**
+(Firefox と Safari は未対応)なので、高さのアニメーションは
+`@supports (interpolate-size: allow-keywords)` の背後にゲートされて
+います。**完全にプログレッシブ**です: 他のエンジンはネイティブの
+**即時**の開閉を保ち、何もアニメーションに依存しません。時間は
+`--hc-collapsible-content-transition-duration`(デフォルト `200ms`)で
+調整でき、他のエンジンがこの機能を出荷すれば自動でアニメーションし
+始めます。
+:::
+
+## アクセシビリティ
+
+- `<details>` / `<summary>` が正しいセマンティクスを無料でくれます:
+  summary は `aria-expanded` をトグルするボタンで、キーボード操作可能
+  (Enter / Space)、タブ順にも入っています — 足す ARIA はありません。
+- シェブロンは装飾のまま(`aria-hidden="true"`)にしてください。
+  summary のテキストがアクセシブルな名前なので、明確なアクション
+  (「詳細を表示」)として書いてください。
+- 折りたたみ中もコンテンツは DOM に残るため、高さアニメーションを
+  サポートするエンジンでは、ページ内検索(と検索リンク)が引き続き
+  届きます。
+
+## テーマ用トークン
+
+| トークンパス                        | 用途                          |
+| ----------------------------------- | ----------------------------- |
+| `collapsible.trigger.gap`           | ラベルとシェブロンの間のギャップ。 |
+| `collapsible.trigger.padding-x` / `-y` | トリガーのパディング。     |
+| `collapsible.trigger.font-weight`   | トリガーのウェイト。          |
+| `collapsible.trigger.fg` / `hover-fg` | トリガー(リンク)の色。    |
+| `collapsible.icon.size`             | シェブロンのサイズ。          |
+| `collapsible.icon.transition-duration` | シェブロンの回転速度。     |
+| `collapsible.content.fg`            | 表示されるテキストの色。      |
+| `collapsible.content.padding-block-start` | トリガーの下のギャップ。 |
+| `collapsible.content.transition-duration` | 高さアニメーションの速度。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-collapsible-trigger-gap | -trigger-padding-x | -trigger-padding-y
+--hc-collapsible-trigger-font-weight | -trigger-fg | -trigger-hover-fg
+--hc-collapsible-icon-size | -icon-transition-duration
+--hc-collapsible-content-fg | -content-padding-block-start
+--hc-collapsible-content-transition-duration
+```
+
+</details>
+
+## 関連
+
+- [アコーディオン](/hypermedia-components/ja/components/accordion/) —
+  任意の排他モードつきの、コラプシブルなセクションのグループ。
+- [カード](/hypermedia-components/ja/components/card/) — 二次的な詳細の
+  コラプシブルブロックの定番コンテナ。

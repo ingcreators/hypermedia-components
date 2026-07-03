@@ -1,0 +1,205 @@
+---
+title: アコーディオン
+description: ネイティブの <details> / <summary> とモダンな name 属性だけで構築されたコラプシブルなセクショングループ — JavaScript 不要。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-accordion` は、ネイティブの `<details>` / `<summary>` 要素の上の
+純 CSS スキンです。キーボード処理、`open` 属性、`toggle` イベントは
+すべてブラウザが提供します。
+[`<details name="...">` 属性](https://developer.mozilla.org/docs/Web/HTML/Element/details#name)が
+単一オープン(「排他」)の変種を宣言的に表現するため、「同時に 1 つ
+だけ開く」ルールの強制に JS は不要です。
+
+## ブラウザのベースライン
+
+| 機能 | 必要バージョン |
+| --- | --- |
+| `<details>` / `<summary>` | すべてのブラウザ |
+| `<details name="...">` の排他グルーピング | Chrome 120+、Firefox 130+、Safari 17.2+ |
+
+## 排他アコーディオン(単一オープン)
+
+グループ内のすべての `<details>` に**同じ `name` 値**を与えると、
+ブラウザが単一オープンのセマンティクスを強制します。
+
+<Demo>
+  <div class="hc-accordion">
+    <details class="hc-accordion__item" name="doc-faq">
+      <summary class="hc-accordion__trigger">
+        What is Hypermedia Components?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        A semantic CSS + htmx UI kit for hypermedia applications.
+      </div>
+    </details>
+    <details class="hc-accordion__item" name="doc-faq">
+      <summary class="hc-accordion__trigger">
+        How do I install it?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        <code>pnpm add @hypermedia-components/core</code>
+      </div>
+    </details>
+    <details class="hc-accordion__item" name="doc-faq">
+      <summary class="hc-accordion__trigger">
+        Does it require JavaScript?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        Most components are CSS only. This page does not import a behavior.
+      </div>
+    </details>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-accordion">
+    <details class="hc-accordion__item" name="faq">
+      <summary class="hc-accordion__trigger">
+        What is Hypermedia Components?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        A semantic CSS + htmx UI kit for hypermedia applications.
+      </div>
+    </details>
+  
+    <details class="hc-accordion__item" name="faq">
+      <summary class="hc-accordion__trigger">
+        How do I install it?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </summary>
+      <div class="hc-accordion__content">
+        <code>pnpm add @hypermedia-components/core</code>
+      </div>
+    </details>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 独立(複数オープン)
+
+`name` を省くと各項目は独立に動作します — 複数を同時に開けます。
+
+```html
+<div class="hc-accordion">
+  <details class="hc-accordion__item">…</details>
+  <details class="hc-accordion__item">…</details>
+</div>
+```
+
+## 高さのアニメーション
+
+パネルは開閉時に**高さをアニメーション**します — 純 CSS、JavaScript
+なし — `interpolate-size: allow-keywords` つきの
+`::details-content` を使って(高さが `auto` との間でトランジション
+できます)。シェブロンの回転も高さも
+`prefers-reduced-motion: reduce` を尊重します。
+
+:::note[Baseline]
+`interpolate-size` / `calc-size()` は 2026 年時点で **Chromium のみ**
+(Firefox と Safari は未対応)なので、高さのアニメーションは
+`@supports (interpolate-size: allow-keywords)` の背後にゲートされて
+います。**完全にプログレッシブ**です: 他のエンジンはネイティブの
+**即時**の開閉を保ち、何もアニメーションに依存しません。時間は
+`--hc-accordion-content-transition-duration`(デフォルト `200ms`)で
+調整でき、他のエンジンがこの機能を出荷すれば自動でアニメーションし
+始めます。
+:::
+
+## htmx での利用
+
+`<details>` は `open` 状態が変わるとネイティブの `toggle` イベントを
+発火します。htmx の `[target.open]` フィルタがトリガーを「開くとき」に
+限定し、`once` がリクエストを正確に初回だけにします。
+
+```html
+<details class="hc-accordion__item"
+         data-hx-get="/account/billing"
+         data-hx-trigger="toggle once[target.open]"
+         data-hx-target="find .hc-accordion__content"
+         data-hx-swap="innerHTML">
+  <summary class="hc-accordion__trigger">
+    Billing details
+    <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">…</svg>
+  </summary>
+  <div class="hc-accordion__content">
+    <hc-spinner></hc-spinner>
+  </div>
+</details>
+```
+
+## アクセシビリティ
+
+- `<summary>` はキーボードでフォーカス可能で、`Enter` と `Space` で
+  ディスクロージャをトグルします — どちらもブラウザが処理します。
+- アコーディオンが構造的に重要なら、summary の中に意味のある見出しを
+  使ってください。summary 自体は支援技術にボタンとして報告され、
+  含まれるテキストがアクセシブルな名前です。
+- デフォルトのディスクロージャマーカーをインライン SVG のシェブロンに
+  置き換えているため、`color` と `font-size` を継承します。アイコンに
+  `aria-hidden="true"` を設定すると読み上げを防げます。
+- シェブロンのアニメーションは `prefers-reduced-motion: reduce` を
+  尊重します — reduced motion を望むユーザーではトランジション時間が
+  0 ms に落ちます。
+- `<summary>` の中にインタラクティブなコントロールを入れ子にしないで
+  ください(既知のクロスブラウザのアクセシビリティの罠です)。追加の
+  コントロールは代わりにコンテンツパネルへ。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `accordion.item.border-color` | 項目間と最初の項目の上端の区切り線。 |
+| `accordion.trigger.padding-x` / `padding-y` / `gap` | summary のレイアウト。 |
+| `accordion.trigger.font-weight` / `fg` / `hover-fg` | summary のテキスト。 |
+| `accordion.icon.size` / `transition-duration` | シェブロンの寸法と回転のタイミング。 |
+| `accordion.content.padding-block-end` / `fg` | 本文のパディングと色。 |
+| `accordion.content.transition-duration` | 開閉の高さアニメーションのタイミング(対応環境で)。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-accordion-item-border-color
+--hc-accordion-trigger-padding-x | -padding-y | -gap
+--hc-accordion-trigger-font-weight | -fg | -hover-fg
+--hc-accordion-icon-size | -transition-duration
+--hc-accordion-content-padding-block-end | -fg | -transition-duration
+--hc-color-focus-ring   (inherited from data-color)
+```
+
+</details>
+
+## 関連
+
+- [タブ](/hypermedia-components/ja/components/tabs/) — 常に 1 つの
+  セクションだけが見えるべきで、その切り替えが主アクションのとき。
+- [カード](/hypermedia-components/ja/components/card/) — セクションが
+  常に見えているとき。

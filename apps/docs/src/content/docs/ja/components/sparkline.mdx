@@ -1,0 +1,130 @@
+---
+title: スパークライン
+description: 数値系列から描かれる単語サイズのインライントレンド線 — CSP セーフ、チャートライブラリ依存なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-sparkline` は、数値の隣にメトリクスの最近の方向を示すための小さな
+インライントレンドチャートです — 例えばカバレッジやパス率のトレンド。
+**CSP セーフ**(`default-src 'self'`)です: チャートライブラリへの依存も
+インラインスクリプトもありません。`installSparkline()` が
+`data-values` 属性から DOM API で `<svg>` を描き、サーバが同じ SVG を
+直接出力しても構いません([マークアップ規約](#マークアップ規約))。
+
+軸・凡例・複数系列を持つ本格的なチャートには、代わりに
+[chart](/hypermedia-components/ja/recipes/chart/) を使ってください —
+そちらは Observable Plot でデータテーブルを昇格させます。
+
+## 基本の HTML
+
+ホストにカンマ区切りの `data-values` 系列と `aria-label` を与えます。
+ビヘイビアがホストのボックスを満たすインラインの線を描画します。
+サイズは `--hc-sparkline-width` / `--hc-sparkline-height` から来ます。
+
+<Demo previewClass="hc-preview--start">
+  <span>Line coverage <span class="hc-sparkline" data-values="0.62,0.66,0.7,0.72,0.78,0.82" aria-label="SQL line coverage trend"></span> 82%</span>
+
+  <Fragment slot="code">
+
+  ```html
+  Line coverage
+  <span class="hc-sparkline"
+        data-values="0.62,0.66,0.7,0.72,0.78,0.82"
+        aria-label="SQL line coverage trend"></span>
+  82%
+  ```
+
+  </Fragment>
+</Demo>
+
+## 面とバリアント
+
+線の下を塗るには `data-area` を足します。`data-variant` はマーク全体を
+塗り替えます — `success`、`warning`、`error` — semantic のステータス
+パレットを通すため、`data-theme="dark"` の下で再解決されます。
+
+<Demo previewClass="hc-preview--start">
+  <span>Pass rate <span class="hc-sparkline" data-variant="success" data-area="" data-values="0.9,0.92,0.95,0.97,0.99" aria-label="Pass-rate trend"></span></span>
+  <span>Error rate <span class="hc-sparkline" data-variant="error" data-values="0.01,0.02,0.05,0.08,0.12" aria-label="Error-rate trend"></span></span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-sparkline" data-variant="success" data-area
+        data-values="0.9,0.92,0.95,0.97,0.99" aria-label="Pass-rate trend"></span>
+
+  <span class="hc-sparkline" data-variant="error"
+        data-values="0.01,0.02,0.05,0.08,0.12" aria-label="Error-rate trend"></span>
+  ```
+
+  </Fragment>
+</Demo>
+
+値の範囲は `data-min` / `data-max` で固定できます(デフォルトは系列
+自身の最小と最大)— `0..1` の比率を固定したり、複数行で 1 つの
+スケールを共有するのに便利です。
+
+## マークアップ規約
+
+描画される SVG は素のマークアップなので、サーバが直接出力して
+ビヘイビアを丸ごとスキップできます — スタイリングは引き続きキットの
+所有です。この形を使ってください。**`role="img"` と `aria-label` は
+自分で与える**点に注意してください(ビヘイビアは自身が描画するとき
+だけそれらを足します)。装飾なら `aria-hidden` の印を:
+
+```html
+<span class="hc-sparkline" role="img" aria-label="SQL line coverage trend">
+  <svg class="hc-sparkline__svg" viewBox="0 0 100 100"
+       preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <polyline class="hc-sparkline__line" points="0,84 20,76 40,60 60,52 80,28 100,16"></polyline>
+  </svg>
+</span>
+```
+
+`installSparkline()` は、すでに `.hc-sparkline__svg` を含むホストを
+スキップするため、2 つのパスは 1 ページで共存できます。
+
+## アクセシビリティ
+
+- スパークラインは視覚的な要約です。実際の数値はその隣のテキストに
+  住むべきです。ホストにトレンドを説明する `aria-label` を与えて
+  ください — ビヘイビアがそれを `role="img"` として公開します。
+  ラベルがなければ装飾(`aria-hidden`)として扱われます。
+- 内側の `<svg>` は常にアクセシビリティツリーから隠されます
+  (`aria-hidden`、`focusable="false"`)。
+- `data-variant` の色は補強にすぎません — 意味は色相ではなく隣の
+  テキストに保ってください。
+
+## テーマ用トークン
+
+| トークンパス             | 用途                                  |
+| ------------------------ | ------------------------------------- |
+| `sparkline.width`        | ホストのデフォルト inline-size。      |
+| `sparkline.height`       | ホストのデフォルト block-size。       |
+| `sparkline.color`        | デフォルトの線の色(アクセント)。    |
+| `sparkline.stroke-width` | 線の太さ(非スケーリング)。          |
+| `sparkline.area-opacity` | `data-area` の塗りの不透明度。        |
+| `sparkline.success` / `sparkline.warning` / `sparkline.error` | `data-variant` の色。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-sparkline-width | -height
+--hc-sparkline-color | -stroke-width | -area-opacity
+--hc-sparkline-success | -warning | -error
+```
+
+</details>
+
+## 関連
+
+- [chart](/hypermedia-components/ja/recipes/chart/) — データテーブルからの
+  本格的なチャート(軸、凡例、系列)。Observable Plot 経由。
+- [ステータスカラー](/hypermedia-components/ja/tokens/status/) —
+  `data-variant` のトレンド色が解決されるパレット。
+- [プログレス](/hypermedia-components/ja/components/progress/) — 単一値の
+  バー。スパークラインは系列を示します。

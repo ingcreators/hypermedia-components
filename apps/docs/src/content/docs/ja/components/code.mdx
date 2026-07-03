@@ -1,0 +1,355 @@
+---
+title: コード
+description: 行番号ガター、行ごとの状態装飾、unified diff モードを備えた読み取り専用の等幅コード面。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-code` は、キットのトークンからスタイルされたコード面です。3 つの
+読み取り専用モードは 1 つの装飾機構を共有し、**スクリプト不要**です —
+すべての状態が HTML 属性に住むため、厳格な `default-src 'self'` の
+Content-Security-Policy の下で機能します。4 つ目の編集可能モードは
+本物の `<textarea>` で、`installCodeEditor()` が行番号ガターと任意の
+ライブシンタックスハイライトオーバーレイで昇格させます。シンタックス
+ハイライト(読み取り専用でもライブでも)は 1 つのトークンパレットを
+再利用し、CSP セーフに保たれます。
+
+## 基本の HTML
+
+`hc-code` を `<pre>` に適用します。行はデフォルトで横スクロールに
+あふれます。スクロール可能な領域はキーボードで到達可能でなければ
+ならないため、スクロールするブロックはフォーカス可能でラベルつきの
+領域(`tabindex="0"`、`role="region"`、`aria-label`)にしてください。
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <pre class="hc-code" tabindex="0" role="region" aria-label="Example query"><code>SELECT id, email
+FROM members
+WHERE active = true</code></pre>
+
+  <Fragment slot="code">
+
+  ```html
+  <pre class="hc-code" tabindex="0" role="region" aria-label="Example query"><code>SELECT id, email
+  FROM members
+  WHERE active = true</code></pre>
+  ```
+
+  </Fragment>
+</Demo>
+
+### 折り返し
+
+長い行はデフォルトで横スクロールします。代わりにソフトラップするには
+`data-wrap="on"` を設定します。
+
+```html
+<pre class="hc-code" data-wrap="on"><code>SELECT a_very_long_column_name, another_long_one FROM a_table_with_a_long_name</code></pre>
+```
+
+## 行番号と行ごとの状態
+
+`hc-code` を `data-gutter="line-numbers"` つきの `<ol>` に適用し、
+1 行につき 1 つの `<li class="hc-code__line">` を置きます。各行は
+任意の `data-state` を取り、semantic のステータストークンから行を
+色づけます — テストカバレッジのガター向けに `covered`(success)と
+`missed`(error)が組み込みです。`hc-code__swatch[data-state]` は
+対応する凡例チップです。
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <ol class="hc-code" data-gutter="line-numbers" tabindex="0" aria-label="Coverage of members.sql">
+    <li class="hc-code__line">SELECT *</li>
+    <li class="hc-code__line" data-state="covered">FROM orders</li>
+    <li class="hc-code__line" data-state="missed">WHERE total &gt; 0</li>
+  </ol>
+  <p style="display:flex; gap:1rem; align-items:center; margin:0;">
+    <span><span class="hc-code__swatch" data-state="covered"></span> Covered</span>
+    <span><span class="hc-code__swatch" data-state="missed"></span> Missed</span>
+  </p>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-code" data-gutter="line-numbers" tabindex="0" aria-label="Coverage of members.sql">
+    <li class="hc-code__line">SELECT *</li>
+    <li class="hc-code__line" data-state="covered">  FROM orders</li>
+    <li class="hc-code__line" data-state="missed"> WHERE total &gt; 0</li>
+  </ol>
+
+  <p class="hc-code__legend">
+    <span><span class="hc-code__swatch" data-state="covered"></span> Covered</span>
+    <span><span class="hc-code__swatch" data-state="missed"></span> Missed</span>
+  </p>
+  ```
+
+  </Fragment>
+</Demo>
+
+## Unified diff
+
+`<ol>` に `data-mode="diff"` を設定します。各行は `added`、
+`removed`、`context` のいずれかの `data-state` と、`data-old` /
+`data-new` の行番号を運びます。ガターは色味に加えて `+` / `-` の
+記号を印字するため、変更が色だけで伝えられることはありません。
+**ハンクを計算するのはサーバです** — キットはそれをスタイルするだけ
+なので、クライアントサイドの diff もスクリプトもありません。
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <ol class="hc-code" data-mode="diff" tabindex="0" aria-label="Draft vs saved members.sql">
+    <li class="hc-code__line" data-state="context" data-old="12" data-new="12">SELECT id</li>
+    <li class="hc-code__line" data-state="removed" data-old="13">FROM users</li>
+    <li class="hc-code__line" data-state="added" data-new="13">FROM app_users</li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-code" data-mode="diff" tabindex="0" aria-label="Draft vs saved members.sql">
+    <li class="hc-code__line" data-state="context" data-old="12" data-new="12">  SELECT id</li>
+    <li class="hc-code__line" data-state="removed" data-old="13">  FROM users</li>
+    <li class="hc-code__line" data-state="added"   data-new="13">  FROM app_users</li>
+  </ol>
+  ```
+
+  </Fragment>
+</Demo>
+
+サイドバイサイド(分割)レイアウトはこのリリースには含まれません。
+上の unified ビューがサポートされる diff 表現です。
+
+## 編集可能フィールド
+
+本物の `<textarea class="hc-code__input" name="…">` を包む
+`<div class="hc-code">` に `data-editable` を適用します。値はネイティブの
+フォームコントロールなので、フォームでも htmx でも
+(`data-hx-post`、`data-hx-include`)送信され、**JavaScript なしでは
+素の等幅 textarea にデグレードします**。`data-gutter="line-numbers"` を
+足すと、(自動初期化の `behaviors` バンドルに同梱の)
+`installCodeEditor()` が、入力のたびに番号を振り直しスクロールに同期する
+行番号ガターをオーバーレイします。
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <div class="hc-code" data-editable data-gutter="line-numbers" style="max-inline-size:28rem;">
+    <textarea class="hc-code__input" name="content" spellcheck="false" rows="4" aria-label="Route SQL">SELECT id
+FROM members
+WHERE active = true</textarea>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-code" data-editable data-gutter="line-numbers">
+    <textarea class="hc-code__input" name="content" spellcheck="false"
+              aria-label="Route SQL">SELECT id
+  FROM members
+  WHERE active = true</textarea>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+番号の位置を揃えるため、ビヘイビアは textarea をソフトラップしない
+(`wrap="off"`)よう設定します。長い行は横スクロールします。
+textarea にはラベルを(`aria-label` または `<label for>`)— フォーム
+コントロールです。
+
+### ライブハイライト
+
+`data-lang` を足すと、編集可能フィールドが**ライブハイライト
+オーバーレイ**にオプトインします。値が登録済みの文法に解決されると、
+`installCodeEditor()` は textarea の背後に装飾の `aria-hidden` な
+`hc-code__highlight` 層を挿入し、入力のたびに再トークナイズして
+textarea のスクロールに合わせます。textarea のグリフは隠され
+(キャレットは見えたまま)、色つきオーバーレイ — 下の読み取り専用の
+[シンタックスハイライト](#シンタックスハイライト)と同じ
+`hc-code__tok` スパンと `--hc-code-tok-*` パレット — が透けて見え
+ます。**CSP セーフ**(セルフホスト、`eval` なし)で、**純粋に
+追加的**です: JS なし、未知の `data-lang`、未登録の文法では、
+フィールドは素の等幅 textarea のままで値は送信され続けます。
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <div class="hc-code" data-editable data-gutter="line-numbers" data-lang="sql" style="max-inline-size:28rem;">
+    <textarea class="hc-code__input" name="content" spellcheck="false" rows="4" aria-label="Route SQL">SELECT id, email
+FROM members
+WHERE active = true</textarea>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-code" data-editable data-gutter="line-numbers" data-lang="sql">
+    <textarea class="hc-code__input" name="content" spellcheck="false"
+              aria-label="Route SQL">SELECT id, email
+  FROM members
+  WHERE active = true</textarea>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+組み込みの文法は `sql`、`json`、`yaml`、`html`(`yml` / `xml` の
+エイリアスつき)をカバーします。トークナイズはアニメーションフレーム
+ごとに 1 描画へスロットリングされるため、大きなバッファも応答性を
+保ちます。
+
+#### カスタム文法
+
+汎用の文法は方言の構文を知りえません — TesseraQL の 2-way SQL
+ディレクティブ(`/*%if … */`、バインド)は `meta` として読まれる
+べきで、それを知るのは自身のトークナイザだけです。
+`registerCodeLanguage(name, tokenizer)` で登録してください。
+トークナイザはソーステキストを `{ tok, text }` トークンに対応付け、
+その `text` 部分が入力を正確に再構成します。`tok` は
+[`hc-code__tok` の値](#シンタックスハイライト)(または素のテキストを
+表す falsy)です。
+
+**フィールドが昇格される前に**登録してください —
+[`setMessages()`](/hypermedia-components/ja/fundamentals/i18n/) と
+同様、自動初期化の `behaviors` バンドルは読み込み時にスキャンする
+ため、順序を完全に制御するにはメインエントリの名前付きインストーラを
+使います:
+
+```js
+import { registerCodeLanguage, installCodeEditor } from '@hypermedia-components/core';
+
+// A dialect tokenizer that classifies 2-way-SQL directives as `meta`.
+registerCodeLanguage('tql-sql', (text) => {
+  const tokens = [];
+  const re = /\/\*[%#@][\s\S]*?\*\/|\b(?:SELECT|FROM|WHERE|LIMIT)\b/gi;
+  let last = 0;
+  let m;
+  while ((m = re.exec(text))) {
+    if (m.index > last) tokens.push({ tok: '', text: text.slice(last, m.index) });
+    tokens.push({ tok: m[0].startsWith('/*') ? 'meta' : 'keyword', text: m[0] });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) tokens.push({ tok: '', text: text.slice(last) });
+  return tokens;
+});
+
+installCodeEditor(); // now enhances <div class="hc-code" data-editable data-lang="tql-sql">
+```
+
+トークナイザが例外を投げたり、トークンがソースを再構成しない場合、
+オーバーレイは textarea との不一致に陥る代わりにそのバッファの
+ハイライトを断念します — テキストは見えたまま、色が付かないだけ
+です。登録は同名の組み込みを上書きし、アンインストーラを返します。
+サーバサイドでも登録する? 同じトークナイザを JS に移植すれば、
+エディタはサーバレンダリングされた読み取り専用ビューと一致します。
+
+## シンタックスハイライト
+
+読み取り専用のハイライトは**サーバでトークナイズ**されます: サーバが
+各トークンを `<span class="hc-code__tok" data-tok="…">` で包み、
+`--hc-code-tok-*` パレットから色づけられます。**クライアント
+トークナイザはありません** — diff のハンクと同様、キットはサーバが
+出力するものをスタイルするだけなので、CSP セーフで決定的なままです。
+トークンは `<pre><code>`(素)または `hc-code__line`(行番号つき /
+diff)の中に入れ子になり、`data-state` の色味や diff のガターと合成
+されます。
+
+`data-tok` は汎用で言語非依存の語彙です — `keyword`、`string`、
+`number`、`comment`、`operator`、`identifier`、構造化マークアップの
+セット `property`(オブジェクト / マッピングのキー)、`tag`、
+`attribute`、そして `meta`(言語固有の構文のための包括カテゴリ。例:
+2-way SQL のディレクティブとバインド)。未知または欠落した
+`data-tok` は素のコードとして描画されます。編集可能フィールドの
+[ライブハイライト](#ライブハイライト)オーバーレイはまさにこの同じ
+スパンを描画するため、エディタは読み取り専用 / diff の面と一致
+します。
+
+<Demo previewClass="hc-preview--col hc-preview--start">
+  <pre class="hc-code" tabindex="0" role="region" aria-label="Highlighted query"><code><span class="hc-code__tok" data-tok="keyword">SELECT</span> <span class="hc-code__tok" data-tok="identifier">id</span><span class="hc-code__tok" data-tok="operator">,</span> <span class="hc-code__tok" data-tok="number">1</span>
+<span class="hc-code__tok" data-tok="keyword">FROM</span> <span class="hc-code__tok" data-tok="identifier">members</span> <span class="hc-code__tok" data-tok="comment">-- active only</span></code></pre>
+
+  <Fragment slot="code">
+
+  ```html
+  <pre class="hc-code"><code><span class="hc-code__tok" data-tok="keyword">SELECT</span> <span class="hc-code__tok" data-tok="identifier">id</span>
+  <span class="hc-code__tok" data-tok="keyword">FROM</span> <span class="hc-code__tok" data-tok="identifier">members</span></code></pre>
+  ```
+
+  </Fragment>
+</Demo>
+
+トークンの色は context 行のミュートテキストに勝ちます。行の色味
+(`data-state`)と diff のガターは影響を受けません。パレットは両
+テーマでコード面上の WCAG AA コントラストを満たします
+(`code-syntax.spec.mjs` で検証済み)。
+
+## アクセシビリティ
+
+- 横スクロール可能なブロックはキーボードで到達可能でなければなり
+  ません。フォーカス可能でラベルつきの領域にしてください:
+  `tabindex="0"` に加えて `role="region"` と、ファイルやスニペットを
+  名指す `aria-label`。
+- diff モードでは色は決して唯一の合図ではありません — ガターが `+`
+  (added)または `-`(removed)の記号を印字します。記号はリスト
+  マーカーに載るため、ブロックをコピーすると記号や行番号なしでコード
+  テキストがコピーされます。
+- 行のテキストは逐語的に描画されます。意味のある行頭の空白は
+  マークアップで保ってください(`white-space: pre`)。長い行の折り
+  返しがスクロールより望ましいときだけ `data-wrap="on"` を設定します。
+- 編集可能フィールドのライブハイライトオーバーレイは装飾
+  (`aria-hidden`)です: textarea がラベルつきコントロールのままで、
+  値は変わらず送信されます。トークナイズはフレームごとに 1 描画へ
+  スロットリングされるため、大きなバッファも入力中の応答性を保ち
+  ます。
+
+## テーマ用トークン
+
+| トークンパス         | 用途                                            |
+| -------------------- | ----------------------------------------------- |
+| `code.bg`            | 面の背景。                                      |
+| `code.fg`            | コードテキストの色。                            |
+| `code.border`        | 枠線の色。                                      |
+| `code.radius`        | 角丸。                                          |
+| `code.padding-block` / `code.padding-inline` | ブロックのパディング。  |
+| `code.font-family`   | 等幅フォントスタック。                          |
+| `code.font-size`     | コードのフォントサイズ。                        |
+| `code.line-height`   | コードの行の高さ。                              |
+| `code.gutter-fg`     | 行番号 / 記号の色。                             |
+| `code.gutter-width`  | 行番号ガターの幅。                              |
+| `code.num-width`     | diff の各行番号列の幅。                         |
+| `code.gutter-gap`    | ガターとコードの間のギャップ。                  |
+| `code.context-fg`    | diff の context 行のテキスト色。                |
+| `code.added-bg` / `code.added-marker`     | `added` / `covered` の色味とバー。  |
+| `code.removed-bg` / `code.removed-marker` | `removed` / `missed` の色味とバー。 |
+| `code.focus-border` | 編集可能フィールドのフォーカスリング。          |
+| `code.input-min-height` | 編集可能 textarea の最小高。                |
+| `code.tok-keyword` / `-string` / `-number` / `-comment` / `-operator` / `-identifier` / `-meta` | シンタックストークンの前景色(`data-tok`)。 |
+| `code.tok-property` / `-tag` / `-attribute` | 構造化マークアップトークンの前景色(キー、HTML タグと属性)。 |
+
+色味つき状態のトークンは semantic のステータスパレットを通じて解決
+されるため、`data-theme="dark"` の下で自動的に再解決されます。
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-code-bg | -fg | -border | -radius
+--hc-code-padding-block | -padding-inline
+--hc-code-font-family | -font-size | -line-height
+--hc-code-gutter-fg | -gutter-width | -num-width | -gutter-gap
+--hc-code-context-fg
+--hc-code-added-bg | -added-marker
+--hc-code-removed-bg | -removed-marker
+--hc-code-focus-border | -input-min-height
+--hc-code-tok-keyword | -tok-string | -tok-number | -tok-comment
+--hc-code-tok-operator | -tok-identifier | -tok-meta
+--hc-code-tok-property | -tok-tag | -tok-attribute
+```
+
+</details>
+
+## 関連
+
+- [テーブル](/hypermedia-components/ja/components/table/) — 表形式の
+  データに。コード列やステータス列をよくホストします。
+- [ステータスカラー](/hypermedia-components/ja/tokens/status/) — 行ごとの
+  `data-state` の色味が解決される同じ semantic パレット。
+- [kbd](/hypermedia-components/ja/components/kbd/) — 複数行ブロックでは
+  なく、インラインの等幅キーヒント。
