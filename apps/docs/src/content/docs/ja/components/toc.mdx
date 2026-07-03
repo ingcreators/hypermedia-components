@@ -1,0 +1,141 @@
+---
+title: 目次
+description: 「このページ内」ジャンプリスト — 純 CSS の hc-toc と、表示中のセクションに印を付ける任意の data-hc-spy スクロールスパイ。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-toc` は、ページ内アンカーリンクのリストを包むラベルつき
+`<nav>` の上の純 CSS スキンです — 長いリファレンスページでおなじみの
+「このページ内」ジャンプリスト。JavaScript なしで機能します。
+`data-hc-spy` を足せば、[`installSpy`](#スクロールスパイdata-hc-spy)
+ビヘイビアが、読者のスクロールに合わせて表示中のセクションのリンクに
+印を付けます。
+
+## 基本の例
+
+下のアクティブリンクは、スタイリングを見せるために
+`aria-current="location"` を静的に付けています。`data-hc-spy` があれば
+ビヘイビアが設定してくれます。
+
+<Demo previewClass="hc-preview--start">
+  <nav class="hc-toc" aria-label="On this page">
+    <ul class="hc-toc__list">
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#" aria-current="location">Inputs</a></li>
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#">SQL</a></li>
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#">Tests</a></li>
+    </ul>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-toc" aria-label="On this page">
+    <ul class="hc-toc__list">
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#sec-inputs">Inputs</a></li>
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#sec-sql">SQL</a></li>
+      <li class="hc-toc__item"><a class="hc-toc__link" href="#sec-tests">Tests</a></li>
+    </ul>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
+
+`<li class="hc-toc__item">` のラッパーは任意です — スタイリングは
+`.hc-toc__list` / `.hc-toc__link` をキーにするため、nav 直下の平坦な
+リンク列でも機能します。
+
+## スクロールスパイ(`data-hc-spy`)
+
+nav に `data-hc-spy` を足してビヘイビアをインストールします。各リンクの
+`#fragment` をターゲットセクションに解決し、`IntersectionObserver` で
+観測して、ビューポート上端にあるセクションのリンクへ
+`aria-current="location"` と `data-active` フックの印を付けます。
+
+:::note[セットアップ]
+スクロールスパイには `installSpy()` ビヘイビアが必要です。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを一括
+インストールするか、これだけを:
+
+```js
+import { installSpy } from '@hypermedia-components/core';
+installSpy();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+```html
+<nav class="hc-toc" data-hc-spy aria-label="On this page">
+  <a class="hc-toc__link" href="#sec-inputs">Inputs</a>
+  <a class="hc-toc__link" href="#sec-sql">SQL</a>
+  <a class="hc-toc__link" href="#sec-tests">Tests</a>
+</nav>
+…
+<section id="sec-inputs">…</section>
+<section id="sec-sql">…</section>
+<section id="sec-tests">…</section>
+```
+
+ビヘイビアは存在するセクションだけを追跡し、リンクの解決はインストール
+時に一度だけ行います(追跡対象のコンテンツをスワップしたら再インストール
+してください)。スムーススクロールを強制することは決してありません —
+リンクのクリックはブラウザネイティブのアンカージャンプです — なので
+`prefers-reduced-motion` がゲートすべきものもありません。
+
+## 状態
+
+| 状態 | 設定方法 | スタイリング |
+| --- | --- | --- |
+| アクティブなセクション | `installSpy` が `aria-current="location"` + `data-active` を設定(直接書いても可) | `--hc-toc-active-fg`、`--hc-toc-active-font-weight`、inline-start のマーカー(`--hc-toc-active-marker`) |
+| ホバー | `:hover` | `--hc-toc-link-fg` → `--hc-toc-link-hover-fg` |
+| フォーカス | `:focus-visible` | `--hc-color-focus-ring` の `2px` アウトライン |
+
+アクティブのルールは `[aria-current="location"]` と `[data-active]` の
+**両方**に一致するため、ハイライトはビヘイビア由来でもサーバレンダリング
+されたマークアップ由来でも機能します。
+
+## アクセシビリティ
+
+- `<nav>` にラベルを付け(`aria-label="On this page"` または
+  `aria-labelledby`)、ランドマークに名前を与えてください。
+- アクティブなリンクは `aria-current="location"` を運びます —
+  「集合内の現在位置」を表す ARIA の値で、視覚状態とスクリーン
+  リーダーのシグナルの両方を駆動します。
+- JavaScript なしでも、nav は機能するアンカーリンクのリストのまま
+  (アクティブハイライトなし)です — プログレッシブエンハンスメント。
+- フォーカスアウトラインを保ってください。デフォルトはシステムの他の
+  部分に合わせて `--hc-color-focus-ring` を使います。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `toc.font-size` | リスト全体のテキストサイズ。 |
+| `toc.gap` | リンク間の縦のスペース。 |
+| `toc.indent` | inline-start のパディング(アクティブマーカーの余地)。 |
+| `toc.link.fg` / `hover-fg` | 非アクティブなリンクの色(平常時とホバー)。 |
+| `toc.active.fg` / `font-weight` | アクティブなリンクの見た目。 |
+| `toc.active.marker` | アクティブリンクの inline-start マーカーの色。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-toc-font-size | -gap | -indent
+--hc-toc-link-fg | -link-hover-fg
+--hc-toc-active-fg | -active-font-weight | -active-marker
+--hc-color-focus-ring   (inherited from data-color)
+```
+
+</details>
+
+## 関連
+
+- [パンくずリスト](/hypermedia-components/ja/components/breadcrumb/) — サイトルートから現在のページまでの道筋。
+- [タブ](/hypermedia-components/ja/components/tabs/) — 兄弟セクション間の切り替え。

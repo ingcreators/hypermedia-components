@@ -1,0 +1,130 @@
+---
+title: ツリー
+description: セマンティックな入れ子リストの上の ARIA ツリービュー — roles と APG キーボードモデルはビヘイビアが適用。枝の状態は aria-expanded に、遅延サブツリーはサーバレンダリングされた HTML として届きます。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-tree` は**セマンティックな入れ子リスト**を WAI-ARIA のツリーへ
+昇格させます: ファイルブラウザ、カテゴリ階層、管理画面のナビゲーション。
+JavaScript なしではマークアップは素の読めるリストで、すべてのリンクが
+機能し続けます。`installTree()` が roles、ロービングタブインデックス、
+完全な APG キーボードモデルを足します。サーバからプッシュされる
+サブツリーは
+[レイジーツリーレシピ](/hypermedia-components/ja/recipes/lazy-tree/)の
+仕事です。
+
+## 基本の HTML
+
+<Demo>
+  <ul class="hc-tree" aria-label="Project files">
+    <li class="hc-tree__item" aria-expanded="true">
+      <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span><span class="hc-tree__label">src</span></span>
+      <ul class="hc-tree__group">
+        <li class="hc-tree__item" aria-expanded="false">
+          <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span><span class="hc-tree__label">components</span></span>
+          <ul class="hc-tree__group">
+            <li class="hc-tree__item"><span class="hc-tree__row"><span class="hc-tree__label">button.js</span></span></li>
+          </ul>
+        </li>
+        <li class="hc-tree__item" aria-current="true">
+          <span class="hc-tree__row"><span class="hc-tree__label">app.js</span></span>
+        </li>
+      </ul>
+    </li>
+    <li class="hc-tree__item">
+      <span class="hc-tree__row"><span class="hc-tree__label">README.md</span></span>
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-tree" aria-label="Project files">
+    <li class="hc-tree__item" aria-expanded="true">
+      <span class="hc-tree__row">
+        <span class="hc-tree__toggle" aria-hidden="true"></span>
+        <span class="hc-tree__label">src</span>
+      </span>
+      <ul class="hc-tree__group">
+        <li class="hc-tree__item">
+          <span class="hc-tree__row">
+            <span class="hc-tree__label"><a href="/files/app.js">app.js</a></span>
+          </span>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
+**枝であることは `aria-expanded` で宣言されます** — 属性があれば
+その項目は展開できます(初期値はサーバが所有し、ビヘイビアが
+トグルします)。階層は入れ子から導かれ、`aria-level` の帳簿は
+ありません。
+
+## ビヘイビア — `installTree()`
+
+自動初期化の
+[`./behaviors`](/hypermedia-components/ja/start/installation/#ビヘイビア)
+バンドルに含まれます。`role="tree" / treeitem / group"` とロービング
+タブインデックス(ツリーごとに 1 つのタブストップ)を適用し、htmx で
+サブツリーがスワップインされたときに両方を再適用します。項目の展開は
+バブリングする **`hc:treeexpand`**(`detail: { item }`)を発火します —
+[レイジーツリーレシピ](/hypermedia-components/ja/recipes/lazy-tree/)が
+その上に組むフックです。ネットワークには決して触れません。
+
+### キーボード
+
+| キー | 動作 |
+| --- | --- |
+| ↓ / ↑ | 次 / 前の**見えている**項目(畳まれたサブツリーはスキップ)。 |
+| → | 閉じた枝を開く。開いた枝の上では最初の子へ移動。 |
+| ← | 開いた枝を閉じる。それ以外は親へ移動。 |
+| Home / End | 最初 / 最後の見えている項目。 |
+| Enter / Space | アクティベート: ラベルにリンクがあればそれを辿り、なければ枝をトグル。 |
+| *a–z* | タイプアヘッド — その文字で始まる次の見えている項目へジャンプ。 |
+
+← と → は RTL でミラーされます。
+
+## 状態
+
+| 状態 | セレクタ | 効果 |
+| --- | --- | --- |
+| 展開 | `[aria-expanded="true"]` | グループが見える。シェブロンが回転。 |
+| 折りたたみ | `[aria-expanded="false"]` | グループが隠れる。 |
+| 現在 | `[aria-current]` | アクセントの行(`data-color` に追従)— **サーバの状態**、「現在地」マーカー。 |
+| 読み込み中 | `.hc-tree__group[aria-busy="true"]` | 遅延サブツリーの取得中、グループ内にスピナー(ビヘイビアが設定)。 |
+
+選択モデル(`aria-selected`、複数選択、チェックボックス)は当面の
+意図的な非目標です — アクティベーションは本物のリンクを辿り、現在の
+ノードはサーバレンダリングされた状態です。
+
+## サイズ
+
+`data-size="sm"` は、密なパネル向けにインデントとフォントを詰めます。
+
+## アクセシビリティ
+
+- 入れ子の `<ul>/<li>` + `role="tree"` + `aria-expanded` + ロービング
+  タブインデックスが APG のパターンです。階層は構造から読み上げられ
+  ます。
+- シェブロンのトグルは `aria-hidden` のポインタ向け操作部です —
+  キーボードモデルがその全機能を複製します。
+- ツリーには `aria-label`(または `aria-labelledby`)を与えてください。
+- フォーカスは行の上に描かれます(`:focus-visible`)。reduced motion は
+  シェブロンのトランジションとビジースピナーを無効化します。
+
+## テーマ用トークン
+
+`--hc-tree-indent` / `-row-padding-y` / `-row-padding-x` /
+`-row-radius` / `-fg` / `-hover-bg` / `-current-bg` / `-current-fg` /
+`-toggle-size` / `-guide` — 全体を通じて semantic 参照です。
+
+## 関連
+
+- [レイジーツリーレシピ](/hypermedia-components/ja/recipes/lazy-tree/) — 初回展開時に子を読み込む枝。
+- [ナビゲーションメニュー](/hypermedia-components/ja/components/navmenu/) — 平坦なサイトナビゲーション。ツリーは階層のためのもの。
+- [コラプシブル](/hypermedia-components/ja/components/collapsible/) — ツリーセマンティクスのない単一のディスクロージャ。

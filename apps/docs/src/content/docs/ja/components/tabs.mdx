@@ -1,0 +1,363 @@
+---
+title: タブ
+description: WAI-ARIA APG パターンに従うアクセシブルなタブパネル。ブラウザのページ内検索へのプログレッシブエンハンスメントと、任意の URL ルーティング変種つき。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-tabs` は、同じクラス名と見た目のもとに 2 つのマークアップ
+パターンを提供します:
+
+| パターン | 使いどころ | マークアップ | JS 必要? |
+| --- | --- | --- | --- |
+| **アプリ状態** | 単一ページが URL を変えずにパネルを切り替える。 | `<div role="tablist">` + `<button role="tab">` + `<div role="tabpanel">` | はい — `installTabs()` がロービングタブインデックス、矢印キー、パネル切り替えを配線。 |
+| **URL ルーティング** | 各タブが独自の URL またはクエリパラメータ。 | `<nav>` + `aria-current="page"` つきの `<a href>` | いいえ — ブラウザネイティブのリンクセマンティクスがキーボードとフォーカスをすでに処理。 |
+
+アプリ状態パターンは
+[WAI-ARIA APG のタブパターン](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/)に
+従い、デフォルトで**手動アクティベーション**を使います — パネルが
+htmx で遅延読み込みされるとき、矢印キーのたびにリクエストが飛ばない
+ようにするためです。
+
+## アプリ状態タブ
+
+<Demo>
+  <div class="hc-tabs">
+    <div class="hc-tabs__list" role="tablist" aria-label="Account preview">
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-tab-general" aria-controls="doc-panel-general"
+              aria-selected="true" tabindex="0">General</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-tab-billing" aria-controls="doc-panel-billing"
+              aria-selected="false" tabindex="-1">Billing</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-tab-team" aria-controls="doc-panel-team"
+              aria-selected="false" tabindex="-1">Team</button>
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-panel-general" aria-labelledby="doc-tab-general"
+         tabindex="0">
+      General account settings.
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-panel-billing" aria-labelledby="doc-tab-billing"
+         tabindex="0" hidden="until-found">
+      Billing details.
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-panel-team" aria-labelledby="doc-tab-team"
+         tabindex="0" hidden="until-found">
+      Team members.
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-tabs">
+    <div class="hc-tabs__list" role="tablist" aria-label="Account">
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="tab-general" aria-controls="panel-general"
+              aria-selected="true" tabindex="0">General</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="tab-billing" aria-controls="panel-billing"
+              aria-selected="false" tabindex="-1">Billing</button>
+    </div>
+  
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="panel-general" aria-labelledby="tab-general"
+         tabindex="0">
+      General settings panel.
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="panel-billing" aria-labelledby="tab-billing"
+         tabindex="0" hidden="until-found">
+      Billing details panel.
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installTabs } from '@hypermedia-components/core';
+installTabs();
+```
+
+### アクティベーションモード
+
+デフォルトでビヘイビアは**手動アクティベーション**を使います —
+矢印キーはフォーカスを動かし、ユーザーは `Enter` または `Space` で
+確定します。パネルが遅延読み込みされる(htmx、
+IntersectionObserver)場合、フォーカスだけではリクエストが発火しない
+これが正しいデフォルトです。
+
+タブがフォーカスを受けた瞬間にパネルをアクティブにするには、
+`data-activation="automatic"` でオプトインします:
+
+```html
+<div class="hc-tabs" data-activation="automatic">…</div>
+```
+
+### バリアント
+
+<Demo>
+  <div class="hc-tabs" data-variant="pill">
+    <div class="hc-tabs__list" role="tablist" aria-label="View preview">
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-pill-day" aria-controls="doc-pill-panel-day"
+              aria-selected="true" tabindex="0">Day</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-pill-week" aria-controls="doc-pill-panel-week"
+              aria-selected="false" tabindex="-1">Week</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-pill-month" aria-controls="doc-pill-panel-month"
+              aria-selected="false" tabindex="-1">Month</button>
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-pill-panel-day" aria-labelledby="doc-pill-day"
+         tabindex="0">Day view.</div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-pill-panel-week" aria-labelledby="doc-pill-week"
+         tabindex="0" hidden="until-found">Week view.</div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-pill-panel-month" aria-labelledby="doc-pill-month"
+         tabindex="0" hidden="until-found">Month view.</div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-tabs" data-variant="pill">…</div>
+  ```
+
+  </Fragment>
+</Demo>
+
+| `data-variant` | スタイル |
+| -------------- | ----- |
+| `default`      | アクティブタブに下線のインジケーター。 |
+| `pill`         | アクティブタブに塗りつぶし背景。リストはベースラインを落とします。 |
+
+### サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+デフォルトサイズは `data-density` にも従うため、密なレイアウトは
+タブごとの作業なしで縮みます。
+
+```html
+<div class="hc-tabs" data-size="sm">…</div>
+```
+
+### オーバーフロー(スクロール可能)
+
+デフォルトでは、タブリストは余地がなくなると 2 行目へ**折り返し**
+ます。代わりに**横スクロール可能な 1 行**に保つには
+`data-overflow="scroll"` を足します:
+
+```html
+<div class="hc-tabs" data-overflow="scroll">
+  <div class="hc-tabs__list" role="tablist" aria-label="Sections">
+    <button class="hc-tabs__tab" role="tab" …>Overview</button>
+    <!-- …many tabs… -->
+  </div>
+  <!-- panels -->
+</div>
+```
+
+残りは `installTabs()` がやります:
+
+- その方向にまだスクロールできるときだけ現れる**端のスクロール
+  ボタン**(マウス向けの操作部)を注入します。タブ順の外にあります —
+  キーボードユーザーは矢印キーに頼り、それがすでにスクロールします。
+- **アクティブなタブとフォーカス中のタブは見える位置に保たれます**:
+  矢印キーのナビゲーション、アクティベーション、初期選択タブのいずれも
+  見える行の中へスクロールします。
+- タッチ / トラックパッドのスクロールはネイティブに動きます。
+  スクロールバーは隠れます。
+- 方向対応です — RTL ではボタンが反対の端へ移り、シェブロンが
+  ミラーされます。
+
+スクロールボタンは装飾(`aria-hidden`)なので、アクセシブルなタブ
+パターンへの純粋な追加です。
+
+### 縦方向
+
+ルートに `data-orientation="vertical"` を足すと、タブリストがパネルの
+横に列として立ちます。`installTabs()` はこれを tablist の
+`aria-orientation="vertical"` に反映し、矢印キーの軸が切り替わり
+ます: <kbd>↑</kbd> / <kbd>↓</kbd> がタブ間を移動し
+(<kbd>←</kbd> / <kbd>→</kbd> の代わり)、<kbd>Home</kbd> /
+<kbd>End</kbd> とアクティベーションは変わりません。アクティブ
+インジケーターは下線から inline-start のバーに移ります(論理なので
+RTL で反転します)。
+
+<Demo>
+  <div class="hc-tabs" data-orientation="vertical">
+    <div class="hc-tabs__list" role="tablist" aria-orientation="vertical" aria-label="Workspace preview">
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-vtab-overview" aria-controls="doc-vpanel-overview"
+              aria-selected="true" tabindex="0">Overview</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-vtab-activity" aria-controls="doc-vpanel-activity"
+              aria-selected="false" tabindex="-1">Activity</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="doc-vtab-settings" aria-controls="doc-vpanel-settings"
+              aria-selected="false" tabindex="-1">Settings</button>
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-vpanel-overview" aria-labelledby="doc-vtab-overview"
+         tabindex="0">Overview panel.</div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-vpanel-activity" aria-labelledby="doc-vtab-activity"
+         tabindex="0" hidden="until-found">Activity panel.</div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="doc-vpanel-settings" aria-labelledby="doc-vtab-settings"
+         tabindex="0" hidden="until-found">Settings panel.</div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-tabs" data-orientation="vertical">
+    <div class="hc-tabs__list" role="tablist" aria-orientation="vertical" aria-label="Workspace">
+      <button class="hc-tabs__tab" role="tab" …>Overview</button>
+      <!-- … -->
+    </div>
+    <!-- panels -->
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+`installTabs()` は `aria-orientation` を設定してくれますが、
+JavaScript の実行前から向きが正しいよう、マークアップにも含めて
+ください。縦方向とスクロール可能なオーバーフロー行は別のレイアウト
+です — 組み合わせないでください。
+
+## URL ルーティングタブ
+
+各タブが独自のルートである場合は、ARIA のタブ role を落とし、
+ブラウザにマークアップを普通のナビゲーションとして扱わせます。
+`aria-current="page"` がアクティブなタブに印を付けます。
+`installTabs()` はこの変種を無視します。
+
+<Demo>
+  <div class="hc-tabs">
+    <nav class="hc-tabs__list" aria-label="Documentation preview">
+      <a class="hc-tabs__tab" href="#overview" aria-current="page">Overview</a>
+      <a class="hc-tabs__tab" href="#api">API</a>
+      <a class="hc-tabs__tab" href="#changelog">Changelog</a>
+    </nav>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-tabs">
+    <nav class="hc-tabs__list" aria-label="Documentation">
+      <a class="hc-tabs__tab" href="/docs/overview" aria-current="page">Overview</a>
+      <a class="hc-tabs__tab" href="/docs/api">API</a>
+      <a class="hc-tabs__tab" href="/docs/changelog">Changelog</a>
+    </nav>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx での利用
+
+パネルが初めてアクティブになったときにコンテンツを取得するには、
+`hc:tabactivated` — パネルが表示されたときにビヘイビアが発火する
+イベント — を待ち受けます。
+
+```html
+<div class="hc-tabs__panel" role="tabpanel"
+     id="panel-billing" aria-labelledby="tab-billing"
+     tabindex="0" hidden="until-found"
+     data-hx-get="/account/billing"
+     data-hx-trigger="hc:tabactivated once"
+     data-hx-target="this"
+     data-hx-swap="innerHTML">
+  <hc-spinner></hc-spinner>
+</div>
+```
+
+## ページ内検索
+
+非アクティブなパネルは `hidden="until-found"` を運ぶため、ブラウザの
+Ctrl+F がその中を検索できます。ユーザーのクエリが隠れたパネル内の
+テキストに一致するとブラウザが `beforematch` を発火し、ビヘイビアが
+それを捕まえて所有タブへ自動で切り替え、一致箇所を見えるようにし
+ます。[`hidden="until-found"`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/hidden)の
+ないブラウザは、この属性を素の `hidden` として扱います。
+
+## アクセシビリティ
+
+- アプリ状態パターンは WAI-ARIA APG に従います。role: `tablist`、
+  `tab`、`tabpanel`。
+- 各タブは自身のパネルを指す `aria-controls` を、各パネルは自身の
+  タブを指し返す `aria-labelledby` を必要とします。
+- アクティブなタブは `aria-selected="true"` と `tabindex="0"` を、
+  非アクティブなタブは `aria-selected="false"` と `tabindex="-1"` を
+  運びます(ロービングタブインデックスパターン)。無効なタブは
+  `aria-disabled="true"` を使い、矢印ナビゲーションからスキップされ
+  ます。
+- tablist にはアクセシブルな名前が必須です。`[role="tablist"]` 要素に
+  `aria-label` または `aria-labelledby` を使ってください。
+- 縦の tablist は `aria-orientation="vertical"` を運びます
+  (`installTabs()` が `data-orientation` から設定)。矢印キーの軸は
+  それに従います — 縦なら <kbd>↑</kbd> / <kbd>↓</kbd>、横なら
+  <kbd>←</kbd> / <kbd>→</kbd>。
+- パネルはプログラム的にフォーカス可能(`tabindex="0"`)なので、
+  キーボードユーザーは `Tab` でコンテンツへ直接入れます。
+- URL ルーティング変種は、ナビゲーションのアクセシビリティをすべて
+  `<nav>` + `<a>` から継承します。そこに ARIA のタブ role を足さないで
+  ください — ナビゲーションパターンと衝突します。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス                          | 用途                                     |
+| ------------------------------------- | ---------------------------------------- |
+| `tabs.list.gap` / `list.border`       | タブ間のギャップと下枠線。               |
+| `tabs.tab.height` / `padding-x`       | `--hc-control-*`(密度)を継承。         |
+| `tabs.tab.fg` / `hover-fg` / `hover-bg` / `active-fg` | タブのテキストとホバー面。 |
+| `tabs.tab.indicator` / `indicator-size` | アクティブ状態の下線。                 |
+| `tabs.tab.disabled-fg`                | `aria-disabled="true"` 時のタブテキスト。 |
+| `tabs.pill.active-bg` / `active-fg`   | `data-variant="pill"` の塗り背景。       |
+| `tabs.panel.padding-y` / `focus-ring` | パネルの余白とフォーカスアウトライン。   |
+| `tabs.sm.*` / `tabs.lg.*`             | 専用の sm / lg 上書き。                  |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-tabs-list-gap | -list-border
+--hc-tabs-tab-height | -padding-x | -font-size | -font-weight | -radius
+--hc-tabs-tab-fg | -hover-fg | -hover-bg | -active-fg
+--hc-tabs-tab-indicator | -indicator-size
+--hc-tabs-tab-disabled-fg
+--hc-tabs-pill-active-bg | -pill-active-fg
+--hc-tabs-panel-padding-y | -panel-focus-ring
+--hc-tabs-scroll-size   /* width of the overflow scroll buttons; default 2rem */
+--hc-tabs-sm-tab-height | -sm-tab-padding-x | -sm-tab-font-size
+--hc-tabs-lg-tab-height | -lg-tab-padding-x | -lg-tab-font-size
+--hc-control-height (inherited from data-density)
+--hc-color-action-primary-bg | -primary-fg (inherited from data-color)
+--hc-color-focus-ring
+```
+
+</details>
+
+## 関連
+
+- [ダイアログ](/hypermedia-components/ja/components/dialog/) — 表示され続けるべきでないコンテンツのグルーピングのためのモーダルな代替。
+- [ポップオーバー](/hypermedia-components/ja/components/popover/) — 一時的な兄弟。
+- [ツールバー](/hypermedia-components/ja/components/toolbar/) — 水平のアクションクラスター(タブとよく組み合う)。

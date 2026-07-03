@@ -1,6 +1,6 @@
 # Docs Japanese i18n — phase 1 plan
 
-Status: **phases 1–8 shipped (#314–#321) — 74 ja pages. Components: Actions + Forms done. Remaining: Navigation/Overlays/Data display/Feedback/Layout (~38 pages) + kitchen-sink/blocks/reference.**
+Status: **phases 1–9 shipped (#314–#322) — 83 ja pages. Components: Actions + Forms + Navigation done. Remaining: Overlays/Data display/Feedback/Layout (~29 pages) + kitchen-sink/blocks/reference.**
 
 The v0.5 plan's P3 backlog item: *"Japanese i18n — translate the first
 10 docs pages (§7.6) after the English IA settles."* The English IA

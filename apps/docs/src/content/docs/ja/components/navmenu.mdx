@@ -1,0 +1,146 @@
+---
+title: ナビゲーションメニュー
+description: コンテンツパネル(メガメニュー)を開けるトップレベルのサイトナビゲーション。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-navmenu` は、項目がコンテンツ**パネル**(メガメニュー)を開ける
+トップレベルのサイトナビゲーションです。ディスクロージャの集合です:
+各トリガーは `button[aria-expanded]` で、CSS Anchor Positioning に
+よってその下にアンカーされた `popover` パネルを制御します。パネルは
+ホバー / フォーカスで開き、**同時に 1 つだけ**、中のリンクは本物の
+`<a>` のままです — そのため素の MPA ナビゲーションでも htmx でも
+機能します。
+
+## 基本の例
+
+<Demo previewStyle="min-block-size: 16rem;">
+  <nav class="hc-navmenu" aria-label="Main">
+    <ul class="hc-navmenu__list">
+      <li class="hc-navmenu__item">
+        <button class="hc-navmenu__trigger" type="button" data-hc-navmenu-trigger aria-controls="doc-nm-products">Products</button>
+        <div class="hc-navmenu__panel" id="doc-nm-products">
+          <a class="hc-navmenu__link" href="#analytics">Analytics</a>
+          <a class="hc-navmenu__link" href="#billing">Billing</a>
+          <a class="hc-navmenu__link" href="#automation">Automation</a>
+        </div>
+      </li>
+      <li class="hc-navmenu__item">
+        <button class="hc-navmenu__trigger" type="button" data-hc-navmenu-trigger aria-controls="doc-nm-company">Company</button>
+        <div class="hc-navmenu__panel" id="doc-nm-company">
+          <a class="hc-navmenu__link" href="#about">About</a>
+          <a class="hc-navmenu__link" href="#careers">Careers</a>
+        </div>
+      </li>
+      <li class="hc-navmenu__item">
+        <a class="hc-navmenu__link" href="#pricing">Pricing</a>
+      </li>
+    </ul>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-navmenu" aria-label="Main">
+    <ul class="hc-navmenu__list">
+      <li class="hc-navmenu__item">
+        <button class="hc-navmenu__trigger" type="button"
+                data-hc-navmenu-trigger aria-controls="nm-products">Products</button>
+        <div class="hc-navmenu__panel" id="nm-products">
+          <a class="hc-navmenu__link" href="/analytics">Analytics</a>
+          <a class="hc-navmenu__link" href="/billing">Billing</a>
+        </div>
+      </li>
+      <!-- A plain top-level link needs no trigger / panel. -->
+      <li class="hc-navmenu__item">
+        <a class="hc-navmenu__link" href="/pricing">Pricing</a>
+      </li>
+    </ul>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installNavmenu } from '@hypermedia-components/core';
+installNavmenu();
+```
+
+トリガーには `aria-haspopup` / `aria-expanded` / `aria-controls` が
+自動で配線され、パネルはその下にアンカーされた `popover` になります。
+
+## 挙動
+
+- **ホバー / フォーカス**は、短い意図確認の遅延の後にパネルを開き、
+  短い猶予の後に閉じます(ポインタをトリガーからパネルへ動かしても
+  解散しないように)。開くパネルは同時に 1 つだけです。
+- **キーボード:** `↓` / `↑` はパネルを開いて中の最初 / 最後の項目へ
+  フォーカスを移動。`Esc` は閉じてフォーカスをトリガーへ返します。
+  `Tab` はトリガーとパネルのリンクを普通に辿ります。
+- **リンクはリンクのまま。** ビヘイビアがパネル内の `<a>` のクリックを
+  インターセプトすることは決してありません — ナビゲーションは
+  ブラウザ(リンクが `data-hx-*` を運んでいれば htmx)のものです。
+
+## レスポンシブ(モバイル)
+
+狭い画面では水平のメガメニューは収まりません。パネルは素のマークアップ
+なので、同じコンテンツがうまくデグレードします: バーをトグルの背後に
+畳み(例:
+[`hc-drawer`](/hypermedia-components/ja/components/drawer/) の中)、
+各セクションを積み重ねた
+[`hc-collapsible`](/hypermedia-components/ja/components/collapsible/)と
+して描画します。レイアウトの切り替えはメディアクエリで — リンクと構造は
+同一なので、重複するマークアップは不要です。
+
+## アクセシビリティ
+
+- メニューは `aria-label` つきの `<nav>` で包みます。各パネルトリガーは
+  `aria-expanded` と `aria-controls` を公開する本物の `<button>` です。
+- パネルは `popover` なので、`Esc` と外側クリックの解散はプラット
+  フォームから来ます。`Esc` でフォーカスはトリガーへ戻ります。
+- パネルのコンテンツは、Tab で到達可能で普通に読み上げられるよう、
+  ソース順の本物のリンク / ボタンに保ってください。
+- Anchor Positioning は **Baseline 2026** です。ない環境では
+  `installNavmenu()` が JS 配置にフォールバックします(`popover` が
+  サポートされる環境ならどこでも、パネルは正しく開いて解散します)。
+
+## テーマ用トークン
+
+| トークンパス                   | 用途                             |
+| ------------------------------ | -------------------------------- |
+| `navmenu.gap`                  | トップ項目間のギャップ。         |
+| `navmenu.trigger-padding-x` / `-y` | トリガー / トップリンクのパディング。 |
+| `navmenu.trigger-radius`       | トリガー / トップリンクの角丸。  |
+| `navmenu.trigger-fg`           | トリガーのテキスト色。           |
+| `navmenu.trigger-hover-bg`     | トリガーのホバー / 展開時の背景。 |
+| `navmenu.panel-bg` / `-fg` / `-border` | パネルの面。             |
+| `navmenu.panel-radius` / `-padding` / `-min-width` | パネルのボックス。 |
+| `navmenu.panel-offset`         | トリガーとパネルの間のギャップ。 |
+| `navmenu.link-padding-x` / `-y` / `-radius` | パネルリンクのボックス。 |
+| `navmenu.link-fg` / `-hover-bg` | パネルリンクの色。              |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-navmenu-gap | -trigger-padding-x | -trigger-padding-y | -trigger-radius
+--hc-navmenu-trigger-fg | -trigger-hover-bg
+--hc-navmenu-panel-bg | -panel-fg | -panel-border | -panel-radius | -panel-padding | -panel-min-width | -panel-offset
+--hc-navmenu-link-padding-x | -link-padding-y | -link-radius | -link-fg | -link-hover-bg
+```
+
+</details>
+
+## 関連
+
+- [メニューバー](/hypermedia-components/ja/components/menubar/) —
+  アプリケーションのメニューバー(アクション)であり、サイト
+  ナビゲーションではありません。
+- [メニュー](/hypermedia-components/ja/components/menu/) — 単一の
+  ドロップダウンアクションメニュー。
+- [ドロワー](/hypermedia-components/ja/components/drawer/) — サイト
+  ナビのモバイル版の定番ホスト。

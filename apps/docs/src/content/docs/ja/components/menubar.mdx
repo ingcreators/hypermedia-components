@@ -1,0 +1,129 @@
+---
+title: メニューバー
+description: hc-menu の上に構築された、デスクトップアプリケーションのメニューバー(File / Edit / …)。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-menubar` はデスクトップアプリケーションの**メニューバー**
+パターンです: メニューボタン(File / Edit / View …)の水平の列で、
+それぞれが [`hc-menu`](/hypermedia-components/ja/components/menu/) の
+ドロップダウンを開きます。既存のメニュー機構の上の薄い層です —
+`installMenu()` がドロップダウンの内部(ARIA、メニュー内キーボード、
+サブメニュー)を所有し、`installMenubar()` がバーのナビゲーションを
+足します。
+
+## 基本の例
+
+<Demo>
+  <div class="hc-menubar" role="menubar" aria-label="Application">
+    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-file" id="doc-mb-file-t">File</button>
+    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-edit" id="doc-mb-edit-t">Edit</button>
+    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-view" id="doc-mb-view-t">View</button>
+    <div class="hc-menu" id="doc-mb-file" popover role="menu" aria-labelledby="doc-mb-file-t">
+      <button class="hc-menu__item" role="menuitem" type="button">New</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Open…</button>
+      <hr class="hc-menu__separator" />
+      <button class="hc-menu__item" role="menuitem" type="button">Save</button>
+    </div>
+    <div class="hc-menu" id="doc-mb-edit" popover role="menu" aria-labelledby="doc-mb-edit-t">
+      <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Redo</button>
+    </div>
+    <div class="hc-menu" id="doc-mb-view" popover role="menu" aria-labelledby="doc-mb-view-t">
+      <button class="hc-menu__item" role="menuitem" type="button">Zoom in</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Zoom out</button>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-menubar" role="menubar" aria-label="Application">
+    <button class="hc-menubar__item" role="menuitem" type="button"
+            popovertarget="mb-file" id="mb-file-t">File</button>
+    <div class="hc-menu" id="mb-file" popover role="menu" aria-labelledby="mb-file-t">
+      <button class="hc-menu__item" role="menuitem" type="button">New</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Open…</button>
+    </div>
+  
+    <button class="hc-menubar__item" role="menuitem" type="button"
+            popovertarget="mb-edit" id="mb-edit-t">Edit</button>
+    <div class="hc-menu" id="mb-edit" popover role="menu" aria-labelledby="mb-edit-t">
+      <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installMenu, installMenubar } from '@hypermedia-components/core';
+installMenu();     // dropdown internals
+installMenubar();  // the bar navigation
+```
+
+各トップボタンは、`popovertarget` で自身のドロップダウンを指す
+`role="menuitem"` です。ドロップダウンは普通の `hc-menu` ポップオーバー
+です(そのためサブメニュー、チェックボックス / ラジオ項目、
+`hc:menuselect` イベントが無料で付いてきます)。
+
+## キーボード
+
+| キー | 動作 |
+| --- | --- |
+| `←` / `→` | トップ項目間を移動(RTL でミラー)。両端でラップ。 |
+| `Home` / `End` | 最初 / 最後のトップ項目。 |
+| `↓` / `Enter` / `Space` | フォーカス中のメニューを開く(↓ は最初の項目にフォーカス)。 |
+| `↑` | フォーカス中のメニューを最後の項目で開く。 |
+| `←` / `→`(メニュー展開中) | 隣のメニューへ切り替えて開く。 |
+| `Esc` | メニューを閉じ、フォーカスをトップ項目へ返す。 |
+
+サブメニューの親は引き続き `→` でサブメニューを開きます(メニューバーは
+サブメニュー機構に譲ります)。入れ子のメニューも機能し続けます。
+
+## アクセシビリティ
+
+- バーは `aria-label` つきの `role="menubar"` です。各トップボタンは
+  `role="menuitem"` で、`installMenu()` が
+  `aria-haspopup="menu"` / `aria-expanded` を配線します。
+- バーは**単一の Tab ストップ**(ロービングタブインデックス)です。
+  矢印キーがその中を移動し、WAI-ARIA APG のメニューバーパターンに
+  一致します。
+- 各ドロップダウンにラベルを付けてください(ボタンを指す
+  `aria-labelledby`、または `aria-label`)。開いたメニューが
+  アクセシブルな名前を持つようにするためです。
+
+## テーマ用トークン
+
+| トークンパス              | 用途                                 |
+| ------------------------- | ------------------------------------ |
+| `menubar.gap`             | トップ項目間のギャップ。             |
+| `menubar.padding-x` / `-y` | バーのパディング。                  |
+| `menubar.bg`              | バーの背景。                         |
+| `menubar.border`          | バーの枠線。                         |
+| `menubar.radius`          | バーの角丸。                         |
+| `menubar.item-padding-x` / `-y` | トップ項目のパディング。       |
+| `menubar.item-radius`     | トップ項目の角丸。                   |
+| `menubar.item-fg`         | トップ項目のテキスト色。             |
+| `menubar.item-hover-bg`   | トップ項目のホバー / 展開時の背景。  |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-menubar-gap | -padding-x | -padding-y | -bg | -border | -radius
+--hc-menubar-item-padding-x | -item-padding-y | -item-radius | -item-fg | -item-hover-bg
+```
+
+</details>
+
+## 関連
+
+- [メニュー](/hypermedia-components/ja/components/menu/) — 各トップ項目が
+  開くドロップダウン(とサブメニューパターン)。
+- [ツールバー](/hypermedia-components/ja/components/toolbar/) —
+  (メニューではなく)コントロールのロービングタブインデックスの列。

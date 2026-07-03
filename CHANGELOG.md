@@ -22,6 +22,11 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 9 — the Navigation category is
+  complete** (#322, docs-facing). Nine pages: breadcrumb, toc,
+  pagination, tabs, menu, menubar, navmenu, context-menu, and tree.
+  83 ja pages total.
+
 - **Docs: Japanese translations, phase 8 — the Forms category is
   complete** (#321, docs-facing). Seven pages: inputotp, combobox,
   multicombobox, slider, datepicker, calendar, and dropzone. 74 ja

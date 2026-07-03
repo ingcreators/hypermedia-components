@@ -1,0 +1,185 @@
+---
+title: コンテキストメニュー
+description: hc-menu の面の上に構築された右クリック / キーボードのコンテキストメニュー。installContextMenu がポインタ位置で開きます。WAI-ARIA メニューセマンティクス。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-context-menu` は、ユーザーが右クリックした場所にメニューを表示
+します — shadcn の `ContextMenu` に相当します。
+[メニュー](/hypermedia-components/ja/components/menu/)の面を丸ごと
+再利用します — 同じ `.hc-menu` マークアップ、項目、セパレータ、
+ラベル、`menuitemcheckbox` / `menuitemradio` — なので**新しい CSS は
+ありません**。違いは開き方だけです: トリガーボタンにアンカーされる
+代わりに、`contextmenu` イベント経由でポインタ位置に開きます。
+
+ビヘイビアは `installContextMenu` にあります。
+
+## 基本の使い方
+
+右クリックでカスタムメニューを表示すべき領域に
+`data-hc-context-menu="<menu-id>"` を足し、`.hc-menu` ポップオーバーを
+指させます。
+
+<Demo>
+  <div class="hc-card" data-hc-context-menu="demo-ctx" tabindex="0" style="padding:1.5rem;min-block-size:5rem;">
+    Right-click (or focus + <kbd>Shift</kbd>+<kbd>F10</kbd>) inside this box.
+  </div>
+  <div class="hc-menu" id="demo-ctx" popover role="menu" aria-label="Item actions">
+    <button class="hc-menu__item" role="menuitem" type="button">Open</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
+    <button class="hc-menu__item" role="menuitemcheckbox" aria-checked="false" type="button">Bookmark</button>
+    <hr class="hc-menu__separator" />
+    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div data-hc-context-menu="file-ctx">…right-clickable region…</div>
+  
+  <div class="hc-menu" id="file-ctx" popover role="menu" aria-label="File actions">
+    <button class="hc-menu__item" role="menuitem" type="button">Open</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
+    <button class="hc-menu__item" role="menuitemcheckbox" aria-checked="false" type="button">Bookmark</button>
+    <hr class="hc-menu__separator">
+    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+メニューの面はドロップダウンの
+[メニュー](/hypermedia-components/ja/components/menu/)と同一なので、
+そちらでドキュメントされているすべて —
+`menuitemcheckbox` / `menuitemradio`、グループラベル、破壊的な
+`data-variant="error"` 項目 — がここでも機能します。
+
+## JavaScript
+
+```js
+import { installContextMenu } from '@hypermedia-components/core';
+installContextMenu(); // idempotent; returns an uninstaller
+```
+
+ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
+インストールします。
+
+## 開き方とキーボード
+
+- **右クリック**(およびタッチの長押し、キーボードの **Menu** キー)は
+  `contextmenu` イベントを発火します。ビヘイビアは
+  `preventDefault()` でネイティブメニューをキャンセルし、ビューポート
+  内に収まるようクランプしてポインタ位置にポップオーバーを開きます。
+- **`Shift`+`F10`** はフォーカス中の要素の位置でメニューを開きます。
+  `Shift`+`F10` は `contextmenu` イベントを発火**しない**ため、別途
+  処理されています。ビヘイビアに届くには、領域(またはフォーカス可能な
+  子孫)がフォーカスを保持できる必要があります — 汎用の領域には
+  `tabindex="0"` を足すか、中のフォーカス可能な行 / コントロールに
+  頼ってください。
+
+開いた後のナビゲーションは標準のメニューキーボード契約です:
+`↓` / `↑` が項目間を移動、`Home` / `End` が最初 / 最後の有効な項目へ
+ジャンプ、頭文字のタイプアヘッド、`Tab` と `Escape` が閉じる。無効な
+項目はスキップされます。`Escape` / 外側クリックの解散とフォーカス
+復元はネイティブの `popover` から来ます。
+
+:::caution[Firefox + Shift]
+Firefox で `Shift` を押しながら右クリックすると、`contextmenu`
+イベントを発火せずに**ブラウザの**ネイティブコンテキストメニューが
+表示されるため、その特定のケースではカスタムメニューが置き換えられ
+ません。これはブラウザの挙動で、ページが上書きできるものでは
+ありません。
+:::
+
+## 選択イベント
+
+項目を選ぶと、ドロップダウンメニューと同じバブリングする
+`hc:menuselect` イベントが、`contextTarget` — 右クリックされた要素 —
+を加えて発火します:
+
+```js
+menu.addEventListener('hc:menuselect', (e) => {
+  const { item, contextTarget, checked } = e.detail;
+  // contextTarget is the element the menu was opened on — e.g. the row
+  // or file the action applies to.
+});
+```
+
+素の `menuitem` は選択後にメニューを閉じます。
+`menuitemcheckbox` / `menuitemradio` は複数トグルできるよう開いたまま
+にします。
+
+## サブメニュー
+
+コンテキストメニューはドロップダウンのサブメニューサポートを共有
+します: `menuitem` に、入れ子の `.hc-menu` を指す
+`data-hc-submenu="<id>"` を与えます。ホバーまたは <kbd>→</kbd> で
+開き、<kbd>←</kbd> / <kbd>Esc</kbd> で閉じ、末端を選ぶとツリー全体が
+閉じます。完全なマークアップとインタラクションモデルは
+[メニュー → サブメニュー](/hypermedia-components/ja/components/menu/#サブメニュー)を
+参照してください。
+
+## htmx での利用
+
+`hc:menuselect` から直接リクエストを配線し、右クリックされた要素で
+アクションをスコープします:
+
+```html
+<ul id="files">
+  <li data-hc-context-menu="row-ctx" data-id="42">report.pdf</li>
+  …
+</ul>
+
+<div class="hc-menu" id="row-ctx" popover role="menu" aria-label="Row actions"
+     data-hx-post="/files/delete"
+     data-hx-trigger="hc:menuselect"
+     data-hx-include="this">
+  <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
+</div>
+```
+
+`htmx:configRequest` ハンドラで
+`event.detail.contextTarget.dataset.id` を読み、対象行の id を
+リクエストに添付してください。
+
+## Hyperscript
+
+右クリックされた行にインラインで作用します — `detail.contextTarget` は
+メニューが開かれた要素です:
+
+```html
+<div class="hc-menu" id="row-ctx" popover role="menu" aria-label="Row actions"
+     _="on hc:menuselect call rowAction(event.detail.item.dataset.action, event.detail.contextTarget)">
+  …
+</div>
+```
+
+さらなるパターン:
+[Hyperscript → コンポーネントイベントへの反応](/hypermedia-components/ja/integrations/hyperscript/#コンポーネントイベントへの反応)。
+
+## アクセシビリティ
+
+- ポップアップは `menuitem` の子を持つ `role="menu"` を使います —
+  ドロップダウンと同じ WAI-ARIA APG メニューパターンです。
+- キーボードの経路を用意してください: **Menu** キーは
+  `contextmenu` イベント経由で機能し、`Shift`+`F10` は明示的に処理
+  されます — ただし領域がフォーカスを受けられる場合だけです。領域か
+  その行をフォーカス可能にしてください。
+- コンテキストメニューをアクションへの*唯一の*経路にしないでください。
+  破壊的 / 重要なアクションは、見えるコントロールやドロップダウン
+  メニューにも重ねてください。
+
+## テーマ用トークン
+
+独自のものはありません —
+[メニュー](/hypermedia-components/ja/components/menu/)の面を描画する
+ため、`menu.*` トークン(と `--hc-menu-*` 変数)が見た目を駆動します。
+
+## 関連
+
+- [メニュー](/hypermedia-components/ja/components/menu/) — 同じ面を
+  トリガーボタンから開くもの。
+- [トグルグループ](/hypermedia-components/ja/components/toggle-group/) —
+  一時的なアクションリストではなく、持続するインラインの選択に。

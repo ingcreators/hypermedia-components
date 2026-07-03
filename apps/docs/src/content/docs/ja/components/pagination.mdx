@@ -1,0 +1,118 @@
+---
+title: ページネーション
+description: 現在ページの強調と無効化された前 / 次を備えたセマンティックなページリンク。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-pagination` は、ページリンクの平坦なリストを含む `<nav>` です。
+現在のページは `aria-current="page"` で印が付きます — その 1 つの
+属性が、視覚状態と支援技術へのシグナルの両方を駆動します。
+
+## 基本の HTML
+
+<Demo>
+  <nav class="hc-pagination" aria-label="Pagination">
+    <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
+    <a class="hc-pagination__item" href="#">1</a>
+    <a class="hc-pagination__item" aria-current="page" href="#">2</a>
+    <a class="hc-pagination__item" href="#">3</a>
+    <a class="hc-pagination__item" href="#">4</a>
+    <a class="hc-pagination__item" href="#">Next ›</a>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-pagination" aria-label="Pagination">
+    <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
+    <a class="hc-pagination__item" href="?page=1">1</a>
+    <a class="hc-pagination__item" aria-current="page" href="?page=2">2</a>
+    <a class="hc-pagination__item" href="?page=3">3</a>
+    <a class="hc-pagination__item" href="?page=4">4</a>
+    <a class="hc-pagination__item" href="?page=3">Next ›</a>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 状態
+
+- `aria-current="page"` — 現在のページ。視覚的には塗りつぶし、
+  クリック不可(pointer-events 無効)。
+- `aria-disabled="true"` — 境界にいるときの前 / 次リンクに適用。
+  リンクはフォーカス可能なまま、ナビゲートしません。
+
+このコンポーネントがアンカーに素の `disabled` を決して使わないのは、
+アンカーがその属性をサポートしないからです。`aria-disabled` の設定が
+正しいパターンで、残りは CSS がやります。
+
+## htmx での利用
+
+ページリンクは周辺領域の htmx スワップを駆動できます。
+
+```html
+<div id="orders">
+  <table class="hc-table">…</table>
+
+  <nav class="hc-pagination" aria-label="Pagination">
+    <a class="hc-pagination__item" href="/orders?page=1"
+       data-hx-get="/orders?page=1"
+       data-hx-target="#orders"
+       data-hx-swap="outerHTML"
+       data-hx-push-url="true">1</a>
+    <a class="hc-pagination__item" aria-current="page"
+       href="/orders?page=2">2</a>
+    …
+  </nav>
+</div>
+```
+
+`data-hx-push-url="true"` がアドレスバーを更新するため、ディープ
+リンクとブラウザの戻るボタンが機能します。
+
+## アクセシビリティ
+
+- ラッパーは明示的な `aria-label` を持つ本物の `<nav>` です。
+- 現在の項目は `aria-current="page"` を使います — スクリーンリーダーは
+  自動で「現在のページ」と読み上げます。
+- アンカーはアンカーのままです。現在ページの `href` は無害で
+  (CSS が pointer events を無効化します)、JavaScript なしでも
+  マークアップが機能し、ユーザーが現在のビューをブックマークする
+  助けになります。
+
+## テーマ用トークン
+
+| トークンパス                                | 用途                   |
+| ------------------------------------------- | ---------------------- |
+| `pagination.gap`                            | 項目間のギャップ。     |
+| `pagination.item-size`                      | 項目の最小サイズ。     |
+| `pagination.padding-x`                      | インラインパディング。 |
+| `pagination.radius`                         | 角丸。                 |
+| `pagination.font-size` / `font-weight`      | タイポグラフィ。       |
+| `pagination.bg` / `-fg` / `-border`         | 待機時の項目の色。     |
+| `pagination.hover-bg`                       | ホバーの背景。         |
+| `pagination.current-bg` / `-fg` / `-border` | 現在項目の色。         |
+| `pagination.disabled-fg`                    | 無効なリンクの色。     |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-pagination-gap | -item-size | -padding-x | -radius
+--hc-pagination-font-size | -font-weight
+--hc-pagination-bg | -fg | -border
+--hc-pagination-hover-bg
+--hc-pagination-current-bg | -current-fg | -current-border
+--hc-pagination-disabled-fg
+```
+
+</details>
+
+## 関連
+
+- [テーブル](/hypermedia-components/ja/components/table/) —
+  ページネーションの定番のホスト。
