@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc datagrid-bulk-actions fixture</title>
+  <!--
+    The blessed datagrid-bulk-actions recipe, verbatim from the docs:
+    one <form> wraps the grid and the selection bar, row checkboxes
+    carry name="ids", each action is a submit button with name="action"
+    plus data-hx-post. The spec drives real htmx against the /mock/bulk
+    route in serve.mjs and pins the contract's foundation — htmx posts
+    the enclosing form's values plus the button's name/value and
+    suppresses the native submit. No custom JS.
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:48rem;">
+    <h1>Datagrid bulk actions</h1>
+
+    <form method="post" action="/mock/bulk" data-testid="bulk-form">
+      <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+           data-hc-datagrid-actions="#grid" data-testid="bar" hidden>
+        <span data-hc-datagrid-count data-testid="count"></span>
+        <button class="hc-button" type="submit" name="action" value="archive"
+                data-hx-post="/mock/bulk"
+                data-hx-target="#rows" data-hx-swap="innerHTML"
+                data-hx-disabled-elt="this"
+                data-testid="archive">Archive</button>
+        <button class="hc-button" data-variant="error" type="submit"
+                name="action" value="delete"
+                data-hc-confirm="Delete the selected products? This cannot be undone."
+                data-hc-confirm-title="Delete products"
+                data-hx-trigger="hc:confirmed"
+                data-hx-post="/mock/bulk"
+                data-hx-target="#rows" data-hx-swap="innerHTML"
+                data-hx-disabled-elt="this"
+                data-testid="delete">Delete</button>
+      </div>
+
+      <div class="hc-datagrid" id="grid">
+        <div class="hc-datagrid__scroll">
+          <table class="hc-datagrid__table">
+            <thead class="hc-datagrid__head">
+              <tr>
+                <th class="hc-datagrid__headcell">
+                  <input type="checkbox" class="hc-checkbox"
+                         aria-label="Select all" data-testid="select-all">
+                </th>
+                <th class="hc-datagrid__headcell" scope="col">ID</th>
+                <th class="hc-datagrid__headcell" scope="col">Product</th>
+                <th class="hc-datagrid__headcell" scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody class="hc-datagrid__body" id="rows">
+              <tr class="hc-datagrid__row">
+                <td class="hc-datagrid__cell">
+                  <input type="checkbox" class="hc-checkbox"
+                         name="ids" value="101" aria-label="Select Anvil"
+                         data-testid="cb-101">
+                </td>
+                <th class="hc-datagrid__cell" scope="row">101</th>
+                <td class="hc-datagrid__cell">Anvil</td>
+                <td class="hc-datagrid__cell">Active</td>
+              </tr>
+              <tr class="hc-datagrid__row">
+                <td class="hc-datagrid__cell">
+                  <input type="checkbox" class="hc-checkbox"
+                         name="ids" value="102" aria-label="Select Rocket skates"
+                         data-testid="cb-102">
+                </td>
+                <th class="hc-datagrid__cell" scope="row">102</th>
+                <td class="hc-datagrid__cell">Rocket skates</td>
+                <td class="hc-datagrid__cell">Active</td>
+              </tr>
+              <tr class="hc-datagrid__row">
+                <td class="hc-datagrid__cell">
+                  <input type="checkbox" class="hc-checkbox"
+                         name="ids" value="103" aria-label="Select Tornado seeds"
+                         data-testid="cb-103">
+                </td>
+                <th class="hc-datagrid__cell" scope="row">103</th>
+                <td class="hc-datagrid__cell">Tornado seeds</td>
+                <td class="hc-datagrid__cell">Active</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p id="rows-status" aria-live="polite" data-testid="status">3 products</p>
+    </form>
+  </main>
+</body>
+</html>

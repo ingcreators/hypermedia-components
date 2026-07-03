@@ -24,6 +24,9 @@ documentation pages.
 | [`remote-dialog/`](remote-dialog/)        | Server-rendered `<dialog>` shown via htmx swap.                         |
 | [`filter-popover/`](filter-popover/)      | Native `popover` element used as a filter sheet.                        |
 | [`data-region/`](data-region/)            | Container that re-fetches itself in response to application events.     |
+| [`field-errors/`](field-errors/)          | Render server-side validation errors next to the fields they belong to. |
 | [`inline-edit/`](inline-edit/)            | Display ↔ edit toggle that swaps the same DOM node each way.            |
 | [`lazy-panel/`](lazy-panel/)              | Panel whose content loads on first reveal (intersect / details / tab).  |
+| [`datagrid-pager/`](datagrid-pager/)      | Paginate an `hc-datagrid` from the server with htmx.                    |
+| [`datagrid-bulk-actions/`](datagrid-bulk-actions/) | Select datagrid rows and POST one action against all of them.  |
 | [`chart/`](chart/)                        | Server-sent data table upgraded to an Observable Plot SVG chart. *(needs `installChart` + Plot)* |

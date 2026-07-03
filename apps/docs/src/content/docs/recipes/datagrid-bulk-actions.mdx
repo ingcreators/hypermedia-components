@@ -1,0 +1,167 @@
+---
+title: Datagrid bulk actions
+description: Select rows with the grid's checkboxes, act from a selection bar, POST the ids over htmx — native form serialization, a 200-with-truth response, and a no-JS path.
+---
+
+`datagrid-bulk-actions` is the blessed composition for running one
+action against many [datagrid](/hypermedia-components/components/datagrid/)
+rows at once: the grid's existing row selection, a **selection actions
+bar** that appears with the first selected row, and a bulk POST whose
+ids travel by **native form serialization** — no JavaScript assembles a
+payload anywhere. It wires together pieces that each already have a
+contract — the [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/)
+`innerHTML` swap, the [confirm-action](/hypermedia-components/recipes/confirm-action/)
+gate, and the [toast](/hypermedia-components/recipes/toast/) `HX-Trigger` —
+and it is stable under the
+[markup versioning policy](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md).
+
+It needs `installDatagrid()` and `installDatagridActions()` (both in
+the auto-init
+[`./behaviors`](/hypermedia-components/start/installation/#behaviors)
+bundle), plus `installConfirm()` for the destructive variant.
+
+## The markup
+
+One `<form>` wraps the grid **and** the bar:
+
+```html
+<form method="post" action="/products/bulk">
+  <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+       data-hc-datagrid-actions="#grid" hidden>
+    <span data-hc-datagrid-count></span>
+    <button class="hc-button" type="submit" name="action" value="archive"
+            data-hx-post="/products/bulk"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Archive</button>
+  </div>
+
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell">
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="rows">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox"
+                     name="ids" value="101" aria-label="Select Anvil">
+            </td>
+            <td class="hc-datagrid__cell">Anvil</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
+```
+
+## How the ids travel
+
+The row checkboxes are `name="ids" value="<id>"`. htmx includes the
+enclosing form's values on non-GET requests, unchecked checkboxes never
+serialize (plain HTML), and htmx also submits the triggering button's
+`name`/`value` — so clicking **Archive** with two rows checked posts
+exactly:
+
+```text
+POST /products/bulk
+ids=101&ids=102&action=archive
+```
+
+Two rules keep the payload honest:
+
+- **The select-all checkbox has no `name`** — it is a UI convenience
+  and must never leak into the request.
+- Each action button is `type="submit" name="action" value="<verb>"`,
+  so the same markup posts natively (with the same body) when JS is
+  off. One endpoint branches on `action`; per-action URLs work too.
+
+This is the recipe's foundation, so it is pinned against real htmx by
+`test-browser/datagrid-bulk-actions.spec.mjs` — including that the
+native submit stays suppressed while htmx handles the click.
+
+## The selection bar
+
+`installDatagridActions()` mirrors the grid's selection into any
+element with `data-hc-datagrid-actions="<grid selector>"`:
+
+- the `[data-hc-datagrid-count]` child renders the i18n key
+  `datagrid.selected` (default `{selected} selected`; a `{total}` param
+  is available to overrides) with a default `role="status"`, and
+- the bar is `hidden` while nothing is selected.
+
+It is driven by the grid's public `hc:datagridselectionchange` event —
+including the grid's re-emit after a row swap, which is what clears the
+bar after a bulk action. Making it an `hc-toolbar` with `role="toolbar"`
+gives the buttons the arrow-key toolbar pattern for free.
+
+## Server response contract
+
+Branch on `HX-Request`; the htmx answer is always **`200` with the
+page's truth** — the re-rendered rows (tbody `innerHTML`, same shape as
+[datagrid-pager](/hypermedia-components/recipes/datagrid-pager/)), any
+out-of-band fragments, and a toast:
+
+| Request | Response |
+| --- | --- |
+| htmx, success | `200` — re-rendered rows + OOB status/pager + `HX-Trigger: {"hc:toast":{"message":"3 archived","variant":"success"}}` |
+| htmx, partial failure | Same `200` shape — rows show what actually happened, toast `variant: "warning"` (`"3 archived, 1 failed"`) |
+| htmx, empty/stale `ids` | Same `200` shape — no-op rows, toast `variant: "info"`; **re-validate ids server-side** (the hidden-at-zero bar is not a guarantee) |
+| no-JS | `303 See Other` + `Location` — classic post/redirect/get, as in [mutating-form](/hypermedia-components/recipes/mutating-form/) |
+
+There is no status-code choreography: only the rows and the toast
+differ. Because the swapped-in rows arrive with fresh checkboxes, the
+grid re-derives the selection, re-syncs the select-all checkbox, and
+re-emits — the selection clears and the bar hides **by construction**.
+
+## Confirmed destructive variant
+
+Gate a destructive bulk action with the
+[confirm-action](/hypermedia-components/recipes/confirm-action/) pattern
+on the button — everything else is unchanged:
+
+```html
+<button class="hc-button" data-variant="error" type="submit"
+        name="action" value="delete"
+        data-hc-confirm="Delete the selected products? This cannot be undone."
+        data-hx-trigger="hc:confirmed"
+        data-hx-post="/products/bulk"
+        data-hx-target="#rows" data-hx-swap="innerHTML"
+        data-hx-disabled-elt="this">Delete</button>
+```
+
+## No-JS degradation
+
+The form keeps `method`/`action` and the buttons are real submit
+buttons, so checking rows and pressing an action posts the same
+`ids=…&action=…` body natively; the server answers `303`. Ship the bar
+without the `hidden` attribute if it must be usable before JS loads —
+the behavior hides it at install when nothing is selected. CSRF on the
+htmx path uses the
+[meta convention](/hypermedia-components/integrations/htmx/#csrf-tokens--the-blessed-convention); the
+native path needs your framework's hidden field.
+
+## Scope and composition
+
+Selection is **per page** — the same stance as the pager. When the two
+recipes compose, keep the current page in the form as
+`<input type="hidden" id="bulk-page" name="page" value="3">` and have
+the server re-render it with `hx-swap-oob="true"` alongside the pager
+fragment. Cross-page "select all N matching", undo, and server-tracked
+selection are deliberate non-goals of this recipe. The full wire
+contract lives in
+[`recipes/datagrid-bulk-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-actions/contract.md).
+
+## Related
+
+- [Datagrid](/hypermedia-components/components/datagrid/) — row selection, the selection actions bar section.
+- [Datagrid pager recipe](/hypermedia-components/recipes/datagrid-pager/) — the `innerHTML` swap rules and OOB fragments.
+- [Confirm action recipe](/hypermedia-components/recipes/confirm-action/) — the destructive-action gate.
+- [Toast recipe](/hypermedia-components/recipes/toast/) — result feedback via `HX-Trigger`.
+- [Mutating form recipe](/hypermedia-components/recipes/mutating-form/) — the `HX-Request` branching this shares.

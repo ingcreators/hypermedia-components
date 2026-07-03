@@ -18,6 +18,13 @@
     border-radius: var(--hc-toolbar-radius);
   }
 
+  /* `display: flex` above defeats the UA's [hidden] rule — restore it so
+   * a state-toggled toolbar (e.g. the datagrid selection actions bar)
+   * actually hides. Same pattern as hc-tabs / hc-command. */
+  .hc-toolbar[hidden] {
+    display: none;
+  }
+
   /* Vertical separator. Apply to <hr role="separator" aria-orientation="vertical"> */
   .hc-toolbar > hr {
     margin: 0;

@@ -1,0 +1,77 @@
+<!-- Fully expanded, framework-free form of the datagrid-bulk-actions
+  recipe: selection bar with count + archive + confirmed delete, the
+  grid with select-all and per-row checkboxes, and an out-of-band
+  status line. Requires installDatagrid / installDatagridActions /
+  installToolbar / installConfirm / installToast — all part of the
+  auto-init @hypermedia-components/core/behaviors bundle. The server
+  side is specified in contract.md. -->
+<form method="post" action="/products/bulk">
+  <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+       data-hc-datagrid-actions="#grid" hidden>
+    <!-- installDatagridActions renders the datagrid.selected i18n
+         message here ("2 selected") and gives it role="status". -->
+    <span data-hc-datagrid-count></span>
+
+    <button class="hc-button" type="submit" name="action" value="archive"
+            data-hx-post="/products/bulk"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Archive</button>
+
+    <!-- Destructive: gated by the confirm-action pattern; htmx fires on
+         hc:confirmed instead of the click. No-JS submits without the
+         dialog (the server re-validates anyway). -->
+    <button class="hc-button" data-variant="error" type="submit"
+            name="action" value="delete"
+            data-hc-confirm="Delete the selected products? This cannot be undone."
+            data-hc-confirm-title="Delete products"
+            data-hx-trigger="hc:confirmed"
+            data-hx-post="/products/bulk"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Delete</button>
+  </div>
+
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen>
+              <!-- Select-all: NO name attribute — must never serialize.
+                   Indeterminate state is native and re-synced after swaps. -->
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+          </tr>
+        </thead>
+        <!-- The swap target: keep the <tbody>, swap only the rows inside
+             (innerHTML) — the datagrid-pager rules apply. -->
+        <tbody class="hc-datagrid__body" id="rows">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-frozen>
+              <input type="checkbox" class="hc-checkbox"
+                     name="ids" value="101" aria-label="Select Anvil">
+            </td>
+            <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">101</th>
+            <td class="hc-datagrid__cell">Anvil</td>
+            <td class="hc-datagrid__cell">Active</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-frozen>
+              <input type="checkbox" class="hc-checkbox"
+                     name="ids" value="102" aria-label="Select Rocket skates">
+            </td>
+            <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">102</th>
+            <td class="hc-datagrid__cell">Rocket skates</td>
+            <td class="hc-datagrid__cell">Active</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Updated out-of-band by the server in the same 200 response
+       (hx-swap-oob="true" on the fragment it returns). -->
+  <p id="rows-status" aria-live="polite">2 products</p>
+</form>
