@@ -20,6 +20,13 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-07-03
+
+- **CLI `@hypermedia-components/cli@0.2.0`** — the `hc validate` release
+  (new command + `checks.json` in every recipe + linkedom as the CLI's
+  first, lazy-loaded runtime dependency) and the five new recipe
+  scaffolds bundled. (Independent `cli-v0.2.0` tag.)
+
 ### Added
 
 - **`file-upload` recipe — multipart upload with a live progress bar**

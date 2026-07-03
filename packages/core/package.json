@@ -1,6 +1,6 @@
 {
   "name": "@hypermedia-components/core",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Semantic components and recipes for hypermedia applications.",
   "license": "MIT",
   "repository": {
