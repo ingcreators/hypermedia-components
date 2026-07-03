@@ -1,0 +1,14 @@
+<!-- Short recommended usage.
+
+  Server-pushed fragment updates: the htmx SSE extension owns the
+  EventSource (load sse.min.js next to htmx), the scope declares the
+  stream, and each element names the events it receives. The server
+  sends named events whose data is the finished fragment. Render the
+  complete current state server-side — the stream only freshens it.
+  See expanded.html for feeds, out-of-band pushes and the datagrid
+  composition; contract.md for the stream contract. -->
+<div data-hx-ext="sse" data-sse-connect="/events">
+  <section id="status" data-sse-swap="status:panel">
+    <p>All systems normal</p><!-- server-rendered current state -->
+  </section>
+</div>

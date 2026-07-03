@@ -1,0 +1,13 @@
+<!-- Short recommended usage.
+
+  Server-pushed notifications: the htmx SSE extension owns the
+  EventSource, and one hidden bridge element (installSseDispatch, in
+  the auto-init behaviors bundle) turns allow-listed SSE events into
+  DOM CustomEvents — event: hc:toast with a toast-shaped JSON payload
+  shows a toast, domain events like items:changed refetch listening
+  data-regions. Only events named in data-sse-swap are ever
+  dispatched. See contract.md for the payload rules. -->
+<div data-hx-ext="sse" data-sse-connect="/events">
+  <span hidden data-hc-sse-dispatch
+        data-sse-swap="hc:toast, items:changed"></span>
+</div>

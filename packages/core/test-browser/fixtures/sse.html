@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc sse fixture</title>
+  <!--
+    The blessed SSE recipes, verbatim from the docs: sse-updates (feed,
+    status panel with an out-of-band badge) and sse-toast (the dispatch
+    bridge driving a toast and a data-region invalidation). The spec
+    drives a real EventSource against the scripted /mock/sse stream in
+    serve.mjs and pins each documented claim: named-event swaps, OOB
+    fragments inside SSE data, the strict payload rules, and the
+    deliberate stream end (data-sse-close). No custom JS.
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script src="/sse.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:40rem;">
+    <h1>SSE recipes</h1>
+
+    <div data-hx-ext="sse" data-sse-connect="/mock/sse"
+         data-sse-close="stream:done" data-testid="scope">
+
+      <!-- sse-updates: prepending feed -->
+      <ul id="activity" data-sse-swap="activity:item"
+          data-hx-swap="afterbegin" data-testid="feed">
+        <li class="hc-item">Initial item</li>
+      </ul>
+
+      <!-- sse-updates: panel + out-of-band badge in one push -->
+      <section id="status" data-sse-swap="status:panel" data-testid="panel">
+        <p>server-rendered initial</p>
+      </section>
+      <span class="hc-badge" id="alert-badge" data-testid="badge">0</span>
+
+      <!-- sse-toast: the bridge (allowlist = hc:toast, items:changed) -->
+      <span hidden data-hc-sse-dispatch
+            data-sse-swap="hc:toast, items:changed" data-testid="bridge"></span>
+
+      <!-- sse-toast composition: a data-region the server invalidates -->
+      <section id="live-region" class="hc-data-region"
+               data-hx-get="/mock/sse/region"
+               data-hx-trigger="items:changed from:body"
+               data-hx-swap="outerHTML" data-testid="region">region v0</section>
+    </div>
+  </main>
+</body>
+</html>

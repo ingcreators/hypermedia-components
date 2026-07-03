@@ -22,6 +22,26 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`sse-updates` + `sse-toast` recipes — the blessed server-push
+  patterns** (#284). Server-Sent Events over the official htmx SSE
+  extension (vendored pinned, `examples/htmx/vendor/sse.min.js`,
+  htmx-ext-sse 2.2.3): `sse-updates` blesses named-event fragment
+  pushes (`data-sse-connect` scope + `data-sse-swap` targets honouring
+  `data-hx-swap`), **out-of-band fragments inside SSE data** for
+  multi-target pushes, the datagrid-tbody composition (keep-the-tbody,
+  selection re-derives), deliberate stream ends (`data-sse-close`) and
+  the complete-initial-render degradation stance; `sse-toast` blesses
+  server-pushed notifications and domain events through the
+  `installSseDispatch()` bridge — `hc:toast` payloads reuse the toast
+  detail shape unchanged, `items:changed`-style events refetch
+  listening data-regions, and the strict payload rules (object-or-drop,
+  markup-declared allowlist) are contract. Ships as
+  `recipes/sse-updates/` + `recipes/sse-toast/` (the CLI picks both up
+  automatically) plus two docs pages, pinned by a real-EventSource
+  browser test (`test-browser/sse.spec.mjs`) against a scripted
+  streaming mock — including the OOB-inside-SSE claim and the
+  no-replay-after-close lifecycle.
+
 - **`installSseDispatch()` — bridge SSE events into DOM CustomEvents**
   (#283). Inside an htmx SSE-extension scope (`data-sse-connect`), an
   element with `data-hc-sse-dispatch` re-dispatches the SSE events

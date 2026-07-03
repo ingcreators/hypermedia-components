@@ -1,0 +1,47 @@
+<!-- Fully expanded, framework-free form of the sse-updates recipe:
+  a prepending activity feed, a status panel that also updates an
+  out-of-band badge, a live datagrid tbody, and a deliberate stream
+  end (data-sse-close). Requires htmx + the SSE extension (sse.min.js,
+  vendored/pinned); no Hypermedia Components behavior is needed for
+  fragment pushes. The stream format is specified in contract.md. -->
+<div data-hx-ext="sse" data-sse-connect="/events"
+     data-sse-close="stream:done">
+
+  <!-- Feed: new items prepend. The server sends
+       event: activity:item / data: <li class="hc-item">…</li> -->
+  <ul id="activity" data-sse-swap="activity:item"
+      data-hx-swap="afterbegin">
+    <li class="hc-item">Deploy #41 finished</li>
+  </ul>
+
+  <!-- Status panel: innerHTML replacement. A message's data may also
+       carry hx-swap-oob fragments that update other targets by id
+       (the badge below) in the same push. -->
+  <section id="status" data-sse-swap="status:panel">
+    <p>All systems normal</p>
+  </section>
+  <span class="hc-badge" id="alert-badge">0</span>
+
+  <!-- Datagrid composition: push a full page of rows into the tbody.
+       Keep the <tbody> and swap innerHTML — the datagrid-pager rule —
+       so the grid's observer re-applies roles, offsets and selection. -->
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">ID</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="rows"
+               data-sse-swap="products:rows" data-hx-swap="innerHTML">
+          <tr class="hc-datagrid__row">
+            <th class="hc-datagrid__cell" scope="row">101</th>
+            <td class="hc-datagrid__cell">Active</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

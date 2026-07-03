@@ -1,0 +1,27 @@
+<!-- Fully expanded, framework-free form of the sse-toast recipe:
+  the bridge plus the two blessed consumers — the toast region
+  (installToast creates one lazily if absent) and a data-region that
+  refetches when the server pushes its invalidation event. Requires
+  htmx + the SSE extension + the auto-init behaviors bundle
+  (installSseDispatch, installToast). Stream format in contract.md. -->
+<div data-hx-ext="sse" data-sse-connect="/events">
+
+  <!-- The bridge: never renders, never focuses. The data-sse-swap list
+       is the allowlist — only these SSE events become DOM events. -->
+  <span hidden data-hc-sse-dispatch
+        data-sse-swap="hc:toast, items:changed"></span>
+
+  <!-- Optional explicit toast region (position/limit knobs); without
+       it installToast creates one at the default position. -->
+  <div data-hc-toast-region data-position="bottom-right" data-limit="4"></div>
+
+  <!-- Server pushes `event: items:changed` + `data: {}` → the bridge
+       dispatches it on the page → this region refetches itself.
+       The push carries no markup; the region pulls the re-render. -->
+  <section id="items" class="hc-data-region"
+           data-hx-get="/items"
+           data-hx-trigger="items:changed from:body"
+           data-hx-swap="outerHTML">
+    …server-rendered current items…
+  </section>
+</div>

@@ -29,4 +29,6 @@ documentation pages.
 | [`lazy-panel/`](lazy-panel/)              | Panel whose content loads on first reveal (intersect / details / tab).  |
 | [`datagrid-pager/`](datagrid-pager/)      | Paginate an `hc-datagrid` from the server with htmx.                    |
 | [`datagrid-bulk-actions/`](datagrid-bulk-actions/) | Select datagrid rows and POST one action against all of them.  |
+| [`sse-updates/`](sse-updates/)            | Server-pushed fragment updates over Server-Sent Events.                 |
+| [`sse-toast/`](sse-toast/)                | Server-pushed notifications / domain events via the SSE dispatch bridge. |
 | [`chart/`](chart/)                        | Server-sent data table upgraded to an Observable Plot SVG chart. *(needs `installChart` + Plot)* |

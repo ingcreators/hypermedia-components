@@ -18,7 +18,9 @@ then starts a zero-dependency Node server on
 `/hc.css`, `/hc.behaviors.js`, etc. to the workspace `dist`. htmx is
 vendored under `vendor/htmx.min.js` (pinned 2.0.4) and served at
 `/htmx.js`, so the demo runs fully offline — point that `<script>` at a
-CDN URL in your own app if you prefer.
+CDN URL in your own app if you prefer. The htmx SSE extension is
+vendored alongside it (`vendor/sse.min.js`, htmx-ext-sse 2.2.3, served
+at `/sse.min.js`) for the sse-updates / sse-toast recipes.
 
 Set `PORT` to use a different port:
 

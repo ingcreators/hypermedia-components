@@ -1,0 +1,101 @@
+---
+title: SSE live updates
+description: Server-pushed fragment updates over Server-Sent Events — named events, out-of-band pushes, the datagrid composition, and a complete-initial-render degradation story.
+---
+
+`sse-updates` is the blessed pattern for **server-pushed UI**: a feed,
+status panel, or datagrid that re-renders because the server said so,
+not because the user acted. The
+[htmx SSE extension](/hypermedia-components/integrations/htmx/#server-sent-events)
+owns the `EventSource`; the markup declares the stream and the event
+names; the server sends **named events whose data is a finished
+fragment** — the same markup-as-wire-contract stance as every other
+recipe. It is stable under the
+[markup versioning policy](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md).
+
+No Hypermedia Components behavior is needed for fragment pushes — for
+server-pushed *notifications and domain events*, see the
+[SSE toast recipe](/hypermedia-components/recipes/sse-toast/).
+
+## The markup
+
+```html
+<div data-hx-ext="sse" data-sse-connect="/events"
+     data-sse-close="stream:done">
+  <ul id="activity" data-sse-swap="activity:item"
+      data-hx-swap="afterbegin">
+    <li class="hc-item">…server-rendered current items…</li>
+  </ul>
+
+  <section id="status" data-sse-swap="status:panel">
+    …server-rendered current status…
+  </section>
+</div>
+```
+
+One `data-sse-connect` scope per stream. Each element inside names the
+events it receives with `data-sse-swap`; the event's data is swapped in
+honouring the element's `data-hx-swap` (`innerHTML` by default,
+`afterbegin` for feeds). The extension supports the `data-` prefixed
+attribute forms, matching the kit's `data-hx-*` convention.
+
+## The stream
+
+```text
+retry: 5000
+
+event: activity:item
+data: <li class="hc-item">Deploy #42 started</li>
+
+event: status:panel
+data: <p>All systems normal</p><span id="alert-badge" hx-swap-oob="true">3</span>
+```
+
+Name events by domain (`activity:item`, `status:panel`) — the names are
+wire contract. A message's data may also carry `hx-swap-oob` fragments
+that update other targets by id in the same push (the second example
+updates both the panel and a badge), exactly like the
+[datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) and
+bulk-actions responses.
+
+## Datagrid composition
+
+Push a page of rows by putting `data-sse-swap` +
+`data-hx-swap="innerHTML"` on the `.hc-datagrid__body` tbody. The
+**keep-the-tbody** rule from the pager applies unchanged: the grid's
+observer survives the swap, re-applies roles and sticky offsets, and
+re-derives selection — so a
+[selection actions bar](/hypermedia-components/components/datagrid/#selection-actions-bar)
+clears itself when pushed rows arrive, with no extra wiring.
+
+## Lifecycle
+
+Reconnection is htmx-native: `EventSource` retries automatically
+(honouring the server's `retry:` hint) and the extension adds backoff
+on repeated failures — so the server must expect reconnects and resend
+current state, or tolerate the gap. End streams deliberately with
+`data-sse-close="<event>"` (a dropped stream reconnects; a closed one
+stays closed). `htmx:sseOpen` / `htmx:sseError` / `htmx:sseClose` fire
+on the scope for debugging. The extension connects with
+`withCredentials: true` — cookies ride along.
+
+## No-JS degradation
+
+Render the **complete current state** into the initial HTML; the stream
+only freshens it. Without JS the page is simply as fresh as the last
+full render — no loading shells, nothing breaks. This is the recipe's
+accessibility stance too: pushed fragments replace content without
+moving focus, and regions that should announce updates opt in with
+`aria-live="polite"` on the landing element.
+
+The full stream contract lives in
+[`recipes/sse-updates/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-updates/contract.md);
+the claims here are pinned by a real-EventSource browser test
+(`test-browser/sse.spec.mjs`).
+
+## Related
+
+- [SSE toast recipe](/hypermedia-components/recipes/sse-toast/) — server-pushed notifications and domain events via the dispatch bridge.
+- [htmx integration — Server-sent events](/hypermedia-components/integrations/htmx/#server-sent-events) — loading the extension, lifecycle, credentials.
+- [Datagrid pager recipe](/hypermedia-components/recipes/datagrid-pager/) — the tbody swap rules this composes with.
+- [Data region recipe](/hypermedia-components/recipes/data-region/) — pull-based refresh, the complementary pattern.

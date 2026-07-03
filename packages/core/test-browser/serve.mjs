@@ -21,6 +21,7 @@ const ASSET_ALIASES = new Map([
   // Real htmx (the copy vendored for examples/htmx, pinned 2.0.4) so
   // integration fixtures can exercise actual htmx requests offline.
   ['/htmx.min.js',     join(repoRoot, 'examples', 'htmx', 'vendor', 'htmx.min.js')],
+  ['/sse.min.js',      join(repoRoot, 'examples', 'htmx', 'vendor', 'sse.min.js')],
   ['/hc.css',          join(coreDist, 'hc.css')],
   ['/hc.tokens.css',   join(coreDist, 'hc.tokens.css')],
   ['/hc.htmx.css',     join(coreDist, 'hc.htmx.css')],
@@ -117,6 +118,55 @@ const FIELD_ERRORS_FRAGMENT = `
     </ul>
   </div>`;
 
+// Mock SSE stream for the sse.spec.mjs recipes spec (sse.html): a fixed,
+// timed script exercising every documented claim — named fragment events
+// (feed prepend + panel replace), an out-of-band fragment inside SSE
+// data, a malformed then a valid hc:toast payload for the dispatch
+// bridge, a domain event that invalidates a data-region, and a
+// deliberate stream end (the fixture's data-sse-close event). The
+// region endpoint counts requests so a refetch is observable.
+let sseRegionCounter = 0;
+
+function handleSse(req, res, url) {
+  if (url.pathname === '/mock/sse' && req.method === 'GET') {
+    req.resume();
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-store',
+      Connection: 'keep-alive',
+    });
+    res.write('retry: 1000\n\n');
+    const send = (event, data, delay) =>
+      setTimeout(() => {
+        if (!res.writableEnded) res.write(`event: ${event}\ndata: ${data}\n\n`);
+      }, delay);
+    send('activity:item', '<li class="hc-item">Deploy #42 started</li>', 100);
+    send('status:panel',
+      '<p>All systems normal</p><span class="hc-badge" id="alert-badge" hx-swap-oob="true" data-testid="badge">3</span>',
+      250);
+    send('hc:toast', '{broken json', 400); // dropped by the bridge
+    send('hc:toast', '{"message":"Build finished","variant":"success"}', 550);
+    send('items:changed', '{}', 700);
+    send('stream:done', '', 900); // fixture closes via data-sse-close
+    setTimeout(() => {
+      if (!res.writableEnded) res.end();
+    }, 1100);
+    return true;
+  }
+  if (url.pathname === '/mock/sse/region' && req.method === 'GET') {
+    req.resume();
+    sseRegionCounter += 1;
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(`<section id="live-region" class="hc-data-region"
+      data-hx-get="/mock/sse/region"
+      data-hx-trigger="items:changed from:body"
+      data-hx-swap="outerHTML" data-testid="region">region v${sseRegionCounter}</section>`);
+    return true;
+  }
+  return false;
+}
+
 // Mock bulk handler for the datagrid-bulk-actions spec
 // (datagrid-bulk-actions.html): three products, stateless — the response
 // is derived from the posted ids/action per the recipe contract (htmx:
@@ -197,6 +247,7 @@ function handleBulk(req, res, url) {
 
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
+  if (handleSse(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
   req.resume();
