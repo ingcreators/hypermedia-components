@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installUploadProgress()` — drive a native `<progress>` from htmx
+  upload progress** (#296). A
+  `<progress class="hc-progress htmx-indicator" data-hc-upload-progress>`
+  inside a requesting form tracks the upload: reset to 0 on
+  `htmx:beforeRequest`, `loaded/total` mapped onto 0–100 on
+  `htmx:xhr:progress` — **monotonic within a request**, because htmx
+  fires that event for both the upload and the response-download phase
+  and the download's small `total` would otherwise rewind the bar at
+  the end — and settled at 100 on `htmx:afterRequest`. Visibility stays
+  htmx-native (`data-hx-indicator` + `htmx-indicator`); the behavior
+  only sets `value` and never touches the network. Auto-installed via
+  `@hypermedia-components/core/behaviors`; the `file-upload` recipe
+  follows in the next PR (see `plans/hc-file-upload-plan-en.md`).
+
 - **`undo-delete` recipe — undo instead of confirm** (#294). Frequent
   destructive actions execute immediately (no dialog): the server
   soft-deletes with a grace period and answers `200` with a
