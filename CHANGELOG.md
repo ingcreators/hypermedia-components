@@ -22,6 +22,11 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 10 — the Overlays and Feedback
+  categories are complete** (#323, docs-facing). Eleven pages: dialog,
+  drawer, popover, hovercard, tooltip, alert, toast, progress, spinner,
+  skeleton, and empty. 94 ja pages total.
+
 - **Docs: Japanese translations, phase 9 — the Navigation category is
   complete** (#322, docs-facing). Nine pages: breadcrumb, toc,
   pagination, tabs, menu, menubar, navmenu, context-menu, and tree.

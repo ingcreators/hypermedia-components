@@ -1,0 +1,157 @@
+---
+title: アラート
+description: バリアントカラーつきのブロックレベルの通知 / ステータスメッセージ。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-alert` は、読者の注意をある情報へ引くためのブロックレベルの
+通知です。バリアントは `data-variant` で切り替えます。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:36rem;">
+  <div class="hc-alert" role="status">
+    <strong class="hc-alert__title">Tip</strong>
+    <p class="hc-alert__body">You can press <kbd>Ctrl</kbd>+<kbd>K</kbd> to open the command bar.</p>
+  </div>
+  <div class="hc-alert" data-variant="success" role="status">
+    <strong class="hc-alert__title">Saved</strong>
+    <p class="hc-alert__body">Your changes are saved.</p>
+  </div>
+  <div class="hc-alert" data-variant="warning" role="status">
+    <strong class="hc-alert__title">Heads up</strong>
+    <p class="hc-alert__body">This action will affect 3 connected systems.</p>
+  </div>
+  <div class="hc-alert" data-variant="error" role="alert">
+    <strong class="hc-alert__title">Something went wrong</strong>
+    <p class="hc-alert__body">The server returned a 500. Please try again.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-alert" role="status">
+    <strong class="hc-alert__title">Tip</strong>
+    <p class="hc-alert__body">You can press <kbd>Ctrl</kbd>+<kbd>K</kbd> to open the command bar.</p>
+  </div>
+
+  <div class="hc-alert" data-variant="success" role="status">
+    <strong class="hc-alert__title">Saved</strong>
+    <p class="hc-alert__body">Your changes are saved.</p>
+  </div>
+
+  <div class="hc-alert" data-variant="warning" role="status">
+    <strong class="hc-alert__title">Heads up</strong>
+    <p class="hc-alert__body">This action will affect 3 connected systems.</p>
+  </div>
+
+  <div class="hc-alert" data-variant="error" role="alert">
+    <strong class="hc-alert__title">Something went wrong</strong>
+    <p class="hc-alert__body">The server returned a 500. Please try again.</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## バリアント
+
+| バリアント  | 用途                                   |
+| ----------- | -------------------------------------- |
+| _省略_      | 情報の通知(デフォルトの青)。         |
+| `success`   | 完了したアクションの確認。             |
+| `warning`   | 非破壊的なアクションの前の注意。       |
+| `error`    | エラー、失敗、破壊的な警告。           |
+
+## htmx での利用
+
+よくあるサーバサイドのパターンは、リクエスト後にターゲット領域用の
+`hc-alert` フラグメントを返すものです。挙動は他の HTML のスワップと
+同一です — アラート自身に JavaScript はありません。
+
+```html
+<button
+  class="hc-button"
+  data-hx-post="/items"
+  data-hx-target="#flash"
+  data-hx-swap="innerHTML">
+  Save
+</button>
+
+<div id="flash" aria-live="polite"></div>
+```
+
+ページをまたぐ一時的な通知には、`hc:toast` イベントまたは
+`HX-Trigger` レスポンスヘッダーで発火される
+[トースト](/hypermedia-components/ja/components/toast/)を使って
+ください。
+
+## バリデーションエラーフラグメント
+
+エラーアラートは**フィールドエラーリスト**を運べます —
+[field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)が
+htmx 越しのサーバサイドバリデーションのために定義するワイヤ形式です:
+
+```html
+<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+  <p class="hc-alert__title">Unprocessable Entity</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error" data-field="email" data-code="duplicate">
+      email: duplicate</li>
+  </ul>
+  <p class="hc-alert__body">optional hint line</p>
+</div>
+```
+
+`installFieldErrors()` がアクティブなら、各 `.hc-alert__error` は
+その `data-field` が名指しするフィールドへ振り分けられ、サマリーでは
+隠されます(`data-distributed`)。既知のコントロールを名指ししない
+項目は見えたまま残ります。ビヘイビアなしでは、アラートはすべての
+エラーを素のリストとして描画します。属性の全セットとサーバ契約は
+レシピを参照してください。
+
+## アクセシビリティ
+
+- **role** は緊急度に基づいて選びます:
+  - 急ぎでない更新には `role="status"`(または
+    `aria-live="polite"`)— スクリーンリーダーが話し終えてから
+    読み上げられます。
+  - エラーと緊急の失敗には `role="alert"`(または
+    `aria-live="assertive"`)— スクリーンリーダーに割り込みます。
+- 正しい role は文脈次第なので、コンポーネントは role を設定して
+  くれません。呼び出し側で明示してください。
+- 色だけに意味を運ばせてはいけません。アラートの種類がテキストとして
+  読み上げられるよう、短い `.hc-alert__title` を含めてください。
+
+## テーマ用トークン
+
+| トークンパス                     | 用途                          |
+| -------------------------------- | ----------------------------- |
+| `alert.padding-block` / `-inline` | パディング。                 |
+| `alert.radius`                   | 角丸。                        |
+| `alert.gap`                      | タイトルと本文の間のギャップ。 |
+| `alert.border-width`             | 枠線の太さ。                  |
+| `alert.title-weight`             | タイトルのフォントウェイト。  |
+| `alert.{variant}.{bg,fg,border}` | バリアントごとの色。          |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-alert-padding-block | -padding-inline | -radius | -gap | -border-width
+--hc-alert-title-weight
+--hc-alert-info-bg    | -fg | -border
+--hc-alert-success-bg | -fg | -border
+--hc-alert-warning-bg | -fg | -border
+--hc-alert-error-bg  | -fg | -border
+```
+
+</details>
+
+## 関連
+
+- [バッジ](/hypermedia-components/ja/components/badge/) — インラインのステータスに。
+- [トースト](/hypermedia-components/ja/components/toast/) — 一時的なページ横断の通知に。

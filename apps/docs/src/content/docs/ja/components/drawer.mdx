@@ -1,0 +1,244 @@
+---
+title: ドロワー
+description: ネイティブの <dialog> 要素の上に構築されたスライドインのサイドパネル。端への配置と、@starting-style による CSS のみのスライドアニメーション。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-drawer` は、ネイティブの `<dialog>` 要素を、ビューポートの任意の
+端からスライドインするパネルとしてスタイルします。ネイティブの
+ダイアログがフォーカストラップ、`Escape` で閉じる、`::backdrop`
+レイヤーを無料で処理します。HC は端への配置、スライドイン / アウトの
+アニメーション、そして(`installDrawer` 経由で)スライドパネルに
+ユーザーが期待するバックドロップクリックで閉じる操作を足します。
+
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| HTML `<dialog>` + `showModal()` | すべてのエバーグリーンブラウザ |
+| CSS `@starting-style` + `transition-behavior: allow-discrete` | Chrome 117+、Firefox 129+、Safari 17.5+ |
+
+スライドアニメーションは穏やかにデグレードします —
+`@starting-style` のない古いブラウザでは入場トランジションなしで
+最終位置にスナップしますが、ドロワーは機能します。
+
+## 基本の例
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" type="button" onclick="document.getElementById('settings-drawer').showModal()">Open settings</button>
+  <dialog class="hc-drawer" data-side="right" id="settings-drawer">
+    <header class="hc-drawer__header">
+      <h2 class="hc-drawer__title">Settings</h2>
+      <form method="dialog">
+        <button class="hc-button" data-variant="ghost" data-size="sm" type="submit" aria-label="Close">×</button>
+      </form>
+    </header>
+    <div class="hc-drawer__body">
+      <p>Form fields, settings, anything.</p>
+    </div>
+    <footer class="hc-drawer__footer">
+      <form method="dialog"><button class="hc-button" type="submit">Cancel</button></form>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </footer>
+  </dialog>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button" type="button"
+          onclick="document.getElementById('settings-drawer').showModal()">
+    Open settings
+  </button>
+
+  <dialog class="hc-drawer" data-side="right" id="settings-drawer">
+    <header class="hc-drawer__header">
+      <h2 class="hc-drawer__title">Settings</h2>
+      <form method="dialog">
+        <button class="hc-button" data-variant="ghost" data-size="sm"
+                type="submit" aria-label="Close">×</button>
+      </form>
+    </header>
+
+    <div class="hc-drawer__body">
+      <p>Form fields, settings, anything.</p>
+    </div>
+
+    <footer class="hc-drawer__footer">
+      <form method="dialog">
+        <button class="hc-button" type="submit">Cancel</button>
+      </form>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </footer>
+  </dialog>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installDrawer } from '@hypermedia-components/core';
+installDrawer();
+```
+
+## 端
+
+`data-side` は `right`(デフォルト)、`left`、`top`、`bottom` を
+受け付けます。右 / 左のドロワーはビューポートの高さを満たし、幅を
+`--hc-drawer-side-max-width` で制限します。上 / 下のドロワーは
+ビューポートの幅を満たし、高さを `--hc-drawer-vert-max-height` で
+制限します。
+
+```html
+<dialog class="hc-drawer" data-side="right">…</dialog>
+<dialog class="hc-drawer" data-side="left">…</dialog>
+<dialog class="hc-drawer" data-side="top">…</dialog>
+<dialog class="hc-drawer" data-side="bottom">…</dialog>
+```
+
+## ドロワーを閉じる
+
+推奨順に 3 つの慣用パターン:
+
+### `<form method="dialog">`(JS なし)
+
+`method="dialog"` のフォーム内のボタンは、送信でダイアログを閉じ
+ます。ネイティブ、アクセシブル、宣言的です。
+
+```html
+<form method="dialog">
+  <button class="hc-button" type="submit">Cancel</button>
+</form>
+```
+
+### バックドロップクリック(`installDrawer` が追加)
+
+ドロワーパネルの外側(`::backdrop` 領域)のクリックがダイアログを
+閉じます。ビヘイビアは `event.target === dialog` でこれを検知します。
+
+### ドラッグで解散(`installDrawer` が追加)
+
+パネルをアンカーされた端の方向へドラッグすると解散します。軸は
+`data-side` に従います(right / left → 水平、top / bottom → 垂直)。
+**パネルサイズの約 40%** を超えるか、素早い**フリック**で、ドロワーは
+スライドアウトして閉じます — そこに届かず放すとスナップバックします。
+動くのは外向きだけです(内向きのドラッグはクランプされるため、
+ラバーバンディングはなく、`prefers-reduced-motion` の特別扱いも
+不要です)。
+
+ジェスチャはパネルのクローム — `__header` / `__footer` — から
+つかみます。スクロール可能な `__body` やインタラクティブな
+コントロールからは決してつかまないため、コンテンツのスクロールと
+ボタンは機能し続けます。Pointer Events ベースなので、マウス、タッチ、
+ペンで機能します。
+
+### JS の `.close()`
+
+```js
+document.getElementById('settings-drawer').close();
+```
+
+htmx のレスポンスハンドラから使うのに便利です — htmx 成功時に
+ダイアログを閉じるパターンには
+[`installCloseDialog`](/hypermedia-components/ja/recipes/remote-dialog/)と
+組み合わせてください。
+
+## htmx での利用
+
+サーバ取得に応じてドロワーを開き、htmx にコンテンツをスワップさせ
+ます:
+
+```html
+<button class="hc-button"
+        data-hx-get="/users/42/edit"
+        data-hx-target="#user-drawer .hc-drawer__body"
+        data-hx-swap="innerHTML"
+        onclick="document.getElementById('user-drawer').showModal()">
+  Edit user
+</button>
+
+<dialog class="hc-drawer" id="user-drawer" data-side="right">
+  <header class="hc-drawer__header">
+    <h2 class="hc-drawer__title">Edit user</h2>
+    <form method="dialog">
+      <button class="hc-button" data-variant="ghost" data-size="sm"
+              type="submit" aria-label="Close">×</button>
+    </form>
+  </header>
+
+  <div class="hc-drawer__body">
+    <hc-spinner></hc-spinner>
+  </div>
+</dialog>
+```
+
+フォーム保存後の成功時クローズには:
+
+```html
+<form
+  data-hx-post="/users/42"
+  data-hx-target="this"
+  data-hc-close-dialog-on-success>
+  …
+</form>
+```
+
+同梱の `installCloseDialog` ビヘイビアが、成功した htmx レスポンスで
+内包する `<dialog>` を閉じます。`hc-dialog` と同じパターンです。
+
+## アクセシビリティ
+
+- ネイティブの `<dialog>` はすでに正しい role、フォーカストラップ、
+  Escape のセマンティクスを公開しています。`role="dialog"` や
+  `aria-modal="true"` を足さないでください — 冗長で、一部の
+  スクリーンリーダーを混乱させえます。
+- フォーカストラップの着地先があるよう、ドロワー内には常に
+  フォーカス可能な要素を含めてください。ヘッダーの閉じるボタンか
+  フッターの主アクションで十分です。
+- 見える閉じる操作部を用意してください。上の
+  `<form method="dialog">` パターンは、見える「×」ボタンに組み込みの
+  キーボード起動経路(ボタン上の Enter / Space)を対にしています。
+- スライドアニメーションは `prefers-reduced-motion: reduce` を尊重
+  します — ユーザーがオプトアウトしていればトランジション時間は
+  0 ms に落ちます。
+
+## バリアント
+
+ドロワーは意図的に 1 つの見た目だけを提供します — 面は `hc-dialog` と
+同じ規約に従うため、同じテーマトークン(ライト / ダーク / カラー)が
+そのまま機能します。破壊的フロー向けの `data-variant="error"` の
+ようなバリアントは、コンテナのクロームではなくコンテンツ(赤い
+ヘッダー、先頭のエラーアラート)でモデル化してください。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `drawer.bg` / `fg` / `border` | 面の色。 |
+| `drawer.side-max-width` | 右 / 左ドロワーの幅の上限。 |
+| `drawer.vert-max-height` | 上 / 下ドロワーの高さの上限。 |
+| `drawer.padding` | ヘッダー / ボディ / フッターの内側パディング。 |
+| `drawer.gap` | ヘッダー / フッターのフレックスギャップ。 |
+| `drawer.backdrop` | `::backdrop` の背景。 |
+| `drawer.duration` | スライドアニメーションの時間。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-drawer-bg | -fg | -border
+--hc-drawer-side-max-width | -vert-max-height
+--hc-drawer-padding | -gap
+--hc-drawer-backdrop | -duration
+```
+
+</details>
+
+## 関連
+
+- [ダイアログ](/hypermedia-components/ja/components/dialog/) — 中央のモーダルの兄弟。
+- [ポップオーバー](/hypermedia-components/ja/components/popover/) — 一時的なフローティングコンテンツに。

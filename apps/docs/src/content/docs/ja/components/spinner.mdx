@@ -1,0 +1,165 @@
+---
+title: スピナー
+description: ビジー / 保留状態のための最小限の CSS のみのローディングインジケーター。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-spinner` は、「ビジー」/ 保留状態のための純 CSS の回転リング
+です。JavaScript はありません: CSS でアニメーションし、デフォルトで
+`currentColor` に従い、リクエスト駆動の表示のために htmx の
+`.htmx-indicator` クラスと組み合います。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+  ```
+
+  </Fragment>
+</Demo>
+
+スピナーはインジケーターの色を周囲のテキスト(`currentColor`)から
+継承するため、ボタン、バッジ、本文の中に自然に収まります。
+
+## サイズ
+
+`data-size="sm"` または `data-size="lg"` を設定します。省略すると
+デフォルトの medium です。
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-spinner" data-size="sm" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-size="lg" role="status" aria-label="Loading"></span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-spinner" data-size="sm" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-size="lg" role="status" aria-label="Loading"></span>
+  ```
+
+  </Fragment>
+</Demo>
+
+## バリアント
+
+デフォルトでインジケーターは `currentColor` を使います。
+`data-variant` はそれを semantic のアクセントに差し替えます —
+スピナーが色つきテキストの中にないときに便利です。
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-spinner" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="success" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="warning" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="error" role="status" aria-label="Loading"></span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="success" role="status" aria-label="Loading"></span>
+  <span class="hc-spinner" data-variant="error" role="status" aria-label="Loading"></span>
+  ```
+
+  </Fragment>
+</Demo>
+
+| バリアント | インジケーターの色          |
+| --------- | --------------------------- |
+| _省略_    | `currentColor`(継承)。    |
+| `primary` | アクセント / primary アクション。 |
+| `success` | 成功の緑。                  |
+| `warning` | 警告のアンバー。            |
+| `error`  | エラーの赤。                |
+
+## htmx での利用
+
+`htmx-indicator` クラスを足すと、htmx が駆動するリクエストの実行中
+だけスピナーがフェードインします — 自前の JS は不要。ネットワークの
+所有者はボタンのままです。
+
+```html
+<button class="hc-button" data-hx-post="/save" data-hx-disabled-elt="this">
+  Save
+  <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+</button>
+```
+
+ここでのスピナーは装飾(`aria-hidden="true"`)です。無効化された
+ボタンとスワップされるレスポンスがすでに進行を伝えているからです。
+スピナーが*唯一の*シグナルであるときは、代わりにステータスの名前を
+与えてください — 下記を参照。
+
+## アクセシビリティ
+
+スピナーは視覚表現です。「ビジー」の意味はテキストとして支援技術へ
+届かなければなりません。2 つのパターン:
+
+1. **スピナー自身に名前を付ける** — アクセシブルな名前つきのライブ
+   領域にします:
+
+   ```html
+   <span class="hc-spinner" role="status" aria-label="Loading"></span>
+   ```
+
+2. **視覚的に隠したラベルで包む** — スピナーは装飾のままにして、
+   テキストを兄弟に置きます。より豊かな文言が欲しいときはこちら:
+
+   ```html
+   <span role="status">
+     <span class="hc-spinner" aria-hidden="true"></span>
+     <span class="hc-sr-only">Loading results…</span>
+   </span>
+   ```
+
+- **Reduced motion:** `prefers-reduced-motion: reduce` の下では回転は
+  *遅く*なりますが止まりません — 作業が進行中であることを伝え続け
+  なければならないからです。アクセシブルな名前は動きにかかわらず
+  読み上げ続けるため、ステータスがアニメーションだけで伝えられる
+  ことはありません。
+- 名前のない空の `role="status"` を残さないでください。無名のライブ
+  領域は何も読み上げません。
+
+## テーマ用トークン
+
+| トークンパス            | 用途                                   |
+| ----------------------- | -------------------------------------- |
+| `spinner.size`          | デフォルト(medium)の直径。           |
+| `spinner.sm-size` / `lg-size` | `data-size` の直径。             |
+| `spinner.border-width`  | リングの太さ。                         |
+| `spinner.track-color`   | 薄い全周リング(テーマの border)。    |
+| `spinner.indicator-color` | 先頭の弧(デフォルト currentColor)。 |
+| `spinner.duration`      | 1 回転の時間。                         |
+| `spinner.reduced-duration` | reduced motion 下の回転。           |
+| `spinner.{primary,success,warning,error}-color` | `data-variant` のインジケーター色。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-spinner-size | -sm-size | -lg-size
+--hc-spinner-border-width | -track-color | -indicator-color
+--hc-spinner-duration | -reduced-duration
+--hc-spinner-primary-color | -success-color | -warning-color | -error-color
+```
+
+</details>
+
+## 関連
+
+- [プログレス](/hypermedia-components/ja/components/progress/) —
+  パーセンテージが分かっている*確定的な*進捗に。
+- [スケルトン](/hypermedia-components/ja/components/skeleton/) —
+  読み込み中のコンテンツのプレースホルダー形状。
+- [ボタン](/hypermedia-components/ja/components/button/) — インラインの
+  `htmx-indicator` スピナーの定番ホスト。

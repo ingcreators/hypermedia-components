@@ -1,0 +1,190 @@
+---
+title: ホバーカード
+description: 構造化されたコンテンツを持つ、より豊かなツールチップ。ユーザーはカーソルをカードへ移動でき、中のリンクをクリックできます。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-hovercard` は
+**[hc-tooltip](/hypermedia-components/ja/components/tooltip/) の、より
+豊かなコンテンツを持つ兄弟**です。ポップアップにアバター、タイトルと
+サブタイトル、段落の説明、インタラクティブなリンクが必要なとき —
+短いテキストラベルでは足りないあらゆる場面で使います。よくある例:
+GitHub 風の `@user` メンションプレビュー、issue ID のプレビュー、
+ページリンクのプレビュー。
+
+`hc-tooltip` や `hc-menu` と同じプリミティブの上に構築されています:
+ネイティブの `popover` 属性、CSS Anchor Positioning、開閉の
+ルーティングのための `installHovercard()`。ツールチップとの
+挙動上の主な違い:
+
+- カードはポインタイベントを受け取ります(`pointer-events: none`
+  なし)。ユーザーはカーソルをカードへ移動して中のリンクをクリック
+  できます。
+- ビヘイビアは**トリガーとカードの両方**でホバー状態を追跡します —
+  どちらかがホバーされている間、カードは開いたままです。
+- 表示 / 非表示の遅延は長め(500 ms / 200 ms)で、読み物カードの
+  UX に合わせています。
+
+## 基本の例
+
+<Demo>
+  <p>
+    Hover or focus
+    <a href="#" id="doc-hc-trigger" aria-describedby="doc-hc-card">Ada Lovelace</a>
+    for a richer preview.
+  </p>
+  <div class="hc-hovercard" id="doc-hc-card">
+    <header class="hc-hovercard__header">
+      <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+      <div>
+        <div class="hc-hovercard__title">Ada Lovelace</div>
+        <div class="hc-hovercard__subtitle">Mathematician</div>
+      </div>
+    </header>
+    <div class="hc-hovercard__body">
+      <p>First computer programmer. <a href="#">View profile →</a></p>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <a href="/users/ada" aria-describedby="ada-card">Ada Lovelace</a>
+  
+  <div class="hc-hovercard" id="ada-card">
+    <header class="hc-hovercard__header">
+      <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+      <div>
+        <div class="hc-hovercard__title">Ada Lovelace</div>
+        <div class="hc-hovercard__subtitle">Mathematician</div>
+      </div>
+    </header>
+    <div class="hc-hovercard__body">
+      <p>First computer programmer. <a href="/users/ada">View profile →</a></p>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installHovercard } from '@hypermedia-components/core';
+installHovercard();
+```
+
+## `installHovercard()` の表示 / 非表示ルーティング
+
+| トリガーイベント | 効果 |
+| --- | --- |
+| トリガーの `mouseenter` | 500 ms 後の表示を予約。 |
+| トリガーの `mouseleave` | 200 ms 後の非表示を予約(保留中の表示をキャンセル)。 |
+| トリガーの `focus` | 即座に表示(a11y)。 |
+| トリガーの `blur` | 200 ms 後の非表示を予約。 |
+| カードの `mouseenter` | 保留中の非表示をキャンセル。 |
+| カードの `mouseleave` | 200 ms 後の非表示を予約。 |
+| トリガーまたはカードでの `Escape` | 閉じる。 |
+
+**トリガーまたはカードのどちらか**がホバーされている間、カードは
+開いたままなので、カーソルは両者の間の小さな隙間を、解散させずに
+通過できます。
+
+## 配置
+
+カードはデフォルトでトリガーの**下**に開きます。`data-side`
+(`top` / `right` / `bottom` / `left`)と、任意の `data-align`
+(`start` / `center` / `end`、デフォルト `center`)で上書きします。
+ポインタには `data-arrow` を足します。
+
+```html
+<a href="/users/grace" aria-describedby="grace-card">Grace Hopper</a>
+<div class="hc-hovercard" id="grace-card" data-side="right" data-arrow>…</div>
+```
+
+これは方向つき配置の機構をツールチップとポップオーバーと共有します —
+CSS Anchor Positioning + JS フォールバック。共有の機構は
+[基礎 → アンカー配置](/hypermedia-components/ja/fundamentals/anchored/)を、
+Baseline の注記は
+[ポップオーバー → 方向つき配置](/hypermedia-components/ja/components/popover/#方向つき配置)を
+参照してください。
+
+## htmx での利用
+
+htmx の `data-hx-trigger="mouseenter"`(または自分で配線するなら
+`hc:hovercardrequest`)と組み合わせて、初回ホバー時にカードの本文を
+取得します。
+
+```html
+<a href="/users/ada"
+   aria-describedby="ada-card">Ada Lovelace</a>
+
+<div class="hc-hovercard" id="ada-card"
+     data-hx-get="/users/ada/preview"
+     data-hx-trigger="hc:hovercardrequest once"
+     data-hx-target="this">
+  <hc-spinner></hc-spinner>
+</div>
+```
+
+アプリ側の小さなラッパーで、カードが初めて開いたときに
+`hc:hovercardrequest` を発火できます。(`installHovercard` は現在
+これを発火しません — ドキュメント化された拡張パターンとして示して
+います。)
+
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| HTML `popover` | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| CSS Anchor Positioning | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+アンカー未対応のブラウザは、デフォルトの下配置 + `flip-block` の
+CSS パスを鏡写しにした `getBoundingClientRect` 配置へフォールバック
+します。
+
+## アクセシビリティ
+
+- トリガーは `aria-describedby` でカードを参照するため、視覚的に
+  描画されているかにかかわらず、トリガーのフォーカス時にスクリーン
+  リーダーがカードのテキストを読み上げます。
+- ホバーカードのコンテンツは補足です。ページの理解に**必要な**ものは
+  文書本文にも置かなければなりません。
+- 主要なアクションをホバーカードの中に置かないでください — ホバー
+  しないユーザーには決して見えません。「プロフィール全体を見る」への
+  リンクは問題ありませんが、それが引き起こすアクションはトリガー要素
+  から直接も到達可能であるべきです(例: トリガー自体が同じリンク)。
+- `Escape` は常に、フォーカスを動かさずにカードを閉じます。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `hovercard.bg` / `fg` / `border` / `radius` | 面。 |
+| `hovercard.max-width` | 折り返しまでの上限。 |
+| `hovercard.padding` / `gap` | 内側のレイアウト。 |
+| `hovercard.offset` | アンカー時のトリガーからの距離。 |
+| `hovercard.title-weight` | `.hc-hovercard__title` のフォントウェイト。 |
+| `hovercard.subtitle-fg` / `subtitle-size` | `.hc-hovercard__subtitle` の色とサイズ。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-hovercard-bg | -fg | -border | -radius
+--hc-hovercard-max-width | -padding | -gap | -offset
+--hc-hovercard-title-weight
+--hc-hovercard-subtitle-fg | -subtitle-size
+```
+
+</details>
+
+## 関連
+
+- [ツールチップ](/hypermedia-components/ja/components/tooltip/) — 短いテキストラベルの兄弟(`pointer-events: none`、短い遅延)。
+- [ポップオーバー](/hypermedia-components/ja/components/popover/) — 明示的に開く一時的な面。
+- [メニュー](/hypermedia-components/ja/components/menu/) — 同じアンカー + popover 機構のアクションメニュー。

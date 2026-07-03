@@ -1,0 +1,171 @@
+---
+title: プログレス
+description: ブラウザ間で一貫したクロームにスタイルされたネイティブの <progress> 要素。確定 / 不確定の両状態をサポート。純 CSS、JavaScript なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-progress` は標準の `<progress>` 要素に適用します。ネイティブの
+要素は ARIA の `role="progressbar"` セマンティクスと
+`value` / `max` の属性ペアを保ちます。`appearance: none` とベンダー別
+疑似要素で置き換わるのは見た目のクロームだけです。
+
+## 確定(determinate)
+
+`value` と(任意で)`max` を設定します。パーセンテージはブラウザが
+自動計算します。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <progress class="hc-progress" value="40" max="100" aria-label="Upload progress"></progress>
+  <progress class="hc-progress" value="80" max="100" aria-label="Validation progress"></progress>
+
+  <Fragment slot="code">
+
+  ```html
+  <progress class="hc-progress"
+            value="40" max="100"
+            aria-label="Upload progress">
+  </progress>
+  ```
+
+  </Fragment>
+</Demo>
+
+`value` が変わると塗りは滑らかにトランジションします — htmx の
+スワップでも JS の更新でも。
+
+## 不確定(indeterminate)
+
+「所要時間が不明」の状態には `value` を省きます。ミュートの
+グラデーションが一定のリズムでトラックを横切ります。
+
+<Demo previewStyle="max-inline-size:24rem;">
+  <progress class="hc-progress" aria-label="Loading"></progress>
+
+  <Fragment slot="code">
+
+  ```html
+  <progress class="hc-progress" aria-label="Loading"></progress>
+  ```
+
+  </Fragment>
+</Demo>
+
+スライドアニメーションは `prefers-reduced-motion: reduce` を尊重
+します — ユーザーが動きをオプトアウトしていれば、トラックは代わりに
+静的な中央寄せのグラデーションを表示します。
+
+## バリアント
+
+`data-variant` は、デフォルト以外の塗り色として `success`、
+`warning`、`error` を受け付けます。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <progress class="hc-progress" value="60" max="100" aria-label="Default"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="success" aria-label="Success"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="warning" aria-label="Warning"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="error" aria-label="Error"></progress>
+
+  <Fragment slot="code">
+
+  ```html
+  <progress class="hc-progress" value="60" max="100" aria-label="Default"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="success" aria-label="Success"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="warning" aria-label="Warning"></progress>
+  <progress class="hc-progress" value="60" max="100" data-variant="error" aria-label="Error"></progress>
+  ```
+
+  </Fragment>
+</Demo>
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <progress class="hc-progress" value="50" max="100" data-size="sm" aria-label="Small"></progress>
+  <progress class="hc-progress" value="50" max="100" aria-label="Default"></progress>
+  <progress class="hc-progress" value="50" max="100" data-size="lg" aria-label="Large"></progress>
+
+  <Fragment slot="code">
+
+  ```html
+  <progress class="hc-progress" value="50" max="100" data-size="sm" aria-label="Small"></progress>
+  <progress class="hc-progress" value="50" max="100" aria-label="Default"></progress>
+  <progress class="hc-progress" value="50" max="100" data-size="lg" aria-label="Large"></progress>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx での利用
+
+`<progress>` は普通の DOM ノードです — htmx は他の要素と同様に
+スワップできます。ポーリングや SSE のパターンと組み合わせて、サーバ側
+の進捗を表示します:
+
+```html
+<progress
+  class="hc-progress"
+  value="0" max="100"
+  aria-label="Importing"
+  data-hx-get="/imports/42/progress"
+  data-hx-trigger="every 500ms"
+  data-hx-swap="outerHTML">
+</progress>
+```
+
+サーバは更新済みの
+`<progress class="hc-progress" value="N" max="100">` を返し、塗りが
+前の値から新しい値へアニメーションします。
+
+## アクセシビリティ
+
+- 要素には常にアクセシブルな名前を与えてください — `aria-label` か、
+  包んでいる `<label for>` 要素で。なければスクリーンリーダーは文脈
+  なしに「プログレスバー」と読み上げます。
+- パーセンテージは `value` と `max` が運びます。
+  `aria-valuenow` / `aria-valuemax` を別途設定する必要はありません。
+  ブラウザが属性をアクセシビリティツリーへ自動マップします。
+- 長時間(数秒以上)のタスクでは、定期的に更新されるステータス
+  テキストとプログレスバーを組み合わせてください。素のバー単体は
+  解釈しづらいものです。
+- 不確定のアニメーションは `prefers-reduced-motion: reduce` の
+  ユーザーに対して自己抑制します。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `progress.height` | トラックの高さ。 |
+| `progress.radius` | トラックの角丸。 |
+| `progress.bg` | トラックの背景。 |
+| `progress.fill` | デフォルトの塗り色(action.primary)。 |
+| `progress.success-fill` / `warning-fill` / `error-fill` | バリアントの塗り。 |
+| `progress.transition-duration` | `value` 変更時の塗りアニメーション。 |
+| `progress.indeterminate-duration` | `value` なしのときのスライド周期。 |
+| `progress.sm.height` / `lg.height` | サイズバリアント。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-progress-height | -radius | -bg | -fill
+--hc-progress-success-fill | -warning-fill | -error-fill
+--hc-progress-transition-duration | -indeterminate-duration
+--hc-progress-sm-height | -lg-height
+```
+
+</details>
+
+## 関連
+
+- [スピナー](/hypermedia-components/ja/components/spinner/) — 所要時間が
+  短すぎるか不明すぎてバーに値しないとき。
+- [アラート](/hypermedia-components/ja/components/alert/) —
+  「インポート中… 60%」のステータス行でプログレスバーとよく組み合い
+  ます。

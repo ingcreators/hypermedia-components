@@ -1,0 +1,217 @@
+---
+title: トースト
+description: 一時的でイベント駆動の通知 — クライアントコードまたは HX-Trigger ヘッダーから発火。位置、スタッキング、スワイプで解散。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-toast` は一時的な通知です。トーストのマークアップは書きません —
+**イベントを発火する**(または `HX-Trigger` ヘッダーを返す)と、
+`installToast()` が `.hc-toast` を `.hc-toast-region` へ描画し、遅延の
+後に自動で解散させます。
+
+## セットアップ
+
+トーストは `installToast()` ビヘイビアが描画します — **ないと
+`hc:toast` イベントを発火しても何も起きません。** 起動時に一度
+インストールしてください:
+
+```js
+import { installToast } from '@hypermedia-components/core';
+installToast(); // idempotent; returns an uninstaller
+```
+
+ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
+インストールします。マークアップは不要です — 事前描画しなければ
+ビヘイビアがデフォルトの [`.hc-toast-region`](#領域) を作成します。
+
+## 見た目
+
+このマークアップはビヘイビアが描画します — 手で書くことはありません。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <div class="hc-toast" role="status">
+    <div class="hc-toast__title">Saved</div>
+    <div class="hc-toast__body">Your changes were saved.</div>
+  </div>
+  <div class="hc-toast" data-variant="success" role="status">
+    <div class="hc-toast__body">Profile updated.</div>
+  </div>
+  <div class="hc-toast" data-variant="error" role="alert">
+    <div class="hc-toast__title">Upload failed</div>
+    <div class="hc-toast__body">The server returned a 500.</div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- Rendered by installToast() into the .hc-toast-region -->
+  <div class="hc-toast" data-variant="success" role="status">
+    <div class="hc-toast__title">Saved</div>
+    <div class="hc-toast__body">Your changes were saved.</div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## トーストの発火
+
+`document.body` に `hc:toast` の `CustomEvent` を発火します:
+
+```js
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: { message: 'Saved.', title: 'Done', variant: 'success', duration: 4500 },
+}));
+```
+
+試してみてください — 各ボタンがイベントを発火します。トーストは
+ページの隅に現れて自動で消えます:
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-variant="primary" data-toast-variant="success" data-toast-title="Done" data-toast-message="Saved.">Success</button>
+  <button class="hc-button" data-toast-variant="info" data-toast-message="Heads up — 3 new items.">Info</button>
+  <button class="hc-button" data-toast-variant="warning" data-toast-message="Storage almost full.">Warning</button>
+  <button class="hc-button" data-variant="error" data-toast-variant="error" data-toast-title="Upload failed" data-toast-message="The server returned a 500.">Error</button>
+
+  <Fragment slot="code">
+
+  ```js
+  // installToast() must be installed (it is in the behaviors bundle).
+  successButton.addEventListener('click', () => {
+    document.body.dispatchEvent(new CustomEvent('hc:toast', {
+      bubbles: true,
+      detail: { title: 'Done', message: 'Saved.', variant: 'success' },
+    }));
+  });
+  ```
+
+  </Fragment>
+</Demo>
+
+…あるいはサーバにレスポンスから発火させます — htmx が `HX-Trigger`
+ヘッダーを同じイベントに変えます:
+
+```text
+HX-Trigger: {"hc:toast": {"message": "Saved.", "variant": "success"}}
+```
+
+`detail` のフィールド: `message`(必須)、`title?`、`variant?`
+(`info` · `success` · `warning` · `error`)、`duration?` ms(`0` は
+解散されるまで保持)、`id?`(下記)、`action?`(下記)。`error` は
+assertive に読み上げられ(`role="alert"`)、それ以外は
+`role="status"` を使います。
+
+## アクションと更新
+
+**アクションボタン。** `action: { label, event }` を足すとトーストが
+ボタンを描画します。クリックすると `event` という名前のバブリングする
+`CustomEvent` を発火します(その後トーストを解散)。素のリスナーか、
+任意の祖先の htmx `hx-trigger="<event>"` で捕まえます — **Undo** に
+便利です:
+
+```js
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: { message: 'Item deleted', duration: 0, action: { label: 'Undo', event: 'hc:undo' } },
+}));
+document.body.addEventListener('hc:undo', () => restoreItem());
+```
+
+**id による更新。** トーストに `id` を与えると、**同じ id** の後続
+`hc:toast` は、新しいトーストを積む代わりにそれを**その場で**更新します
+(メッセージ / バリアントを再描画し、自動解散タイマーをリセット)。
+これがクライアント状態なしの loading → success / error の
+**promise** をモデル化します — ネットワークは htmx に残ります:
+
+```text
+# request fires a sticky loading toast
+HX-Trigger: {"hc:toast": {"id": "save-42", "message": "Saving…", "duration": 0}}
+
+# the response updates the same toast
+HX-Trigger: {"hc:toast": {"id": "save-42", "message": "Saved!", "variant": "success", "duration": 4500}}
+```
+
+トーストがモデル化するのは UI の状態だけです。実際のリクエストは
+htmx が実行します。
+
+## 領域
+
+トーストは最初の `[data-hc-toast-region]` へ描画されます。なければ
+ビヘイビアが(右下に)作成します。位置とスタッキングを設定するには
+**事前描画**してください:
+
+```html
+<div class="hc-toast-region" data-hc-toast-region
+     data-position="top-center" data-limit="3"
+     role="region" aria-label="Notifications"></div>
+```
+
+### 位置
+
+`data-position` が領域をアンカーします —
+`{top,bottom}-{left,center,right}`(デフォルト `bottom-right`)。
+top 系は下向きに積まれ(最新が端に最も近い)、bottom 系は上向きに
+積まれます。
+
+```html
+<div class="hc-toast-region" data-hc-toast-region data-position="top-right" …></div>
+```
+
+### スタッキング上限
+
+`data-limit="N"` が見えるトースト数の上限です。新しいものが届くと
+**最も古い**ものが追い出されます。なければスタックは無制限です。
+
+### スワイプで解散
+
+すべてのトーストは**横にドラッグ**して解散できます — 幅の約 40% を
+超えると飛び出し、そうでなければスナップバックします。これは
+ポインタ / タッチ向けの操作部です(キーボードユーザーは自動解散に
+頼ります)。縦のドラッグは引き続きページをスクロールします。動きは
+`prefers-reduced-motion` の下で取り除かれます。
+
+## アクセシビリティ
+
+- 領域はラベルつきの `role="region"` です。ラベルは
+  [i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)
+  (`toast.label`)で翻訳できます。
+- 各トーストはライブ領域です — `error` は `role="alert"` /
+  `aria-live="assertive"`、それ以外は `role="status"` /
+  `aria-live="polite"` — フォーカスを動かさずに読み上げられます。
+- 色だけに頼らないでください: `title` か明確な `message` を含めて
+  ください。
+- スワイプ解散はキーボードユーザーには使えないため、`duration` は
+  読み切れる長さに保ってください(重要なメッセージは `0`)。
+
+## テーマ用トークン
+
+| トークンパス | 用途 |
+| --- | --- |
+| `toast.region-inset` / `region-gap` | 端からの領域オフセット / トースト間のギャップ。 |
+| `toast.gap` | タイトルと本文の間のギャップ。 |
+| `toast.min-width` / `max-width` | トーストの幅の範囲。 |
+| `toast.padding-y` / `padding-x` / `radius` | ボックスの寸法。 |
+| `toast.{variant}.{bg,fg,border}` | バリアントごとの色。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-toast-region-inset | -region-gap
+--hc-toast-gap | -min-width | -max-width | -padding-y | -padding-x | -radius
+--hc-toast-info-bg    | -fg | -border
+--hc-toast-success-bg | -fg | -border
+--hc-toast-warning-bg | -fg | -border
+--hc-toast-error-bg  | -fg | -border
+```
+
+</details>
+
+## 関連
+
+- [アラート](/hypermedia-components/ja/components/alert/) — インラインの持続する通知。
+- [htmx インテグレーション](/hypermedia-components/ja/integrations/htmx/) — `HX-Trigger` からのトースト発火。
