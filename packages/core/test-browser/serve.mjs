@@ -72,6 +72,7 @@ const ASSET_ALIASES = new Map([
   ['/sparkline.js',     join(coreDist, 'sparkline.js')],
   ['/code-editor.js',   join(coreDist, 'code-editor.js')],
   ['/code-syntax.js',   join(coreDist, 'code-syntax.js')],
+  ['/tree.js',          join(coreDist, 'tree.js')],
   ['/macros/index.js',          join(coreDist, 'macros', 'index.js')],
   ['/macros/confirm-action.js', join(coreDist, 'macros', 'confirm-action.js')],
   ['/macros/live-search.js',    join(coreDist, 'macros', 'live-search.js')],
@@ -494,6 +495,41 @@ function handleUpload(req, res, url) {
   return true;
 }
 
+// Lazy-tree recipe mock (lazy-tree.html): GET /mock/tree/:id/children
+// returns the group's innerHTML — <li class="hc-tree__item"> fragments
+// — after a short delay so the aria-busy window is observable. Node 1
+// contains a nested lazy branch (node 2) so the spec pins recursion.
+function handleTree(req, res, url) {
+  const m = url.pathname.match(/^\/mock\/tree\/(\d+)\/children$/);
+  if (!m || req.method !== 'GET') return false;
+  req.resume();
+  const lazyBranch = (nodeId, label, testid) => `
+    <li class="hc-tree__item" aria-expanded="false" data-testid="${testid}"
+        data-hx-get="/mock/tree/${nodeId}/children"
+        data-hx-target="find .hc-tree__group"
+        data-hx-swap="innerHTML"
+        data-hx-trigger="hc:treeexpand once">
+      <span class="hc-tree__row">
+        <span class="hc-tree__toggle" aria-hidden="true" data-testid="${testid}-toggle"></span>
+        <span class="hc-tree__label">${label}</span>
+      </span>
+      <ul class="hc-tree__group" data-testid="${testid}-group"></ul>
+    </li>`;
+  const leaf = (label, testid) => `
+    <li class="hc-tree__item" data-testid="${testid}">
+      <span class="hc-tree__row"><span class="hc-tree__label">${label}</span></span>
+    </li>`;
+  const body = m[1] === '1'
+    ? lazyBranch(2, 'Q1', 'q1') + leaf('summary.pdf', 'summary')
+    : leaf('january.pdf', 'january');
+  setTimeout(() => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(body);
+  }, 150);
+  return true;
+}
+
 function handleUndo(req, res, url) {
   const del = url.pathname.match(/^\/mock\/items\/(\d+)$/);
   if (del && req.method === 'DELETE') {
@@ -552,6 +588,7 @@ function handleMock(req, res, url) {
   if (handleUndo(req, res, url)) return true;
   if (handleWizard(req, res, url)) return true;
   if (handleUpload(req, res, url)) return true;
+  if (handleTree(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
   req.resume();

@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`lazy-tree` recipe** (#312). The hypermedia lazy subtree: a branch
+  ships an **empty group** and its children arrive as server-rendered
+  `<li class="hc-tree__item">` fragments on first expand —
+  `installTree()`'s `hc:treeexpand` paired with an htmx
+  **`once`** trigger (re-collapse/re-expand never refetches), target
+  `find .hc-tree__group`, innerHTML swap, `aria-busy` spinner while in
+  flight. Nested lazy branches in the response recurse. Four-piece
+  scaffold + machine-checked `checks.json` (trigger `once`, own-group
+  target, innerHTML swap, empty group present, `aria-expanded`
+  declared), docs page, serve.mjs mock + Playwright integration specs
+  against real htmx. The `lazy-panel` detect selector is narrowed to
+  `:not(.hc-tree__item)` so the two recipes don't cross-match.
+
 - **`hc-tree` — ARIA tree view** (#311). Semantic nested lists
   upgraded by `installTree()`: tree/treeitem/group roles + a roving
   tabindex (re-applied when subtrees are swapped in), the **APG

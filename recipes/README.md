@@ -30,6 +30,7 @@ documentation pages.
 | [`field-errors/`](field-errors/)          | Render server-side validation errors next to the fields they belong to. |
 | [`inline-edit/`](inline-edit/)            | Display ↔ edit toggle that swaps the same DOM node each way.            |
 | [`lazy-panel/`](lazy-panel/)              | Panel whose content loads on first reveal (intersect / details / tab).  |
+| [`lazy-tree/`](lazy-tree/)                | Tree branches that load their children on first expand (`hc:treeexpand once`). |
 | [`datagrid-pager/`](datagrid-pager/)      | Paginate an `hc-datagrid` from the server with htmx.                    |
 | [`datagrid-bulk-actions/`](datagrid-bulk-actions/) | Select datagrid rows and POST one action against all of them.  |
 | [`sse-updates/`](sse-updates/)            | Server-pushed fragment updates over Server-Sent Events.                 |

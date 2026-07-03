@@ -1,5 +1,5 @@
 {
-  "detect": "[data-hx-get][data-hx-trigger*=\"once\"]",
+  "detect": "[data-hx-get][data-hx-trigger*=\"once\"]:not(.hc-tree__item)",
   "contract": "contract.md",
   "rules": [
     {
