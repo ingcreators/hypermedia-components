@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 7 — component pages begin**
+  (#320, docs-facing). Eleven pages: the Actions category complete
+  (button-group, toggle-group, toolbar, command, kbd) and the first
+  six Forms controls (input, input-group, select, checkbox, radio,
+  switch). Anchors referencing the newly translated boolean-field
+  section updated across the ja pages that link to it. 67 ja pages
+  total.
+
 - **Docs: Japanese translations, phase 6 — the recipes section is
   complete** (#319, docs-facing). The final nine recipe pages: toast,
   data-region, datagrid-pager, datagrid-bulk-actions, filter-popover,

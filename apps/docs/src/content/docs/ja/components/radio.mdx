@@ -1,0 +1,293 @@
+---
+title: ラジオ
+description: ネイティブの input[type=radio] を、ネイティブのグルーピング・キーボード挙動・フォーム参加を保ったままスタイルするセマンティックなラジオクラス。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-radio` は標準の `<input type="radio">` に適用します。土台の input は
+ネイティブの挙動をすべて保ちます — 矢印キーは同じ `name` を共有する
+グループのメンバー間を移動し、選択された値はフォーム送信に参加し、
+スクリーンリーダーはグループ内の位置(「5 個中 3 個目」)を読み上げ
+ます。`appearance: none` で置き換わるのは描画だけです。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan-demo-1" checked />
+    Free
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan-demo-1" />
+    Pro
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan-demo-1" />
+    Team
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan" value="free" checked>
+    Free
+  </label>
+  
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan" value="pro">
+    Pro
+  </label>
+  
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan" value="team">
+    Team
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
+
+同じ `name` を持つラジオは単一選択のグループを形成します。ブラウザ
+ネイティブの矢印キーナビゲーションは自動で機能します。隣接しない
+input を視覚的にまとめたいのでない限り、`role="radiogroup"` や
+ロービングタブインデックスの JS を足す必要はありません。
+
+## バリアント
+
+`data-variant` は、チェック時のデフォルト以外の塗り色として
+`success`、`warning`、`error` を受け付けます。デフォルト(省略)の
+バリアントはアクティブなカラーテーマの primary の塗りを使います。
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="variant-demo" checked />
+    Default (themed)
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="variant-demo-success" data-variant="success" checked />
+    Success
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="variant-demo-warning" data-variant="warning" checked />
+    Warning
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="variant-demo-error" data-variant="error" checked />
+    Error
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- Separate `name`s here only so each variant can render as checked. -->
+  <input class="hc-radio" type="radio" name="v-default" checked>
+  <input class="hc-radio" type="radio" name="v-success" data-variant="success" checked>
+  <input class="hc-radio" type="radio" name="v-warning" data-variant="warning" checked>
+  <input class="hc-radio" type="radio" name="v-error"   data-variant="error" checked>
+  ```
+
+  </Fragment>
+</Demo>
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+`data-density` とは独立です — 専用の `--hc-radio-{sm,lg}-size` 変数は
+密度階層をまたいで固定のままです。
+
+<Demo previewClass="hc-preview--start">
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="size-demo" data-size="sm" checked />
+    Small
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="size-demo-md" checked />
+    Default
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="size-demo-lg" data-size="lg" checked />
+    Large
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-radio" type="radio" name="x" data-size="sm" checked>
+  <input class="hc-radio" type="radio" name="y" checked>
+  <input class="hc-radio" type="radio" name="z" data-size="lg" checked>
+  ```
+
+  </Fragment>
+</Demo>
+
+| `data-size` | 外形寸法 |
+| ----------- | --------------- |
+| `sm`        | `0.875rem`(14 px) |
+| `md`        | `1.125rem`(18 px)— デフォルト |
+| `lg`        | `1.375rem`(22 px) |
+
+## 状態
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="state-demo" />
+    Focus me to see the ring
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="state-demo-invalid" aria-invalid="true" />
+    Required field (aria-invalid)
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="state-demo-disabled" disabled />
+    Disabled (unchecked)
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="state-demo-dischecked" disabled checked />
+    Disabled (checked)
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-radio" type="radio" name="notify" aria-invalid="true">
+  <!-- A disabled group with one option pre-selected. -->
+  <input class="hc-radio" type="radio" name="plan" disabled>
+  <input class="hc-radio" type="radio" name="plan" disabled checked>
+  ```
+
+  </Fragment>
+</Demo>
+
+## `hc-field` によるグルーピング
+
+フォームレイアウトでは、グループを
+[`hc-field`](/hypermedia-components/ja/components/field/) で包み、
+ラベルとバリデーションメッセージをラジオ間で共有します。
+
+<Demo>
+  <fieldset class="hc-field">
+    <legend class="hc-field__label">Notification frequency</legend>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="freq" checked />
+      Immediately
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="freq" />
+      Daily digest
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="freq" />
+      Weekly digest
+    </label>
+    <p class="hc-field__message">You can change this any time in settings.</p>
+  </fieldset>
+
+  <Fragment slot="code">
+
+  ```html
+  <fieldset class="hc-field">
+    <legend class="hc-field__label">Notification frequency</legend>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="freq" value="now" checked>
+      Immediately
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="freq" value="daily">
+      Daily digest
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="freq" value="weekly">
+      Weekly digest
+    </label>
+    <p class="hc-field__message">You can change this any time in settings.</p>
+  </fieldset>
+  ```
+
+  </Fragment>
+</Demo>
+
+`<fieldset>` + `<legend>` は、関連するラジオをグルーピングする
+セマンティックなプリミティブです。`hc-field` がそれらを他のフォーム
+パターンと一貫してスタイルします。
+
+## htmx での利用
+
+ラジオの変更も、他の入力と同様に htmx リクエストを駆動できます。
+
+```html
+<label class="hc-radio-label">
+  <input
+    class="hc-radio"
+    type="radio"
+    name="layout"
+    value="grid"
+    data-hx-post="/prefs/layout"
+    data-hx-trigger="change">
+  Grid
+</label>
+```
+
+## アクセシビリティ
+
+- このコンポーネントはネイティブの `<input type="radio">` を保つため、
+  支援技術は正しく読み上げ、グループ内の位置を公開し、矢印キーが
+  メンバー間でフォーカスを動かします。
+- ラジオは同じ `name` を与えてグルーピングします。視覚的なグルーピング
+  も重要です — 関連するラジオは `<legend>` つきの `<fieldset>` で
+  包んでください。
+- バリデーションエラーでは、該当する input に `aria-invalid="true"` を
+  設定します。
+- ラジオが操作不能であるべきときはネイティブの `disabled` 属性を選び、
+  フォーカス可能であり続けるべきときだけ `aria-disabled="true"` を
+  使ってください。
+- フォーカスのアウトラインを消さないでください。このコンポーネントは
+  デフォルトのアウトラインを、`--hc-color-focus-ring` で駆動される
+  見える box-shadow リングに置き換えています。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス                              | 用途                                 |
+| ----------------------------------------- | ------------------------------------ |
+| `radio.size`                              | 外形寸法(円)。                     |
+| `radio.border` / `border-width`           | 未チェック状態の枠線。               |
+| `radio.bg`                                | 未チェック状態の背景。               |
+| `radio.checked-bg` / `checked-border`     | デフォルトバリアントのチェック色。   |
+| `radio.success-checked-bg` / `success-checked-border` | `data-variant="success"`。 |
+| `radio.warning-checked-bg` / `warning-checked-border` | `data-variant="warning"`。 |
+| `radio.error-checked-bg` / `error-checked-border` | `data-variant="error"`。    |
+| `radio.sm.size` / `lg.size`               | `data-size="sm"` / `"lg"` の専用サイズ。 |
+| `radio.error-border`                    | `aria-invalid="true"` 時の枠線。     |
+| `radio.disabled-bg`                       | 無効時の背景。                       |
+| `radio.label-gap`                         | input とテキストの間のギャップ。     |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-radio-size
+--hc-radio-border-width | -border
+--hc-radio-bg
+--hc-radio-checked-bg | -checked-border
+--hc-radio-success-checked-bg | -success-checked-border
+--hc-radio-warning-checked-bg | -warning-checked-border
+--hc-radio-error-checked-bg | -error-checked-border
+--hc-radio-sm-size | -lg-size
+--hc-radio-error-border
+--hc-radio-disabled-bg
+--hc-radio-label-gap
+--hc-color-focus-ring
+--hc-color-error
+```
+
+</details>
+
+## 関連
+
+- [チェックボックス](/hypermedia-components/ja/components/checkbox/) — 複数選択の兄弟。
+- [フィールド](/hypermedia-components/ja/components/field/) — コントロールをラベルとメッセージで包みます。

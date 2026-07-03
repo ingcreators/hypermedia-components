@@ -1,0 +1,172 @@
+---
+title: Kbd
+description: ネイティブの <kbd> 要素の上に構築された、スタイル済みのキーボードキーとショートカット。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-kbd` は、ネイティブの `<kbd>` 要素 — 「キーボードからのユーザー
+入力」を表すセマンティックなタグ — のトークン駆動スキンです。単一キー
+(`Esc`、`Enter`)に、また `hc-kbd-group` と合わせて複数キーの
+ショートカット(`⌘ + K`)に使います。プレゼンテーション専用で、
+JavaScript はありません。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--start">
+  <kbd class="hc-kbd">Esc</kbd>
+  <kbd class="hc-kbd">Enter</kbd>
+  <kbd class="hc-kbd">⌘</kbd>
+  <kbd class="hc-kbd">⇧</kbd>
+  <kbd class="hc-kbd">A</kbd>
+
+  <Fragment slot="code">
+
+  ```html
+  <kbd class="hc-kbd">Esc</kbd>
+  <kbd class="hc-kbd">Enter</kbd>
+  <kbd class="hc-kbd">⌘</kbd>
+  ```
+
+  </Fragment>
+</Demo>
+
+1 文字のキーは正方形に近い最小幅(`--hc-kbd-min-width`)へ中央寄せ
+されるため、`A` と `Esc` はキーキャップの整った列として並びます。
+
+## ショートカット
+
+複数のキーを `hc-kbd-group` で包んでショートカットを構成します。
+グループ自体も `<kbd>` です(ショートカット全体が 1 つの「キーボード
+入力」)。内側の `<kbd class="hc-kbd">` が個々のキーキャップです。
+その間のリテラルテキスト(`+`、`then`)はミュートカラーで描画され、
+キーが際立ちます。
+
+<Demo previewClass="hc-preview--start">
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">Ctrl</kbd> + <kbd class="hc-kbd">⇧</kbd> + <kbd class="hc-kbd">P</kbd>
+  </kbd>
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">g</kbd> then <kbd class="hc-kbd">i</kbd>
+  </kbd>
+
+  <Fragment slot="code">
+
+  ```html
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+  
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">g</kbd> then <kbd class="hc-kbd">i</kbd>
+  </kbd>
+  ```
+
+  </Fragment>
+</Demo>
+
+## サイズ
+
+キーに `data-size="sm"` または `data-size="lg"` を設定します —
+グループに設定すれば中のキャップ全部を一度にスケールできます。
+パディングと最小幅は `em` ベースなので、1 つの `data-size` でキャップ
+全体が比例して変わります。
+
+<Demo previewClass="hc-preview--start">
+  <kbd class="hc-kbd" data-size="sm">Esc</kbd>
+  <kbd class="hc-kbd">Esc</kbd>
+  <kbd class="hc-kbd" data-size="lg">Esc</kbd>
+  <kbd class="hc-kbd-group" data-size="lg">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+
+  <Fragment slot="code">
+
+  ```html
+  <kbd class="hc-kbd" data-size="sm">Esc</kbd>
+  <kbd class="hc-kbd">Esc</kbd>
+  <kbd class="hc-kbd" data-size="lg">Esc</kbd>
+  
+  <kbd class="hc-kbd-group" data-size="lg">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+  ```
+
+  </Fragment>
+</Demo>
+
+| サイズ    | 用途                                     |
+| --------- | ---------------------------------------- |
+| `sm`      | 密な UI(メニュー、リスト)内のインラインヒント。 |
+| _省略_    | デフォルト — 本文中のショートカット。    |
+| `lg`      | 目立たせたいショートカットの案内。       |
+
+## 文脈の中で
+
+`hc-kbd` は、メニュー項目やコマンド行の隣に置いてそのショートカットを
+知らせるのに自然にはまります。
+
+<div class="hc-preview not-content" style="display:flex;justify-content:space-between;align-items:center;gap:2rem;max-inline-size:18rem;padding:.4rem .6rem;border:1px solid var(--hc-color-border);border-radius:var(--hc-control-radius);">
+  <span>Command palette</span>
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+</div>
+
+## アクセシビリティ
+
+- キーは**テキスト内容**として読み上げられるため、可能なら本物の
+  テキスト(`Ctrl`、`Esc`)を選んでください。
+- 記号のみのキー(`⌘`、`⇧`、`⌥`)はスクリーンリーダーによって読み方が
+  ばらつきます。明示的なラベルを与えてください:
+  `<kbd class="hc-kbd" aria-label="Command">⌘</kbd>`。
+- `<kbd>` は純粋に説明用です — フォーカス可能では**なく**、
+  ショートカットをバインドしません。実際のキー処理は、ショートカットが
+  起動するコントロール側に残ります。
+- 「これはキーだ」をキャップの見た目だけで伝えないでください —
+  周囲のテキスト(「… を押す」)が意味を明確にすべきです。
+
+## テーマ用トークン
+
+| トークンパス      | 用途                                     |
+| ----------------- | ---------------------------------------- |
+| `kbd.bg`          | キーキャップの背景(ミュート面)。       |
+| `kbd.fg`          | キーテキストの色。                       |
+| `kbd.border`      | キーキャップの枠線色。                   |
+| `kbd.radius`      | キーキャップの角丸。                     |
+| `kbd.font`        | キー用の等幅フォントスタック。           |
+| `kbd.font-size`   | デフォルトのキーフォントサイズ。         |
+| `kbd.font-weight` | キーのフォントウェイト。                 |
+| `kbd.padding-x` / `-y` | キャップのパディング(em ベース。サイズに追従)。 |
+| `kbd.min-width`   | キャップの最小幅(em ベース)。          |
+| `kbd.sm-font-size` / `lg-font-size` | `data-size` のフォントサイズ。 |
+
+色は semantic の `muted-bg` / `text` / `border` トークンを参照するため、
+キーはコンポーネント別の上書きなしでアクティブなライト / ダークテーマに
+従います。
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-kbd-bg | -fg | -border | -radius
+--hc-kbd-font | -font-size | -font-weight
+--hc-kbd-padding-x | -padding-y | -min-width
+--hc-kbd-sm-font-size | -lg-font-size
+```
+
+</details>
+
+## 関連
+
+- [コマンド](/hypermedia-components/ja/components/command/) —
+  ショートカットのヒントがよく現れるコマンドパレット。
+- [メニュー](/hypermedia-components/ja/components/menu/) — メニュー項目は
+  ラベルとショートカットをよく並べます。
+- [バッジ](/hypermedia-components/ja/components/badge/) — もう 1 つの
+  小さなインラインのトークン駆動プリミティブ。
