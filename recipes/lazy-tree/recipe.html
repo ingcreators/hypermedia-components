@@ -1,0 +1,25 @@
+<!-- Short recommended usage.
+
+  The hypermedia lazy subtree: the branch ships EMPTY and its children
+  arrive as server-rendered treeitems on first expand. installTree()
+  dispatches `hc:treeexpand` when a branch opens; `once` makes htmx
+  fetch on the FIRST expand only — re-collapse/re-expand shows the
+  already-loaded children without another request. -->
+<ul class="hc-tree" aria-label="Documents">
+  <li class="hc-tree__item" aria-expanded="false"
+      data-hx-get="/nodes/42/children"
+      data-hx-target="find .hc-tree__group"
+      data-hx-swap="innerHTML"
+      data-hx-trigger="hc:treeexpand once">
+    <span class="hc-tree__row">
+      <span class="hc-tree__toggle" aria-hidden="true"></span>
+      <span class="hc-tree__label">Reports</span>
+    </span>
+    <ul class="hc-tree__group"></ul>
+  </li>
+  <li class="hc-tree__item">
+    <span class="hc-tree__row">
+      <span class="hc-tree__label"><a href="/files/readme">README.md</a></span>
+    </span>
+  </li>
+</ul>

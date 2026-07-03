@@ -1,0 +1,68 @@
+<!-- Fully expanded HTML.
+
+  A lazy branch next to an eager one, plus what the server returns.
+  Branch-ness is declared by aria-expanded (present = can expand; the
+  server owns the initial value). The lazy branch pairs an EMPTY
+  .hc-tree__group with an htmx GET wired to the behavior's
+  `hc:treeexpand` event:
+
+    - data-hx-trigger="hc:treeexpand once" — fetch on the FIRST expand
+      only; `once` is the whole trick. Re-collapse/re-expand shows the
+      loaded children with no further requests.
+    - data-hx-target="find .hc-tree__group" — `find` resolves to the
+      first match INSIDE the item: its own group.
+    - data-hx-swap="innerHTML" — fill the group, keep the <ul> the
+      behavior observes (it clears aria-busy and re-applies roles when
+      the children arrive).
+-->
+<ul class="hc-tree" aria-label="Documents">
+  <!-- Eager branch: children server-rendered inline. No htmx at all. -->
+  <li class="hc-tree__item" aria-expanded="true">
+    <span class="hc-tree__row">
+      <span class="hc-tree__toggle" aria-hidden="true"></span>
+      <span class="hc-tree__label">Guides</span>
+    </span>
+    <ul class="hc-tree__group">
+      <li class="hc-tree__item">
+        <span class="hc-tree__row">
+          <span class="hc-tree__label"><a href="/guides/intro">intro.md</a></span>
+        </span>
+      </li>
+    </ul>
+  </li>
+
+  <!-- Lazy branch: EMPTY group + htmx GET on the item. -->
+  <li class="hc-tree__item" aria-expanded="false"
+      data-hx-get="/nodes/42/children"
+      data-hx-target="find .hc-tree__group"
+      data-hx-swap="innerHTML"
+      data-hx-trigger="hc:treeexpand once">
+    <span class="hc-tree__row">
+      <span class="hc-tree__toggle" aria-hidden="true"></span>
+      <span class="hc-tree__label">Reports</span>
+    </span>
+    <ul class="hc-tree__group"></ul>
+  </li>
+</ul>
+
+<!-- Server response for GET /nodes/42/children — only the group's
+     innerHTML: <li class="hc-tree__item"> fragments. Nested lazy
+     branches inside the response work recursively (the behavior
+     re-applies roles via its observer; htmx processes the new
+     data-hx-* attributes on settle). -->
+<li class="hc-tree__item" aria-expanded="false"
+    data-hx-get="/nodes/57/children"
+    data-hx-target="find .hc-tree__group"
+    data-hx-swap="innerHTML"
+    data-hx-trigger="hc:treeexpand once">
+  <span class="hc-tree__row">
+    <span class="hc-tree__toggle" aria-hidden="true"></span>
+    <span class="hc-tree__label">Q1</span>
+  </span>
+  <ul class="hc-tree__group"></ul>
+</li>
+<li class="hc-tree__item">
+  <span class="hc-tree__row">
+    <span class="hc-tree__label"><a href="/reports/summary">summary.pdf</a></span>
+  </span>
+</li>

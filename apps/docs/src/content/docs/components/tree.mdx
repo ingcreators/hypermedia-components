@@ -9,8 +9,8 @@ import Demo from '../../../components/Demo.astro';
 file browsers, category hierarchies, admin navigation. Without
 JavaScript the markup is a plain readable list and every link keeps
 working; `installTree()` adds the roles, a roving tabindex, and the
-full APG keyboard model. Server-pushed subtrees are the lazy-tree
-recipe's job.
+full APG keyboard model. Server-pushed subtrees are the
+[lazy-tree recipe](/hypermedia-components/recipes/lazy-tree/)'s job.
 
 ## Basic HTML
 
@@ -69,8 +69,9 @@ Included in the auto-init
 bundle. Applies `role="tree" / treeitem / group` and a roving tabindex
 (one tab stop per tree); re-applies both when subtrees are swapped in
 by htmx. Expanding an item dispatches a bubbling **`hc:treeexpand`**
-(`detail: { item }`) — the hook lazy subtrees build on. It never
-touches the network.
+(`detail: { item }`) — the hook the
+[lazy-tree recipe](/hypermedia-components/recipes/lazy-tree/) builds
+on. It never touches the network.
 
 ### Keyboard
 
@@ -120,5 +121,6 @@ current node is server-rendered state.
 
 ## Related
 
+- [Lazy tree recipe](/hypermedia-components/recipes/lazy-tree/) — branches that load their children on first expand.
 - [Navigation menu](/hypermedia-components/components/navmenu/) — flat site navigation; the tree is for hierarchies.
 - [Collapsible](/hypermedia-components/components/collapsible/) — a single disclosure, no tree semantics.

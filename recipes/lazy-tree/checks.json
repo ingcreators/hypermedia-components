@@ -1,0 +1,57 @@
+{
+  "detect": ".hc-tree__item[data-hx-get]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "trigger-once",
+      "level": "error",
+      "message": "Lazy branches must pair the behavior's event with `once`: data-hx-trigger=\"hc:treeexpand once\" — without `once` every expand refetches and re-swaps the loaded children.",
+      "attr": {
+        "on": ".hc-tree__item[data-hx-get]",
+        "name": "data-hx-trigger",
+        "assert": "present",
+        "matches": "hc:treeexpand\\b.*\\bonce\\b"
+      }
+    },
+    {
+      "id": "target-own-group",
+      "level": "error",
+      "message": "Target the branch's own group: data-hx-target=\"find .hc-tree__group\" (`find` resolves inside the item).",
+      "attr": {
+        "on": ".hc-tree__item[data-hx-get]",
+        "name": "data-hx-target",
+        "assert": "present",
+        "value": "find .hc-tree__group"
+      }
+    },
+    {
+      "id": "swap-innerhtml",
+      "level": "error",
+      "message": "Swap innerHTML — fill the group, keep the <ul> the behavior observes for busy-clearing and role re-application. (innerHTML is also the htmx default — omitting the attribute is fine; anything else is not)",
+      "attr": {
+        "on": ".hc-tree__item[data-hx-get][data-hx-swap]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "innerHTML"
+      }
+    },
+    {
+      "id": "group-exists",
+      "level": "error",
+      "message": "The lazy branch needs an (empty) <ul class=\"hc-tree__group\"> to swap into — without it there is nothing to target and no busy affordance.",
+      "exists": {
+        "selector": ".hc-tree__group"
+      }
+    },
+    {
+      "id": "branch-declared",
+      "level": "error",
+      "message": "A lazy branch must declare branch-ness with aria-expanded (the server owns the initial value, usually \"false\") — the behavior only dispatches hc:treeexpand on branches.",
+      "attr": {
+        "on": ".hc-tree__item[data-hx-get]",
+        "name": "aria-expanded",
+        "assert": "present"
+      }
+    }
+  ]
+}

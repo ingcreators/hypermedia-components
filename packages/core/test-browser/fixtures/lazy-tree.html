@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc lazy-tree fixture</title>
+  <!--
+    The blessed lazy-tree recipe, verbatim from the docs: a branch with
+    an EMPTY group + data-hx-get wired to installTree()'s hc:treeexpand
+    event with `once`. The spec drives real htmx against the
+    /mock/tree/:id/children route in serve.mjs and pins the contract:
+    first expand fetches exactly once, re-collapse/re-expand does not
+    refetch, nested lazy branches in the response recurse, and the
+    swapped-in items join the keyboard model.
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:32rem;">
+    <h1>Lazy tree</h1>
+
+    <ul class="hc-tree" aria-label="Documents" data-testid="tree">
+      <li class="hc-tree__item" aria-expanded="false" data-testid="reports"
+          data-hx-get="/mock/tree/1/children"
+          data-hx-target="find .hc-tree__group"
+          data-hx-swap="innerHTML"
+          data-hx-trigger="hc:treeexpand once">
+        <span class="hc-tree__row">
+          <span class="hc-tree__toggle" aria-hidden="true" data-testid="reports-toggle"></span>
+          <span class="hc-tree__label">Reports</span>
+        </span>
+        <ul class="hc-tree__group" data-testid="reports-group"></ul>
+      </li>
+      <li class="hc-tree__item" data-testid="readme">
+        <span class="hc-tree__row">
+          <span class="hc-tree__label">README.md</span>
+        </span>
+      </li>
+    </ul>
+  </main>
+</body>
+</html>

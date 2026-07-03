@@ -1,0 +1,93 @@
+---
+title: Lazy tree
+description: Tree branches that ship empty and load their children as server-rendered treeitems on first expand — hc:treeexpand paired with an htmx once trigger.
+---
+
+A **lazy tree** defers deep branches: the
+[tree component](/hypermedia-components/components/tree/) renders with
+an **empty group**, and the children arrive as server-rendered
+`<li class="hc-tree__item">` fragments the first time the user expands
+the branch. `installTree()` dispatches a bubbling **`hc:treeexpand`**
+when a branch opens; htmx listens with a `once` trigger and owns the
+request — the behavior never touches the network.
+
+## The lazy branch
+
+```html
+<li class="hc-tree__item" aria-expanded="false"
+    data-hx-get="/nodes/42/children"
+    data-hx-target="find .hc-tree__group"
+    data-hx-swap="innerHTML"
+    data-hx-trigger="hc:treeexpand once">
+  <span class="hc-tree__row">
+    <span class="hc-tree__toggle" aria-hidden="true"></span>
+    <span class="hc-tree__label">Reports</span>
+  </span>
+  <ul class="hc-tree__group"></ul>
+</li>
+```
+
+- **`hc:treeexpand once`** — htmx fetches on the **first** expand
+  only. `once` is the whole trick: re-collapse/re-expand shows the
+  already-loaded children with no further requests. Without it every
+  expand refetches and re-swaps the subtree.
+- **`find .hc-tree__group`** — `find` resolves to the first match
+  *inside* the item: its own group.
+- **`innerHTML`** — fill the group, keep the `<ul>` the behavior
+  observes. While the request is in flight the behavior marks the
+  empty group `aria-busy="true"` (a CSS spinner renders; cleared when
+  children arrive).
+- `aria-expanded` must be present — branch-ness is declared by the
+  attribute, and the behavior only dispatches `hc:treeexpand` on
+  branches.
+
+## Server response
+
+Only the group's innerHTML — treeitem fragments:
+
+```html
+<li class="hc-tree__item">
+  <span class="hc-tree__row">
+    <span class="hc-tree__label"><a href="/reports/summary">summary.pdf</a></span>
+  </span>
+</li>
+```
+
+Nested lazy branches inside the response **recurse**: give a fragment
+the same four attributes and an empty group. htmx processes the new
+`data-hx-*` attributes on settle, and the behavior re-applies roles
+and the roving tabindex — swapped-in items are immediately
+keyboard-navigable (→ descends into them as soon as they arrive).
+
+## Failure handling
+
+htmx does not swap non-2xx responses, so on an error the branch stays
+empty — and the `once` trigger is **spent**: re-expanding will not
+retry. Surface failures with an
+[`HX-Trigger` toast](/hypermedia-components/recipes/toast/) and prefer
+server-side reliability; if a subtree fails often, render it eagerly
+instead. The recipe documents this limitation honestly rather than
+hiding it behind retry choreography.
+
+## Progressive enhancement
+
+Without JavaScript the markup is a plain nested list — every rendered
+link keeps working. Either render the tree fully expanded on the
+server (lazy loading is purely an enhancement), or give each branch a
+real link to a per-node page: the links **are** the fallback.
+
+## Validate it
+
+The recipe ships machine-checked rules — `once` on the trigger, the
+`find .hc-tree__group` target, innerHTML swap, the empty group, and
+declared `aria-expanded` are all errors when missing:
+
+```bash
+npx @hypermedia-components/cli validate page.html
+```
+
+## Related
+
+- [Tree](/hypermedia-components/components/tree/) — the component: markup, keyboard model, states, tokens.
+- [Lazy panel](/hypermedia-components/recipes/lazy-panel/) — the same defer-until-relevant idea for flat regions.
+- [Toast](/hypermedia-components/recipes/toast/) — error surfacing for spent triggers.
