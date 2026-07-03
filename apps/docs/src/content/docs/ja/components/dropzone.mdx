@@ -1,0 +1,98 @@
+---
+title: ドロップゾーン
+description: ネイティブの file input の上のドラッグ&ドロップ面 — クリックとキーボードは 100% ネイティブのまま、ドロップはファイルを代入して普通の change イベントを発火します。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-dropzone` は、**ネイティブの `<input type="file">`** をドロップ面で
+飾ります。対話要素はあくまで input です: 包んでいる `<label>` が
+クリックでピッカーを開き、キーボードフォーカスは(視覚的に隠されて
+いるがフォーカス可能な)input に着地し、`required` / `accept` /
+field-errors の配線はいつもどおり input に付きます。ドラッグ&
+ドロップはポインタ専用のエンハンスメントです — ドロップは
+`dataTransfer.files` を input に代入して普通のバブリングする
+`change` を発火するため、下流のすべて(フォームシリアライズ、
+[ファイルアップロードレシピ](/hypermedia-components/ja/recipes/file-upload/)、
+バリデーション)からは、ファイルが「参照」で選ばれなかったことを
+見分けられません。
+
+## 基本の HTML
+
+<Demo>
+  <label class="hc-dropzone">
+    <input class="hc-dropzone__input" type="file" name="doc" />
+    <span class="hc-dropzone__body">
+      <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+      <span class="hc-dropzone__files"></span>
+    </span>
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <label class="hc-dropzone">
+    <input class="hc-dropzone__input" type="file" name="doc">
+    <span class="hc-dropzone__body">
+      <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+      <span class="hc-dropzone__files"></span>
+    </span>
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
+
+`.hc-dropzone__files` は選択されたファイル名を表示します(ドロップでも
+参照でも、`change` のたびにビヘイビアが設定)。空のときは畳まれます。
+ヒントは作者が書くマークアップです — アプリの言語で書いてください。
+
+## ビヘイビア — `installDropzone()`
+
+自動初期化の
+[`./behaviors`](/hypermedia-components/ja/start/installation/#ビヘイビア)
+バンドルに含まれます。ファイルがゾーンの上をドラッグしている間は
+`data-dragover` を設定し(スタイルは下記)、ドロップはファイルを
+input に代入して — 単一ファイルの input は最初の 1 つだけを取り —
+バブリングする `change` を発火します。ファイルを運ばないドラッグ
+(テキスト選択)は無視され、input が `disabled` のゾーンも同様です。
+新しいイベントなし、ネットワークなし。
+
+## 状態
+
+| 状態 | セレクタ | 効果 |
+| --- | --- | --- |
+| ドラッグオーバー | `[data-dragover]` | 実線のアクセント枠線(`--hc-dropzone-dragover-border`、`data-color` に追従)+ ティント背景。 |
+| キーボードフォーカス | `:focus-within` | 標準のフォーカスリング(フォーカスは input 上)。 |
+| 無効 | `:has(> .hc-dropzone__input:disabled)` | ミュート表示、`cursor: not-allowed`。ビヘイビアはドロップを無視。 |
+| 無効値 | `:has(> .hc-dropzone__input[aria-invalid="true"])` | エラー枠線 — 他のコントロール同様、field-errors が設定。 |
+
+## サイズ
+
+`data-size="sm"` は密なフォーム向けにパディングを詰めます。
+
+## アクセシビリティ
+
+- キーボードや支援技術の利用者が必要とするものはすべてネイティブの
+  input です: ラベルによる起動、フォーカス + Enter/Space、制約
+  バリデーション、
+  [field-errors](/hypermedia-components/ja/recipes/field-errors/) からの
+  `aria-invalid` / `aria-describedby`。
+- ドラッグ&ドロップはエンハンスメントです。すべての結果は「参照」
+  経由で到達可能です。ARIA の発明はありません。
+- 選択された名前はラベル内の見えるテキストです。それ以上の読み上げが
+  必要なら、トーストと組み合わせてください。
+- 非目標(v1): ペーストによるアップロード、ディレクトリのドロップ。
+
+## テーマ用トークン
+
+`--hc-dropzone-bg` / `-border` / `-fg` / `-hint` / `-radius` /
+`-padding-y` / `-padding-x` / `-dragover-border` / `-dragover-bg` /
+`-error-border` — すべて semantic トークンを参照するため、テーマ、
+アクセント(`data-color`)、ダークモードが自動で適用されます。
+
+## 関連
+
+- [ファイルアップロードレシピ](/hypermedia-components/ja/recipes/file-upload/) — これがそのまま差し込まれるマルチパート + 進捗の契約。
+- [フィールドエラーレシピ](/hypermedia-components/ja/recipes/field-errors/) — input 上のバリデーション配線。
+- [インプット](/hypermedia-components/ja/components/input/) — これが飾る素のコントロール。

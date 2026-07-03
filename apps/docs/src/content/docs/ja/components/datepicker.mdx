@@ -1,0 +1,201 @@
+---
+title: デートピッカー
+description: HC フォームコントロールファミリーに合わせてスタイルされたネイティブの日付 / 時刻入力。OS ネイティブのカレンダーポップアップは保たれます。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-datepicker` は、`type` が `date`、`datetime-local`、`month`、
+`time` のいずれかであるネイティブの `<input>` をスタイルします。
+ネイティブの input はアクセシブルな挙動をすべて保ちます — キーボード
+ナビゲーション、ロケールに応じた表示、モバイルでの OS ネイティブの
+カレンダー / 時刻ピッカー、フォーム送信、`min` / `max` / `step` の
+バリデーション — 置き換わるのは閉じた状態のクロームだけで、
+`appearance: none` と埋め込み SVG アイコンで実現しています。
+
+完全に自前のカレンダー UI(カスタムハイライト、プリセット範囲、
+複数月表示)が必要なら
+[`hc-calendar`](/hypermedia-components/ja/components/calendar/) へ —
+スタイル済みドロップダウングリッドつきの日付**フォームフィールド**には
+公認の
+[input + popover + calendar パターン](/hypermedia-components/ja/components/calendar/#カスタム日付フィールドとして)を
+使ってください。ビジネスフォームの大多数にはネイティブ input が正しい
+デフォルトです。
+
+## 基本の例
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
+  <input class="hc-datepicker" type="date" aria-label="Due date" />
+  <input class="hc-datepicker" type="datetime-local" aria-label="Starts at" />
+  <input class="hc-datepicker" type="time" aria-label="Time" />
+  <input class="hc-datepicker" type="month" aria-label="Reporting month" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-datepicker" type="date"           name="due"        aria-label="Due date">
+  <input class="hc-datepicker" type="datetime-local" name="starts_at"  aria-label="Starts at">
+  <input class="hc-datepicker" type="time"           name="time"       aria-label="Time">
+  <input class="hc-datepicker" type="month"          name="report_for" aria-label="Reporting month">
+  ```
+
+  </Fragment>
+</Demo>
+
+`type="time"` は末尾のアイコンを時計に切り替えます。他のタイプは
+すべてカレンダーのグリフを使います。
+
+## バリアント
+
+`hc-input` / `hc-select` と同じ軸です — `data-variant` は枠線色の
+合図として `success`、`warning`、`error` を受け付けます。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
+  <input class="hc-datepicker" type="date" aria-label="Validated" data-variant="success" />
+  <input class="hc-datepicker" type="date" aria-label="Warning" data-variant="warning" />
+  <input class="hc-datepicker" type="date" aria-label="Error" data-variant="error" aria-invalid="true" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-datepicker" type="date" data-variant="success">
+  <input class="hc-datepicker" type="date" data-variant="warning">
+  <input class="hc-datepicker" type="date" data-variant="error" aria-invalid="true">
+  ```
+
+  </Fragment>
+</Demo>
+
+支援技術にもフィールドが無効だと認識させるため、
+`data-variant="error"` と一緒に `aria-invalid="true"` を設定して
+ください。
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。サイズは
+`hc-button` / `hc-input` / `hc-select` と同じ `--hc-control-*`
+スケールに従うため、`data-density="compact"` が一貫して縮めます。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
+  <input class="hc-datepicker" type="date" data-size="sm" aria-label="Small" />
+  <input class="hc-datepicker" type="date" aria-label="Default" />
+  <input class="hc-datepicker" type="date" data-size="lg" aria-label="Large" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-datepicker" type="date" data-size="sm">
+  <input class="hc-datepicker" type="date">
+  <input class="hc-datepicker" type="date" data-size="lg">
+  ```
+
+  </Fragment>
+</Demo>
+
+## 無効化
+
+ネイティブの `disabled` 属性を使います。コントロールは薄くなり入力を
+受け付けなくなります。代わりに `readonly` を使えば、値は引き続き送信
+されます。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
+  <input class="hc-datepicker" type="date" value="2026-06-01" disabled aria-label="Disabled" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-datepicker" type="date" value="2026-06-01" disabled>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 範囲ピッカー
+
+ネイティブの `<input type="date">` は単一値です。範囲には、2 つの
+input を隣接して置き、フォームバリデーションで制約を連動させます。
+
+```html
+<fieldset class="hc-field">
+  <legend>Date range</legend>
+  <input class="hc-datepicker" type="date" name="from" aria-label="From"
+         id="range-from" max="2027-12-31">
+  <input class="hc-datepicker" type="date" name="to"   aria-label="To"
+         id="range-to"   min="2026-01-01">
+</fieldset>
+
+<script>
+  // Keep the two ends consistent.
+  const from = document.getElementById('range-from');
+  const to   = document.getElementById('range-to');
+  from.addEventListener('change', () => { if (from.value) to.min = from.value; });
+  to.addEventListener('change',   () => { if (to.value)   from.max = to.value; });
+</script>
+```
+
+## htmx での利用
+
+この input はネイティブの input と同様にフォーム送信へ参加します。
+日付変更での即時フィルタには:
+
+```html
+<input class="hc-datepicker"
+       type="date"
+       name="due"
+       data-hx-get="/tasks"
+       data-hx-trigger="change"
+       data-hx-target="#tasks">
+```
+
+## アクセシビリティ
+
+- input には常にラベルを関連付けてください — `<label for>` つきの
+  `hc-field` で包む、`aria-label`、または `aria-labelledby` を使い
+  ます。
+- ネイティブの input はキーボードを完全に処理します: ← / → が年 /
+  月 / 日のスピナー間を移動し、↑ / ↓ がアクティブなスピナーを変え
+  ます。カスタムのキーボードハンドラを足さないでください — 組み込みの
+  挙動と衝突します。
+- アイコンは純粋に装飾です — スクリーンリーダーは
+  `background-image` を無視します。
+- ローカライズのあるビジネスアプリでは、日付の表示はブラウザが
+  ユーザーのロケールで自動処理します。送信される値は表示ロケールに
+  かかわらず常に ISO 8601(`yyyy-mm-dd`)です。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `datepicker.height` / `padding-x` | サイズ(`--hc-control-*` 経由で密度を継承)。 |
+| `datepicker.radius` / `font-size` / `bg` / `fg` / `border` | 面、テキスト、平常時の枠線。 |
+| `datepicker.focus-border` | フォーカス時の枠線。 |
+| `datepicker.error-border` / `success-border` / `warning-border` | バリアントの枠線。 |
+| `datepicker.disabled-bg` | 無効時の背景。 |
+| `datepicker.icon-size` | カレンダー / 時計アイコンの寸法。 |
+| `datepicker.sm.*` / `lg.*` | 専用の sm / lg 上書き。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-datepicker-height | -padding-x | -radius | -font-size
+--hc-datepicker-bg | -fg | -border
+--hc-datepicker-focus-border | -error-border | -success-border | -warning-border
+--hc-datepicker-disabled-bg
+--hc-datepicker-icon-size
+--hc-datepicker-sm-height | -sm-padding-x | -sm-font-size
+--hc-datepicker-lg-height | -lg-padding-x | -lg-font-size
+--hc-color-focus-ring (inherited from data-color)
+```
+
+</details>
+
+## 関連
+
+- [インプット](/hypermedia-components/ja/components/input/) — 同じコントロールスケールを共有するテキスト / textarea の兄弟。
+- [セレクト](/hypermedia-components/ja/components/select/) — 同じシェブロン構造のスタイル済みネイティブ `<select>`。
+- [フィールド](/hypermedia-components/ja/components/field/) — ラベル + ヘルパーテキストのラッパー。
