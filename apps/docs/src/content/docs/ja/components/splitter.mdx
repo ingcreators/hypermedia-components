@@ -1,0 +1,210 @@
+---
+title: スプリッター
+description: ドラッグ可能でキーボードアクセシブルなハンドルによるリサイズ可能パネル。WAI-ARIA Window Splitter パターンに準拠。installSplitter で駆動。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-splitter` は 2 つのペインを可動ハンドルで分割します — shadcn の
+`Resizable` 相当。WAI-ARIA の **Window Splitter** パターンに従います:
+ハンドルはフォーカス可能な `role="separator"` で、その `aria-valuenow`
+がプライマリペインのサイズを追跡します。`installSplitter` がポインタの
+ドラッグ、キーボードでのリサイズ、ARIA を配線します。レイアウトは
+単一の `--hc-splitter-pos` カスタムプロパティで駆動される素の flexbox
+です。
+
+## 基本の使い方
+
+コンテナに交差軸のサイズを与えます(デフォルトの水平レイアウトでは
+高さ)。
+
+<Demo>
+  <div class="hc-splitter" data-orientation="horizontal" data-value="40" style="block-size:10rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
+    <div class="hc-splitter__panel" style="padding:.75rem;">Primary pane</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0" aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel" style="padding:.75rem;">Secondary pane</div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-splitter" data-orientation="horizontal" style="block-size:10rem">
+    <div class="hc-splitter__panel">Primary pane</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0"
+         aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel">Secondary pane</div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installSplitter } from '@hypermedia-components/core';
+installSplitter(); // idempotent; returns an uninstaller
+```
+
+ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
+インストールします。
+
+## 縦方向
+
+`data-orientation="vertical"` はペインを縦に積み、水平のハンドルに
+します。
+
+<div class="hc-preview not-content">
+  <div class="hc-splitter" data-orientation="vertical" data-value="40" style="block-size:14rem;inline-size:16rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
+    <div class="hc-splitter__panel" style="padding:.75rem;">Top</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0" aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel" style="padding:.75rem;">Bottom</div>
+  </div>
+</div>
+
+## 設定
+
+| 属性 | 用途 |
+| --- | --- |
+| `data-orientation` | `horizontal`(デフォルト、横並び)または `vertical`(縦積み)。 |
+| `data-value` | プライマリペインの初期サイズ。パーセント(デフォルト `50`)。 |
+| `data-min` / `data-max` | 許容範囲。パーセント(デフォルト `10` / `90`)。 |
+| `data-step` | キーボードのステップ。パーセント(デフォルト `5`)。 |
+| `data-collapsible` | ハンドルのダブルクリック / `Enter` でプライマリペインを折りたたみ ↔ 直前の開いたサイズにトグル。 |
+| `data-persist` | `localStorage` のキー — 位置を保存・復元します(`0` の永続値は折りたたみを復元)。 |
+
+## キーボード
+
+Tab でハンドルへ移動し、次を使います:
+
+| キー | 動作 |
+| --- | --- |
+| `←` / `→`(水平)または `↑` / `↓`(垂直) | 1 ステップ分リサイズ |
+| `Home` | 最小サイズ |
+| `End` | 最大サイズ |
+| `Enter` | 折りたたみのトグル(`data-collapsible` のとき) |
+
+DOM のフォーカスはハンドル上にあります。`aria-valuenow` /
+`aria-valuemin` / `aria-valuemax` が支援技術にプライマリペインの
+サイズを説明します。
+
+## 変更イベント
+
+リサイズのたびにコンテナ上でバブリングする `hc:splitterchange` を
+ディスパッチします:
+
+```js
+splitter.addEventListener('hc:splitterchange', (e) => {
+  const { value, collapsed, orientation } = e.detail; // value: primary-pane %
+});
+```
+
+`collapsed` はプライマリペインが折りたたまれている間 `true` です
+(下記参照)。
+
+## 折りたたみ
+
+`data-collapsible` を足すと、ハンドルでプライマリペインを折りたたんだり
+戻したりできます。ハンドルを**ダブルクリック**するか、フォーカスして
+<kbd>Enter</kbd> を押すと、折りたたみ(0%)と直前の開いたサイズの間で
+トグルします。
+
+<Demo>
+  <div class="hc-splitter" data-orientation="horizontal" data-value="40" data-collapsible style="block-size:10rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
+    <div class="hc-splitter__panel" style="padding:.75rem;">Primary pane — double-click the handle</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0" aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel" style="padding:.75rem;">Secondary pane</div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-splitter" data-orientation="horizontal" data-collapsible
+       style="block-size:10rem">
+    <div class="hc-splitter__panel">Primary pane</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0"
+         aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel">Secondary pane</div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+折りたたまれたスプリッターはコンテナに `data-collapsed` を持ちます —
+ペインはそれを基にスタイルしてください — そして `hc:splitterchange` は
+`detail.collapsed` を報告します。ハンドルの `aria-valuenow` は
+`[min, max]` の範囲内にとどまります。折りたたみ状態は範囲外の値では
+なく `data-collapsed` に乗ります。
+
+## 永続化
+
+`data-persist="<key>"` を足すと位置を `localStorage` にミラーリングし、
+次の訪問で復元します。`0` の永続値は折りたたみ状態を復元します。
+ストレージの失敗(プライベートモード、無効化)は `data-value` の
+デフォルトへ静かにフォールバックします。
+
+```html
+<div class="hc-splitter" data-orientation="horizontal"
+     data-collapsible data-persist="editor:sidebar" style="block-size:10rem">
+  …
+</div>
+```
+
+## Hyperscript
+
+よくある localStorage のケースは `data-persist` がカバーします。
+カスタムなストレージ(クッキー、サーバとの往復、異なるキー形状)が
+必要なときは Hyperscript を使ってください:
+
+```html
+<div class="hc-splitter" data-orientation="horizontal"
+     _="on hc:splitterchange call myStore.set('split', event.detail.value)">
+  …
+</div>
+```
+
+さらなるパターン: [Hyperscript → コンポーネントイベントへの反応](/hypermedia-components/ja/integrations/hyperscript/#コンポーネントイベントへの反応)。
+
+## アクセシビリティ
+
+- ハンドルは `role="separator"` + `tabindex="0"` で、
+  `aria-valuenow` / `aria-valuemin` / `aria-valuemax` と、プライマリ
+  ペインを指す `aria-controls` を持ちます(APG の Window Splitter
+  パターンどおり)。
+- セパレータの `aria-orientation` は自動で設定されます(横並びの分割は
+  `vertical` のセパレータ線を使い、逆も同様)。
+- ハンドルには `aria-label` か `aria-labelledby`(プライマリペインの
+  見出し)でアクセシブルな名前を与えてください。
+
+## テーマ用トークン
+
+| トークンパス | 用途 |
+| --- | --- |
+| `splitter.handle-size` | ハンドルの太さ(ヒットエリア)。 |
+| `splitter.handle-bg` / `handle-hover-bg` | ハンドルの背景(ホバー / フォーカスは `data-color` で色づけ)。 |
+| `splitter.grip-color` / `grip-active-color` | 中央のグリップバー。 |
+| `splitter.grip-length` / `grip-thickness` | グリップの寸法。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-splitter-handle-size | -handle-bg | -handle-hover-bg
+--hc-splitter-grip-color | -grip-active-color | -grip-length | -grip-thickness
+--hc-splitter-pos   (runtime: the primary pane's size, set by installSplitter)
+```
+
+</details>
+
+## 対象外
+
+3 つ以上のペイン、ネストしたスプリッター、ピクセルベースの最小値は
+先送りです。
+
+## 関連
+
+- [セパレータ](/hypermedia-components/ja/components/separator/) —
+  静的で非インタラクティブな区切り。
+- [カード](/hypermedia-components/ja/components/card/) — ペインの
+  よくあるコンテンツ。

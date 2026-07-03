@@ -1,0 +1,61 @@
+---
+title: カスタム要素
+description: "@hypermedia-components/core/macros が出荷する任意の Light DOM マクロ。"
+---
+
+Hypermedia Components は `@hypermedia-components/core/macros` の下で、
+少数の任意の Light DOM マクロを出荷しています。各マクロはカスタム要素
+で、`connectedCallback` 時に自身の子をドキュメント化されたレシピの
+展開 HTML に置き換え、htmx が新しい属性を拾えるよう
+`htmx.process(this)` を呼びます。
+
+> マクロは**常に任意**です。ドキュメント化された契約はレシピページの
+> 展開 HTML です。マクロの属性面がニーズをカバーしないときは、展開
+> HTML をコピーしてカスタマイズしてください。
+
+## 読み込み
+
+```js
+// Auto-registers all shipped macros via customElements.define.
+import '@hypermedia-components/core/macros';
+```
+
+登録は冪等です。別のバンドルで再インポートしても安全です。
+
+## 利用可能なマクロ
+
+| 要素                   | ドキュメント                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `<hc-confirm-action>`  | [confirm-action レシピ → マクロ形式](/hypermedia-components/ja/recipes/confirm-action/#マクロ形式) |
+| `<hc-live-search>`     | [live-search レシピ → マクロ形式](/hypermedia-components/ja/recipes/live-search/#マクロ形式) |
+
+## 契約
+
+出荷されるすべてのマクロは:
+
+1. `hc-` プレフィックスを使います。
+2. Light DOM にとどまります — Shadow DOM なし。
+3. セマンティックな `hc-*` クラスと `data-hx-*` / `data-hc-*` 属性に
+   展開されます。
+4. アップグレードが冪等になるよう `dataset.hcUpgraded = "true"` を
+   設定します。
+5. htmx が読み込まれていれば `htmx.process(this)` を呼びます。そうで
+   なくても展開は成功し、後の `htmx.process()` 呼び出しが属性を拾い
+   ます。
+6. 展開 DOM を `createElement` + `setAttribute` で構築し、属性値を
+   HTML 文字列に補間することは決してしません。マクロの入力は作者から
+   来ます — XSS ベクターを兼ねさせないでください。
+
+## 執筆ガイダンス
+
+マクロに手を伸ばすときは、次のトレードオフで判断してください:
+
+| マクロを使うのは…                                   | 使わないのは…                                          |
+| --------------------------------------------------- | ------------------------------------------------------ |
+| 同じ形のマークアップが何度も繰り返されるとき。      | マクロが公開していない一回限りの挙動が必要なとき。     |
+| チームがコンパクトなテンプレートを好むとき。        | レビュアーが htmx のしていることを正確に見るべきとき。 |
+| 展開 HTML が大きくノイジーなとき。                  | サーバテンプレートをフレームワーク非依存に保ちたいとき。 |
+
+どちらの選択も妥当です。「よくある」パターンにはマクロ形式、
+「興味深い」パターンには展開 HTML を混ぜるのが最も一般的な中間の道
+です。
