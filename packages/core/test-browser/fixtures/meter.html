@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-meter fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body>
+  <main id="section-meter" style="padding:1rem; max-inline-size:40rem; display:grid; gap:1rem;">
+    <h1>Meter</h1>
+
+    <div>
+      <label for="m-optimum">Battery</label>
+      <meter class="hc-meter" id="m-optimum" data-testid="optimum"
+             min="0" max="100" low="20" high="50" optimum="90" value="86">86%</meter>
+    </div>
+
+    <div>
+      <label for="m-subopt">Storage used</label>
+      <meter class="hc-meter" id="m-subopt" data-testid="suboptimum"
+             min="0" max="100" low="70" high="90" optimum="10" value="82">82%</meter>
+    </div>
+
+    <div>
+      <label for="m-critical">Storage used</label>
+      <meter class="hc-meter" id="m-critical" data-testid="critical"
+             min="0" max="100" low="70" high="90" optimum="10" value="97">97%</meter>
+    </div>
+
+    <div>
+      <label for="m-plain">Score</label>
+      <meter class="hc-meter" id="m-plain" data-testid="plain"
+             min="0" max="10" value="7">7 of 10</meter>
+    </div>
+
+    <div>
+      <label for="m-sm">Small</label>
+      <meter class="hc-meter" id="m-sm" data-size="sm" data-testid="sm"
+             min="0" max="100" value="40">40%</meter>
+    </div>
+
+    <div>
+      <label for="m-lg">Large</label>
+      <meter class="hc-meter" id="m-lg" data-size="lg" data-testid="lg"
+             min="0" max="100" value="40">40%</meter>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,160 @@
+---
+title: メーター
+description: 一貫したクロスブラウザの見た目でスタイルされたネイティブ <meter> 要素 — ブラウザの optimum / suboptimum / critical 領域をステータストークンに対応づけ。純 CSS、JavaScript なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-meter` は標準の `<meter>` 要素に適用します — 既知の範囲内のスカラー
+計測値(ディスククォータ、スコア、容量)を表し、
+[`hc-progress`](/hypermedia-components/ja/components/progress/)(タスクの
+進捗)と対をなします。ネイティブ要素は `role="meter"` のセマンティクスと
+`value` / `min` / `max` / `low` / `high` / `optimum` 属性を保ち、視覚的な
+クロームだけが `appearance: none` とベンダーごとの疑似要素で置き換え
+られます。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <label for="score">Review score</label>
+  <meter class="hc-meter" id="score" min="0" max="10" value="7">7 of 10</meter>
+
+  <Fragment slot="code">
+
+  ```html
+  <label for="score">Review score</label>
+  <meter class="hc-meter" id="score" min="0" max="10" value="7">7 of 10</meter>
+  ```
+
+  </Fragment>
+</Demo>
+
+テキストの子(`7 of 10`)は `<meter>` を描画しないユーザーエージェント
+のためのフォールバックです — 意味のある内容に保ってください。
+
+## ステータス領域
+
+`low` / `high` / `optimum` は現在値の分類方法を**ブラウザ**に伝えます。
+コンポーネントは 3 つの領域をステータストークンに対応づけます —
+`data-variant` は不要で、色はデータから導かれます:
+
+| 領域 | 条件 | カラートークン |
+| --- | --- | --- |
+| optimum | 値が最良の帯にある | `meter.optimum-fill`(success) |
+| suboptimum | 1 帯離れている | `meter.suboptimum-fill`(warning) |
+| critical | 2 帯離れている | `meter.critical-fill`(error) |
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <label for="disk-ok">Storage used — 42%</label>
+  <meter class="hc-meter" id="disk-ok" min="0" max="100" low="70" high="90" optimum="10" value="42">42%</meter>
+  <label for="disk-warn">Storage used — 82%</label>
+  <meter class="hc-meter" id="disk-warn" min="0" max="100" low="70" high="90" optimum="10" value="82">82%</meter>
+  <label for="disk-crit">Storage used — 97%</label>
+  <meter class="hc-meter" id="disk-crit" min="0" max="100" low="70" high="90" optimum="10" value="97">97%</meter>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- optimum=10 declares "low is good": ≤70 green, 70–90 amber, ≥90 red -->
+  <meter class="hc-meter" min="0" max="100"
+         low="70" high="90" optimum="10" value="82">82%</meter>
+  ```
+
+  </Fragment>
+</Demo>
+
+「高いほど良い」スケール(バッテリー、スコア)では `optimum` を `max`
+側に振ってください — 同じ帯が逆方向に色づきます。
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <meter class="hc-meter" data-size="sm" min="0" max="100" value="40" aria-label="Small">40%</meter>
+  <meter class="hc-meter" min="0" max="100" value="40" aria-label="Default">40%</meter>
+  <meter class="hc-meter" data-size="lg" min="0" max="100" value="40" aria-label="Large">40%</meter>
+
+  <Fragment slot="code">
+
+  ```html
+  <meter class="hc-meter" data-size="sm" min="0" max="100" value="40" aria-label="Small">40%</meter>
+  <meter class="hc-meter"                min="0" max="100" value="40" aria-label="Default">40%</meter>
+  <meter class="hc-meter" data-size="lg" min="0" max="100" value="40" aria-label="Large">40%</meter>
+  ```
+
+  </Fragment>
+</Demo>
+
+## メーターとプログレスの使い分け
+
+| 用途 | 要素 |
+| --- | --- |
+| 完了に向かって進むタスク | [`<progress class="hc-progress">`](/hypermedia-components/ja/components/progress/) |
+| 既知の範囲内の計測値(クォータ、スコア、負荷) | `<meter class="hc-meter">` |
+
+`<meter>` に不確定状態はなく、`<progress>` に良し悪しの領域は
+ありません — この区別は支援技術のために要素がエンコードするものなので、
+見た目ではなく意味で選んでください。
+
+## htmx での利用
+
+`<meter>` は通常の DOM ノードです — 他の要素と同じようにスワップ
+できます。例: アップロード後に再描画されるクォータのセル:
+
+```html
+<meter class="hc-meter" id="quota" min="0" max="100"
+       low="70" high="90" optimum="10" value="82"
+       data-hx-get="/account/quota" data-hx-trigger="hc:uploaded from:body"
+       data-hx-swap="outerHTML">82%</meter>
+```
+
+領域の色はスワップ時に自動で更新されます — スクリプトではなく、新しい
+`value` からブラウザが導出します。
+
+## アクセシビリティ
+
+- 要素には常にアクセシブルな名前を与えてください — `<label for>` で
+  包むか `aria-label` を使います。要素自体は値つきのメーターとして
+  公開されるため、`aria-valuenow` のミラーリングは不要です。
+- フォールバックのテキストの子はサーバサイドで `value` と同期して
+  ください — コピー & ペーストやリーダーモードが見るのもこれです。
+- 色は唯一のシグナルでは**ありません**: value / max のペアは
+  アクセシビリティツリーにあり、目で見るラベルにも数値を載せるべき
+  です(上のデモのように)。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `meter.height` | トラックの高さ。 |
+| `meter.radius` | トラックの角丸。 |
+| `meter.bg` | トラックの背景。 |
+| `meter.optimum-fill` | 最良領域のフィル(success)。 |
+| `meter.suboptimum-fill` | 1 帯離れたフィル(warning)。 |
+| `meter.critical-fill` | 2 帯離れたフィル(error)。 |
+| `meter.sm.height` / `lg.height` | サイズバリアント。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-meter-height | -radius | -bg
+--hc-meter-optimum-fill | -suboptimum-fill | -critical-fill
+--hc-meter-sm-height | -lg-height
+```
+
+</details>
+
+## 関連
+
+- [プログレス](/hypermedia-components/ja/components/progress/) —
+  タスクの完了。対をなす `<progress>` 側。
+- [スパークライン](/hypermedia-components/ja/components/sparkline/) —
+  現在の計測値の隣に置くトレンド。
+- [ステータスカラー](/hypermedia-components/ja/tokens/status/) —
+  領域が対応づけられる共有の success / warning / error トークン。

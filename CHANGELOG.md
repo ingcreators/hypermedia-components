@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-meter` — native `<meter>` skin** (first track of
+  `plans/hc-component-breadth2-plan-v0.9-en.md`). The scalar-measurement
+  sibling of `hc-progress`: pure CSS over the native element, with the
+  browser's optimum / suboptimum / even-less-good regions mapped onto the
+  status tokens (`--hc-meter-optimum-fill` / `-suboptimum-fill` /
+  `-critical-fill`) and `data-size="sm|lg"` presets. New `meter.*` tokens,
+  docs (en + ja), kitchen-sink entry, and a Playwright suite incl. axe.
+
 - **Docs: Japanese translations, phase 12 — the translation is complete**
   (#325, docs-facing). The final twelve pages: the Layout component
   category (aspect, scroll-area, shell, splitter, carousel), the
