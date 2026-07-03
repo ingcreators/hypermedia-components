@@ -183,3 +183,85 @@ describe('installChart', () => {
     expect(calls.plot.length).toBe(1); // no new render after uninstall
   });
 });
+
+
+function fig(type, tableInner, extra = '') {
+  return `
+  <figure class="hc-chart" data-hc-chart="${type}" ${extra}>
+    <table class="hc-table">${tableInner}</table>
+  </figure>`;
+}
+
+describe('Tier 2 presets', () => {
+  it('bar-stacked renders one stacked barY over all series', () => {
+    document.body.innerHTML = fig('bar-stacked', `
+      <thead><tr><th>Month</th><th>Tokyo</th><th>Osaka</th></tr></thead>
+      <tbody><tr><td>Jan</td><td>10</td><td>20</td></tr><tr><td>Feb</td><td>30</td><td>40</td></tr></tbody>`);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.barY).toHaveLength(1);
+    const { data, opts } = calls.barY[0];
+    expect(data).toHaveLength(4);
+    expect(opts).toMatchObject({ x: 'x', y: 'value', fill: 'series' });
+    expect(opts.fx).toBeUndefined();
+  });
+
+  it('bar-grouped facets by the category and hides the inner axis', () => {
+    document.body.innerHTML = fig('bar-grouped', `
+      <thead><tr><th>Month</th><th>Tokyo</th><th>Osaka</th></tr></thead>
+      <tbody><tr><td>Jan</td><td>10</td><td>20</td></tr><tr><td>Feb</td><td>30</td><td>40</td></tr></tbody>`);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    const { opts } = calls.barY[0];
+    expect(opts).toMatchObject({ fx: 'x', x: 'series', y: 'value' });
+    const plotOpts = calls.plot[0];
+    expect(plotOpts.x).toEqual({ axis: null });
+    expect(plotOpts.fx.label).toBe('Month');
+    expect(plotOpts.fx.domain).toEqual(['Jan', 'Feb']); // first-appearance order
+  });
+
+  it('scatter defaults x to number and maps a data-role="r" column to the radius channel', () => {
+    document.body.innerHTML = fig('scatter', `
+      <thead><tr><th>Height</th><th>Weight</th><th data-role="r">Count</th></tr></thead>
+      <tbody><tr><td>150</td><td>52</td><td>3</td></tr><tr><td>172</td><td>70</td><td>9</td></tr></tbody>`);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.dot).toHaveLength(1);
+    const { data, opts } = calls.dot[0];
+    expect(opts).toMatchObject({ x: 'x', y: 'value', r: 'r' });
+    expect(data[0]).toMatchObject({ x: 150, value: 52, r: 3 }); // numeric x, r attached
+    expect(calls.plot[0].x.type).toBe('linear');
+  });
+
+  it('scatter without an r column uses a fixed radius', () => {
+    document.body.innerHTML = fig('scatter', `
+      <thead><tr><th>X</th><th>Y</th></tr></thead>
+      <tbody><tr><td>1</td><td>2</td></tr></tbody>`);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.dot[0].opts.r).toBe(4);
+  });
+
+  it('sparkline strips axes/grid/legend and defaults to a compact height', () => {
+    document.body.innerHTML = fig('sparkline', `
+      <thead><tr><th>Day</th><th>Load</th></tr></thead>
+      <tbody><tr><td>Mon</td><td>1</td></tr><tr><td>Tue</td><td>3</td></tr></tbody>`);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.lineY).toHaveLength(1);
+    const plotOpts = calls.plot[0];
+    expect(plotOpts.height).toBe(48);
+    expect(plotOpts.x.axis).toBeNull();
+    expect(plotOpts.y).toEqual({ axis: null, grid: false });
+    expect(plotOpts.color.legend).toBe(false);
+  });
+
+  it('sparkline honours an explicit data-height', () => {
+    document.body.innerHTML = fig('sparkline', `
+      <thead><tr><th>Day</th><th>Load</th></tr></thead>
+      <tbody><tr><td>Mon</td><td>1</td></tr></tbody>`, 'data-height="80"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.plot[0].height).toBe(80);
+  });
+});

@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Chart Tier 2 — `bar-stacked`, `bar-grouped`, `scatter`,
+  `sparkline`** (#307). Four whole-figure presets on the same
+  table-as-data contract: explicit stacking; side-by-side grouping via
+  faceting (the category axis carries the labels, the inner axis
+  hides); scatter with a numeric default x (`data-x-type`), one dot set
+  per series column and an optional `<th data-role="r">` radius
+  column; and a chrome-free 48 px sparkline preset (the standalone
+  dependency-free `hc-sparkline` stays the usual choice — this one is
+  for Plot-consistent dashboards). Per-column `data-mark` combos remain
+  a Tier 1 concept. Implements PR 2 of
+  `plans/hc-chart-recipe-plan-en.md`; Tier 3 (histogram/heatmap + SSR)
+  remains.
+
 - **`multi-step-form` recipe — the hypermedia wizard** (#304). The
   server owns the current step and a **draft** of everything entered;
   the client is one `#wizard` region (whole-step `outerHTML` swaps),
