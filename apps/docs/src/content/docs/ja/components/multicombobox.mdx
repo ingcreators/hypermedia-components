@@ -1,0 +1,223 @@
+---
+title: マルチコンボボックス
+description: タグ入力つきの複数選択コンボボックス — 入力で絞り込み、クリックでトグル、Backspace で最後のタグを削除。popover + アンカーポジショニングの上に構築。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-multicombobox` は、タグ入力コントロールを備えた**複数選択**の
+コンボボックスです。選択された値は 1 枚の視覚面の中にインラインの
+チップとして描画され、フィルタ入力はその隣に住み、リストボックスは
+`aria-multiselectable="true"` を持つため選択のたびに閉じません。
+
+[`hc-combobox`](/hypermedia-components/ja/components/combobox/) と同じ
+アーキテクチャのプリミティブです — WAI-ARIA 1.2 コンボボックス
+パターン、HTML `popover`、CSS Anchor Positioning、DOM フォーカスを
+入力に留めたままハイライトを追跡する `aria-activedescendant`。
+
+## 基本の例
+
+<Demo>
+  <div class="hc-multicombobox" style="max-inline-size:22rem;">
+    <div class="hc-multicombobox__control hc-input">
+      <span class="hc-multicombobox__tags"></span>
+      <input class="hc-multicombobox__input"
+             type="text"
+             role="combobox"
+             aria-controls="doc-mc-list"
+             aria-label="Languages" />
+    </div>
+    <ul class="hc-multicombobox__listbox" id="doc-mc-list" role="listbox">
+      <li class="hc-multicombobox__option" role="option" data-value="js">JavaScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="ts">TypeScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="py" aria-selected="true">Python</li>
+      <li class="hc-multicombobox__option" role="option" data-value="go">Go</li>
+      <li class="hc-multicombobox__option" role="option" data-value="rs"
+          aria-disabled="true">Rust (coming soon)</li>
+    </ul>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-multicombobox" data-name="languages">
+    <div class="hc-multicombobox__control hc-input">
+      <span class="hc-multicombobox__tags"></span>
+      <input class="hc-multicombobox__input"
+             type="text"
+             role="combobox"
+             aria-controls="lang-list"
+             aria-label="Languages">
+    </div>
+  
+    <ul class="hc-multicombobox__listbox" id="lang-list" role="listbox">
+      <li class="hc-multicombobox__option" role="option" data-value="js">JavaScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="ts">TypeScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="py"
+          aria-selected="true">Python</li>
+      <li class="hc-multicombobox__option" role="option" data-value="go">Go</li>
+      <li class="hc-multicombobox__option" role="option" data-value="rs"
+          aria-disabled="true">Rust</li>
+    </ul>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installMulticombobox } from '@hypermedia-components/core';
+installMulticombobox();
+```
+
+事前に `aria-selected="true"` が付いたオプションは、シードされたタグに
+なります。
+
+## `installMulticombobox()` がすること
+
+- **ARIA**: リストボックスに `aria-multiselectable="true"`、
+  `aria-haspopup="listbox"`、`aria-autocomplete="list"`、
+  `aria-expanded`、(なければ)`aria-controls`、ハイライト中の
+  オプションを追跡する `aria-activedescendant`。
+- **アンカー結合**: 入力にインライン `anchor-name`、リストボックスに
+  `position-anchor`。CSS Anchor Positioning のないブラウザには JS の
+  配置フォールバック。
+- **シード**: インストール時点で `aria-selected="true"` を持つすべての
+  オプションがタグチップになります — SSR で事前選択された状態が
+  そのまま使えます。
+- **フィルタリング**: キーストロークごとの大文字小文字を無視した
+  部分文字列一致。何も一致しなければ `.hc-multicombobox__empty` の
+  プレースホルダー。
+- **トグル選択**: ハイライト中のオプションのクリックまたは Enter で
+  選択状態をトグル。リストボックスは開いたままなので、開き直さずに
+  複数選べます。
+- **タグの削除**:
+  - タグの `×` ボタンをクリック。
+  - 入力が空の状態で `Backspace` を押すと最後のタグを削除(タグ入力の
+    標準的な作法)。
+- **フォーム統合**: ラッパーに `data-name="X"` があると、ビヘイビアは
+  選択値ごとに `<input type="hidden" name="X" value="…">` をラッパー
+  内に書きます。フォームはネイティブの
+  `<select multiple name="X">` のようにシリアライズされます。
+- **イベント**: すべての状態変化が、入力上で
+  `detail.{values, added, removed, input}` を持つ
+  `hc:multicomboboxchange` を発火します。
+
+## キーボード
+
+| キー | 動作 |
+| --- | --- |
+| `↓` / `↑` | リストボックスを開く / activedescendant を移動。 |
+| `Home` / `End` | 最初 / 最後の有効な見えるオプション。 |
+| `Enter` | ハイライト中のオプションをトグル。 |
+| `Backspace`(入力が空) | 最後のタグを削除。 |
+| `Escape` | リストボックスを閉じる。選択は保持。 |
+| `Tab` | リストボックスを閉じる。通常のタブ順。 |
+
+## フォーム統合
+
+ネイティブなフォームシリアライズには、ラッパーに `data-name` を設定
+します:
+
+```html
+<form action="/save" method="post">
+  <div class="hc-multicombobox" data-name="languages">…</div>
+  <button class="hc-button">Save</button>
+</form>
+```
+
+`languages=js&languages=ts&languages=py` として送信されます —
+ネイティブの `<select multiple name="languages">` が生むのと同じ形
+です。PHP / Rails / Python のフレームワークは設定なしでこれをパース
+します。
+
+## htmx での利用
+
+変更イベントは全状態を運ぶため、編集のたびの htmx スワップは 1 つの
+トリガー宣言で済みます:
+
+```html
+<div class="hc-multicombobox"
+     data-name="languages"
+     data-hx-post="/profile/languages"
+     data-hx-trigger="hc:multicomboboxchange from:closest .hc-multicombobox"
+     data-hx-include="this"
+     data-hx-target="#status">
+  …
+</div>
+```
+
+## 作成可能(creatable)
+
+`data-allow-create` を足すと、ユーザーはリストにないタグを追加でき
+ます。入力したテキストに完全一致がないとき、合成の **「Add …」**
+オプションが現れます。それを選ぶ(クリックまたは <kbd>Enter</kbd>)と
+生のテキストからタグが作られ、新しい値を `added` に載せた
+`hc:multicomboboxchange` が発火します。
+
+```html
+<div class="hc-multicombobox" data-name="tags" data-allow-create>…</div>
+```
+
+作られたタグのラベルは値そのもので、他のタグと同様に隠し `name`
+input が追加されます。オプションのラベルは
+[i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)
+(`multicombobox.create`)で翻訳できます。
+
+## リッチなオプション
+
+オプションには任意の HTML(アイコン + ラベル + 説明)を入れられます。
+タグのラベルと一致値には **`data-label`** を、フィルタの照合対象
+(エイリアス / キーワード)には **`data-search`** を使い、リッチ
+マークアップのテキストがどちらも汚さないようにします:
+
+```html
+<li class="hc-multicombobox__option" role="option" data-value="py"
+    data-label="Python" data-search="python py snake">
+  <strong>Python</strong> <small>scripting</small>
+</li>
+```
+
+リッチレイアウトのためにオプションへ `display` を設定するなら、
+フィルタの非表示を上書きしないよう `:not([hidden])` にスコープして
+ください。
+
+## アクセシビリティ
+
+- DOM フォーカスは入力に留まり、タイプアヘッドのアンカーが一貫します —
+  `aria-activedescendant` が動かすのは*ハイライト*であり、フォーカス
+  ではありません。
+- 各タグは `aria-label="Remove …"` を持つ本物のフォーカス可能な
+  ボタンなので、スクリーンリーダーの利用者はそこに着地して削除を
+  実行できます。
+- 利用不可の行は `disabled` ではなく `aria-disabled="true"` で印を
+  付けてください(`<li>` はフォームコントロールではありません)。
+- 見える activedescendant のハイライトは `--hc-color-focus-ring` を
+  使い、`data-color` テーマに従います。
+
+## スコープ外(MVP)
+
+- タグの**ドラッグによる並べ替え**。
+- **非同期のオプション読み込み** — 上のドキュメントは htmx スワップの
+  パターンを示しています。組み込みのデバウンス / キャンセルヘルパーは
+  同梱されません。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `multicombobox.control.padding-x` / `padding-y` / `gap` / `min-height` | タグ入力コントロールのボックス。 |
+| `multicombobox.input.min-width` / `fg` | インラインのテキスト入力。 |
+| `multicombobox.tag.bg` / `fg` / `border` / `padding-x` / `padding-y` / `radius` / `font-size` / `gap` | タグチップ。 |
+| `multicombobox.tag.remove-fg` / `remove-hover-fg` | × ボタン。 |
+| `multicombobox.listbox.*` | コンボボックスのリストボックストークンのミラー。 |
+| `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, check-color, disabled-fg, indicator-size}` | オプションのレイアウト + チェックマーク。 |
+| `multicombobox.empty-fg` | 「No matches」プレースホルダーの色。 |
+
+## 関連
+
+- [コンボボックス](/hypermedia-components/ja/components/combobox/) — 単一選択の兄弟。
+- [セレクト](/hypermedia-components/ja/components/select/) — モバイルで OS ピッカーを使うネイティブの単一選択。
+- [チェックボックス](/hypermedia-components/ja/components/checkbox/) — 選択肢が少なく常に見えているときの固定リスト複数選択パターン。

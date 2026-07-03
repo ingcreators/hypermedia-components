@@ -1,0 +1,394 @@
+---
+title: カレンダー
+description: installCalendar が描画するスタイル済みの月グリッド日付ピッカー。WAI-ARIA デートピッカーグリッドパターンとフルキーボードナビゲーション。Intl でローカライズ。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-calendar` は、日付を選ぶためのスタイル済みインライン月グリッド —
+shadcn の `Calendar` に相当します。`installCalendar` が
+`.hc-calendar` コンテナへグリッドを描画し、WAI-ARIA デートピッカーの
+キーボードモデルを配線します。作者が書くのは `data-*` 設定つきの
+コンテナだけです。ビヘイビアがヘッダー、ローカライズされた曜日行、
+ロービングタブインデックスで管理される `<td role="gridcell">` の
+6 週グリッドを描画します。
+
+:::note[どちらを使うか]
+JavaScript なしで動く素の日付フィールドには
+[デートピッカー](/hypermedia-components/ja/components/datepicker/)を —
+ネイティブ `<input type="date">` のスキンです。`hc-calendar` は
+デザインシステムと一貫したインライン月グリッドが必要なときの
+オプトインで、描画に JavaScript を必要とします。
+:::
+
+## 基本の使い方
+
+<Demo>
+  <div class="hc-calendar" data-value="2026-05-15" data-locale="en-US" aria-label="Pick a date"></div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-calendar"
+       data-value="2026-05-15"
+       aria-label="Pick a date"></div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installCalendar } from '@hypermedia-components/core';
+installCalendar(); // idempotent; returns an uninstaller
+```
+
+ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
+インストールします。
+
+## 設定
+
+設定はすべてコンテナの `data-*` 属性です:
+
+| 属性 | 用途 |
+| --- | --- |
+| `data-value` | 選択された日付、ISO `YYYY-MM-DD`。表示される月も決めます。 |
+| `data-min` / `data-max` | 選択可能な範囲(ISO)。範囲外の日は `aria-disabled`。 |
+| `data-first-day` | 週の最初の曜日: `0` = 日曜(デフォルト)… `6` = 土曜。 |
+| `data-locale` | 月 / 曜日名のための BCP-47 ロケール。`<html lang>`、次にブラウザデフォルトへフォールバック。 |
+| `data-name` | 設定すると、ビヘイビアが選択された ISO 値を持つ隠し `<input name="…">` を維持し、カレンダーがフォームでシリアライズされます。 |
+| `data-target` | 外部フィールドの CSS セレクタ。選択のたびにカレンダーがそこへ値を書き(`input` / `change` を発火)、内包するポップオーバーを閉じます — **フィールドごとの JavaScript なし**の[カスタム日付フィールド](#カスタム日付フィールドとして)。カレンダーの初期選択もそのフィールドの値からシードされるため、日付は(input に)**一度だけ**設定して `data-value` は省きます。 |
+| `data-nav` | `"select"` は月 / 年のタイトルをドロップダウンピッカーに差し替えます([月 / 年ナビゲーション](#月--年ナビゲーション)を参照)。 |
+
+月と曜日の名前は `Intl.DateTimeFormat` から来ます。週の最初の曜日は
+`data-first-day` から取られます(まだ Baseline でない
+`Intl.Locale` の `getWeekInfo()` は使いません)。
+
+<div class="hc-preview not-content">
+  <div class="hc-calendar" data-value="2026-05-15" data-first-day="1" data-locale="en-GB"
+       data-min="2026-05-04" data-max="2026-06-20" aria-label="Pick a date (Mon start, ranged)"></div>
+</div>
+
+## 月 / 年ナビゲーション
+
+ヘッダーはデフォルトで前月 / 翌月の矢印を表示します。
+`data-nav="select"` を足すとタイトルが**月と年のドロップダウン**に
+替わり、遠い月 / 年へ一足でジャンプできます:
+
+<Demo previewStyle="max-width:20rem;">
+  <div class="hc-calendar" data-value="2026-05-15" data-locale="en-US"
+       data-nav="select" aria-label="Pick a date (dropdown nav)"></div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-calendar" data-value="2026-05-15" data-nav="select"
+       aria-label="Pick a date"></div>
+  ```
+
+  </Fragment>
+</Demo>
+
+年の範囲は `data-min`…`data-max` が設定されていればそれに、なければ
+フォーカス中の年 ±10 に広がります。ドロップダウンのラベルは翻訳可能
+(`calendar.month` / `calendar.year`)で、矢印もその横で機能し続け
+ます。
+
+## キーボード
+
+日セルにフォーカスして:
+
+| キー | 動作 |
+| --- | --- |
+| `←` / `→` | 前 / 翌日 |
+| `↑` / `↓` | 前 / 翌週 |
+| `Home` / `End` | 週の最初 / 最後の日 |
+| `PageUp` / `PageDown` | 前 / 翌月 |
+| `Shift`+`PageUp` / `Shift`+`PageDown` | 前 / 翌年 |
+| `Enter` / `Space` | フォーカス中の日を選択 |
+
+月の端を越えて移動すると、隣の月が対象の日にフォーカスした状態で
+再描画されます。グリッドは単一の `Tab` ストップ(ロービングタブ
+インデックス)です。`data-min` / `data-max` の外の日はフォーカス可能な
+まま、選択はできません。
+
+## 変更イベント
+
+日付を選ぶと、コンテナ上でバブリングする `hc:calendarchange` が発火し、
+`data-value` が更新されます:
+
+```js
+calendar.addEventListener('hc:calendarchange', (e) => {
+  const { value, date } = e.detail; // value: 'YYYY-MM-DD', date: Date
+});
+```
+
+## 範囲選択
+
+`data-mode="range"` を足すと開始日と終了日を選べます。最初のクリック
+(または <kbd>Enter</kbd>)が開始を、次が終了を設定し(開始 ≤ 終了に
+なるよう自動入れ替え)、3 回目は新しい範囲を始めます。2 つ目の端を
+選んでいる間、暫定の帯がポインタまたはキーボードフォーカスの下で
+プレビューされます。
+
+```html
+<div class="hc-calendar" data-mode="range"
+     data-value="2026-05-10/2026-05-14"
+     data-name="stay" aria-label="Pick a date range"></div>
+```
+
+両端の間の日は `data-in-range` を運びます(`data-range-start` /
+`data-range-end` マーカーと、選択中の `data-range-preview*` つき)ので、
+帯をテーマできます。各変更は **`hc:calendarrangechange`** を発火します:
+
+```js
+calendar.addEventListener('hc:calendarrangechange', (e) => {
+  const { start, end, startDate, endDate } = e.detail;
+  // start / end: 'YYYY-MM-DD' (end is null until the second pick)
+});
+```
+
+`data-value` は `"START/END"` になり、`data-name="stay"` があれば
+カレンダーは**隠し input を 2 つ** — `stay-start` と `stay-end` —
+書くため、範囲はクライアントサイドの状態なしで htmx 向けに
+シリアライズされます:
+
+```html
+<!-- submits stay-start=2026-05-10 & stay-end=2026-05-14 -->
+```
+
+単一日付モードがデフォルトのままです。(複数月の横並びと週番号は
+スコープ外のままです。)
+
+## フォーム統合
+
+`data-name` を設定すると、カレンダーは隠し input 経由でネイティブ
+コントロールのようにシリアライズされます — `<input name>` とまったく
+同様に、囲んでいる `<form>` と一緒に送信されます。下で日付を選んで、
+送信値が更新されるのを見てください:
+
+<Demo previewStyle="max-inline-size:20rem;">
+  <form data-demo-calendar-form>
+    <div class="hc-calendar" data-name="due" data-value="2026-05-15" data-locale="en-US" aria-label="Due date" data-demo-calendar></div>
+    <p class="hc-field__message">Submits <code>due=<output id="calendar-form-demo-out">2026-05-15</output></code></p>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form>
+    <div class="hc-calendar" data-name="due" data-value="2026-05-15"
+         aria-label="Due date"></div>
+    <!-- submits due=2026-05-15 — the hidden input updates as the user picks -->
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+## カスタム日付フィールドとして
+
+ネイティブの日付コントロールが好みでない? これが**公認の日付
+フィールドパターン**です:
+[`hc-field`](/hypermedia-components/ja/components/field/) の一連の
+マークアップで、見えるフィールドは
+[`hc-input`](/hypermedia-components/ja/components/input/)、後置の
+ボタンが[ポップオーバー](/hypermedia-components/ja/components/popover/)の
+中のカレンダーを開き、日を選ぶと入力が埋まってポップオーバーが閉じ
+ます。素のマークアップなので、コードジェネレーターは日付カラムに
+そのまま出力でき、
+[マークアップのバージョニングポリシー](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)の
+下で安定しています。
+
+カレンダーは **`data-target`** でフィールドへ向けます — 値の書き込みと
+ポップオーバーの閉鎖はビヘイビアがやってくれます。**フィールドごとの
+JavaScript なし**なので、日付フィールドの多いページも純粋なマーク
+アップのままです。初期の日付は input に(`value="…"` で)**一度だけ**
+設定してください。カレンダーがそれを継承するため、同期し続けるべき
+`data-value` はありません。
+
+<Demo previewStyle="min-block-size:26rem;">
+  <div class="hc-field" style="max-inline-size:18rem;">
+    <label class="hc-field__label" for="datefield-demo-input">Due date</label>
+    <div class="hc-input-group">
+      <input class="hc-input" id="datefield-demo-input" name="due" type="text" readonly value="2026-05-15" placeholder="Pick a date" />
+      <button class="hc-button" type="button" popovertarget="datefield-cal" aria-label="Choose date">📅</button>
+    </div>
+    <div id="datefield-cal" class="hc-popover" popover data-side="bottom" data-align="end">
+      <div class="hc-calendar" data-target="#datefield-demo-input" data-locale="en-US" aria-label="Choose date"></div>
+    </div>
+    <p class="hc-field__message">Format: YYYY-MM-DD</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field">
+    <label class="hc-field__label" for="due">Due date</label>
+
+    <div class="hc-input-group">
+      <!-- The value lives here, once — and this input carries the form name. -->
+      <input class="hc-input" id="due" name="due" type="text" readonly
+             value="2026-05-15" placeholder="Pick a date">
+      <button class="hc-button" type="button" popovertarget="due-cal"
+              aria-label="Choose date">📅</button>
+    </div>
+
+    <div id="due-cal" class="hc-popover" popover data-side="bottom" data-align="end">
+      <!-- data-target seeds from #due, fills it on pick, and closes #due-cal. No JS. -->
+      <div class="hc-calendar" data-target="#due" aria-label="Choose date"></div>
+    </div>
+
+    <p class="hc-field__message">Format: YYYY-MM-DD</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+ポップオーバーは `installPopover`(`data-side` / `data-align`)経由で
+トリガーの下にアンカーされます。こうしたフィールドは好きなだけ
+足せます — それぞれが自身の `data-target` を持つただのマークアップ
+です。
+
+### フォームの name を運ぶのは誰か
+
+**見える input** が `name` を運び、値を送信します(`due=…`)—
+カレンダーは `data-target` を通じてそれを駆動し、`input` / `change` を
+発火するため、バリデーションや htmx トリガーはすべての選択を観測
+します。ここでカレンダーにも `data-name` を設定**しないで**ください:
+同じ値を持つ 2 つ目の隠しコントロールが描画され、フィールドが二重に
+送信されてしまいます。`data-name` は、フォームに直接置かれた
+*単体の*カレンダーのためのものです(上の
+[フォーム統合](#フォーム統合)を参照)。
+
+name が `hc-field` 内の本物の input に住んでいるため、
+[field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)は
+そのまま機能します: `data-field="due"` を持つサーバの項目は input を
+見つけ、このフィールドのエラースロットへメッセージを書き、input に
+`aria-invalid` の印を付けます。
+
+### readonly か、自由入力か
+
+公認の形は **`readonly`** です: カレンダーが唯一の編集者なので入力と
+グリッドが食い違うことはなく、手入力された日付のクライアントサイド
+パースもありません(`readonly` の input は送信されます。ブロック
+されるのは入力だけです)。入力を許すために `readonly` を外すなら、
+カレンダーはフィールドを(インストール時に)**一度だけ**読むことを
+知っておいてください — 後から入力されたテキストから再シードは
+しません。入力された値は、field-errors レシピなどでサーバサイド
+バリデーションしてください。
+
+### キーボードとフォーカス
+
+- トリガーは普通の `popovertarget` ボタンです: <kbd>Enter</kbd> /
+  <kbd>Space</kbd> でポップオーバーが開きます。続く <kbd>Tab</kbd> は
+  カレンダーのヘッダー(前月 / 翌月)を歩き、グリッドに着地します —
+  選択中の日にロービングタブインデックスが載る単一のタブストップ
+  です。
+- グリッド内では完全な[カレンダーのキーボードモデル](#キーボード)が
+  適用されます。<kbd>Enter</kbd> / <kbd>Space</kbd> がフォーカス中の
+  日を選び、入力が埋まってポップオーバーが閉じます。フォーカスは
+  トリガーボタンへ戻ります(ネイティブ popover のフォーカス復元)。
+- <kbd>Esc</kbd> とライトディスミスは、フィールドを変えずに
+  ポップオーバーを閉じます — どちらもネイティブ popover の挙動です。
+
+これらの主張は、まさにこのマークアップに対するブラウザテスト
+(`test-browser/datefield.spec.mjs`)で固定されており、生成コードに
+とってパターンは安定しています。
+
+### ロケール
+
+`data-locale` は **`<html lang>`** にフォールバックし、それがサーバで
+ローカライズされたページの意図されたパスです: `lang` を一度描画すれば
+すべての日付フィールドが従い、フィールドごとの属性は不要です。
+ビヘイビアが注入するラベル(前月 / 翌月、グリッドのフォールバック名)は
+[i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)から来ます。
+見える `<label>`、トリガーの `aria-label`、カレンダーの
+`aria-label` は、マークアップであなたがローカライズします。
+
+## htmx での利用
+
+変更イベントから取得します — 例: 選ばれた日の空き状況を読み込む:
+
+```html
+<div class="hc-calendar"
+     data-name="day"
+     data-hx-get="/availability"
+     data-hx-trigger="hc:calendarchange"
+     data-hx-include="this"
+     data-hx-target="#slots"
+     aria-label="Pick a day"></div>
+```
+
+## Hyperscript
+
+変更イベントにインラインで反応します — htmx が `data-hx-trigger` で
+駆動できるのと同じイベントです:
+
+```html
+<div class="hc-calendar" aria-label="Pick a date"
+     _="on hc:calendarchange put event.detail.value into #due"></div>
+<output id="due"></output>
+```
+
+さらなるパターン:
+[Hyperscript → コンポーネントイベントへの反応](/hypermedia-components/ja/integrations/hyperscript/#コンポーネントイベントへの反応)。
+
+## アクセシビリティ
+
+- グリッドは WAI-ARIA APG のデートピッカーパターンに従います:
+  `<td role="gridcell">` の日セルを持つ `role="grid"` のテーブル、
+  ロービングタブインデックス、選ばれた日の `aria-selected`、範囲外の
+  日の `aria-disabled`。各セルの `aria-label` は完全なローカライズ済み
+  日付です。
+- 月のタイトルは `aria-live="polite"` 領域なので、月の変更が読み上げ
+  られます。
+- コンテナには常にアクセシブルな名前(`aria-label` または
+  `aria-labelledby`)を与えてください。
+
+## テーマ用トークン
+
+| トークンパス | 用途 |
+| --- | --- |
+| `calendar.bg` / `fg` / `border` / `radius` / `padding` | 面。 |
+| `calendar.title-*` | 月のタイトル。 |
+| `calendar.nav-*` | 前 / 次ボタン。 |
+| `calendar.weekday-*` | 曜日のヘッダー行。 |
+| `calendar.day-size` / `day-radius` / `day-font-size` / `day-fg` | 日セル。 |
+| `calendar.day-hover-bg` | 日のホバー。 |
+| `calendar.day-selected-bg` / `day-selected-fg` | 選択された日(`data-color` に追従)。 |
+| `calendar.day-today-border` | 今日のリング。 |
+| `calendar.day-outside-fg` / `day-disabled-fg` | 隣接月 / 範囲外の日。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-calendar-bg | -fg | -border | -radius | -padding
+--hc-calendar-title-font-size | -title-font-weight
+--hc-calendar-nav-size | -nav-fg | -nav-hover-bg | -nav-radius
+--hc-calendar-weekday-fg | -weekday-font-size | -weekday-font-weight
+--hc-calendar-day-size | -day-radius | -day-font-size | -day-fg
+--hc-calendar-day-hover-bg | -day-selected-bg | -day-selected-fg
+--hc-calendar-day-today-border | -day-outside-fg | -day-disabled-fg
+```
+
+</details>
+
+## スコープ外
+
+複数月の横並び、週番号、時刻の選択、非グレゴリオ暦は先送りです。
+範囲選択([範囲選択](#範囲選択)を参照)と月 / 年のドロップダウン
+ナビゲーション([月 / 年ナビゲーション](#月--年ナビゲーション)を
+参照)はサポート済みです。JS 不要のネイティブフィールドは
+[デートピッカー](/hypermedia-components/ja/components/datepicker/)を
+参照してください。
+
+## 関連
+
+- [デートピッカー](/hypermedia-components/ja/components/datepicker/) —
+  ネイティブ `<input type="date">` のスキン。非 JS のベースライン。
+- [ポップオーバー](/hypermedia-components/ja/components/popover/) —
+  カレンダーと組み合わせてドロップダウン日付フィールドを構築。

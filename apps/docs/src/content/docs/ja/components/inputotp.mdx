@@ -1,0 +1,220 @@
+---
+title: Input OTP
+description: autocomplete=one-time-code つきの単一のアクセシブルな <input> の上に構築され、installInputOtp が視覚的なスロットとして描画する、分割型ワンタイムコード入力。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-inputotp` は分割型のワンタイムコードフィールドで、shadcn の
+`InputOTP` に相当します。アクセシブルな**単一 input** アプローチを
+使います: 1 つの本物の `<input autocomplete="one-time-code">` が
+すべての入力・ペースト・SMS 自動入力・選択を受け取り、
+`installInputOtp` がそれを透明にオーバーレイして、おなじみのボックス
+群を描画します。スクリーンリーダーが対話するのはラベルつきの 1 つの
+入力で、スロットは装飾です。
+
+これにより、よくある「1 桁 1 input」パターンのスクリーンリーダーと
+ペーストの問題を回避します。
+
+## 基本の使い方
+
+<Demo>
+  <div class="hc-inputotp" data-length="6">
+    <input class="hc-inputotp__input" type="text" name="otp" aria-label="One-time code" />
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-inputotp" data-length="6">
+    <input class="hc-inputotp__input" type="text" name="otp"
+           inputmode="numeric" autocomplete="one-time-code"
+           aria-label="One-time code">
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installInputOtp } from '@hypermedia-components/core';
+installInputOtp(); // idempotent; returns an uninstaller
+```
+
+ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
+インストールします。ビヘイビアは `data-length` 個のスロットを描画して
+`maxlength` を設定し、省略されていれば `inputmode="numeric"`、
+`autocomplete="one-time-code"`、`type="text"` も補います
+(`number` ではなく `type="text"` — 先頭のゼロとペーストが機能する
+ように)。
+
+## 設定
+
+| 属性 | 用途 |
+| --- | --- |
+| `data-length` | スロット数(デフォルト `6`)。入力の `maxlength` も設定します。 |
+| `data-pattern` | 許可する文字を CSS 風のクラスで。デフォルト `[0-9]`。一致しない文字は入力時に取り除かれます。英数字コードには `[0-9a-zA-Z]` など。 |
+| `data-groups` | スロットを視覚的にグループへ分割 — `"3-3"`(`"3 3"` / `"2,2,2"` も可)。グループ間に装飾のセパレータが描画されます。グループサイズの合計が `data-length` に一致しなければ無視。 |
+
+`<input>` が実際の値とアクセシブルな名前を運びます — 常に
+`aria-label` または `<label>` を与え、送信すべきなら `name` も与えて
+ください。
+
+## グループセパレータ
+
+`data-groups="3-3"` は各スロットグループの間にセパレータを描画します —
+`123-456` のような整形済みコードでよく使われます:
+
+<Demo>
+  <div class="hc-inputotp" data-length="6" data-groups="3-3">
+    <input class="hc-inputotp__input" type="text" aria-label="One-time code" />
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-inputotp" data-length="6" data-groups="3-3">
+    <input class="hc-inputotp__input" type="text" aria-label="One-time code">
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+セパレータは `aria-hidden` です(真実の源は入力の値)。グリフを変える
+には `--hc-inputotp-separator` に任意の CSS `content` 値を設定します
+(例: `"·"`、または素の広い隙間にする `""`)。
+
+## 状態
+
+入力の `aria-invalid="true"`(またはコンテナの `data-invalid`)が
+エラー枠線を描き、入力の `disabled` がスロットをミュートします。
+コンテナの `data-variant="success" | "warning" | "error"` は、他の
+フォームフィールドと同じバリデーション語彙でスロットの枠線を塗り替え
+ます。
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-inputotp" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code" aria-invalid="true" />
+  </div>
+  <div class="hc-inputotp" data-variant="success" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code (valid)" />
+  </div>
+  <div class="hc-inputotp" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code" disabled value="12" />
+  </div>
+</div>
+
+## アクティブスロットとキャレット
+
+キャレットのあるスロットは `data-active` を持ち、**点滅するキャレット**を
+描画します(CSS なので `prefers-reduced-motion: reduce` を尊重します —
+点滅の代わりにキャレットが静止します)。アクティブスロットはキャレットに
+追従します: 入力すると次の空きスロットへ進み、矢印キーで値の中を移動
+できます。
+
+**スロットのクリック**でキャレットがそこへ移動し、その位置を編集でき
+ます — 入力済みの長さにクランプされるため、末尾より先の空きスロットを
+クリックしてもキャレットは末尾に置かれるだけです(隙間は作れません)。
+アクティブスロットは `data-active` で、キャレットの色は
+`--hc-inputotp-caret-color` でスタイルしてください。
+
+## イベント
+
+どちらもコンテナからバブリングします:
+
+- `hc:otpchange` — 編集のたびに `detail { value, input }`。
+- `hc:otpcomplete` — 同じ detail。値がすべてのスロットを満たしたときに
+  発火。
+
+```js
+otp.addEventListener('hc:otpcomplete', (e) => {
+  verify(e.detail.value);
+});
+```
+
+## htmx での利用
+
+コードが揃った瞬間に自動送信します:
+
+```html
+<form data-hx-post="/verify" data-hx-trigger="hc:otpcomplete">
+  <div class="hc-inputotp" data-length="6">
+    <input class="hc-inputotp__input" type="text" name="code"
+           inputmode="numeric" autocomplete="one-time-code"
+           aria-label="Verification code">
+  </div>
+</form>
+```
+
+値は名前つきの単一 `<input>` に住んでいるため、普通にシリアライズ
+されます — 追加の隠しフィールドは不要です。
+
+## Hyperscript
+
+ヘルパーなしで、コードが埋まったらフォームを自動送信します:
+
+```html
+<form data-hx-post="/verify">
+  <div class="hc-inputotp" data-length="6"
+       _="on hc:otpcomplete call closest <form/> then call it.requestSubmit()">
+    <input class="hc-inputotp__input" type="text" name="code" aria-label="Code">
+  </div>
+</form>
+```
+
+さらなるパターン:
+[Hyperscript → コンポーネントイベントへの反応](/hypermedia-components/ja/integrations/hyperscript/#コンポーネントイベントへの反応)。
+
+## アクセシビリティ
+
+- 値を運ぶのはラベルつきの本物の `<input>` 1 つです。視覚的なスロットは
+  `aria-hidden` なので、支援技術は N 個の空のボックスではなく 1 つの
+  フィールドを読み上げます。
+- `autocomplete="one-time-code"` により iOS / パスワードマネージャーが
+  SMS コードを提案でき、`inputmode="numeric"` が数字キーパッドを表示
+  します。
+- アクティブスロットの枠線がフォーカスインジケーターを兼ねます。
+  キャレットの点滅は `prefers-reduced-motion: reduce` を尊重します。
+  スロットのクリックでキャレットがそこへ移動して編集できます。
+
+## テーマ用トークン
+
+| トークンパス | 用途 |
+| --- | --- |
+| `inputotp.gap` | スロット間のスペース。 |
+| `inputotp.slot-size` | スロットのボックスサイズ(正方形)。 |
+| `inputotp.radius` / `border` / `bg` / `fg` | スロットのクローム。 |
+| `inputotp.font-size` / `font-weight` | 数字。 |
+| `inputotp.active-border` / `caret-color` | アクティブスロット + キャレット(`data-color` に追従)。 |
+| `inputotp.error-border` | `aria-invalid` の枠線。 |
+| `inputotp.disabled-bg` / `disabled-fg` | 無効なスロット。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-inputotp-gap | -slot-size | -radius | -border | -bg | -fg
+--hc-inputotp-font-size | -font-weight
+--hc-inputotp-active-border | -caret-color
+--hc-inputotp-error-border | -disabled-bg | -disabled-fg
+--hc-inputotp-separator   /* the data-groups separator glyph; default "–" */
+```
+
+</details>
+
+## スコープ外
+
+RTL の微調整は先送りです。スロットクリックによるキャレット配置
+([アクティブスロットとキャレット](#アクティブスロットとキャレット)を
+参照)とグループセパレータ
+([グループセパレータ](#グループセパレータ)を参照)はサポート済みです。
+
+## 関連
+
+- [インプット](/hypermedia-components/ja/components/input/) — 標準の
+  テキストフィールド。
+- [フィールド](/hypermedia-components/ja/components/field/) — ラベルと
+  バリデーションメッセージで包みます。

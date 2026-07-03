@@ -1,0 +1,239 @@
+---
+title: スライダー
+description: ブラウザ間で一貫したクロームにスタイルされたネイティブの input[type=range]。キーボード・フォーム統合・アクセシビリティはブラウザから、小さなビヘイビアが WebKit の塗りを同期。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-slider` はネイティブの `<input type="range">` に適用します。
+キーボードナビゲーション(←/→、Home、End、PageUp、PageDown)、
+フォームへの参加、role + 値 + 範囲のスクリーンリーダー読み上げは
+すべてブラウザから無料で得られます。`appearance: none` とベンダー別
+疑似要素で置き換わるのは見た目のクロームだけです。
+
+## 基本の例
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <label>
+    Volume
+    <input class="hc-slider" type="range" min="0" max="100" value="40" />
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <label>
+    Volume
+    <input class="hc-slider" type="range" min="0" max="100" value="40">
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installSlider } from '@hypermedia-components/core';
+installSlider();
+```
+
+## 塗り色の仕組み
+
+Firefox はトラックの 0→値の部分を `::-moz-range-progress` でネイティブに
+描画します。WebKit と Chromium には同等の疑似要素がないため、同じ効果を
+`--hc-slider-value` カスタムプロパティ(0-100 のパーセンテージ)を読む
+`linear-gradient` で塗っています。
+
+`installSlider()` は `input` イベント経由で各スライダーの現在値と
+`--hc-slider-value` を同期し続けます — 一度呼んだら忘れて構いません。
+サーバレンダリングされるページでは、プロパティを直接書いてください:
+
+```html
+<input class="hc-slider" type="range"
+       min="0" max="100" value="40"
+       style="--hc-slider-value: 40">
+```
+
+こうすれば、JavaScript の読み込み前でも初回描画から塗りが正しく描画
+されます。
+
+## バリアント
+
+`data-variant` は、デフォルト以外の塗り色として `success`、`warning`、
+`error` を受け付けます。つまみの枠線もバリアントに追従します。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <input class="hc-slider" type="range" min="0" max="100" value="60" aria-label="Default" />
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="success" aria-label="Success" />
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="warning" aria-label="Warning" />
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="error" aria-label="Error" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-slider" type="range" min="0" max="100" value="60" aria-label="Default">
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="success" aria-label="Success">
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="warning" aria-label="Warning">
+  <input class="hc-slider" type="range" min="0" max="100" value="60" data-variant="error" aria-label="Error">
+  ```
+
+  </Fragment>
+</Demo>
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+トラックの高さとつまみのサイズは一緒にスケールします。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="sm" aria-label="Small" />
+  <input class="hc-slider" type="range" min="0" max="100" value="40" aria-label="Default" />
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="lg" aria-label="Large" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="sm" aria-label="Small">
+  <input class="hc-slider" type="range" min="0" max="100" value="40" aria-label="Default">
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-size="lg" aria-label="Large">
+  ```
+
+  </Fragment>
+</Demo>
+
+## 無効化
+
+ネイティブの `disabled` 属性を使います。トラックとつまみが薄くなり、
+コントロールはポインタ / キーボード入力に反応しなくなります。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <input class="hc-slider" type="range" min="0" max="100" value="40" disabled aria-label="Disabled" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-slider" type="range" min="0" max="100" value="40" disabled aria-label="Disabled">
+  ```
+
+  </Fragment>
+</Demo>
+
+## 縦方向
+
+`data-orientation="vertical"` を足すとスライダーが立ちます。モダンで
+ネイティブなやり方 — CSS の
+[`writing-mode`](https://developer.mozilla.org/docs/Web/CSS/Guides/Writing_modes/Vertical_controls) —
+を使うため、コントロールは本物の `<input type="range">` のままです:
+OS のつまみ、フルのキーボード(<kbd>↑</kbd> / <kbd>↓</kbd> ステップ、
+<kbd>Home</kbd> / <kbd>End</kbd>、
+<kbd>PageUp</kbd> / <kbd>PageDown</kbd>)、フォームへの参加、
+スクリーンリーダーの値読み上げがすべて機能し続けます。最大値が上に
+あるので、<kbd>↑</kbd> が値を増やします。
+
+<Demo previewStyle="display:flex;gap:1.5rem;align-items:flex-end;block-size:12rem;">
+  <input class="hc-slider" type="range" min="0" max="100" value="40" data-orientation="vertical" aria-label="Volume" />
+  <input class="hc-slider" type="range" min="0" max="100" value="70" data-orientation="vertical" data-variant="success" aria-label="Level" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-slider" type="range" min="0" max="100" value="40"
+         data-orientation="vertical" aria-label="Volume">
+  ```
+
+  </Fragment>
+</Demo>
+
+高さは `--hc-slider-length` カスタムプロパティで設定します(デフォルト
+`12rem`):
+
+```html
+<input class="hc-slider" type="range" … data-orientation="vertical"
+       style="--hc-slider-length: 16rem">
+```
+
+:::note[Baseline]
+`writing-mode` による縦のレンジ描画は **2024 年**にクロスエンジン対応に
+達しました(Chrome / Edge、Safari、Firefox)。それより古いエンジンでは
+スライダーは**水平レイアウトへデグレード**します — 完全に使えるまま、
+回転しないだけです。JavaScript や transform のフォールバックは
+ありません: コントロールは常にネイティブのレンジであり、つまみと
+キーボードの正しさが保たれます。(レガシーな非標準フック —
+`appearance: slider-vertical` や `orient` 属性 — は意図的に使って
+いません。)
+:::
+
+## htmx での利用
+
+スライダーは他の入力と同様にフォーム送信へ参加します。即時更新には
+`input` を待ち受けます:
+
+```html
+<input class="hc-slider"
+       type="range" min="0" max="100" value="40"
+       name="volume"
+       data-hx-post="/preferences/volume"
+       data-hx-trigger="input changed delay:200ms"
+       data-hx-include="this">
+```
+
+## アクセシビリティ
+
+- スライダーには常にアクセシブルな名前を与えてください —
+  `<label>` で包むか `aria-label` を設定します。
+- ネイティブの input は `←` / `→`(ステップ)、`Home` / `End`
+  (最小 / 最大)、`PageUp` / `PageDown`(大きなステップ)をカスタム
+  JS なしで処理します。
+- 表示される値が背後の数値と異なるレンジ(例: 最大値が 100 でない
+  パーセント)では、スクリーンリーダーが整形済み文字列を読み上げる
+  よう `aria-valuetext="40 %"` を設定してください。
+- フォーカスのアウトラインを消さないでください。つまみは
+  `--hc-color-focus-ring` 経由の `box-shadow` リングを受け取ります。
+
+## レンジの制約(単一つまみ)
+
+ネイティブの `<input type="range">` は単一つまみのコントロールです。
+複数つまみのレンジピッカー(価格帯、明るさの幅など)はこの
+コンポーネントのスコープ外です — あのパターンにはカスタムの DOM
+シェルと、2 つのつまみを手動管理するはるかに大きなビヘイビアが必要
+です。それが来るまでは、単一スライダー 2 本を並べる(フォーム
+バリデーション JS で min/max 制約を連動させる)のが推奨パターンです。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `slider.track-height` / `track-bg` | トラック。 |
+| `slider.thumb-size` / `thumb-bg` / `thumb-border` | つまみ。 |
+| `slider.fill` | デフォルトの塗り色(action.primary)。 |
+| `slider.success-fill` / `warning-fill` / `error-fill` | バリアントの塗り。 |
+| `slider.success-thumb-border` / `warning-thumb-border` / `error-thumb-border` | バリアントのつまみ枠線。 |
+| `slider.disabled-fill` | 無効時のつまみ枠線色。 |
+| `slider.radius` | トラック + つまみの角丸。 |
+| `slider.sm.*` / `lg.*` | サイズバリアント。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-slider-track-height | -track-bg | -radius
+--hc-slider-thumb-size | -thumb-bg | -thumb-border
+--hc-slider-fill | -success-fill | -warning-fill | -error-fill
+--hc-slider-success-thumb-border | -warning-thumb-border | -error-thumb-border
+--hc-slider-disabled-fill
+--hc-slider-sm-track-height | -sm-thumb-size
+--hc-slider-lg-track-height | -lg-thumb-size
+--hc-slider-value (0-100, kept in sync by installSlider)
+--hc-slider-length (vertical track length; default 12rem)
+--hc-color-focus-ring (inherited from data-color)
+```
+
+</details>
+
+## 関連
+
+- [プログレス](/hypermedia-components/ja/components/progress/) — 対話しない完了度の表示に。
+- [インプット](/hypermedia-components/ja/components/input/) — テキスト / 数値入力はフォーカスリングの契約を共有します。

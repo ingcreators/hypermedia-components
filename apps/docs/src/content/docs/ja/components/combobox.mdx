@@ -1,0 +1,272 @@
+---
+title: コンボボックス
+description: WAI-ARIA 1.2 コンボボックスパターン、ネイティブ popover、CSS Anchor Positioning の上に構築された、入力で絞り込むアクセシブルな単一選択。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-combobox` は、入力で絞り込むドロップダウンつきのアクセシブルな
+**単一選択**入力です。
+[WAI-ARIA 1.2 コンボボックスパターン](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/)に
+従い、`<input>` が `role="combobox"` を持ち、ドロップダウンは
+`<ul role="listbox" popover>` です。キーボードナビゲーションは
+`aria-activedescendant` を使うため、実際の DOM フォーカスは入力に
+留まったまま、見えるハイライトだけがユーザーの選択とともに動きます。
+
+`hc-menu` や `hc-tooltip` と同じアーキテクチャのプリミティブです:
+
+- 表示 / 非表示と Escape / 外側クリックによる解散は HTML の
+  `popover` 属性。
+- 入力直下へのリストボックス配置は CSS Anchor Positioning。
+- `installCombobox()` がフィルタ、キーボード、選択、ARIA の帳簿を
+  配線。
+
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| HTML `popover` | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| CSS Anchor Positioning | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+アンカー未対応のブラウザは `getBoundingClientRect` による配置フックへ
+フォールバックします。
+
+## 基本の例
+
+<Demo>
+  <div class="hc-combobox" style="max-inline-size:18rem;">
+    <input class="hc-combobox__input hc-input"
+           type="text"
+           role="combobox"
+           aria-controls="doc-cb-list"
+           aria-label="Country" />
+    <ul class="hc-combobox__listbox" id="doc-cb-list" role="listbox">
+      <li class="hc-combobox__option" role="option" data-value="jp">Japan</li>
+      <li class="hc-combobox__option" role="option" data-value="us">United States</li>
+      <li class="hc-combobox__option" role="option" data-value="gb">United Kingdom</li>
+      <li class="hc-combobox__option" role="option" data-value="fr">France</li>
+      <li class="hc-combobox__option" role="option" data-value="de"
+          aria-disabled="true">Germany (coming soon)</li>
+    </ul>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-combobox">
+    <input class="hc-combobox__input hc-input"
+           type="text"
+           role="combobox"
+           aria-controls="country-list"
+           aria-label="Country">
+  
+    <ul class="hc-combobox__listbox" id="country-list" role="listbox">
+      <li class="hc-combobox__option" role="option" data-value="jp">Japan</li>
+      <li class="hc-combobox__option" role="option" data-value="us">United States</li>
+      <li class="hc-combobox__option" role="option" data-value="gb">United Kingdom</li>
+      <li class="hc-combobox__option" role="option" data-value="fr">France</li>
+      <li class="hc-combobox__option" role="option" data-value="de"
+          aria-disabled="true">Germany</li>
+    </ul>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installCombobox } from '@hypermedia-components/core';
+installCombobox();
+```
+
+## `installCombobox()` がすること
+
+- 入力への **ARIA 配線**: `aria-haspopup="listbox"`、
+  `aria-autocomplete="list"`、`aria-expanded`(popover の状態と連動)、
+  なければ `aria-controls`、ハイライト中のオプションを追跡する
+  `aria-activedescendant`。
+- 作者が値を与えていなければ、リストボックスに `popover="manual"` を
+  **自動設定**。
+- 入力のインライン `anchor-name` とリストボックスの
+  `position-anchor` による**アンカー結合**で、ポップオーバーが入力の
+  直下に着地。
+- **フィルタ**: 入力のキーストロークごとに、入力文字列を含まない
+  テキストのオプションを隠します(大文字小文字無視)。何も一致しない
+  ときは `.hc-combobox__empty` の `<li role="presentation">` が現れ
+  ます。
+- **キーボード**:
+  - `↓` は開く / 次の見えるオプションへ移動;
+  - `↑` は前へ移動;
+  - `Home` / `End` は最初 / 最後の見える有効なオプションへジャンプ;
+  - `Enter` は選択;
+  - `Escape` は入力値を変えずにリストボックスを閉じる;
+  - `Tab` は閉じて次のタブストップへ譲る。
+- **マウス**: オプションのクリックで選択。`aria-disabled="true"` の
+  オプションはスキップされます。
+- **選択**: 入力値を埋め、`detail` に
+  `{ value, label, option, input }` を運ぶバブリングする
+  `hc:comboboxselect` イベントを発火します。
+
+## htmx での利用
+
+選択は入力上で `hc:comboboxselect` を発火します。htmx をそのイベントに
+配線して、選択をサーバへ送ります。
+
+```html
+<input class="hc-combobox__input hc-input"
+       type="text"
+       role="combobox"
+       aria-controls="user-list"
+       aria-label="Assignee"
+       data-hx-post="/issues/123/assignee"
+       data-hx-trigger="hc:comboboxselect"
+       data-hx-vals='js:{ value: event.detail.value }'>
+```
+
+### リモート(非同期)オプション
+
+`.hc-combobox` に `data-remote` を足すと、**サーバがフィルタ**します。
+ビヘイビアはクライアントサイドのフィルタをオフにし、htmx リクエストの
+ライフサイクルから読み込み / 空 / エラーの状態を表出させます:
+
+```html
+<div class="hc-combobox" data-remote>
+  <input class="hc-combobox__input hc-input" type="text" role="combobox"
+         aria-controls="city-list" aria-label="City"
+         data-hx-get="/cities" data-hx-trigger="input changed delay:200ms"
+         data-hx-target="#city-list">
+  <ul class="hc-combobox__listbox" id="city-list" role="listbox"></ul>
+</div>
+```
+
+サーバは一致する `<li role="option">` の行だけを返し、htmx がそれを
+リストボックスへスワップします。リクエストの実行中、ビヘイビアは
+スピナー行を表示して `aria-busy="true"` を設定します。空の結果は
+「No matches」マーカーを、失敗レスポンスはエラー行を表示します。
+3 つのメッセージは [i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)
+(`combobox.loading` / `combobox.empty` / `combobox.error`)で翻訳
+でき、リストボックス単位では `data-hc-loading` / `data-hc-empty` /
+`data-hc-error` で上書きできます。
+
+デバウンスと実行中キャンセルは htmx に留まります(トリガーの
+`delay:200ms`、`hx-sync`)— ビヘイビア自身がリクエストすることは
+決してありません。
+
+## 作成可能(creatable)
+
+`data-allow-create` を足すと、ユーザーはリストにない値を選べます。
+入力したテキストに完全一致がないとき、合成の **「Create …」**
+オプションがリストボックスの末尾に現れます。それを選ぶ(クリックまたは
+<kbd>Enter</kbd>)と生のテキストがコミットされ、`created: true` つきの
+`hc:comboboxselect` が発火します。
+
+```html
+<div class="hc-combobox" data-allow-create>…</div>
+```
+
+```js
+input.addEventListener('hc:comboboxselect', (e) => {
+  // e.detail = { value, label, option, input, created }
+  if (e.detail.created) {
+    // persist the new value (POST it, add it to the list, …)
+  }
+});
+```
+
+ラベルは [i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)で
+翻訳できます(`combobox.create`、例: `Create "{value}"`)。
+
+## リッチなオプション
+
+オプションには任意の HTML を入れられます — アイコン、2 行ラベル、
+説明。2 つの任意属性が、フィルタリングと選択をきれいに保ちます:
+
+- **`data-label`** — 選択時に入力へ書き込まれる値(なければオプションの
+  テキスト内容 — リッチマークアップのテキストを含んでしまいます)。
+- **`data-search`** — フィルタが照合するテキスト(なければラベル)。
+  表示されないエイリアス / キーワードに一致させるのに使います。
+
+```html
+<li class="hc-combobox__option" role="option" data-value="jp"
+    data-label="Japan" data-search="japan nippon 日本 jp">
+  <img src="/flags/jp.svg" alt=""> <strong>Japan</strong> <small>Asia</small>
+</li>
+```
+
+フィルタは一致しないオプションを `hidden` 属性で隠します。リッチ
+レイアウトのためにオプションへ `display`(flex/grid)を与えるなら、
+非表示を上書きしないよう **`:not([hidden])` にスコープ**してください:
+
+```css
+.hc-combobox__option:not([hidden]) { display: grid; … }
+```
+
+## アクセシビリティ
+
+- 入力がユーザーのアンカーです — フォーカスは常にそこに留まるため、
+  タイプアヘッドとスクリーンリーダーの読み上げが正しく追跡されます。
+  `aria-activedescendant` は DOM フォーカスを動かさずに*ハイライト*を
+  動かします。
+- コンボボックスには常にアクセシブルな名前を与えてください。
+  `<label>` で包む、`aria-label` を設定する、または
+  `aria-labelledby` を使います。
+- リストボックスは `role="listbox"` を、各子は `role="option"` を
+  持ちます。利用不可の行は `disabled` ではなく
+  `aria-disabled="true"` で印を付けてください — `<li>` はフォーカス
+  可能なフォームコントロールではないため、`disabled` は効きません。
+- アクティブなオプションの見えるフォーカスインジケーターは
+  `--hc-color-focus-ring` を使い、`data-color` テーマをまたいで同期
+  します。
+
+## スコープ外(MVP)
+
+MVP は表面を小さく保ちます。次のパターンは先送りです:
+
+- **複数選択** — 複数の選択値を持つタグ入力。別コンポーネント
+  `hc-multicombobox` として出荷済みです。
+- **組み込みのデバウンス / 実行中キャンセル** — 非同期読み込み自体は
+  サポートされます([リモート(非同期)オプション](#リモート非同期オプション)を
+  参照)が、リクエストのタイミングはビヘイビアに同梱せず htmx に
+  留まります(トリガーの `delay:`、`hx-sync`)。
+- **strict モード** — 自由テキストを*値として*受け入れることは
+  [`data-allow-create`](#作成可能creatable) でサポートされます。その
+  逆 — オプションに一致しないとき閉じる際に入力をクリアする — は
+  まだ将来のオプトインフラグです。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `combobox.listbox.bg` / `fg` / `border` / `radius` | リストボックスの面。 |
+| `combobox.listbox.max-height` | リストボックスがスクロールし始める上限。 |
+| `combobox.listbox.padding-block` / `min-width` / `offset` | リストボックスの間隔とアンカーオフセット。 |
+| `combobox.option.padding-x` / `padding-y` / `font-size` / `gap` | オプションのレイアウト。 |
+| `combobox.option.fg` / `hover-bg` / `active-bg` / `selected-bg` / `selected-fg` / `disabled-fg` | オプションの状態。 |
+| `combobox.empty-fg` | 「No matches」プレースホルダーの色。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-combobox-listbox-bg | -listbox-fg | -listbox-border | -listbox-radius
+--hc-combobox-listbox-max-height | -listbox-padding-block
+--hc-combobox-listbox-min-width | -listbox-offset
+--hc-combobox-option-padding-x | -option-padding-y | -option-font-size
+--hc-combobox-option-fg | -option-hover-bg | -option-active-bg
+--hc-combobox-option-selected-bg | -option-selected-fg
+--hc-combobox-option-disabled-fg
+--hc-combobox-empty-fg
+--hc-color-focus-ring (inherited from data-color)
+```
+
+</details>
+
+## 関連
+
+- [セレクト](/hypermedia-components/ja/components/select/) — リストが短く、モバイルでネイティブの OS ピッカーが欲しいとき。
+- [メニュー](/hypermedia-components/ja/components/menu/) — 項目が値ではなくアクションのとき。
+- [インプット](/hypermedia-components/ja/components/input/) — 素のテキスト入力。

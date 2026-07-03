@@ -22,6 +22,11 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 8 — the Forms category is
+  complete** (#321, docs-facing). Seven pages: inputotp, combobox,
+  multicombobox, slider, datepicker, calendar, and dropzone. 74 ja
+  pages total.
+
 - **Docs: Japanese translations, phase 7 — component pages begin**
   (#320, docs-facing). Eleven pages: the Actions category complete
   (button-group, toggle-group, toolbar, command, kbd) and the first
