@@ -1,0 +1,386 @@
+---
+title: シェル
+description: 業務アプリのためのフルビューポートのアプリケーションシェル — 常設サイドバー、ヘッダー、メイン、任意の aside とフッター — CSS Grid の上に構築。レイアウトは純 CSS で、唯一の JavaScript はアクセシブルなモバイルナビゲーションのオーバーレイです。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-shell` は管理画面 / 業務アプリケーションの外側のレイアウトです:
+常設の**サイドバー**、**ヘッダー**、スクロールする**メイン**領域、
+そして任意のセカンダリな **aside** と**フッター**。レイアウトは純
+CSS Grid です。唯一の JavaScript — `installShell()` — は、プラット
+フォームがフォーカスと解除を代わりに管理してくれない**モバイル**の
+ナビゲーションオーバーレイだけを動かします。デスクトップではシェルに
+スクリプトは一切不要です。
+
+デフォルトでは**ヘッダーがサイドバーの上で全幅にまたがります**
+(SAP Fiori / Google / Salesforce の配置)。
+`data-layout="sidebar-first"` で**全高のサイドバー**(Slack / Notion /
+VS Code スタイル)に切り替わります —
+[レイアウトモード](#レイアウトモード)を参照。
+
+[レイアウトユーティリティ](/hypermedia-components/ja/fundamentals/layout/)の
+上に構築され、既存のカラーとスペーシングのトークンを再利用するため、
+アクティブなテーマ、密度、カラーを自動で採用します。
+
+## ブラウザのベースライン
+
+| プリミティブ | 状況 |
+| --- | --- |
+| CSS Grid + `grid-template-areas` | Baseline(すべてのエバーグリーンブラウザ) |
+| `100dvh` 動的ビューポート単位 | Baseline 2023 |
+| `:has()`(任意の aside の第 3 カラム) | Baseline 2023 |
+
+## 構造
+
+リージョンはこのソース順で書いてください — モバイルではサイドバーが
+オーバーレイとして持ち上がる一方、残りはフローに積まれるため、順序が
+重要です:
+
+<Demo>
+  <div class="hc-shell" style="block-size: 16rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme</strong></header>
+    <nav class="hc-shell__sidebar" aria-label="Demo navigation">
+      <div>Dashboard</div>
+      <div>Orders</div>
+      <div>Settings</div>
+    </nav>
+    <main class="hc-shell__main">Main content scrolls here, independently of the chrome.</main>
+    <footer class="hc-shell__footer"><small>© Acme</small></footer>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-shell">
+    <header class="hc-shell__header">
+      <button class="hc-button" data-variant="ghost"
+              data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+      <strong>Acme Admin</strong>
+    </header>
+  
+    <nav class="hc-shell__sidebar" aria-label="Primary">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/orders">Orders</a>
+      <a href="/settings">Settings</a>
+    </nav>
+  
+    <main class="hc-shell__main">
+      <!-- page content -->
+    </main>
+  
+    <footer class="hc-shell__footer">…</footer>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+ヘッダーの `data-hc-shell-toggle` ボタンは**デスクトップでは非表示**
+です — モバイルのブレークポイントでだけ現れます。
+
+## レイアウトモード
+
+デフォルトでは**ヘッダーとフッターが全幅にまたがり**(上端と下端)、
+左にサイドバーを持つ中間の帯を挟みます — SAP Fiori、Google Workspace、
+Salesforce が使う配置で、グローバルなクローム(ブランド、グローバル
+検索、アカウント)が文脈的なナビゲーションの*周り*で製品全体の関心事を
+運ぶ形です。上のデモがそれです。
+
+`data-layout="sidebar-first"` を設定すると反転します:
+**サイドバーが左で全高にまたがり**、ヘッダー*と*フッターは `main` の
+上だけに載ります — Slack / Notion / VS Code のスタイルで、サイドバーが
+主要な面であるアプリに向いています。
+
+<Demo>
+  <div class="hc-shell" data-layout="sidebar-first" style="block-size: 16rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme</strong></header>
+    <nav class="hc-shell__sidebar" aria-label="Demo navigation">
+      <div>Dashboard</div>
+      <div>Orders</div>
+      <div>Settings</div>
+    </nav>
+    <main class="hc-shell__main">The sidebar runs full-height on the left; the header sits only above this column.</main>
+    <footer class="hc-shell__footer"><small>© Acme</small></footer>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-shell" data-layout="sidebar-first">
+    <header class="hc-shell__header">…</header>
+    <nav class="hc-shell__sidebar" aria-label="Primary">…</nav>
+    <main class="hc-shell__main">…</main>
+    <footer class="hc-shell__footer">…</footer>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+それ以外はどちらのモードも同じです — 折りたたみのアイコンレール、
+任意の aside、モバイルのオフキャンバスオーバーレイはすべて同じように
+振る舞います。
+
+## リージョン
+
+| クラス | 要素(推奨) | 役割 |
+| --- | --- | --- |
+| `hc-shell__header` | `<header>` | 上部バー。モバイルのトグルを収めます。 |
+| `hc-shell__sidebar` | `<nav>` | 常設ナビゲーション(`sidebar-first` レイアウトでは全高)。 |
+| `hc-shell__main` | `<main>` | 主コンテンツ。独立にスクロールします。 |
+| `hc-shell__aside` | `<aside>` | 任意のセカンダリパネル(第 3 カラムを追加)。 |
+| `hc-shell__footer` | `<footer>` | 任意のフッター。 |
+| `hc-shell__toggle` | `<button>` | モバイルのハンバーガー(`data-hc-shell-toggle` とともに使用)。 |
+
+## サイドバーのナビゲーション項目
+
+シェルは意図的にサイドバーの子をスタイルしません — ナビ項目は
+[`hc-item`](/hypermedia-components/ja/components/item/) です。`<a>`
+要素として描画すればホバーのハイライトとフォーカスリングが自動で付き、
+アクティブなリンクの `aria-current="page"` は選択時の見た目になります
+(これはアクセシビリティのシグナルでもあります — 一致するルートで
+サーバサイドに設定してください):
+
+<Demo>
+  <nav aria-label="Demo navigation" style="max-inline-size:14rem;display:grid;gap:2px;">
+    <a class="hc-item" href="#ops"><span class="hc-item__media" aria-hidden="true">⚙</span><span class="hc-item__title">Operations</span></a>
+    <a class="hc-item" href="#studio" aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><span class="hc-item__title">Studio</span></a>
+    <a class="hc-item" href="#iam"><span class="hc-item__media" aria-hidden="true">⛨</span><span class="hc-item__title">IAM Admin</span></a>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-shell__sidebar" aria-label="Primary">
+    <a class="hc-item" href="/ops">
+      <span class="hc-item__media" aria-hidden="true">⚙</span>
+      <span class="hc-item__title hc-shell__label">Operations</span>
+    </a>
+    <a class="hc-item" href="/studio" aria-current="page">
+      <span class="hc-item__media" aria-hidden="true">▦</span>
+      <span class="hc-item__title hc-shell__label">Studio</span>
+    </a>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
+
+リンクテキストを(上のように)`.hc-shell__label` で包むと、
+[折りたたまれたアイコンレール](#折りたたみ可能なサイドバー)では
+アクセシビリティツリーに残ったまま自動で隠れます。
+[ブロック](/hypermedia-components/ja/blocks/)ページに、この方法で
+組み立てた完全なサイドバーがあります。素の `<a>` の子も動作します —
+ただ自前のホバー / カレントのスタイルを持たないだけです。
+
+### URL からアクティブ項目に印を付ける — `data-hc-nav-current`
+
+一致するルートでサーバサイドに `aria-current="page"` を設定するのが
+正統な方法です。それが不便なとき — ページ間で共有される静的な
+サイドバーや、htmx のスワップをまたいで持続するもの — は、ナビの
+コンテナに `data-hc-nav-current` を足すと、`installNavCurrent()`
+ビヘイビアがインライン JS なしで URL から正しいリンクに印を付けます
+(そのため厳格な `Content-Security-Policy: default-src 'self'` の下でも
+動きます):
+
+```html
+<nav class="hc-shell__sidebar" data-hc-nav-current aria-label="Primary">
+  <a class="hc-item" href="/app/explorer">Explorer</a>
+  <a class="hc-item" href="/app/docs">Docs</a>
+  <a class="hc-item" href="/app/docs/coverage">Coverage</a>
+</nav>
+```
+
+コンテナ内の同一オリジンの `a[href]` のうち、pathname が
+`location.pathname` に等しいリンク、それがなければ — 完全一致に失敗
+したとき — その**最長**のパスセグメント接頭辞であるリンクの pathname
+に `aria-current="page"` を設定します。そのためセクションのリンク
+(`/app/docs`)はそのサブページ(`/app/docs/coverage`)でもカレントの
+ままです。ルート `/` は完全一致のみで、接頭辞としては決して一致しま
+せん。htmx の履歴ナビゲーション(`htmx:pushedIntoHistory`)と
+戻る / 進む(`popstate`)の後に再マークし、以前に設定したリンクを
+クリアするため、カレントは常にちょうど 1 つです。
+
+```js
+import { installNavCurrent } from '@hypermedia-components/core';
+installNavCurrent(); // or the auto-init bundle: @hypermedia-components/core/behaviors
+```
+
+`data-hc-nav-current` はオプトインで、シェルのサイドバーに限らず
+**どんな**ナビコンテナでも動きます — `.hc-item`(または
+`[aria-current="page"]` でスタイルする任意の要素)と組み合わせて
+ください。JavaScript がなくてもリンクは動作し、アクティブの印が
+欠けるだけです — プログレッシブエンハンスメント。
+
+## ヘッダーのアクションと戻るリンク
+
+ヘッダーは flex の行(`gap` つき)なので、ページごとの追加要素は
+カスタム CSS なしで構成できます: コンテンツを分けたい位置に
+`.hc-spacer` を置くと、その後のすべて — 戻るリンク、アクションリンク、
+バッジ — はインラインの末尾に寄ります:
+
+```html
+<header class="hc-shell__header">
+  <button class="hc-button" data-variant="ghost"
+          data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+  <strong>Outbox events</strong>
+  <span class="hc-badge" data-variant="warning">3 pending</span>
+  <span class="hc-spacer"></span>
+  <nav class="hc-cluster" aria-label="Page actions">
+    <a class="hc-button" data-variant="ghost" data-size="sm" href="/ops/console">← Back</a>
+    <a class="hc-button" data-size="sm" href="/ops/console/outbox/export">Export</a>
+  </nav>
+</header>
+```
+
+## 任意の aside
+
+直下の子として `<aside class="hc-shell__aside">` を足すと、グリッドは
+自動で第 3 カラムを生やします(`:has()` で検出)。モバイルでは通常
+フローで `main` の下に落ちます。
+
+```html
+<div class="hc-shell">
+  <header class="hc-shell__header">…</header>
+  <nav class="hc-shell__sidebar">…</nav>
+  <main class="hc-shell__main">…</main>
+  <aside class="hc-shell__aside">…</aside>
+</div>
+```
+
+## レスポンシブの挙動
+
+- **デスクトップ(≥ 60rem):** ビューポートを満たす CSS Grid
+  (`block-size: 100dvh`)。デフォルトではヘッダーが全幅にまたがり、
+  その下にサイドバー。`data-layout="sidebar-first"` では代わりに
+  サイドバーが左で全高にまたがります。いずれにせよ main はクロームとは
+  独立にスクロールします。
+- **モバイル(< 60rem):** リージョンは通常フローに積まれ、ページが
+  スクロールします。サイドバーは固定のオフキャンバスオーバーレイに
+  なり、ヘッダーは上部に貼り付き、ハンバーガーがオーバーレイをトグル
+  します。
+
+リテラルの `60rem` ブレークポイントを使っています(メディアクエリの
+条件はカスタムプロパティを読めません)。これはシステムがコンテナ
+クエリではなくビューポートのブレークポイントを使う唯一の場所です —
+シェルは定義上ビューポートを満たすため、ビューポート幅が*すなわち*
+コンテナ幅です。内側のリージョンは引き続きコンテナレスポンシブな
+[レイアウトユーティリティ](/hypermedia-components/ja/fundamentals/layout/)を
+使います。
+
+## ビヘイビア — `installShell()`
+
+```js
+import { installShell } from '@hypermedia-components/core';
+installShell(); // or the auto-init bundle: @hypermedia-components/core/behaviors
+```
+
+`[data-hc-shell-toggle]` ボタンと `.hc-shell__sidebar` を持つシェルに
+対して、`installShell()` は:
+
+- シェルの `data-sidebar="open"` をトグルし、`aria-expanded` /
+  `aria-controls` を同期し続けます。
+- 開いたときにフォーカスをサイドバーへ移し、その中に **`Tab` を
+  トラップ**します。
+- `Escape`、サイドバー外のクリック(スクリム)、サイドバー内のリンクの
+  アクティベートで閉じます — フォーカスをトグルに戻しながら。
+- ビューポートがデスクトップに戻ったら強制的に閉じるため、オーバーレイ
+  が開いたまま固まることはありません。
+
+冪等で、アンインストーラを返し、後から DOM に追加されたシェルも
+(`MutationObserver` 経由で)拾います — つまり htmx でスワップされた
+コンテンツでも動きます。ネットワークには決して触れません。
+
+## 折りたたみ可能なサイドバー
+
+**デスクトップ**では、サイドバーを細い**アイコンレール**に折りたため
+ます。`.hc-shell__sidebar` の `data-collapsible` でオプトインし、
+シェル内の任意の場所に `[data-hc-shell-collapse]` ボタンを足し、
+(任意で)`data-persist="<key>"` で状態を `localStorage` に記憶させ
+ます:
+
+```html
+<div class="hc-shell">
+  <header class="hc-shell__header">
+    <button data-hc-shell-toggle …>Menu</button>
+    <button data-hc-shell-collapse type="button" aria-label="Collapse sidebar">⇔</button>
+  </header>
+
+  <nav class="hc-shell__sidebar" aria-label="Primary"
+       data-collapsible data-persist="app.sidebar">
+    <ul>
+      <li><a href="/"><span aria-hidden="true">▦</span>
+        <span class="hc-shell__label">Dashboard</span></a></li>
+      …
+    </ul>
+  </nav>
+  …
+</div>
+```
+
+`installShell()` はシェルの `data-sidebar-collapsed` をトグルし
+(CSS がグリッドのカラムを `--hc-shell-sidebar-width` から
+`--hc-shell-sidebar-collapsed-width`、デフォルト `4rem` に狭めます)、
+ボタンの `aria-expanded` を同期し続けます。各ナビ項目のテキストは
+`.hc-shell__label` で包んでください。レールでは**視覚的に隠れつつ
+アクセシビリティツリーには残る**ため、アイコンだけが見えていても
+リンクはアクセシブルな名前を保ちます。
+
+**方向つきの折りたたみアイコン。** シェブロンは動く方向を指すべきです
+— 展開中は `«`(折りたたむ)、折りたたみ後は `»`(展開する)。
+グリフを `.hc-shell__collapse-icon` で包むと、レールが折りたたまれた
+ときに自動で反転します(`data-sidebar-collapsed` をキーにした純 CSS。
+追加スクリプトなし):
+
+```html
+<button data-hc-shell-collapse type="button" aria-label="Toggle sidebar">
+  <span class="hc-shell__collapse-icon">«</span>
+</button>
+```
+
+方向を持たないグリフ(例: 上の `⇔` やハンバーガー)ではラッパーを
+省いてください — 動かないままにすべきです。ボタンのアクセシブルな
+名前は一定のまま(「Toggle sidebar」)で構いません。開閉の状態は
+`installShell()` が `aria-expanded` で伝えます。
+
+これは**デスクトップ限定**です — レスポンシブのブレークポイント未満
+ではサイドバーは代わりにオフキャンバスオーバーレイを使い、折りたたみ
+ボタンは隠れます。`data-persist` があれば、折りたたみ状態は次の訪問で
+最初の描画前に復元されます(`localStorage` の失敗は静かに劣化)。
+
+## アクセシビリティ
+
+- 本物のランドマークを使ってください: `<header>`、
+  `<nav aria-label="…">`、`<main>`、`<aside>`、`<footer>`。シェルは
+  レイアウトを提供するだけです。
+- モバイルのオーバーレイはダイアログのようにフォーカスを管理します:
+  フォーカスはサイドバーに入り、`Tab` はトラップされ、`Escape` で
+  解除され、フォーカスはトグルに戻ります。
+- トグルにはアクセシブルな名前を与えてください(`aria-label` か
+  見えるテキスト)。どちらもなければ `installShell()` がフォールバック
+  のラベルを足します。
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+これらはテーマ可能な視覚トークンではなく**レイアウトのノブ**です —
+シェルにインラインで、またはラッパーのルールで設定してください。色と
+スペーシングは共有の `--hc-color-*` / `--hc-space-*` トークンから
+来ます。
+
+| 変数 | デフォルト | 制御対象 |
+| --- | --- | --- |
+| `--hc-shell-sidebar-width` | `16rem` | サイドバーのカラム幅(デスクトップ)/ オーバーレイ幅(モバイル、`80vw` が上限)。 |
+| `--hc-shell-sidebar-collapsed-width` | `4rem` | レールに折りたたまれたときのサイドバーのカラム幅(`data-sidebar-collapsed`)。 |
+| `--hc-shell-aside-width` | `20rem` | aside のカラム幅。 |
+| `--hc-shell-pad` | `var(--hc-space-4)` | リージョンの内側パディング。 |
+
+</details>
+
+## 関連
+
+- [レイアウトユーティリティ](/hypermedia-components/ja/fundamentals/layout/) —
+  シェルの土台となるプリミティブ。

@@ -1,0 +1,601 @@
+---
+title: キッチンシンク
+description: Hypermedia Components の全コンポーネントを 1 ページに — ひと目で見渡せるライブギャラリー。各コンポーネントの完全なドキュメントへのリンクつき。
+---
+
+すべてのコンポーネントを、ライブで、1 ページに — **コンポーネント**の
+サイドバーと同じグルーピングです。ライブラリ全体をひと目で見渡す、
+テーマの健全性チェック(ヘッダーのカラー / 密度 / ダークの切り替えを
+試してください)、見出しのリンクからコンポーネントの完全なドキュメント
+へ飛ぶ、といった用途に使ってください。
+
+:::note
+インタラクティブなコンポーネントはここで本物のビヘイビアを動かして
+います(docs サイトは `@hypermedia-components/core/behaviors` を
+読み込みます)。メニューを開く、スプリッターをドラッグする、OTP
+フィールドに入力する — すべて動きます。
+:::
+
+{/* Marker: opts this page into the denser kitchen-sink preview chrome
+    (see apps/docs/src/styles/preview.css). Component-doc Demos keep the
+    roomier canvas. */}
+<div class="ks-gallery" hidden></div>
+
+## アクション
+
+### [ボタン](/hypermedia-components/ja/components/button/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <button class="hc-button" data-variant="primary">Primary</button>
+  <button class="hc-button" data-variant="secondary">Secondary</button>
+  <button class="hc-button">Default</button>
+  <button class="hc-button" data-variant="ghost">Ghost</button>
+  <button class="hc-button" data-variant="error">Error</button>
+  <button class="hc-button" data-size="sm">Small</button>
+  <button class="hc-button" data-size="lg">Large</button>
+  <button class="hc-button" disabled>Disabled</button>
+</div>
+
+### [ボタングループ](/hypermedia-components/ja/components/button-group/) · [Kbd](/hypermedia-components/ja/components/kbd/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-button-group" role="group" aria-label="Text style">
+    <button class="hc-button" type="button">Bold</button>
+    <button class="hc-button" type="button">Italic</button>
+    <button class="hc-button" type="button">Underline</button>
+  </div>
+  <span class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd>
+    <kbd class="hc-kbd">K</kbd>
+  </span>
+</div>
+
+### [トグルグループ](/hypermedia-components/ja/components/toggle-group/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-toggle-group" role="radiogroup" data-type="single" aria-label="Alignment">
+    <button type="button" class="hc-toggle" role="radio" aria-checked="true" data-value="l">Left</button>
+    <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="c">Center</button>
+    <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="r">Right</button>
+  </div>
+  <div class="hc-toggle-group" role="group" data-type="multiple" aria-label="Format">
+    <button type="button" class="hc-toggle" aria-pressed="false" data-value="b"><strong>B</strong></button>
+    <button type="button" class="hc-toggle" aria-pressed="true" data-value="i"><em>I</em></button>
+    <button type="button" class="hc-toggle" aria-pressed="false" data-value="u"><u>U</u></button>
+  </div>
+</div>
+
+### [ツールバー](/hypermedia-components/ja/components/toolbar/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-toolbar" role="toolbar" aria-label="Format">
+    <button class="hc-button" data-size="sm">Cut</button>
+    <button class="hc-button" data-size="sm">Copy</button>
+    <span class="hc-toolbar__separator"></span>
+    <button class="hc-button" data-size="sm">Paste</button>
+  </div>
+</div>
+
+### [コマンド](/hypermedia-components/ja/components/command/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <button class="hc-button" onclick="this.nextElementSibling.showModal()">Open command palette</button>
+  <dialog class="hc-command-dialog">
+    <div class="hc-command">
+      <input class="hc-command__input" type="text" role="combobox" autofocus aria-label="Command" placeholder="Type a command…" />
+      <div class="hc-command__list" role="listbox">
+        <div class="hc-command__group" role="group" aria-labelledby="ks-cmd-g">
+          <div class="hc-command__group-heading" id="ks-cmd-g">Navigation</div>
+          <div class="hc-command__item" role="option" data-value="home"><span>Go home</span><kbd class="hc-command__shortcut">G H</kbd></div>
+          <div class="hc-command__item" role="option" data-value="search"><span>Search</span></div>
+        </div>
+      </div>
+      <div class="hc-command__empty" hidden>No results.</div>
+    </div>
+  </dialog>
+</div>
+
+## フォーム
+
+### [フィールド](/hypermedia-components/ja/components/field/) · [インプット](/hypermedia-components/ja/components/input/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-field" style="max-inline-size:16rem;">
+    <label class="hc-field__label" for="ks-email">Email</label>
+    <input class="hc-input" id="ks-email" type="email" placeholder="you@example.com" />
+    <p class="hc-field__message">We'll never share it.</p>
+  </div>
+  <textarea class="hc-input" aria-label="Notes" rows="3" placeholder="Notes…" style="max-inline-size:16rem;"></textarea>
+</div>
+
+### [インプットグループ](/hypermedia-components/ja/components/input-group/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-input-group" style="max-inline-size:20rem;">
+    <span class="hc-input-addon" aria-hidden="true">🔍</span>
+    <input class="hc-input" type="search" aria-label="Search" placeholder="Search…" />
+    <button class="hc-button" data-variant="primary" type="button">Go</button>
+  </div>
+</div>
+
+### [Input OTP](/hypermedia-components/ja/components/inputotp/) · [スライダー](/hypermedia-components/ja/components/slider/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-inputotp" data-length="6">
+    <input class="hc-inputotp__input" type="text" aria-label="One-time code" />
+  </div>
+  <input class="hc-slider" type="range" min="0" max="100" value="40" aria-label="Volume" style="inline-size:12rem;" />
+</div>
+
+### [セレクト](/hypermedia-components/ja/components/select/) · [デートピッカー](/hypermedia-components/ja/components/datepicker/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <select class="hc-select" aria-label="Plan">
+    <option>Free</option>
+    <option>Pro</option>
+    <option>Team</option>
+  </select>
+  <input class="hc-datepicker" type="date" aria-label="Date" value="2026-05-29" />
+</div>
+
+### [コンボボックス](/hypermedia-components/ja/components/combobox/) · [マルチコンボボックス](/hypermedia-components/ja/components/multicombobox/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-combobox" style="inline-size:14rem;">
+    <input class="hc-combobox__input hc-input" type="text" role="combobox" aria-controls="ks-cb-list" aria-label="Country" />
+    <ul class="hc-combobox__listbox" id="ks-cb-list" role="listbox">
+      <li class="hc-combobox__option" role="option" data-value="jp">Japan</li>
+      <li class="hc-combobox__option" role="option" data-value="us">United States</li>
+      <li class="hc-combobox__option" role="option" data-value="gb">United Kingdom</li>
+    </ul>
+  </div>
+  <div class="hc-multicombobox" data-name="ks-langs" style="inline-size:16rem;">
+    <div class="hc-multicombobox__control hc-input">
+      <span class="hc-multicombobox__tags"></span>
+      <input class="hc-multicombobox__input" type="text" role="combobox" aria-controls="ks-mc-list" aria-label="Languages" />
+    </div>
+    <ul class="hc-multicombobox__listbox" id="ks-mc-list" role="listbox">
+      <li class="hc-multicombobox__option" role="option" data-value="js">JavaScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="ts">TypeScript</li>
+      <li class="hc-multicombobox__option" role="option" data-value="py" aria-selected="true">Python</li>
+    </ul>
+  </div>
+</div>
+
+### [チェックボックス](/hypermedia-components/ja/components/checkbox/) · [ラジオ](/hypermedia-components/ja/components/radio/) · [スイッチ](/hypermedia-components/ja/components/switch/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" checked /> Checkbox</label>
+  <label class="hc-radio-label"><input class="hc-radio" type="radio" name="ks-r" checked /> Radio A</label>
+  <label class="hc-radio-label"><input class="hc-radio" type="radio" name="ks-r" /> Radio B</label>
+  <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked /> Switch</label>
+</div>
+
+### [カレンダー](/hypermedia-components/ja/components/calendar/)
+
+<div class="hc-preview not-content">
+  <div class="hc-calendar" data-value="2026-05-15" data-locale="en-US" aria-label="Pick a date"></div>
+</div>
+
+## ナビゲーション
+
+### [パンくずリスト](/hypermedia-components/ja/components/breadcrumb/) · [ページネーション](/hypermedia-components/ja/components/pagination/)
+
+<div class="hc-preview not-content hc-preview--col">
+  <nav class="hc-breadcrumb" aria-label="Breadcrumb">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item"><a class="hc-breadcrumb__link" href="#">Home</a></li>
+      <li class="hc-breadcrumb__item"><a class="hc-breadcrumb__link" href="#">Library</a></li>
+      <li class="hc-breadcrumb__item"><span class="hc-breadcrumb__current" aria-current="page">Data</span></li>
+    </ol>
+  </nav>
+  <nav class="hc-pagination" aria-label="Pagination">
+    <a class="hc-pagination__item" href="#">‹ Prev</a>
+    <a class="hc-pagination__item" href="#">1</a>
+    <a class="hc-pagination__item" aria-current="page" href="#">2</a>
+    <a class="hc-pagination__item" href="#">3</a>
+    <a class="hc-pagination__item" href="#">Next ›</a>
+  </nav>
+</div>
+
+### [タブ](/hypermedia-components/ja/components/tabs/)
+
+<div class="hc-preview not-content">
+  <div class="hc-tabs" style="max-inline-size:24rem;">
+    <div class="hc-tabs__list" role="tablist" aria-label="Settings">
+      <button class="hc-tabs__tab" role="tab" id="ks-tab1" aria-controls="ks-tp1" aria-selected="true" tabindex="0">Account</button>
+      <button class="hc-tabs__tab" role="tab" id="ks-tab2" aria-controls="ks-tp2" aria-selected="false" tabindex="-1">Password</button>
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel" id="ks-tp1" aria-labelledby="ks-tab1" tabindex="0">Account settings.</div>
+    <div class="hc-tabs__panel" role="tabpanel" id="ks-tp2" aria-labelledby="ks-tab2" tabindex="0" hidden>Password settings.</div>
+  </div>
+</div>
+
+### [メニュー](/hypermedia-components/ja/components/menu/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <button class="hc-button" type="button" popovertarget="ks-menu" id="ks-menu-trigger">Account ▾</button>
+  <div class="hc-menu" id="ks-menu" popover role="menu" aria-labelledby="ks-menu-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
+    <hr class="hc-menu__separator" />
+    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Sign out</button>
+  </div>
+</div>
+
+### [メニューバー](/hypermedia-components/ja/components/menubar/) · [ナビゲーションメニュー](/hypermedia-components/ja/components/navmenu/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-menubar" role="menubar" aria-label="Application">
+    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="ks-mb-file" id="ks-mb-file-t">File</button>
+    <div class="hc-menu" id="ks-mb-file" popover role="menu" aria-labelledby="ks-mb-file-t">
+      <button class="hc-menu__item" role="menuitem" type="button">New</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Open…</button>
+    </div>
+    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="ks-mb-edit" id="ks-mb-edit-t">Edit</button>
+    <div class="hc-menu" id="ks-mb-edit" popover role="menu" aria-labelledby="ks-mb-edit-t">
+      <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Redo</button>
+    </div>
+  </div>
+
+  <nav class="hc-navmenu" aria-label="Main">
+    <ul class="hc-navmenu__list">
+      <li class="hc-navmenu__item">
+        <button class="hc-navmenu__trigger" type="button" data-hc-navmenu-trigger aria-controls="ks-nm-products">Products</button>
+        <div class="hc-navmenu__panel" id="ks-nm-products">
+          <a class="hc-navmenu__link" href="#">Analytics</a>
+          <a class="hc-navmenu__link" href="#">Billing</a>
+        </div>
+      </li>
+      <li class="hc-navmenu__item">
+        <a class="hc-navmenu__link" href="#">Pricing</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+### [コンテキストメニュー](/hypermedia-components/ja/components/context-menu/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-card" data-hc-context-menu="ks-ctx" tabindex="0" style="padding:1rem;">Right-click me</div>
+  <div class="hc-menu" id="ks-ctx" popover role="menu" aria-label="Row actions">
+    <button class="hc-menu__item" role="menuitem" type="button">Open</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Rename</button>
+    <hr class="hc-menu__separator" />
+    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
+  </div>
+</div>
+
+## オーバーレイ
+
+### [ダイアログ](/hypermedia-components/ja/components/dialog/) · [ドロワー](/hypermedia-components/ja/components/drawer/) · [ポップオーバー](/hypermedia-components/ja/components/popover/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <button class="hc-button" onclick="document.getElementById('ks-dialog').showModal()">Open dialog</button>
+  <dialog class="hc-dialog" id="ks-dialog">
+    <header class="hc-dialog__header"><h3 class="hc-dialog__title">Dialog</h3></header>
+    <div class="hc-dialog__body"><p>A native modal dialog.</p></div>
+    <footer class="hc-dialog__footer"><button class="hc-button" onclick="this.closest('dialog').close()">Close</button></footer>
+  </dialog>
+
+  <button class="hc-button" onclick="document.getElementById('ks-drawer').showModal()">Open drawer</button>
+  <dialog class="hc-drawer" data-side="right" id="ks-drawer">
+    <header class="hc-dialog__header"><h3 class="hc-dialog__title">Drawer</h3></header>
+    <div class="hc-dialog__body"><p>Slides in from the edge.</p></div>
+    <footer class="hc-dialog__footer"><button class="hc-button" onclick="this.closest('dialog').close()">Close</button></footer>
+  </dialog>
+
+  <button class="hc-button" type="button" popovertarget="ks-pop">Open popover</button>
+  <div class="hc-popover" id="ks-pop" popover><p style="margin:0">A light-dismiss popover.</p></div>
+</div>
+
+### [ツールチップ](/hypermedia-components/ja/components/tooltip/) · [ホバーカード](/hypermedia-components/ja/components/hovercard/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <button class="hc-button" aria-describedby="ks-tip">Hover / focus me</button>
+  <span class="hc-tooltip" id="ks-tip" role="tooltip">A short tooltip.</span>
+
+  <a href="#" aria-describedby="ks-hover">@ada</a>
+  <div class="hc-hovercard" id="ks-hover">
+    <div class="hc-hovercard__header">
+      <span class="hc-avatar" aria-hidden="true">A</span>
+      <div>
+        <div class="hc-hovercard__title">Ada Lovelace</div>
+        <div class="hc-hovercard__subtitle">@ada</div>
+      </div>
+    </div>
+    <div class="hc-hovercard__body">Mathematician &amp; first programmer.</div>
+  </div>
+</div>
+
+## データ表示
+
+### [テーブル](/hypermedia-components/ja/components/table/)
+
+<div class="hc-preview not-content">
+  <table class="hc-table" style="max-inline-size:28rem;">
+    <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Ada</td><td>Engineer</td><td><span class="hc-badge" data-variant="success">Active</span></td></tr>
+      <tr><td>Bea</td><td>Designer</td><td><span class="hc-badge" data-variant="warning">Away</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+### [データグリッド](/hypermedia-components/ja/components/datagrid/)
+
+<div class="hc-preview not-content">
+  <div class="hc-datagrid" style="max-inline-size:28rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col">Role</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <th class="hc-datagrid__cell" scope="row">Ada</th>
+            <td class="hc-datagrid__cell">Engineer</td>
+            <td class="hc-datagrid__cell">Active</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <th class="hc-datagrid__cell" scope="row">Bea</th>
+            <td class="hc-datagrid__cell">Designer</td>
+            <td class="hc-datagrid__cell">Away</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+### [カード](/hypermedia-components/ja/components/card/) · [アバター](/hypermedia-components/ja/components/avatar/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-card" style="max-inline-size:18rem;">
+    <div class="hc-card__header"><strong>Card title</strong></div>
+    <div class="hc-card__body">A generic surface for grouped content.</div>
+    <div class="hc-card__footer"><button class="hc-button" data-size="sm" data-variant="primary">Action</button></div>
+  </div>
+  <div class="hc-avatar-group">
+    <span class="hc-avatar" aria-label="Ada">A</span>
+    <span class="hc-avatar" aria-label="Bea">B</span>
+    <span class="hc-avatar" aria-label="Cy">C</span>
+  </div>
+</div>
+
+### [アイテム](/hypermedia-components/ja/components/item/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-item" style="max-inline-size:18rem;">
+    <span class="hc-item__media" aria-hidden="true">📄</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Quarterly report</span>
+      <span class="hc-item__description">Updated 2 days ago</span>
+    </div>
+    <div class="hc-item__actions">
+      <button class="hc-button" data-size="sm" type="button">Open</button>
+    </div>
+  </div>
+</div>
+
+### [バッジ](/hypermedia-components/ja/components/badge/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <span class="hc-badge" data-variant="info">Info</span>
+  <span class="hc-badge" data-variant="success">Success</span>
+  <span class="hc-badge" data-variant="warning">Warning</span>
+  <span class="hc-badge" data-variant="error">Error</span>
+</div>
+
+### [セパレータ](/hypermedia-components/ja/components/separator/)
+
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:18rem;">
+  <p style="margin:0">Above</p>
+  <hr class="hc-separator" />
+  <p style="margin:0">Below</p>
+</div>
+
+### [アコーディオン](/hypermedia-components/ja/components/accordion/)
+
+<div class="hc-preview not-content">
+  <div class="hc-accordion" style="max-inline-size:28rem;">
+    <details class="hc-accordion__item" name="ks-acc">
+      <summary class="hc-accordion__trigger">
+        What is Hypermedia Components?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </summary>
+      <div class="hc-accordion__content">A semantic CSS + htmx UI kit for hypermedia applications.</div>
+    </details>
+    <details class="hc-accordion__item" name="ks-acc">
+      <summary class="hc-accordion__trigger">
+        How do I install it?
+        <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6 L8 10 L12 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </summary>
+      <div class="hc-accordion__content"><code>pnpm add @hypermedia-components/core</code></div>
+    </details>
+  </div>
+</div>
+
+### [コラプシブル](/hypermedia-components/ja/components/collapsible/)
+
+<div class="hc-preview not-content">
+  <details class="hc-collapsible" style="max-inline-size:28rem;">
+    <summary class="hc-collapsible__trigger">
+      Show details
+      <span class="hc-collapsible__icon" aria-hidden="true">▾</span>
+    </summary>
+    <div class="hc-collapsible__content"><p style="margin:0">This region is hidden until the user opens it.</p></div>
+  </details>
+</div>
+
+## フィードバック
+
+### [アラート](/hypermedia-components/ja/components/alert/)
+
+<div class="hc-preview not-content">
+  <div class="hc-alert" data-variant="success" role="status" style="max-inline-size:28rem;">
+    <strong class="hc-alert__title">Saved</strong>
+    <p>Your changes were saved successfully.</p>
+  </div>
+</div>
+
+### [トースト](/hypermedia-components/ja/components/toast/) · [プログレス](/hypermedia-components/ja/components/progress/) · [スピナー](/hypermedia-components/ja/components/spinner/)
+
+<div class="hc-preview not-content hc-preview--col" style="max-inline-size:28rem;">
+  <div style="display:flex;gap:.5rem;align-items:center;">
+    <button class="hc-button" onclick="document.body.dispatchEvent(new CustomEvent('hc:toast',{bubbles:true,detail:{title:'Saved',message:'Changes saved.',variant:'success'}}))">Fire toast</button>
+    <span class="hc-spinner" aria-label="Loading"></span>
+  </div>
+  <progress class="hc-progress" value="60" max="100" aria-label="Upload progress"></progress>
+  <progress class="hc-progress" aria-label="Loading"></progress>
+</div>
+
+### [スケルトン](/hypermedia-components/ja/components/skeleton/)
+
+<div class="hc-preview not-content" style="display:flex;gap:1rem;align-items:center;max-inline-size:28rem;">
+  <div class="hc-skeleton" data-shape="circle" style="inline-size:3rem"></div>
+  <div style="display:flex;flex-direction:column;gap:.4rem;flex:1;">
+    <div class="hc-skeleton" data-shape="text" style="inline-size:40%"></div>
+    <div class="hc-skeleton" data-shape="text" style="inline-size:80%"></div>
+  </div>
+</div>
+
+### [空状態](/hypermedia-components/ja/components/empty/)
+
+<div class="hc-preview not-content">
+  <div class="hc-empty" style="max-inline-size:24rem;">
+    <div class="hc-empty__media" aria-hidden="true">📭</div>
+    <p class="hc-empty__title">No results</p>
+    <p class="hc-empty__description">We couldn't find anything matching your search.</p>
+    <div class="hc-empty__actions">
+      <button class="hc-button" data-variant="primary" type="button">Clear filters</button>
+      <button class="hc-button" type="button">Browse all</button>
+    </div>
+  </div>
+</div>
+
+## レイアウト
+
+### [アスペクト比](/hypermedia-components/ja/components/aspect/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <div class="hc-aspect" data-ratio="16/9" style="inline-size:12rem;background:var(--hc-color-muted-bg);border-radius:.5rem;display:grid;place-items:center;">
+    <span>16 / 9</span>
+  </div>
+</div>
+
+### [スクロールエリア](/hypermedia-components/ja/components/scroll-area/)
+
+<div class="hc-preview not-content">
+  <div class="hc-scroll-area" tabindex="0" role="region" aria-label="Scrollable list" style="max-block-size:6rem;max-inline-size:18rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.5rem;">
+    <p style="margin-block-start:0">Scroll me.</p>
+    <p>Two</p><p>Three</p><p>Four</p><p>Five</p><p style="margin-block-end:0">Six</p>
+  </div>
+</div>
+
+### [スプリッター](/hypermedia-components/ja/components/splitter/)
+
+<div class="hc-preview not-content">
+  <div class="hc-splitter" data-orientation="horizontal" data-value="40" style="block-size:7rem;max-inline-size:22rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
+    <div class="hc-splitter__panel" style="padding:.5rem;">Left</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0" aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel" style="padding:.5rem;">Right</div>
+  </div>
+</div>
+
+### [シェル](/hypermedia-components/ja/components/shell/)
+
+完全なアプリケーションシェルを、ここではボックスに縮めて表示して
+います。実際のページではビューポートを満たし、モバイルではサイドバー
+がオフキャンバスオーバーレイに折りたたまれます。
+
+<div class="hc-preview not-content">
+  <div class="hc-shell" style="block-size:15rem;--hc-shell-sidebar-width:9rem;--hc-shell-pad:var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme</strong></header>
+    <nav class="hc-shell__sidebar" aria-label="Demo">
+      <div>Dashboard</div>
+      <div>Orders</div>
+      <div>Settings</div>
+    </nav>
+    <main class="hc-shell__main">Main content scrolls independently of the chrome.</main>
+    <footer class="hc-shell__footer"><small>© Acme</small></footer>
+  </div>
+</div>
+
+### [カルーセル](/hypermedia-components/ja/components/carousel/)
+
+<div class="hc-preview not-content">
+  <div class="hc-carousel" aria-label="Featured" style="max-inline-size:18rem;">
+    <div class="hc-carousel__viewport">
+      <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 1</div>
+      <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 2</div>
+      <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 3</div>
+    </div>
+    <button class="hc-carousel__prev" data-hc-carousel-prev aria-label="Previous slide">‹</button>
+    <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide">›</button>
+    <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"></div>
+  </div>
+</div>
+
+## レイアウトパターン
+
+コンポーネントではありません —
+[基礎 · レイアウト](/hypermedia-components/ja/fundamentals/layout/)の
+レスポンシブプリミティブと、テーブルのオーバーフローヘルパーを、
+網羅のためにここに載せています。
+
+### [レイアウトユーティリティ](/hypermedia-components/ja/fundamentals/layout/)
+
+本質的にレスポンシブなプリミティブ — ブレークポイントなし。ウィンドウ
+をリサイズすると、グリッドは流れ直し、クラスターは折り返し、サイド
+バーは折りたたまれます。
+
+<div class="hc-preview not-content hc-preview--col">
+  <div class="hc-grid" style="--hc-grid-min:8rem;">
+    <div class="hc-card" style="padding:.75rem;text-align:center;">A</div>
+    <div class="hc-card" style="padding:.75rem;text-align:center;">B</div>
+    <div class="hc-card" style="padding:.75rem;text-align:center;">C</div>
+    <div class="hc-card" style="padding:.75rem;text-align:center;">D</div>
+  </div>
+  <ul class="hc-cluster" style="list-style:none;padding:0;margin:0;">
+    <li><span class="hc-badge">tag-one</span></li>
+    <li><span class="hc-badge">tag-two</span></li>
+    <li><span class="hc-badge">tag-three</span></li>
+    <li><span class="hc-badge">tag-four</span></li>
+  </ul>
+  <div class="hc-sidebar">
+    <nav class="hc-card" style="padding:.75rem;" aria-label="Example">Sidebar</nav>
+    <div class="hc-card" style="padding:.75rem;">Main content keeps its width and wraps the sidebar when space runs out.</div>
+  </div>
+</div>
+
+### [テーブルスクロール](/hypermedia-components/ja/components/table/)ラッパー
+
+`.hc-table-scroll` 内の広いテーブルは、ページを横に押し広げる代わりに
+オーバーフローをスクロール帯に閉じ込めます。下の帯をスクロールして
+みてください。
+
+<div class="hc-preview not-content">
+  <div class="hc-table-scroll" role="region" aria-label="Orders" tabindex="0" style="max-inline-size:22rem;">
+    <table class="hc-table">
+      <thead><tr><th>Order</th><th>Customer</th><th>Email</th><th>Created</th><th>Status</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr><td>#1001</td><td>Ada Lovelace</td><td>ada@example.com</td><td>2026-05-01</td><td>Shipped</td><td>$129.00</td></tr>
+        <tr><td>#1002</td><td>Alan Turing</td><td>alan@example.com</td><td>2026-05-02</td><td>Pending</td><td>$42.50</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+## 関連
+
+- [コンポーネント索引](/hypermedia-components/ja/components/) — コンポーネントごとの完全なドキュメント。
+- [基礎 · レイアウトユーティリティ](/hypermedia-components/ja/fundamentals/layout/) — レスポンシブプリミティブ。
+- [基礎 · レスポンシブデザイン](/hypermedia-components/ja/fundamentals/responsive/) — 全体戦略。
+- [トークン · カラーテーマ](/hypermedia-components/ja/tokens/themes/) — 5 つのカラーテーマ。
+- [トークン · 密度](/hypermedia-components/ja/tokens/density/) — comfortable / compact / dense。

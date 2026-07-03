@@ -1,0 +1,137 @@
+---
+title: バンドルサイズとインポート
+description: Hypermedia Components の大きさと、3 つの利用形態 — フルバンドル、粒度の細かい(コンポーネント単位の)インポート、ネイティブ ESM + インポートマップ(CDN / Rails)。
+---
+
+Hypermedia Components は必須のビルドステップなしの**素の ESM + CSS**
+を出荷し、使う分だけ払えるよう 3 つの利用形態を公開しています。
+
+## サイズのベースライン
+
+`gzip -9` で計測(Brotli は典型的にさらに約 15–20% 小さくなります)。
+ミニファイは主にソースのドキュメントコメントを取り除くため、ここでは
+普段より効きます。
+
+| 成果物 | raw | gzip |
+| --- | --- | --- |
+| `css` — フルバンドル(トークン + ベース + 全コンポーネント) | 158 KB | 30.6 KB |
+| `css/min` — 同上、ミニファイ済み | 96 KB | **14.1 KB** |
+| `css/core` — レイヤー + コアトークン + ベース(粒度の細かい土台) | 27 KB | ~4.5 KB |
+| `css/core/min` | 22 KB | **4.0 KB** |
+| `behaviors` — 全ビヘイビア(ルーズな ESM、自動インストール) | 143 KB | 31.5 KB |
+| `behaviors/min` — バンドル + ミニファイ、単一ファイル | 53 KB | **12.1 KB** |
+| `min` — 名前つきインストーラ、バンドル + ミニファイ | 53 KB | 12.0 KB |
+| 単一コンポーネントの CSS(例: `css/button`) | ~3.6 KB | ~1 KB |
+| 単一のトークン軸ファイル(例: `tokens.color-indigo.css`) | ~1.4 KB | ~0.2 KB |
+
+**すべて込み、ミニファイで ≈ 26 KB gzip**(CSS 14 KB + JS 12 KB)。
+一握りのコンポーネントを使う典型的なアプリの読み込みはずっと少なく
+なります — 下記参照。
+
+## 1. フルバンドル(最も簡単)
+
+```js
+import '@hypermedia-components/core/css';        // or /css/min
+import '@hypermedia-components/core/behaviors';  // auto-installs everything
+```
+
+## 2. 粒度の細かい利用 — 必要な分だけ(バンドラーあり)
+
+CSS はツリーシェイクされないため、**コアの土台を一度**(レイヤー +
+トークン + ベース)読み込み、その後は使うコンポーネントだけを読み込み
+ます。JS *は*ツリーシェイクされます: ルートから名前つきインストーラを
+インポートすれば残りは落ちます。
+
+```js
+import '@hypermedia-components/core/css/core';    // once
+import '@hypermedia-components/core/css/button';
+import '@hypermedia-components/core/css/menu';
+
+import { installMenu } from '@hypermedia-components/core'; // only menu is bundled
+installMenu();
+```
+
+コンポーネント単位の CSS ファイル(`css/button`、`css/menu`、…)は
+自身の `@layer hc.components` ルールだけを運び、トークンとレイヤー順は
+`css/core` に依存します。6 コンポーネントのアプリは、フルの約 26–62 KB
+ではなく合計 **約 20 KB gzip** 前後に収まります。
+
+:::note[なぜ共有のコアが必要?]
+セマンティック CSS は 1 つのトークンセット(`--hc-*`)と単一の
+`@layer` 順を共有するため、コンポーネントファイルは完全に独立には
+なれません — 先に `css/core` を読み込んでください。テーマシステム
+全体を買う、固定の約 4 KB gzip のコストです。
+:::
+
+## 3. ネイティブ ESM + インポートマップ(CDN / バンドラーなし)
+
+ライブラリはそのままブラウザで動きます。インポートマップはベアの
+指定子を URL に対応づけます — パッケージの `exports` マップは無視
+されるため、公開されている `dist/` のファイルを直接参照することに
+注意してください。
+
+**すべて自動インストール(インポートマップ不要):**
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.min.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.behaviors.min.js"></script>
+```
+
+**インポートマップで粒度の細かい利用(`menu` だけが取得されます):**
+
+```html
+<script type="importmap">
+{ "imports": { "hc/": "https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/" } }
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.core.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc-menu.css">
+<script type="module">
+  import { installMenu } from 'hc/menu.js';
+  installMenu();
+</script>
+```
+
+### Rails(`importmap-rails`)
+
+Rails はキャッシュ / 不変性を、バンドルではなく**アセットパイプライン
+のコンテンツダイジェスト**(各ファイルがフィンガープリントつきの不変
+URL を得ます)+ `modulepreload` + HTTP/2 で解決します。実践的な道は
+2 つ:
+
+- **最も簡単:** `pin "@hypermedia-components/core", to: ".../hc.behaviors.min.js"`(パイプラインがきれいにフィンガープリントできる単一ファイル)とし、CSS は `stylesheet_link_tag "hc-button"`、`"hc-menu"`、…で読み込みます(それぞれフィンガープリントされ → 粒度の細かい CSS キャッシュ)。
+- **粒度の細かい JS:** `bin/importmap pin @hypermedia-components/core`(JSPM が解決可能な形をベンダリング)、またはバージョン固定の CDN にピン。
+
+コンポーネント単位の CSS はここで輝きます: CSS にはモジュールグラフが
+ないため、Propshaft は各 `hc-*.css` を独立にフィンガープリントします。
+
+## テーマ軸のトークンファイル
+
+トークンファイルはランタイム軸ごとに分割されているため、実際に
+切り替える色 / 密度の軸だけを出荷(または執筆)できます:
+
+```
+hc.tokens.core.css            ← semantic + default color/density + dark
+hc.tokens.color-indigo.css    ← only when you offer the indigo theme
+hc.tokens.density-compact.css ← only when you offer compact density
+…
+```
+
+`hc.tokens.css`(完全なファイル)はこれらをすべて連結しただけのもの
+です。追加のカラー軸は 1 つ約 0.2 KB gzip、密度ティアは約 0.15 KB
+なので、未使用の軸を落とすと合計で約 **1 KB gzip** 節約できます —
+小さいですが、これは**独自の**カスタム軸ファイルを追加するときの
+テンプレートでもあります(1 つコピーして値を差し替え)。軸を落とすと
+そのランタイム切り替えは失われます。
+
+## キャッシュについての補足
+
+より小さなキャッシュ単位(ファイル単位)は、1 つのコンポーネントの
+変更が残りを無効化しないことを意味します — **ただし URL がファイル
+単位で不変(コンテンツハッシュ)である場合に限ります**。バージョン
+固定の CDN はリリースごとにすべてのファイルの URL を変えますし、
+コンテンツハッシュをするバンドラー(や Rails のアセットパイプライン)
+のほうが実際には最もきれいな粒度の細かいキャッシュを与えます。つまり
+「バンドラーなし」自体が粒度の細かいキャッシュをもたらすのではなく、
+**URL の不変性戦略**が決めるのです。初回読み込みは通常バンドルのほう
+が速く、再訪のキャッシュはファイル単位 + 不変 URL に軍配が上がり
+ます。

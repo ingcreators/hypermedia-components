@@ -22,6 +22,13 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 12 — the translation is complete**
+  (#325, docs-facing). The final twelve pages: the Layout component
+  category (aspect, scroll-area, shell, splitter, carousel), the
+  kitchen-sink and blocks galleries, and the five reference pages
+  (index, custom-elements, performance, size, versioning). Every docs
+  page now has a Japanese counterpart — 119 ja pages.
+
 - **Docs: Japanese translations, phase 11 — the Data display category
   and stepper are complete** (#324, docs-facing). Thirteen pages: badge,
   card, stepper, chip, separator, collapsible, sparkline, item,

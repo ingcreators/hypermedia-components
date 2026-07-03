@@ -1,0 +1,161 @@
+---
+title: スクロールエリア
+description: 標準の CSS Scrollbars モジュールによる、細くテーマに沿ったスクロールバーつきのスクロール領域。純 CSS、JavaScript なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-scroll-area` は、細いテーマカラーのスクロールバーを持つスクロール
+領域です — shadcn の `ScrollArea` 相当。**純 CSS** です: 非標準の
+`::-webkit-scrollbar` 疑似要素ではなく、標準の CSS Scrollbars
+モジュール(`scrollbar-width` + `scrollbar-color`、Baseline 2025)を
+使います。JavaScript もオーバーレイ要素もありません — ブラウザ自身の
+(いまやスタイル可能な)スクロールバーが仕事をします。
+
+## 基本の使い方
+
+領域のスクロール軸に最大サイズを与えます。キーボードユーザーが
+スクロールできるよう `tabindex="0"` を足してください
+([アクセシビリティ](#アクセシビリティ)を参照)。
+
+<Demo>
+  <div class="hc-scroll-area" tabindex="0" role="region" aria-label="Changelog" style="max-block-size:9rem;max-inline-size:20rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.75rem;">
+    <p style="margin-block-start:0">Scroll this region — the scrollbar is thin and themed.</p>
+    <p>Line two.</p><p>Line three.</p><p>Line four.</p><p>Line five.</p>
+    <p>Line six.</p><p>Line seven.</p><p style="margin-block-end:0">Line eight.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-scroll-area" tabindex="0" role="region" aria-label="Changelog"
+       style="max-block-size:9rem">
+    …long content…
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 向き
+
+`data-orientation` がスクロール軸を選びます: `vertical`(デフォルト)、
+`horizontal`、`both`。
+
+<Demo>
+  <div class="hc-scroll-area" data-orientation="horizontal" tabindex="0" role="region" aria-label="Tags" style="max-inline-size:20rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.75rem;white-space:nowrap;">
+    <span>A very long single line of tags that overflows horizontally and scrolls sideways instead of wrapping onto multiple lines.</span>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-scroll-area" data-orientation="horizontal" tabindex="0"
+       style="max-inline-size:20rem;white-space:nowrap">
+    …wide content…
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+`overscroll-behavior: contain` が設定されているため、領域の端まで
+スクロールしても背後のページに連鎖しません。
+
+## エッジシャドウ
+
+`data-shadows` を足すと、その方向に**まだスクロールできるコンテンツが
+あるときだけ**現れる控えめなシャドウが各スクロール端に付きます —
+端から離れるとフェードインし、端に達するとフェードアウトします。
+
+<Demo>
+  <div class="hc-scroll-area" data-shadows tabindex="0" role="region" aria-label="Release notes" style="max-block-size:9rem;max-inline-size:20rem;border:1px solid var(--hc-color-border);border-radius:.5rem;padding:.75rem;">
+    <p style="margin-block-start:0">Scroll — the top / bottom shadows show only when there's more above or below.</p>
+    <p>Line two.</p><p>Line three.</p><p>Line four.</p><p>Line five.</p>
+    <p>Line six.</p><p>Line seven.</p><p style="margin-block-end:0">Line eight.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-scroll-area" data-shadows tabindex="0" style="max-block-size:9rem">
+    …long content…
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+これは**純 CSS** です — 不透明な「カバー」レイヤーがコンテンツと一緒に
+スクロールし(`background-attachment: local`)、端にぴったり付いた
+ときに固定のシャドウレイヤーを隠す
+[scrolling-shadows](https://lea.verou.me/2012/04/background-attachments-and-the-scrolling-shadows/)
+グラデーションです。JavaScript はなく、意図的に**スクロール駆動
+アニメーションも使いません**(`animation-timeline: scroll()` は 2026
+年時点で [Baseline](https://caniuse.com/mdn-css_properties_animation-timeline_scroll)
+ではありません)。そのため `background-attachment: local` が動く環境
+すべてで動作します。`data-orientation`(vertical / horizontal)を尊重
+します。カバーレイヤーは不透明な背景を塗るため、領域が載っている面に
+合わせて `--hc-scroll-area-bg` を設定してください(デフォルト: surface
+の色)。
+
+## アクセシビリティ
+
+- ユーザーがスクロールできる領域は**キーボードでフォーカス可能**で
+  なければなりません。さもないとキーボードのみ / スイッチコントロール
+  のユーザーがコンテンツに到達できません。`.hc-scroll-area` に
+  `tabindex="0"` を足してください(これが `↑`/`↓` /
+  `PageUp`/`PageDown` でのスクロールを可能にします)。コンポーネントは
+  純 CSS なので、これを代わりに追加することはできません — マークアップ
+  契約の一部です。
+- 領域が意味のあるコンテンツのまとまりであるときは、`role="region"` と
+  `aria-label` も与えて、スクリーンリーダーのユーザーがナビゲート可能な
+  ランドマークを得られるようにします。
+- スクロールバーの色はトラックに対して十分なコントラストを保つべき
+  です。デフォルトは境界線 / ミュートテキストのトークンを使います。
+
+## テーマ用トークン
+
+| トークンパス | 用途 |
+| --- | --- |
+| `scroll-area.thumb` | スクロールバーのつまみの色(静止時)。 |
+| `scroll-area.thumb-hover` | 領域のホバー中のつまみの色。 |
+| `scroll-area.track` | スクロールバーのトラックの色(デフォルト透明)。 |
+| `scroll-area.shadow` | エッジシャドウの色(`data-shadows`。テーマ適応)。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-scroll-area-thumb | -thumb-hover | -track
+--hc-scroll-area-shadow          /* edge-shadow color (data-shadows) */
+--hc-scroll-area-bg              /* cover color; default --hc-color-surface */
+--hc-scroll-area-shadow-cover    /* cover band size; default 1.5rem */
+--hc-scroll-area-shadow-size     /* shadow band size; default 0.6rem */
+```
+
+</details>
+
+## 補足と対象外
+
+- スタイリングには**標準の** `scrollbar-width` / `scrollbar-color` を
+  使います。これらはモダンな環境すべてで細いテーマ付きスクロールバー
+  を与えますが、つまみの角丸のカスタムはできません。Chromium / WebKit
+  で丸いつまみが欲しければ自分で `::-webkit-scrollbar` ルールを重ねる
+  こともできますが、Firefox はそれらを無視し、両方が適用される場面では
+  標準の `scrollbar-color` が上書きすることに注意してください。
+- エッジシャドウはサポートされています —
+  [エッジシャドウ](#エッジシャドウ)を参照。完全にカスタムなオーバー
+  レイスクロールバー(JS 描画のつまみ)とスクロールボタンは対象外の
+  ままです(ネイティブの、いまやスタイル可能なスクロールバーを使い
+  ます)。
+
+## 関連
+
+- [カード](/hypermedia-components/ja/components/card/) — スクロール
+  エリアを包むよくあるコンテナ。
+- [コマンド](/hypermedia-components/ja/components/command/) ·
+  [メニュー](/hypermedia-components/ja/components/menu/) — それらの
+  リストは同じ細いスクロールバーの感触でスクロールします。

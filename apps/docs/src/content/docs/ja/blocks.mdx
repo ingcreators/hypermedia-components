@@ -1,0 +1,543 @@
+---
+title: ブロック
+description: Hypermedia Components を組み合わせて作る現実的な UI セクション — 設定パネル、データテーブル、サインインカード、そして完全なアプリシェル。
+---
+
+import Demo from '../../../components/Demo.astro';
+
+[コンポーネント](/hypermedia-components/ja/components/)のページは各部品を
+単体で示します。**ブロック**はそれらが*一緒に*働くところを示します。
+以下のそれぞれは、ドキュメント化されたクラスを使った素の HTML です —
+**Code** タブに切り替えればセクション全体をコピーできます。
+インタラクティブな部分(メニュー、トースト、…)は他のあらゆる場所と
+同じ方法でインストールします
+([インストール → ビヘイビア](/hypermedia-components/ja/start/installation/#ビヘイビア)を
+参照)。
+
+## アカウント設定
+
+フォームのカード —
+[`hc-field`](/hypermedia-components/ja/components/field/) の行(インプット、
+セレクト、スイッチ)と、フッターのアクションバー。
+
+<Demo>
+  <form class="hc-card" style="max-inline-size:32rem;inline-size:100%;">
+    <div class="hc-card__header"><strong>Account settings</strong></div>
+    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="hc-field">
+        <label class="hc-field__label" for="b-name">Name</label>
+        <input class="hc-input" id="b-name" value="Ada Lovelace" />
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="b-email">Email</label>
+        <input class="hc-input" id="b-email" type="email" value="ada@example.com" />
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="b-plan">Plan</label>
+        <select class="hc-select" id="b-plan">
+          <option>Free</option>
+          <option selected>Pro</option>
+          <option>Team</option>
+        </select>
+      </div>
+      <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked /> Email notifications</label>
+      <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" /> Product updates</label>
+    </div>
+    <div class="hc-card__footer" style="display:flex;gap:.5rem;justify-content:flex-end;">
+      <button class="hc-button" data-variant="ghost" type="button">Cancel</button>
+      <button class="hc-button" data-variant="primary" type="submit">Save changes</button>
+    </div>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form class="hc-card" style="max-inline-size:32rem;">
+    <div class="hc-card__header"><strong>Account settings</strong></div>
+    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="hc-field">
+        <label class="hc-field__label" for="name">Name</label>
+        <input class="hc-input" id="name" value="Ada Lovelace">
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="email">Email</label>
+        <input class="hc-input" id="email" type="email" value="ada@example.com">
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="plan">Plan</label>
+        <select class="hc-select" id="plan">
+          <option>Free</option>
+          <option selected>Pro</option>
+          <option>Team</option>
+        </select>
+      </div>
+      <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked> Email notifications</label>
+      <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch"> Product updates</label>
+    </div>
+    <div class="hc-card__footer" style="display:flex;gap:.5rem;justify-content:flex-end;">
+      <button class="hc-button" data-variant="ghost" type="button">Cancel</button>
+      <button class="hc-button" data-variant="primary" type="submit">Save changes</button>
+    </div>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+## データテーブル
+
+リストビュー — 検索
+([`hc-input-group`](/hypermedia-components/ja/components/input-group/))と
+アクションのヘッダーバー、ステータス
+[バッジ](/hypermedia-components/ja/components/badge/)つきの
+[`hc-table`](/hypermedia-components/ja/components/table/)、そして
+[ページャー](/hypermedia-components/ja/components/pagination/)。
+
+<Demo>
+  <div class="hc-card" style="max-inline-size:40rem;inline-size:100%;">
+    <div class="hc-card__header" style="display:flex;gap:.75rem;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+      <strong>Users</strong>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+        <div class="hc-input-group" style="inline-size:13rem;">
+          <span class="hc-input-addon" aria-hidden="true">🔍</span>
+          <input class="hc-input" type="search" aria-label="Search users" placeholder="Search…" />
+        </div>
+        <button class="hc-button" type="button">Filter</button>
+        <button class="hc-button" data-variant="primary" type="button">New user</button>
+      </div>
+    </div>
+    <div class="hc-card__body" style="padding:0;">
+      <table class="hc-table" style="inline-size:100%;">
+        <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Ada Lovelace</td><td>Engineer</td><td><span class="hc-badge" data-variant="success">Active</span></td></tr>
+          <tr><td>Alan Turing</td><td>Researcher</td><td><span class="hc-badge" data-variant="warning">Away</span></td></tr>
+          <tr><td>Grace Hopper</td><td>Admiral</td><td><span class="hc-badge" data-variant="success">Active</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="hc-card__footer" style="display:flex;justify-content:flex-end;">
+      <nav class="hc-pagination" aria-label="Pagination">
+        <a class="hc-pagination__item" href="#">‹ Prev</a>
+        <a class="hc-pagination__item" aria-current="page" href="#">1</a>
+        <a class="hc-pagination__item" href="#">2</a>
+        <a class="hc-pagination__item" href="#">3</a>
+        <a class="hc-pagination__item" href="#">Next ›</a>
+      </nav>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-card" style="max-inline-size:40rem;">
+    <div class="hc-card__header"
+         style="display:flex;gap:.75rem;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+      <strong>Users</strong>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+        <div class="hc-input-group" style="inline-size:13rem;">
+          <span class="hc-input-addon" aria-hidden="true">🔍</span>
+          <input class="hc-input" type="search" aria-label="Search users" placeholder="Search…">
+        </div>
+        <button class="hc-button" type="button">Filter</button>
+        <button class="hc-button" data-variant="primary" type="button">New user</button>
+      </div>
+    </div>
+    <div class="hc-card__body" style="padding:0;">
+      <table class="hc-table" style="inline-size:100%;">
+        <thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Ada Lovelace</td><td>Engineer</td><td><span class="hc-badge" data-variant="success">Active</span></td></tr>
+          <tr><td>Alan Turing</td><td>Researcher</td><td><span class="hc-badge" data-variant="warning">Away</span></td></tr>
+          <tr><td>Grace Hopper</td><td>Admiral</td><td><span class="hc-badge" data-variant="success">Active</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="hc-card__footer" style="display:flex;justify-content:flex-end;">
+      <nav class="hc-pagination" aria-label="Pagination">
+        <a class="hc-pagination__item" href="#">‹ Prev</a>
+        <a class="hc-pagination__item" aria-current="page" href="#">1</a>
+        <a class="hc-pagination__item" href="#">2</a>
+        <a class="hc-pagination__item" href="#">3</a>
+        <a class="hc-pagination__item" href="#">Next ›</a>
+      </nav>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## サインイン
+
+中央寄せの認証カード — 2 つの
+[フィールド](/hypermedia-components/ja/components/field/)、
+[チェックボックス](/hypermedia-components/ja/components/checkbox/)、
+全幅のプライマリ[ボタン](/hypermedia-components/ja/components/button/)。
+
+<Demo previewStyle="display:grid;place-items:center;">
+  <form class="hc-card" style="max-inline-size:24rem;inline-size:100%;">
+    <div class="hc-card__header"><strong>Sign in</strong></div>
+    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="hc-field">
+        <label class="hc-field__label" for="b-login-email">Email</label>
+        <input class="hc-input" id="b-login-email" type="email" placeholder="you@example.com" />
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="b-login-pw">Password</label>
+        <input class="hc-input" id="b-login-pw" type="password" placeholder="••••••••" />
+      </div>
+      <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" /> Remember me</label>
+    </div>
+    <div class="hc-card__footer" style="display:flex;flex-direction:column;gap:.5rem;">
+      <button class="hc-button" data-variant="primary" type="submit" style="inline-size:100%;">Sign in</button>
+      <p style="margin:0;text-align:center;font-size:.875rem;color:var(--hc-color-text-muted);">No account? <a href="#">Create one</a></p>
+    </div>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form class="hc-card" style="max-inline-size:24rem;">
+    <div class="hc-card__header"><strong>Sign in</strong></div>
+    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="hc-field">
+        <label class="hc-field__label" for="email">Email</label>
+        <input class="hc-input" id="email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="password">Password</label>
+        <input class="hc-input" id="password" type="password" placeholder="••••••••">
+      </div>
+      <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox"> Remember me</label>
+    </div>
+    <div class="hc-card__footer" style="display:flex;flex-direction:column;gap:.5rem;">
+      <button class="hc-button" data-variant="primary" type="submit" style="inline-size:100%;">Sign in</button>
+      <p style="margin:0;text-align:center;">No account? <a href="/signup">Create one</a></p>
+    </div>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+## アクティビティフィード
+
+通知リスト — [アバター](/hypermedia-components/ja/components/avatar/)と
+後置の[バッジ](/hypermedia-components/ja/components/badge/)を持つ
+[`hc-item`](/hypermedia-components/ja/components/item/) の行。
+
+<Demo>
+  <div class="hc-card" style="max-inline-size:30rem;inline-size:100%;">
+    <div class="hc-card__header"><strong>Recent activity</strong></div>
+    <div class="hc-card__body" style="padding:.5rem;">
+      <div class="hc-item">
+        <span class="hc-avatar" aria-label="Ada Lovelace">A</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Ada commented on “Q3 report”</span>
+          <span class="hc-item__description">2 minutes ago</span>
+        </div>
+        <span class="hc-badge" data-variant="info">New</span>
+      </div>
+      <div class="hc-item">
+        <span class="hc-avatar" aria-label="Grace Hopper">G</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Grace merged “feat/auth”</span>
+          <span class="hc-item__description">1 hour ago</span>
+        </div>
+      </div>
+      <div class="hc-item">
+        <span class="hc-item__media" aria-hidden="true">📦</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Deploy finished</span>
+          <span class="hc-item__description">Today, 09:14</span>
+        </div>
+        <span class="hc-badge" data-variant="success">OK</span>
+      </div>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-card" style="max-inline-size:30rem;">
+    <div class="hc-card__header"><strong>Recent activity</strong></div>
+    <div class="hc-card__body" style="padding:.5rem;">
+      <div class="hc-item">
+        <span class="hc-avatar" aria-label="Ada Lovelace">A</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Ada commented on “Q3 report”</span>
+          <span class="hc-item__description">2 minutes ago</span>
+        </div>
+        <span class="hc-badge" data-variant="info">New</span>
+      </div>
+      <div class="hc-item">
+        <span class="hc-avatar" aria-label="Grace Hopper">G</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Grace merged “feat/auth”</span>
+          <span class="hc-item__description">1 hour ago</span>
+        </div>
+      </div>
+      <div class="hc-item">
+        <span class="hc-item__media" aria-hidden="true">📦</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Deploy finished</span>
+          <span class="hc-item__description">Today, 09:14</span>
+        </div>
+        <span class="hc-badge" data-variant="success">OK</span>
+      </div>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## アプリシェル
+
+完全な管理ダッシュボード —
+[`hc-shell`](/hypermedia-components/ja/components/shell/)(ヘッダー、
+サイドバー、スクロールするメイン、フッター)。サイドバーのナビは
+[`hc-item`](/hypermedia-components/ja/components/item/) の行(アイコン +
+ラベル、アクティブなものは選択状態)で構成。ヘッダーは検索とアカウント
+のアバターを載せ、メインにはツールバー、デルタ
+[バッジ](/hypermedia-components/ja/components/badge/)つきの統計
+[カード](/hypermedia-components/ja/components/card/)の
+[グリッド](/hypermedia-components/ja/fundamentals/layout/)、最近の注文の
+[テーブル](/hypermedia-components/ja/components/table/)があります。
+**« をクリックするとサイドバーがアイコンレールに折りたたまれます** —
+ライブで、`installShell()` が動かしています(ナビの `data-collapsible` +
+`[data-hc-shell-collapse]` ボタン。各ラベルは `.hc-shell__label` で
+包まれ、アクセシビリティツリーに残ります)。**ウィンドウを 60rem 未満に
+狭める**と、折りたたみコントロールは `[data-hc-shell-toggle]` の
+ハンバーガー(`☰`)に道を譲り、ナビはオフキャンバスオーバーレイとして
+スライドインします — 同じ `installShell()` がフォーカス、Escape、
+スクリムのクリックアウトを処理します。`--hc-shell-sidebar-width` /
+`--hc-shell-pad` のノブとデモの固定高さは、シェルを下のボックスに
+収めるためのものです。ビューポートを満たすには取り除いてください。
+
+<Demo>
+  <div class="hc-shell hc-demo-shell" style="--hc-shell-sidebar-width:13rem;--hc-shell-pad:var(--hc-space-3);">
+    <header class="hc-shell__header" style="display:flex;align-items:center;gap:.75rem;">
+      <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button" data-hc-shell-toggle aria-label="Open navigation" style="font-size:1.1rem;line-height:1;">☰</button>
+      <button class="hc-button" data-variant="ghost" type="button" data-hc-shell-collapse aria-label="Toggle sidebar" style="font-size:1.1rem;line-height:1;"><span class="hc-shell__collapse-icon">«</span></button>
+      <strong style="display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;"><span aria-hidden="true">◆</span> Acme</strong>
+      <div class="hc-input-group" style="flex:1;max-inline-size:22rem;">
+        <span class="hc-input-addon" aria-hidden="true">🔍</span>
+        <input class="hc-input" type="search" aria-label="Search" placeholder="Search orders, customers…" />
+      </div>
+      <button class="hc-button" data-variant="ghost" type="button" aria-label="Notifications" style="margin-inline-start:auto;">🔔</button>
+      <span class="hc-avatar" aria-label="Your account" data-size="sm">Y</span>
+    </header>
+    <nav class="hc-shell__sidebar" aria-label="Primary" data-collapsible style="display:flex;flex-direction:column;gap:.1rem;">
+      <button class="hc-button" data-variant="primary" type="button" style="margin-block-end:.5rem;">+ <span class="hc-shell__label">New order</span></button>
+      <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
+      <a class="hc-item" href="#" data-selected aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Dashboard</span></div></a>
+      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">📦</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Orders</span></div></a>
+      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">👤</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Customers</span></div></a>
+      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">🏷️</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Products</span></div></a>
+      <p class="hc-shell__label" style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
+      <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">⚙️</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Settings</span></div></a>
+    </nav>
+    <main class="hc-shell__main">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-block-end:1rem;">
+        <strong style="font-size:1.05rem;">Dashboard</strong>
+        <div style="display:flex;gap:.5rem;">
+          <button class="hc-button" data-size="sm" type="button">Last 30 days ▾</button>
+          <button class="hc-button" data-size="sm" data-variant="primary" type="button">Export</button>
+        </div>
+      </div>
+      <div class="hc-grid" style="--hc-grid-min:9rem;">
+        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+          <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Revenue</span>
+          <strong style="font-size:1.5rem;">$48.2k</strong>
+          <span><span class="hc-badge" data-variant="success">▲ 12%</span></span>
+        </div>
+        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+          <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Orders</span>
+          <strong style="font-size:1.5rem;">1,204</strong>
+          <span><span class="hc-badge" data-variant="success">▲ 4%</span></span>
+        </div>
+        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+          <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Refunds</span>
+          <strong style="font-size:1.5rem;">18</strong>
+          <span><span class="hc-badge" data-variant="warning">▼ 2%</span></span>
+        </div>
+      </div>
+      <div class="hc-card" style="margin-block-start:1rem;">
+        <div class="hc-card__header"><strong>Recent orders</strong></div>
+        <div class="hc-card__body" style="padding:0;">
+          <table class="hc-table" style="inline-size:100%;">
+            <thead><tr><th>Order</th><th>Customer</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>#1042</td><td>Ada Lovelace</td><td><span class="hc-badge" data-variant="success">Paid</span></td></tr>
+              <tr><td>#1041</td><td>Alan Turing</td><td><span class="hc-badge" data-variant="warning">Pending</span></td></tr>
+              <tr><td>#1040</td><td>Grace Hopper</td><td><span class="hc-badge" data-variant="success">Paid</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+    <footer class="hc-shell__footer"><small>© Acme · v2.4</small></footer>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- Drop the inline block-size / --hc-shell-sidebar-width to fill the viewport. -->
+  <div class="hc-shell">
+    <header class="hc-shell__header" style="display:flex;align-items:center;gap:.75rem;">
+      <!-- installShell() wires both controls. The .hc-shell__toggle hamburger
+           shows only at mobile widths (<= 60rem) and opens the off-canvas
+           sidebar; the «-button collapses the sidebar to an icon rail on
+           desktop. -->
+      <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button"
+              data-hc-shell-toggle aria-label="Open navigation">☰</button>
+      <button class="hc-button" data-variant="ghost" type="button"
+              data-hc-shell-collapse aria-label="Toggle sidebar">
+        <!-- .hc-shell__collapse-icon mirrors the chevron when collapsed: « → » -->
+        <span class="hc-shell__collapse-icon">«</span>
+      </button>
+      <strong style="display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;"><span aria-hidden="true">◆</span> Acme</strong>
+      <div class="hc-input-group" style="flex:1;max-inline-size:22rem;">
+        <span class="hc-input-addon" aria-hidden="true">🔍</span>
+        <input class="hc-input" type="search" aria-label="Search" placeholder="Search orders, customers…">
+      </div>
+      <button class="hc-button" data-variant="ghost" type="button" aria-label="Notifications" style="margin-inline-start:auto;">🔔</button>
+      <span class="hc-avatar" aria-label="Your account" data-size="sm">Y</span>
+    </header>
+
+    <!-- data-collapsible + the [data-hc-shell-collapse] button above let
+         installShell() toggle this to an icon rail; .hc-shell__label hides
+         each label in the rail but keeps it in the accessibility tree. -->
+    <nav class="hc-shell__sidebar" aria-label="Primary" data-collapsible
+         style="display:flex;flex-direction:column;gap:.1rem;">
+      <button class="hc-button" data-variant="primary" type="button">+ <span class="hc-shell__label">New order</span></button>
+
+      <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
+      <a class="hc-item" href="/dashboard" data-selected aria-current="page">
+        <span class="hc-item__media" aria-hidden="true">▦</span>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Dashboard</span></div>
+      </a>
+      <a class="hc-item" href="/orders">
+        <span class="hc-item__media" aria-hidden="true">📦</span>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Orders</span></div>
+      </a>
+      <a class="hc-item" href="/customers">
+        <span class="hc-item__media" aria-hidden="true">👤</span>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Customers</span></div>
+      </a>
+      <a class="hc-item" href="/products">
+        <span class="hc-item__media" aria-hidden="true">🏷️</span>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Products</span></div>
+      </a>
+
+      <p class="hc-shell__label" style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
+      <a class="hc-item" href="/settings">
+        <span class="hc-item__media" aria-hidden="true">⚙️</span>
+        <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Settings</span></div>
+      </a>
+    </nav>
+
+    <main class="hc-shell__main">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-block-end:1rem;">
+        <strong style="font-size:1.05rem;">Dashboard</strong>
+        <div style="display:flex;gap:.5rem;">
+          <button class="hc-button" data-size="sm" type="button">Last 30 days ▾</button>
+          <button class="hc-button" data-size="sm" data-variant="primary" type="button">Export</button>
+        </div>
+      </div>
+
+      <div class="hc-grid" style="--hc-grid-min:9rem;">
+        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+          <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Revenue</span>
+          <strong style="font-size:1.5rem;">$48.2k</strong>
+          <span><span class="hc-badge" data-variant="success">▲ 12%</span></span>
+        </div>
+        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+          <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Orders</span>
+          <strong style="font-size:1.5rem;">1,204</strong>
+          <span><span class="hc-badge" data-variant="success">▲ 4%</span></span>
+        </div>
+        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+          <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Refunds</span>
+          <strong style="font-size:1.5rem;">18</strong>
+          <span><span class="hc-badge" data-variant="warning">▼ 2%</span></span>
+        </div>
+      </div>
+
+      <div class="hc-card" style="margin-block-start:1rem;">
+        <div class="hc-card__header"><strong>Recent orders</strong></div>
+        <div class="hc-card__body" style="padding:0;">
+          <table class="hc-table" style="inline-size:100%;">
+            <thead><tr><th>Order</th><th>Customer</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>#1042</td><td>Ada Lovelace</td><td><span class="hc-badge" data-variant="success">Paid</span></td></tr>
+              <tr><td>#1041</td><td>Alan Turing</td><td><span class="hc-badge" data-variant="warning">Pending</span></td></tr>
+              <tr><td>#1040</td><td>Grace Hopper</td><td><span class="hc-badge" data-variant="success">Paid</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <footer class="hc-shell__footer"><small>© Acme · v2.4</small></footer>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## ページヘッダー
+
+詳細ページのヘッダー — 戻るリンク、ステータス
+[バッジ](/hypermedia-components/ja/components/badge/)つきのタイトル、
+説明、後置のアクションクラスター。純粋な
+[レイアウトユーティリティ](/hypermedia-components/ja/fundamentals/layout/)
+(`hc-stack` + `hc-cluster` + `hc-spacer`)と論理マージンだけで、専用の
+コンポーネントは不要です。
+
+<Demo>
+  <header class="hc-stack" style="--hc-stack-gap:.5rem;inline-size:100%;max-inline-size:44rem;">
+    <a href="#" style="font-size:.875rem;color:var(--hc-color-text-muted);">← Back to projects</a>
+    <div class="hc-cluster" style="--hc-cluster-gap:.75rem;">
+      <h1 style="margin:0;font-size:1.5rem;line-height:1.2;">Acme widgets</h1>
+      <span class="hc-badge" data-variant="success">Active</span>
+      <span class="hc-spacer"></span>
+      <button class="hc-button" type="button">Share</button>
+      <button class="hc-button" data-variant="primary" type="button">Edit project</button>
+    </div>
+    <p style="margin:0;color:var(--hc-color-text-muted);">Last updated 2 hours ago by Grace Hopper.</p>
+  </header>
+
+  <Fragment slot="code">
+
+  ```html
+  <header class="hc-stack" style="--hc-stack-gap: .5rem;">
+    <a href="/projects">← Back to projects</a>
+    <div class="hc-cluster" style="--hc-cluster-gap: .75rem;">
+      <h1 style="margin: 0;">Acme widgets</h1>
+      <span class="hc-badge" data-variant="success">Active</span>
+      <span class="hc-spacer"></span>
+      <button class="hc-button" type="button">Share</button>
+      <button class="hc-button" data-variant="primary" type="button">Edit project</button>
+    </div>
+    <p style="margin: 0; color: var(--hc-color-text-muted);">
+      Last updated 2 hours ago by Grace Hopper.
+    </p>
+  </header>
+  ```
+
+  </Fragment>
+</Demo>
+
+`hc-spacer` がアクションをインライン末尾の端に押しやるため、この行は
+`dir="rtl"` でも変更なしで機能します。狭いビューポートでは
+`hc-cluster` が折り返し、アクションはあふれる代わりにタイトルの下に
+落ちます。
+
+## 関連
+
+- [コンポーネント](/hypermedia-components/ja/components/) — すべての構成部品のドキュメント。
+- [キッチンシンク](/hypermedia-components/ja/kitchen-sink/) — すべてのコンポーネントを、ライブで、単体で。
+- [レシピ](/hypermedia-components/ja/recipes/) — htmx のインタラクションパターン(確認、ライブ検索、…)。

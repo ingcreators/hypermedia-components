@@ -1,0 +1,60 @@
+---
+title: バージョニングと安定性
+description: 何が公開 API か — クラス名、data 属性、カスタムプロパティ、エクスポート、イベント — そして破壊的変更と非推奨化の扱い方。
+---
+
+Hypermedia Components は
+[セマンティックバージョニング](https://semver.org/)に従います。正式な
+ポリシーはリポジトリの
+[`VERSIONING.md`](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)
+にあります。このページはその要約です。
+
+このキットの利用者はサーバテンプレートやコードジェネレータから我々の
+マークアップを出力します。したがって**マークアップそのものがワイヤ
+契約**です。クラスや属性のリネームは、利用者の見た目だけでなくビルド
+出力を壊します — そしてそのようにバージョニングされます。
+
+## 何が公開 API か
+
+| 面 | 例 |
+| --- | --- |
+| CSS クラス名 | `hc-button`、`hc-card__header`、`hc-field__error` |
+| data 属性(設定 + 反映される状態) | `data-variant`、`data-hc-confirm`、`data-invalid` |
+| CSS カスタムプロパティとトークンパス | `--hc-button-primary-bg`、`tokens/semantic.tokens.json` |
+| JavaScript の名前つきエクスポートとシグネチャ | `installConfirm()`、`setMessages()` |
+| イベントとその `detail` の形 | `hc:confirmed`、`hc:toast` |
+| i18n メッセージキー | `confirm.cancel`、`combobox.empty` |
+| パッケージのエクスポートパス | `./css`、`./behaviors`、`./css/button` |
+| レシピのサーバ契約 | `recipes/<name>/contract.md` のフラグメント |
+
+公開 API では**ない**もの: ビヘイビアがフックとしてドキュメント化せず
+内部的に作る DOM、ドキュメント化されたクラスの背後の CSS 宣言、
+experimental の印が付いたすべて、そして docs サイト自体。
+
+迷ったら: docs ページや契約ファイルがそれを書けと言っているなら、
+それは API です。
+
+## 0.x の間のセマンティックバージョニング
+
+- **パッチ** — 修正と厳密に追加のみの変更だけ。
+- **マイナー** — 破壊的変更を含みえます。そのすべてが
+  [CHANGELOG](https://github.com/ingcreators/hypermedia-components/blob/main/CHANGELOG.md)
+  で明示され、可能な場合はまず非推奨エイリアスの背後で出荷されます。
+- **プレリリース**(`-alpha.N`、`-beta.N`)— 安定性の約束なし。
+  対応する npm dist-tag で公開され、決して `latest` にはなりません。
+
+`1.0.0` からは標準のセマンティックバージョニングです: 破壊的変更は
+メジャーのみ。
+
+## 非推奨化
+
+リネームでは、削除の前に**少なくとも 1 マイナーバージョン**の間、
+古い名前をエイリアス(複製されたセレクタ、再エクスポートされた関数、
+転送される属性 / イベント)として動作させたまま、CHANGELOG の
+*Deprecated* の下に代替とともに列挙します。エイリアスが現実的でない
+場合は、CHANGELOG のエントリに明示的な移行ノートが付きます。
+
+## 関連
+
+- [バンドルサイズとインポート](/hypermedia-components/ja/reference/size/)
+- [命名](/hypermedia-components/ja/fundamentals/naming/)
