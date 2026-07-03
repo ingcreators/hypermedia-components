@@ -1,0 +1,85 @@
+---
+title: バッジ
+description: バリアントカラーつきの小さなインラインステータスインジケーター。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-badge` は、ラベルの隣にステータスを表出させるためのコンパクトな
+インラインのピルです。バリアントは `data-variant` で切り替えます。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-badge">Draft</span>
+  <span class="hc-badge" data-variant="info">In review</span>
+  <span class="hc-badge" data-variant="success">Active</span>
+  <span class="hc-badge" data-variant="warning">Pending</span>
+  <span class="hc-badge" data-variant="error">Failed</span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-badge">Draft</span>
+  <span class="hc-badge" data-variant="info">In review</span>
+  <span class="hc-badge" data-variant="success">Active</span>
+  <span class="hc-badge" data-variant="warning">Pending</span>
+  <span class="hc-badge" data-variant="error">Failed</span>
+  ```
+
+  </Fragment>
+</Demo>
+
+## バリアント
+
+| バリアント | 用途                                     |
+| --------- | ---------------------------------------- |
+| _省略_    | 中立 / 不明なステータス。                |
+| `info`    | 情報の状態(例:「In review」)。        |
+| `success` | 健全 / 完了の状態。                      |
+| `warning` | まもなく注意が必要。                     |
+| `error`  | 失敗 / エラーの状態。                    |
+
+## アクセシビリティ
+
+- バッジは視覚的な合図です — 中のテキストがアクセシブルな名前です。
+  アイコンのみのバッジは避けてください。必要なら視覚的に隠した
+  テキストを含めます。
+- 色を唯一の区別にしないでください。意味を運ぶのはバリアントの
+  **ラベル**(`Active`、`Failed`、…)です。色はそれを補強します。
+- 読み上げるべき状態変化(例: 注文が「Pending」から「Failed」へ)は、
+  バッジ自体に頼らず、バッジを `aria-live="polite"` の領域に入れて
+  ください。
+
+## テーマ用トークン
+
+| トークンパス              | 用途                     |
+| ------------------------- | ------------------------ |
+| `badge.padding-x` / `-y`  | インライン / ブロックのパディング。 |
+| `badge.radius`            | 角丸。                   |
+| `badge.font-size`         | フォントサイズ。         |
+| `badge.font-weight`       | フォントウェイト。       |
+| `badge.{variant}.{bg,fg,border}` | バリアントごとの色。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-badge-padding-x | -padding-y | -radius | -font-size | -font-weight
+--hc-badge-default-bg | -fg | -border
+--hc-badge-info-bg    | -fg | -border
+--hc-badge-success-bg | -fg | -border
+--hc-badge-warning-bg | -fg | -border
+--hc-badge-error-bg  | -fg | -border
+```
+
+</details>
+
+## 関連
+
+- [アラート](/hypermedia-components/ja/components/alert/) — 目立つ
+  ブロックレベルの通知に。
+- [テーブル](/hypermedia-components/ja/components/table/) — ステータス列の
+  バッジの定番ホスト。

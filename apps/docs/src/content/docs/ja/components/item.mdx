@@ -1,0 +1,197 @@
+---
+title: アイテム
+description: 汎用のリスト / オプション行プリミティブ — メディア、コンテンツ、アクション。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-item` は汎用の**行**プリミティブです: メディアスロット(アイコン /
+アバター)、コンテンツ列(タイトル + 説明)、後置のアクション。素の
+リスト、オプション行、そしてコマンドやメニューの項目が一貫した見た目の
+ために採用できる共有の構成部品として使います。純 CSS です —
+`<div>`、`<li>`、`<a>`、`<button>` のどれとしても描画できます。
+
+## 基本の HTML
+
+<Demo previewStyle="max-inline-size: 24rem;">
+  <div class="hc-item">
+    <span class="hc-item__media" aria-hidden="true">📄</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Quarterly report</span>
+      <span class="hc-item__description">Updated 2 days ago</span>
+    </div>
+    <div class="hc-item__actions">
+      <button class="hc-button" data-size="sm" type="button">Open</button>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-item">
+    <span class="hc-item__media" aria-hidden="true">📄</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Quarterly report</span>
+      <span class="hc-item__description">Updated 2 days ago</span>
+    </div>
+    <div class="hc-item__actions">
+      <button class="hc-button" data-size="sm" type="button">Open</button>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+メディアスロットとアクションは任意です。タイトルだけのアイテムも、
+タイトル + 説明のアイテムも構いません。
+
+## インタラクティブなアイテム
+
+アイテムを `<a>` や `<button>` として描画する(または
+`data-selectable` を足す)と、ホバーのハイライトとフォーカスリングが
+付きます。選択は `aria-selected`(または `data-selected`)で印を
+付けます。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <button class="hc-item" type="button">
+    <span class="hc-item__media" aria-hidden="true">📥</span>
+    <div class="hc-item__content"><span class="hc-item__title">Hoverable button row</span></div>
+  </button>
+  <button class="hc-item" type="button" data-selected>
+    <span class="hc-item__media" aria-hidden="true">⭐</span>
+    <div class="hc-item__content"><span class="hc-item__title">Selected row</span></div>
+  </button>
+  <button class="hc-item" type="button" disabled>
+    <span class="hc-item__media" aria-hidden="true">🚫</span>
+    <div class="hc-item__content"><span class="hc-item__title">Disabled row</span></div>
+  </button>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-item" type="button">
+    <span class="hc-item__media" aria-hidden="true">📥</span>
+    <div class="hc-item__content"><span class="hc-item__title">Hoverable button row</span></div>
+  </button>
+  <button class="hc-item" type="button" data-selected>
+    <span class="hc-item__media" aria-hidden="true">⭐</span>
+    <div class="hc-item__content"><span class="hc-item__title">Selected row</span></div>
+  </button>
+  <button class="hc-item" type="button" disabled>
+    <span class="hc-item__media" aria-hidden="true">🚫</span>
+    <div class="hc-item__content"><span class="hc-item__title">Disabled row</span></div>
+  </button>
+  ```
+
+  </Fragment>
+</Demo>
+
+本物の選択可能リストにはリストボックスの role を使ってください —
+`aria-selected` は、素のボタンではなく `role="listbox"` 内の
+`role="option"` に属します:
+
+```html
+<ul role="listbox" aria-label="Pick one">
+  <li class="hc-item" role="option" aria-selected="true" tabindex="-1">…</li>
+</ul>
+```
+
+**ナビゲーションリスト**では、現在のページのリンクが
+`aria-current="page"` を取り、同じ選択時の見た目になります —
+[シェル → サイドバーのナビゲーション項目](/hypermedia-components/ja/components/shell/#sidebar-navigation-items)を
+参照:
+
+```html
+<a class="hc-item" href="/studio" aria-current="page">…</a>
+```
+
+一致するルートでサーバサイドに設定するか、
+[`data-hc-nav-current`](/hypermedia-components/ja/components/shell/#marking-the-active-item-by-url--data-hc-nav-current)に
+URL から自動で印を付けさせてください。
+
+## バリアント
+
+`data-variant="error"` は破壊的な行のためにタイトルとメディアを
+色づけます。
+
+<Demo previewStyle="max-inline-size: 24rem;">
+  <button class="hc-item" type="button" data-variant="error">
+    <span class="hc-item__media" aria-hidden="true">🗑️</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Delete project</span>
+      <span class="hc-item__description">This cannot be undone</span>
+    </div>
+  </button>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-item" type="button" data-variant="error">
+    <span class="hc-item__media" aria-hidden="true">🗑️</span>
+    <div class="hc-item__content">
+      <span class="hc-item__title">Delete project</span>
+      <span class="hc-item__description">This cannot be undone</span>
+    </div>
+  </button>
+  ```
+
+  </Fragment>
+</Demo>
+
+## アクセシビリティ
+
+- `hc-item` は**自身の role を持ちません** — 文脈に合わせて要素を選んで
+  ください: アクションには `<button>`、ナビゲーションには `<a>`、素の
+  リストには(`<ul>`/`<ol>` 内の)`<li>`、複合ウィジェット内では
+  `[role]` の行。
+- 装飾のメディアグリフは `aria-hidden="true"` にすべきです。
+  アクセシブルな名前はタイトルです。
+- 選択可能なリストでは、素の `<div>` ではなく、適切なコンテナ role
+  (例: `role="listbox"` + `role="option"`)を持つ要素内の項目に
+  `aria-selected` を使ってください。
+- `error` の色味だけに頼らないでください — 文言を明示的に保ちます
+  (「プロジェクトを削除」「元に戻せません」)。
+
+## 採用(今後)
+
+このプリミティブは単体で導入されています。一貫した行の見た目のために、
+次のものは後でこの上にリファクタリングされえます — ここではなく、
+別々の変更として:
+[`hc-menu`](/hypermedia-components/ja/components/menu/) の項目、
+[`hc-command`](/hypermedia-components/ja/components/command/) の結果行、
+アプリコード内のその場しのぎのリスト行。
+
+## テーマ用トークン
+
+| トークンパス              | 用途                             |
+| ------------------------- | -------------------------------- |
+| `item.gap`                | メディア / コンテンツ / アクション間のギャップ。 |
+| `item.padding-x` / `-y`   | 行のパディング。                 |
+| `item.radius`             | 行の角丸。                       |
+| `item.fg`                 | 行のテキスト色。                 |
+| `item.hover-bg`           | ホバーの背景(インタラクティブ時)。 |
+| `item.selected-bg` / `-fg` | 選択された行の色。             |
+| `item.media-size` / `-fg` | メディアスロットのサイズ / 色。 |
+| `item.title-fg` / `-font-weight` | タイトルの文字。          |
+| `item.description-fg` / `-font-size` | 説明の文字。         |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-item-gap | -padding-x | -padding-y | -radius | -fg
+--hc-item-hover-bg | -selected-bg | -selected-fg
+--hc-item-media-size | -media-fg
+--hc-item-title-fg | -title-font-weight | -description-fg | -description-font-size
+```
+
+</details>
+
+## 関連
+
+- [メニュー](/hypermedia-components/ja/components/menu/) — ドロップダウンの項目(この行の将来の採用者)。
+- [コマンド](/hypermedia-components/ja/components/command/) — コマンドパレットの行(将来の採用者)。
+- [アバター](/hypermedia-components/ja/components/avatar/) — 定番のメディアスロット。

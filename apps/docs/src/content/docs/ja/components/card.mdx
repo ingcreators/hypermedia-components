@@ -1,0 +1,99 @@
+---
+title: カード
+description: 任意のヘッダー・ボディ・フッターのパーツを持つ汎用コンテナ。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-card` は、枠線と控えめな角丸、任意のヘッダー / ボディ / フッターの
+パーツを持つ薄いコンテナです。レイアウトのプリミティブであり、
+インタラクションや状態を所有するものではありません。
+
+## 基本の HTML
+
+<Demo previewStyle="max-width:28rem;">
+  <article class="hc-card">
+    <header class="hc-card__header">Order #123</header>
+    <div class="hc-card__body">
+      <p>Two items, shipping on Friday.</p>
+    </div>
+    <footer class="hc-card__footer">
+      <button class="hc-button" data-size="sm">View</button>
+    </footer>
+  </article>
+
+  <Fragment slot="code">
+
+  ```html
+  <article class="hc-card">
+    <header class="hc-card__header">Order #123</header>
+    <div class="hc-card__body">
+      <p>Two items, shipping on Friday.</p>
+    </div>
+    <footer class="hc-card__footer">
+      <button class="hc-button" data-size="sm">View</button>
+    </footer>
+  </article>
+  ```
+
+  </Fragment>
+</Demo>
+
+パーツは任意です。`.hc-card__body` だけのカードでも構いませんし、
+パーツがまったくないカードでも大丈夫です — 直接の子はボディと同じ
+パディングを得るため、素のコンテンツも正しく見えます。
+
+## バリエーション
+
+```html
+<article class="hc-card">
+  <div class="hc-card__body">
+    <h3>Heads up</h3>
+    <p>A card without an explicit header still works.</p>
+  </div>
+</article>
+```
+
+カードグリッドには、`hc-card` を好みのレイアウトプリミティブ
+(CSS グリッド、`hc-stack` ユーティリティ、任意のフレックスコンテナ)と
+組み合わせてください。カード自体は水平方向の間隔を強制しません。
+
+## アクセシビリティ
+
+- カードのルートには最も正確なランドマーク要素を使ってください:
+  - 自己完結したコンテンツには `<article>`;
+  - ページ内のテーマ的グルーピングには `<section>`;
+  - ランドマークのセマンティクスが当てはまらなければ `<div>`。
+- カードの見出しはページの見出し階層に合わせるべきです。カードが
+  小さいからといってレベルを飛ばさないでください。
+
+## テーマ用トークン
+
+| トークンパス         | 用途                          |
+| -------------------- | ----------------------------- |
+| `card.bg`            | 背景色。                      |
+| `card.fg`            | 前景色。                      |
+| `card.border`        | 外側の枠線色。                |
+| `card.header-border` | パーツ間の区切り線。          |
+| `card.radius`        | 角丸。                        |
+| `card.padding`       | 各カードパーツのパディング。  |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-card-bg | -fg | -border | -header-border
+--hc-card-radius
+--hc-card-padding
+```
+
+</details>
+
+## 関連
+
+- [テーブル](/hypermedia-components/ja/components/table/) — カードの
+  内外の表形式データに。
+- [アラート](/hypermedia-components/ja/components/alert/) — 目立つ
+  メッセージに。

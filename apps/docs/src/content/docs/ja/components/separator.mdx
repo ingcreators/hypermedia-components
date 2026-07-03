@@ -1,0 +1,106 @@
+---
+title: セパレータ
+description: セクションやグループの間の細い区切り線。水平 / 垂直の向きを持つネイティブの <hr> 要素の上に構築。純 CSS、JavaScript なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-separator` は細い区切り線です。ネイティブの `<hr>` に
+`.hc-separator` を適用します — この要素はすでに暗黙の
+`role="separator"` と `aria-orientation="horizontal"` のセマンティクスを
+運んでいるため、これはブラウザのデフォルトの罫線をトークンから描く
+1 本のヘアラインに差し替えるだけです。純 CSS、JavaScript なし。
+
+## 水平
+
+デフォルトです。上下にマージンを持つ全幅のヘアライン。
+
+<Demo previewStyle="max-inline-size:24rem;">
+  <p style="margin:0;">Account settings</p>
+  <hr class="hc-separator" />
+  <p style="margin:0;">Billing</p>
+
+  <Fragment slot="code">
+
+  ```html
+  <hr class="hc-separator">
+  ```
+
+  </Fragment>
+</Demo>
+
+## 垂直
+
+インラインの区切り — 例えば水平のツールバーやリンク行の項目間 — には
+`data-orientation="vertical"` を設定します。線はフレックス行の高さまで
+伸びます。
+
+垂直セパレータのための HTML 要素はなく、素の `<hr>` は
+`aria-orientation="horizontal"` を報告するため、セマンティクスを正しく
+保つには `aria-orientation="vertical"` を足してください。
+
+<Demo previewStyle="display:flex;align-items:center;gap:.5rem;block-size:1.5rem;">
+  <a href="#">Profile</a>
+  <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical" />
+  <a href="#">Settings</a>
+  <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical" />
+  <a href="#">Log out</a>
+
+  <Fragment slot="code">
+
+  ```html
+  <nav style="display:flex;align-items:center;gap:.5rem;">
+    <a href="/profile">Profile</a>
+    <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
+    <a href="/settings">Settings</a>
+    <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
+    <a href="/logout">Log out</a>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
+
+垂直の変種は `align-self: stretch` に依存するため、親はフレックス行で
+あるべきです(行の高さが線の長さを決めます)。stretch の文脈の外でも
+見えるよう、`min-block-size` のフォールバックがあります。
+
+## アクセシビリティ
+
+- コンテンツセクション間のセパレータは装飾ではなく意味のある構造
+  です — `<hr>` は暗黙の `separator` role でそれをスクリーンリーダーに
+  公開し、ほとんどの読み上げカーソルが読み上げます。
+- 垂直のセパレータには常に `aria-orientation="vertical"` を足して
+  ください。この role のデフォルトは水平です。
+- 区切りが純粋に視覚的で、周囲の構造がすでにグルーピングを伝えている
+  なら、二重に読み上げられないよう `role="none"` /
+  `aria-hidden="true"` で隠せます。ページセクションの罫線のほとんどは
+  デフォルトのセマンティクスを保つべきです。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `separator.color` | 線の色(デフォルトは border トークン)。 |
+| `separator.size` | 線の太さ(`1px`)。 |
+| `separator.spacing` | マージン — 水平はブロック方向、垂直はインライン方向。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-separator-color | -size | -spacing
+```
+
+</details>
+
+## 関連
+
+- [ツールバー](/hypermedia-components/ja/components/toolbar/) —
+  アクションのクラスターを垂直セパレータでグルーピングします。
+- [カード](/hypermedia-components/ja/components/card/) — カードの
+  ヘッダーとボディの間に水平セパレータがよく合います。

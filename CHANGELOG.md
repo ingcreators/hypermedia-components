@@ -22,6 +22,11 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 11 — the Data display category
+  and stepper are complete** (#324, docs-facing). Thirteen pages: badge,
+  card, stepper, chip, separator, collapsible, sparkline, item,
+  accordion, table, avatar, code, and datagrid. 107 ja pages total.
+
 - **Docs: Japanese translations, phase 10 — the Overlays and Feedback
   categories are complete** (#323, docs-facing). Eleven pages: dialog,
   drawer, popover, hovercard, tooltip, alert, toast, progress, spinner,

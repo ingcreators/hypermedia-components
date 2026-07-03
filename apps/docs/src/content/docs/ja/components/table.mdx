@@ -1,0 +1,211 @@
+---
+title: テーブル
+description: ホバー可能な行と控えめなヘッダー帯を持つセマンティックなデータテーブル。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-table` は標準の `<table>` に適用するクラスです。支援技術が
+読み上げられるよう、正しい `<thead>` / `<tbody>` /
+`<th scope="col">` / `<td>` の構造を使ってください。
+
+## 基本の HTML
+
+<Demo>
+  <table class="hc-table">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Status</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Order #123</td>
+        <td><span class="hc-badge" data-variant="success">Active</span></td>
+        <td><button class="hc-button" data-size="sm">View</button></td>
+      </tr>
+      <tr>
+        <td>Order #124</td>
+        <td><span class="hc-badge" data-variant="warning">Pending</span></td>
+        <td><button class="hc-button" data-size="sm">View</button></td>
+      </tr>
+      <tr>
+        <td>Order #125</td>
+        <td><span class="hc-badge">Draft</span></td>
+        <td><button class="hc-button" data-size="sm">View</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <Fragment slot="code">
+
+  ```html
+  <table class="hc-table">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Status</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Order #123</td>
+        <td><span class="hc-badge" data-variant="success">Active</span></td>
+        <td><button class="hc-button" data-size="sm">View</button></td>
+      </tr>
+    </tbody>
+  </table>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 密度
+
+`data-density="compact"` は、データ密度の高いリスト向けに縦の
+パディングを減らします。
+
+```html
+<table class="hc-table" data-density="compact">
+  …
+</table>
+```
+
+## キー・バリュー変種
+
+`data-variant="kv"` はテーブルを詳細ビュー向けの 2 列の定義リストに
+変えます — キーは固定インラインサイズの行ヘッダーでミュートの
+テキスト、値は本文のスタイルのまま、行のホバーハイライトはオフ
+(操作するものがないため)です:
+
+<Demo>
+  <table class="hc-table" data-variant="kv" style="max-inline-size:28rem;">
+    <tbody>
+      <tr><th scope="row">Realm id</th><td>local</td></tr>
+      <tr><th scope="row">Display name</th><td>Local development</td></tr>
+      <tr><th scope="row">Created</th><td>2026-06-01</td></tr>
+    </tbody>
+  </table>
+
+  <Fragment slot="code">
+
+  ```html
+  <table class="hc-table" data-variant="kv">
+    <tbody>
+      <tr><th scope="row">Realm id</th><td>local</td></tr>
+      <tr><th scope="row">Display name</th><td>Local development</td></tr>
+      <tr><th scope="row">Created</th><td>2026-06-01</td></tr>
+    </tbody>
+  </table>
+  ```
+
+  </Fragment>
+</Demo>
+
+キー列の幅は `--hc-table-kv-key-width`(デフォルト `10rem`)で
+上書きします。キーには `<th scope="row">` を使ってください — それが
+この変種のスタイル対象で、ペアを読み上げ可能に保ちます。
+
+## レスポンシブ — 横スクロール
+
+データテーブルは列のコンテンツ幅より縮められないため、狭い画面の広い
+テーブルは放っておくとページ全体を横に押し広げます。
+`.hc-table-scroll` で包んで、オーバーフローをスクロール可能な帯に
+閉じ込めてください。
+
+帯はスクロールするため、キーボードで到達可能でなければなりません —
+ラッパーをフォーカス可能でラベルつきの領域(`role="region"`、
+`aria-label`、`tabindex="0"`)にします:
+
+```html
+<div class="hc-table-scroll" role="region" aria-label="Orders" tabindex="0">
+  <table class="hc-table">
+    …
+  </table>
+</div>
+```
+
+広いビューポートではラッパーは見えません。テーブルが幅を超えたとき
+だけスクロールします。
+
+## htmx での利用
+
+インラインの行更新には、`<tr>` 自体をスワップします。
+
+```html
+<tr id="item-123">
+  <td>Order #123</td>
+  <td><span class="hc-badge" data-variant="success">Active</span></td>
+  <td>
+    <button
+      class="hc-button"
+      data-variant="error"
+      data-hc-confirm="Delete this item?"
+      data-hx-delete="/items/123"
+      data-hx-trigger="hc:confirmed"
+      data-hx-target="closest tr"
+      data-hx-swap="outerHTML">
+      Delete
+    </button>
+  </td>
+</tr>
+```
+
+これは計画 §24 のまさにそのパターンです。
+[confirm-action レシピ](/hypermedia-components/ja/recipes/confirm-action/)を
+参照。
+
+## アクセシビリティ
+
+- 列ヘッダーには常に `<thead>` と `<th scope="col">` を用意して
+  ください。行に行ヘッダーがあるときは、最初のセルに
+  `<th scope="row">` を使います。
+- セル内のアクションボタンには説明的なラベルを — `aria-label` を
+  含まない限り、アイコンのみのボタンは避けてください。
+- 長いテーブルのレスポンシブ対応で、`<table>`、`<thead>`、
+  `<tbody>` に `display: block` を適用**しない**でください。
+  スクリーンリーダーのセマンティクスが壊れます。代わりにテーブルを
+  横スクロール可能なコンテナで包みます。
+
+## テーマ用トークン
+
+| トークンパス           | 用途                          |
+| ---------------------- | ----------------------------- |
+| `table.border`         | セルの区切り線の色。          |
+| `table.fg`             | 本文テキストの色。            |
+| `table.font-size`      | 本文のフォントサイズ。        |
+| `table.header-bg`      | ヘッダー行の背景。            |
+| `table.header-fg`      | ヘッダーテキストの色。        |
+| `table.header-weight`  | ヘッダーのフォントウェイト。  |
+| `table.row-hover-bg`   | 行ホバーの背景。              |
+| `table.cell-padding-x` | セルのインラインパディング。  |
+| `table.cell-padding-y` | セルのブロックパディング。    |
+| `table.kv-key-width`   | キー列の幅(`data-variant="kv"`)。 |
+| `table.kv-key-fg`      | キーテキストの色(`data-variant="kv"`)。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-table-border | -fg | -font-size
+--hc-table-header-bg | -header-fg | -header-weight
+--hc-table-row-hover-bg
+--hc-table-cell-padding-x | -cell-padding-y
+--hc-table-kv-key-width | -kv-key-fg
+```
+
+</details>
+
+## 関連
+
+- [バッジ](/hypermedia-components/ja/components/badge/) — セル内の
+  ステータスインジケーター。
+- [ステータスカラー](/hypermedia-components/ja/tokens/status/) —
+  ステータス色のセルテキストと行ハイライト(`data-fill`)のための
+  `.hc-status` ユーティリティ。テーマ対応。
+- [ボタン](/hypermedia-components/ja/components/button/) — 行のアクション。

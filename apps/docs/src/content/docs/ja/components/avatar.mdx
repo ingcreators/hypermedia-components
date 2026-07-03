@@ -1,0 +1,245 @@
+---
+title: アバター
+description: 円形または角丸のユーザーアバター — 写真があるときは <img>、なければイニシャルの <span>。CSS のみ。壊れた画像をイニシャルのフォールバックに差し替える任意のビヘイビアつき。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-avatar` は、写真アバターには `<img>` に、画像がないときの
+イニシャルのフォールバックには `<span>` に適用します。どちらも同じ
+円形の面、サイズ、形状バリアントを共有します。
+
+## 画像アバター
+
+<Demo previewClass="hc-preview--start">
+  <img class="hc-avatar" alt="Ada Lovelace" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='80'%3E%3Crect%20width='80'%20height='80'%20fill='%234f46e5'/%3E%3Ccircle%20cx='40'%20cy='32'%20r='14'%20fill='white'/%3E%3Crect%20x='18'%20y='52'%20width='44'%20height='30'%20rx='16'%20fill='white'/%3E%3C/svg%3E" />
+  <img class="hc-avatar" alt="John Smith" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='80'%3E%3Crect%20width='80'%20height='80'%20fill='%230d9488'/%3E%3Ccircle%20cx='40'%20cy='32'%20r='14'%20fill='white'/%3E%3Crect%20x='18'%20y='52'%20width='44'%20height='30'%20rx='16'%20fill='white'/%3E%3C/svg%3E" />
+
+  <Fragment slot="code">
+
+  ```html
+  <img class="hc-avatar" src="/users/ada.jpg" alt="Ada Lovelace">
+  <img class="hc-avatar" src="/users/john.jpg" alt="John Smith">
+  ```
+
+  </Fragment>
+</Demo>
+
+コンポーネントは `object-fit: cover` と `overflow: hidden` を設定する
+ため、どんなアスペクト比の画像も中央寄せの正方形クロップとして描画
+されます。(上のプレビューはインラインのプレースホルダー画像です。
+`src` は実際の写真に向けてください。)
+
+## イニシャルのフォールバック
+
+画像がないときは、代わりに `<span>` を描画します。フルネームは
+`aria-label` に運ばせてください。見えるイニシャルは短く
+(1〜2 文字)、グループ内でユーザーを識別できる程度に一意であるべき
+です。
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+  <span class="hc-avatar" aria-label="Joan Clarke">JC</span>
+  <span class="hc-avatar" aria-label="Hedy Lamarr">HL</span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 画像のフォールバック
+
+写真が*ないかもしれない*ときは、画像とイニシャルのフォールバックを
+1 つの `.hc-avatar` で包みます。`installAvatar()` ビヘイビアが画像の
+ネイティブな `load` / `error` イベントを監視し、ラッパーに
+`data-state` を設定するため、画像が失敗するとフォールバックが自動で
+現れます。素のイニシャルと確実に読み込める画像に JavaScript は不要
+です — この自動フォールバックだけが必要とします:
+
+```js
+import { installAvatar } from '@hypermedia-components/core';
+installAvatar(); // idempotent; returns an uninstaller
+```
+
+ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
+インストールします。
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-avatar" role="img" aria-label="Broken photo, falls back to initials" data-state="error">
+    <img class="hc-avatar__image" alt="" src="/does-not-exist.jpg" />
+    <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
+  </span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-avatar" role="img" aria-label="Ada Lovelace">
+    <img class="hc-avatar__image" src="/users/ada.jpg" alt="">
+    <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
+  </span>
+  ```
+
+  </Fragment>
+</Demo>
+
+アクセシブルな名前はラッパーが運びます(`role="img"` +
+`aria-label`)。画像は装飾(`alt=""`)で、フォールバックはその名前を
+視覚的に複製するため `aria-hidden` です。
+
+### 状態
+
+`installAvatar()` はラッパーの `data-state` に次のいずれかを書くため、
+各フェーズをスタイルできます:
+
+| `data-state` | 意味 |
+| --- | --- |
+| `loading` | 画像を取得中。スロットが空にならないようフォールバックを表示。 |
+| `pending` | 取得中だが `data-delay` が設定されている — フラッシュを避けるため、その時間はフォールバックを隠したまま(下記参照)。 |
+| `loaded` | 画像がデコードされた。フォールバックは隠れる。 |
+| `error` | 画像が失敗した(または `src` がない)。フォールバックが表示され、壊れた画像は取り除かれる。 |
+
+### フラッシュの回避(`data-delay`)
+
+高速な接続では画像が数ミリ秒で届くことが多く、先にイニシャルを見せる
+とフラッシュになります。`data-delay="<ms>"` を設定すると、その時間は
+フォールバックを隠したままにします — 画像が先に読み込まれれば
+フォールバックは決して現れず、そうでなければ遅延が過ぎたときに現れ
+ます。
+
+```html
+<span class="hc-avatar" role="img" aria-label="Ada Lovelace" data-delay="500">
+  <img class="hc-avatar__image" src="/users/ada.jpg" alt="">
+  <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
+</span>
+```
+
+### JavaScript なしで
+
+このパターンはプログレッシブです: 画像がフォールバックに重なるため、
+読み込みに成功すれば `installAvatar()` がなくてもイニシャルは覆われ
+ます。トレードオフは、*壊れた*画像は JS なしでは取り除かれないこと
+です — ブラウザの壊れた画像インジケーターがフォールバックの上に
+見えるかもしれません。画像の欠落をサーバサイドで検知できるなら、
+`<span class="hc-avatar">…</span>` のイニシャル形を直接描画して
+ください。
+
+## サイズ
+
+`data-size` は `xs`、`sm`、`md`(デフォルト)、`lg`、`xl` を受け付け
+ます。
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-avatar" aria-label="Jane Smith" data-size="xs">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-size="sm">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-size="lg">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-size="xl">JS</span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-avatar" data-size="xs" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" data-size="sm" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar"                aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" data-size="lg" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" data-size="xl" aria-label="Jane Smith">JS</span>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 形状
+
+`data-shape="square"` は、完全な円の代わりに正方形プリセットの角丸に
+します。
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-avatar" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-shape="square">JS</span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-avatar" aria-label="Jane Smith">JS</span>
+  <span class="hc-avatar" aria-label="Jane Smith" data-shape="square">JS</span>
+  ```
+
+  </Fragment>
+</Demo>
+
+## グループ
+
+アバターの列を `.hc-avatar-group` で包むと重なります — 最初以外の各
+アバターは負のマージンで引き戻され、ページ背景に合わせたリングが
+付くため、重なりがきれいに読めます。
+
+<Demo>
+  <div class="hc-avatar-group">
+    <span class="hc-avatar" aria-label="Ada">A</span>
+    <span class="hc-avatar" aria-label="Beatrice">B</span>
+    <span class="hc-avatar" aria-label="Catalina">C</span>
+    <span class="hc-avatar" aria-label="Dorothée">D</span>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-avatar-group">
+    <span class="hc-avatar" aria-label="Ada">A</span>
+    <span class="hc-avatar" aria-label="Beatrice">B</span>
+    <span class="hc-avatar" aria-label="Catalina">C</span>
+    <span class="hc-avatar" aria-label="Dorothée">D</span>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## アクセシビリティ
+
+- `<img class="hc-avatar">` には常に意味のある `alt` テキストを —
+  典型的にはユーザーのフルネームです。
+- イニシャルのフォールバックでは、見えるテキストは短く視覚的です。
+  スクリーンリーダーにフルネームを与えるには `aria-label` を使って
+  ください。そうしないとユーザーはただの「JS」と読み上げられ、
+  ほとんど役に立ちません。
+- 純粋に装飾のアバター(例: すでに読み上げられる名前の隣の
+  サムネイル)には、二重読み上げを避けるためアバターに
+  `aria-hidden="true"` を設定してください。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `avatar.size` | デフォルトの寸法。 |
+| `avatar.radius` / `square-radius` | 円と正方形の角丸。 |
+| `avatar.bg` / `fg` / `border` | フォールバックの面の色。 |
+| `avatar.font-size` / `font-weight` | イニシャルのテキストスタイル。 |
+| `avatar.xs.*` / `sm.*` / `lg.*` / `xl.*` | 専用のサイズ上書き。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-avatar-size | -radius | -square-radius
+--hc-avatar-bg | -fg | -border
+--hc-avatar-font-size | -font-weight
+--hc-avatar-xs-size | -xs-font-size
+--hc-avatar-sm-size | -sm-font-size
+--hc-avatar-lg-size | -lg-font-size
+--hc-avatar-xl-size | -xl-font-size
+```
+
+</details>
+
+## 関連
+
+- [バッジ](/hypermedia-components/ja/components/badge/) — 小さなステータスのピル。アバターの上に置かれることもあります。

@@ -1,0 +1,648 @@
+---
+title: データグリッド
+description: インタラクティブな Excel ライクのデータグリッド — 多段スティッキーヘッダー、固定列、行選択、キーボードによるセルナビゲーション、インライン編集 — セマンティックなテーブルと position:sticky の上に構築。ページングされたデータ向けで、クライアントサイドのグリッドフレームワークではありません。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-datagrid` は業務画面のためのヘビーデューティなグリッドです:
+**多段スティッキーヘッダー**、**固定列**、行選択、キーボードによる
+セルナビゲーション、インライン編集を備えたセマンティックな
+`<table>`。**ページングされた**データのために作られています — htmx が
+1 ページ(数十〜数百行)を読み込み、グリッドがそれを描画します。
+クライアントサイドの仮想スクロール / ソート / フィルタエンジンでは
+意図的に**ありません**: ソート、フィルタ、永続化はサーバ(htmx)に
+とどまり、セルエディタは既存の HC フォームコントロールそのものです。
+
+
+## ブラウザのベースライン
+
+| プリミティブ | 状況 |
+| --- | --- |
+| `position: sticky`(ヘッダー + 固定列) | Baseline(すべてのエバーグリーンブラウザ) |
+| `:has()`(任意、適応レイアウト用) | Baseline 2023 |
+
+## 構造
+
+スクロールビューポート内の標準の `<table>` です。グループ / サブ /
+リーフのヘッダーは `colspan` を持つ通常の `<thead>` 行。固定列は
+`data-frozen` を持ちます(最後の 1 つには `data-frozen-edge` — これが
+固定線を落とします)。デモを横にスクロールしてみてください —
+チェックボックスと **ID** の列はピン留めされたままです:
+
+<Demo>
+  <div class="hc-datagrid" style="max-inline-size: 32rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col" style="--hc-datagrid-left:0;width:44px;"><input type="checkbox" class="hc-checkbox" aria-label="Select all" /></th>
+            <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col" style="--hc-datagrid-left:44px;width:56px;">ID</th>
+            <th class="hc-datagrid__headcell" colspan="3">Group A</th>
+            <th class="hc-datagrid__headcell" colspan="3">Group B</th>
+          </tr>
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Alpha</th>
+            <th class="hc-datagrid__headcell" scope="col">Beta</th>
+            <th class="hc-datagrid__headcell" scope="col">Gamma</th>
+            <th class="hc-datagrid__headcell" scope="col">Delta</th>
+            <th class="hc-datagrid__headcell" scope="col">Epsilon</th>
+            <th class="hc-datagrid__headcell" scope="col">Zeta</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row" aria-selected="true">
+            <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;width:44px;"><input type="checkbox" class="hc-checkbox" checked aria-label="Select row 1" /></td>
+            <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left:44px;width:56px;">1</th>
+            <td class="hc-datagrid__cell" data-highlight>456 (wide content)</td>
+            <td class="hc-datagrid__cell" data-highlight>789 (wide content)</td>
+            <td class="hc-datagrid__cell">long value here</td>
+            <td class="hc-datagrid__cell">456</td>
+            <td class="hc-datagrid__cell">789</td>
+            <td class="hc-datagrid__cell">789</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;width:44px;"><input type="checkbox" class="hc-checkbox" aria-label="Select row 2" /></td>
+            <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left:44px;width:56px;">2</th>
+            <td class="hc-datagrid__cell" data-highlight>457 (wide content)</td>
+            <td class="hc-datagrid__cell" data-highlight>790 (wide content)</td>
+            <td class="hc-datagrid__cell">another value</td>
+            <td class="hc-datagrid__cell">457</td>
+            <td class="hc-datagrid__cell">790</td>
+            <td class="hc-datagrid__cell">790</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-datagrid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col">…</th>
+            <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col">ID</th>
+            <th class="hc-datagrid__headcell" colspan="3">Group A</th>
+            <th class="hc-datagrid__headcell" colspan="3">Group B</th>
+          </tr>
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Alpha</th>
+            <!-- …leaf headers… -->
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-frozen>…</td>
+            <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">1</th>
+            <td class="hc-datagrid__cell">…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## スティッキーオフセット
+
+`position: sticky` は*どこに*貼り付くかを知る必要があります: 各
+ヘッダー段の `top` と各固定列の `left` です。これらは実際の描画サイズ
+を設定できるよう CSS 変数から来ます:
+
+| 変数 | 対象 | 意味 |
+| --- | --- | --- |
+| `--hc-datagrid-head-1-h` | `.hc-datagrid` | グループ(1 段目)ヘッダー行の高さ — 2 段目の `top` オフセット。 |
+| `--hc-datagrid-head-2-h` | `.hc-datagrid` | サブ(2 段目)ヘッダー行の高さ — 3 段目のオフセットに加算。 |
+| `--hc-datagrid-left` | 各固定セル | セルの `left` オフセット = その前にある固定列の合計幅。 |
+
+`installDatagrid()` は**これらを自動で計測・設定**します(リサイズ時に
+再計測も)。静的でスクリプト不要のグリッドでは自分で設定してください:
+固定列に固定幅を与え、各固定セルの `--hc-datagrid-left` に累積幅を、
+`--hc-datagrid-head-1-h` にグループ行の高さを設定します(上のデモの
+とおり)。
+
+## 縦書きヘッダー
+
+ヘッダー名が列のデータよりずっと長いときは、列を広げる代わりにラベルを
+回転させます。ヘッダーセルに `data-orientation="vertical"` を足すと、
+ラベルは上から下に読まれ(CJK は正立、ラテン文字は回転)、列はデータの
+幅のまま狭く保たれます。**リーフ**のヘッダー行(高さに制約のない一番下
+のスティッキー行)で使ってください:
+
+<Demo>
+  <div class="hc-datagrid" style="max-inline-size: 22rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+            <th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">Very long header name 2</th>
+            <th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">Discontinued flag</th>
+            <th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">Reorder level</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row"><td class="hc-datagrid__cell">Chai</td><td class="hc-datagrid__cell">18</td><td class="hc-datagrid__cell">no</td><td class="hc-datagrid__cell">10</td></tr>
+          <tr class="hc-datagrid__row"><td class="hc-datagrid__cell">Chang</td><td class="hc-datagrid__cell">19</td><td class="hc-datagrid__cell">no</td><td class="hc-datagrid__cell">25</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <th class="hc-datagrid__headcell" data-orientation="vertical" scope="col">
+    Very long header name
+  </th>
+  ```
+
+  </Fragment>
+</Demo>
+
+2 つの向きがあり、どちらも純 CSS です — ビヘイビア不要:
+
+| `data-orientation` | `writing-mode` | 読む向き | 向いている用途 |
+| --- | --- | --- | --- |
+| `vertical` | `vertical-rl` | 上 → 下(CJK は正立、ラテン文字は回転) | 安全なデフォルト。CJK 混在 / 日本語主体のヘッダー |
+| `sideways` | `sideways-lr` | 下 → 上(行全体を回転) | ラテン文字 / 「軸ラベル」スタイル |
+
+`vertical-rl` が最も広くサポートされています。`sideways-*` は新しめ
+です(Chromium / Firefox。対象の Safari を確認してください)。完全に
+制御したいときは、セルまたはグリッドの
+`--hc-datagrid-head-writing-mode` を自分で設定します(例:
+`sideways-rl`、`vertical-lr`)。
+
+その上のグループ / サブヘッダーは水平のままにしてください。スティッキー
+の積み重ねを単純に保つため、回転させるのはリーフ行だけにします。
+
+## 列のリサイズ
+
+ヘッダーに `data-resizable` + `data-col` を、その列のボディセルに同じ
+`data-col` を付けると、列がリサイズ可能になります。`installDatagrid()`
+がヘッダーの右端にグリップを追加します: **ドラッグ**するか、フォーカス
+して**矢印キー**を使います(`Shift` で大きなステップ)。その列だけが
+固定幅になり(省略記号でクリップ)、他の列はコンテンツベースの幅を保ち
+ます。
+
+```html
+<thead class="hc-datagrid__head">
+  <tr>
+    <th class="hc-datagrid__headcell" data-resizable data-col="name" scope="col">Name</th>
+    <th class="hc-datagrid__headcell" scope="col">Fixed</th>
+  </tr>
+</thead>
+<tbody class="hc-datagrid__body">
+  <tr class="hc-datagrid__row">
+    <td class="hc-datagrid__cell" data-col="name">Chai…</td>
+    <td class="hc-datagrid__cell">x</td>
+  </tr>
+</tbody>
+```
+
+変更のたびにグリッドは **`hc:datagridcolumnresize`**
+(`detail: { col, width }`)をディスパッチします — htmx か
+`localStorage` で幅を永続化し、次の描画でその列のセル幅として書き戻し
+てください。グリップはキーボード操作可能な `role="separator"` で、
+`aria-valuenow` を持ちます。
+
+## ソート可能な列
+
+ヘッダーに `data-sortable`(と `data-col` キー)を付けます。ビヘイビア
+がそれをフォーカス可能にし、クリック / <kbd>Enter</kbd> /
+<kbd>Space</kbd> で `aria-sort` を **none → ascending → descending →
+none** とトグルし(同時に 1 列のみ、`↕` / `↑` / `↓` のインジケーター
+つき)、**`hc:datagridsort`** をディスパッチします — グリッドはサーバ
+ページングなので、**サーバ**がソートしてページを返します。
+
+```html
+<th class="hc-datagrid__headcell" data-sortable data-col="price" scope="col">
+  Price
+</th>
+```
+
+```js
+grid.addEventListener('hc:datagridsort', (e) => {
+  // e.detail = { col: 'price', direction: 'asc' | 'desc' | null }
+});
+```
+
+htmx とつなぐには、ソートパラメータつきで行を再読み込みします — 例:
+`<tbody>` に `data-hx-get`、`data-hx-trigger="hc:datagridsort"`、
+`data-hx-vals='js:{ sort: event.detail.col, dir: event.detail.direction }'`
+を置きます(
+[datagrid-pager レシピ](/hypermedia-components/ja/recipes/datagrid-pager/)を
+参照)。インジケーターがスワップ後も残るよう、各ヘッダーは現在の
+`aria-sort` つきで描画してください。
+
+## ビヘイビア — `installDatagrid()`
+
+```js
+import { installDatagrid } from '@hypermedia-components/core';
+installDatagrid(); // or the auto-init bundle: @hypermedia-components/core/behaviors
+```
+
+サーバ描画のテーブルをインタラクティブなグリッド
+([WAI-ARIA grid パターン](https://www.w3.org/WAI/ARIA/apg/patterns/grid/))
+にアップグレードします: `role="grid"` とボディセルへのロービング
+tabindex を適用し、スティッキーオフセットを計測し、選択を配線します。
+ネットワーク取得は決して行いません — ページングと永続化は htmx /
+サーバのままです。冪等で、アンインストーラを返し、htmx でスワップされた
+グリッドと行は `MutationObserver` で拾います。
+
+### キーボード
+
+| キー | 動作 |
+| --- | --- |
+| 矢印キー | アクティブセルを移動 |
+| Home / End | 行の最初 / 最後のセル |
+| Ctrl + Home / End | 最初の行の最初のセル / 最後の行の最後のセル |
+| Page Up / Down | ビューポート分の行を移動 |
+| Space | アクティブ行の選択をトグル |
+
+グリッドは単一のタブストップです。セル内のウィジェットは個別のタブ
+ストップになりません。`Space` は行のチェックボックスと `aria-selected`
+をトグルします。ヘッダーの全選択チェックボックスはすべての行をトグル
+します(選択が部分的なときは不確定状態)。選択の変更はグリッド上で
+`hc:datagridselectionchange`(`detail: { selected, total }`)を発行
+します。
+
+## 状態
+
+状態は属性で表現され、コンポーネントがスタイルします:
+
+| 属性 | 対象 | 効果 |
+| --- | --- | --- |
+| `aria-selected="true"` | `.hc-datagrid__row` | 選択行の背景。 |
+| `data-active` | `.hc-datagrid__cell` | アクティブセルのフォーカスリング(キーボードビヘイビアが設定)。 |
+| `data-highlight` | `.hc-datagrid__cell` | 列 / セルのハイライト帯。 |
+| `data-editing` | `.hc-datagrid__cell` | 編集モード — エディタがセルを満たすようパディングが落ちる。 |
+
+## 選択アクションバー
+
+`installDatagridActions()` はグリッドの選択を、一括アクションの
+コントロールを収めたバーにミラーリングします。バーは
+`data-hc-datagrid-actions="<selector>"` で対象グリッドを宣言します。
+`[data-hc-datagrid-count]` の子が翻訳済みの件数を表示し、何も選択され
+ていない間バーは `hidden` です:
+
+```html
+<div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+     data-hc-datagrid-actions="#grid" hidden>
+  <span data-hc-datagrid-count></span>
+  <button class="hc-button" type="submit" name="action" value="archive"
+          data-hx-post="/products/bulk"
+          data-hx-target="#rows" data-hx-swap="innerHTML"
+          data-hx-disabled-elt="this">Archive</button>
+</div>
+
+<div class="hc-datagrid" id="grid">…</div>
+```
+
+バーはグリッドの `hc:datagridselectionchange` イベントをリッスンします
+— 初期状態はインストール時に選択属性から読まれ、tbody 内で行がスワップ
+されるたびにグリッドが再発行するため(全選択チェックボックスも再同期)、
+行を再描画する一括アクションは追加の配線なしにバーをクリアします。
+
+件数メッセージは i18n キー `datagrid.selected`(デフォルト
+`{selected} selected`。`{total}` パラメータも利用可能)で、件数要素には
+デフォルトで `role="status"` が付くため、変更は丁寧に読み上げられます。
+完全なワイヤ契約 — 行チェックボックス id のネイティブなフォーム
+シリアライズ、サーバレスポンスの形、no-JS の経路 — は
+[datagrid-bulk-actions レシピ](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)を
+参照してください。
+
+## 複数行レコード
+
+密度の高い業務画面では、**1 レコードを複数行にまたいで**表示することが
+よくあります(例: 1 行目にコード / 商品、2 行目に数量 / 単価、3 行目に
+利益)。各レコードをサブ行の `<tbody class="hc-datagrid__record">` として
+モデル化し(`<table>` は複数の `<tbody>` 要素を持てます)、先頭列
+(No. / 選択)を `rowspan` でまたがせます。ヘッダーは通常の多段
+`<thead>` で、サブ行ごとに 1 つのヘッダー行を持ちます。
+
+<Demo>
+  <div class="hc-datagrid" style="max-inline-size: 30rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" rowspan="2" scope="col" style="text-align:center;">No.</th>
+            <th class="hc-datagrid__headcell" scope="col">Code</th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+          </tr>
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Qty</th>
+            <th class="hc-datagrid__headcell" scope="col">Unit price</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__record">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;">1</td>
+            <td class="hc-datagrid__cell">D0006</td>
+            <td class="hc-datagrid__cell">Better Roast Ham</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">12 boxes</td>
+            <td class="hc-datagrid__cell">$14,000</td>
+          </tr>
+        </tbody>
+        <tbody class="hc-datagrid__record">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;">2</td>
+            <td class="hc-datagrid__cell">D0004</td>
+            <td class="hc-datagrid__cell">Tasty Base</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">47 boxes</td>
+            <td class="hc-datagrid__cell">$17,250</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <table class="hc-datagrid__table">
+    <thead class="hc-datagrid__head"><!-- one header row per sub-row --></thead>
+  
+    <tbody class="hc-datagrid__record">
+      <tr class="hc-datagrid__row">
+        <td class="hc-datagrid__cell" rowspan="2">
+          <input type="checkbox" class="hc-checkbox" aria-label="Select"> 1
+        </td>
+        <td class="hc-datagrid__cell">D0006</td>
+        <td class="hc-datagrid__cell">Better Roast Ham</td>
+      </tr>
+      <tr class="hc-datagrid__row">
+        <td class="hc-datagrid__cell">12 boxes</td>
+        <td class="hc-datagrid__cell">$14,000</td>
+      </tr>
+    </tbody>
+    <!-- one <tbody class="hc-datagrid__record"> per record -->
+  </table>
+  ```
+
+  </Fragment>
+</Demo>
+
+`installDatagrid()` は各レコード `<tbody>` を**単一の選択単位**として
+扱います: レコードのチェックボックス(または `Space`)はそのすべての
+サブ行を選択し(各行に `aria-selected`、`<tbody>` に `data-selected`)、
+全選択と `hc:datagridselectionchange` はレコード単位で数え、アクティブ
+セルを含むレコードには `data-current` が付きます(先頭の `rowspan`
+セルがアクセント表示)。レコード間は太めの境界線で区切られ、レコード内
+のサブ行は薄い線で分けられます。キーボードナビゲーションは**視覚上の
+位置**で移動します: ↑/↓ はサブ行やレコードをまたいでも同じ視覚列に
+とどまり(`rowspan`/`colspan` は解決されるため、↓ の後の ↑ は開始セル
+に戻ります)、先頭の `rowspan` セルのようなまたがるセルは、それがまた
+ぐどのサブ行からも ←/→ で到達できる単一のストップです。単一行の
+グリッド(1 つの `<tbody class="hc-datagrid__body">`)は変わりません。
+
+## 展開可能な行詳細
+
+レコードに開閉トグルを与えて、**任意の HTML** の詳細パネル —
+ネストしたグリッド、フォーム、チャート — を開きます。レコードの先頭
+セルに `[data-hc-datagrid-toggle]` ボタンを置き、レコード `<tbody>` の
+最後の行として `.hc-datagrid__detail-row`(1 つの `colspan` セルを持つ
+`<tr>`)を追加します。+/− ボタンをクリック(またはそのセルで `Enter`)
+でトグルします:
+
+<Demo>
+  <div class="hc-datagrid" style="max-inline-size: 30rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col" style="width:2.5rem;"><span class="hc-sr-only">Detail</span></th>
+            <th class="hc-datagrid__headcell" scope="col">Category</th>
+            <th class="hc-datagrid__headcell" scope="col">Description</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__record">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" style="text-align:center;">
+              <button class="hc-datagrid__toggle" data-hc-datagrid-toggle type="button" aria-label="Beverages detail"></button>
+            </td>
+            <td class="hc-datagrid__cell">Beverages</td>
+            <td class="hc-datagrid__cell">Soft drinks, coffees, teas</td>
+          </tr>
+          <tr class="hc-datagrid__detail-row">
+            <td class="hc-datagrid__detail" colspan="3">
+              Detail panel — any HTML here (a nested table, form, chart, …).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <tbody class="hc-datagrid__record">
+    <tr class="hc-datagrid__row">
+      <td class="hc-datagrid__cell">
+        <button class="hc-datagrid__toggle" data-hc-datagrid-toggle
+                type="button" aria-label="Detail"></button>
+      </td>
+      <td class="hc-datagrid__cell">Beverages</td>
+      <td class="hc-datagrid__cell">Soft drinks, coffees, teas…</td>
+    </tr>
+    <tr class="hc-datagrid__detail-row">
+      <td class="hc-datagrid__detail" colspan="3">
+        <!-- any HTML: a nested hc-datagrid, a form, a chart -->
+      </td>
+    </tr>
+  </tbody>
+  ```
+
+  </Fragment>
+</Demo>
+
+`installDatagrid()` はレコードの `data-expanded` をトグルし、詳細行を
+表示 / 非表示にし、`aria-expanded` / `aria-controls` を同期し、
+`hc:datagridexpand` / `hc:datagridcollapse`(`detail: { record }`)を
+ディスパッチします。`<tbody>` に `data-expanded` を置けばレコードは
+開いた状態で始まります。詳細パネル内の**ネストした `hc-datagrid`** は
+独立にアップグレードされ操作されます — 外側のグリッドはそこからバブル
+するイベントを無視します。
+
+**htmx での遅延読み込み** — 詳細セルに `data-lazy` を足します。**初回の
+展開**でビヘイビアはセル上で **`hc:datagriddetailload`** を発火し、
+ビジースピナーを表示します(`aria-busy="true"`)。そのイベントに htmx
+を配線してコンテンツを取得すれば、コンテンツがスワップされ次第スピナー
+は消えます。再展開では再読み込みしません。
+
+```html
+<tr class="hc-datagrid__detail-row">
+  <td class="hc-datagrid__detail" colspan="3" data-lazy
+      data-hx-get="/categories/1/products"
+      data-hx-trigger="hc:datagriddetailload"
+      data-hx-target="this" data-hx-swap="innerHTML">
+    <!-- filled on first expand -->
+  </td>
+</tr>
+```
+
+## 切り詰めとオーバーフローツールチップ
+
+値が列に対して広すぎるときは、省略記号つきの 1 行にクリップし、ホバー /
+フォーカスで全文を表示します。値を `.hc-datagrid__truncate` で包み、
+`--hc-datagrid-truncate-max` かインラインの `max-inline-size` で固定幅
+(列のコンテンツ幅)を与えます:
+
+```html
+<td class="hc-datagrid__cell">
+  <span class="hc-datagrid__truncate" style="max-inline-size: 12rem">
+    Data 1 xxxxxxxxxxxxxx
+  </span>
+</td>
+```
+
+切り詰めを機能させるのはこの固定幅です: 列の `max-content` に上限を
+かけるため、テーブルが単純に広がって収めてしまうことがなくなります。
+`installDatagrid()` はこれらの要素を監視し、**テキストが実際にクリップ
+されているときだけ**(`scrollWidth > clientWidth`)、ホバー**と**
+キーボードフォーカスで、単一の共有されたスタイル済みツールチップに全文
+を表示します — セルごとにツールチップを持たないので、数百セルの
+グリッドにもスケールします。ツールチップは `--hc-tooltip-*` トークンを
+再利用します。
+
+## インライン編集
+
+編集は、専用のエディタエンジンではなく既存の HC フォームコントロールを
+再利用します。**編集可能セル**は `data-editable` と、列を名指す
+`data-col`(コード化された値なら `data-value` も)を持ちます。列の
+エディタはコントロールを収めた
+`<template data-datagrid-editor data-col="…">` です。`installDatagrid()`
+はアクティベーション時にそれをセルへクローンし、セルの現在値でシード
+し、フォーカスします:
+
+```html
+<div class="hc-datagrid">
+  <template data-datagrid-editor data-col="qty">
+    <input class="hc-input" type="text" aria-label="Quantity">
+  </template>
+  <template data-datagrid-editor data-col="code">
+    <!-- a searchable select, reusing hc-combobox -->
+    <div class="hc-combobox">
+      <input class="hc-combobox__input hc-input" role="combobox"
+             aria-controls="code-list" aria-haspopup="listbox" autocomplete="off">
+      <ul class="hc-combobox__listbox" id="code-list" role="listbox" popover>
+        <li class="hc-combobox__option" role="option" data-value="001">Code A</li>
+        <li class="hc-combobox__option" role="option" data-value="002">Code B</li>
+      </ul>
+    </div>
+  </template>
+
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <!-- … -->
+      <td class="hc-datagrid__cell" data-editable data-col="qty">3</td>
+      <td class="hc-datagrid__cell" data-editable data-col="code" data-value="001">Code A</td>
+    </table>
+  </div>
+</div>
+```
+
+エディタの種類は、すでに使っているコントロールに対応づけます: テキスト
+→ `hc-input`、日付 → `hc-input[type=date]`、セレクト → `hc-select`、
+検索可能セレクト → `hc-combobox`。(コンボボックスのリストボックスは
+`popover` を使うため、ドロップダウンはグリッドのスクロールクリッピング
+から逃れられます。)
+
+**アクティベーション:** アクティブな編集可能セルで `Enter` / `F2` /
+ダブルクリック、または単に入力を始める(最初の 1 文字がエディタを
+シードします。Excel スタイル)。**コミット:** `Enter`、セル外への
+フォーカス移動、またはコンボボックスならオプションの選択。
+**キャンセル:** `Escape`(元の値を復元)。
+
+コミット時に値は書き戻され(`data-value` + セルの表示テキスト)、
+グリッドは **`hc:datagridedit`** を
+`detail: { cell, col, value, label, oldValue }` つきでディスパッチ
+します。htmx で永続化してください — 例えば行またはグリッドに:
+
+```html
+<tbody class="hc-datagrid__body"
+       data-hx-trigger="hc:datagridedit"
+       data-hx-patch="/rows" data-hx-include="closest tr">
+  …
+</tbody>
+```
+
+## アクセシビリティ
+
+- `<thead>` / `<tbody>`、ヘッダーセルの `scope`、行選択チェックボックス
+  の `aria-label` を備えた本物の `<table>` です — スクリプトが一切
+  なくても意味を持ちます。
+- `installDatagrid()` は
+  [WAI-ARIA grid パターン](https://www.w3.org/WAI/ARIA/apg/patterns/grid/)
+  に従う完全なキーボードセルナビゲーションを追加します(上の
+  [ビヘイビア](#ビヘイビア--installdatagrid)を参照)。
+- スクロールビューポートはフォーカス可能なコントロール(チェック
+  ボックス)を含むため、キーボードで到達可能です。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`)。共有のセマンティック
+カラーを参照するため、グリッドはアクティブなライト / ダークとカラー
+テーマに自動で追随します。
+
+| トークンパス | 用途 |
+| --- | --- |
+| `datagrid.bg` / `fg` / `border` | グリッドの面、テキスト、外枠。 |
+| `datagrid.head-bg` / `head-fg` | ヘッダー帯の色。 |
+| `datagrid.frozen-bg` | 固定(スティッキー)列の背景。 |
+| `datagrid.row-hover-bg` | ホバー行の色味。 |
+| `datagrid.selected-bg` / `highlight-bg` | 選択行 / ハイライト行の色味。 |
+| `datagrid.current-bg` / `current-fg` | アクティブレコードの先頭セルのアクセント。 |
+| `datagrid.subrow-border` | レコード内サブ行の間の線。 |
+| `datagrid.cell-padding-x` / `cell-padding-y` | セルのパディング。 |
+| `datagrid.head-1-h` / `head-2-h` | 非リーフのヘッダー段の固定高さ(下の段がスティッキーの `top` をオフセットできるように)。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+上の `datagrid.*` トークンから生成されます — 好きなスコープでどれでも
+上書きしてカスタムな見た目にできます(管理画面でよく見る青いヘッダーや
+色つきの列は、ただの上書きです):
+
+```text
+--hc-datagrid-bg | -fg | -border
+--hc-datagrid-head-bg | -head-fg | -frozen-bg
+--hc-datagrid-row-hover-bg | -selected-bg | -highlight-bg
+--hc-datagrid-current-bg | -current-fg | -subrow-border
+--hc-datagrid-cell-padding-x | -cell-padding-y
+--hc-datagrid-head-1-h | -head-2-h
+```
+
+いくつかのノブはトークン非対応です — 直接設定してください:
+
+```text
+--hc-datagrid-max-height     (default 70vh)
+--hc-datagrid-truncate-max   (default 16rem — width of a .hc-datagrid__truncate cell)
+--hc-datagrid-freeze-shadow  (frozen-column edge shadow; its direction flips per edge)
+```
+
+</details>
+
+## 関連
+
+- [datagrid-pager レシピ](/hypermedia-components/ja/recipes/datagrid-pager/) —
+  htmx でのサーバページネーション(このグリッドはページングされたデータ
+  のためのものです)。
+- [テーブル](/hypermedia-components/ja/components/table/) — シンプルで
+  非インタラクティブなデータのための静的なセマンティックテーブル。
+- [レイアウトユーティリティ](/hypermedia-components/ja/fundamentals/layout/) ·
+  [レスポンシブデザイン](/hypermedia-components/ja/fundamentals/responsive/)。
