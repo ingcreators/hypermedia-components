@@ -80,6 +80,7 @@ const COMPONENTS = [
   'hc-accordion.css',
   'hc-collapsible.css',
   'hc-breadcrumb.css',
+  'hc-stepper.css',
   'hc-toc.css',
   'hc-shell.css',
 ];

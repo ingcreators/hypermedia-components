@@ -1,0 +1,100 @@
+---
+title: Stepper
+description: A zero-JavaScript step indicator — the server renders every state, including the markers; navigation belongs to the step's form.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-stepper` shows progress through a multi-step flow. It ships **no
+JavaScript at all**: the server renders the whole indicator on every
+step — including the marker content (the step number, or `✓` once a
+step completes) — so every state change arrives as markup. The
+indicator displays; navigation is the job of the step's form (see the multi-step form
+recipe).
+
+## Basic HTML
+
+<Demo>
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account
+        <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+  ```
+
+  </Fragment>
+</Demo>
+
+## States
+
+| State | Selector | Effect |
+| --- | --- | --- |
+| Current | `[aria-current="step"]` | Accent marker (follows `data-color`), emphasized label. |
+| Complete | `[data-state="complete"]` | Tinted marker; the server renders `✓` as the marker content. |
+| Upcoming | *(no attribute)* | Muted marker and label. |
+
+**The server renders the marker content.** A number for pending steps,
+`✓` for completed ones — no CSS content tricks, no client mutation.
+Add a visually hidden `(completed)` suffix to completed labels so the
+state is announced; `aria-current="step"` covers the current one.
+
+## Clickable completed steps
+
+Render a completed step's content as a link to its step URL if the flow
+allows revisiting — the stepper styles it quietly (underline on
+hover/focus). This is the server's choice per step; the indicator never
+invents navigation.
+
+## Sizes
+
+`data-size="sm"` shrinks the markers for dense layouts. Horizontal
+only — a vertical orientation is a deliberate non-goal for now.
+
+## Accessibility
+
+- An ordered list is the right bone structure: "list, 3 items" +
+  `aria-current="step"` is the standard idiom.
+- Markers are `aria-hidden` (decorative duplicates of the position);
+  the label text + sr-only suffixes carry the meaning.
+- RTL works for free (logical properties throughout, including the
+  connector).
+
+## Theming tokens
+
+`--hc-stepper-marker-size` / `-marker-bg` / `-marker-fg` /
+`-current-bg` / `-current-fg` / `-complete-bg` / `-complete-fg` /
+`-connector` / `-label` / `-gap` — semantic references, so themes,
+accents and dark mode apply automatically.
+
+## Related
+
+- [Breadcrumb](/hypermedia-components/components/breadcrumb/) — location in a hierarchy, not progress in a flow.
+- [Progress](/hypermedia-components/components/progress/) — continuous progress, not discrete steps.

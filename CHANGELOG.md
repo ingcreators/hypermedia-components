@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-stepper` — zero-JavaScript step indicator** (#303). An
+  `<ol class="hc-stepper">` whose every state arrives as
+  server-rendered markup: `aria-current="step"` for the current step
+  (accent follows `data-color`), `data-state="complete"` with the
+  server rendering `✓` as the marker content, muted upcoming steps,
+  logical-property connectors (RTL free), `data-size="sm"`, and quiet
+  link styling when the server makes completed steps revisitable. No
+  behavior, no installer — the indicator displays; navigation belongs
+  to the step's form (the multi-step-form recipe follows). Tokens
+  `--hc-stepper-*`; docs page + VRT core-sheet coverage.
+
+### Added
+
 - **file-upload recipe: the dropzone variant** (#301). Swap the plain
   field for an `hc-dropzone` — nothing else changes: drops assign the
   same native input and fire a normal `change`, so serialization, the

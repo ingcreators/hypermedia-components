@@ -1,0 +1,109 @@
+/* hc-stepper — zero-JavaScript step indicator for multi-step flows.
+ *
+ * The server renders everything, including the marker content (a step
+ * number, or "✓" once complete) — every state change arrives as
+ * markup, never as a client-side mutation. The indicator displays
+ * progress; navigation belongs to the step's form (see the
+ * multi-step-form recipe). The server may render completed steps as
+ * links if it wants them clickable.
+ *
+ *   <ol class="hc-stepper">
+ *     <li class="hc-stepper__step" data-state="complete">
+ *       <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+ *       <span class="hc-stepper__label">Account
+ *         <span class="hc-sr-only">(completed)</span></span>
+ *     </li>
+ *     <li class="hc-stepper__step" aria-current="step">
+ *       <span class="hc-stepper__marker" aria-hidden="true">2</span>
+ *       <span class="hc-stepper__label">Profile</span>
+ *     </li>
+ *     <li class="hc-stepper__step">
+ *       <span class="hc-stepper__marker" aria-hidden="true">3</span>
+ *       <span class="hc-stepper__label">Review</span>
+ *     </li>
+ *   </ol>
+ *
+ * States: [aria-current="step"] (the ARIA current-step idiom) and
+ * [data-state="complete"]; anything else renders as upcoming.
+ * Sizes: data-size="sm". Horizontal only (vertical is a non-goal).
+ */
+@layer hc.components {
+  .hc-stepper {
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hc-stepper__step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--hc-stepper-gap);
+    flex: 1;
+    position: relative;
+    text-align: center;
+    min-inline-size: 0;
+  }
+
+  /* Connector line to the previous step (logical, so RTL flips free). */
+  .hc-stepper__step + .hc-stepper__step::before {
+    content: '';
+    position: absolute;
+    inset-block-start: calc(var(--hc-stepper-marker-size) / 2);
+    inset-inline-end: calc(50% + var(--hc-stepper-marker-size) / 2);
+    inline-size: calc(100% - var(--hc-stepper-marker-size));
+    border-block-start: 2px solid var(--hc-stepper-connector);
+  }
+
+  .hc-stepper__marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-stepper-marker-size);
+    block-size: var(--hc-stepper-marker-size);
+    border-radius: 50%;
+    background-color: var(--hc-stepper-marker-bg);
+    color: var(--hc-stepper-marker-fg);
+    font-size: var(--hc-font-size-sm);
+    font-weight: 600;
+    position: relative; /* above the connector */
+  }
+
+  .hc-stepper__label {
+    color: var(--hc-stepper-label);
+    font-size: var(--hc-font-size-sm);
+    overflow-wrap: anywhere;
+  }
+
+  .hc-stepper__step[aria-current='step'] .hc-stepper__marker {
+    background-color: var(--hc-stepper-current-bg);
+    color: var(--hc-stepper-current-fg);
+  }
+
+  .hc-stepper__step[aria-current='step'] .hc-stepper__label {
+    color: var(--hc-color-text);
+    font-weight: 600;
+  }
+
+  .hc-stepper__step[data-state='complete'] .hc-stepper__marker {
+    background-color: var(--hc-stepper-complete-bg);
+    color: var(--hc-stepper-complete-fg);
+  }
+
+  /* Completed steps rendered as links stay quiet until interaction. */
+  .hc-stepper__step a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .hc-stepper__step a:hover .hc-stepper__label,
+  .hc-stepper__step a:focus-visible .hc-stepper__label {
+    text-decoration: underline;
+  }
+
+  .hc-stepper[data-size='sm'] {
+    --hc-stepper-marker-size: 1.25rem;
+  }
+}
