@@ -206,6 +206,7 @@ behaviors hook into a small set of htmx events:
 | `htmx:afterRequest`  | `installCloseDialog` / `installClosePopover` | Close the closest `<dialog>` / `[popover]` on a successful response. |
 | `htmx:afterSwap`     | `installRemoteDialog`  | Open a `<dialog>` that just appeared inside a `[data-hc-remote-dialog-root]`. |
 | `htmx:sseBeforeMessage` | `installSseDispatch` | Bridge an SSE event into a DOM `CustomEvent` instead of a swap — see [Server-sent events](#server-sent-events) below. |
+| `htmx:xhr:progress` | `installUploadProgress` | Drive a `<progress data-hc-upload-progress>` inside the requesting form from the upload's progress (monotonic within a request — see the file-upload recipe). |
 | `hc:toast`           | `installToast`         | Render a toast into the region. (Not an htmx event, but htmx is usually the dispatcher via `HX-Trigger`.) |
 
 You generally don't have to interact with these directly; they're

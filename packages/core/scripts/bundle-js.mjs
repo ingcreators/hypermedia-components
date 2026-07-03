@@ -30,6 +30,7 @@ const FILES = [
   ['src/js/field-errors.js',  'field-errors.js'],
   ['src/js/csrf-header.js',   'csrf-header.js'],
   ['src/js/sse-dispatch.js',  'sse-dispatch.js'],
+  ['src/js/upload-progress.js', 'upload-progress.js'],
   ['src/js/copy.js',          'copy.js'],
   ['src/js/spy.js',           'spy.js'],
   ['src/js/nav-current.js',   'nav-current.js'],

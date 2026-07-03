@@ -41,6 +41,7 @@ import { installThemeToggle } from './theme-toggle.js';
 import { installFieldErrors } from './field-errors.js';
 import { installCsrfHeader } from './csrf-header.js';
 import { installSseDispatch } from './sse-dispatch.js';
+import { installUploadProgress } from './upload-progress.js';
 import { installCopy } from './copy.js';
 import { installSpy } from './spy.js';
 import { installNavCurrent } from './nav-current.js';
@@ -82,6 +83,7 @@ function init() {
   installFieldErrors();
   installCsrfHeader();
   installSseDispatch();
+  installUploadProgress();
   installCopy();
   installSpy();
   installNavCurrent();
@@ -132,6 +134,7 @@ export {
   installFieldErrors,
   installCsrfHeader,
   installSseDispatch,
+  installUploadProgress,
   installCopy,
   installSpy,
   installNavCurrent,
