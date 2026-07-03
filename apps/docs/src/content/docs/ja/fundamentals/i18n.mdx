@@ -1,0 +1,198 @@
+---
+title: 国際化(i18n)
+description: ビヘイビアが注入する文字列 — 生成ノードとデフォルト ARIA ラベル — を 1 つのメッセージカタログで翻訳。要素ごとの属性が常に優先されるため、サーバ側でのローカライズも可能。
+---
+
+Hypermedia Components のテキストのほぼすべては**あなたの HTML** から来ます。
+それはサーバが好きな言語で描画すればよいものです。しかし少数の文字列は
+ビヘイビアが注入します — 生成される DOM ノード(コンボボックスの
+「No matches」マーカー、マルチセレクトのタグ削除ボタン)と、デフォルトの
+ARIA ラベル(シェルのナビゲーショントグル、スプリッターのハンドル)です。
+これらはマークアップに書けないため、1 か所で翻訳できる小さな
+**メッセージカタログ**を持ちます。
+
+## 解決順序
+
+注入されるすべての文字列について、優先度の高いソースが勝ちます:
+
+1. サーバ / 作者が書いた**要素ごとの属性** — 既存の `aria-label` や
+   `data-hc-*` の上書き。サーバが要素単位でローカライズします。
+2. `setMessages()` で設定した**グローバルカタログ** — アプリ全体の
+   ロケール。
+3. **組み込みの英語デフォルト**。
+
+## ロケールの設定
+
+メインエントリから名前付きインストーラをインポートし、カタログを一度
+設定してからインストールします。`setMessages()` はフラットな
+`{ key: value }` マップをマージします:
+
+```js
+import { setMessages, installCombobox, installConfirm } from '@hypermedia-components/core';
+
+setMessages({
+  'combobox.empty': '一致なし',
+  'confirm.confirm': 'OK',
+  'confirm.cancel': 'キャンセル',
+  'multicombobox.remove': '{label} を削除', // {label} is interpolated
+});
+
+installCombobox();
+installConfirm();
+```
+
+### ロケールパック
+
+組み込み文字列を手で翻訳する必要はありません: 公式のロケールパックが
+インポート可能なモジュールとしてパッケージに同梱されており、そのまま
+`setMessages()` に渡せます。日本語は今日から利用できます:
+
+```js
+import { setMessages } from '@hypermedia-components/core/i18n';
+import ja from '@hypermedia-components/core/locales/ja';
+
+setMessages(ja);
+
+// App-specific wording layers on top — later merges win:
+setMessages({ 'confirm.confirm': 'OK' });
+```
+
+すべてのパックは**すべての**カタログキーをカバーします: ビヘイビアが
+キーを追加したのに同梱パックが翻訳していない場合、キット自身の CI が
+失敗するため、アップグレードをまたいでパックがカタログに静かに遅れる
+ことはありません。
+
+### 自動初期化バンドルとの順序
+
+ゼロ設定の [`/behaviors`](/hypermedia-components/ja/start/installation/)
+エントリは実行と同時にすべてをインストールするため、カタログはその
+**前に**設定してください。ES モジュールスクリプトはドキュメント順に
+実行されるので、まず i18n モジュールからメッセージを設定し、その後で
+バンドルを読み込みます:
+
+```html
+<script type="module">
+  import { setMessages } from '@hypermedia-components/core/i18n';
+  setMessages({ 'combobox.empty': '一致なし' });
+</script>
+<script type="module" src="/path/to/hc.behaviors.js"></script>
+```
+
+`setMessages` を `@hypermedia-components/core`(自動初期化のメイン
+エントリ)からインポートすると、先にインストールが走ってしまいます —
+自動初期化フローでは、副作用のない `i18n` サブモジュールから
+インポートしてください。
+
+## カタログ
+
+| キー | デフォルト | 注入元 |
+| --- | --- | --- |
+| `combobox.empty` | `No matches` | コンボボックスの空結果マーカー |
+| `combobox.loading` | `Loading…` | リモートコンボボックスの読み込み行 |
+| `combobox.error` | `Couldn’t load options` | リモートコンボボックスのエラー行 |
+| `combobox.create` | `Create “{value}”` | 作成可能コンボボックスの「作成」オプション |
+| `multicombobox.empty` | `No matches` | マルチコンボボックスの空結果マーカー |
+| `multicombobox.create` | `Add “{value}”` | 作成可能マルチコンボボックスの「追加」オプション |
+| `multicombobox.remove` | `Remove {label}` | タグ削除ボタンの `aria-label` |
+| `calendar.label` | `Calendar` | グリッドの `aria-label`(フォールバック) |
+| `calendar.prevMonth` | `Previous month` | 前月ボタンの `aria-label` |
+| `calendar.nextMonth` | `Next month` | 翌月ボタンの `aria-label` |
+| `calendar.month` | `Month` | 月ドロップダウンの `aria-label`(`data-nav="select"`) |
+| `calendar.year` | `Year` | 年ドロップダウンの `aria-label`(`data-nav="select"`) |
+| `confirm.message` | `Continue?` | 確認ダイアログ本文(フォールバック) |
+| `confirm.title` | `Confirm` | 確認ダイアログタイトル(フォールバック) |
+| `confirm.confirm` | `Confirm` | 確認ボタン(フォールバック) |
+| `confirm.cancel` | `Cancel` | キャンセルボタン(フォールバック) |
+| `datagrid.selected` | `{selected} selected` | 選択アクションバーの件数(`{selected}` / `{total}` パラメータ) |
+| `fieldErrors.unknown` | `Invalid value` | 解決できるキーもテキストもない field-errors 項目 |
+| `copy.ok` | `Copied` | コピーボタン成功時の `role="status"` 通知(`data-hc-copy-ok` で上書き可) |
+| `shell.toggleNav` | `Toggle navigation` | シェルのナビトグル `aria-label`(フォールバック) |
+| `shell.collapseNav` | `Collapse sidebar` | シェルの折りたたみボタン `aria-label`(フォールバック) |
+| `splitter.resize` | `Resize panels` | スプリッターハンドルの `aria-label`(フォールバック) |
+| `themeToggle.label` | `Switch color theme` | アイコンのみテーマトグルの `aria-label`(フォールバック) |
+| `toast.label` | `Notifications` | トースト領域の `aria-label`(フォールバック) |
+
+この表が完全なリストです — ビヘイビアが描画しうるすべての文字列は
+`DEFAULT_MESSAGES` から来るため、これらのキーを上書きすればキット全体が
+翻訳されます。
+
+キーの一覧は公開 API 表面の一部です(リポジトリの `VERSIONING.md` を
+参照): `DEFAULT_MESSAGES` がエクスポートされているのは、まさに
+インストール中のバージョンが定義するキーを列挙できるようにするためです。
+ロケールパックを使わず独自カタログを維持する場合は、CI で
+`Object.keys(DEFAULT_MESSAGES)` と diff を取り、新バージョンが追加した
+キーを検出してください — 失敗モードは英語へのフォールバックで、目視では
+誰も気づきません。
+
+`{name}` プレースホルダーは、ビヘイビアが渡すパラメータから補間されます —
+`multicombobox.remove` の `{label}`、作成可能な
+`combobox.create` / `multicombobox.create` オプションの `{value}` です。
+
+## 実例 — 日本語 UI
+
+起動時に日本語ロケールパックからカタログを一度設定します — すべての
+キーをカバーするため、以後キットが英語を描画することはありません:
+
+```js
+import { setMessages } from '@hypermedia-components/core/i18n';
+import ja from '@hypermedia-components/core/locales/ja';
+
+setMessages(ja);
+```
+
+破壊的アクションには、ダイアログのクロームのための**ボタンごとの属性が
+不要**になります — 必要なのはメッセージ本文だけです:
+
+```html
+<button class="hc-button" data-variant="error"
+        data-hc-confirm="ユーザー alice を無効化しますか？"
+        data-hx-post="/users/alice/disable"
+        data-hx-trigger="hc:confirmed">
+  ユーザーを無効化
+</button>
+```
+
+タイトル(確認)、確認ボタン(実行)、キャンセルボタン(キャンセル)は
+カタログから来ます。`data-hc-confirm-*` 属性は要素ごとの上書きとして
+引き続き使えます。
+カタログは**あなた自身のキー**も解決します:
+[field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)は、
+サーバが送る各 `data-message-key`(例: `members.email.duplicate`)を同じ
+カタログで検索し、`{field}` / `{code}` — およびサーバが
+`data-message-params` として送る値 — を補間に使えます。
+
+## 要素ごとの上書き(サーバサイドローカライズ)
+
+文字列が特定の要素に属するときは、マークアップに書けばカタログより
+優先されます — サーバが各領域の言語をすでに知っている場合に便利です:
+
+- **confirm** — トリガーの `data-hc-confirm`、`data-hc-confirm-title`、
+  `data-hc-confirm-label`、`data-hc-cancel-label`。
+- **combobox / multi-combobox** — `<ul role="listbox">` の
+  `data-hc-empty`。
+- **calendar / shell / splitter / toast** — 作者が与えた `aria-label` は
+  決して上書きされません。
+
+```html
+<!-- This dialog stays Japanese regardless of the global catalog. -->
+<button class="hc-button" data-hc-confirm="削除しますか？"
+        data-hc-confirm-label="削除" data-hc-cancel-label="キャンセル">
+  削除
+</button>
+
+<!-- Per-listbox empty text. -->
+<ul class="hc-combobox__listbox" role="listbox" data-hc-empty="該当なし"></ul>
+```
+
+## API
+
+すべてメインエントリと `i18n` サブモジュールからエクスポートされます。
+
+- `setMessages(overrides)` — 翻訳をカタログにマージ。直前の状態を復元する
+  関数を返します。
+- `resetMessages()` — 組み込みの英語デフォルトに戻します。
+- `getMessages()` — 現在のカタログ(デフォルト + 上書き)のスナップショット。
+- `DEFAULT_MESSAGES` — フリーズされた英語デフォルト。
+
+欠けた翻訳は穏やかに劣化します: 未知のキーは英語デフォルトへ、次にキー
+そのものへフォールバックします — 空文字列や例外にはなりません。

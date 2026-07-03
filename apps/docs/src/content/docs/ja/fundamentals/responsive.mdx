@@ -1,0 +1,120 @@
+---
+title: レスポンシブデザイン
+description: Hypermedia Components のレスポンシブ対応 — コンテナファーストの intrinsic レイアウト、唯一のビューポートブレークポイント、密度軸、各ツールの使いどころ。ユーティリティファーストのブレークポイントプレフィックスはありません。
+---
+
+Hypermedia Components は、ブレークポイントプレフィックスつきクラスの
+グリッドではなく、構造そのものによってレスポンシブです。覚えるべき
+`sm:` / `md:` / `lg:` 体系はありません。代わりに 3 つの層が協調し、
+レイアウトは実際に与えられたスペースに適応します:
+
+1. **コンポーネントは本質的に流動的。** 入力欄、ボタン、カードなどは
+   コンテナを満たし、固定ピクセル幅を持ちません。オーバーレイ
+   (`hc-dialog`、`hc-drawer`、`hc-command`)は幅をビューポートに
+   制限し(`max-inline-size` + `calc(100% - …)`)、横並びグループ
+   (`hc-toolbar`、`hc-tabs`、`hc-breadcrumb`、`hc-pagination`)は
+   折り返します。
+2. **レイアウトユーティリティはコンテナレスポンシブ。** `hc-stack`、
+   `hc-cluster`、`hc-grid`、`hc-sidebar`、`hc-container` は、
+   ビューポートではなく自分のコンテナの幅に基づいて、`flex-wrap`、
+   グリッドの `auto-fill`、コンテンツベースのフレックス比で再配置
+   します。**メディアクエリなし。** ページ半分の幅のパネルに置いても、
+   そこで適応します。
+3. **シェルはビューポートレスポンシブ。** `hc-shell` だけがビューポート
+   ブレークポイントを持ちます。全画面アプリケーションシェルのコンテナは
+   ビューポート*そのもの*だからです。
+
+## ビューポートファーストではなくコンテナファースト
+
+ここでのモダンなデフォルトは**コンテナクエリ**(およびその intrinsic な
+親戚である `flex-wrap` とグリッド `auto-fill`)です。コンポーネントは
+画面サイズではなく、与えられた余地に応答すべきです — 同じカードグリッドが
+あるルートでは全幅ページに、別のルートでは狭いドロワーの中に置かれる
+かもしれず、どちらにいるかを知らずに両方で正しく折り返すべきです。
+
+| ツール | 応答対象 | 用途 |
+| --- | --- | --- |
+| [`hc-grid`](/hypermedia-components/ja/fundamentals/layout/) | コンテナ幅 | 列数が変わるカード / タイルギャラリー |
+| [`hc-sidebar`](/hypermedia-components/ja/fundamentals/layout/) | コンテナ幅 | 1 カラムに畳まれるサイドバー + コンテンツ |
+| [`hc-cluster`](/hypermedia-components/ja/fundamentals/layout/) | コンテナ幅 | ボタン行、タグリスト、ツールバー |
+| [`hc-stack`](/hypermedia-components/ja/fundamentals/layout/) | —(リズムのみ) | 一貫した縦方向の間隔 |
+| [`hc-container`](/hypermedia-components/ja/fundamentals/layout/) | コンテナ幅 | 中央寄せの最大幅コンテンツ領域 |
+| [`hc-shell`](/hypermedia-components/ja/components/shell/) | **ビューポート**幅 | アプリ全体のレイアウト(サイドバー ↔ オフキャンバス) |
+
+ビューポートメディアクエリが正しい道具になるのは、ちょうど 1 つの状況
+だけです: ビューポートを満たし、固いしきい値で*構造的に*変わる必要のある
+レイアウト — つまりシェルがサイドバーをオフキャンバスオーバーレイに畳む
+とき。それ以外はすべてコンテナレスポンシブなユーティリティを使って
+ください。
+
+## 密度軸もレスポンシブのレバー
+
+`data-density="comfortable | compact | dense"` は、1 つの属性で全
+コンポーネントのコントロール高さとパディングをスケールし直します。
+レイアウトとは直交します: 情報密度の高いデスクトップツールでは高く、
+タッチデバイスではタップターゲットを大きくするために下げる、という
+使い方ができます。
+[トークン · 密度](/hypermedia-components/ja/tokens/density/)を参照。
+
+## よくあるパターン
+
+**レスポンシブカードグリッド** — 収まるだけ並べて、折り返す:
+
+```html
+<div class="hc-grid" style="--hc-grid-min: 16rem;">
+  <article class="hc-card">…</article>
+  <article class="hc-card">…</article>
+  <!-- …as many as you like -->
+</div>
+```
+
+**自力で畳まれるサイドバー + コンテンツ:**
+
+```html
+<div class="hc-sidebar">
+  <nav aria-label="Filters">…</nav>
+  <main>…</main>
+</div>
+```
+
+**幅の広いデータテーブル** — オーバーフローを閉じ込め、ページを
+押し広げない:
+
+```html
+<div class="hc-table-scroll" role="region" aria-label="Orders" tabindex="0">
+  <table class="hc-table">…</table>
+</div>
+```
+
+**アプリケーション全体のレイアウト:**
+
+```html
+<div class="hc-shell">
+  <header class="hc-shell__header">
+    <button class="hc-button" data-variant="ghost"
+            data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+    <strong>Acme</strong>
+  </header>
+  <nav class="hc-shell__sidebar" aria-label="Primary">…</nav>
+  <main class="hc-shell__main">…</main>
+</div>
+```
+
+## Web 機能の Baseline
+
+レスポンシブ層は広く利用可能な Baseline CSS に依っています:
+`flex-wrap`、CSS Grid の
+`repeat(auto-fill, minmax(min(…, 100%), 1fr))`、論理プロパティ
+(`inline-size`、`padding-inline`、…)、`100dvh` 動的ビューポート単位、
+`:has()`。レイアウト自体に JavaScript は関与しません — シェルのモバイル
+ナビゲーションオーバーレイだけが、フォーカス管理のために小さな
+ビヘイビアを使います。
+
+## 関連
+
+- [レイアウトユーティリティ](/hypermedia-components/ja/fundamentals/layout/) —
+  プリミティブとライブデモ。
+- [シェル](/hypermedia-components/ja/components/shell/) — アプリケーション
+  シェル。
+- [キッチンシンク](/hypermedia-components/ja/kitchen-sink/) — 全部を
+  1 ページでライブ表示。リサイズして適応を確かめられます。

@@ -1,0 +1,48 @@
+---
+title: レシピ
+description: htmx フレンドリーなパターン集 — 確認アクション、ライブ検索、リモートダイアログ、インライン編集、レイジーパネル、トーストなど。
+---
+
+各レシピは、短縮形・展開後の HTML・任意のマクロ・サーバレスポンス契約を
+ドキュメント化しています。**ビヘイビアが必要**と注記されたレシピは
+[`@hypermedia-components/core`](/hypermedia-components/ja/start/installation/#ビヘイビア)の
+`installX()` を必要とします。それ以外は純粋な htmx 属性だけです。
+
+## アクションとフォーム
+
+- [ミューテーションフォーム](/hypermedia-components/ja/recipes/mutating-form/) — インライン 4xx エラー・成功時リダイレクト・二重送信ガードつきのフォーム送信。 *(要 `installFieldErrors`)*
+- [フィールドエラー](/hypermedia-components/ja/recipes/field-errors/) — サーバが送るバリデーションエラーフラグメントを、名前の一致するフィールドへ振り分け。 *(要 `installFieldErrors`)*
+- [マルチステップフォーム](/hypermedia-components/ja/recipes/multi-step-form/) — ハイパーメディア版ウィザード: ステップとドラフトはサーバが所有し、ステップ全体をスワップ。
+- [確認アクション](/hypermedia-components/ja/recipes/confirm-action/) — 破壊的リクエストを確認ダイアログでガード。 *(要 `installConfirm`)*
+- [削除の取り消し](/hypermedia-components/ja/recipes/undo-delete/) — 即座に削除し、猶予期間内ならトーストの Undo で行を復元。 *(要 `installToast`)*
+- [リクエストアクション](/hypermedia-components/ja/recipes/request-action/) — ビジー状態つきで htmx リクエストを発行するボタン。
+- [インライン編集](/hypermedia-components/ja/recipes/inline-edit/) — 値を表示モードと編集モードの間でその場でスワップ。
+- [ファイルアップロード](/hypermedia-components/ja/recipes/file-upload/) — ライブ進捗バーと out-of-band フォームリセットつきのマルチパートアップロード。 *(要 `installUploadProgress`)*
+- [データグリッド一括操作](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) — チェックボックスで行を選択し、1 つのアクションを全行に POST。 *(要 `installDatagridActions`)*
+- [クリップボードにコピー](/hypermedia-components/ja/recipes/copy/) — 読み取り専用の値(URL、トークン、スニペット)をクリップボードへ。 *(要 `installCopy`)*
+
+## 検索とフィルタ
+
+- [ライブ検索](/hypermedia-components/ja/recipes/live-search/) — 入力に応じたデバウンス検索で結果をスワップ。
+- [フィルタポップオーバー](/hypermedia-components/ja/recipes/filter-popover/) — フィルタフォームを載せ、成功時に閉じるポップオーバー。 *(要 `installClosePopover`)*
+
+## 読み込みと領域
+
+- [レイジーパネル](/hypermedia-components/ja/recipes/lazy-panel/) — パネルの読み込みを、初めて表示されるまで遅延。
+- [レイジーツリー](/hypermedia-components/ja/recipes/lazy-tree/) — 初回展開時に子を読み込むツリーの枝。 *(要 `installTree`)*
+- [データ領域](/hypermedia-components/ja/recipes/data-region/) — `HX-Trigger` に駆動される自己更新領域。
+- [データグリッドのページネーション](/hypermedia-components/ja/recipes/datagrid-pager/) — out-of-band の行スワップを伴うサーバ駆動ページャー。 *(要 `installDatagrid`)*
+
+## サーバプッシュ
+
+- [SSE 更新](/hypermedia-components/ja/recipes/sse-updates/) — Server-Sent Events によるサーバプッシュのフラグメント更新。名前付きイベントと out-of-band プッシュ。
+- [SSE トースト](/hypermedia-components/ja/recipes/sse-toast/) — JSON ペイロードつき SSE イベントを許可リスト方式で DOM イベントへ変換。トーストはそのまま動作。 *(要 `installSseDispatch`)*
+
+## データ可視化
+
+- [チャート](/hypermedia-components/ja/recipes/chart/) — サーバが送るデータテーブルを Observable Plot の SVG チャートへ昇格。 *(要 `installChart` + Plot)*
+
+## オーバーレイと通知
+
+- [リモートダイアログ](/hypermedia-components/ja/recipes/remote-dialog/) — 開くときにダイアログの中身をサーバから読み込み。 *(要 `installRemoteDialog` + `installCloseDialog`)*
+- [トースト](/hypermedia-components/ja/recipes/toast/) — クライアントまたは `HX-Trigger` ヘッダーからトースト通知を発火。 *(要 `installToast`)*

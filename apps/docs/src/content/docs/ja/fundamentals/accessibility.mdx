@@ -1,0 +1,124 @@
+---
+title: アクセシビリティ
+description: Hypermedia Components がユーザーのコンテキストに適応する仕組み — Forced Colors / Windows ハイコントラスト、reduced motion、右から左のレイアウト。
+---
+
+Hypermedia Components は状態を HTML 属性(`aria-*`、`data-*`、ネイティブの
+`:checked` / `disabled`)に置くため、支援技術は追加の作業なしに
+セマンティクスを得られます。それに加えて、キットは CSS でユーザーの
+コンテキストに適応します: **Forced Colors**、**reduced motion**、
+**右から左**のレイアウトです。
+
+## Forced Colors(Windows ハイコントラスト)
+
+ユーザーがハイコントラスト / forced-colors テーマを有効にすると、
+ブラウザは**作者の色をユーザーのシステムパレットに置き換え、
+`box-shadow` を落とします**。そのままでは HC の 2 つのパターンが
+壊れます:
+
+1. `box-shadow` で描く**フォーカスリング**(入力欄、セレクト、カスタム
+   トグル、スライダー)— リングが消えます。
+2. **背景の色味(`color-mix`)だけで伝える状態** — 選択中のオプション、
+   現在のページネーションページ、チェック済みコントロール — が
+   区別できなくなります。
+
+単一の forced-colors スタイルシート(`hc.a11y.css`、メインの `hc.css`
+バンドルに同梱)が、forced-colors モードでも保持される **CSS システム
+カラー**を使って両方を表現し直します:
+
+- **フォーカス**は、コンポーネントが `outline: none` + box-shadow リングを
+  使っていた箇所すべてで、本物の `outline`(`Highlight`)として復元
+  されます。
+- **選択 / アクティブ状態**(コンボボックスとコマンドのオプション、タブ、
+  トグルグループ、ページネーション、カレンダーの日、データグリッドの
+  選択行 / 現在セル)は inset の `outline` でマークされます — `outline`
+  は forced-colors を生き残るため、マークは常に見えます。
+- **カスタムトグル**(`hc-checkbox`、`hc-radio`、`hc-switch`、
+  `hc-slider` のつまみ)は `forced-color-adjust: none` でオプトアウトし、
+  `Highlight` / `HighlightText` / `Canvas` / `CanvasText` で塗るため、
+  チェック時の塗りとつまみが見えたままになります。
+
+バンドル版 `hc.css` を使っていれば自動で適用されます。粒度の細かい
+エントリを使う場合は、コンポーネント CSS の**後**にインポートして
+ください:
+
+```css
+@import "@hypermedia-components/core/css/core";
+@import "@hypermedia-components/core/css/button";
+/* …other components… */
+@import "@hypermedia-components/core/a11y.css"; /* last */
+```
+
+`hc.a11y.css` は `hc.components` レイヤーの最後のソースファイルとして
+連結されるため、ソース順により各コンポーネント自身のフォーカス / 状態
+ルールを上書きします — 追加のカスケードレイヤーも詳細度ハックも
+ありません。
+
+### テスト方法
+
+Chromium DevTools で forced-colors をエミュレートするか
+(**Rendering → Emulate CSS media feature `forced-colors`**)、
+Playwright で:
+
+```js
+await page.emulateMedia({ forcedColors: 'active' });
+```
+
+入力欄にフォーカスし、コンボボックスをタブ移動し、チェックボックスを
+切り替えてみてください — インジケーターはシステムパレットの中で
+見え続けます。
+
+## Reduced motion
+
+ユーザーが **prefers-reduced-motion** を設定すると、アニメーションする
+すべてのコンポーネントが `transition` の長さを無効化し、状態変化は
+アニメーションなしで即座に起こります。これは CSS で処理されます —
+JavaScript も設定も不要です。
+
+自前のスタイルシートでアニメーションするコンポーネント(アコーディオン、
+ドロワー、プログレス、スケルトン、スピナー、スイッチ、OTP のキャレット、
+シェルのオーバーレイ、データグリッド)は各自でゲートし、唯一の動きが
+`transition` である残りのコントロール(ボタン、チェックボックス、
+ラジオ、インプット、セレクト、デートピッカー、タブ、ページネーション、
+トグルグループ)は `hc.a11y.css` で一括カバー、htmx インジケーターの
+フェードは `hc.htmx.css` でカバーされます。正味の効果:
+reduced-motion 下では**キットの中で何もアニメーションしません**。
+
+```js
+// Verify in Playwright:
+await page.emulateMedia({ reducedMotion: 'reduce' });
+// getComputedStyle(button).transitionDuration === '0s'
+```
+
+意味を伝える動き(進行中を示すスピナー)は `aria-*` によって役割を
+保ちます。reduced-motion が取り除くのは装飾的なアニメーションだけです。
+
+## 右から左(RTL)
+
+`<html>`(または任意のサブツリー)に `dir="rtl"` を設定すれば、キットが
+追従します。レイアウトは **CSS 論理プロパティ**(`margin-inline`、
+`inset-inline-start`、`text-align: start`、`border-inline-end`…)の上に
+構築されているため、間隔・揃え・枠線・コンポーネント内部のジオメトリは
+自動でミラーされます — 反転すべき物理的な `left` / `right` ルールは
+ありません。
+
+いくつかの箇所は本物の方向認識を必要とし、こちらで処理済みです:
+
+- **データグリッド**の固定列は inline-start 端(RTL では右)に固定され、
+  固定線の影も正しい側に落ちます。
+- **カレンダー**の前 / 次シェブロンはミラーされ、「前」が自然な向きを
+  指し続けます。
+- **キーボードナビゲーション。** 水平の <kbd>←</kbd> / <kbd>→</kbd> は、
+  タブ、トグルグループ、データグリッドのセルグリッド、カレンダー、
+  スプリッターで RTL ミラーされます — <kbd>←</kbd> は inline-end(次)へ
+  移動します。垂直の <kbd>↑</kbd> / <kbd>↓</kbd> は変わりません。
+
+ドキュメントサイト全体は、トップバーの **Dir** ピッカーで RTL に切り替えて
+全コンポーネントをプレビューできます。
+
+:::note
+カスタムの方向つきパンくずセパレータ
+(例: `--hc-breadcrumb-separator: '›'`)は自動ミラーされません —
+RTL 用のミラーされたグリフは自分で設定してください。デフォルトの `/` は
+変更不要です。
+:::

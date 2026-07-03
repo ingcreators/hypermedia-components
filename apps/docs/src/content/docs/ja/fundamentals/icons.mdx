@@ -1,0 +1,149 @@
+---
+title: アイコン
+description: Hypermedia Components はアイコンセットを同梱しません — お好きなものを持ち込んでください。HC の Light DOM・htmx ファースト・トークンテーマのモデルときれいに組み合う推奨ライブラリと、currentColor と .hc-icon ユーティリティによる配線方法。
+---
+
+Hypermedia Components は、意図して**アイコンセットを同梱しません**。
+アイコンはアプリレベルの選択であり、CSS + ビヘイビアのライブラリが
+1 つに固定すべきではないからです。(HC 自身のクローム — セレクトの
+シェブロン、チェックボックスのチェック、アコーディオンのキャレット — は
+`currentColor` で描かれたインライン SVG なので、すでにテーマに追従
+します。)
+
+好きなセットを選んでください。以下のものは 4 つの基準を満たすため、
+HC と特にきれいに組み合います:
+
+1. **`currentColor`** — アイコンが周囲のテキスト / ボタン / アクセント
+   色を継承するため、`data-color` と `data-neutral` に自動で追従します。
+2. **フレームワーク不要** — 素のサーバレンダリング HTML で動き、htmx
+   スワップを生き残ります(React/Vue ランタイム不要)。
+3. **`em` でサイズ可能** — 周囲のテキストと密度に合わせてスケールします。
+4. **オープンライセンス。**
+
+## 推奨
+
+### 1. Iconify `<iconify-icon>` — ハイパーメディアに最適
+
+フレームワーク不要の Web コンポーネント。スクリプトを一度置けば、20 万
+以上のアイコン(Lucide、Tabler、Phosphor、Remix、Material、…)を名前で
+参照できます。CSS の `currentColor` で色づき、`font-size` でサイズが
+決まり、**htmx スワップ後も再初期化なしで自己再描画**します。
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/iconify-icon@2"></script>
+
+<button class="hc-button" data-variant="primary">
+  <iconify-icon icon="lucide:check" class="hc-icon"></iconify-icon> Save
+</button>
+```
+
+セットはプレフィックスでアイコンごとに選べます: `lucide:check`、
+`tabler:check`、`ph:check`、`ri:check-line`、`material-symbols:check`。
+
+### 2. Lucide — HC の見た目に最も合う単一セット
+
+24px グリッド、1.5–2px ストローク、`currentColor` — HC 組み込みの
+ストローククロームと視覚的に一貫します。使い方は 3 通り: インライン SVG
+のコピー、`lucide` vanilla イニシャライザ、Iconify 経由(`lucide:*`)。
+
+vanilla イニシャライザは htmx スワップ後に再実行が必要です:
+
+```html
+<i data-lucide="check"></i>
+<script>
+  lucide.createIcons();
+  document.body.addEventListener('htmx:afterSwap', () => lucide.createIcons());
+</script>
+```
+
+### 3. SVG スプライト — 最もハイパーメディア純度が高い(JS ゼロ)
+
+使うアイコンを 1 つのスプライトにまとめ、`<use>` で参照します。
+ランタイムなし、サーバレンダリング可能、最速、`currentColor`。
+
+```html
+<button class="hc-button">
+  <svg class="hc-icon" aria-hidden="true"><use href="/icons.svg#check"></use></svg>
+  Save
+</button>
+```
+
+**ほかの良いセット**(すべて Iconify 経由でも利用可): Tabler、
+Phosphor(regular / bold / fill / duotone)、Remix、Heroicons、
+Material Symbols(バリアブルフォント)。HC 組み込みクロームに合わせる
+なら**アウトライン / ストローク**系のセットを選んでください。
+
+## HC との配線
+
+### 色 — `currentColor` に任せる
+
+アイコンに色を設定しないでください。`currentColor` のままにしておけば、
+スコープ内の HC の色 — ボタンの前景色、本文テキスト、アクティブな
+アクセント — を継承します。そのまま `data-color` / `data-neutral` /
+ダークモードに自動で追従します。
+
+### サイズ — `.hc-icon` ユーティリティ
+
+`.hc-icon` ユーティリティは、アイコンを周囲のテキストに合わせてサイズし
+(`--hc-icon-size: 1em`)、`flex: none` を設定し、ベースラインに揃えます。
+インスタンス単位の上書き:
+
+```html
+<svg class="hc-icon" style="--hc-icon-size: 1.25rem" aria-hidden="true">…</svg>
+```
+
+### アクセシビリティ
+
+- テキストラベルの隣の**装飾**アイコン → `aria-hidden="true"`。
+- **アイコンのみ**のコントロール → アクセシブルな名前を与え、グリフを
+  隠します:
+  ```html
+  <button class="hc-button" aria-label="Search">
+    <svg class="hc-icon" aria-hidden="true"><use href="/icons.svg#search"></use></svg>
+  </button>
+  ```
+  (または `.hc-sr-only` で AT にだけ見えるラベルを置きます。)
+
+## ライブ例
+
+以下は `.hc-icon` つきのインライン Lucide SVG です — ライブラリは
+読み込まず、`currentColor` + ユーティリティだけ。ヘッダーの **Color** /
+**Neutral** / テーマピッカーを切り替えて、アイコンが追従するのを
+確かめてください。
+
+<div class="hc-preview not-content" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+    Save
+  </button>
+  <button class="hc-button" data-variant="secondary">
+    Continue
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </button>
+  <button class="hc-button" data-variant="ghost" aria-label="Search">
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  </button>
+  <span class="hc-badge" data-variant="success">
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+    Done
+  </span>
+  <span style="display:inline-flex;align-items:center;gap:.35rem;color:var(--hc-color-text-muted);">
+    <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    3 notifications
+  </span>
+</div>
+
+```html
+<button class="hc-button" data-variant="primary">
+  <svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M20 6 9 17l-5-5"/>
+  </svg>
+  Save
+</button>
+```
+
+## 関連
+
+- [カラーテーマ](/hypermedia-components/ja/tokens/themes/) · [ニュートラルランプ](/hypermedia-components/ja/tokens/neutral/) — `currentColor` アイコンが追従する対象。
+- [アクセシビリティ](/hypermedia-components/ja/fundamentals/accessibility/) — アイコンのみコントロールのラベル付け。
