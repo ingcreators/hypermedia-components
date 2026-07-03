@@ -1,0 +1,42 @@
+<!-- Short recommended usage.
+
+  The hypermedia wizard: the server owns the current step and the
+  draft; the client is one region (whole-step outerHTML swaps), one
+  form per step, and an hc-stepper the server re-renders each time.
+  Both nav directions are named submits of the SAME form — back
+  carries formnovalidate so drafts save without validation; only
+  "next" validates. 422s steer field-errors into #wizard-errors
+  (HX-Retarget) without touching the user's in-progress values; the
+  final next completes via the mutating-form redirect. Real step URLs
+  keep the no-JS path working as classic pages. See contract.md. -->
+<section id="wizard">
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">1</span>
+      <span class="hc-stepper__label">Account</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+
+  <form method="post" action="/signup/1"
+        data-hx-post="/signup/1"
+        data-hx-target="#wizard" data-hx-swap="outerHTML"
+        data-hx-disabled-elt="find button[type=submit]">
+    <div id="wizard-errors"></div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="email">Email</label>
+      <input class="hc-input" id="email" name="email" type="email" required>
+    </div>
+
+    <button class="hc-button" data-variant="primary" type="submit"
+            name="nav" value="next">Next</button>
+  </form>
+</section>
