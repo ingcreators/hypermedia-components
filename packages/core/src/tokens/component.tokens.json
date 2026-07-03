@@ -768,6 +768,48 @@
    "$value": "{semantic.color.error}"
   }
  },
+ "stepper": {
+  "marker-size": {
+   "$type": "dimension",
+   "$value": "1.75rem"
+  },
+  "marker-bg": {
+   "$type": "color",
+   "$value": "{semantic.color.muted-bg}"
+  },
+  "marker-fg": {
+   "$type": "color",
+   "$value": "{semantic.color.text-muted}"
+  },
+  "current-bg": {
+   "$type": "color",
+   "$value": "{semantic.color.focus-ring}"
+  },
+  "current-fg": {
+   "$type": "color",
+   "$value": "{semantic.color.surface}"
+  },
+  "complete-bg": {
+   "$type": "color",
+   "$value": "color-mix(in srgb, {semantic.color.focus-ring} 18%, {semantic.color.surface})"
+  },
+  "complete-fg": {
+   "$type": "color",
+   "$value": "{semantic.color.focus-ring}"
+  },
+  "connector": {
+   "$type": "color",
+   "$value": "{semantic.color.border}"
+  },
+  "label": {
+   "$type": "color",
+   "$value": "{semantic.color.text-muted}"
+  },
+  "gap": {
+   "$type": "dimension",
+   "$value": "{semantic.space.2}"
+  }
+ },
  "multicombobox": {
   "control": {
    "padding-x": {
