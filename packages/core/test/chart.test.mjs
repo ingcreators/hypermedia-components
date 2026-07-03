@@ -13,7 +13,7 @@ afterEach(() => {
 // returns a real <svg> from plot(), so we can assert what installChart
 // reads from the table without depending on Plot itself.
 function fakePlot() {
-  const calls = { barY: [], lineY: [], areaY: [], dot: [], ruleY: [], plot: [] };
+  const calls = { barY: [], lineY: [], areaY: [], dot: [], ruleY: [], rectY: [], cell: [], binX: [], plot: [] };
   const mark = (name) => (data, opts) => {
     calls[name].push({ data, opts });
     return { mark: name };
@@ -24,6 +24,12 @@ function fakePlot() {
     areaY: mark('areaY'),
     dot: mark('dot'),
     ruleY: mark('ruleY'),
+    rectY: mark('rectY'),
+    cell: mark('cell'),
+    binX: (outputs, opts) => {
+      calls.binX.push({ outputs, opts });
+      return { transform: 'binX', outputs, opts };
+    },
     plot: (opts) => {
       calls.plot.push(opts);
       return document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -263,5 +269,51 @@ describe('Tier 2 presets', () => {
     const { plot, calls } = fakePlot();
     uninstall = installChart(document, { plot });
     expect(calls.plot[0].height).toBe(80);
+  });
+});
+
+
+describe('Tier 3 presets', () => {
+  it('histogram reads one numeric column and bins it (data-bins → thresholds)', () => {
+    document.body.innerHTML = fig('histogram', `
+      <thead><tr><th>Response time</th></tr></thead>
+      <tbody><tr><td>120</td></tr><tr><td>1,300</td></tr><tr><td>90</td></tr><tr><td>n/a</td></tr></tbody>`,
+      'data-bins="12"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.rectY).toHaveLength(1);
+    const { data, opts } = calls.rectY[0];
+    expect(data.map((d) => d.x)).toEqual([120, 1300, 90]); // numeric, bad rows dropped
+    expect(opts.transform).toBe('binX');
+    expect(calls.binX[0].outputs).toEqual({ y: 'count' });
+    expect(calls.binX[0].opts).toMatchObject({ x: 'x', thresholds: 12 });
+    expect(calls.plot[0].x.type).toBe('linear');
+    expect(calls.plot[0].color.legend).toBe(false);
+  });
+
+  it('heatmap maps the matrix to cell with a continuous fill and ordered domains', () => {
+    document.body.innerHTML = fig('heatmap', `
+      <thead><tr><th>Day</th><th>Mon</th><th>Tue</th></tr></thead>
+      <tbody><tr><td>Morning</td><td>3</td><td>7</td></tr><tr><td>Evening</td><td>9</td><td>2</td></tr></tbody>`,
+      'data-y-label="Visits" data-scheme="blues"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.cell).toHaveLength(1);
+    const { opts } = calls.cell[0];
+    expect(opts).toEqual({ x: 'series', y: 'x', fill: 'value' });
+    const plotOpts = calls.plot[0];
+    expect(plotOpts.x.domain).toEqual(['Mon', 'Tue']);
+    expect(plotOpts.y.domain).toEqual(['Morning', 'Evening']);
+    expect(plotOpts.color).toMatchObject({ legend: true, label: 'Visits', scheme: 'blues' });
+  });
+
+  it('leaves a server-rendered figure alone (the linkedom SSR path)', () => {
+    document.body.innerHTML = fig('bar', `
+      <thead><tr><th>Month</th><th>Sales</th></tr></thead>
+      <tbody><tr><td>Jan</td><td>1</td></tr></tbody>`,
+      'data-state="rendered"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.plot).toHaveLength(0); // untouched
   });
 });

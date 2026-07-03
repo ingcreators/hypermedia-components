@@ -6,7 +6,8 @@
 // accessible fallback.
 //
 //   <figure class="hc-chart" data-hc-chart="bar|line|area|combo
-//                                 |bar-stacked|bar-grouped|scatter|sparkline">
+//                                 |bar-stacked|bar-grouped|scatter|sparkline
+//                                 |histogram|heatmap">
 //     <table class="hc-table">
 //       <thead><tr><th>Month</th><th data-mark="bar">Sales</th><th data-mark="line">Target</th></tr></thead>
 //       <tbody><tr><td>Jan</td><td>120</td><td>150</td></tr>…</tbody>
@@ -44,7 +45,7 @@ function defaultMarkOf(figure) {
   const type = (figure.getAttribute('data-hc-chart') || 'bar').toLowerCase();
   if (type === 'line' || type === 'area') return type;
   if (type === 'sparkline' || type === 'scatter') return 'line';
-  return 'bar';
+  return 'bar'; // incl. histogram / heatmap (unused by their presets)
 }
 
 function markFor(th, fallback) {
@@ -79,7 +80,7 @@ function readTable(figure, table) {
 
   const type = (figure.getAttribute('data-hc-chart') || 'bar').toLowerCase();
   const xType = (figure.getAttribute('data-x-type')
-    || (type === 'scatter' ? 'number' : 'category')).toLowerCase();
+    || (type === 'scatter' || type === 'histogram' ? 'number' : 'category')).toLowerCase();
   const fallbackMark = defaultMarkOf(figure);
 
   const headCells = [...head.cells];
@@ -94,6 +95,22 @@ function readTable(figure, table) {
   }));
   const rColumn = columns.slice(1).find((c) => c.role === 'r') || null;
   const series = columns.slice(1).filter((c) => c !== rColumn);
+
+  // Histogram reads ONE numeric column: every body row's first cell is a
+  // sample; any extra columns are ignored (documented).
+  if (type === 'histogram') {
+    const rows = [];
+    for (const tr of body.rows) {
+      const cell = tr.cells[0];
+      if (!cell) continue;
+      const n = toNumber(cell.textContent);
+      if (n == null) continue;
+      rows.push({ x: n, series: xName || 'value', mark: 'bar', value: n });
+    }
+    if (!rows.length) return null;
+    return { xName, xType: 'number', series: [], rows, hasR: false };
+  }
+
   if (!series.length) return null;
 
   const rows = [];
@@ -153,6 +170,10 @@ function validRows(rows) {
   return rows.filter((d) => d.value != null);
 }
 
+function figure_y_label(figure) {
+  return figure.getAttribute('data-y-label') || null;
+}
+
 // Figure-level Tier 2 presets. Each owns the whole figure: it returns the
 // marks plus per-key overrides of the base plot options. Per-column
 // `data-mark` combos remain a Tier 1 concept (bar/line/area only).
@@ -192,6 +213,45 @@ const TYPE_PRESETS = {
         ...(data.hasR ? { r: 'r' } : { r: 4 }),
       }),
     ],
+  }),
+
+  // Bin one numeric column into count bars. `data-bins` caps the bin
+  // count (Plot's thresholds option).
+  histogram: (plot, data, base, ctx) => {
+    const bins = Number.parseInt(ctx.figure.getAttribute('data-bins') || '', 10);
+    return {
+      marks: [
+        plot.ruleY([0]),
+        plot.rectY(data.rows, plot.binX(
+          { y: 'count' },
+          { x: 'x', ...(Number.isFinite(bins) ? { thresholds: bins } : {}) },
+        )),
+      ],
+      options: {
+        color: { legend: false },
+        y: { ...base.y, label: figure_y_label(ctx.figure) || 'count' },
+      },
+    };
+  },
+
+  // Matrix heat: row categories on y, column headers on x, the cell value
+  // drives a CONTINUOUS fill (the categorical series palette does not
+  // apply). `data-scheme` picks a Plot color scheme.
+  heatmap: (plot, data, base, ctx) => ({
+    marks: [
+      plot.cell(validRows(data.rows), { x: 'series', y: 'x', fill: 'value' }),
+    ],
+    options: {
+      x: { label: null, domain: data.series.map((s) => s.name) },
+      y: { label: data.xName || null, domain: base.x.domain, grid: false },
+      color: {
+        legend: true,
+        label: figure_y_label(ctx.figure) || undefined,
+        ...(ctx.figure.getAttribute('data-scheme')
+          ? { scheme: ctx.figure.getAttribute('data-scheme') }
+          : {}),
+      },
+    },
   }),
 
   // A Plot-styled inline trend: no axes, no grid, no legend, compact
@@ -243,6 +303,12 @@ function xScaleType(xType) {
 // if the table is missing / empty (the table simply stays visible).
 function renderFigure(figure, rendered, options) {
   if (rendered.has(figure)) return;
+  // Server-rendered figures (the documented linkedom SSR path) arrive
+  // with their SVG already in place — leave them alone.
+  if (figure.getAttribute('data-state') === 'rendered' || figure.querySelector(':scope > svg')) {
+    rendered.add(figure);
+    return;
+  }
   const plot = resolvePlot(options);
   if (!plot) return;
 

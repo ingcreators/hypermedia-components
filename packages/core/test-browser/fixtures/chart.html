@@ -20,6 +20,9 @@
       areaY: mark('areaY'),
       dot: mark('dot'),
       ruleY: mark('ruleY'),
+      rectY: mark('rectY'),
+      cell: mark('cell'),
+      binX: (outputs, opts) => ({ transform: 'binX', outputs, opts }),
       plot(opts) {
         window.__plotOpts.push(opts);
         const NS = 'http://www.w3.org/2000/svg';
@@ -119,6 +122,37 @@
           <tr><td>Wed</td><td>2</td></tr>
         </tbody>
       </table>
+    </figure>
+  </section>
+
+  <section id="section-tier3" data-testid="section-tier3">
+    <figure class="hc-chart" data-hc-chart="histogram" data-bins="8" data-testid="chart-histogram">
+      <table class="hc-table">
+        <caption>Response times</caption>
+        <thead><tr><th>ms</th></tr></thead>
+        <tbody>
+          <tr><td>120</td></tr><tr><td>90</td></tr><tr><td>340</td></tr><tr><td>210</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <figure class="hc-chart" data-hc-chart="heatmap" data-y-label="Visits" data-testid="chart-heatmap">
+      <table class="hc-table">
+        <caption>Visits by day</caption>
+        <thead><tr><th>Slot</th><th>Mon</th><th>Tue</th><th>Wed</th></tr></thead>
+        <tbody>
+          <tr><td>Morning</td><td>3</td><td>7</td><td>5</td></tr>
+          <tr><td>Evening</td><td>9</td><td>2</td><td>6</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <!-- The documented SSR path: the server already rendered the SVG;
+         the client behavior must leave it alone. -->
+    <figure class="hc-chart" data-hc-chart="bar" data-state="rendered" data-testid="chart-ssr">
+      <table class="hc-table hc-sr-only">
+        <thead><tr><th>Month</th><th>Sales</th></tr></thead>
+        <tbody><tr><td>Jan</td><td>120</td></tr></tbody>
+      </table>
+      <svg class="hc-chart__plot" viewBox="0 0 100 40" aria-hidden="true" data-testid="ssr-svg"><rect width="40" height="30"></rect></svg>
     </figure>
   </section>
 

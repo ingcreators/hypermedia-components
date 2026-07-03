@@ -82,6 +82,23 @@ test.describe('hc-chart (installChart)', () => {
     }
   });
 
+  test('tier 3: histogram bins, heatmap cell + domains, SSR figures untouched', async ({ page }) => {
+    const opts = await page.evaluate(() => window.__plotOpts);
+
+    const heat = opts.find((o) => o.color && o.color.label === 'Visits');
+    expect(heat.x.domain).toEqual(['Mon', 'Tue', 'Wed']);
+    expect(heat.y.domain).toEqual(['Morning', 'Evening']);
+    expect(heat.color.legend).toBe(true);
+
+    await expect(page.locator('[data-testid="chart-histogram"] svg')).toHaveCount(1);
+    await expect(page.locator('[data-testid="chart-heatmap"] svg')).toHaveCount(1);
+
+    // The pre-rendered SSR figure kept its original svg — exactly one,
+    // ours, and the behavior did not add a second plot for it.
+    await expect(page.locator('[data-testid="chart-ssr"] svg')).toHaveCount(1);
+    await expect(page.getByTestId('ssr-svg')).toBeAttached();
+  });
+
   test('axe finds no violations in the chart section', async ({ page }) => {
     const results = await new AxeBuilder({ page })
       .include('#section-chart')
