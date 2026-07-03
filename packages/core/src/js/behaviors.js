@@ -43,6 +43,7 @@ import { installCsrfHeader } from './csrf-header.js';
 import { installSseDispatch } from './sse-dispatch.js';
 import { installUploadProgress } from './upload-progress.js';
 import { installDropzone } from './dropzone.js';
+import { installTree } from './tree.js';
 import { installCopy } from './copy.js';
 import { installSpy } from './spy.js';
 import { installNavCurrent } from './nav-current.js';
@@ -86,6 +87,7 @@ function init() {
   installSseDispatch();
   installUploadProgress();
   installDropzone();
+  installTree();
   installCopy();
   installSpy();
   installNavCurrent();
@@ -138,6 +140,7 @@ export {
   installSseDispatch,
   installUploadProgress,
   installDropzone,
+  installTree,
   installCopy,
   installSpy,
   installNavCurrent,

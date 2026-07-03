@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-tree` — ARIA tree view** (#311). Semantic nested lists
+  upgraded by `installTree()`: tree/treeitem/group roles + a roving
+  tabindex (re-applied when subtrees are swapped in), the **APG
+  keyboard model over visible items** (↑/↓ skip collapsed subtrees,
+  → opens/descends, ← closes/ascends, Home/End, Enter follows the
+  label's real link or toggles, single-character type-ahead, RTL
+  mirroring). Branch-ness is declared by `aria-expanded` (the server
+  owns it); `aria-current` / selection stay server states. Every
+  expansion dispatches a bubbling **`hc:treeexpand`**
+  (`detail: { item }`) — new public event — and an expanding item with
+  `data-hx-get` + an empty group gets `aria-busy` until children
+  arrive: the hook the `lazy-tree` recipe (next PR) builds on. Tokens
+  `--hc-tree-*`, chevron/guide/current styling with reduced-motion
+  gates, `data-size="sm"`; docs page + VRT coverage.
+
 - **Chart Tier 3 — `histogram`, `heatmap`, and the documented SSR
   path** (#309; completes `plans/hc-chart-recipe-plan-en.md`).
   `histogram` bins one numeric column into count bars (`data-bins`);

@@ -1,0 +1,159 @@
+/* hc-tree — ARIA tree view over semantic nested lists.
+ *
+ * The bone structure is plain <ul>/<li> (a no-JS page renders a fully
+ * readable nested list; links keep working). installTree() applies the
+ * tree/treeitem/group roles, the roving tabindex and the APG keyboard
+ * model; this stylesheet renders the states.
+ *
+ *   <ul class="hc-tree" aria-label="Project files">
+ *     <li class="hc-tree__item" aria-expanded="false">
+ *       <span class="hc-tree__row">
+ *         <span class="hc-tree__toggle" aria-hidden="true"></span>
+ *         <span class="hc-tree__label">src</span>
+ *       </span>
+ *       <ul class="hc-tree__group">…child items…</ul>
+ *     </li>
+ *   </ul>
+ *
+ * Branch-ness is declared by aria-expanded (present = branch; the
+ * server owns the initial value, the behavior toggles it). Collapsed
+ * groups are hidden by CSS. aria-current marks the "you are here" row
+ * (a server state). [aria-busy="true"] groups show the lazy-loading
+ * affordance (the lazy-tree recipe). Sizes: data-size="sm".
+ */
+@layer hc.components {
+  .hc-tree,
+  .hc-tree__group {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hc-tree {
+    color: var(--hc-tree-fg);
+  }
+
+  .hc-tree__group {
+    padding-inline-start: var(--hc-tree-indent);
+    border-inline-start: 1px solid var(--hc-tree-guide);
+    margin-inline-start: calc(var(--hc-tree-toggle-size) / 2);
+  }
+
+  /* Collapsed branches hide their group. */
+  .hc-tree__item[aria-expanded='false'] > .hc-tree__group {
+    display: none;
+  }
+
+  .hc-tree__item {
+    outline: none; /* focus is drawn on the row below */
+  }
+
+  .hc-tree__row {
+    display: flex;
+    align-items: center;
+    gap: var(--hc-space-1);
+    padding-block: var(--hc-tree-row-padding-y);
+    padding-inline: var(--hc-tree-row-padding-x);
+    border-radius: var(--hc-tree-row-radius);
+    cursor: default;
+  }
+
+  .hc-tree__row:hover {
+    background-color: var(--hc-tree-hover-bg);
+  }
+
+  .hc-tree__item:focus-visible > .hc-tree__row {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  /* The chevron toggle — rotates open; mirrored automatically in RTL
+   * because the glyph is drawn with borders on logical sides. */
+  .hc-tree__toggle {
+    inline-size: var(--hc-tree-toggle-size);
+    block-size: var(--hc-tree-toggle-size);
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hc-tree__toggle::before {
+    content: '';
+    inline-size: 0.5em;
+    block-size: 0.5em;
+    border-inline-end: 2px solid currentColor;
+    border-block-end: 2px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 120ms ease;
+  }
+
+  :dir(rtl) .hc-tree__toggle::before {
+    transform: rotate(135deg);
+  }
+
+  .hc-tree__item[aria-expanded='true'] > .hc-tree__row .hc-tree__toggle::before {
+    transform: rotate(45deg);
+  }
+
+  /* Leaves keep the row grid aligned with an empty toggle slot. */
+  .hc-tree__item:not([aria-expanded]) > .hc-tree__row .hc-tree__toggle::before {
+    content: none;
+  }
+
+  .hc-tree__label {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .hc-tree__label a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .hc-tree__label a:hover,
+  .hc-tree__label a:focus-visible {
+    text-decoration: underline;
+  }
+
+  /* "You are here" — a server state; the accent follows data-color. */
+  .hc-tree__item[aria-current] > .hc-tree__row {
+    background-color: var(--hc-tree-current-bg);
+    color: var(--hc-tree-current-fg);
+    font-weight: 500;
+  }
+
+  /* Lazy subtree loading (the lazy-tree recipe): the behavior marks the
+   * empty group busy while htmx fetches the children. */
+  .hc-tree__group[aria-busy='true']::before {
+    content: '';
+    display: block;
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    margin: var(--hc-space-1);
+    border: 2px solid var(--hc-tree-guide);
+    border-block-start-color: var(--hc-color-focus-ring);
+    border-radius: 50%;
+    animation: hc-tree-busy-spin 0.6s linear infinite;
+  }
+
+  @keyframes hc-tree-busy-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .hc-tree[data-size='sm'] {
+    --hc-tree-indent: 1rem;
+
+    font-size: var(--hc-font-size-sm);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-tree__toggle::before {
+      transition: none;
+    }
+
+    .hc-tree__group[aria-busy='true']::before {
+      animation: none;
+    }
+  }
+}

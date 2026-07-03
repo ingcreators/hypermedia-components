@@ -1,6 +1,6 @@
 # hc-tree + lazy-tree — component + recipe plan
 
-Status: **approved; implementation pending (two PRs, §7).**
+Status: **PR 1 (component) shipped; PR 2 (lazy-tree recipe) pending.**
 The last big component gap: an ARIA-tree view (file browsers, category
 hierarchies, admin navs) with the kit's hypermedia signature — **lazy
 subtrees that arrive as server-rendered HTML on first expand**. The
