@@ -23,7 +23,7 @@ Security    — security-relevant changes
 ### Added
 
 - **Chart Tier 2 — `bar-stacked`, `bar-grouped`, `scatter`,
-  `sparkline`** (#307). Four whole-figure presets on the same
+  `sparkline`** (#308). Four whole-figure presets on the same
   table-as-data contract: explicit stacking; side-by-side grouping via
   faceting (the category axis carries the labels, the inner axis
   hides); scatter with a numeric default x (`data-x-type`), one dot set
