@@ -1,0 +1,147 @@
+---
+title: バリアントとサイズ
+description: HC が理解するすべての `data-variant` と `data-size` のコンポーネント横断マトリクスと、非対称性の理由。
+---
+
+`data-variant` と `data-size` は、HC コンポーネントが強調と占有面積を表現するための 2 つの属性軸です。このページがその正準マトリクスです — 各値が各コンポーネントで何を意味するか、そして**なぜマトリクスが対称でないか**。
+
+## マトリクス
+
+`✓` = サポート。`—` = 非該当 / 非サポート。`(default)` = 属性省略時の暗黙値。
+
+| コンポーネント   | _省略_                   | `primary`  | `secondary` | `success`  | `warning`  | `error`   | `ghost`    | `data-size` |
+| ---------------- | ------------------------ | ---------- | ----------- | ---------- | ---------- | ---------- | ---------- | ----------- |
+| [ボタン](/hypermedia-components/ja/components/button/) | (default) アウトラインのニュートラル | ✓ テーマ色の塗り | ✓ ニュートラルの塗り | — | — | ✓ 赤の塗り | ✓ 透明 | `sm` / `md` / `lg` |
+| [インプット](/hypermedia-components/ja/components/input/) / textarea | (default) 標準 | — | — | ✓ 緑の枠線 | ✓ アンバーの枠線 | ✓ 赤の枠線 ¹ | — | `sm` / `md` / `lg` |
+| [セレクト](/hypermedia-components/ja/components/select/) | (default) 標準 | — | — | ✓ 緑の枠線 | ✓ アンバーの枠線 | ✓ 赤の枠線 ¹ | — | `sm` / `md` / `lg` |
+| [デートピッカー](/hypermedia-components/ja/components/datepicker/) | (default) 標準 | — | — | ✓ 緑の枠線 | ✓ アンバーの枠線 | ✓ 赤の枠線 ¹ | — | `sm` / `md` / `lg` |
+| [Input OTP](/hypermedia-components/ja/components/inputotp/) | (default) 標準 | — | — | ✓ 緑の枠線 | ✓ アンバーの枠線 | ✓ 赤の枠線 ¹ | — | — |
+| [コンボボックス](/hypermedia-components/ja/components/combobox/) / [マルチコンボボックス](/hypermedia-components/ja/components/multicombobox/) | (default) 標準 | — | — | ✓ 緑の枠線 ² | ✓ アンバーの枠線 ² | ✓ 赤の枠線 ¹ ² | — | — |
+| [チェックボックス](/hypermedia-components/ja/components/checkbox/) | (default) `:checked` でテーマ色の塗り | — | — | ✓ 緑の塗り | ✓ アンバーの塗り | ✓ 赤の塗り | — | `sm` / `md` / `lg` |
+| [ラジオ](/hypermedia-components/ja/components/radio/)   | (default) `:checked` でテーマ色の塗り | — | — | ✓ 緑の塗り | ✓ アンバーの塗り | ✓ 赤の塗り | — | `sm` / `md` / `lg` |
+| [スイッチ](/hypermedia-components/ja/components/switch/) | (default) テーマ色のトラック | — | — | ✓ 緑のトラック | ✓ アンバーのトラック | ✓ 赤のトラック | — | `sm` / `md` / `lg` |
+| [スライダー](/hypermedia-components/ja/components/slider/) | (default) テーマ色の塗り | — | — | ✓ 緑の塗り | ✓ アンバーの塗り | ✓ 赤の塗り | — | `sm` / `md` / `lg` |
+| [トグルグループ](/hypermedia-components/ja/components/toggle-group/) | (default) テーマ色のオン状態 | — | — | — | — | — | — | `sm` / `md` / `lg` |
+| [バッジ](/hypermedia-components/ja/components/badge/)   | (default) ニュートラル | — | — | ✓ 緑     | ✓ アンバー | ✓ 赤      | — | — |
+| [アラート](/hypermedia-components/ja/components/alert/)   | _必須_ | — | — | ✓ 緑     | ✓ アンバー | ✓ 赤      | — | — |
+| [トースト](/hypermedia-components/ja/recipes/toast/)      | デフォルト `info` | — | — | ✓ 緑     | ✓ アンバー | ✓ 赤      | — | — |
+
+¹ エラー状態はネイティブの `aria-invalid="true"` 属性でも到達できます —
+こちらがアクセシブルなフックで、メッセージ用の `aria-describedby` と対に
+なります。`data-variant="error"` は視覚のみの等価物です。`success` /
+`warning` にはネイティブ属性がないため、属性が唯一の表現手段です。
+² コンボボックス / マルチコンボボックスは内側の `.hc-input` から
+バリアント枠線を継承します: `data-variant` はコンボボックスの
+`<input>`、またはマルチコンボボックスの `.hc-multicombobox__control` に
+付けてください。
+
+## マトリクスが非対称な理由
+
+バリアントは**コンポーネントによって異なる目的**を担っており、
+マトリクスは意図的にそれを反映しています。
+
+### アクションコンポーネント(ボタン)
+
+バリアントは**塗りのスタイル** — そのボタンがどれだけ主張すべきか —
+を記述します:
+
+- (default) = アウトラインのニュートラル — 標準の控えめなアクション
+- `primary` = テーマ色の塗り — 見出し級の CTA
+- `secondary` = ニュートラルの塗り — `primary` より下、`default` より上の第二階層 CTA
+- `error` = 赤の塗り — 破壊的アクション(確認 UI と対に)
+- `ghost` = 透明 — 最小限の強調。ツールバー内のアイコンボタンなど
+
+`data-variant="success"` や `data-variant="warning"` のボタンは意図的に
+存在しません。「クリックして成功する」はユーザーが読みたい文言では
+ありません — success / warning はメッセージが記述する**状態**であって、
+ユーザーが取るアクションではないのです。error バリアントだけが例外なのは、
+アクション自体が破壊的で、ボタンの文言が警告すべきだからです。
+
+### 選択コントロール(チェックボックス、ラジオ、スイッチ)
+
+バリアントは選択肢そのものの**セマンティックな意図**を記述します:
+
+- (default) = テーマ色の primary — 普通の選択可能なオプション
+- `success` = 緑 — 選択すると確定済み / 安全な選択をコミットする
+- `warning` = アンバー — 選択にはリスクがある、または注意が必要
+- `error` = 赤 — 選択は破壊的、または明示的なオプトイン
+
+色味はチェック済みグリフ(チェックボックス / ラジオ)またはチェック済み
+トラック(スイッチ)に載ります。`primary` / `secondary` / `ghost` は
+ありません: これらのコントロールの塗りスタイルは 1 つで、暗黙の
+デフォルトがすでにテーマ色の primary だからです。
+
+### 通知コンポーネント(バッジ、アラート、トースト)
+
+バリアントは**情報の種別**を記述します:
+
+- (default / `info`)= ニュートラル / 青の情報
+- `success` = 緑
+- `warning` = アンバー
+- `error` = 赤
+
+`primary` / `secondary` / `ghost` はなし: これらの面は状態を伝えるもの
+で、ユーザーのアクションではないため、アクション系バリアントは適用
+されません。
+
+### 値入力フィールド(インプット、セレクト、デートピッカー、Input OTP、コンボボックス)
+
+入力 / 選択された値を保持するフィールドはすべて 1 つの語彙を共有します —
+`data-variant` はバリデーションの合図として**枠線**を塗り替えます:
+
+- `success` = 緑 — 値が検証済み / 確定
+- `warning` = アンバー — 受理されたが注意が必要
+- `error` = 赤 — 無効
+
+`error` にはネイティブの `aria-invalid="true"` を推奨します — 同じ
+塗り替えをした**うえで**、状態を支援技術へ公開します(メッセージ用の
+`aria-describedby` と対に)。`data-variant="error"` は視覚のみの短縮形
+です。`success` / `warning` にはネイティブ属性がないため、バリアントが
+唯一の表現手段です。`hc-field` ラッパーは `data-invalid="true"` を持ち、
+周囲のラベルとメッセージの色を協調させます。
+
+以前のリリースでは、他のフィールドが `success` / `warning` / `error` の
+3 点セットを獲得する一方で `hc-input` はバリアントなし(エラーは
+`aria-invalid` のみ)でした — 現在は統一され、すべてのフォームフィールドが
+同じ言語を話します。
+
+### レンジとトグル(スライダー、トグルグループ)
+
+`hc-slider` は同じ `success` / `warning` / `error` 3 点セットを取り、
+レベルの合図として**塗り**を塗り替えます。`hc-toggle-group` に
+セマンティックなバリアントはありません — オン状態はテーマ色のアクセント
+です — が、`data-size` は取ります。
+
+## サイズ
+
+`data-size` は、意味のあるサイズ選択が存在するすべてのコンポーネント — ボタンとフォームコントロール(インプット、セレクト、デートピッカー、チェックボックス、ラジオ、スイッチ、スライダー、トグルグループ)— で `sm`、`md`(デフォルト)、`lg` を受け付けます。語彙は全部で共通です。下の表はボタン / インプット / チェックボックス / ラジオを代表スケールとして使っています。
+
+| コンポーネント | `sm`        | `md`(デフォルト) | `lg`        | 備考 |
+| --------- | ----------- | -------------- | ----------- | ----- |
+| ボタン    | 高さ 32 px  | 高さ 40 px     | 高さ 48 px  | comfortable 階層の値。スケール全体が `data-density` で移動します。 |
+| インプット | 高さ 32 px  | 高さ 40 px     | 高さ 48 px  | ボタンと同じ — どちらも `--hc-control-*` を読みます。 |
+| チェックボックス | 0.875 rem(14 px) | 1.125 rem(18 px) | 1.375 rem(22 px) | comfortable 階層の値。スケール全体が `data-density` で移動します。 |
+| ラジオ    | 0.875 rem(14 px) | 1.125 rem(18 px) | 1.375 rem(22 px) | 同上。 |
+
+**サイズは密度とともに移動します。** `data-density` が変わると
+`sm → md → lg` のスケール全体が一緒に動きます — `sm` はどの階層でも
+「*デフォルトより小さい*」を表すのであって、固定ピクセル値ではありません。
+これにより相対順序 `sm < md < lg` が常に保たれます。
+
+例えばボタンでは:
+
+| `data-density` | `sm`  | `md`(デフォルト) | `lg`  |
+| -------------- | ----- | --------------- | ----- |
+| comfortable    | 32 px | 40 px           | 48 px |
+| compact        | 28 px | 32 px           | 40 px |
+| dense          | 24 px | 28 px           | 32 px |
+
+インプット、チェックボックス、ラジオを含む完全な表は
+[密度](/hypermedia-components/ja/tokens/density/)のページを参照して
+ください。
+
+## 関連
+
+- [密度](/hypermedia-components/ja/tokens/density/) — レイアウトの詰まり具合の直交軸。
+- [カラーテーマ](/hypermedia-components/ja/tokens/themes/) — アクセントパレットの直交軸。
+- 各コンポーネントページには、そのコンポーネントが取る部分集合が文脈つきで載っています。

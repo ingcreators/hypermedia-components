@@ -1,0 +1,60 @@
+---
+title: カラーパレット
+description: トークン参照の解決先となる primitive カラーランプ。すべての semantic / component トークンの背後にある生の値であり、カスタムテーマを書くときに参照するシェードです。
+sidebar:
+  order: 2
+---
+
+import PrimitivePalette from '../../../../components/PrimitivePalette.astro';
+
+これらは **primitive** カラーランプ —
+[4 レイヤートークンモデル](/hypermedia-components/ja/tokens/)の最下層です。
+すべての semantic・component・theme トークンは、最終的に以下のいずれかの
+シェードに解決されます。
+
+:::note[CSS API ではありません]
+primitive は `emit: false` です — `--hc-*` カスタムプロパティとしては
+**出力されない**ため、`var()` では使えません。DTCG の `{ref}` が解決する
+対象の値としてのみ存在します。テーマを書くときはトークンパス
+(`{primitive.color.indigo.600}`)で参照してください。CSS 変数として
+では**ありません**。実行時に色を消費するには、実際に出力される
+[semantic](/hypermedia-components/ja/tokens/) または `data-color` の
+トークンを使ってください。
+:::
+
+各ランプは標準的な Tailwind の 50–950 スケールです。`gray` ランプが
+プロジェクトのデフォルトニュートラルで、`slate` / `zinc` / `neutral` /
+`stone` は[テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)が
+提供する代替ニュートラルです。アクセント / ステータスの色相は、組み込みの
+`data-color` テーマと、固定の semantic `info` / `success` / `warning` /
+`error` カラーを支えています。
+
+<PrimitivePalette />
+
+## シェードの参照
+
+カスタムテーマを書くとき
+([独自テーマの作成](/hypermedia-components/ja/tokens/themes/#独自テーマの作成)を参照)、
+DTCG トークンをパスで primitive に向けます:
+
+```json
+{
+  "color": {
+    "action": {
+      "primary": {
+        "bg": { "$type": "color", "$value": "{primitive.color.violet.600}" }
+      }
+    }
+  }
+}
+```
+
+上のスウォッチにホバーすると、正確な `{primitive.color.*}` パスと hex が
+表示されます。ビルドが参照を具体的な値に解決し、primitive 自体は決して
+出力されません。
+
+## 関連
+
+- [トークン概要](/hypermedia-components/ja/tokens/) — 4 レイヤーモデル。
+- [カラーテーマ](/hypermedia-components/ja/tokens/themes/) — これらのランプの上に構築された `data-color` アクセント軸。
+- [テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/) — カスタムテーマの生成。ニュートラルランプのピッカーは上のランプを使います。

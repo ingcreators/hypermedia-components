@@ -1,0 +1,114 @@
+---
+title: ニュートラルランプ
+description: UI 全体のニュートラルランプ — surface、text、border、muted、secondary — を data-neutral 属性 1 つで差し替え。5 つのランプ(gray、slate、zinc、neutral、stone)がライト・ダーク両対応で、アクセントカラーと直交。
+sidebar:
+  order: 4
+---
+
+`<html>`(または任意のサブツリー)の `data-neutral` 属性は、
+**ニュートラルランプ** — すべての面、枠線、ミュート背景、セカンダリ
+ボタン、本文テキストの背後にあるグレー群 — をアクセントカラーに触れずに
+差し替えます。5 つのランプが同梱され、いずれも**ライトとダークの両方**に
+調整済みです。
+
+`data-neutral` は
+[`data-color`](/hypermedia-components/ja/tokens/themes/)(アクセント)、
+`data-theme`(ライト / ダーク)、
+[`data-density`](/hypermedia-components/ja/tokens/density/)と直交します。
+同じ祖先に設定すればすべて一緒にカスケードします — 例えばダークモードで
+slate ニュートラルに indigo アクセントなら
+`data-color="indigo" data-neutral="slate" data-theme="dark"` です。
+
+## ランプ
+
+| `data-neutral` の値 | 性格 | ライトのページ背景 / 枠線 | ダークの面 |
+| -------------------- | --------- | ---------------------- | ------------ |
+| _(なし)_ / `gray`    | デフォルトニュートラル | `#f9fafb` / `#d0d5dd` | `#1f2937` |
+| `slate`              | 冷たい、青み | `#f8fafc` / `#cbd5e1` | `#1e293b` |
+| `zinc`               | 冷たい、低彩度 | `#fafafa` / `#d4d4d8` | `#27272a` |
+| `neutral`            | 純グレー | `#fafafa` / `#d4d4d4` | `#262626` |
+| `stone`              | 温かい、茶み | `#fafaf9` / `#d6d3d1` | `#292524` |
+
+**ライト**モードでは、どのランプでもカードの面は白のままです(動くのは
+ページ背景、枠線、ミュート塗り、セカンダリボタン、テキストだけ)—
+デフォルトと同じ振る舞いです。**ダーク**モードでは面そのものがランプの
+800 シェードに再着色されます。ヘッダーの**テーマ**スイッチを切り替えて、
+下の各行のダーク版を確かめてください。
+
+## ライブプレビュー
+
+下の各パネルは異なる `data-neutral` 値を持ちます。外側のパネルはランプの
+ページ背景を使い、内側のカードは面です。
+
+export const ramps = ['gray', 'slate', 'zinc', 'neutral', 'stone'];
+
+<div class="not-content" style="display:grid;gap:1rem;">
+  {ramps.map((r) => (
+    <div data-neutral={r} style="background:var(--hc-color-bg);border:1px solid var(--hc-color-border);border-radius:.5rem;padding:1rem;">
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-block-end:.75rem;">
+        <strong style="color:var(--hc-color-text);text-transform:capitalize;min-inline-size:4rem;">{r}</strong>
+        <button class="hc-button" data-variant="primary">Save</button>
+        <button class="hc-button" data-variant="secondary">Cancel</button>
+        <input class="hc-input" type="text" value="text" style="inline-size:7rem;" />
+      </div>
+      <div class="hc-card">
+        <div class="hc-card__body">
+          <strong>Card surface</strong>
+          <p class="hc-field__message" style="margin:0;">Muted helper text on this ramp.</p>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+## ページへの適用
+
+サイト全体なら `<html>` に設定します:
+
+```html
+<html data-neutral="slate">…</html>
+```
+
+セクション単位の上書き:
+
+```html
+<section data-neutral="stone">…</section>
+```
+
+ほかの軸と同様、サブツリーでも機能します。各ランプブロックが影響する
+コンポーネント変数を具体的な値で再宣言する(凍結された `var()` 継承が
+ない)からです —
+[カスケードの実際の動き](/hypermedia-components/ja/tokens/themes/#カスケードの実際の動き重要)を
+参照。
+
+## 何が変わるか
+
+デフォルト以外の各ランプは、次の semantic キーを上書きします(ライトは
+`neutral.<ramp>.tokens.json`、ダークは `neutral.<ramp>.dark.tokens.json`):
+
+```text
+--hc-color-bg          --hc-color-text         --hc-color-text-muted
+--hc-color-border      --hc-color-muted-bg     --hc-color-surface (dark only)
+--hc-color-action-secondary-*        --hc-color-status-neutral-*
+```
+
+これらは各コンポーネントの `--hc-{component}-*` の面 / テキスト / 枠線
+変数へカスケードします。ビルドは影響する末端を
+`[data-neutral="<ramp>"]`(ライト)と
+`[data-theme="dark"][data-neutral="<ramp>"]`(ダーク)のブロック内に
+再出力します。
+
+意図的に**影響しない**もの:
+
+- アクセント(`action.primary`、フォーカスリング)— `data-color` の
+  所有物。
+- semantic の `info` / `success` / `warning` / `error` — 固定の
+  ステータスパレット。
+- コントロールのサイズ — `data-density` の所有物。
+
+## 関連
+
+- [カラーテーマ](/hypermedia-components/ja/tokens/themes/) — アクセント軸。ニュートラルと組み合わせて。
+- [テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/) — フルテーマモードはアクセント + ニュートラルをまとめて焼き込みます。
+- [カラーパレット](/hypermedia-components/ja/tokens/palette/) — これらが解決する primitive ランプ。
+- [密度](/hypermedia-components/ja/tokens/density/) — 直交するサイズ軸。

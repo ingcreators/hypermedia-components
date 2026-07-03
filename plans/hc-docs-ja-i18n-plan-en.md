@@ -1,6 +1,6 @@
 # Docs Japanese i18n — phase 1 plan
 
-Status: **phase 1 shipped (#314); phase 2 shipped (#315) — fundamentals complete + the section indexes.**
+Status: **phases 1–3 shipped (#314, #315, #316) — entry path, fundamentals, tokens, and the foundation integration guides.**
 
 The v0.5 plan's P3 backlog item: *"Japanese i18n — translate the first
 10 docs pages (§7.6) after the English IA settles."* The English IA

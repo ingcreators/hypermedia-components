@@ -1,0 +1,185 @@
+---
+title: Plain HTML
+description: 可能な限りシンプルな構成 — dist ファイルをサーバの静的フォルダにコピーし、1 枚の HTML ファイルから参照します。バンドラーなし、テンプレートエンジンなし、フレームワークなし。
+---
+
+Hypermedia Components の本質は静的な UI キットです: CSS ファイル 1 つ、
+小さな JS モジュール 1 つ、任意のマクロエントリ 1 つ。フレームワーク
+ガイドはテンプレートエンジン固有の糊を扱います。このページは、ただ HTML を
+配信するだけのプロジェクトに必要な最小限を扱います。
+
+## 必要なもの
+
+```text
+hc.css                # バンドル済み CSS(gzip 約 53 KB)
+hc.behaviors.min.js   # 自己完結のビヘイビアバンドル(gzip 約 27 KB)
+macros/index.min.js   # 任意 — <hc-confirm-action> / <hc-live-search> カスタム要素用(gzip 約 1 KB)
+htmx.min.js           # 自分で用意(gzip 約 14 KB)
+```
+
+最初の 3 つは `npm install @hypermedia-components/core` して
+`node_modules/@hypermedia-components/core/dist/` からコピーするか、
+alpha タグ以降の
+[GitHub Releases](https://github.com/ingcreators/hypermedia-components/releases)
+からダウンロードできます。htmx は
+[htmx.org](https://htmx.org/docs/#installing) からダウンロードします。
+
+## ファイル配置
+
+`<link>` と `<script>` タグの URL が解決される限り、どんな配置でも
+構いません。よくある形:
+
+```text
+public/                     # または wwwroot/, static/ など
+  index.html
+  assets/
+    hc/
+      hc.css
+      hc.behaviors.min.js
+      macros/
+        index.min.js          # 自己完結 — 兄弟ファイル不要
+    htmx.min.js
+```
+
+## 最小のレイアウトファイル
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My app</title>
+  <link rel="stylesheet" href="/assets/hc/hc.css">
+  <script defer src="/assets/htmx.min.js"></script>
+  <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
+</head>
+<body>
+  <main>
+    <!-- your content -->
+  </main>
+
+  <!-- One toast region near the end of body. -->
+  <div class="hc-toast-region"
+       data-hc-toast-region
+       role="region"
+       aria-label="Notifications"></div>
+</body>
+</html>
+```
+
+インテグレーションはこれで全部です。`hc.behaviors.min.js` が
+`DOMContentLoaded` ですべてのデフォルトビヘイビアを自己インストール
+するため、`[data-hc-confirm]`、`hc:toast` イベント、各種
+`data-hc-close-*` / `data-hc-remote-dialog-root` 属性は追加の配線なしで
+機能します。
+
+## 実行可能な例
+
+以下は、ボタンを描画し、クリックで `POST /items` を送り、成功時に
+トーストを表示する完全なページです。`index.html` として保存し、記載の
+アセットを `/assets/` 配下に置いて、ブラウザで開いてください(小さな
+静的サーバが必要です — `python -m http.server` や `npx serve` など。
+htmx は XHR リクエストを行い、ほとんどのブラウザは `file://` でそれを
+ブロックするためです)。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>HC + htmx demo</title>
+  <link rel="stylesheet" href="/assets/hc/hc.css">
+  <script defer src="/assets/htmx.min.js"></script>
+  <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
+</head>
+<body style="padding: 2rem; max-inline-size: 32rem; margin: 0 auto;">
+
+  <h1>Hello hypermedia</h1>
+
+  <span class="hc-action">
+    <button
+      class="hc-button"
+      data-variant="primary"
+      type="button"
+      data-hx-post="/items"
+      data-hx-target="#items"
+      data-hx-disabled-elt="this"
+      data-hx-indicator="closest .hc-action">
+      Save
+    </button>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </span>
+
+  <ul id="items" style="margin-block-start: 1.5rem;"></ul>
+
+  <div class="hc-toast-region"
+       data-hc-toast-region
+       role="region"
+       aria-label="Notifications"></div>
+
+</body>
+</html>
+```
+
+より充実した遊び場(全コンポーネント、全レシピ、htmx ラウンドトリップ)
+には、リポジトリをクローンして
+[`examples/plain-html/`](https://github.com/ingcreators/hypermedia-components/tree/main/examples/plain-html)
+プロジェクトを実行してください — 上と同じ形で、すべてのコンポーネントが
+並んでいます。
+
+## テーマ切り替え
+
+`hc.tokens.css` はライトとダークのバリアントをすでに宣言しています。
+`<html>` 要素の `data-theme` で切り替えます:
+
+```html
+<html lang="en" data-theme="dark">…</html>
+```
+
+```js
+// One-liner toggle.
+document.documentElement.dataset.theme =
+  document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+```
+
+訪問をまたいで保持したい場合は、選択を `localStorage` に永続化して
+ください。
+
+## 密度
+
+`data-density` は、`data-theme` が色を制御するのと同じやり方で
+詰まり具合を制御します:
+
+```html
+<html data-density="compact">…</html>
+```
+
+デフォルトは comfortable です。値とライブプレビューは
+[トークン → 密度](/hypermedia-components/ja/tokens/density/)を参照して
+ください。
+
+## htmx なしで
+
+CSS コンポーネントは、htmx なし・JS ビヘイビアなしでも使えます。
+ボタン、インプット、フィールド、ダイアログ、ポップオーバー、アラート、
+バッジ、ツールバー、ページネーション、テーブルはすべて `hc.css` だけで
+正しく描画されます。インタラクティビティの層はオプトインです。
+
+```html
+<link rel="stylesheet" href="/assets/hc/hc.css">
+
+<button class="hc-button" data-variant="primary">Save</button>
+<input class="hc-input" type="text" placeholder="Search…">
+```
+
+CSS のみのコンポーネントはすべて
+[コンポーネントセクション](/hypermedia-components/ja/components/button/)に
+ドキュメントがあります。
+
+## 関連
+
+- [htmx インテグレーション](/hypermedia-components/ja/integrations/htmx/) — すべてのフレームワークガイドが共有する htmx 固有の設定。
+- [Hyperscript インテグレーション](/hypermedia-components/ja/integrations/hyperscript/) — オプトインのスクリプト言語という代替。
+- [レシピ](/hypermedia-components/ja/recipes/request-action/) — 最頻出の UI フローのコピペ可能な具体パターン。
+- フレームワークガイド — [Thymeleaf](/hypermedia-components/ja/integrations/thymeleaf/)、[Django](/hypermedia-components/ja/integrations/django/)、[Rails](/hypermedia-components/ja/integrations/rails/)、[Go](/hypermedia-components/ja/integrations/go/)、[Razor](/hypermedia-components/ja/integrations/razor/)。

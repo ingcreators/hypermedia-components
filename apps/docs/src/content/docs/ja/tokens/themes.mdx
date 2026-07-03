@@ -1,0 +1,401 @@
+---
+title: カラーテーマ
+description: data-color 属性 1 つで UI 全体のアクセントパレットを切り替え。モダンなビジネス / SaaS インターフェイス向けに設計された 5 テーマ。いずれもライト・ダーク両面でアクセシブル。
+---
+
+`<html>`(または任意のサブツリー)の `data-color` 属性は、アクセント
+パレット — フォーカスリング + すべての primary アクションボタン /
+チェック済みチェックボックス / 現在のページネーション項目 — を、
+マークアップを再描画せずに差し替えます。5 つのテーマが同梱され、各
+アクセントシェードは**ライトとダーク両方**のモードで WCAG AA コントラストを
+満たすよう選ばれているため、アクティブな `data-theme` にかかわらず同じ
+属性が機能します。
+
+`data-color` が変えるのは**アクセントだけ** — primary アクションの色と
+フォーカスリングです。
+[`data-neutral`](/hypermedia-components/ja/tokens/neutral/)(面 / テキスト /
+枠線のランプ)、`data-theme`(ライト / ダーク)、`data-density`
+(comfortable / compact / dense)とは直交します。同じ祖先に設定すれば
+すべて一緒にカスケードします — 例えば `data-color="indigo"
+data-neutral="slate"` は、冷たい slate の UI に indigo のアクセントです。
+グレーを変えたければ `data-neutral` へ。このページはアクセントだけを
+扱います。
+
+import ColorThemeSwatches from '../../../../components/ColorThemeSwatches.astro';
+
+## テーマ
+
+組み込みテーマはいずれもアクセントのみです — そのパレットは以下の
+primary / hover / ソフトティント / text-on-primary / focus-ring のセット
+です(`soft` スウォッチは半透明で、市松模様の上に表示しています):
+
+<ColorThemeSwatches />
+
+
+| `data-color` の値 | Primary bg          | Hover bg          | Primary 上のテキスト | 典型的な用途 |
+| ------------------ | ------------------- | ----------------- | --------------- | --------------- |
+| _(なし)_ / `default` | `#2563eb`(blue.600) | `#1d4ed8`(blue.700) | 白         | デフォルトの中立系 SaaS — Linear、AWS 系 |
+| `indigo`           | `#4f46e5`(indigo.600) | `#4338ca`(indigo.700) | 白      | モダン SaaS — Tailwind、Cal.com |
+| `emerald`          | `#047857`(green.700) | `#065f46`(green.800) | 白         | フィンテック / サステナビリティ — Stripe Atlas |
+| `rose`             | `#be123c`(rose.700) | `#9f1239`(rose.800) | 白           | マーケティング / CRM / ヘルスケア |
+| `amber`            | `#f59e0b`(amber.500) | `#d97706`(amber.600) | gray.900       | エネルギッシュ / 生産性 — Notion イエロー |
+
+上の値はすべて[primitive ランプ](/hypermedia-components/ja/tokens/palette/)の
+シェードに解決されます — これらのテーマは新しい色を導入せず、アクセントを
+別のランプに向け直しているだけです。
+
+2 つのシェードはカラースケールの深いところに置かれています
+(emerald.700、rose.700)。より明るい 600 シェードでは満たせなかった
+4.5:1 のコントラスト基準を、ボタン上の白文字が満たすためです。amber は
+その逆 — 500 シェードは十分に明るいため、暗い文字がコントラスト的に
+正しい選択になり、ダークモードでも一貫します。
+
+## ライブプレビュー
+
+下の各行は、異なる `data-color` 値を持つラッパーの中で同じボタン +
+チェックボックス + ラジオ + アラートを描画しています。Starlight ヘッダーの
+**Theme** ボタンで行全体をダークモードに切り替え、どのテーマもダークの
+面で読めることを確認してください。
+
+各行はテーマを認識するすべての面を試せます: primary ボタン、ghost
+ボタン(ホバーでソフトティント)、インプット(フォーカスでテーマ色の
+枠線 + リング)、チェック済みチェックボックス、チェック済みラジオ。行内の
+ヘルパーテキストを選択するとテーマ色の `::selection` ハイライトが
+見えます。
+
+### Default(blue)
+
+<div class="hc-preview not-content" data-color="default" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-default" checked />
+    Free
+  </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
+</div>
+
+### Indigo
+
+<div class="hc-preview not-content" data-color="indigo" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-indigo" checked />
+    Free
+  </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
+</div>
+
+### Emerald
+
+<div class="hc-preview not-content" data-color="emerald" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-emerald" checked />
+    Free
+  </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
+</div>
+
+### Rose
+
+<div class="hc-preview not-content" data-color="rose" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-rose" checked />
+    Free
+  </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
+</div>
+
+### Amber
+
+<div class="hc-preview not-content" data-color="amber" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button" data-variant="ghost">Edit</button>
+  <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked />
+    Notify me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="t-amber" checked />
+    Free
+  </label>
+  <span class="hc-field__message">Select this text to preview ::selection.</span>
+</div>
+
+## ページへの適用
+
+サイト全体のテーマなら、`<html>` に属性を設定します:
+
+```html
+<html data-color="emerald">
+  ...
+</html>
+```
+
+セクション単位の上書き(例: 中立的なアプリの中のマーケティング用
+ランディング面)にはローカルに付けます:
+
+```html
+<section data-color="rose">
+  <button class="hc-button" data-variant="primary">Subscribe</button>
+</section>
+```
+
+この属性が変えるのはアクセントパレットだけです。面 / 背景 / テキストの
+色には**触れません** — それらは
+[`data-theme`](/hypermedia-components/ja/)(ライト / ダーク)の所有物です。
+
+## ライト / ダークトグル — `installThemeToggle()`
+
+`data-theme` の設定はあなたの仕事です — サーバサイドでも、同梱の
+`installThemeToggle()` ビヘイビア(自動初期化の
+[`/behaviors`](/hypermedia-components/ja/start/installation/) エントリに
+含まれます)でも:
+
+```html
+<button type="button" class="hc-button" data-variant="ghost"
+        data-hc-theme-toggle data-persist="hc-theme">
+  <span aria-hidden="true">◐</span>
+</button>
+```
+
+- **有効なテーマ**は、`<html>` に `data-theme` があればそれ、なければ
+  OS の設定(`prefers-color-scheme`)です。クリックで反転し、
+  `data-theme="light|dark"` を明示的に書き込みます。
+- **`data-persist="<key>"`**(任意)は選択を `localStorage` に保存し、
+  インストール時に復元します。**フラッシュのない**復元のためには、
+  スタイルシートより*前*に `<head>` へこれもインライン展開してください
+  (ビヘイビアだけでは初回描画の後に走ります):
+
+  ```html
+  <script>
+    try {
+      var t = localStorage.getItem('hc-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  </script>
+  ```
+
+- トグルは状態を `aria-pressed`(`"true"` = ダーク)で反映し、アイコン
+  のみの場合は [i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)
+  からデフォルトの `aria-label` を得ます(`themeToggle.label`。作者が
+  書いた `aria-label` が優先)。変更のたびにバブリングする
+  `hc:themechange` イベント(`detail.theme`)を発火します。
+- `data-theme="dark"` をハードコードしたページはそのまま動き続けます —
+  トグルは単にその明示値から始まります。
+
+## 何が変わるか
+
+`data-color` の値ごとに次のトークンが上書きされます
+(`color.{name}.tokens.json` 配下):
+
+```text
+--hc-color-focus-ring
+--hc-color-action-primary-bg
+--hc-color-action-primary-fg
+--hc-color-action-primary-border
+--hc-color-action-primary-hover-bg
+--hc-color-action-primary-hover-border
+--hc-color-action-primary-soft-bg
+```
+
+`primary-soft-bg` は、テーマの primary カラーを `color-mix()` と
+`transparent` で 12 %(amber は 18 %)ティントにしたものです。同じ値が
+ライトとダークどちらの面でも正しくブレンドされるため、モード別の
+バリアントは不要です。
+
+コンポーネントはこれらを自身の `--hc-{component}-*` 変数を通じて消費
+します(密度と同じ `var()` 間接参照パターン)。カスケードは
+`data-color` → `--hc-color-action-primary-*` → `--hc-button-primary-*` /
+`--hc-input-focus-border` / `--hc-checkbox-checked-*` などへ流れます。
+
+カスケードの影響を受けるコンポーネントと面:
+
+- [ボタン](/hypermedia-components/ja/components/button/) — `data-variant="primary"` の背景とホバー状態。
+- [ボタン](/hypermedia-components/ja/components/button/) — `data-variant="ghost"` の**ホバー**背景は、中立グレーではなくテーマのティントを拾うようになりました。
+- [インプット](/hypermedia-components/ja/components/input/) — `:focus-visible` の枠線色はテーマのフォーカスリングシェードに従います。
+- [チェックボックス](/hypermedia-components/ja/components/checkbox/) — `:checked` の塗り(バリアント上書きがないとき)。
+- [ラジオ](/hypermedia-components/ja/components/radio/) — `:checked` の塗り。
+- [ページネーション](/hypermedia-components/ja/components/pagination/) — `aria-current="page"` のセル。
+- すべてのコンポーネントの `:focus-visible` リング — `--hc-color-focus-ring` が直接駆動。
+- `::selection` — テキスト選択ハイライトは `primary-soft-bg` を使うため、ページ上の文章をハイライトすることが控えめなブランドの合図になります。
+
+意図的に**影響しない**コンポーネントとトークン:
+
+- (`hc-button` の)`data-variant="secondary"` — 設計上、中立グレー。`primary` がブランドテーマのアクションとして際立ち続け、`secondary` はどのテーマでも第二階層の中立 CTA として読めます。
+- `data-variant="error"` / `data-variant="success"` — セマンティックな意味を持つため、アクセントにかかわらず赤 / 緑のまま。
+- semantic カラー(`info`、`success`、`warning`、`error`)— 情報パレット。固定。
+- `--hc-color-muted-bg` — 汎用のミュート面背景。ライトとダークの間でのみ切り替わり、カラーテーマ間では決して変わりません。
+- 面 / 背景 / テキストの色 — `data-theme`(ライト / ダーク)の所有物。
+- エレベーションシャドウ(`--hc-shadow-sm` / `-md` / `-lg` / `-overlay`、
+  スクロールヒント用の `--hc-shadow-edge`)— `data-theme` の所有物:
+  ダークの段はアルファが強めで、ドロップダウン、ダイアログ、ドロワーが
+  ダークの面でも読めるようにしています。フルカスタムテーマは他の
+  トークン同様に 5 段を上書きできます。
+- コンテナのパディング / ギャップ — `data-density` の所有物。
+
+## 独自テーマの作成
+
+組み込みの 5 テーマは特別ではありません — どれも小さなアクセント
+トークンのセットにすぎません。独自のブランドパレットの追加は、テーマを
+ビルドの一部として出荷したいか、ビルドなしで動いているページに載せたい
+かに応じて、2 つのパスのどちらかです。
+
+:::tip[テーマビルダーを使ってください]
+どちらも手書きしないでください。インタラクティブな
+[テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)は
+ブランドカラー 1 つから hover / ソフトティント / text-on-primary の
+シェードを導出し、コントラストをライブ検査し、**下の 3 つの成果物を
+すべて生成します** — DTCG ソース(パス B)、貼り付け用 CSS ブロック
+(パス A)、完全なトークン CSS。実物のトークンビルドをブラウザ内で
+実行するため、出力は常に正しいものです。
+:::
+
+### カスケードの実際の動き(重要)
+
+カラーテーマは 7 つの `--hc-color-action-primary-*` semantic 変数
+**ではありません**。コンポーネントはそれらを直接読みません — 各自の
+`--hc-{component}-*` 変数(`--hc-button-primary-bg`、
+`--hc-checkbox-checked-bg`、`--hc-pagination-current-bg`、…)を読み、
+ビルドがテーマブロックごとに**それぞれへ具体的な値を焼き込みます**。
+`hc.tokens.css` の各 `[data-color]` ブロックが 7 個ではなく約 50 個の
+コンポーネント変数を再宣言しているのはそのためです。
+
+したがって、**実行時に semantic 変数だけを上書きしてもボタンや
+チェックボックスは塗り替わりません**(カスタムプロパティ参照は宣言した
+要素で解決され、凍結された状態で継承されるため、入れ子の
+`[data-color]` ラッパーで再解決させることはできません)。正しい実行時
+上書きは**コンポーネント**変数 — ブロック全体 — を再宣言する必要が
+あります。そのブロックは手で書かず、テーマビルダーで生成してください。
+
+### パス A — 生成された CSS ブロックを貼り付け(リビルドなし)
+
+[テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)の
+**Theme CSS block** を使います。`@hypermedia-components/core/css` の後に
+読み込まれる任意のスタイルシートに追加し、属性を設定します。ビルド
+ステップなし。サイト全体でもサブツリーでも機能します:
+
+```html
+<html data-color="brand">…</html>
+<!-- or scope it to one section -->
+<section data-color="brand">…</section>
+```
+
+生成されるブロックは組み込みテーマのブロックと同じ形です — 影響する
+すべてのコンポーネント変数が、あなたの色に解決されています:
+
+```css
+@layer hc.tokens {
+  [data-color="brand"] {
+    --hc-color-action-primary-bg: #7c3aed;
+    --hc-button-primary-bg: #7c3aed;
+    --hc-checkbox-checked-bg: #7c3aed;
+    --hc-pagination-current-bg: #7c3aed;
+    /* …radio, tabs, slider, calendar, focus ring, ::selection tint, … */
+  }
+}
+```
+
+ブロックを足すよりトークンスタイルシートを丸ごと置き換えたい?
+ビルダーの **Full token CSS** エクスポートは、差し替え可能な完全な
+`hc.tokens.css`(すべての組み込みテーマ + あなたのテーマ)です。
+
+### パス B — トークンソースを追加(ビルドに同梱)
+
+テーマを `hc.tokens.css`(および独立軸ファイル
+`hc.tokens.color-brand.css`)に同梱される第一級の軸にするには、DTCG
+ソースを追加してトランスフォーマーに登録します。
+
+1. [`color.indigo.tokens.json`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/src/tokens/color.indigo.tokens.json)
+   の形をなぞって `packages/core/src/tokens/color.brand.tokens.json` を
+   作ります。primitive のシェードがあればそれを参照し、なければ生の hex
+   をインラインで:
+
+   ```json
+   {
+     "$description": "Brand color theme. Emitted under [data-color=\"brand\"].",
+     "color": {
+       "focus-ring": { "$type": "color", "$value": "{primitive.color.violet.500}" },
+       "action": {
+         "primary":       { "bg": { "$type": "color", "$value": "{primitive.color.violet.600}" },
+                            "fg": { "$type": "color", "$value": "{primitive.color.white}" },
+                            "border": { "$type": "color", "$value": "{primitive.color.violet.600}" } },
+         "primary-hover": { "bg": { "$type": "color", "$value": "{primitive.color.violet.700}" },
+                            "border": { "$type": "color", "$value": "{primitive.color.violet.700}" } },
+         "primary-soft":  { "bg": { "$type": "color", "$value": "color-mix(in srgb, {primitive.color.violet.600} 12%, transparent)" } }
+       }
+     }
+   }
+   ```
+
+2. [`scripts/build-tokens.mjs`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/scripts/build-tokens.mjs)
+   に登録します。`DEFAULT_SOURCES` に 1 エントリ、`AXIS_NAMESPACES` に
+   名前空間を足します:
+
+   ```js
+   // in DEFAULT_SOURCES, next to the other color.* lines
+   { namespace: 'color.brand', file: 'color.brand.tokens.json', selector: '[data-color="brand"]' },
+
+   // in AXIS_NAMESPACES, so it also ships as a standalone axis file
+   const AXIS_NAMESPACES = [..., 'color.brand'];
+   ```
+
+3. リビルド: `pnpm --filter @hypermedia-components/core build`。
+   トランスフォーマーが参照を解決し、どのコンポーネント末端がテーマ
+   依存かを分類し、`[data-color="brand"]` の下へ自動で再出力します —
+   組み込みテーマと同じ機構です。
+
+どちらのパスもアクセントトークンだけを上書きします。面 / テキストの色は
+`data-theme`、コントロールのサイズは `data-density` の所有のままです。
+
+## アクセシビリティ
+
+各テーマは、ボタンの text-on-primary の組み合わせで WCAG AA
+コントラストを満たします:
+
+| テーマ   | テキスト色  | Primary bg | コントラスト比 |
+| -------- | ----------- | ---------- | -------------- |
+| default  | 白          | #2563eb    | 4.9 : 1        |
+| indigo   | 白          | #4f46e5    | 6.9 : 1        |
+| emerald  | 白          | #047857    | 5.0 : 1        |
+| rose     | 白          | #be123c    | 5.7 : 1        |
+| amber    | #111827     | #f59e0b    | 9.4 : 1        |
+
+[WebAIM のコントラストチェッカー](https://webaim.org/resources/contrastchecker/)で検証済み。
+
+[テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)は色を
+選ぶそばから同じコントラスト検査をライブで実行するため、カスタムテーマの
+text-on-primary ペアが AA を満たすかは即座にわかります。
+
+## 関連
+
+- [テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/) — 1 色からカスタムアクセントパレットを生成。ライブコントラスト検査つき。
+- [密度](/hypermedia-components/ja/tokens/density/) — 詰まり具合の直交軸。
+- [トークン概要](/hypermedia-components/ja/tokens/) — 4 レイヤーモデル。
+- [ボタン](/hypermedia-components/ja/components/button/)、[チェックボックス](/hypermedia-components/ja/components/checkbox/)、[ラジオ](/hypermedia-components/ja/components/radio/)、[ページネーション](/hypermedia-components/ja/components/pagination/) — テーマの主要な消費者。
