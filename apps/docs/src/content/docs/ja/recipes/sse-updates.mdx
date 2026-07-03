@@ -1,0 +1,103 @@
+---
+title: SSE ライブ更新
+description: Server-Sent Events によるサーバプッシュのフラグメント更新 — 名前付きイベント、out-of-band プッシュ、データグリッドとの合成、初期完全描画によるデグラデーション。
+---
+
+`sse-updates` は**サーバプッシュ UI** のための公認パターンです:
+ユーザーが操作したからではなく、サーバがそう言ったから再描画される
+フィード、ステータスパネル、データグリッド。
+[htmx SSE 拡張](/hypermedia-components/ja/integrations/htmx/#server-sent-events)が
+`EventSource` を所有し、マークアップがストリームとイベント名を宣言し、
+サーバは**データが完成済みフラグメントである名前付きイベント**を送り
+ます — 他のすべてのレシピと同じ「マークアップこそワイヤ契約」の立場
+です。[マークアップのバージョニングポリシー](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)の
+下で安定しています。
+
+フラグメントのプッシュに Hypermedia Components のビヘイビアは不要
+です — サーバプッシュの*通知とドメインイベント*には
+[SSE トーストレシピ](/hypermedia-components/ja/recipes/sse-toast/)を
+参照してください。
+
+## マークアップ
+
+```html
+<div data-hx-ext="sse" data-sse-connect="/events"
+     data-sse-close="stream:done">
+  <ul id="activity" data-sse-swap="activity:item"
+      data-hx-swap="afterbegin">
+    <li class="hc-item">…server-rendered current items…</li>
+  </ul>
+
+  <section id="status" data-sse-swap="status:panel">
+    …server-rendered current status…
+  </section>
+</div>
+```
+
+ストリームごとに 1 つの `data-sse-connect` スコープ。内側の各要素は
+受け取るイベントを `data-sse-swap` で名指しし、イベントのデータは
+その要素の `data-hx-swap` を尊重してスワップされます(デフォルトは
+`innerHTML`、フィードには `afterbegin`)。拡張は `data-` プレフィックス
+形の属性をサポートし、キットの `data-hx-*` 規約と揃います。
+
+## ストリーム
+
+```text
+retry: 5000
+
+event: activity:item
+data: <li class="hc-item">Deploy #42 started</li>
+
+event: status:panel
+data: <p>All systems normal</p><span id="alert-badge" hx-swap-oob="true">3</span>
+```
+
+イベントはドメインで命名します(`activity:item`、`status:panel`)—
+名前はワイヤ契約です。メッセージのデータは、同じプッシュの中で id に
+よって他のターゲットを更新する `hx-swap-oob` フラグメントも運べます
+(2 つ目の例はパネルとバッジの両方を更新します)。
+[datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) や
+一括操作のレスポンスとまったく同じです。
+
+## データグリッドとの合成
+
+`.hc-datagrid__body` の tbody に `data-sse-swap` +
+`data-hx-swap="innerHTML"` を置けば、行 1 ページ分をプッシュできます。
+ページャーの **keep-the-tbody** ルールがそのまま適用されます:
+グリッドのオブザーバーはスワップを生き延び、roles と sticky
+オフセットを再適用し、選択を導出し直します — そのため
+[選択アクションバー](/hypermedia-components/ja/components/datagrid/#selection-actions-bar)は、
+プッシュされた行が届くと追加の配線なしで自分をクリアします。
+
+## ライフサイクル
+
+再接続は htmx ネイティブです: `EventSource` は自動でリトライし
+(サーバの `retry:` ヒントを尊重)、拡張は連続失敗にバックオフを追加
+します — したがってサーバは再接続を予期して現在の状態を再送するか、
+欠落を許容しなければなりません。ストリームは
+`data-sse-close="<event>"` で意図的に終了します(落ちたストリームは
+再接続し、閉じられたストリームは閉じたままです)。デバッグ用に
+`htmx:sseOpen` / `htmx:sseError` / `htmx:sseClose` がスコープ上で発火
+します。拡張は `withCredentials: true` で接続します — クッキーが同乗
+します。
+
+## 非 JS デグラデーション
+
+初期 HTML に**完全な現在の状態**を描画してください。ストリームはそれを
+新鮮にするだけです。JS なしでは、ページは単に最後のフル描画の時点の
+鮮度になります — ローディングシェルなし、何も壊れません。これがこの
+レシピのアクセシビリティの立場でもあります: プッシュされたフラグメントは
+フォーカスを動かさずにコンテンツを置き換え、更新を読み上げるべき領域は
+着地要素の `aria-live="polite"` でオプトインします。
+
+完全なストリーム契約は
+[`recipes/sse-updates/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-updates/contract.md)に
+あります。ここでの主張は実 EventSource のブラウザテスト
+(`test-browser/sse.spec.mjs`)で固定されています。
+
+## 関連
+
+- [SSE トーストレシピ](/hypermedia-components/ja/recipes/sse-toast/) — ディスパッチブリッジによるサーバプッシュの通知とドメインイベント。
+- [htmx インテグレーション — Server-Sent Events](/hypermedia-components/ja/integrations/htmx/#server-sent-events) — 拡張の読み込み、ライフサイクル、クレデンシャル。
+- [データグリッドのページネーションレシピ](/hypermedia-components/ja/recipes/datagrid-pager/) — これが合成する tbody スワップのルール。
+- [データ領域レシピ](/hypermedia-components/ja/recipes/data-region/) — プル型更新という補完パターン。

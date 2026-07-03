@@ -1,0 +1,135 @@
+---
+title: フィルタポップオーバー
+description: 結果領域を更新するフォームを載せ、リクエスト成功後に自分を閉じるポップオーバー。
+---
+
+`filter-popover` は、ネイティブの popover と、結果領域をフィルタする
+htmx フォームの組み合わせです。ユーザーが **Apply** をクリックすると
+htmx が結果をスワップし、`installClosePopover` ビヘイビアが
+ポップオーバーを閉じます。
+
+:::note[セットアップ]
+このレシピには、リクエスト成功後にポップオーバーを閉じる
+`installClosePopover()` ビヘイビアが必要です。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを一括
+インストールするか、これだけを:
+
+```js
+import { installClosePopover } from '@hypermedia-components/core';
+installClosePopover();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+## 基本の使い方
+
+```html
+<button class="hc-button" type="button" popovertarget="status-filter">
+  Status
+</button>
+
+<div id="status-filter" class="hc-popover" popover>
+  <form
+    class="hc-form"
+    data-hx-get="/items"
+    data-hx-include="this"
+    data-hx-target="#items-tbody"
+    data-hx-swap="innerHTML"
+    data-hx-push-url="true"
+    data-hc-close-popover-on-success>
+
+    <fieldset>
+      <legend>Status</legend>
+      <label><input type="checkbox" name="status" value="active"> Active</label>
+      <label><input type="checkbox" name="status" value="pending"> Pending</label>
+      <label><input type="checkbox" name="status" value="failed"> Failed</label>
+    </fieldset>
+
+    <div class="hc-toolbar">
+      <button class="hc-button" data-size="sm" type="reset">Reset</button>
+      <span data-hc-spacer="true"></span>
+      <button class="hc-button" data-size="sm" data-variant="primary"
+              type="submit">Apply</button>
+    </div>
+  </form>
+</div>
+
+<table class="hc-table">
+  <thead>…</thead>
+  <tbody id="items-tbody" data-hx-get="/items" data-hx-trigger="load"></tbody>
+</table>
+```
+
+## 何が起きるか
+
+1. ユーザーが **Status** をクリック → ブラウザがポップオーバーを開き
+   ます(`popovertarget` + `popover=auto`)。
+2. ユーザーがチェックボックスを切り替えて **Apply** をクリック。
+3. フォームには `data-hc-close-popover-on-success` と
+   `data-hx-get="/items"` があります。htmx がフォームデータつきの GET を
+   送信し、レスポンスを `#items-tbody` へスワップします。
+4. `htmx:afterRequest` が発火。`installClosePopover` ビヘイビアが
+   オプトイン属性を確認し、リクエストが成功していれば、最寄りの
+   `[popover]` の `hidePopover()` を呼びます。
+5. `data-hx-push-url="true"` が URL を更新するため、フィルタはページ
+   再読み込みを生き延び、共有可能です。
+
+キャンセルは外側をクリック(popover ネイティブのライトディスミス)
+するか Escape を押すだけ — JavaScript のフックは不要です。
+
+## サーバレスポンス契約
+
+`GET /items?status=active&status=pending` はテーブルボディの
+フラグメントを返します:
+
+```html
+<tr id="item-12">…</tr>
+<tr id="item-15">…</tr>
+…
+```
+
+空の状態では、フィルタが実行されたことがユーザーに伝わるよう、明示的な
+空状態マークアップを返します:
+
+```html
+<tr>
+  <td colspan="3">
+    <p class="hc-field__message">No items match this filter.</p>
+  </td>
+</tr>
+```
+
+適用そのもののトーストフィードバック(フィルタでは滅多に不要)には、
+`HX-Trigger: {"hc:toast":{…}}` ヘッダーを含めます。
+
+## アクセシビリティ
+
+- ポップオーバーは `popovertarget` つきの本物の `<button>` で開かれ
+  ます。フォーカス、ライトディスミス、Escape はブラウザが処理します。
+- ポップオーバーは自動的にメニューになる**わけではありません**。この
+  フィルタフォームに `role="menu"` を設定するのは誤りです — これは
+  フォームです。デフォルトの role のままにしてください。
+- 各 fieldset には見える `<legend>` を与えてください。legend の代わりに
+  `aria-label` を使ったチェックボックス型フィルタは、視線で追いにくく
+  なります。
+- ポップオーバーが閉じた後のトリガーに `aria-current`
+  (例:「Status: 2 selected」)を付けると良い合図になります。件数は
+  フィルタ状態からサーバサイドで描画してください。
+
+## プログレッシブエンハンスメント
+
+- JavaScript なしでは、ポップオーバーはただの `<div>` です — ページに
+  見えてしまいます。リセット CSS に
+  `[popover]:not(:popover-open) { display: none; }` を足し、非 JS
+  フォールバック(別 URL のフルページフィルタフォーム)を検討して
+  ください。
+- `hc.behaviors.js` なしでも htmx のスワップは起こりますが、
+  ポップオーバーは開いたままです。これは無害です — ユーザーが手動で
+  閉じられます。
+
+## 関連
+
+- [ポップオーバーコンポーネント](/hypermedia-components/ja/components/popover/)
+- [ライブ検索レシピ](/hypermedia-components/ja/recipes/live-search/) — ポップオーバーのラッパーなしの同じ htmx パターン。
+- [トーストレシピ](/hypermedia-components/ja/recipes/toast/) — 「フィルタを保存しました」のフィードバックに。

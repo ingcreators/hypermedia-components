@@ -220,19 +220,6 @@ Four whole-figure presets extend the same table contract (per-column
   </figure>
   ```
 
-## Server-side rendering
-
-Plot renders wherever a DOM exists. Give it linkedom's `document` on
-the server and ship the SVG inside the response — the page then needs
-no client-side Plot at all. Emit the figure with
-`data-state="rendered"` (plus the `hc-sr-only` table and the
-`aria-hidden` SVG): `installChart()` recognizes already-rendered
-figures and leaves them alone, so SSR'd and client-rendered charts
-coexist. Tokens are client-side CSS — pass explicit colors when
-SSR'ing. The
-[contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chart/contract.md)
-has the working snippet.
-
 ## Options
 
 | Attribute       | Default                      | Effect                                  |
@@ -297,8 +284,13 @@ load) so the no-JavaScript path works. Detect htmx via the
 Charts can also be rendered to SVG on the **server** with Plot under a DOM
 shim ([linkedom](https://github.com/WebReflection/linkedom)) and returned
 inline, with no client Plot. Set explicit `marginLeft` / `marginBottom`
-then — server DOM shims do not measure text for automatic axis margins.
-This recipe ships the client-side path; the SSR path is an alternative.
+then — server DOM shims do not measure text for automatic axis margins —
+and pass explicit colors (tokens are client-side CSS). Emit the figure
+with `data-state="rendered"` (plus the `hc-sr-only` table and the
+`aria-hidden` SVG): `installChart()` recognizes already-rendered figures
+and leaves them alone, so SSR'd and client-rendered charts coexist. The
+[contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chart/contract.md)
+has the working snippet.
 
 ## Related
 

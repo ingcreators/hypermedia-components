@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 6 — the recipes section is
+  complete** (#319, docs-facing). The final nine recipe pages: toast,
+  data-region, datagrid-pager, datagrid-bulk-actions, filter-popover,
+  remote-dialog, sse-updates, sse-toast, and chart. All 21 recipes plus
+  every non-component section are now available in Japanese (56 ja
+  pages); only the component pages remain.
+
+### Fixed
+
+- **Docs: the chart recipe had two "Server-side rendering" sections**
+  (#319) — duplicated content (and duplicate heading slugs) merged into
+  one consolidated section.
+
 - **Docs: Japanese translations, phase 5** (#318, docs-facing). Ten
   recipe pages — the form/action core (request-action, inline-edit,
   copy, undo-delete, file-upload, multi-step-form, mutating-form,

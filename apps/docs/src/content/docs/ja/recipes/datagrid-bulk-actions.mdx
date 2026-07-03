@@ -1,0 +1,174 @@
+---
+title: データグリッド一括操作
+description: グリッドのチェックボックスで行を選び、選択バーから操作し、ids を htmx で POST — ネイティブなフォームシリアライズ、200-with-truth レスポンス、非 JS パス。
+---
+
+`datagrid-bulk-actions` は、多数の
+[データグリッド](/hypermedia-components/ja/components/datagrid/)行に
+1 つのアクションを一括実行するための公認の合成です: グリッド既存の
+行選択、最初の選択行とともに現れる**選択アクションバー**、そして ids が
+**ネイティブなフォームシリアライズ**で運ばれる一括 POST — ペイロードを
+組み立てる JavaScript はどこにもありません。すでに契約を持つ部品 —
+[datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) の
+`innerHTML` スワップ、
+[confirm-action](/hypermedia-components/ja/recipes/confirm-action/) の
+ゲート、[toast](/hypermedia-components/ja/recipes/toast/) の
+`HX-Trigger` — を配線し、
+[マークアップのバージョニングポリシー](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)の
+下で安定しています。
+
+必要なのは `installDatagrid()` と `installDatagridActions()`(どちらも
+自動初期化の
+[`./behaviors`](/hypermedia-components/ja/start/installation/#ビヘイビア)
+バンドルに同梱)、破壊的変種には加えて `installConfirm()` です。
+
+## マークアップ
+
+1 つの `<form>` がグリッド**と**バーを包みます:
+
+```html
+<form method="post" action="/products/bulk">
+  <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+       data-hc-datagrid-actions="#grid" hidden>
+    <span data-hc-datagrid-count></span>
+    <button class="hc-button" type="submit" name="action" value="archive"
+            data-hx-post="/products/bulk"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Archive</button>
+  </div>
+
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell">
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="rows">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox"
+                     name="ids" value="101" aria-label="Select Anvil">
+            </td>
+            <td class="hc-datagrid__cell">Anvil</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
+```
+
+## ids がどう運ばれるか
+
+行のチェックボックスは `name="ids" value="<id>"` です。htmx は非 GET
+リクエストで内包フォームの値を含め、未チェックのチェックボックスは
+決してシリアライズされず(素の HTML の挙動)、htmx はトリガーとなった
+ボタンの `name`/`value` も送信します — したがって 2 行チェックした
+状態で **Archive** をクリックすると、正確にこう POST されます:
+
+```text
+POST /products/bulk
+ids=101&ids=102&action=archive
+```
+
+ペイロードを正直に保つ 2 つのルール:
+
+- **全選択チェックボックスに `name` を付けない** — これは UI 上の
+  便宜であり、リクエストへ漏れてはいけません。
+- 各アクションボタンは `type="submit" name="action" value="<verb>"` —
+  JS がオフでも同じマークアップが(同じボディで)ネイティブに POST
+  します。1 つのエンドポイントで `action` により分岐します。アクション
+  別 URL でも構いません。
+
+これはレシピの土台なので、実 htmx に対して
+`test-browser/datagrid-bulk-actions.spec.mjs` で固定されています —
+htmx がクリックを処理する間、ネイティブ送信が抑止されたままである
+ことも含めて。
+
+## 選択バー
+
+`installDatagridActions()` は、グリッドの選択を
+`data-hc-datagrid-actions="<grid selector>"` を持つ任意の要素へミラー
+します:
+
+- `[data-hc-datagrid-count]` の子は i18n キー `datagrid.selected`
+  (デフォルト `{selected} selected`。上書きには `{total}` パラメータも
+  利用可)をデフォルトの `role="status"` つきで描画し、
+- 何も選択されていない間、バーは `hidden` です。
+
+これはグリッドの公開イベント `hc:datagridselectionchange` に駆動され
+ます — 行スワップ後のグリッドの再発火も含みます。一括操作の後にバーが
+クリアされるのはそれによってです。バーを `role="toolbar"` の
+`hc-toolbar` にすると、ボタンに矢印キーのツールバーパターンが無料で
+付いてきます。
+
+## サーバレスポンス契約
+
+`HX-Request` で分岐します。htmx への答えは常に**「ページの真実」を
+載せた `200`** — 再描画された行(tbody の `innerHTML`、
+[datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) と
+同じ形)、任意の out-of-band フラグメント、そしてトーストです:
+
+| リクエスト | レスポンス |
+| --- | --- |
+| htmx、成功 | `200` — 再描画された行 + OOB のステータス / ページャー + `HX-Trigger: {"hc:toast":{"message":"3 archived","variant":"success"}}` |
+| htmx、部分失敗 | 同じ `200` の形 — 行は実際に起きたことを示し、トーストは `variant: "warning"`(`"3 archived, 1 failed"`) |
+| htmx、空 / 古い `ids` | 同じ `200` の形 — no-op の行、トーストは `variant: "info"`。**ids はサーバ側で再検証**してください(ゼロ件で隠れるバーは保証ではありません) |
+| 非 JS | `303 See Other` + `Location` — 古典的な post/redirect/get。[mutating-form](/hypermedia-components/ja/recipes/mutating-form/) と同じ |
+
+ステータスコードの振り付けはありません: 違うのは行とトーストだけです。
+スワップインされた行は新しいチェックボックスとともに届くため、
+グリッドは選択を導出し直し、全選択チェックボックスを再同期し、
+再発火します — 選択のクリアとバーの非表示は**構造上そうなる**のです。
+
+## 確認つき破壊的変種
+
+破壊的な一括アクションは、ボタン上の
+[confirm-action](/hypermedia-components/ja/recipes/confirm-action/)
+パターンでゲートします — 他はすべてそのままです:
+
+```html
+<button class="hc-button" data-variant="error" type="submit"
+        name="action" value="delete"
+        data-hc-confirm="Delete the selected products? This cannot be undone."
+        data-hx-trigger="hc:confirmed"
+        data-hx-post="/products/bulk"
+        data-hx-target="#rows" data-hx-swap="innerHTML"
+        data-hx-disabled-elt="this">Delete</button>
+```
+
+## 非 JS デグラデーション
+
+フォームは `method`/`action` を保ち、ボタンは本物の submit ボタンなので、
+行をチェックしてアクションを押せば同じ `ids=…&action=…` ボディが
+ネイティブに POST され、サーバは `303` で答えます。JS の読み込み前から
+バーを使えるようにする必要があるなら、`hidden` 属性なしで出荷して
+ください — 選択ゼロならインストール時にビヘイビアが隠します。htmx
+パスの CSRF は
+[メタ規約](/hypermedia-components/ja/integrations/htmx/#csrf-トークン--公認の規約)を
+使い、ネイティブパスにはフレームワークの隠しフィールドが必要です。
+
+## スコープと合成
+
+選択は**ページ単位**です — ページャーと同じ立場です。2 つのレシピを
+合成するときは、現在のページを
+`<input type="hidden" id="bulk-page" name="page" value="3">` として
+フォームに保ち、サーバにページャーフラグメントと並べて
+`hx-swap-oob="true"` で再描画させてください。ページ横断の「該当する
+全 N 件を選択」、取り消し、サーバ追跡の選択は、このレシピの意図的な
+非目標です。完全なワイヤ契約は
+[`recipes/datagrid-bulk-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-actions/contract.md)に
+あります。
+
+## 関連
+
+- [データグリッド](/hypermedia-components/ja/components/datagrid/) — 行選択、選択アクションバーのセクション。
+- [データグリッドのページネーションレシピ](/hypermedia-components/ja/recipes/datagrid-pager/) — `innerHTML` スワップのルールと OOB フラグメント。
+- [確認アクションレシピ](/hypermedia-components/ja/recipes/confirm-action/) — 破壊的アクションのゲート。
+- [トーストレシピ](/hypermedia-components/ja/recipes/toast/) — `HX-Trigger` による結果フィードバック。
+- [ミューテーションフォームレシピ](/hypermedia-components/ja/recipes/mutating-form/) — 共有する `HX-Request` 分岐。
