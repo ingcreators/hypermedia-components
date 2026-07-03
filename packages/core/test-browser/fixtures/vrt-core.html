@@ -485,5 +485,31 @@ notes content.</textarea>
       </div>
     </div>
   </section>
+  <section id="vrt-dropzone">
+    <h2>Dropzone</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:.75rem;max-inline-size:28rem;">
+      <label class="hc-dropzone">
+        <input class="hc-dropzone__input" type="file" name="vrt-doc">
+        <span class="hc-dropzone__body">
+          <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+          <span class="hc-dropzone__files"></span>
+        </span>
+      </label>
+      <label class="hc-dropzone" data-dragover>
+        <input class="hc-dropzone__input" type="file" name="vrt-doc-over">
+        <span class="hc-dropzone__body">
+          <span class="hc-dropzone__hint">Drag-over state</span>
+          <span class="hc-dropzone__files">report.pdf</span>
+        </span>
+      </label>
+      <label class="hc-dropzone" data-size="sm">
+        <input class="hc-dropzone__input" type="file" name="vrt-doc-sm" disabled>
+        <span class="hc-dropzone__body">
+          <span class="hc-dropzone__hint">Small + disabled</span>
+        </span>
+      </label>
+    </div>
+  </section>
+
 </body>
 </html>

@@ -39,6 +39,7 @@ export { installFieldErrors } from './field-errors.js';
 export { installCsrfHeader } from './csrf-header.js';
 export { installSseDispatch } from './sse-dispatch.js';
 export { installUploadProgress } from './upload-progress.js';
+export { installDropzone } from './dropzone.js';
 export { installCopy } from './copy.js';
 export { installSpy } from './spy.js';
 export { installNavCurrent } from './nav-current.js';

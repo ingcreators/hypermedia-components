@@ -38,6 +38,7 @@ const COMPONENTS = [
   'hc-combobox.css',
   'hc-multicombobox.css',
   'hc-input-group.css',
+  'hc-dropzone.css',
   'hc-field.css',
   'hc-spinner.css',
   'hc-progress.css',

@@ -1,0 +1,96 @@
+/* hc-dropzone — drag-and-drop surface over a native file input.
+ *
+ * The interactive element is the wrapped <input type="file">: the
+ * <label> opens the picker on click, keyboard focus lives on the
+ * (visually hidden, still focusable) input, and constraint validation
+ * attaches to it as usual. Drag-and-drop is a pointer-only enhancement
+ * provided by installDropzone(), which sets [data-dragover] while a
+ * file drags over and assigns the dropped files to the input.
+ *
+ *   <label class="hc-dropzone">
+ *     <input class="hc-dropzone__input" type="file" name="doc">
+ *     <span class="hc-dropzone__body">
+ *       <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+ *       <span class="hc-dropzone__files"></span>
+ *     </span>
+ *   </label>
+ *
+ * States: [data-dragover] (behavior-set), :focus-within (keyboard),
+ * :has(input:disabled), :has(input[aria-invalid="true"]).
+ * Sizes: data-size="sm".
+ */
+@layer hc.components {
+  .hc-dropzone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-block: var(--hc-dropzone-padding-y);
+    padding-inline: var(--hc-dropzone-padding-x);
+    background-color: var(--hc-dropzone-bg);
+    border: 2px dashed var(--hc-dropzone-border);
+    border-radius: var(--hc-dropzone-radius);
+    color: var(--hc-dropzone-fg);
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .hc-dropzone[data-size='sm'] {
+    padding-block: var(--hc-space-3);
+    padding-inline: var(--hc-space-3);
+  }
+
+  /* The input stays focusable and validatable — hidden in place (the
+   * clip pattern), never display:none. */
+  .hc-dropzone__input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .hc-dropzone__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hc-space-1);
+    pointer-events: none; /* the drag events belong to the zone */
+  }
+
+  .hc-dropzone__hint {
+    color: var(--hc-dropzone-hint);
+  }
+
+  .hc-dropzone__files {
+    font-weight: 500;
+  }
+
+  .hc-dropzone__files:empty {
+    display: none;
+  }
+
+  /* A file is dragging over — the accent follows data-color. */
+  .hc-dropzone[data-dragover] {
+    border-color: var(--hc-dropzone-dragover-border);
+    border-style: solid;
+    background-color: var(--hc-dropzone-dragover-bg);
+  }
+
+  /* Keyboard focus lives on the hidden input. */
+  .hc-dropzone:focus-within {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .hc-dropzone:has(> .hc-dropzone__input:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .hc-dropzone:has(> .hc-dropzone__input[aria-invalid='true']) {
+    border-color: var(--hc-dropzone-error-border);
+  }
+}
