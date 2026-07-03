@@ -1,0 +1,243 @@
+---
+title: Go
+description: Go から Hypermedia Components を使う — net/http、html/template、HX-Trigger ヘッダーつきのフラグメントレスポンス。
+---
+
+このガイドは Hypermedia Components を Go の標準ライブラリ
+(`net/http` + `html/template`)と htmx に組み合わせます。パターンは
+chi、gorilla/mux、および標準の `http.ResponseWriter` /
+`*http.Request` ペアを公開するあらゆるルーターでも機能します。
+
+## アセット読み込み
+
+HC の dist ファイルを、`http.FileServer` で配信する `static/`
+ディレクトリ配下に置きます。
+
+```text
+static/
+  assets/
+    hc/
+      hc.css
+      hc.behaviors.min.js
+      macros/
+        index.min.js
+    htmx.min.js
+templates/
+  layout.html
+  items/
+    list.html
+    row.html
+```
+
+```go
+package main
+
+import (
+    "net/http"
+)
+
+func main() {
+    fs := http.FileServer(http.Dir("static"))
+    http.Handle("/static/", http.StripPrefix("/static/", fs))
+    http.HandleFunc("/items", listItems)
+    http.HandleFunc("/items/", itemHandler) // /items/{id}
+    http.ListenAndServe(":8080", nil)
+}
+```
+
+## テンプレート
+
+`html/template` は属性値を自動エスケープします — これはまさに
+Hypermedia Components が必要とするものです。レイアウト + 名前付き
+ブロックからページを構成します。
+
+```go
+// templates/layout.html
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{.Title}}</title>
+  <link rel="stylesheet" href="/static/assets/hc/hc.css">
+  <script defer src="/static/assets/htmx.min.js"></script>
+  <script type="module" src="/static/assets/hc/hc.behaviors.min.js"></script>
+  <script type="module" src="/static/assets/hc/macros/index.min.js"></script>
+</head>
+<body>
+  {{template "content" .}}
+
+  <div class="hc-toast-region" data-hc-toast-region role="region" aria-label="Notifications"></div>
+</body>
+</html>
+{{end}}
+```
+
+フルのリストと行単位スワップの両方で再利用される行パーシャル:
+
+```html
+{{define "row"}}
+<tr id="item-{{.ID}}">
+  <td>{{.Name}}</td>
+  <td><span class="hc-badge" data-variant="{{.Status}}">{{.StatusLabel}}</span></td>
+  <td>
+    <span class="hc-action">
+      <button
+        class="hc-button"
+        data-size="sm"
+        data-variant="error"
+        type="button"
+        data-hc-confirm="Delete {{.Name}}?"
+        data-hx-delete="/items/{{.ID}}"
+        data-hx-trigger="hc:confirmed"
+        data-hx-target="closest tr"
+        data-hx-swap="outerHTML"
+        data-hx-disabled-elt="this"
+        data-hx-indicator="closest .hc-action">
+        Delete
+      </button>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </span>
+  </td>
+</tr>
+{{end}}
+```
+
+`html/template` の文脈依存エスケープにより、`{{.Name}}` は属性値の中
+でも安全です — 手動エスケープは不要です。
+
+## ハンドラとフラグメント
+
+テンプレートは起動時に一度だけパースします:
+
+```go
+var tpl = template.Must(template.ParseGlob("templates/**/*.html"))
+```
+
+htmx の POST に対して 1 行だけ返すハンドラ:
+
+```go
+func createItem(w http.ResponseWriter, r *http.Request) {
+    if err := r.ParseForm(); err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    name := strings.TrimSpace(r.FormValue("name"))
+    if name == "" {
+        w.WriteHeader(http.StatusUnprocessableEntity)
+        fmt.Fprintf(w, `<tr><td colspan="3"><p class="hc-field__message" style="color: var(--hc-color-error);">Name is required.</p></td></tr>`)
+        return
+    }
+    item := store.Create(name)
+
+    w.Header().Set("HX-Trigger", `{"hc:toast":{"message":"Added.","variant":"success"}}`)
+    w.WriteHeader(http.StatusCreated)
+    _ = tpl.ExecuteTemplate(w, "row", item)
+}
+```
+
+何も返さずトーストだけを発火するハンドラ:
+
+```go
+func deleteItem(w http.ResponseWriter, r *http.Request) {
+    id := pathID(r) // your router's id extraction
+    item, ok := store.Delete(id)
+    if !ok {
+        http.NotFound(w, r)
+        return
+    }
+    trigger := map[string]any{
+        "hc:toast": map[string]string{
+            "message": fmt.Sprintf("Deleted %q.", item.Name),
+            "variant": "success",
+        },
+    }
+    payload, _ := json.Marshal(trigger)
+    w.Header().Set("HX-Trigger", string(payload))
+    // empty body — htmx removes the row via outerHTML swap
+}
+```
+
+## HX-Trigger によるトースト
+
+小さなヘルパーで JSON ペイロードを安全に組み立てます:
+
+```go
+func HxTrigger(w http.ResponseWriter, events map[string]any) {
+    if existing := w.Header().Get("HX-Trigger"); existing != "" {
+        var current map[string]any
+        if json.Unmarshal([]byte(existing), &current) == nil {
+            for k, v := range events {
+                current[k] = v
+            }
+            events = current
+        }
+    }
+    if b, err := json.Marshal(events); err == nil {
+        w.Header().Set("HX-Trigger", string(b))
+    }
+}
+```
+
+ハンドラからは:
+
+```go
+HxTrigger(w, map[string]any{
+    "hc:toast": map[string]string{"message": "Saved.", "variant": "success"},
+})
+```
+
+## htmx リクエストの検知
+
+```go
+func isHTMX(r *http.Request) bool {
+    return r.Header.Get("HX-Request") == "true"
+}
+
+func listItems(w http.ResponseWriter, r *http.Request) {
+    items := store.All()
+    if isHTMX(r) {
+        _ = tpl.ExecuteTemplate(w, "rows", items)
+        return
+    }
+    _ = tpl.ExecuteTemplate(w, "list", items)
+}
+```
+
+## CSRF のヒント
+
+`html/template` に CSRF は同梱されていません。ミドルウェア(例:
+[`gorilla/csrf`](https://github.com/gorilla/csrf))を選び、レイアウトで
+トークンを htmx に渡します:
+
+```html
+<meta name="csrf-token" content="{{.CSRFToken}}">
+<script>
+  document.body.addEventListener("htmx:configRequest", (e) => {
+    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (token) e.detail.headers["X-CSRF-Token"] = token;
+  });
+</script>
+```
+
+トークンはミドルウェアからテンプレートデータへ渡してください
+(`gorilla/csrf` は `csrf.Token(r)` を公開しています)。
+
+## ヒント
+
+- **`embed.FS`** — `//go:embed templates/* static/*` でテンプレートと
+  静的アセットをバイナリに埋め込み、`http.FS(embedFS)` から配信
+  できます。デプロイが単一ファイルで済みます。
+- **`text/template` と `html/template`** — HC のフラグメントには常に
+  `html/template` を使ってください。属性への値の埋め込みを安全に保つのは
+  文脈依存エスケープです。
+- **ストリーミングスワップ** — 長時間かかる検索には、チャンク化した
+  フラグメントを返します。htmx は返された要素の
+  `data-hx-swap-oob="true"` による out-of-band スワップをサポート
+  します。
+
+## 関連
+
+- [レシピ → confirm-action](/hypermedia-components/ja/recipes/confirm-action/)
+- [レシピ → live-search](/hypermedia-components/ja/recipes/live-search/)
+- [Examples → htmx](https://github.com/ingcreators/hypermedia-components/tree/main/examples/htmx) — 同梱の例は、同じハンドラ構造の Node http サーバを使っています。

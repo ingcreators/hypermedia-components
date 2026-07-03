@@ -1,0 +1,232 @@
+---
+title: Thymeleaf(Spring Boot)
+description: Spring Boot + Thymeleaf テンプレートから Hypermedia Components を使い、コントローラから HTML フラグメントを返し、レスポンスヘッダーでトーストを発火します。
+---
+
+このガイドは Spring Boot + Thymeleaf を扱います。同じパターンは素の
+Spring MVC にも当てはまります。
+
+## プロジェクト構成
+
+Hypermedia Components は静的アセットとして配布されます —
+`src/main/resources/static/` 配下に置くか、CDN から取得してください。
+以下の例は `static/assets/hc/` 配下のローカルコピーを使います。
+
+```text
+src/main/resources/
+  static/
+    assets/
+      hc/
+        hc.css
+        hc.behaviors.min.js
+        macros/
+          index.min.js
+      htmx.min.js
+  templates/
+    layout.html
+    fragments/
+      _toast-region.html
+    items/
+      list.html
+      _row.html
+```
+
+## ベースレイアウト
+
+HC + htmx を読み込み、トースト領域を確保する `layout.html`。
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${title} ?: 'My app'">My app</title>
+
+  <link rel="stylesheet" th:href="@{/assets/hc/hc.css}">
+  <script defer th:src="@{/assets/htmx.min.js}"></script>
+  <script type="module" th:src="@{/assets/hc/hc.behaviors.min.js}"></script>
+  <script type="module" th:src="@{/assets/hc/macros/index.min.js}"></script>
+
+  <!-- htmx + Spring Security CSRF -->
+  <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
+</head>
+<body>
+  <main th:replace="${~{::content}}">…</main>
+
+  <div
+    class="hc-toast-region"
+    data-hc-toast-region
+    role="region"
+    aria-label="Notifications"></div>
+
+  <script>
+    // Hand the CSRF token to htmx so every request carries it.
+    document.body.addEventListener('htmx:configRequest', (e) => {
+      const token  = document.querySelector('meta[name="_csrf"]')?.content;
+      const header = document.querySelector('meta[name="_csrf_header"]')?.content;
+      if (token && header) e.detail.headers[header] = token;
+    });
+  </script>
+</body>
+</html>
+```
+
+## コンポーネントの描画
+
+Thymeleaf のフラグメントは、HC のパーツクラス命名とよく組み合います。
+
+```html
+<!-- fragments/_field.html -->
+<div th:fragment="field(name, label, value, message, invalid)"
+     class="hc-field"
+     th:attr="data-invalid=${invalid} ? 'true' : null">
+  <label class="hc-field__label" th:for="${name}" th:text="${label}"></label>
+  <input
+    th:id="${name}"
+    th:name="${name}"
+    th:value="${value}"
+    class="hc-input"
+    th:attr="aria-invalid=${invalid} ? 'true' : null,
+             aria-describedby=${invalid} ? ${name} + '-error' : null">
+  <p th:if="${message}"
+     th:id="${name} + '-error'"
+     class="hc-field__message"
+     th:text="${message}"></p>
+</div>
+```
+
+ページからの利用:
+
+```html
+<form th:action="@{/users}" method="post"
+      th:attr="data-hx-post=@{/users}"
+      data-hx-target="this"
+      data-hx-swap="outerHTML">
+  <div th:replace="~{fragments/_field :: field('email', 'Email', ${form.email}, ${errors.email}, ${errors.email != null})}"></div>
+  <button class="hc-button" data-variant="primary" type="submit">Create</button>
+</form>
+```
+
+## HTML フラグメントを返す
+
+htmx スワップに対しては、コントローラはページ全体ではなく**内側の**
+テンプレートフラグメントを返します。`ViewName::fragmentName` 規約で
+Thymeleaf の `::` フラグメントセレクタを使うか、フラグメントを直接
+描画します。
+
+```java
+@PostMapping("/items")
+public String createItem(@ModelAttribute("form") ItemForm form, Model model) {
+  Item item = itemService.create(form);
+  model.addAttribute("item", item);
+  return "items/list :: row"; // renders <tr th:fragment="row(item)">…</tr>
+}
+```
+
+`_row.html`:
+
+```html
+<tr th:fragment="row(item)" th:id="'item-' + ${item.id}">
+  <td th:text="${item.name}"></td>
+  <td>
+    <span class="hc-badge" th:attr="data-variant=${item.status}"
+          th:text="${item.statusLabel}"></span>
+  </td>
+  <td>
+    <span class="hc-action">
+      <button
+        class="hc-button"
+        data-size="sm"
+        data-variant="error"
+        type="button"
+        th:attr="data-hc-confirm='Delete ' + ${item.name} + '?',
+                 data-hx-delete=@{/items/{id}(id=${item.id})},
+                 data-hx-trigger='hc:confirmed',
+                 data-hx-target='closest tr',
+                 data-hx-swap='outerHTML',
+                 data-hx-disabled-elt='this',
+                 data-hx-indicator='closest .hc-action'">
+        Delete
+      </button>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </span>
+  </td>
+</tr>
+```
+
+## HX-Trigger によるトースト
+
+`ResponseEntity`(または `HttpServletResponse` 経由のヘッダー設定)で、
+トーストビヘイビアが待ち受ける `HX-Trigger` ヘッダーを追加します。
+
+```java
+@DeleteMapping("/items/{id}")
+public ResponseEntity<String> deleteItem(@PathVariable Long id) {
+  Item removed = itemService.delete(id);
+
+  String trigger = """
+      {"hc:toast":{"message":"Deleted \\"%s\\".","variant":"success"}}
+      """.formatted(removed.getName());
+
+  return ResponseEntity.ok()
+      .header("HX-Trigger", trigger)
+      .body(""); // empty body; htmx removes the row via outerHTML swap
+}
+```
+
+1 つのレスポンスに複数イベントを載せる場合:
+
+```java
+.header("HX-Trigger", """
+    {"hc:toast":{"message":"Saved","variant":"success"}, "items:refresh":true}
+    """)
+```
+
+## Spring Security との CSRF
+
+上のベースレイアウトは、`htmx:configRequest` イベント経由で CSRF
+トークンをすべての htmx リクエストに注入します。これはデフォルトの
+`CsrfFilter` で機能します。`CookieCsrfTokenRepository` を使う場合:
+
+```java
+http.csrf(csrf -> csrf.csrfTokenRepository(
+    CookieCsrfTokenRepository.withHttpOnlyFalse()));
+```
+
+レイアウト側の JS は、メタタグの代わりにクッキーを読むよう切り替えて
+ください。
+
+## htmx リクエストの検知
+
+コントローラは、htmx リクエストにはフラグメントを、直接ロードには
+フルページを返すことがよくあります。`HX-Request` ヘッダーで検知します:
+
+```java
+@GetMapping("/items")
+public String listItems(@RequestHeader(value = "HX-Request",
+                                        required = false) String htmx,
+                        Model model) {
+  model.addAttribute("items", itemService.findAll());
+  return Boolean.parseBoolean(htmx) ? "items/list :: rows" : "items/list";
+}
+```
+
+## ヒント
+
+- **Webjars** — `org.webjars:htmx.org` などの webjar も動きますが、
+  キャッシュ制御の面では HC アセットを自分の静的フォルダから配信する
+  ほうがたいてい有利です。
+- **Layout dialect** —
+  [thymeleaf-layout-dialect](https://github.com/ultraq/thymeleaf-layout-dialect)
+  を使うなら、`layout:decorate` + `layout:fragment="content"` がそのまま
+  はまります。
+- **空ボディ** — 破壊系エンドポイントの多くは空ボディ + `HX-Trigger` を
+  返します。Spring の `ResponseEntity<Void>` で書けます:
+  `return ResponseEntity.ok().header("HX-Trigger", "…").build();`
+
+## 関連
+
+- [レシピ → confirm-action](/hypermedia-components/ja/recipes/confirm-action/)
+- [レシピ → request-action](/hypermedia-components/ja/recipes/request-action/)
+- [レシピ → toast](/hypermedia-components/ja/recipes/toast/)

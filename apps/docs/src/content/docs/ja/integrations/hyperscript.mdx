@@ -1,0 +1,373 @@
+---
+title: Hyperscript
+description: vanilla の installXxx ビヘイビアに対するオプトインの代替として _hyperscript を使う。Hypermedia Components のデフォルトは JS ファーストのまま — このガイドは、そちらが合う場面での等価な _hyperscript スニペットを示します。
+---
+
+[_hyperscript](https://hyperscript.org) は、HyperTalk に着想を得た
+イベント指向のスクリプト言語です。小さく、マークアップの中に
+インラインで書いても読みやすく、htmx ときれいに組み合います。
+Hypermedia Components はこれを**必須にしません** —
+`@hypermedia-components/core` の vanilla ビヘイビアがデフォルトです —
+が、ロジックをマークアップの隣に置きたいなら、すべてのビヘイビアには
+自然な _hyperscript の等価物があります。さらにインタラクティブな
+コンポーネントは `hc:*` イベントを発するので、インラインで反応でき
+ます — [コンポーネントイベントへの反応](#コンポーネントイベントへの反応)を
+参照。
+
+このページは翻訳リファレンスとして使ってください: スニペットを
+コピーして既存の `_=` 属性(または
+`<script type="text/hyperscript">` ブロック)に貼り、対応する
+`installXxx()` 呼び出しを省きます。
+
+## アセット読み込み
+
+`_hyperscript` は htmx の後、`_=` 属性を使うマークアップの前に追加
+します。
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/assets/hc/hc.css">
+
+    <script defer src="https://unpkg.com/htmx.org@2"></script>
+    <script defer src="https://unpkg.com/hyperscript.org@0.9"></script>
+
+    <!-- Only the bits of HC you still want. See "Mixing approaches" below. -->
+    <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
+  </head>
+  <body>
+    ...
+  </body>
+</html>
+```
+
+`_hyperscript` は `DOMContentLoaded` で自己インストールします。設定
+ステップはありません。
+
+## 考え方
+
+vanilla の `installXxx` ビヘイビアと以下の _hyperscript スニペットは
+同じことをします — イベントをインターセプトし、ネイティブ DOM API と
+話し、`fetch()` を決してラップしません。選択は人間工学の問題です:
+
+- **vanilla が勝つ**のは、同じビヘイビアが多くの要素に現れるとき
+  (`installConfirm()` 1 回で、すべての `[data-hc-confirm]` が処理
+  される)、ヘルパーに JSDoc / TypeScript の型が欲しいとき、ロジックが
+  ワンライナーを超えるとき。
+- **_hyperscript が勝つ**のは、ロジックが単一の要素にローカルなとき、
+  マークアップを散文のように読ませたいとき、
+  `hc.behaviors.min.js` を含むバンドルを配布できないとき。
+
+どちらも htmx と同じやり方で合成します: イベントを発火し、htmx に
+`data-hx-trigger` で待ち受けさせます。
+
+## 混ぜて使う
+
+グローバルに選ぶ必要はありません。置き換える `installXxx` を落とし、
+残りは保ちます。例えば、vanilla のトースト領域を保ったまま確認
+ビヘイビアだけをインライン _hyperscript に置き換えるには、個別
+インストーラをインポートします:
+
+```js
+import {
+  installToast,
+  installCloseDialog,
+  installClosePopover,
+  installRemoteDialog,
+} from '@hypermedia-components/core';
+
+installToast();
+installCloseDialog();
+installClosePopover();
+installRemoteDialog();
+// installConfirm() intentionally skipped — _hyperscript handles confirm inline.
+```
+
+`@hypermedia-components/core/behaviors` 自動初期化エントリは、すべての
+デフォルトビヘイビアを一括でインストールします。選り好みするときは
+そのインポートを省き、欲しい個別の `installX()` を呼んでください。
+
+## 等価スニペット
+
+### 確認アクション
+
+vanilla — `installConfirm()` が駆動:
+
+```html
+<button
+  class="hc-button"
+  data-variant="error"
+  data-hc-confirm="Delete this item?"
+  data-hx-delete="/items/123"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="closest tr">
+  Delete
+</button>
+```
+
+_hyperscript — 確認をインラインで処理。htmx は引き続き
+`hc:confirmed` を待ち受けます:
+
+```html
+<button
+  class="hc-button"
+  data-variant="error"
+  data-hx-delete="/items/123"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="closest tr"
+  _="on click
+       if confirm('Delete this item?')
+         send hc:confirmed to me
+       end">
+  Delete
+</button>
+```
+
+`confirm(...)` はブラウザのプリミティブです — 同期・ブロッキングで、
+スタイルできません。代わりに共有の
+`<dialog class="hc-confirm-dialog">` マークアップを使うには、ページに
+一度だけ描画して id でターゲットします:
+
+```html
+<dialog id="confirm-dialog" class="hc-dialog hc-confirm-dialog"
+        aria-labelledby="confirm-title" aria-describedby="confirm-message">
+  <header class="hc-dialog__header">
+    <h2 class="hc-dialog__title" id="confirm-title">Confirm</h2>
+  </header>
+  <div class="hc-dialog__body" id="confirm-message">Are you sure?</div>
+  <footer class="hc-dialog__footer">
+    <button class="hc-button" type="button"
+            _="on click call closest <dialog/> then call it.close('cancel')">
+      Cancel
+    </button>
+    <button class="hc-button" type="button" data-variant="primary"
+            _="on click call closest <dialog/> then call it.close('confirm')">
+      Confirm
+    </button>
+  </footer>
+</dialog>
+
+<button
+  class="hc-button"
+  data-variant="error"
+  data-hx-delete="/items/123"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="closest tr"
+  _="on click
+       set #confirm-message.textContent to 'Delete this item?'
+       call #confirm-dialog.showModal()
+       wait for close from #confirm-dialog
+       if #confirm-dialog.returnValue is 'confirm'
+         send hc:confirmed to me
+       end">
+  Delete
+</button>
+```
+
+_hyperscript 版でも同じアクセシビリティが得られます
+(`<dialog showModal>` がフォーカストラップと Escape を処理)。ただし
+オーケストレーションは、共有のインストール済みビヘイビアに頼る代わりに
+script 属性の中に書きます。同じ例を文脈つきで見るには
+[confirm-action レシピ](/hypermedia-components/ja/recipes/confirm-action/#hyperscript-による代替)を
+参照してください。
+
+### トーストの発火(クライアントサイド)
+
+vanilla — `document.body` に発火し、`installToast()` に描画させます:
+
+```js
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: { message: 'Saved', variant: 'success' },
+}));
+```
+
+_hyperscript — 同じ発火を、ヘルパーなしで:
+
+```html
+<button
+  class="hc-button"
+  _="on click send hc:toast(message:'Saved', variant:'success') to <body/>">
+  Save
+</button>
+```
+
+トーストを実際に描画するには、どこかで `installToast()` が動いている
+必要があります。_hyperscript が置き換えるのは呼び出し側だけで、
+リスナーではありません。
+
+### 成功したリクエストの後にダイアログを閉じる
+
+vanilla — `installCloseDialog()` が
+`data-hc-close-dialog-on-success` を持つ祖先について
+`htmx:afterRequest` を監視します:
+
+```html
+<form
+  data-hx-post="/items"
+  data-hx-target="closest dialog"
+  data-hx-swap="outerHTML"
+  data-hc-close-dialog-on-success>
+  ...
+</form>
+```
+
+_hyperscript — 同じイベントを、この要素にスコープして待ち受けます:
+
+```html
+<form
+  data-hx-post="/items"
+  data-hx-target="closest dialog"
+  data-hx-swap="outerHTML"
+  _="on htmx:afterRequest
+       if event.detail.successful
+         call closest <dialog/> then call it.close()
+       end">
+  ...
+</form>
+```
+
+### 成功したリクエストの後にポップオーバーを閉じる
+
+```html
+<form
+  data-hx-get="/items"
+  data-hx-target="#results"
+  _="on htmx:afterRequest
+       if event.detail.successful
+         call closest <[popover]/> then call it.hidePopover()
+       end">
+  ...
+</form>
+```
+
+### リモートダイアログ(スワップ後にサーバ描画のダイアログを開く)
+
+vanilla — `installRemoteDialog()` が任意の
+`[data-hc-remote-dialog-root]` 上で `htmx:afterSwap` を監視します:
+
+```html
+<div id="dialog-root" data-hc-remote-dialog-root></div>
+```
+
+_hyperscript — 同じ考えを、インラインで:
+
+```html
+<div
+  id="dialog-root"
+  _="on htmx:afterSwap
+       set dlg to my.querySelector('dialog')
+       if dlg and not dlg.open then dlg.showModal()">
+</div>
+```
+
+## コンポーネントイベントへの反応
+
+インタラクティブなコンポーネント(メニュー、コンボボックス、コマンド、
+カレンダー、トグルグループ、Input OTP、スプリッター、タブ、…)は、
+**内部実装を vanilla ビヘイビアの中に**保ちます — WAI-ARIA キーボード
+モデル、フォーカス管理、ロービングタブインデックスはそこにあり、一度
+テストされ、どこでも一貫します。*あなた*に公開されるのは、バブリング
+する `hc:*` イベントの小さなセットです。この継ぎ目は完全に宣言的です:
+htmx の `data-hx-trigger` と同様に、_hyperscript では
+`_="on hc:…"` で扱えます。
+
+| コンポーネント | イベント | `event.detail` |
+| --- | --- | --- |
+| [メニュー](/hypermedia-components/ja/components/menu/) / [コンテキストメニュー](/hypermedia-components/ja/components/context-menu/) | `hc:menuselect` | `{ item, menu, checked?, contextTarget? }` |
+| [コンボボックス](/hypermedia-components/ja/components/combobox/) | `hc:comboboxselect` | `{ value, label, option, input }` |
+| [マルチコンボボックス](/hypermedia-components/ja/components/multicombobox/) | `hc:multicomboboxchange` | `{ values, added, removed, input }` |
+| [コマンド](/hypermedia-components/ja/components/command/) | `hc:commandselect` | `{ item, value, command }` |
+| [カレンダー](/hypermedia-components/ja/components/calendar/) | `hc:calendarchange` | `{ value, date }` |
+| [Input OTP](/hypermedia-components/ja/components/inputotp/) | `hc:otpchange` · `hc:otpcomplete` | `{ value, input }` |
+| [スプリッター](/hypermedia-components/ja/components/splitter/) | `hc:splitterchange` | `{ value, orientation }` |
+| [トグルグループ](/hypermedia-components/ja/components/toggle-group/) | `hc:togglegroupchange` | `{ type, value? , values?, item, pressed? }` |
+| [タブ](/hypermedia-components/ja/components/tabs/) | `hc:tabactivated` | _(アクティブ化されたパネル上で発火)_ |
+
+これらはバブリングするので、コンポーネントでも任意の祖先でも待ち受け
+られます。
+
+**選ばれたカレンダーの日付を表示:**
+
+```html
+<div class="hc-calendar" data-value="2026-05-15" aria-label="Pick a date"
+     _="on hc:calendarchange put event.detail.value into #picked"></div>
+<output id="picked"></output>
+```
+
+**OTP が埋まったら自動送信**(JS も `hx-trigger` も不要):
+
+```html
+<form data-hx-post="/verify">
+  <div class="hc-inputotp" data-length="6"
+       _="on hc:otpcomplete call closest <form/> then call it.requestSubmit()">
+    <input class="hc-inputotp__input" type="text" name="code" aria-label="Code">
+  </div>
+</form>
+```
+
+**コマンドパレットのアクションを実行:**
+
+```html
+<div class="hc-command"
+     _="on hc:commandselect
+          if event.detail.value is 'home' then go to url '/'
+          else if event.detail.value is 'new' then go to url '/new/'">
+  ...
+</div>
+```
+
+**スプリッターの位置を訪問をまたいで保持:**
+
+```html
+<div class="hc-splitter" data-orientation="horizontal"
+     _="on load
+          if localStorage.split then set @data-value to localStorage.split
+        on hc:splitterchange
+          set localStorage.split to event.detail.value">
+  ...
+</div>
+```
+
+**トグルグループ / メニューの選択に反応:**
+
+```html
+<div class="hc-toggle-group" role="radiogroup" data-type="single" aria-label="View"
+     _="on hc:togglegroupchange add .is-{event.detail.value} to #grid">
+  ...
+</div>
+
+<div class="hc-menu" id="row-menu" popover role="menu"
+     _="on hc:menuselect call handleRow(event.detail.item.dataset.action)">
+  ...
+</div>
+```
+
+これらは普通の DOM イベントなので、**同じハンドラが htmx でも機能**
+します — 反応がローカルな DOM 変更ではなくサーバリクエストであるべき
+ときは、`_="on hc:calendarchange …"` を
+`data-hx-trigger="hc:calendarchange"` に替えてください。ローカルの糊は
+_hyperscript、ネットワーク呼び出しは htmx — どちらが待ち受けているかを
+コンポーネントは気にしません。
+
+## _hyperscript を使わないほうがいいとき
+
+- **どうせバンドルを配布する。** ビルドがすでにモジュールバンドルを
+  生成しているなら、vanilla ビヘイビアはそこへ無料で合成できます。
+  半キロバイトのオーケストレーションのために `_hyperscript` を持ち込む
+  のは良い取引ではありません。
+- **ビヘイビアが多くの要素で共有される。** `installConfirm()` 1 回で
+  ページ上のすべての `[data-hc-confirm]` がカバーされます。同じ
+  _hyperscript をすべてのボタンにインライン展開するのは重複です。
+- **型やユニットテストが欲しい。** vanilla ヘルパーは JSDoc を公開し、
+  `.d.ts` を同梱します。_hyperscript は属性の中の文字列で、型認識
+  ツーリングはその中を見てくれません。
+
+## 関連
+
+- [Plain HTML](/hypermedia-components/ja/integrations/) — 最小の
+  セットアップ。
+- [確認アクションレシピ](/hypermedia-components/ja/recipes/confirm-action/) — vanilla と _hyperscript を並べて。
+- _hyperscript [リファレンス](https://hyperscript.org/reference/) — 言語ドキュメント。
