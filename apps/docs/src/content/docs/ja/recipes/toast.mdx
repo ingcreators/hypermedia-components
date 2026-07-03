@@ -1,0 +1,177 @@
+---
+title: トースト
+description: サーバ(HX-Trigger)またはクライアント(CustomEvent)から発火される一時的な通知。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+トーストは、画面の隅に現れる短い時間制限つきの通知です。
+`installToast` ビヘイビアが `document.body` 上の `hc:toast` イベントを
+待ち受け、ページのトースト領域へトーストを描画し、数秒後に自動で
+解散させます。
+
+:::note[セットアップ]
+このレシピには `installToast()` ビヘイビアが必要です — ないと、発火
+された `hc:toast` イベントは何もしません。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを一括
+インストールするか、これだけを:
+
+```js
+import { installToast } from '@hypermedia-components/core';
+installToast();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+## マークアップ
+
+トースト領域は単一のホスト要素です。`<body>` の終わり近くに一度だけ
+置いてください。領域がなければ、ビヘイビアが自動で作成します。
+
+```html
+<div
+  class="hc-toast-region"
+  data-hc-toast-region
+  role="region"
+  aria-label="Notifications">
+</div>
+```
+
+## トーストの発火
+
+### クライアントから
+
+detail オブジェクトつきのバブリングする `hc:toast` イベントを発火
+します:
+
+```js
+document.body.dispatchEvent(
+  new CustomEvent('hc:toast', {
+    bubbles: true,
+    detail: { message: 'Saved', variant: 'success' },
+  })
+);
+```
+
+試してみてください — 各ボタンが上のイベントを発火します。トーストは
+ページの隅に現れ(そして自動で消えます):
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-variant="primary" data-toast-variant="success" data-toast-title="Saved" data-toast-message="Changes saved.">Success</button>
+  <button class="hc-button" data-toast-variant="info" data-toast-message="Heads up — 3 new items.">Info</button>
+  <button class="hc-button" data-toast-variant="warning" data-toast-message="Storage almost full.">Warning</button>
+  <button class="hc-button" data-variant="error" data-toast-variant="error" data-toast-title="Sync failed" data-toast-message="Could not reach the server.">Error</button>
+
+  <Fragment slot="code">
+
+  ```js
+  // installToast() must be installed (it is in the behaviors bundle).
+  saveButton.addEventListener('click', () => {
+    document.body.dispatchEvent(new CustomEvent('hc:toast', {
+      bubbles: true,
+      detail: { title: 'Saved', message: 'Changes saved.', variant: 'success' },
+    }));
+  });
+  ```
+
+  </Fragment>
+</Demo>
+
+### サーバから(htmx)
+
+`HX-Trigger` レスポンスヘッダーを返します。htmx が body 上で
+`hc:toast` を発火してくれます。
+
+```text
+HTTP/1.1 200 OK
+HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}
+```
+
+1 つのレスポンスに複数イベントを載せる場合:
+
+```text
+HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}, "items:refresh":true}
+```
+
+## detail の形
+
+| フィールド | 型       | デフォルト     | 備考                                    |
+| ---------- | -------- | -------------- | --------------------------------------- |
+| `message`  | string   | _(必須)_       | 本文テキスト。                          |
+| `title`    | string   | _(省略)_       | メッセージの上の太字 1 行。             |
+| `variant`  | string   | `'info'`       | `info` / `success` / `warning` / `error`。 |
+| `duration` | number   | `4500`         | ミリ秒。`0` は手動で消されるまで保持。  |
+
+`variant="error"` はトーストを `role="alert"` /
+`aria-live="assertive"` にも切り替えるため、スクリーンリーダーは割り込ん
+で読み上げます。他のバリアントは `role="status"` /
+`aria-live="polite"` を使います。
+
+## 例
+
+```js
+// Success
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: { message: 'Invoice sent.' },
+}));
+
+// Error, sticky until dismissed
+document.body.dispatchEvent(new CustomEvent('hc:toast', {
+  bubbles: true,
+  detail: {
+    title: 'Sync failed',
+    message: 'Could not reach the server. Retrying…',
+    variant: 'error',
+    duration: 0,
+  },
+}));
+```
+
+サーバサイドのハンドラから:
+
+```python
+# Django
+from django.http import HttpResponse
+import json
+
+def delete_item(request, id):
+    item = get_object_or_404(Item, pk=id)
+    item.delete()
+    return HttpResponse('', headers={
+        'HX-Trigger': json.dumps({
+            'hc:toast': {'message': 'Deleted.', 'variant': 'success'},
+        }),
+    })
+```
+
+## アクセシビリティ
+
+- `info` / `success` / `warning` は `role="status"`(polite)を使う
+  ため、ユーザーの流れを遮りません。
+- `error` は `role="alert"`(assertive)を使い、失敗を即座に読み上げ
+  させます。本物のエラーのために取っておいてください。
+- 領域自体はラベルつきの `region` ランドマークです — 支援技術で移動
+  できます。
+- トーストは自動で消えます。ユーザーが対応しなければならない重要な
+  情報をここに置かないでください。完了したアクションの確認が正準の
+  ユースケースです。
+
+## プログレッシブエンハンスメント
+
+`hc.behaviors.js` なしでは、`hc:toast` イベントは発火されてもリスナーが
+存在せず、何も描画されません。HTTP レスポンス自体は依然として妥当です —
+`HX-Trigger` は素の `fetch()` 呼び出しには no-op です。
+
+JavaScript なしで確認を伝えなければならないアプリケーションでは、
+フラッシュメッセージをページ内にサーバレンダリングし
+([`hc-alert`](/hypermedia-components/ja/components/alert/) が正しい
+コンポーネントです)、次のレスポンスで取り除いてください。
+
+## 関連
+
+- [アラート](/hypermedia-components/ja/components/alert/) — ブロック
+  レベルのインライン通知。ページの再読み込みまで残ります。
+- [確認アクション](/hypermedia-components/ja/recipes/confirm-action/) —
+  成功時のトーストとよく組み合わされます。

@@ -1,0 +1,308 @@
+---
+title: チャート
+description: サーバが送るセマンティックなデータテーブルを Observable Plot の SVG チャートへ昇格。テーブルが非 JavaScript のフォールバックです。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+チャートレシピは、サーバレンダリングされた**データテーブル**を
+[Observable Plot](https://observablehq.com/plot/) の SVG チャートに
+変えます。テーブルはデータソースであり、非 JavaScript のフォールバック
+であり、スクリーンリーダー用のデータです — `installChart()` がそれを
+読んでチャートを描きます。チャートごとの JavaScript はありません:
+チャートの種類と系列ごとのマークはマークアップで宣言します。
+
+このレシピは**ビヘイビアを必要とします** —
+[`installChart`](/hypermedia-components/ja/start/installation/#ビヘイビア) —
+そして Observable Plot、**自分で読み込む任意のピア依存**です。Plot は
+決して `@hypermedia-components/core` にバンドルされないため、
+`installChart` は自動初期化の `behaviors` エントリには**含まれません**。
+Plot がなければビヘイビアは no-op で、テーブルが見えたままになります。
+
+:::note
+このページのプレビューは**ライブ**です — この docs ページは Observable
+Plot をバンドルして `installChart` を呼んでいるため、以下の各チャートは
+そのテーブルから描画されています。**Code** に切り替えるとマークアップを
+コピーできます。
+:::
+
+## 短縮形
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="bar" data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Monthly sales</caption>
+      <thead><tr><th>Month</th><th>Sales</th></tr></thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td></tr>
+        <tr><td>Feb</td><td>200</td></tr>
+        <tr><td>Mar</td><td>150</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="bar" data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Monthly sales</caption>
+      <thead><tr><th>Month</th><th>Sales</th></tr></thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td></tr>
+        <tr><td>Feb</td><td>200</td></tr>
+        <tr><td>Mar</td><td>150</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+## ビヘイビアのインストール
+
+Plot(ここでは CDN の UMD グローバル)を読み込み、ページごとに一度
+インストールします:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/dist/plot.umd.min.js"></script>
+<script type="module">
+  import { installChart } from '@hypermedia-components/core';
+  installChart(document, { plot: window.Plot });
+</script>
+```
+
+`installChart` は `window.Plot` を自動で拾うため、CDN スクリプトの実行
+後なら `installChart()` 単体でも動きます。`plot` を明示的に渡すほうが
+明快で、グローバルの代わりにバンドルされたインポートも使えます。
+
+## テーブル契約
+
+カテゴリカルなチャートでは、テーブルはこう読まれます:
+
+- **1 列目** — x のカテゴリ。
+- **2〜N 列目** — 各列が 1 系列。`<thead>` のセルが系列名です。
+- 各 `<td>` は数値に変換されます(`1,200` → `1200`。通貨記号や `%` は
+  取り除かれます)。
+- 任意の `<caption>` はチャートのタイトルになります。
+
+## チャートの種類
+
+figure に `data-hc-chart` を設定します:
+
+| 値      | 描画                                                             |
+| ------- | --------------------------------------------------------------- |
+| `bar`   | 縦棒。複数系列は**積み上げ**。                                   |
+| `line`  | ノードの点つきの折れ線。系列ごとに 1 本。                        |
+| `area`  | 線の縁つきの塗りつぶし面。系列ごとに 1 つ。                      |
+| `combo` | 列ごとのマーク — `<th data-mark="bar\|line\|area">` を設定。     |
+
+`data-hc-chart` は、自身の `data-mark` を持たない列の**デフォルト
+マーク**です。`bar` / `line` / `area` は、すべての列が 1 つのマークを
+共有する場合にすぎません。
+
+## コンボチャート(棒 + 線)
+
+`data-mark` で列ごとにマークを宣言します。`combo` の下で無印の列の
+デフォルトは `bar` です。
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="combo" data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Monthly sales vs target</caption>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th data-mark="bar">Sales</th>
+          <th data-mark="line">Target</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td><td>150</td></tr>
+        <tr><td>Feb</td><td>200</td><td>160</td></tr>
+        <tr><td>Mar</td><td>150</td><td>170</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="combo" data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Monthly sales vs target</caption>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th data-mark="bar">Sales</th>
+          <th data-mark="line">Target</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td><td>150</td></tr>
+        <tr><td>Feb</td><td>200</td><td>160</td></tr>
+        <tr><td>Mar</td><td>150</td><td>170</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+Plot は線を棒のバンドスケールに自動で載せるため、点は棒の中心に揃い
+ます。系列が y の範囲を共有していれば追加の設定は不要です。本物の
+第 2 y 軸はこのレシピのスコープ外です。
+
+## 積み上げ、グループ、散布図、スパークライン
+
+同じテーブル契約を、figure 全体の 4 つのプリセットが拡張します
+(列ごとの `data-mark` コンボはこれらには適用されません):
+
+- **`bar-stacked`** — 複数系列が積み上がります(複数系列の `bar` が
+  すでにやることの明示形)。
+- **`bar-grouped`** — 系列が各カテゴリ内で横並びに描画されます。
+  カテゴリ軸がラベルを運び、凡例が系列名を示します。
+- **`scatter`** — 数値軸 2 本: 1 列目が数値の x(`data-x-type` の
+  デフォルトは `number`)、各系列列が 1 つの点集合、任意の
+  `<th data-role="r">` 列が点の半径を駆動します。
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="scatter" data-y-label="Weight (kg)">
+    <table class="hc-table">
+      <caption>Height vs weight</caption>
+      <thead><tr><th>Height</th><th>Weight</th><th data-role="r">Count</th></tr></thead>
+      <tbody>
+        <tr><td>150</td><td>52</td><td>3</td></tr>
+        <tr><td>172</td><td>70</td><td>9</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+- **`sparkline`** — コンパクトな Plot スタイルのトレンド: 軸・グリッド・
+  凡例はオフ、`data-height` の指定がなければ高さ 48 px。依存なしの
+  インライントレンドには、単体の
+  [スパークラインコンポーネント](/hypermedia-components/ja/components/sparkline/)の
+  ほうがたいてい適しています — このプリセットは Plot で統一された
+  ダッシュボードのためにあります。
+
+## ヒストグラムとヒートマップ
+
+- **`histogram`** — **1 本の数値列**をカウントの棒にビニングします
+  (`data-x-type` のデフォルトは `number`。余分な列は無視。
+  `data-bins` がビン数の上限)。
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="histogram" data-bins="12">
+    <table class="hc-table">
+      <caption>Response times</caption>
+      <thead><tr><th>ms</th></tr></thead>
+      <tbody><tr><td>120</td></tr><tr><td>90</td></tr><tr><td>340</td></tr></tbody>
+    </table>
+  </figure>
+  ```
+
+- **`heatmap`** — 行カテゴリが y、列ヘッダーが x、セル値が**連続**の
+  塗りをカラー凡例つきで駆動するマトリクス形(`data-scheme` が Plot の
+  スキームを選びます。カテゴリカルな系列パレットは適用されません)。
+  行 / 列の順序は書かれたとおりに保たれます。
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="heatmap" data-y-label="Visits">
+    <table class="hc-table">
+      <caption>Visits by slot</caption>
+      <thead><tr><th>Slot</th><th>Mon</th><th>Tue</th></tr></thead>
+      <tbody>
+        <tr><td>Morning</td><td>3</td><td>7</td></tr>
+        <tr><td>Evening</td><td>9</td><td>2</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+## オプション
+
+| 属性            | デフォルト                   | 効果                                    |
+| --------------- | ---------------------------- | --------------------------------------- |
+| `data-y-label`  | _(なし)_                     | y 軸ラベル。                            |
+| `data-title`    | `<caption>`                  | チャートタイトル。                      |
+| `data-x-type`   | `category`                   | `category` \| `number` \| `date`。      |
+| `data-width`    | コンテナ幅                   | Plot の幅(px)。                       |
+| `data-height`   | `--hc-chart-height`(320px) | Plot の高さ(px)。                     |
+| `data-legend`   | 自動(系列 ≥2 でオン)       | `false` でカラー凡例を非表示。          |
+
+棒は `category` の x を期待します。`number` / `date` の x は
+`line` / `area` に向きます。
+
+## テーマ
+
+チャートのクローム(目盛り、軸ラベル、グリッド)は
+`--hc-chart-axis` と `--hc-chart-grid` を通じてテーマに従います。
+系列色は固定のカテゴリカルパレット
+`--hc-chart-series-1` … `--hc-chart-series-6` から来ます。描画時に解決
+され、Plot のカラースケールへ渡されます。パレットは意図的に
+**テーマ非依存**です — チャートの系列はブランドのアクセントに追従する
+より、相互に区別可能であり続けるべきだからです。
+
+```css
+:root {
+  --hc-chart-series-1: #2563eb;  /* override per series */
+}
+```
+
+## htmx
+
+`installChart` は `htmx:load` を待ち受けるため、ページへスワップされた
+チャートは自動で描画されます — スワップごとの JavaScript は不要です。
+
+```html
+<div data-hx-get="/reports/sales" data-hx-trigger="load" data-hx-swap="innerHTML">
+  <!-- The server returns the <figure class="hc-chart">…</figure> fragment. -->
+</div>
+```
+
+非 htmx リクエスト(フルページロード)にも**同じ**読めるテーブルを返し、
+非 JavaScript パスを機能させてください。フラグメントをレイアウトで包む
+場合は `HX-Request: true` ヘッダーで htmx を検知します。
+
+## アクセシビリティ
+
+- ソーステーブルは**保持されます** — 取り除かれるのではなく
+  `.hc-sr-only` でアクセシビリティツリーへ移されるため、支援技術は
+  完全なデータを読めます。
+- 描画された `<svg>` は `aria-hidden="true"` です: テーブルの装飾的な
+  複製なので、二重に読み上げられません。
+- テーブルには常にチャートを説明する `<caption>` を与えてください。
+
+## プログレッシブエンハンスメント
+
+- **JavaScript なし** → `<table class="hc-table">` が普通の読める
+  テーブルとして描画されます。
+- **JavaScript あり、Plot なし** → 同じ: Plot なしの `installChart` は
+  no-op です。
+- **JavaScript + Plot** → テーブルはアクセシビリティツリーへ移り、
+  SVG チャートが表示されます。
+
+## サーバサイドレンダリング
+
+チャートは、DOM シム([linkedom](https://github.com/WebReflection/linkedom))の
+下の Plot で**サーバ**上でも SVG に描画し、インラインで返せます —
+クライアント側の Plot は不要になります。その場合は明示的な
+`marginLeft` / `marginBottom` を設定してください — サーバの DOM シムは
+自動軸マージンのためのテキスト計測をしません。figure は
+`data-state="rendered"`(+ `hc-sr-only` のテーブルと `aria-hidden` の
+SVG)つきで出力します: `installChart()` は描画済みの figure を認識して
+放っておくため、SSR とクライアント描画のチャートは共存します。
+トークンはクライアント側 CSS です — SSR では明示的な色を渡して
+ください。動くスニペットは
+[契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chart/contract.md)に
+あります。
+
+## 関連
+
+- [テーブル](/hypermedia-components/ja/components/table/) — チャートが
+  読み取るセマンティックなテーブル。
+- [データ領域](/hypermedia-components/ja/recipes/data-region/) —
+  イベントに応じて領域(とそのチャート)を更新。

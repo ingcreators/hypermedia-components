@@ -1,0 +1,118 @@
+---
+title: データグリッドのページネーション
+description: htmx で hc-datagrid をサーバからページ送り — 行 1 ページ分を tbody へスワップし、ページャーを out-of-band で更新。ヘッダー、固定列、リサイズ済みの幅は保たれます。
+---
+
+`hc-datagrid` は**ページング**されたデータのために作られています:
+データウィンドウはサーバが所有し、htmx が 1 ページ分の行をスワップし、
+`installDatagrid()` がスワップされた行を再初期化します。このレシピは
+それを [`hc-pagination`](/hypermedia-components/ja/components/pagination/)
+ページャーに配線します。
+
+:::note[セットアップ]
+このレシピには、スワップのたびに行を再初期化する `installDatagrid()`
+ビヘイビアが必要です。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを一括
+インストールするか、これだけを:
+
+```js
+import { installDatagrid } from '@hypermedia-components/core';
+installDatagrid();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+## 基本の使い方
+
+グリッドの `<tbody>` をスワップターゲットにして、**`innerHTML`**
+(その*内側*の行)をスワップします。各ページャーリンクは同じ
+`<tbody>` へページを読み込みます:
+
+```html
+<div class="hc-datagrid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col">Price</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body" id="rows"
+             data-hx-get="/products?page=1" data-hx-trigger="load"
+             data-hx-target="#rows" data-hx-swap="innerHTML"></tbody>
+    </table>
+  </div>
+
+  <nav class="hc-pagination" id="pager" aria-label="Pagination">
+    <a class="hc-pagination__item" aria-current="page"
+       data-hx-get="/products?page=1" data-hx-target="#rows" data-hx-swap="innerHTML" href="?page=1">1</a>
+    <a class="hc-pagination__item"
+       data-hx-get="/products?page=2" data-hx-target="#rows" data-hx-swap="innerHTML" href="?page=2">2</a>
+  </nav>
+</div>
+```
+
+## なぜ `outerHTML` ではなく `innerHTML` か
+
+`installDatagrid()` は **`<tbody>` 要素**の子の変化を監視します。
+行をその*内側*でスワップする(`innerHTML`)とその要素が保たれるため、
+オブザーバーが発火し、グリッドは ARIA roles、sticky オフセットの計測、
+リサイズ済みの列幅を、読み込まれたばかりの行へ再適用します。
+`<tbody>` 全体の置き換え(`outerHTML`)は観測対象のノードを捨てて
+しまいます — だから `#rows` をターゲットに `innerHTML` でスワップ
+します。
+
+したがってサーバでレイアウトを再計算する必要はありません: 各行を
+ヘッダーと**同じ列構造**で描画すれば(固定セルに `data-frozen` /
+`data-frozen-edge`、リサイズ / 編集可能な列に `data-col`)、固定列の
+`--hc-datagrid-left` オフセットとリサイズ済みの幅は自動で再適用され
+ます。
+
+## サーバレスポンス
+
+`GET /products?page=N&size=100` は**そのページの行だけ**を返します:
+
+```html
+<tr class="hc-datagrid__row">
+  <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">101</th>
+  <td class="hc-datagrid__cell">Chai</td>
+  <td class="hc-datagrid__cell">$18.00</td>
+</tr>
+<!-- …one <tr> per row in the page… -->
+```
+
+ページャーとステータス行は**同じレスポンス**で out-of-band に更新し、
+2 回目のリクエストなしで最新にします:
+
+```html
+<nav class="hc-pagination" id="pager" data-hx-swap-oob="true" aria-label="Pagination">
+  …items, with aria-current="page" on the active page…
+</nav>
+<p id="rows-status" data-hx-swap-oob="true" aria-live="polite">101–200 / 5,000</p>
+```
+
+現在のページには `aria-current="page"` を付け、両端では Prev / Next を
+`aria-disabled="true"` で無効化してください。
+
+## 補足
+
+- **フォーカス。** 行のスワップは直前のアクティブセルを取り除きます。
+  グリッドはタブ可能なセルを保ちますが、フォーカスは移動しません。
+  フローが必要とするなら、サーバから(out-of-band のフォーカス
+  ターゲットなどで)フォーカスを復元してください。
+- **選択**はページ単位です。サーバが選択済み行を
+  `aria-selected="true"` つきで再描画しない限り、ページをまたいで
+  保たれません — ページ横断の選択はサーバ側で追跡してください。
+- **複数行レコード。** この形は標準の 1 `<tbody>` 行レイアウトが
+  対象です。[複数行レコード](/hypermedia-components/ja/components/datagrid/#multi-row-records)
+  では、代わりに包んでいる領域をスワップし、document のオブザーバーに
+  再初期化させてください。
+
+## 関連
+
+- [データグリッド](/hypermedia-components/ja/components/datagrid/) — グリッド本体。
+- [ページネーション](/hypermedia-components/ja/components/pagination/) — ページャーコンポーネント。
+- [データ領域](/hypermedia-components/ja/recipes/data-region/) — 汎用のサーバレンダリング領域パターン。

@@ -1,6 +1,6 @@
 # Docs Japanese i18n — phase 1 plan
 
-Status: **phases 1–5 shipped (#314–#318). Remaining: 7 recipe pages (toast, data-region, datagrid ×2, filter-popover, remote-dialog, SSE ×2, chart) and the component pages (~50), batch-by-batch.**
+Status: **phases 1–6 shipped (#314–#319) — everything except the component pages is translated (56 ja pages). Remaining: the ~54 component pages, batch-by-batch.**
 
 The v0.5 plan's P3 backlog item: *"Japanese i18n — translate the first
 10 docs pages (§7.6) after the English IA settles."* The English IA

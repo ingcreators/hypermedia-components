@@ -1,0 +1,147 @@
+---
+title: リモートダイアログ
+description: ダイアログ全体(マークアップ + フォーム)をサーバから取得して開き、成功時に自動で閉じます。
+---
+
+`remote-dialog` は、**サーバが所有する**モーダルフローの正準パターン
+です: トリガーボタンが完全な `<dialog>` フラグメントをサーバから取得し、
+`installRemoteDialog` ビヘイビアがそれを開き、中のフォームが正常に
+送信されると `installCloseDialog` が再び閉じます。
+
+:::note[セットアップ]
+このレシピには **2 つ**のビヘイビアが必要です — 取得したダイアログを
+開く `installRemoteDialog()` と、成功時に閉じる
+`installCloseDialog()`。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを一括
+インストールするか、この 2 つだけを:
+
+```js
+import { installRemoteDialog, installCloseDialog } from '@hypermedia-components/core';
+installRemoteDialog();
+installCloseDialog();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+## 基本の使い方
+
+トリガーとホスト要素:
+
+```html
+<button
+  class="hc-button"
+  data-hx-get="/items/123/edit"
+  data-hx-target="#dialog-root"
+  data-hx-swap="innerHTML">
+  Edit
+</button>
+
+<div id="dialog-root" data-hc-remote-dialog-root></div>
+```
+
+ホスト要素には 2 つのマーカーがあります:
+
+- `id="dialog-root"` — htmx のスワップターゲット。
+- `data-hc-remote-dialog-root` — `installRemoteDialog` ビヘイビアの
+  オプトイン。
+
+サーバは完全なダイアログを返します:
+
+```html
+<!-- GET /items/123/edit -->
+<dialog class="hc-dialog">
+  <header class="hc-dialog__header">
+    <h2 class="hc-dialog__title">Edit item</h2>
+  </header>
+
+  <form
+    class="hc-form"
+    data-hx-post="/items/123"
+    data-hx-target="closest dialog"
+    data-hx-swap="outerHTML"
+    data-hc-close-dialog-on-success>
+    <div class="hc-dialog__body">
+      <div class="hc-field">
+        <label class="hc-field__label" for="name">Name</label>
+        <input id="name" class="hc-input" name="name" value="Acme">
+      </div>
+    </div>
+
+    <footer class="hc-dialog__footer">
+      <button class="hc-button" type="button"
+              onclick="this.closest('dialog').close()">Cancel</button>
+      <button class="hc-button" data-variant="primary" type="submit">Save</button>
+    </footer>
+  </form>
+</dialog>
+```
+
+## 何が起きるか
+
+1. ユーザーが **Edit** をクリック。htmx が `GET /items/123/edit` を
+   送ります。
+2. htmx がレスポンスを `#dialog-root` へスワップ(innerHTML)。
+3. `#dialog-root` で `htmx:afterSwap` が発火。`installRemoteDialog`
+   ビヘイビアがターゲット上の `data-hc-remote-dialog-root` を確認し、
+   最初の `<dialog>` 子孫を見つけて `showModal()` を呼びます。
+4. ユーザーが編集してフォームを送信。フォームには
+   `data-hx-post="/items/123"` と
+   `data-hc-close-dialog-on-success` があります。
+5. サーバは、更新後の行 HTML(`closest dialog` へスワップされ、
+   ダイアログを置き換える)か、バリデーションエラーつきで再描画された
+   フォーム(まだダイアログの中)の 4xx を返します。
+6. 2xx なら `installCloseDialog` が成功を確認して `dialog.close()` を
+   呼びます。ダイアログが消えます。
+
+ダイアログへのスワップがダイアログ要素そのものをすでに置き換えている
+場合(`closest dialog` ターゲット + `outerHTML` はそうなります)、
+そのリクエストについて `installCloseDialog` は no-op です — ダイアログは
+すでに消えています。
+
+## サーバレスポンス契約
+
+| タイミング                | 返すもの                                                  |
+| ------------------------- | --------------------------------------------------------- |
+| 最初のトリガー(GET)     | 完全な `<dialog class="hc-dialog">…</dialog>` フラグメント。 |
+| 送信成功(POST)          | ダイアログの `data-hx-target` / `data-hx-swap` 経由で、**ページ側ターゲット**(例: 行)の更新後コンテンツ。 |
+| バリデーション失敗(4xx) | 問題のフィールドに `data-invalid="true"` と `aria-invalid="true"` を付けて再描画したフォーム。`installCloseDialog` は 2xx でしか閉じないため、ダイアログは開いたままです。 |
+
+サーバ駆動のトーストフィードバックには、成功レスポンスに
+`HX-Trigger` ヘッダーを含めます:
+
+```text
+HX-Trigger: {"hc:toast":{"message":"Saved.","variant":"success"}}
+```
+
+## アクセシビリティ
+
+- ダイアログはネイティブの `<dialog>` 要素を `showModal()` で使い
+  ます。フォーカストラップ、Escape で閉じる、背景の inert はブラウザが
+  処理します。
+- ラベルつきタイトル(`#dialog-title`)を宣言し、次のいずれかを:
+  - `<dialog>` に `aria-labelledby="dialog-title"` を設定する、または
+  - タイトルを最初のフォーカス可能要素にして AT に拾わせる。
+- Cancel ボタン*も*ダイアログを閉じるべきです。上のレシピは簡潔さの
+  ためにインライン `onclick` を使っていますが、実アプリでは
+  `[data-hc-dismiss-dialog]` 上の `click` を待ち受ける小さなヘルパーを
+  選んでください。
+
+## プログレッシブエンハンスメント
+
+- htmx なしでは、`<button data-hx-get="…">` は何もしません。JavaScript
+  なしでも Edit アクションを動かし続けるには、フルページの編集画面を
+  読み込む `<a href="/items/123/edit">` リンクの中にボタンを描画して
+  ください。htmx 属性はリンクに置けます。htmx があればインターセプト
+  し、アンカーの `href` がフォールバックです。
+- `hc.behaviors.js` なしでは、ダイアログのフラグメントはページに着地
+  しますが自動では開きません。サーバレスポンスの `<dialog>` の直後に
+  開くための `<script>` を足すか — 例:
+  `<script>document.currentScript.previousElementSibling.showModal()</script>`
+  — インライン描画にフォールバックしてください。
+
+## 関連
+
+- [ダイアログコンポーネント](/hypermedia-components/ja/components/dialog/)
+- [確認アクションレシピ](/hypermedia-components/ja/recipes/confirm-action/) — ラウンドトリップなしの事前確認。
+- [フィルタポップオーバーレシピ](/hypermedia-components/ja/recipes/filter-popover/) — 非モーダルの兄弟。

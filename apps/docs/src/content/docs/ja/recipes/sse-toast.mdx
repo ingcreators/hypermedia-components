@@ -1,0 +1,93 @@
+---
+title: SSE トースト
+description: サーバプッシュの通知 — JSON ペイロードつき SSE イベントが、ディスパッチブリッジ経由で許可リスト方式の DOM イベントになります。トーストとデータ領域の無効化はそのまま機能します。
+---
+
+`sse-toast` は**サーバ起点の通知**のための公認パターンです: サーバが
+JSON ペイロードつきの名前付き SSE イベントをプッシュし、1 つの隠れた
+ブリッジ要素がそれを DOM の `CustomEvent` に変えます — そのため既存の
+[トースト](/hypermedia-components/ja/recipes/toast/)契約と
+[データ領域](/hypermedia-components/ja/recipes/data-region/)の無効化
+契約は、`HX-Trigger` 起点のときとまったく同じに、ただしリクエスト
+なしで機能します。
+[マークアップのバージョニングポリシー](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)の
+下で安定しています。
+
+必要なのは `installSseDispatch()` と `installToast()`(どちらも自動
+初期化の
+[`./behaviors`](/hypermedia-components/ja/start/installation/#ビヘイビア)
+バンドルに同梱)、加えて
+[SSE 拡張](/hypermedia-components/ja/integrations/htmx/#server-sent-events)です。
+
+## マークアップ
+
+```html
+<div data-hx-ext="sse" data-sse-connect="/events">
+  <span hidden data-hc-sse-dispatch
+        data-sse-swap="hc:toast, items:changed"></span>
+</div>
+```
+
+ブリッジは決して描画されず、フォーカスも受け取りません。その
+`data-sse-swap` に名指しされた各 SSE イベントについて、
+`installSseDispatch()` はスワップをキャンセルし、代わりにバブリング
+する `CustomEvent` を発火します — SSE のイベント名が DOM のイベント名に
+なり、JSON ペイロードが `detail` になります。
+
+## ストリーム
+
+```text
+event: hc:toast
+data: {"message":"Build #42 finished","variant":"success"}
+
+event: items:changed
+data: {}
+```
+
+- **`hc:toast`** のペイロードはトーストの `detail` の形そのままです:
+  `message`(必須)、`title`、`variant`、`duration`、`id`、`action`。
+  サーバプッシュの進捗には id による更新パターンが使えます — 同じ
+  `id` のイベントを繰り返すと 1 つのトーストがその場で更新されます
+  (loading → success)。
+- **ドメインイベント**は通常 `{}` です:
+  `data-hx-trigger="items:changed from:body"` で待ち受けている
+  データ領域が自分を再取得します。サーバがプッシュするのは*無効化*
+  で、領域が再描画をプルします — プッシュは小さいまま、再描画は
+  冪等のまま、再接続の欠落は次のイベントで自己修復します。
+
+## ペイロードのルール
+
+| `data:` | 結果 |
+| --- | --- |
+| 空 / なし | 発火される。`detail = {}` |
+| JSON **オブジェクト** | 発火される。そのオブジェクトが `detail` |
+| それ以外(配列、文字列、数値、不正な JSON) | 破棄 — スワップはキャンセルされたまま、何も発火されない |
+
+**マークアップが許可リストです。** ページが `data-sse-swap` に列挙した
+イベント名だけが発火可能です — サーバは、ページが宣言していない DOM
+イベント名を勝手に作れません。ペイロードは不活性な
+`CustomEvent.detail` データです: マークアップになることも、評価される
+こともありません。
+
+## アクセシビリティ
+
+トーストビヘイビアのセマンティクスはそのまま適用されます —
+`variant: "error"` は `role="alert"`(assertive)、それ以外は
+`role="status"`(polite)で描画されます。サーバプッシュのトーストは
+ユーザーの操作なしに届くため、polite なバリアントを選び、`error` は
+割り込む価値のある中断のために取っておいてください。ユーザーが
+見逃してはならない状態は、一時的なトーストだけでなくページの中
+([sse-updates](/hypermedia-components/ja/recipes/sse-updates/) の領域)に
+置くべきです。
+
+完全な契約は
+[`recipes/sse-toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-toast/contract.md)に
+あります。ペイロードのルールと領域無効化の合成は、実 EventSource の
+ブラウザテスト(`test-browser/sse.spec.mjs`)で固定されています。
+
+## 関連
+
+- [SSE ライブ更新レシピ](/hypermedia-components/ja/recipes/sse-updates/) — サーバプッシュのフラグメント。このレシピの兄弟。
+- [トーストレシピ](/hypermedia-components/ja/recipes/toast/) — `hc:toast` の detail の形と領域のノブ。
+- [データ領域レシピ](/hypermedia-components/ja/recipes/data-region/) — ドメインイベントが駆動する無効化契約。
+- [htmx インテグレーション — Server-Sent Events](/hypermedia-components/ja/integrations/htmx/#server-sent-events) — 拡張のセットアップとライフサイクル。
