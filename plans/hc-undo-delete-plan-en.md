@@ -1,6 +1,6 @@
 # undo-delete — recipe plan (soft delete + grace period + tombstone restore)
 
-Status: **approved; implementation pending (one PR after this plan, §7).**
+Status: **shipped — recipe + checks + browser test (#294).**
 Net-new recipe; **zero new JavaScript** — the pattern is a pure
 composition of already-shipped pieces (the toast action button, htmx
 event triggers, the 200-with-truth response doctrine). Baseline:

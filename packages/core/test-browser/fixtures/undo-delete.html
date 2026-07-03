@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc undo-delete fixture</title>
+  <!--
+    The blessed undo-delete recipe, verbatim from the docs: delete
+    executes immediately, the server (serve.mjs /mock/items/*) responds
+    with a tombstone in the row's slot + an undo toast, and the toast's
+    Undo button fires the pairing event the tombstone listens for. The
+    spec pins position-preserving restore, pairing-key isolation across
+    two pending undos, and the expired-grace path. No custom JS.
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:36rem;">
+    <h1>Undo delete</h1>
+
+    <table class="hc-table" data-testid="items">
+      <thead>
+        <tr><th scope="col">Item</th><th scope="col"><span class="hc-sr-only">Actions</span></th></tr>
+      </thead>
+      <tbody data-testid="rows">
+        <tr id="undo-item-1" data-testid="row-1">
+          <td>Anvil</td>
+          <td><button class="hc-button" data-size="sm"
+                data-hx-delete="/mock/items/1"
+                data-hx-target="closest tr"
+                data-hx-swap="outerHTML"
+                data-hx-disabled-elt="this"
+                data-testid="delete-1">Delete</button></td>
+        </tr>
+        <tr id="undo-item-2" data-testid="row-2">
+          <td>Rocket skates</td>
+          <td><button class="hc-button" data-size="sm"
+                data-hx-delete="/mock/items/2"
+                data-hx-target="closest tr"
+                data-hx-swap="outerHTML"
+                data-hx-disabled-elt="this"
+                data-testid="delete-2">Delete</button></td>
+        </tr>
+        <tr id="undo-item-3" data-testid="row-3">
+          <td>Tornado seeds</td>
+          <td><button class="hc-button" data-size="sm"
+                data-hx-delete="/mock/items/3"
+                data-hx-target="closest tr"
+                data-hx-swap="outerHTML"
+                data-hx-disabled-elt="this"
+                data-testid="delete-3">Delete</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="hc-toast-region" data-hc-toast-region data-position="bottom-right"
+         role="region" aria-label="Notifications"></div>
+  </main>
+</body>
+</html>

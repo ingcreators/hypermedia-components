@@ -1,0 +1,20 @@
+<!-- Short recommended usage.
+
+  Undo instead of confirm: the delete executes immediately (no dialog),
+  the server soft-deletes with a grace period and answers with a hidden
+  "tombstone" in the row's slot plus an undo toast (HX-Trigger). The
+  toast's Undo button fires the server-generated pairing event; the
+  tombstone hears it and restores the row in place. Zero custom JS —
+  installToast (auto-init behaviors bundle) provides the action button.
+  See expanded.html for the tombstone/restored fragments and
+  contract.md for the server contract. -->
+<tr id="item-42">
+  <td>Anvil</td>
+  <td>
+    <button class="hc-button" data-size="sm"
+            data-hx-delete="/items/42"
+            data-hx-target="closest tr"
+            data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Delete</button>
+  </td>
+</tr>

@@ -22,6 +22,28 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`undo-delete` recipe — undo instead of confirm** (#294). Frequent
+  destructive actions execute immediately (no dialog): the server
+  soft-deletes with a grace period and answers `200` with a
+  **tombstone** — a hidden element in the row's slot carrying the
+  restore wiring (`data-hx-post=…/restore`,
+  `data-hx-trigger="item-42:restore from:body"`) — plus an undo toast
+  whose Undo button dispatches that same server-generated pairing
+  event; restore swaps the original row back **in place**. Toast `id`
+  reuse turns the undo toast into "restored"; restore-after-expiry is
+  `200` + the tombstone + an error toast (the 200-with-truth doctrine).
+  **Zero new JavaScript / zero new public API** — a pure composition of
+  the shipped toast action button, update-by-id, and htmx event
+  triggers. Ships as `recipes/undo-delete/`
+  (recipe/expanded/contract/checks — CLI + `hc validate` pick it up)
+  plus a docs page with the undo-vs-confirm decision table, pinned by a
+  real-htmx browser test incl. position-preserving restore and
+  pairing-key isolation across two pending undos. The contract also
+  blesses **`\uXXXX`-escaping non-ASCII in `HX-Trigger` headers**
+  (header values are latin-1 — localized toast messages crash naive
+  serializers; the test server crashed on an em dash before adopting
+  it).
+
 - **Visual regression testing** (#288, dev-facing). Playwright
   `toHaveScreenshot()` suites over three dense fixture sheets
   (`vrt-core` / `vrt-data` / `vrt-overlays`) under light/dark × ltr/rtl
