@@ -1,0 +1,246 @@
+---
+title: パンくずリスト
+description: サイトルートから現在のページまでのナビゲーションの道筋 — 純 CSS、セマンティック HTML、JavaScript なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-breadcrumb` は、標準の `<nav>` → `<ol>` → `<li>` 構造の上の
+純 CSS スキンで、アクティブなステップに `aria-current="page"` を
+使います。セパレータは CSS の `::before` で注入されるため、
+マークアップは装飾のノイズから自由なままです — スクリーンリーダーは
+デフォルトで生成コンテンツを無視します。
+
+## 基本の例
+
+<Demo>
+  <nav class="hc-breadcrumb" aria-label="Doc breadcrumb">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Home</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Docs</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Components</span>
+      </li>
+    </ol>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-breadcrumb" aria-label="Breadcrumb">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="/">Home</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="/docs">Docs</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Components</span>
+      </li>
+    </ol>
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
+
+## カスタムセパレータ
+
+グリフを差し替えるには、`--hc-breadcrumb-separator` をグローバルに
+(スタイルシートで)、またはインスタンス単位で(インラインスタイルで)
+上書きします。
+
+<Demo>
+  <nav class="hc-breadcrumb" aria-label="Chevron breadcrumb"
+       style="--hc-breadcrumb-separator: '›'">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Account</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Settings</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Profile</span>
+      </li>
+    </ol>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <nav class="hc-breadcrumb" aria-label="Breadcrumb"
+       style="--hc-breadcrumb-separator: '›'">
+    …
+  </nav>
+  ```
+
+  </Fragment>
+</Demo>
+
+任意の CSS [`content`](https://developer.mozilla.org/docs/Web/CSS/content)
+値が使えます — 引用符つき文字列、`attr()`、エスケープした Unicode、
+完全に独自のマーカーのためのインライン SVG `url()`。
+
+## 中間の省略
+
+深いパスでは、中間のステップを省略記号に畳みます。プレースホルダーに
+`aria-hidden="true"` を付けてスクリーンリーダーに無視させ、省略した
+ステップへは別の場所(ナビゲーションメニュー、戻るボタンなど)から
+到達できるようにしてください。
+
+<Demo>
+  <nav class="hc-breadcrumb" aria-label="Long breadcrumb">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Home</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__ellipsis" aria-hidden="true">…</span>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Tabs</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Variants</span>
+      </li>
+    </ol>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <li class="hc-breadcrumb__item">
+    <span class="hc-breadcrumb__ellipsis" aria-hidden="true">…</span>
+  </li>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 畳まれたステップ(展開可能)
+
+隠れたステップへ到達可能にするには、省略記号を、それらを列挙する
+[`hc-menu`](/hypermedia-components/ja/components/menu/) ポップオーバーを
+開く `<button>` にします。新しいビヘイビアは不要 — (デフォルト
+バンドルの)`installMenu()` がトリガーを自動配線します:
+`popovertarget` ボタンは `aria-haspopup="menu"` / `aria-expanded` を
+得て、ポップオーバーはその下にアンカーされ、矢印キー / Escape が
+機能します。
+
+<Demo previewStyle="min-height:9rem;">
+  <nav class="hc-breadcrumb" aria-label="Collapsible breadcrumb">
+    <ol class="hc-breadcrumb__list">
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Home</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <button class="hc-breadcrumb__ellipsis" type="button"
+                popovertarget="bc-doc-overflow" aria-label="Show 2 hidden levels">…</button>
+        <div class="hc-menu" id="bc-doc-overflow" popover role="menu"
+             aria-label="Hidden breadcrumb levels">
+          <a class="hc-menu__item" role="menuitem" href="#">Products</a>
+          <a class="hc-menu__item" role="menuitem" href="#">Widgets</a>
+        </div>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <a class="hc-breadcrumb__link" href="#">Blue widget</a>
+      </li>
+      <li class="hc-breadcrumb__item">
+        <span class="hc-breadcrumb__current" aria-current="page">Specs</span>
+      </li>
+    </ol>
+  </nav>
+
+  <Fragment slot="code">
+
+  ```html
+  <li class="hc-breadcrumb__item">
+    <button class="hc-breadcrumb__ellipsis" type="button"
+            popovertarget="crumb-overflow" aria-label="Show 2 hidden levels">…</button>
+  
+    <div class="hc-menu" id="crumb-overflow" popover role="menu"
+         aria-label="Hidden breadcrumb levels">
+      <a class="hc-menu__item" role="menuitem" href="/products">Products</a>
+      <a class="hc-menu__item" role="menuitem" href="/products/widgets">Widgets</a>
+    </div>
+  </li>
+  ```
+
+  </Fragment>
+</Demo>
+
+**プログレッシブエンハンスメント。** 道筋は穏やかに畳まれます:
+
+- `popovertarget` はネイティブ HTML です — メニューは **JavaScript
+  なしで**クリックで開きます。`installMenu()` はアンカーされた配置と
+  キーボードのロービングを足すだけです。
+- `popover` 属性のないエンジンでは、メニューは単にインラインで描画
+  されます(隠れたステップが見えたまま)。つまり完全な道筋は常に
+  DOM の中にあります。
+
+**レスポンシブな畳み方。** 畳むかどうかはレイアウトの判断です。
+デフォルトでは完全な道筋を描画し、幅のしきい値以下で畳んだマークアップに
+切り替えます — 例: `<nav>` に `data-collapse` を設定して
+[コンテナクエリ](https://developer.mozilla.org/docs/Web/CSS/CSS_containment/Container_queries)で
+切り替えをゲートするか、パスが N 階層を超えたらサーバサイドで畳んだ形を
+描画します。
+
+## アクセシビリティ
+
+- 外側の `<nav aria-label="Breadcrumb">`(または `aria-labelledby`)が
+  ランドマークに名前を与え、支援技術がそこへスキップしたり出たり
+  できます。
+- `<ul>` ではなく `<ol>` を使ってください — ステップには意味のある
+  順序があります。
+- 現在のページはリンクに**しない**でください:
+  `<span aria-current="page">` として描画すれば、ユーザーにクリックを
+  誤解させずに視覚的な強調を受けられます。
+- セパレータのグリフは CSS の `::before` で挿入されます。モダン
+  ブラウザは疑似コンテンツを DOM に公開しますが、デフォルトで
+  アクセシビリティツリーからは除外します — 生成コンテンツに
+  `aria-hidden` は不要です。
+- リンクのフォーカスアウトラインを保ってください。デフォルトは
+  システムの他の部分に合わせ、`--hc-color-focus-ring` を使った
+  `outline: 2px solid` を設定します。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `breadcrumb.gap` | 項目間(および項目とセパレータの間)のスペース。 |
+| `breadcrumb.font-size` | 道筋全体のテキストサイズ。 |
+| `breadcrumb.separator-fg` | 注入されるセパレータグリフと省略記号の色。 |
+| `breadcrumb.link.fg` / `hover-fg` | 非アクティブなステップの色(平常時とホバー)。 |
+| `breadcrumb.current.fg` / `font-weight` | アクティブなステップの見た目。 |
+
+カスタムプロパティ `--hc-breadcrumb-separator` はセパレータグリフの
+上書きフックです。値が型付きのデザイン値ではなく `content` 文字列で
+あるため、トークンのエントリはありません。
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-breadcrumb-gap | -font-size | -separator-fg
+--hc-breadcrumb-link-fg | -link-hover-fg
+--hc-breadcrumb-current-fg | -current-font-weight
+--hc-breadcrumb-separator   (override hook, no default token)
+--hc-color-focus-ring       (inherited from data-color)
+```
+
+</details>
+
+## 関連
+
+- [タブ](/hypermedia-components/ja/components/tabs/) — 兄弟セクション間の切り替えに。
+- [ページネーション](/hypermedia-components/ja/components/pagination/) — ページ列の中を進むために。

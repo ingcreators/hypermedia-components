@@ -1,0 +1,331 @@
+---
+title: メニュー
+description: ネイティブの popover 属性と CSS Anchor Positioning の上に構築された、WAI-ARIA APG メニューパターンに従うアクセシブルなドロップダウンメニュー。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-menu` は、ネイティブの `popover` を WAI-ARIA のアクションメニューと
+してスタイルします。トリガーは普通のボタンです。`popovertarget`
+属性が JS なしで両者をつなぎ、`installMenu()` がキーボードパターン、
+ARIA 配線、`hc:menuselect` イベントを足します。
+
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+Anchor Positioning がない場合、`installMenu()` は popover の
+`beforetoggle` イベントで `getBoundingClientRect` によるメニュー配置に
+フォールバックします。`popover` がサポートされる環境ならどこでも、
+メニューは正しく開き、閉じ、振る舞います。
+
+## 基本の例
+
+<Demo>
+  <button class="hc-button" type="button" popovertarget="doc-account-menu" id="doc-account-trigger">
+    Account
+  </button>
+
+  <div class="hc-menu" id="doc-account-menu" popover role="menu" aria-labelledby="doc-account-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
+    <button class="hc-menu__item" role="menuitem" type="button" aria-disabled="true">Archived</button>
+    <hr class="hc-menu__separator" />
+    <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Sign out</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button"
+          type="button"
+          popovertarget="account-menu"
+          id="account-trigger">
+    Account
+  </button>
+  
+  <div class="hc-menu"
+       id="account-menu"
+       popover
+       role="menu"
+       aria-labelledby="account-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Profile</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Billing</button>
+    <button class="hc-menu__item" role="menuitem" type="button"
+            aria-disabled="true">Archived</button>
+    <hr class="hc-menu__separator">
+    <button class="hc-menu__item" role="menuitem" type="button"
+            data-variant="error">Sign out</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installMenu } from '@hypermedia-components/core';
+installMenu();
+```
+
+## `installMenu()` がすること
+
+- トリガーへの ARIA 配線: `aria-haspopup="menu"`、`aria-expanded`
+  (popover の `toggle` イベントで同期)、`aria-controls`。
+- 最初の有効なメニュー項目に `autofocus` を足し、ブラウザの popover
+  アルゴリズムが開いたときにそこへフォーカスするようにします —
+  ブラウザ自身のフォーカス管理と競合する JS はありません。
+- 対応する `anchor-name`(トリガー)と `position-anchor`(メニュー)を
+  注入し、CSS Anchor Positioning でメニューがトリガーの直下に着地
+  します。
+- APG のキーボードパターンを実装します:
+  - `ArrowDown` / `ArrowUp` は有効な項目の間でフォーカスを移動し、
+    端でラップします。
+  - `Home` / `End` は最初 / 最後の有効な項目へジャンプ。
+  - 1 文字キーは、その文字で始まる次の項目へジャンプ
+    (タイプアヘッド)。
+  - `Tab` はメニューを閉じ、フォーカスはトリガーの次のタブストップへ
+    続きます。
+  - `Escape` と外側クリックは `popover` がネイティブに処理します。
+- `disabled` または `aria-disabled="true"` の項目をスキップします。
+- menuitem のクリック時に、`detail` に `{ item, menu, trigger }` を
+  運ぶバブリングする `hc:menuselect` カスタムイベントを発火し、
+  その後 `hidePopover()` でメニューを閉じます。
+
+## 状態を持つ項目(チェックボックス + ラジオ)
+
+2 つの追加 ARIA role により、メニュー項目は単発アクションの発火では
+なく状態を運べます:
+
+- `role="menuitemcheckbox"` — 独立したオン / オフ。複数同時に
+  チェックできます。クリックが `aria-checked` をトグルします。
+- `role="menuitemradio"` — グループ内で相互排他。クリックがこの項目の
+  `aria-checked="true"` を設定し、すべての兄弟を `"false"` にします。
+  グループの境界は最寄りの `[role="group"]` 祖先で、なければメニュー
+  自体です。
+
+どちらもクリック後にメニューを開いたまま保ちます(shadcn / Radix の
+作法 — ユーザーは通常、開き直さずに複数のオプションをトグルします)。
+`hc:menuselect` イベントは引き続き発火し、その `detail.checked` が
+新しい真偽値状態を運びます。
+
+`<span class="hc-menu__label">` 要素はグループの上に小さなミュートの
+見出しを描画します。囲んでいる `<div role="group">` の
+`aria-labelledby` と対にしてください。
+
+<Demo>
+  <button class="hc-button" type="button" popovertarget="doc-view-menu" id="doc-view-trigger">
+    View
+  </button>
+
+  <div class="hc-menu" id="doc-view-menu" popover role="menu" aria-labelledby="doc-view-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Refresh</button>
+    <hr class="hc-menu__separator" />
+    <div role="group" aria-labelledby="doc-view-show-label">
+      <span class="hc-menu__label" id="doc-view-show-label">Show</span>
+      <button class="hc-menu__item" role="menuitemcheckbox" type="button" aria-checked="true">Toolbar</button>
+      <button class="hc-menu__item" role="menuitemcheckbox" type="button" aria-checked="false">Sidebar</button>
+    </div>
+    <hr class="hc-menu__separator" />
+    <div role="group" aria-labelledby="doc-view-density-label">
+      <span class="hc-menu__label" id="doc-view-density-label">Density</span>
+      <button class="hc-menu__item" role="menuitemradio" type="button" aria-checked="true">Comfortable</button>
+      <button class="hc-menu__item" role="menuitemradio" type="button" aria-checked="false">Compact</button>
+      <button class="hc-menu__item" role="menuitemradio" type="button" aria-checked="false">Dense</button>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-menu" id="view-menu" popover role="menu"
+       aria-labelledby="view-menu-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Refresh</button>
+  
+    <hr class="hc-menu__separator">
+  
+    <div role="group" aria-labelledby="view-show-label">
+      <span class="hc-menu__label" id="view-show-label">Show</span>
+      <button class="hc-menu__item" role="menuitemcheckbox" type="button"
+              aria-checked="true">Toolbar</button>
+      <button class="hc-menu__item" role="menuitemcheckbox" type="button"
+              aria-checked="false">Sidebar</button>
+    </div>
+  
+    <hr class="hc-menu__separator">
+  
+    <div role="group" aria-labelledby="view-density-label">
+      <span class="hc-menu__label" id="view-density-label">Density</span>
+      <button class="hc-menu__item" role="menuitemradio" type="button"
+              aria-checked="true">Comfortable</button>
+      <button class="hc-menu__item" role="menuitemradio" type="button"
+              aria-checked="false">Compact</button>
+      <button class="hc-menu__item" role="menuitemradio" type="button"
+              aria-checked="false">Dense</button>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+document.getElementById('view-menu').addEventListener('hc:menuselect', (e) => {
+  const { item, checked } = e.detail;
+  console.log(item.textContent.trim(), '→', checked);
+  // e.g. 'Sidebar → true'
+});
+```
+
+メニューにチェックボックスまたはラジオ項目が**1 つでも**含まれると、
+メニュー内のすべての項目が左側に予約されたインジケーター列を得るため、
+素の `menuitem` もチェック / ドットのマーカーと揃います。この列は
+純粋に CSS の `:has()` で有効になります — マークアップの変更は不要
+です。
+
+## 破壊的な項目
+
+shadcn の destructive バリアントに倣い、メニュー項目の
+`data-variant="error"` は `--hc-menu-item-error-fg` でテキストを
+塗り替えます。
+
+```html
+<button class="hc-menu__item" role="menuitem" type="button"
+        data-variant="error">
+  Delete
+</button>
+```
+
+## サブメニュー
+
+メニュー項目は**サブメニュー** — それが制御する入れ子の `.hc-menu` —
+を開けます。サブメニューをルートメニューの DOM 内に入れ子にし、親の
+項目から `data-hc-submenu="<submenu-id>"` で指します。
+`installMenu()` が `popover="auto"` とサブメニューの ARIA を自動で
+足します。同じ配線が
+[`hc-context-menu`](/hypermedia-components/ja/components/context-menu/)の
+サブメニューも無料で駆動します。
+
+```html
+<div class="hc-menu" id="edit-menu" popover role="menu"
+     aria-labelledby="edit-trigger">
+  <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+
+  <!-- parent: data-hc-submenu references the nested menu's id -->
+  <button class="hc-menu__item" role="menuitem" type="button"
+          data-hc-submenu="edit-more">More tools</button>
+  <div class="hc-menu" id="edit-more" role="menu" aria-label="More tools">
+    <button class="hc-menu__item" role="menuitem" type="button">Inspect</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Save as…</button>
+  </div>
+
+  <button class="hc-menu__item" role="menuitem" type="button">Paste</button>
+</div>
+```
+
+サブメニューをルートの popover 内に入れ子にすることが、サブメニュー
+表示中もルートを開いたまま保つ当のものです(HTML popover の
+「入れ子」ルール)。
+
+**インタラクション**(WAI-ARIA APG のサブメニューパターン):
+
+| 操作 | 結果 |
+| --- | --- |
+| 親をホバー | サブメニューが開く(フォーカスは動かない)。 |
+| クリック、<kbd>Enter</kbd>、<kbd>Space</kbd>、または <kbd>→</kbd> | 開いて最初の項目にフォーカス。 |
+| <kbd>←</kbd> | サブメニューを閉じ、フォーカスは親へ戻る。 |
+| <kbd>Esc</kbd> | サブメニューを閉じる(次にルート)。 |
+| 兄弟をホバー | 開いているサブメニューを閉じる。 |
+| 任意の末端を選択 | ツリー全体を閉じる。 |
+
+RTL では開閉の矢印がミラーされます。親項目は後置のシェブロン
+(`::after`)を表示します。配置は CSS Anchor Positioning
+(サブメニューは inline-end へ、端では inline-start へ反転)で、
+それがないエンジンにはドロップダウンと同じ JS フォールバックが
+あります。親の `aria-haspopup="menu"`、`aria-expanded`、
+`aria-controls` は同期され続けます。
+
+## htmx での利用
+
+メニュー項目は `hc:menuselect` イベント経由で htmx リクエストを発火
+できます。ビヘイビアは発火後にメニューを閉じるため、以後のネットワーク
+処理はフォーカスがトリガーへ復元された状態(popover のデフォルト)で
+行われます。
+
+```html
+<div class="hc-menu" id="row-menu" popover role="menu"
+     aria-labelledby="row-menu-trigger"
+     data-hx-target="closest tr"
+     data-hx-trigger="hc:menuselect"
+     data-hx-include="this">
+  <button class="hc-menu__item" role="menuitem" type="button"
+          data-hx-delete="/items/42">Delete row</button>
+</div>
+```
+
+より豊かなパターン(実リクエストの前の確認ダイアログ)には、各
+メニュー項目を
+[`hc-confirm-action`](/hypermedia-components/ja/recipes/confirm-action/)と
+組み合わせてください。
+
+## アクセシビリティ
+
+- メニューは常に、トリガーの `id` を指す `aria-labelledby` で
+  トリガーと関連付けてください。
+- すべてのメニュー項目に `role="menuitem"` が必要です。`tabindex`
+  なしで到達可能になるよう、本物の `<button>`(ナビゲーションメニュー
+  なら `<a>`)を使ってください。
+- 項目の無効化はネイティブの `disabled` 属性または
+  `aria-disabled="true"` のどちらかで。どちらも矢印ナビゲーションから
+  スキップされ、`hc:menuselect` のクリックから無視されます。
+- フォーカスアウトラインを上書きしないでください。アクティブな項目は
+  `:focus-visible` 経由で同じフォーカス背景を受け取ります。
+- `menuitemcheckbox` / `menuitemradio` の項目は `aria-checked` で
+  自身のチェック状態を保ちます([状態を持つ項目](#状態を持つ項目チェックボックス--ラジオ)を
+  参照)。トグル後もメニューは開いたままです。変更の永続化には
+  `hc:menuselect` イベントを使ってください。サブメニューは
+  `data-hc-submenu` でサポートされます([サブメニュー](#サブメニュー)を
+  参照)。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `menu.bg` / `fg` / `border` / `radius` | メニューの面。 |
+| `menu.padding-block` | 項目リスト周りの縦パディング。 |
+| `menu.min-width` / `max-width` | 面の制約。 |
+| `menu.offset` | トリガーとメニューの距離(Anchor Positioning)。 |
+| `menu.item.padding-x` / `padding-y` / `font-size` / `gap` | 項目のレイアウト。 |
+| `menu.item.fg` / `hover-bg` / `focus-bg` / `disabled-fg` | 項目の状態。 |
+| `menu.item.error-fg` | `data-variant="error"` の前景色。 |
+| `menu.item.indicator-size` | チェック / ドット列のサイズ。 |
+| `menu.label.padding-x` / `padding-y` / `font-size` / `font-weight` / `fg` | `<span class="hc-menu__label">` グループ見出し。 |
+| `menu.separator.color` / `margin-y` | `<hr class="hc-menu__separator">`。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-menu-bg | -fg | -border | -radius | -padding-block
+--hc-menu-min-width | -max-width | -offset
+--hc-menu-item-padding-x | -padding-y | -font-size | -gap
+--hc-menu-item-fg | -hover-bg | -focus-bg | -disabled-fg
+--hc-menu-item-error-fg | -indicator-size
+--hc-menu-label-padding-x | -padding-y | -font-size | -font-weight | -fg
+--hc-menu-separator-color | -margin-y
+--hc-color-focus-ring   (inherited from data-color)
+```
+
+</details>
+
+## 関連
+
+- [ポップオーバー](/hypermedia-components/ja/components/popover/) — メニューパターンなしの素のポップオーバー面。
+- [ダイアログ](/hypermedia-components/ja/components/dialog/) — より豊かなフローのためのモーダルな代替。
+- [ツールバー](/hypermedia-components/ja/components/toolbar/) — メニュートリガーとよく組み合う水平のアクションクラスター。
