@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>hc VRT sheet — overlays</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+  <style>
+    /* Deterministic cross-environment rendering: DejaVu is the only
+       font family both the devcontainer and GitHub's runners ship. */
+    :root {
+      --hc-font-family-sans: "DejaVu Sans";
+      --hc-font-family-heading: "DejaVu Sans";
+      --hc-font-family-mono: "DejaVu Sans Mono";
+    }
+    body { padding: 1.5rem; max-inline-size: 60rem; margin: 0 auto; }
+    section { margin-block-end: 1.25rem; }
+    h2 { font-size: 1rem; margin: 0 0 .5rem; }
+    .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>hc VRT — overlays</h1>
+
+  <!-- Always-visible content so the closed-state shot isn't empty. -->
+  <section id="vrt-visible-buttons">
+    <h2>Buttons (always visible)</h2>
+    <div class="row">
+      <button class="hc-button" type="button">Default</button>
+      <button class="hc-button" data-variant="primary" type="button">Primary</button>
+      <button class="hc-button" data-variant="error" type="button">Delete</button>
+      <button class="hc-button" data-variant="ghost" type="button">Ghost</button>
+    </div>
+  </section>
+
+  <section id="vrt-visible-alert">
+    <h2>Alert (always visible)</h2>
+    <div class="hc-alert" data-variant="success" role="status" style="max-inline-size:36rem;">
+      <strong class="hc-alert__title">Saved</strong>
+      <p class="hc-alert__body">Your changes are saved.</p>
+    </div>
+  </section>
+
+  <section id="vrt-dialog-section">
+    <h2>Dialog (closed — the spec opens it)</h2>
+    <dialog class="hc-dialog" id="vrt-dialog" aria-labelledby="vrt-dialog-title">
+      <header class="hc-dialog__header">
+        <h2 class="hc-dialog__title" id="vrt-dialog-title">Demo dialog</h2>
+      </header>
+      <div class="hc-dialog__body">
+        <p>Hello from a real &lt;dialog&gt;.</p>
+        <input class="hc-input" type="text" aria-label="Name" value="Ada Lovelace">
+      </div>
+      <footer class="hc-dialog__footer">
+        <form method="dialog">
+          <button class="hc-button" type="submit">Cancel</button>
+        </form>
+        <button class="hc-button" data-variant="primary" type="button">Save</button>
+      </footer>
+    </dialog>
+  </section>
+
+  <section id="vrt-drawer-section">
+    <h2>Drawer (closed — the spec opens it)</h2>
+    <dialog class="hc-drawer" data-side="right" id="vrt-drawer" aria-labelledby="vrt-drawer-title">
+      <header class="hc-drawer__header">
+        <h2 class="hc-drawer__title" id="vrt-drawer-title">Settings</h2>
+        <form method="dialog">
+          <button class="hc-button" data-variant="ghost" data-size="sm"
+                  type="submit" aria-label="Close">×</button>
+        </form>
+      </header>
+      <div class="hc-drawer__body">
+        <p>Body content for the right-side drawer.</p>
+      </div>
+      <footer class="hc-drawer__footer">
+        <form method="dialog">
+          <button class="hc-button" type="submit">Cancel</button>
+        </form>
+        <button class="hc-button" data-variant="primary" type="button">Save</button>
+      </footer>
+    </dialog>
+  </section>
+
+  <section id="vrt-popover-section">
+    <h2>Popover (closed — the spec opens it)</h2>
+    <div class="row">
+      <button class="hc-button" type="button" popovertarget="vrt-popover">Open popover</button>
+    </div>
+    <div id="vrt-popover" class="hc-popover" popover>
+      <div class="hc-field">
+        <label class="hc-field__label" for="vrt-popover-input">Label</label>
+        <input id="vrt-popover-input" class="hc-input" type="text" value="Popover field">
+      </div>
+      <button class="hc-button" data-size="sm" type="button"
+              popovertarget="vrt-popover" popovertargetaction="hide">
+        Close
+      </button>
+    </div>
+  </section>
+
+  <!-- Explicit toast region: empty at rest; the spec fires hc:toast to fill it. -->
+  <div class="hc-toast-region" data-hc-toast-region data-position="bottom-right"
+       role="region" aria-label="Notifications"></div>
+</body>
+</html>

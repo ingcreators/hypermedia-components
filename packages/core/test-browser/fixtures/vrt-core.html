@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>hc VRT sheet — core</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+  <style>
+    /* Deterministic cross-environment rendering: DejaVu is the only
+       font family both the devcontainer and GitHub's runners ship. */
+    :root {
+      --hc-font-family-sans: "DejaVu Sans";
+      --hc-font-family-heading: "DejaVu Sans";
+      --hc-font-family-mono: "DejaVu Sans Mono";
+    }
+    body { padding: 1.5rem; max-inline-size: 60rem; margin: 0 auto; }
+    section { margin-block-end: 1.25rem; }
+    h2 { font-size: 1rem; margin: 0 0 .5rem; }
+    .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>hc VRT — core controls</h1>
+
+  <section id="vrt-buttons">
+    <h2>Buttons</h2>
+    <div class="row">
+      <button class="hc-button" type="button">Default</button>
+      <button class="hc-button" data-variant="primary" type="button">Save</button>
+      <button class="hc-button" data-variant="secondary" type="button">Secondary</button>
+      <button class="hc-button" data-variant="error" type="button">Delete</button>
+      <button class="hc-button" data-variant="ghost" type="button">Ghost</button>
+    </div>
+    <div class="row" style="margin-block-start:.5rem;">
+      <button class="hc-button" data-size="sm" type="button">Small</button>
+      <button class="hc-button" data-size="lg" type="button">Large</button>
+      <button class="hc-button" data-variant="primary" disabled type="button">Disabled</button>
+      <button class="hc-button" data-variant="primary" aria-disabled="true" type="button">aria-disabled</button>
+    </div>
+  </section>
+
+  <section id="vrt-button-group">
+    <h2>Button group</h2>
+    <div class="hc-button-group" role="group" aria-label="Text style">
+      <button class="hc-button" type="button">Bold</button>
+      <button class="hc-button" type="button">Italic</button>
+      <button class="hc-button" type="button">Underline</button>
+    </div>
+    <div class="hc-button-group" data-orientation="vertical" role="group" aria-label="View"
+         style="margin-block-start:.5rem;">
+      <button class="hc-button" type="button">Day</button>
+      <button class="hc-button" type="button">Week</button>
+      <button class="hc-button" type="button">Month</button>
+    </div>
+  </section>
+
+  <section id="vrt-toggle-group">
+    <h2>Toggle group</h2>
+    <div class="row">
+      <div class="hc-toggle-group" role="radiogroup" data-type="single" aria-label="Text alignment">
+        <button type="button" class="hc-toggle" role="radio" aria-checked="true" data-value="left">Left</button>
+        <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="center">Center</button>
+        <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="right" aria-disabled="true">Right</button>
+      </div>
+      <div class="hc-toggle-group" role="group" data-type="multiple" aria-label="Text formatting">
+        <button type="button" class="hc-toggle" aria-pressed="false" data-value="bold">B</button>
+        <button type="button" class="hc-toggle" aria-pressed="true" data-value="italic">I</button>
+        <button type="button" class="hc-toggle" aria-pressed="false" data-value="underline">U</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="vrt-inputs">
+    <h2>Inputs</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:.5rem;max-inline-size:22rem;">
+      <input class="hc-input" type="text" aria-label="Default" value="Filled value">
+      <input class="hc-input" type="text" aria-label="Placeholder" placeholder="Placeholder text">
+      <input class="hc-input" type="text" aria-label="Disabled" disabled value="Disabled">
+      <input class="hc-input" type="text" aria-label="Invalid" aria-invalid="true" value="Invalid value">
+      <input class="hc-input" type="text" aria-label="Success" data-variant="success" value="Validated">
+      <input class="hc-input" type="text" aria-label="Warning" data-variant="warning" value="Warned">
+    </div>
+  </section>
+
+  <section id="vrt-textarea">
+    <h2>Textarea</h2>
+    <div style="max-inline-size:22rem;">
+      <textarea class="hc-input" aria-label="Notes" rows="3">Multi-line
+notes content.</textarea>
+    </div>
+  </section>
+
+  <section id="vrt-select">
+    <h2>Select</h2>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:.5rem;">
+      <select class="hc-select" aria-label="Country">
+        <option value="">Choose a country…</option>
+        <option value="jp">Japan</option>
+      </select>
+      <select class="hc-select" aria-label="Required field" data-variant="error" aria-invalid="true">
+        <option>Required field</option>
+      </select>
+      <select class="hc-select" aria-label="Disabled" disabled>
+        <option>Disabled select</option>
+      </select>
+      <select class="hc-select" aria-label="Small size" data-size="sm">
+        <option>Small</option>
+      </select>
+      <select class="hc-select" aria-label="Large size" data-size="lg">
+        <option>Large</option>
+      </select>
+    </div>
+  </section>
+
+  <section id="vrt-input-group">
+    <h2>Input group</h2>
+    <div class="hc-input-group" style="max-inline-size:22rem;">
+      <span class="hc-input-addon" aria-hidden="true">🔍</span>
+      <input class="hc-input" type="search" aria-label="Search" placeholder="Search…">
+      <button class="hc-button" data-variant="primary" type="button">Search</button>
+    </div>
+    <div class="hc-input-group" style="max-inline-size:22rem;margin-block-start:.5rem;">
+      <span class="hc-input-addon">https://</span>
+      <input class="hc-input" type="text" aria-label="Domain" value="example.com">
+    </div>
+  </section>
+
+  <section id="vrt-field">
+    <h2>Field</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:1rem;max-inline-size:24rem;">
+      <div class="hc-field">
+        <label class="hc-field__label" for="vrt-field-email">Email</label>
+        <input id="vrt-field-email" class="hc-input" name="email" type="email"
+               aria-describedby="vrt-field-email-help" value="ada@example.com">
+        <p class="hc-field__message" id="vrt-field-email-help">Use your work email.</p>
+      </div>
+      <div class="hc-field" data-invalid="true">
+        <label class="hc-field__label" for="vrt-field-bad">Email</label>
+        <input id="vrt-field-bad" class="hc-input" name="email2" type="text"
+               aria-invalid="true" aria-describedby="vrt-field-bad-error" value="not-an-email">
+        <p class="hc-field__error" id="vrt-field-bad-error" aria-live="polite">Enter a valid email address.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="vrt-checkbox">
+    <h2>Checkbox</h2>
+    <div class="row" style="flex-direction:column;align-items:flex-start;">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox">
+        Unchecked
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" checked>
+        Checked
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" id="vrt-cb-indeterminate">
+        Indeterminate
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" disabled>
+        Disabled
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" aria-invalid="true">
+        Invalid
+      </label>
+    </div>
+    <script type="module">
+      // The indeterminate state has no HTML attribute — set it directly.
+      document.getElementById('vrt-cb-indeterminate').indeterminate = true;
+    </script>
+  </section>
+
+  <section id="vrt-radio">
+    <h2>Radio</h2>
+    <fieldset class="hc-field" style="border:0;padding:0;margin:0;">
+      <legend class="hc-field__label">Plan</legend>
+      <label class="hc-radio-label">
+        <input class="hc-radio" type="radio" name="vrt-plan" value="free" checked>
+        Free (checked)
+      </label>
+      <label class="hc-radio-label">
+        <input class="hc-radio" type="radio" name="vrt-plan" value="pro">
+        Pro
+      </label>
+      <label class="hc-radio-label">
+        <input class="hc-radio" type="radio" name="vrt-plan" value="team">
+        Team
+      </label>
+    </fieldset>
+  </section>
+
+  <section id="vrt-switch">
+    <h2>Switch</h2>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:.5rem;">
+      <label class="hc-switch-label">
+        <input class="hc-switch" type="checkbox" role="switch">
+        Notifications
+      </label>
+      <label class="hc-switch-label">
+        <input class="hc-switch" type="checkbox" role="switch" checked>
+        Pre-checked
+      </label>
+      <label class="hc-switch-label">
+        <input class="hc-switch" type="checkbox" role="switch" disabled>
+        Disabled
+      </label>
+      <label class="hc-switch-label">
+        <input class="hc-switch" type="checkbox" role="switch" data-variant="success" checked>
+        Success variant
+      </label>
+    </div>
+  </section>
+
+  <section id="vrt-slider">
+    <h2>Slider</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:.5rem;max-inline-size:24rem;">
+      <label>
+        Volume
+        <input class="hc-slider" type="range" min="0" max="100" value="40">
+      </label>
+      <label>
+        Disabled
+        <input class="hc-slider" type="range" min="0" max="100" value="50" disabled>
+      </label>
+    </div>
+  </section>
+
+  <section id="vrt-badge-chip">
+    <h2>Badge + chip</h2>
+    <div class="row">
+      <span class="hc-badge">Draft</span>
+      <span class="hc-badge" data-variant="info">In review</span>
+      <span class="hc-badge" data-variant="success">Active</span>
+      <span class="hc-badge" data-variant="warning">Pending</span>
+      <span class="hc-badge" data-variant="error">Failed</span>
+    </div>
+    <ul class="hc-chips" style="margin-block-start:.5rem;">
+      <li class="hc-chip">read:members</li>
+      <li class="hc-chip">write:members</li>
+      <li class="hc-chip">admin:realm</li>
+    </ul>
+  </section>
+
+  <section id="vrt-avatar">
+    <h2>Avatar</h2>
+    <div class="row" style="gap:1rem;">
+      <span class="hc-avatar" aria-label="John Smith" data-size="xs">JS</span>
+      <span class="hc-avatar" aria-label="John Smith" data-size="sm">JS</span>
+      <span class="hc-avatar" aria-label="Ada Lovelace">AL</span>
+      <span class="hc-avatar" aria-label="John Smith" data-size="lg">JS</span>
+      <span class="hc-avatar" aria-label="John Smith" data-size="xl">JS</span>
+      <span class="hc-avatar" aria-label="John Smith" data-shape="square">JS</span>
+    </div>
+    <div class="hc-avatar-group" style="margin-block-start:.5rem;">
+      <span class="hc-avatar" aria-label="Ada">A</span>
+      <span class="hc-avatar" aria-label="Beatrice">B</span>
+      <span class="hc-avatar" aria-label="Catalina">C</span>
+      <span class="hc-avatar" aria-label="Dorothée">D</span>
+    </div>
+  </section>
+
+  <section id="vrt-kbd">
+    <h2>Kbd</h2>
+    <div class="row">
+      <kbd class="hc-kbd">Esc</kbd>
+      <kbd class="hc-kbd" data-size="sm">Esc</kbd>
+      <kbd class="hc-kbd" data-size="lg">Esc</kbd>
+      <kbd class="hc-kbd-group">
+        <kbd class="hc-kbd" aria-label="Command">⌘</kbd> +
+        <kbd class="hc-kbd">K</kbd>
+      </kbd>
+    </div>
+  </section>
+
+  <section id="vrt-separator">
+    <h2>Separator</h2>
+    <div style="max-inline-size:24rem;">
+      <p style="margin:0;">Section one</p>
+      <hr class="hc-separator">
+      <p style="margin:0;">Section two</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;block-size:1.5rem;margin-block-start:.5rem;">
+      <span>Profile</span>
+      <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
+      <span>Settings</span>
+    </div>
+  </section>
+
+  <section id="vrt-alert">
+    <h2>Alert</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:.75rem;max-inline-size:36rem;">
+      <div class="hc-alert" role="status">
+        <strong class="hc-alert__title">Tip</strong>
+        <p class="hc-alert__body">You can press <kbd>Ctrl</kbd>+<kbd>K</kbd> to open the command bar.</p>
+      </div>
+      <div class="hc-alert" data-variant="success" role="status">
+        <strong class="hc-alert__title">Saved</strong>
+        <p class="hc-alert__body">Your changes are saved.</p>
+      </div>
+      <div class="hc-alert" data-variant="warning" role="status">
+        <strong class="hc-alert__title">Heads up</strong>
+        <p class="hc-alert__body">This action will affect 3 connected systems.</p>
+      </div>
+      <div class="hc-alert" data-variant="error" role="alert">
+        <strong class="hc-alert__title">Something went wrong</strong>
+        <p class="hc-alert__body">The server returned a 500. Please try again.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="vrt-progress">
+    <h2>Progress</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:.75rem;max-inline-size:24rem;">
+      <progress class="hc-progress" value="40" max="100" aria-label="Upload progress"></progress>
+      <progress class="hc-progress" value="65" max="100" aria-label="Validation" data-variant="success"></progress>
+      <progress class="hc-progress" value="92" max="100" aria-label="Error" data-variant="error"></progress>
+      <progress class="hc-progress" aria-label="Indeterminate loading"></progress>
+    </div>
+  </section>
+
+  <section id="vrt-spinner">
+    <h2>Spinner</h2>
+    <div class="row">
+      <span class="hc-spinner" role="status" aria-label="Loading"></span>
+      <span class="hc-spinner" data-size="sm" role="status" aria-label="Loading small"></span>
+      <span class="hc-spinner" data-size="lg" role="status" aria-label="Loading large"></span>
+      <span class="hc-spinner" data-variant="primary" role="status" aria-label="Loading primary"></span>
+    </div>
+  </section>
+
+  <section id="vrt-skeleton">
+    <h2>Skeleton</h2>
+    <div role="status" aria-busy="true" aria-label="Loading" class="row"
+         style="flex-direction:column;align-items:stretch;gap:.75rem;max-inline-size:24rem;">
+      <div class="hc-skeleton" data-animation="none" style="block-size:1rem;inline-size:80%"></div>
+      <div class="hc-skeleton" data-animation="none" data-shape="text"></div>
+      <div class="hc-skeleton" data-animation="none" data-shape="circle" style="inline-size:3rem"></div>
+      <div class="hc-skeleton" data-animation="none" data-shape="rect" style="block-size:4rem"></div>
+    </div>
+  </section>
+
+  <section id="vrt-breadcrumb">
+    <h2>Breadcrumb</h2>
+    <nav class="hc-breadcrumb" aria-label="Default breadcrumb">
+      <ol class="hc-breadcrumb__list">
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#vrt-breadcrumb">Home</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#vrt-breadcrumb">Docs</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <span class="hc-breadcrumb__current" aria-current="page">Components</span>
+        </li>
+      </ol>
+    </nav>
+    <nav class="hc-breadcrumb" aria-label="Long breadcrumb" style="margin-block-start:.5rem;">
+      <ol class="hc-breadcrumb__list">
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#vrt-breadcrumb">Home</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <span class="hc-breadcrumb__ellipsis" aria-hidden="true">…</span>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <a class="hc-breadcrumb__link" href="#vrt-breadcrumb">Tabs</a>
+        </li>
+        <li class="hc-breadcrumb__item">
+          <span class="hc-breadcrumb__current" aria-current="page">Variants</span>
+        </li>
+      </ol>
+    </nav>
+  </section>
+
+  <section id="vrt-pagination">
+    <h2>Pagination</h2>
+    <nav class="hc-pagination" aria-label="Pagination">
+      <a class="hc-pagination__item" aria-disabled="true" href="#vrt-pagination">‹ Prev</a>
+      <a class="hc-pagination__item" href="#vrt-pagination">1</a>
+      <a class="hc-pagination__item" aria-current="page" href="#vrt-pagination">2</a>
+      <a class="hc-pagination__item" href="#vrt-pagination">3</a>
+      <a class="hc-pagination__item" href="#vrt-pagination">4</a>
+      <a class="hc-pagination__item" href="#vrt-pagination">Next ›</a>
+    </nav>
+  </section>
+
+  <section id="vrt-tabs">
+    <h2>Tabs</h2>
+    <div class="hc-tabs">
+      <div class="hc-tabs__list" role="tablist" aria-label="Account">
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="vrt-tab-general" aria-controls="vrt-panel-general"
+                aria-selected="true" tabindex="0">General</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="vrt-tab-billing" aria-controls="vrt-panel-billing"
+                aria-selected="false" tabindex="-1">Billing</button>
+        <button type="button" class="hc-tabs__tab" role="tab"
+                id="vrt-tab-archive" aria-controls="vrt-panel-archive"
+                aria-selected="false" tabindex="-1" aria-disabled="true">Archive</button>
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="vrt-panel-general" aria-labelledby="vrt-tab-general" tabindex="0">
+        General settings panel.
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="vrt-panel-billing" aria-labelledby="vrt-tab-billing" tabindex="0"
+           hidden="until-found">
+        Billing details.
+      </div>
+      <div class="hc-tabs__panel" role="tabpanel"
+           id="vrt-panel-archive" aria-labelledby="vrt-tab-archive" tabindex="0"
+           hidden="until-found">
+        Archived items.
+      </div>
+    </div>
+  </section>
+
+  <section id="vrt-toolbar">
+    <h2>Toolbar</h2>
+    <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
+      <button type="button" class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
+      <button type="button" class="hc-button" data-size="sm" data-variant="ghost" disabled>Italic</button>
+      <button type="button" class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+      <hr role="separator" aria-orientation="vertical">
+      <a class="hc-button" data-size="sm" data-variant="ghost" href="#vrt-toolbar">Help</a>
+      <span data-hc-spacer="true"></span>
+      <button type="button" class="hc-button" data-size="sm" data-variant="primary">Save</button>
+    </div>
+  </section>
+
+  <section id="vrt-card">
+    <h2>Card</h2>
+    <article class="hc-card" style="max-inline-size:28rem;">
+      <header class="hc-card__header">Order #123</header>
+      <div class="hc-card__body">
+        <p>Two items, shipping on Friday.</p>
+      </div>
+      <footer class="hc-card__footer">
+        <button class="hc-button" data-size="sm" type="button">View</button>
+      </footer>
+    </article>
+  </section>
+
+  <section id="vrt-item">
+    <h2>Item</h2>
+    <div style="max-inline-size:24rem;">
+      <div class="hc-item">
+        <span class="hc-item__media" aria-hidden="true">📄</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Quarterly report</span>
+          <span class="hc-item__description">Updated 2 days ago</span>
+        </div>
+        <div class="hc-item__actions">
+          <button class="hc-button" data-size="sm" type="button">Open</button>
+        </div>
+      </div>
+      <button class="hc-item" type="button" data-selected>
+        <span class="hc-item__media" aria-hidden="true">⭐</span>
+        <div class="hc-item__content"><span class="hc-item__title">Selected row</span></div>
+      </button>
+      <button class="hc-item" type="button" data-variant="error">
+        <span class="hc-item__media" aria-hidden="true">🗑️</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title">Delete project</span>
+          <span class="hc-item__description">This cannot be undone</span>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <section id="vrt-empty">
+    <h2>Empty state</h2>
+    <div class="hc-empty">
+      <div class="hc-empty__media" aria-hidden="true">📭</div>
+      <p class="hc-empty__title">No results</p>
+      <p class="hc-empty__description">
+        We couldn't find anything matching your search.
+      </p>
+      <div class="hc-empty__actions">
+        <button class="hc-button" data-variant="primary" type="button">Clear filters</button>
+        <button class="hc-button" type="button">Browse all</button>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

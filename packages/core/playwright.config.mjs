@@ -11,6 +11,13 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   reporter: process.env.CI ? 'github' : 'list',
+  expect: {
+    // Visual regression suites (test-browser/vrt.spec.mjs): one linux
+    // baseline set (devcontainer and CI both run the pinned Chromium on
+    // linux; the sheets pin fonts to DejaVu). The tolerance absorbs
+    // sub-pixel anti-aliasing jitter and still fails on real changes.
+    toHaveScreenshot: { maxDiffPixels: 100 },
+  },
   use: {
     baseURL: BASE,
     trace: 'retain-on-failure',

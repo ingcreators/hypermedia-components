@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Visual regression testing** (#288, dev-facing). Playwright
+  `toHaveScreenshot()` suites over three dense fixture sheets
+  (`vrt-core` / `vrt-data` / `vrt-overlays`) under light/dark × ltr/rtl
+  plus compact-density and accent slices — 14 committed linux
+  baselines, running in the existing CI browser job. Purely visual
+  regressions (the `.hc-toolbar[hidden]` class of bug) now fail CI with
+  a pixel diff. Determinism via DejaVu-pinned font tokens in the
+  sheets, reduced motion, and settled behaviors; baseline updates are
+  explicit (`--update-snapshots`) and reviewed as image diffs — see
+  CONTRIBUTING §Visual regressions. Closes the v0.5 plan §5.2 leftover.
+
 - **`hc validate` — machine-checked recipe contracts**
   (`@hypermedia-components/cli`, #286).
   `npx @hypermedia-components/cli validate <file|dir>… [--recipe]
