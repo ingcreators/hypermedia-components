@@ -46,13 +46,15 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.1.6` (published 2026-06-19): 56 component stylesheets ·
-38 behaviors · 2 macros · 14 recipes · 8 integration guides ·
-~104 docs pages (components, tokens, fundamentals, integrations,
-recipes, blocks) · runtime axes `data-theme` / `data-color` /
-`data-neutral` / `data-density` / `dir` · i18n message catalog
-(`setMessages()`) · examples for plain-html + htmx · 48 Vitest suites ·
-91 Playwright suites (incl. axe scans).
+As of `0.1.7` (published 2026-07-03): 56 component stylesheets ·
+41 behaviors (40 auto-init + opt-in chart) · 2 macros · 19 recipes ·
+8 integration guides · ~115 docs pages (components, tokens,
+fundamentals, integrations, recipes, blocks) · runtime axes
+`data-theme` / `data-color` / `data-neutral` / `data-density` / `dir` ·
+i18n message catalog (`setMessages()`) · examples for plain-html +
+htmx · 53 Vitest suites (core + CLI) · 96 Playwright suites (incl. axe
+scans and the VRT screenshot sheets) · `hc validate` machine-checked
+recipe contracts (`@hypermedia-components/cli@0.2.0`).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -178,6 +180,26 @@ insets with the physical `inset: auto` before writing `top`/`left`, so it
 stays authoritative under Chrome 149 (surfaced by the Playwright 1.61
 dev-dependencies bump, #268). Routine dependency bumps landed too
 (#267 actions/checkout 7, #269 astro 6.4.8, #268 dev-deps group).
+
+Core `0.1.7` (2026-07-03, `v0.1.7` tag) followed — six workstreams,
+each with its own plan doc under `plans/` (plan PR → implementation
+PRs, #279–#297): the **datagrid-bulk-actions** recipe +
+`installDatagridActions()` + post-swap selection sync (#279–#281); the
+**SSE recipes** (`sse-updates`, `sse-toast`) + `installSseDispatch()` +
+the vendored htmx SSE extension (#282–#284); **`hc validate`** —
+machine-checked recipe contracts, `checks.json` in every recipe, the
+self-validation keystone test, CLI test suite wired into CI (#285,
+#286); **VRT** — Playwright screenshot sheets ×14 baselines in the
+browser job (#287, #288); the **undo-delete** recipe (tombstone
+restore, zero new JS; blessed `\uXXXX`-escaping for `HX-Trigger`
+headers) (#293, #294); and the **file-upload** recipe +
+`installUploadProgress()` (monotonic progress, OOB fresh-form reset)
+(#295–#297). Fixes along the way: `.hc-toolbar[hidden]` actually hides,
+the inline-edit scaffold's missing `outerHTML`, and the
+upload-progress ancestor-re-dispatch guard. All additive + fixes →
+patch. **CLI `0.2.0`** (`cli-v0.2.0` tag) ships `validate` + the five
+new recipe scaffolds, with linkedom as its first (lazy-loaded) runtime
+dependency.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
