@@ -1,0 +1,108 @@
+---
+title: リクエストアクション
+description: htmx リクエストを送り、実行中はスピナーを表示するボタン。
+---
+
+`request-action` は、一級のローディングフィードバックを備えた最も
+シンプルな htmx パターンです。ボタンは普通の `<button>` のまま、
+リクエストの所有者は htmx、進行表示は(`htmx-indicator` として印を
+付けた)兄弟の `.hc-spinner` が担います。
+
+## 基本の使い方
+
+```html
+<span class="hc-action">
+  <button
+    class="hc-button"
+    data-variant="primary"
+    type="button"
+    data-hx-post="/items"
+    data-hx-target="#items"
+    data-hx-swap="outerHTML"
+    data-hx-disabled-elt="this"
+    data-hx-indicator="closest .hc-action">
+    Save
+  </button>
+
+  <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+</span>
+```
+
+流れは次のとおり:
+
+1. ユーザーが **Save** をクリックします。
+2. htmx が `<button>` と(`data-hx-indicator` 経由で)周囲の
+   `.hc-action` ラッパーに `.htmx-request` を追加します。
+3. `data-hx-disabled-elt="this"` がリクエストの間ボタンを無効化します —
+   `disabled` の追加と除去は htmx が自動で行います。
+4. ラッパーが `cursor: progress` に切り替わり、スピナーがフェードイン
+   します(`hc.htmx.css` が `.htmx-indicator` をスタイルします)。
+5. サーバがターゲット領域の HTML を返し、htmx がスワップします。
+
+## 構成要素
+
+- **`.hc-action`** — コントロールとそのインジケーターを同じ場所に置く
+  inline-flex ラッパー。`.htmx-request` の子孫を含む間、カーソルが
+  `progress` に切り替わります。
+- **`.hc-spinner`** — `--hc-spinner-size` でサイズが決まる CSS のみの
+  小さなスピナー。`currentColor` を継承するため、インジケーターの色は
+  周囲のテキストに揃います。
+- **`.htmx-indicator`** — htmx の規約。インジケーターはデフォルトで
+  非表示になり、自身または祖先に `.htmx-request` がある間だけ表示され
+  ます。
+- **`data-hx-disabled-elt="this"`** — リクエストの間、ボタンに
+  `disabled` 属性を追加する htmx 属性。カスタム JavaScript なしで
+  二重送信を防ぎます。
+
+## サーバレスポンス契約
+
+- **成功時** — `data-hx-target` の HTML を返します。デフォルトの
+  スワップモードは `innerHTML`。このレシピは `outerHTML` を使うため、
+  返されたフラグメントがターゲット自体を置き換えます。
+- **トーストを出すには** — `HX-Trigger` ヘッダーを含めます
+  ([トーストレシピ](/hypermedia-components/ja/recipes/toast/)を参照):
+
+  ```text
+  HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}
+  ```
+
+- **エラー時** — ボディ HTML つきの 4xx/5xx を返します。必要なら
+  `HX-Reswap` や `HX-Retarget` でスワップをフラッシュ領域へ振り向け
+  ます。
+
+## アクセシビリティ
+
+- スピナーは純粋に装飾です — `aria-hidden="true"` でアクセシビリティ
+  ツリーから外します。読み上げられる名前はボタンのテキストのままです。
+- 長時間かかるリクエストでは、このレシピをページ内の別の場所の
+  ステータス領域(`aria-live="polite"`)と組み合わせて、スクリーン
+  リーダーの利用者がアクションの完了を知れるようにすることを検討して
+  ください。
+- `data-hx-disabled-elt="this"` はネイティブの `disabled` 属性を追加し、
+  リクエスト中はボタンをタブ順から外します。短時間のリクエストには
+  適切ですが、長いものにはコントロールへフォーカスし続けられる
+  `aria-disabled="true"` を選んでください。
+
+## プログレッシブエンハンスメント
+
+htmx なしでは、ボタンは何もしません。JavaScript なしでもアクションを
+動かし続けるには、ボタンを本物のフォームで包みます:
+
+```html
+<form method="post" action="/items">
+  <button class="hc-button" data-variant="primary" type="submit">
+    Save
+  </button>
+</form>
+```
+
+htmx 属性はボタンではなくフォーム自体に置けるので、htmx が読み込まれて
+いてもいなくても同じマークアップが機能します。
+
+## 関連
+
+- [ボタン](/hypermedia-components/ja/components/button/) — コントロール。
+- [スピナー](/hypermedia-components/ja/components/) — インジケーター
+  (小さく、CSS のみ)。
+- [確認アクション](/hypermedia-components/ja/recipes/confirm-action/) —
+  このレシピの前段に確認ステップを追加します。

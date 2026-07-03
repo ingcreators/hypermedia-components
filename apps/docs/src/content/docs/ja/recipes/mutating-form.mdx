@@ -1,0 +1,200 @@
+---
+title: ミューテーションフォーム
+description: サーバ状態を変更する htmx フォームの正準形 — インラインの 4xx フィールドエラー、成功時リダイレクト、二重送信ガード、非 JS のデグラデーションパス。
+---
+
+`mutating-form` は、**サーバ状態を変更する**フォームのための公認の
+合成です: htmx の POST、4xx でのインラインバリデーションエラー、成功時の
+フルページリダイレクト、ビジースピナーつき二重送信ガード、非 JS
+フォールバック。すでにそれぞれ契約を持つ 3 つの部品 —
+[field-errors](/hypermedia-components/ja/recipes/field-errors/)
+フラグメント、
+[request-action](/hypermedia-components/ja/recipes/request-action/) の
+ビジー / 無効化パターン、
+[confirm-action](/hypermedia-components/ja/recipes/confirm-action/) の
+ゲート — を、コードジェネレーターがそのまま出力できる 1 つのフォームに
+配線します。[マークアップのバージョニングポリシー](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)の
+下で安定しています。
+
+必要なのは `installFieldErrors()`(自動初期化の
+[`./behaviors`](/hypermedia-components/ja/start/installation/#ビヘイビア)
+バンドルに同梱)と、破壊的変種には `installConfirm()` です。
+
+## フォーム
+
+```html
+<form
+  method="post" action="/members"
+  data-hx-post="/members"
+  data-hx-target="#member-form-errors"
+  data-hx-swap="innerHTML"
+  data-hx-disabled-elt="find button[type=submit]"
+  data-hx-indicator="find .hc-spinner">
+
+  <!-- The 4xx fragment swaps in here; empty on success. -->
+  <div id="member-form-errors"></div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input class="hc-input" id="email" name="email" type="email" required
+           autocomplete="email">
+  </div>
+
+  <span class="hc-action">
+    <button class="hc-button" data-variant="primary" type="submit">Create</button>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </span>
+</form>
+```
+
+この 1 要素に 4 つのことが乗っています:
+
+- **`method`/`action` は `data-hx-post` をミラー**(同じ URL)。
+  ビヘイビアが読み込まれなくても、フォームはネイティブに送信されます —
+  [非 JS デグラデーション](#非-js-デグラデーション)を参照。
+- **`data-hx-target` + `data-hx-swap="innerHTML"`** が 4xx
+  フラグメントをフォーム内コンテナへ着地させ、フォーム自体は無傷に
+  保ちます。
+- **`data-hx-disabled-elt`** がリクエストの間、送信ボタンを無効化
+  します — 二重送信ガードです。
+- **`data-hx-indicator`** がリクエスト中にスピナーを表示します。
+  どちらも htmx ネイティブで、カスタム JS はありません。
+
+## 成功: スワップせずリダイレクト
+
+罠: `data-hx-post` では、htmx は生の `303 Location` を透過的に追跡し、
+**リダイレクト先のページ**をフォームのターゲットにスワップします。
+これは post/redirect/get として誤りです。修正は `HX-Request` ヘッダーで
+分岐し、各呼び出し元に正しい答えを返すことです:
+
+```text
+POST /members
+  (no HX-Request)   → 303 See Other,  Location: /members/42
+  HX-Request: true  → 204 No Content,  HX-Redirect: /members/42
+```
+
+- **htmx** には **`HX-Redirect: /members/42`** つきの**空ボディ**。
+  htmx はネイティブに完全な `window.location` ナビゲーションを実行
+  します — 行き先は同じ、DOM スワップなし、糊のビヘイビア不要。
+- **非 htmx**(非 JS パス)には素の **`303 Location`**。ブラウザが
+  自分で追跡します。
+
+:::note[なぜ `HX-Location` ではなく `HX-Redirect` か]
+`HX-Location` は AJAX 風のブーストされたナビゲーション(`<body>` への
+スワップ + 履歴プッシュ)を行います。これは post/redirect/get では
+*なく*、フルページレスポンスの関心事をフォーム送信に引き込みます。
+`HX-Redirect` が保守的でネイティブ等価な答えです。
+:::
+
+## 失敗: インラインフィールドエラー(4xx)
+
+バリデーション失敗時、サーバは正準の
+[field-errors フラグメント](/hypermedia-components/ja/recipes/field-errors/)を
+**`422`** で返し、`#member-form-errors` へスワップさせます:
+
+```html
+<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+  <p class="hc-alert__title">Please fix the errors below.</p>
+  <ul class="hc-alert__errors">
+    <li class="hc-alert__error" data-field="email" data-code="duplicate"
+        data-message-key="members.email.duplicate">email: already registered</li>
+  </ul>
+</div>
+```
+
+`installFieldErrors()` が各項目を名前の一致するフィールドへ振り分け
+(`aria-invalid`、`aria-describedby`、`.hc-field__error` スロット、
+最初のフィールドへのフォーカス)、どのコントロールにも一致しない項目は
+フォームレベルのエラーとしてサマリーに残します。
+
+htmx ≥ 2 はデフォルトで非 2xx をスワップしません。一度だけグローバルに
+422 のスワップを許可します:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+(あるいはフラグメントを `200` で返す、または `HX-Retarget` +
+`HX-Reswap` を送る —
+[field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/#サーバレスポンス契約)を参照。)
+
+## 確認つき破壊的変種
+
+削除(または任意の破壊的送信)には、
+[confirm-action](/hypermedia-components/ja/recipes/confirm-action/)
+パターンでゲートします。変更点は 2 つだけ: 送信ボタンに
+`data-hc-confirm`、フォームに `data-hx-trigger="hc:confirmed"` —
+htmx がネイティブ送信ではなく確認イベントで発火するようにします。
+
+```html
+<form
+  method="post" action="/members/42/delete"
+  data-hx-post="/members/42/delete"
+  data-hx-trigger="hc:confirmed"
+  data-hx-target="#member-form-errors"
+  data-hx-swap="innerHTML"
+  data-hx-disabled-elt="find button[type=submit]"
+  data-hx-indicator="find .hc-spinner">
+  <span class="hc-action">
+    <button class="hc-button" data-variant="error" type="submit"
+            data-hc-confirm="Delete this member? This cannot be undone."
+            data-hc-confirm-title="Delete member">
+      Delete
+    </button>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </span>
+</form>
+```
+
+エラー、リダイレクト、ビジー / 無効化ガードは作成フォームと同一です。
+非 JS パスは素の送信でそのまま POST します — 確認ステップなしで。
+どのみちサーバサイドで再バリデートするサーバにとって、これは安全な
+デグラデーションです。
+
+## 非 JS デグラデーション
+
+フォームが `method`/`action` を保っているため、ビヘイビアが読み込まれ
+なくても何も失われません:
+
+- **送信**はネイティブに POST します。サーバは field-errors
+  フラグメントをインラインに含むフルページを再描画するか(サマリーの
+  アラートがすべてのエラーを列挙します — 何も失われません。フィールド
+  への振り分けはエンハンスメントです)、成功なら `303` リダイレクトを
+  送ります。
+- 二重送信ガードとスピナーは htmx のエンハンスメントで、なくても送信は
+  壊れません。
+- 確認つき変種は、ダイアログなしで送信されます。
+
+これが、生成されるフォームが常に `data-hx-post` と並べて
+`method`/`action` を持つべき理由です。ページが
+[CSRF](/hypermedia-components/ja/integrations/htmx/#csrf-トークン--公認の規約)にも
+依存しているなら、非 JS フォームにはフレームワークの**隠し CSRF
+フィールド**も必要です — `installCsrfHeader()` がカバーするのは htmx
+パスだけです。
+
+## サーバレスポンス契約
+
+| リクエスト            | レスポンス |
+| --------------------- | -------- |
+| `POST /members`(htmx 成功) | `204` + `HX-Redirect: /members/42` |
+| `POST /members`(非 JS 成功) | `303` + `Location: /members/42` |
+| `POST /members`(無効) | `422` + field-errors フラグメント(`#member-form-errors` へスワップ) |
+
+完全なワイヤ仕様 — フラグメントの形、i18n キー、`htmx:beforeSwap` の
+許可、アクセシビリティ — は
+[レシピソース](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/mutating-form/contract.md)に
+あります。キーボード・フォーカス・リダイレクト・二重送信の主張は、
+まさにこのマークアップに対するブラウザテスト
+(`test-browser/mutating-form.spec.mjs`)で固定されています。
+
+## 関連
+
+- [フィールドエラーレシピ](/hypermedia-components/ja/recipes/field-errors/) — この上に組む 4xx フラグメント。
+- [リクエストアクションレシピ](/hypermedia-components/ja/recipes/request-action/) — ビジー / 無効化パターン。
+- [確認アクションレシピ](/hypermedia-components/ja/recipes/confirm-action/) — 破壊的送信のゲート。
+- [チェックボックス → 真偽値フィールド](/hypermedia-components/ja/components/checkbox/#as-a-boolean-form-field) — フォーム内の真偽値入力。

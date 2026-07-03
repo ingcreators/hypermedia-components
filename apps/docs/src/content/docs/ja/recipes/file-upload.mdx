@@ -1,0 +1,102 @@
+---
+title: ファイルアップロード
+description: ライブ進捗バーつきのマルチパートアップロード — トランスポートは htmx が所有し、installUploadProgress がネイティブの progress 要素を駆動、レスポンスはファイルを追記しフォームを out-of-band でリセットします。
+---
+
+`file-upload` は公認のマルチパートパターンです: ファイルを選んで
+アップロードすると**ライブ進捗バー**が表示され、新しいファイルの
+フラグメントがリストへ追記され、フォームがリセットされ、トーストが
+出ます。トランスポートは htmx の所有です(`data-hx-encoding` +
+`htmx:xhr:progress` はネイティブ機能)。唯一の糊は、ネイティブの
+[`<progress>`](/hypermedia-components/ja/components/progress/) を駆動する
+`installUploadProgress()` です。
+[マークアップのバージョニングポリシー](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)の
+下で安定しています。
+
+必要なのは `installUploadProgress()`、`installToast()`、
+`installFieldErrors()`(いずれも自動初期化の
+[`./behaviors`](/hypermedia-components/ja/start/installation/#ビヘイビア)
+バンドルに同梱)です。
+
+## フォーム
+
+```html
+<form id="upload-form" method="post" action="/files"
+      enctype="multipart/form-data"
+      data-hx-post="/files"
+      data-hx-encoding="multipart/form-data"
+      data-hx-target="#files" data-hx-swap="afterbegin"
+      data-hx-indicator="find progress"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div id="upload-errors"></div>
+  <div class="hc-field">
+    <label class="hc-field__label" for="doc">Document</label>
+    <input class="hc-input" id="doc" name="doc" type="file" required
+           accept=".pdf,.png">
+  </div>
+  <progress class="hc-progress htmx-indicator" data-hc-upload-progress
+            value="0" max="100" aria-label="Upload progress"></progress>
+  <button class="hc-button" data-variant="primary" type="submit">Upload</button>
+</form>
+
+<ul id="files">…server-rendered current files…</ul>
+```
+
+:::caution[エンコーディングは常に両方]
+`data-hx-encoding="multipart/form-data"` が影響するのは htmx リクエスト
+だけです。非 JS のネイティブ送信には本物の `enctype` 属性も必要です —
+片方だけを載せるのが古典的なミスで、`hc validate` はこれをエラーとして
+検出します。
+:::
+
+## 進捗バー
+
+2 つの機構がきれいに分かれています:
+
+- **表示 / 非表示は htmx ネイティブ**: `data-hx-indicator="find progress"` +
+  `htmx-indicator` クラスにより、バーはリクエストの実行中だけ表示され
+  ます。
+- **値はブリッジ**: `installUploadProgress()` が `htmx:xhr:progress` を
+  0–100 に対応付けます — *リクエスト内で単調に*。htmx はこのイベントを
+  アップロードとレスポンスダウンロードの両フェーズで発火するため、
+  ダウンロード側の小さい `total` を放っておくと、完了直前にバーが
+  巻き戻ってしまうからです。
+
+## サーバレスポンス
+
+| ケース | レスポンス |
+| --- | --- |
+| 成功 | `200` — 新しいアイテムのフラグメント(`#files` の `afterbegin` に着地)**に加えて、`hx-swap-oob` フラグメントとしてのまっさらなフォーム**(file input はマークアップからリセットできません — サーバがフォームを再送し、htmx が再初期化します)+ `HX-Trigger` トースト |
+| バリデーション失敗 | `422` + `HX-Retarget: #upload-errors` + `HX-Reswap: innerHTML` に [field-errors](/hypermedia-components/ja/recipes/field-errors/) フラグメント — 主経路は属性宣言のまま、例外だけヘッダーで誘導 |
+| プロキシの `413` | アプリがリクエストを見る前に届くことがあり、htmx は何もスワップしません。契約には任意の `htmx:responseError` トーストスニペットがあります — また、親切な `422` が勝つよう、アプリ側の上限はプロキシの上限より低く保ってください |
+| JS なし | `303` の post/redirect/get([mutating-form](/hypermedia-components/ja/recipes/mutating-form/) と同じ `HX-Request` 分岐) |
+
+バリデーターはサーバです — クライアントの `accept` / サイズのヒントは
+UX にすぎません。`HX-Trigger` ヘッダーの非 ASCII は `\uXXXX` に
+エスケープしてください(ヘッダー値は latin-1 —
+[undo-delete の契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/undo-delete/contract.md)を参照)。
+
+## デグラデーションと後続
+
+JavaScript なしでも、同じフォームがネイティブに正しいマルチパート
+リクエストを送信します。進捗とインラインエラーはエンハンスメントです。
+
+## ドロップゾーン変種
+
+素のフィールドを
+[hc-dropzone](/hypermedia-components/ja/components/dropzone/) に
+差し替えます — 他には何も変わりません。ドロップは同じネイティブ input に
+代入して普通の `change` を発火するため、シリアライズ、進捗、OOB
+リセット、`422` パスは同一です。サーバが再送するまっさらなフォームには、
+単にまっさらなドロップゾーンのマークアップが入ります。
+
+ここでの主張 — 100 に到達するライブ進捗、out-of-band のフォーム
+リセット、リターゲットされた `422` — は、実マルチパートのブラウザテスト
+(`test-browser/file-upload.spec.mjs`)で固定されています。
+
+## 関連
+
+- [プログレス](/hypermedia-components/ja/components/progress/) — ブリッジが駆動するネイティブ要素。
+- [フィールドエラーレシピ](/hypermedia-components/ja/recipes/field-errors/) — `422` フラグメント。
+- [ミューテーションフォームレシピ](/hypermedia-components/ja/recipes/mutating-form/) — `HX-Request` 分岐と `beforeSwap` の許可。
+- [トーストレシピ](/hypermedia-components/ja/recipes/toast/) — 成功のフィードバック。

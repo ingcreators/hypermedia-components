@@ -1,0 +1,124 @@
+---
+title: 削除の取り消し
+description: 確認の代わりに取り消し — 削除は即座に実行され、サーバは猶予期間つきでソフトデリートし、トーストの Undo ボタンがトゥームストーン経由で行をその場に復元します。カスタム JavaScript ゼロ。
+---
+
+`undo-delete` は、頻繁な破壊的アクションのための公認
+**「確認の代わりに取り消し」**パターンです: ダイアログなし — 削除は
+即座に実行され、サーバはアイテムを猶予期間の間だけ復元可能に保ち、
+結果のトーストが **Undo** ボタンを運びます。押せば行が元いた場所へ
+正確に戻ります。
+[confirm-action](/hypermedia-components/ja/recipes/confirm-action/) の
+対になるレシピで、出荷済みの部品だけから **新規 JavaScript ゼロ**で
+構成され、[マークアップのバージョニングポリシー](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)の
+下で安定しています。
+
+必要なのは `installToast()`(自動初期化の
+[`./behaviors`](/hypermedia-components/ja/start/installation/#ビヘイビア)
+バンドルに同梱)だけです。
+
+## マークアップ
+
+アイテムごとにボタン 1 つ、
+[request-action](/hypermedia-components/ja/recipes/request-action/) の
+形 — 意図的に `data-hc-confirm` **なし**です:
+
+```html
+<tr id="item-42">
+  <td>Anvil</td>
+  <td>
+    <button class="hc-button" data-size="sm"
+            data-hx-delete="/items/42"
+            data-hx-target="closest tr"
+            data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Delete</button>
+  </td>
+</tr>
+```
+
+## トゥームストーン
+
+DELETE のレスポンスは、行を隠れた**トゥームストーン**に置き換えます。
+これは DOM のスロットを保持し、復元の配線を運び、取り消しトーストを
+発火します:
+
+```html
+<tr id="item-42" hidden
+    data-hx-post="/items/42/restore"
+    data-hx-trigger="item-42:restore from:body"
+    data-hx-swap="outerHTML"></tr>
+```
+
+```text
+HX-Trigger: {"hc:toast":{"id":"undo-item-42","message":"\"Anvil\" deleted",
+  "variant":"info","duration":10000,
+  "action":{"label":"Undo","event":"item-42:restore"}}}
+```
+
+**ペアリングキー**(`item-42:restore`)は、サーバが生成する 1 つの
+文字列がちょうど 2 か所に現れるものです: トーストの `action.event` と
+トゥームストーンのトリガー。Undo をクリックすると、トーストがその
+バブリングイベントを発火し(出荷済み
+[トースト](/hypermedia-components/ja/recipes/toast/)のアクション
+ボタン)、トゥームストーンが `from:body` 経由でそれを聞いて復元を
+POST し、サーバが元の行を返し、それが**同じスロットへ**スワップ
+バックします — 位置は保存され、複数の取り消し待ちが交差することは
+ありません。
+
+復元レスポンスはトーストの `id` を再利用するため、取り消しトーストは
+その場で「restored」に更新されます。テーブルでは `<tr hidden>`、
+リストでは `<li hidden>`、カードグリッドでは `<div hidden>` を使って
+ください。
+
+## 猶予期間: サーバが真実、トーストはヒント
+
+サーバは自身の時計でハードデリートします(推奨: 猶予 ≥ トーストの
+表示時間。例: トースト 10 秒 / 猶予 30〜60 秒)。トーストの解散や失効は
+何も確定しません。失効後の復元は **200-with-truth** の原則に従います:
+ボディ = 再びトゥームストーン、加えてエラートースト(「完全に削除
+されました」)— ステータスコードの振り付けはなし。
+[datagrid-bulk-actions](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)
+と同じです。
+
+:::note[HX-Trigger ヘッダーをエンコードする]
+ヘッダーの値は latin-1 です — em ダッシュや日本語を含む最初のアイテム名
+で、素朴なヘッダーシリアライズはクラッシュします。非 ASCII は JSON の
+`\uXXXX` にエスケープしてください(htmx はネイティブにパースします)。
+ワンライナーは[契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/undo-delete/contract.md)に
+あります。これは `HX-Trigger` を送るすべてのレシピに当てはまります。
+:::
+
+## 取り消しか、確認か
+
+| | [confirm-action](/hypermedia-components/ja/recipes/confirm-action/) | undo-delete |
+| --- | --- | --- |
+| 向くケース | まれ・壊滅的・戻しにくい | 頻繁・復元可能 |
+| コスト | 毎回のダイアログ | サーバ側の猶予窓 |
+| 失敗モード | 確認疲れ | 猶予切れ(エラートースト) |
+
+アクションごとにどちらか 1 つを選んでください — 両方重ねると両方の
+コストを払い、何も得られません。
+
+## 合成とデグラデーション
+
+データグリッドの中では、トゥームストーンは行としてスワップインし、
+tbody のオブザーバーが削除と復元の両方で roles・オフセット・選択を
+導出し直します。トゥームストーンは不活性な残骸で、フルの再描画
+([data-region](/hypermedia-components/ja/recipes/data-region/) の更新、
+ページネーション)があれば刈り取られます。JavaScript なしの環境では、
+フォームフォールバックの削除(`method="post"` + `303`、
+[mutating-form](/hypermedia-components/ja/recipes/mutating-form/) の
+分岐)を残してください — 取り消し自体はトーストが運ぶものなので、
+正直に「利用不可」です。非 JS の削除に保護が必要なら、サーバサイドの
+確認ページを与えてください。
+
+ここでの主張 — 位置を保存する復元、2 つの取り消し待ちにまたがる
+ペアリングキーの分離、失効パス — は、実 htmx のブラウザテスト
+(`test-browser/undo-delete.spec.mjs`)で固定されています。
+
+## 関連
+
+- [確認アクションレシピ](/hypermedia-components/ja/recipes/confirm-action/) — 対になるレシピ。上の判断表。
+- [トーストレシピ](/hypermedia-components/ja/recipes/toast/) — これが乗っているアクションボタンと id による更新。
+- [リクエストアクションレシピ](/hypermedia-components/ja/recipes/request-action/) — ボタンの形。
+- [データグリッド一括操作レシピ](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) — 200-with-truth の原則。

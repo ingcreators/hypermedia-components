@@ -22,6 +22,12 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 5** (#318, docs-facing). Ten
+  recipe pages — the form/action core (request-action, inline-edit,
+  copy, undo-delete, file-upload, multi-step-form, mutating-form,
+  field-errors) and the lazy pair (lazy-panel, lazy-tree). 47 ja pages
+  total; 7 recipe pages remain for the final recipes batch.
+
 - **Docs: Japanese translations, phase 4** (#317, docs-facing). The six
   framework guides — Thymeleaf, Django, Rails, Go, Razor, and
   Hyperscript — completing the integrations section. The `/ja/` docs

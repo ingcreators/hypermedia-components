@@ -1,0 +1,105 @@
+---
+title: マルチステップフォーム
+description: ハイパーメディア版ウィザード — ステップとドラフトはサーバが所有。1 つの領域、ステップ全体のスワップ、名前付きナビ送信、決してバリデートしない「戻る」、そして古典的ページによる非 JS パス。
+---
+
+`multi-step-form` は公認のウィザードです: **現在のステップと、入力
+されたすべてのドラフトをサーバが所有します**。クライアントは 1 つの
+領域(ステップ全体の `outerHTML` スワップ)、ステップごとに 1 つの
+フォーム、そしてレスポンスのたびにサーバが再描画する
+[hc-stepper](/hypermedia-components/ja/components/stepper/) です —
+クライアント側のステップ状態なし、ステップをまたいで蓄積する隠し
+フィールドなし、htmx 以外の JavaScript なし。
+[マークアップのバージョニングポリシー](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)の
+下で安定しています。
+
+## マークアップ(中間ステップ)
+
+```html
+<section id="wizard">
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account
+        <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+
+  <form method="post" action="/signup/2"
+        data-hx-post="/signup/2"
+        data-hx-target="#wizard" data-hx-swap="outerHTML"
+        data-hx-disabled-elt="find button[type=submit]">
+    <div id="wizard-errors"></div>
+    …step 2 fields, pre-filled from the draft…
+    <button class="hc-button" type="submit" name="nav" value="back"
+            formnovalidate>Back</button>
+    <button class="hc-button" data-variant="primary" type="submit"
+            name="nav" value="next">Next</button>
+  </form>
+</section>
+```
+
+ナビの両方向は**同じフォームの名前付き送信**(`name="nav"`)です。
+そのため htmx とネイティブの非 JS パスは同一のボディを送り、現在の
+ステップの入力は常にナビゲーションと一緒に運ばれます。
+
+:::caution[「戻る」は決してバリデートしてはいけない]
+戻るボタンの `formnovalidate` が、荷重を支えるネイティブの細部です:
+これがないと、現在のステップの `required` フィールドがブラウザの
+バリデーションバブルにユーザーを閉じ込めます。あれば「戻る」は常に
+機能します — サーバは届いたものを**ドラフト**として保存し(ドラフトは
+決してバリデートされません。バリデートするのは「次へ」だけ)、
+戻る→次へ の往復は無損失です。`hc validate` は `formnovalidate` の
+ない戻るボタンをエラーにします。
+:::
+
+## サーバレスポンス
+
+| ケース | レスポンス |
+| --- | --- |
+| `nav=next`、有効 | `200` — 次のステップの完全な `#wizard` フラグメント: ステッパー再描画(このステップは `✓` に)、フィールドはドラフトからプリフィル |
+| `nav=back` | `200` — 前のステップのフラグメント。POST されたフィールドは**バリデーションなしで**ドラフトへマージ済み |
+| `nav=next`、無効 | `422` + `HX-Retarget: #wizard-errors` + `HX-Reswap: innerHTML` に [field-errors](/hypermedia-components/ja/recipes/field-errors/) フラグメント — **ステップは再描画されず**、入力途中の値はそのまま |
+| 最終の `nav=next` | [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) の完了: `204` + `HX-Redirect`(htmx)/ `303 Location`(非 JS) |
+
+ステップの URL は本物です(`/signup/1`、`/signup/2`、…): リロードや
+ディープリンクはサーバが考える現在のステップに着地し、JavaScript
+なしではウィザードは単に古典的なページ群になります。
+
+## アクセシビリティ
+
+ステッパーは状態を構造的に伝えます(`<ol>` + `aria-current="step"` +
+sr-only の `(completed)`)。`formnovalidate` がキーボードユーザーを
+閉じ込めから守ります。`422` パスは field-errors のフォーカス管理を
+保ちます。スワップ後に読み上げ順が自然に再開するよう、各フラグメントの
+先頭にステップ見出しを置いてください。
+
+## 補足
+
+- **ドラフトの保存先**(セッション、ドラフト行)はフレームワークの
+  関心事です — 契約が要求するのは、無損失な 戻る→次へ の往復と、
+  バリデートされないドラフトだけです。
+- **file input はドラフトを往復しません** — ファイルは別途
+  アップロードし([file-upload](/hypermedia-components/ja/recipes/file-upload/))、
+  保存済みアップロードへの参照をドラフトに持たせてください。
+- フローが再訪を許すなら、完了済みステップはそのステップ URL への
+  リンクにできます。
+
+ここでの主張 — ステッパーの再描画、無損失なドラフト往復、無効な
+ステップからの「戻る」脱出、値を保つ `422`、完了 — は、実 htmx の
+ブラウザテスト(`test-browser/multi-step-form.spec.mjs`)で固定されて
+います。
+
+## 関連
+
+- [ステッパー](/hypermedia-components/ja/components/stepper/) — ゼロ JS のインジケーター。
+- [ミューテーションフォームレシピ](/hypermedia-components/ja/recipes/mutating-form/) — 完了時の分岐と `422` の許可。
+- [フィールドエラーレシピ](/hypermedia-components/ja/recipes/field-errors/) — バリデーションフラグメント。

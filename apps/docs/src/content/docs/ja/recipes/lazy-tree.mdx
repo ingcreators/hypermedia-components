@@ -1,0 +1,95 @@
+---
+title: レイジーツリー
+description: 空のまま出荷され、初回展開時にサーバレンダリングされた treeitem として子を読み込むツリーの枝 — hc:treeexpand と htmx の once トリガーの組み合わせ。
+---
+
+**レイジーツリー**は深い枝を先送りします:
+[ツリーコンポーネント](/hypermedia-components/ja/components/tree/)は
+**空のグループ**つきで描画され、ユーザーが枝を初めて展開したときに、
+子が サーバレンダリングされた `<li class="hc-tree__item">`
+フラグメントとして届きます。`installTree()` は枝が開くとバブリングする
+**`hc:treeexpand`** を発火し、htmx が `once` トリガーで待ち受けて
+リクエストを所有します — ビヘイビアはネットワークに触れません。
+
+## レイジーな枝
+
+```html
+<li class="hc-tree__item" aria-expanded="false"
+    data-hx-get="/nodes/42/children"
+    data-hx-target="find .hc-tree__group"
+    data-hx-swap="innerHTML"
+    data-hx-trigger="hc:treeexpand once">
+  <span class="hc-tree__row">
+    <span class="hc-tree__toggle" aria-hidden="true"></span>
+    <span class="hc-tree__label">Reports</span>
+  </span>
+  <ul class="hc-tree__group"></ul>
+</li>
+```
+
+- **`hc:treeexpand once`** — htmx は**初回**の展開でだけ取得します。
+  `once` がすべての鍵です: 再度畳んで開いても、読み込み済みの子が
+  追加リクエストなしで表示されます。これがないと、展開のたびに再取得と
+  再スワップが起こり、サブツリーが吹き飛びます。
+- **`find .hc-tree__group`** — `find` はアイテムの*内側*の最初の一致、
+  つまり自身のグループに解決されます。
+- **`innerHTML`** — グループを埋め、ビヘイビアが観測する `<ul>` を
+  保ちます。リクエストの実行中、ビヘイビアは空のグループに
+  `aria-busy="true"` を付けます(CSS のスピナーが描画され、子が届くと
+  クリアされます)。
+- `aria-expanded` は必須です — 枝であることは属性で宣言され、
+  ビヘイビアが `hc:treeexpand` を発火するのは枝の上だけです。
+
+## サーバレスポンス
+
+グループの innerHTML だけ — treeitem のフラグメント群を返します:
+
+```html
+<li class="hc-tree__item">
+  <span class="hc-tree__row">
+    <span class="hc-tree__label"><a href="/reports/summary">summary.pdf</a></span>
+  </span>
+</li>
+```
+
+レスポンス内の入れ子のレイジーな枝は**再帰します**: フラグメントに
+同じ 4 属性と空のグループを与えてください。htmx はセトリング時に
+新しい `data-hx-*` 属性を処理し、ビヘイビアが roles とロービングタブ
+インデックスを再適用するため、スワップインされたアイテムは即座に
+キーボード操作可能です(届いた直後に → で降下できます)。
+
+## 失敗処理
+
+htmx は非 2xx レスポンスをスワップしないため、エラー時には枝は空の
+ままです — そして `once` トリガーは**消費済み**です: 再展開しても
+リトライされません。この制約には正直でいてください:
+
+- 失敗は [`HX-Trigger` トースト](/hypermedia-components/ja/recipes/toast/)で
+  可視化し、サーバ側の信頼性を優先してください。サブツリーが本当に
+  よく失敗するなら、eager に描画するほうが良いです。
+- このレシピはリトライの振り付けで制約を隠す代わりに、制約を
+  ドキュメント化します。
+
+## プログレッシブエンハンスメント
+
+JavaScript なしでは、マークアップは素の入れ子リストです — 描画された
+すべてのリンクが機能し続けます。サーバでツリーを完全展開で描画する
+(レイジーロードは純粋なエンハンスメント)か、各枝のラベルにノード別
+ページへの本物のリンクを与えてください: リンク**こそ**が
+フォールバックです。
+
+## 検証する
+
+このレシピは機械検証されるルールを同梱しています — トリガーの
+`once`、`find .hc-tree__group` ターゲット、innerHTML スワップ、空の
+グループ、宣言された `aria-expanded` は、欠けるとすべてエラーです:
+
+```bash
+npx @hypermedia-components/cli validate page.html
+```
+
+## 関連
+
+- [ツリー](/hypermedia-components/ja/components/tree/) — コンポーネント本体: マークアップ、キーボードモデル、状態、トークン。
+- [レイジーパネル](/hypermedia-components/ja/recipes/lazy-panel/) — 同じ「必要になるまで遅延」を平坦な領域に。
+- [トースト](/hypermedia-components/ja/recipes/toast/) — 消費済みトリガーのエラー可視化。
