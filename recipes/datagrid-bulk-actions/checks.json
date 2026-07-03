@@ -1,0 +1,85 @@
+{
+  "detect": "form:has([data-hc-datagrid-actions])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "select-all-unnamed",
+      "level": "error",
+      "message": "The select-all checkbox must not have a name — it would serialize into the bulk POST.",
+      "attr": {
+        "on": ".hc-datagrid__head input[type=\"checkbox\"]",
+        "name": "name",
+        "assert": "absent"
+      }
+    },
+    {
+      "id": "row-ids-named",
+      "level": "error",
+      "message": "Row checkboxes carry the ids (name=\"ids\" value=\"…\") — that is how the payload travels.",
+      "exists": {
+        "selector": ".hc-datagrid__body input[type=\"checkbox\"][name]"
+      }
+    },
+    {
+      "id": "native-submit",
+      "level": "error",
+      "message": "Action buttons are real submit buttons with name/value so the no-JS post carries the action.",
+      "attr": {
+        "on": "[data-hc-datagrid-actions] button[data-hx-post]",
+        "name": "type",
+        "assert": "present",
+        "value": "submit"
+      }
+    },
+    {
+      "id": "action-named",
+      "level": "error",
+      "message": "Action buttons need name=\"…\" (usually \"action\") — htmx and native submits both send it.",
+      "attr": {
+        "on": "[data-hc-datagrid-actions] button[data-hx-post]",
+        "name": "name",
+        "assert": "present",
+        "matches": "\\S"
+      }
+    },
+    {
+      "id": "keeps-tbody",
+      "level": "error",
+      "message": "Bulk buttons must swap innerHTML into the tbody (keep the element the grid observes). (innerHTML is also the htmx default — omitting the attribute is fine; anything else is not)",
+      "attr": {
+        "on": "[data-hc-datagrid-actions] button[data-hx-post][data-hx-swap]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "innerHTML"
+      }
+    },
+    {
+      "id": "target-resolves",
+      "level": "warn",
+      "message": "data-hx-target must point at an element in the document. (warn: fragments may target elements elsewhere on the page)",
+      "resolves": {
+        "on": "[data-hc-datagrid-actions] button[data-hx-post]",
+        "name": "data-hx-target"
+      }
+    },
+    {
+      "id": "no-js-post",
+      "level": "error",
+      "message": "The form keeps method=\"post\" + action so checking rows and submitting works without JS.",
+      "attr": {
+        "on": "form",
+        "name": "method",
+        "assert": "present",
+        "matches": "^(post|POST)$"
+      }
+    },
+    {
+      "id": "has-count",
+      "level": "warn",
+      "message": "The bar usually shows the selection count ([data-hc-datagrid-count]).",
+      "exists": {
+        "selector": "[data-hc-datagrid-count]"
+      }
+    }
+  ]
+}

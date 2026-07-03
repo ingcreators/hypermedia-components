@@ -1,0 +1,30 @@
+{
+  "detect": "figure.hc-chart[data-hc-chart]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "has-table",
+      "level": "error",
+      "message": "The chart reads a semantic table (the no-JS fallback).",
+      "exists": {
+        "selector": "table"
+      }
+    },
+    {
+      "id": "has-head",
+      "level": "error",
+      "message": "The thead names the x column and the series.",
+      "exists": {
+        "selector": "thead tr"
+      }
+    },
+    {
+      "id": "has-rows",
+      "level": "error",
+      "message": "The tbody holds the data rows.",
+      "exists": {
+        "selector": "tbody tr"
+      }
+    }
+  ]
+}

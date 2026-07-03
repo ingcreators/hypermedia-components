@@ -1,0 +1,25 @@
+{
+  "detect": "[data-sse-connect]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "ext-declared",
+      "level": "error",
+      "message": "The connect scope must enable the extension (data-hx-ext=\"sse\").",
+      "attr": {
+        "on": "[data-sse-connect]",
+        "name": "data-hx-ext",
+        "assert": "present",
+        "matches": "sse"
+      }
+    },
+    {
+      "id": "has-receivers",
+      "level": "warn",
+      "message": "A connect scope usually contains data-sse-swap receivers.",
+      "exists": {
+        "selector": "[data-sse-swap]"
+      }
+    }
+  ]
+}

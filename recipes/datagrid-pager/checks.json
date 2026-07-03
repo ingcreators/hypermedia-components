@@ -1,0 +1,36 @@
+{
+  "detect": "nav.hc-pagination:has([data-hx-get])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "keeps-tbody",
+      "level": "error",
+      "message": "Pager links must swap innerHTML — replacing the tbody itself (outerHTML) detaches the element the grid observes. (innerHTML is also the htmx default — omitting the attribute is fine; anything else is not)",
+      "attr": {
+        "on": "[data-hx-get][data-hx-swap]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "innerHTML"
+      }
+    },
+    {
+      "id": "target-resolves",
+      "level": "warn",
+      "message": "data-hx-target (the tbody) must point at an element in the document. (warn: fragments may target elements elsewhere on the page)",
+      "resolves": {
+        "on": "[data-hx-get]",
+        "name": "data-hx-target"
+      }
+    },
+    {
+      "id": "targets-declared",
+      "level": "error",
+      "message": "Every pager link declares its target tbody.",
+      "attr": {
+        "on": "[data-hx-get]",
+        "name": "data-hx-target",
+        "assert": "present"
+      }
+    }
+  ]
+}

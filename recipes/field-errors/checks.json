@@ -1,0 +1,25 @@
+{
+  "detect": "[data-hc-field-errors]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "announced",
+      "level": "error",
+      "message": "The summary needs role=\"alert\" so the swap is announced.",
+      "attr": {
+        "on": "[data-hc-field-errors]",
+        "name": "role",
+        "assert": "present",
+        "value": "alert"
+      }
+    },
+    {
+      "id": "items-name-fields",
+      "level": "warn",
+      "message": "Error items carry data-field so they can be distributed to their controls.",
+      "exists": {
+        "selector": "[data-field]"
+      }
+    }
+  ]
+}

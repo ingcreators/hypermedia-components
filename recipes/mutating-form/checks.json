@@ -1,0 +1,47 @@
+{
+  "detect": "form[data-hx-post][action]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "keeps-method",
+      "level": "error",
+      "message": "Keep method=\"post\" alongside data-hx-post so a no-JS submit still works.",
+      "attr": {
+        "on": "form",
+        "name": "method",
+        "assert": "present",
+        "matches": "^(post|POST)$"
+      }
+    },
+    {
+      "id": "error-target-resolves",
+      "level": "warn",
+      "message": "data-hx-target (the error container) must point at an element in the document. (warn: fragments may target elements elsewhere on the page)",
+      "resolves": {
+        "on": "form",
+        "name": "data-hx-target"
+      }
+    },
+    {
+      "id": "error-swap-innerhtml",
+      "level": "error",
+      "message": "Swap the field-errors fragment with innerHTML into the error container. (innerHTML is also the htmx default — omitting the attribute is fine; anything else is not)",
+      "attr": {
+        "on": "form[data-hx-target][data-hx-swap]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "innerHTML"
+      }
+    },
+    {
+      "id": "double-submit-guard",
+      "level": "warn",
+      "message": "Disable the submit button during the request (data-hx-disabled-elt).",
+      "attr": {
+        "on": "form",
+        "name": "data-hx-disabled-elt",
+        "assert": "present"
+      }
+    }
+  ]
+}

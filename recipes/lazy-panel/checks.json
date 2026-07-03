@@ -1,0 +1,28 @@
+{
+  "detect": "[data-hx-get][data-hx-trigger*=\"once\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "trigger-form",
+      "level": "error",
+      "message": "The lazy trigger is one of: intersect / toggle from:closest details / reveal.",
+      "attr": {
+        "on": "[data-hx-get][data-hx-trigger*=\"once\"]",
+        "name": "data-hx-trigger",
+        "assert": "present",
+        "matches": "(intersect|toggle|reveal)"
+      }
+    },
+    {
+      "id": "swap-innerhtml",
+      "level": "error",
+      "message": "Swap innerHTML — replace the placeholder, keep the wrapper. (innerHTML is also the htmx default — omitting the attribute is fine; anything else is not)",
+      "attr": {
+        "on": "[data-hx-get][data-hx-trigger*=\"once\"][data-hx-swap]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "innerHTML"
+      }
+    }
+  ]
+}

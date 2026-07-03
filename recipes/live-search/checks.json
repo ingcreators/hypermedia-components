@@ -1,0 +1,54 @@
+{
+  "detect": "form[role=\"search\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "no-js-get",
+      "level": "error",
+      "message": "The form needs an action so search works without JavaScript (GET).",
+      "attr": {
+        "on": "form",
+        "name": "action",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "input-wired",
+      "level": "error",
+      "message": "The search input carries data-hx-get.",
+      "exists": {
+        "selector": "input[data-hx-get]"
+      }
+    },
+    {
+      "id": "debounced",
+      "level": "error",
+      "message": "Debounce typing (data-hx-trigger with delay:…).",
+      "attr": {
+        "on": "input[data-hx-get]",
+        "name": "data-hx-trigger",
+        "assert": "present",
+        "matches": "delay:"
+      }
+    },
+    {
+      "id": "target-resolves",
+      "level": "warn",
+      "message": "data-hx-target (the results container) must point at an element in the document. (warn: fragments may target elements elsewhere on the page)",
+      "resolves": {
+        "on": "input[data-hx-get]",
+        "name": "data-hx-target"
+      }
+    },
+    {
+      "id": "sync-replace",
+      "level": "warn",
+      "message": "Cancel stale in-flight requests (data-hx-sync=\"closest form:replace\").",
+      "attr": {
+        "on": "input[data-hx-get]",
+        "name": "data-hx-sync",
+        "assert": "present"
+      }
+    }
+  ]
+}

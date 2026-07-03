@@ -1,0 +1,28 @@
+{
+  "detect": "[data-hx-get][data-hx-trigger=\"click\"][data-hx-target=\"this\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "has-id",
+      "level": "error",
+      "message": "Display and edit fragments share the same id — the outerHTML swap replaces the whole node each way.",
+      "attr": {
+        "on": "[data-hx-get][data-hx-target=\"this\"]",
+        "name": "id",
+        "assert": "present",
+        "matches": "\\S"
+      }
+    },
+    {
+      "id": "swap-outerhtml",
+      "level": "error",
+      "message": "Inline edit swaps outerHTML — fragments replace the whole node each way (the default innerHTML would nest the edit form inside the display node).",
+      "attr": {
+        "on": "[data-hx-get][data-hx-target=\"this\"]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
+    }
+  ]
+}

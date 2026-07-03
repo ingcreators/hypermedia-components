@@ -1,6 +1,6 @@
 # `hc validate` — machine-checked recipe contracts (CLI)
 
-Status: **approved; implementation pending (one PR after this plan, §8).**
+Status: **shipped — engine + checks for every recipe + CI wiring (#286).**
 Net-new scope. The recipes' "markup as wire contract" stance is
 documented prose today; this plan makes it **machine-checkable**:
 `npx @hypermedia-components/cli validate` verifies local HTML against
