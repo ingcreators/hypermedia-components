@@ -1,0 +1,397 @@
+---
+title: htmx
+description: 共有の htmx 設定 — バージョン、属性スタイル、CSRF、レスポンスヘッダー、Hypermedia Components のビヘイビアが待ち受けるイベント。各フレームワークガイドは同じ注意書きを繰り返す代わりにこのページを参照します。
+---
+
+Hypermedia Components は [htmx](https://htmx.org) を中心に構築されて
+います。フレームワークガイドはサーバサイドの糊を扱います。このページは、
+どのテンプレートエンジンを使っていても同じである htmx 側の関心事を
+集めています。
+
+## htmx の読み込み
+
+htmx は単一の約 30 KB(minify + gzip)のファイルです。`data-hx-*`
+属性を使うマークアップより前にページへ置いてください:
+
+```html
+<script defer src="/assets/htmx.min.js"></script>
+```
+
+リリースをコピーするときはメジャーバージョンを固定してください。
+私たちがターゲットにしているのは htmx 2.x 系です。
+
+## `hx-*` より `data-hx-*`
+
+Hypermedia Components のドキュメントは、`hx-*` よりも(HTML5 準拠形の)
+`data-hx-*` を選びます。どちらも動きます — htmx は両方をサポートします —
+が、`data-hx-*` は厳格なリンターを通り、HTML 仕様に対して妥当で、
+カスタム属性をエスケープするテンプレートエンジンをきれいに往復する
+傾向があります。
+
+```html
+<!-- Preferred -->
+<button data-hx-post="/items">Save</button>
+
+<!-- Also valid -->
+<button hx-post="/items">Save</button>
+```
+
+どちらかを選んでプロジェクト内で一貫させてください。同じマークアップ
+内での混在は htmx 的には問題ありませんが、grep しづらくなります。
+
+## CSRF トークン — 公認の規約
+
+サーバフレームワークは、状態を変えるブラウザリクエストを CSRF トークンで
+検証します。通常はリクエストヘッダーで運びます。Hypermedia Components は
+1 つの規約を公認し、各アプリが独自の配線を発明する代わりに、サーバ
+フレームワークやコードジェネレーターが安定したマークアップターゲットを
+持てるようにしています:
+
+1. **キャリア** — サーバのレイアウトが `<head>` のメタタグにトークンを
+   描画します:
+
+   ```html
+   <meta name="csrf-token" content="{{ csrf_token }}">
+   ```
+
+2. **添付** — 自動初期化の `@hypermedia-components/core/behaviors`
+   バンドルに同梱される `installCsrfHeader()` が、`htmx:configRequest`
+   のたびにそのメタタグを読み、ヘッダーをリクエストに追加します。
+   バンドルの読み込み以外にアプリごとの JavaScript は不要です:
+
+   ```html
+   <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
+   ```
+
+ヘッダー名のデフォルトは **`X-CSRF-Token`**(Rails の規約)です。別の
+名前を期待するバックエンドでは、キャリア側で設定します — コード変更
+なしで:
+
+```html
+<!-- Django -->
+<meta name="csrf-token" content="{{ csrf_token }}" data-header="X-CSRFToken">
+```
+
+ビヘイビアが保証すること:
+
+- **リクエスト時に読む**ため、ローテーションされたトークン(メタタグに
+  スワップされた新しい値)は自動で拾われます — インストール時に何も
+  キャプチャしません。
+- **すべての htmx リクエスト**が運びます(非 GET だけではありません)。
+  GET に同一オリジンのヘッダーが付いても無害です。サーバは強制する
+  ところでだけ強制すればよく、これで動詞分類のエッジケースを回避します。
+- **明示的なヘッダーが勝ちます。** 同名ヘッダーへのリクエスト単位の
+  [`data-hx-headers`](#ページ単位--リクエスト単位の上書き) の値が
+  上書きされることはありません。
+- **メタタグなし → 何もしません。** オプトインしないページのコストは
+  ゼロです。
+
+:::caution[素のフォームには別の仕組みが必要]
+`installCsrfHeader()` が触るのは htmx リクエストだけです。非 JS の
+`<form method="post">` は `htmx:configRequest` を発火しないため、
+フレームワークの**隠し CSRF フィールド**も併せて運ぶ必要があります —
+非 JS 送信のために `method`/`action` を保つ生成フォームは、両方を
+出力すべきです。
+:::
+
+### `htmx:configRequest` で自前実装
+
+ビヘイビアを載せたくない場合 — あるいは他のヘッダーを重ねたい場合 —
+根底にあるフックは `htmx:configRequest` です。リクエストごとに一度、
+htmx がフォームデータとヘッダーをシリアライズする前に発火し、認証・
+ロケール・フィーチャーフラグのヘッダーを足すのに一番便利な場所です:
+
+```html
+<script>
+  document.body.addEventListener('htmx:configRequest', (event) => {
+    // CSRF — equivalent to installCsrfHeader(), done by hand.
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta) {
+      event.detail.headers['X-CSRF-Token'] = csrfMeta.content;
+    }
+
+    // Locale, feature flag, anything else…
+    event.detail.headers['Accept-Language'] = document.documentElement.lang;
+  });
+</script>
+```
+
+各バックエンドが期待する正確なヘッダー名(Django は `X-CSRFToken`、
+Rails は `X-CSRF-Token`、ASP.NET Core は `RequestVerificationToken`、
+Spring Security は `_csrf` のヘッダー / トークンのメタペア、…)は
+フレームワークガイドに明記しています。スタックに合ったものを選んで
+ください — `data-header` 属性もこのフックも、それをターゲットにします。
+
+### ページ単位 / リクエスト単位の上書き
+
+一度きりの上書き(1 つのボタンにだけ乗せたいヘッダー)には、代わりに
+`data-hx-headers` 属性を使います。JSON オブジェクトを受け取り、設定済み
+ヘッダーへマージされます。
+
+```html
+<button
+  class="hc-button"
+  data-hx-post="/items"
+  data-hx-headers='{"X-Source":"hero"}'>
+  Save
+</button>
+```
+
+## サーバサイドでの htmx 検知
+
+すべての htmx リクエストは `HX-Request: true` を設定します。ハンドラは
+これで分岐し、フルページ(ブラウザナビゲーション)かフラグメントだけ
+(htmx スワップ)を返します:
+
+```text
+GET /items
+  HX-Request: true  → return rows fragment
+  (no header)       → return full page with layout + chrome
+```
+
+ヘッダーの判定方法は各フレームワークに慣用的な書き方があります —
+スニペットはフレームワークガイドを参照してください。
+
+## htmx が理解するレスポンスヘッダー
+
+htmx はレスポンス中のひと握りのヘッダーを見て、スワップの処理を変え
+ます。Hypermedia Components が常用するのは 3 つです:
+
+### `HX-Trigger` — ページへイベントを発火
+
+イベント名 → detail の JSON マップを返します。htmx はスワップ完了後に
+各イベントを `<body>` 上で発火します。
+[トーストレシピ](/hypermedia-components/ja/recipes/toast/)が DOM 上の
+位置に結合せずに通知を届けるのはこの仕組みです:
+
+```text
+HTTP/1.1 200 OK
+HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}
+```
+
+1 つのレスポンスに複数のイベントを載せるには、JSON オブジェクト内に
+カンマ区切りのエントリを並べます:
+
+```text
+HX-Trigger: {"hc:toast":{"message":"Saved"}, "items:refresh":true}
+```
+
+### `HX-Reswap` — スワップ戦略の変更
+
+```text
+HTTP/1.1 422 Unprocessable Entity
+HX-Reswap: outerHTML
+```
+
+元のスワップは `innerHTML` だったが、新しい HTML は丸ごとの置き換えで
+ある、というバリデーションレスポンスに便利です。
+
+### `HX-Retarget` — スワップ先の変更
+
+```text
+HTTP/1.1 500 Internal Server Error
+HX-Retarget: #flash
+HX-Reswap: innerHTML
+```
+
+元のターゲットではエラーが隠れてしまうとき、スワップをフラッシュ領域へ
+振り向けます。
+
+## HC ビヘイビアが待ち受けるイベント
+
+docs サイトをビルドしたりソースを読んだりすると、ビヘイビアが少数の
+htmx イベントにフックしていることに気づくはずです:
+
+| イベント             | 使用者                 | 何をトリガーするか                                 |
+| -------------------- | ---------------------- | -------------------------------------------------- |
+| `htmx:configRequest` | `installCsrfHeader`    | ページの CSRF トークン(`<meta name="csrf-token">`)をリクエストヘッダーとして添付 — [上の規約](#csrf-トークン--公認の規約)を参照。 |
+| `htmx:afterRequest`  | `installCloseDialog` / `installClosePopover` | 成功レスポンスで最寄りの `<dialog>` / `[popover]` を閉じる。 |
+| `htmx:afterSwap`     | `installRemoteDialog`  | `[data-hc-remote-dialog-root]` 内に現れたばかりの `<dialog>` を開く。 |
+| `htmx:sseBeforeMessage` | `installSseDispatch` | SSE イベントをスワップではなく DOM `CustomEvent` へ橋渡し — 下の [Server-Sent Events](#server-sent-events) を参照。 |
+| `htmx:xhr:progress` | `installUploadProgress` | リクエスト元フォーム内の `<progress data-hc-upload-progress>` をアップロード進捗で駆動(リクエスト内で単調 — file-upload レシピを参照)。 |
+| `hc:toast`           | `installToast`         | トーストを領域へ描画。(htmx のイベントではありませんが、通常は `HX-Trigger` 経由で htmx が発火します。) |
+
+これらを直接扱う必要は普通ありません。デバッグ用、および独自の htmx
+ミドルウェアを差し込みたいプロジェクトのために列挙しています。
+
+## Server-Sent Events
+
+サーバプッシュ(ユーザーが操作したからではなく「サーバがそう言ったから
+ページが更新される」)には、公式の
+[htmx SSE 拡張](https://htmx.org/extensions/sse/)を htmx の隣に読み込み
+ます — 固定の推奨は htmx 本体と同じです:
+
+```html
+<script defer src="/assets/htmx.min.js"></script>
+<script defer src="/assets/sse.min.js"></script>
+```
+
+ストリームごとに 1 つの `data-sse-connect` スコープ。内側の要素は、
+どの名前付きイベントを受け取るかを `data-sse-swap` で宣言します
+(拡張は `data-` プレフィックス形をサポートし、
+[`data-hx-*` の規約](#hx--より-data-hx-)と揃います):
+
+```html
+<div data-hx-ext="sse" data-sse-connect="/events">
+  <!-- server-rendered fragments swap in, honouring data-hx-swap -->
+  <section id="activity" data-sse-swap="activity:item"
+           data-hx-swap="afterbegin">…</section>
+
+  <!-- JSON payloads become DOM events instead of swaps -->
+  <span hidden data-hc-sse-dispatch
+        data-sse-swap="hc:toast, items:changed"></span>
+</div>
+```
+
+2 つ目の要素が**ブリッジ**です: `installSseDispatch()`(自動初期化の
+`./behaviors` バンドルに同梱)が `[data-hc-sse-dispatch]` 要素上の
+スワップをキャンセルし、SSE イベントをバブリングする `CustomEvent`
+として発火し直します — SSE のイベント名が DOM のイベント名になり、
+JSON ペイロードが `detail` になります。`event: hc:toast` はトーストを
+表示し、`event: items:changed` はそれを待ち受けるデータ領域を再取得
+させます。ページが `data-sse-swap` に列挙したイベント名だけが発火可能
+で、ペイロードは JSON **オブジェクト**でなければなりません(空データは
+`{}`、それ以外は破棄)。
+
+接続ライフサイクルは htmx ネイティブです: `EventSource` は自動で再接続
+し(サーバの `retry:` ヒントを尊重、拡張がバックオフを追加)、
+`data-sse-close="<event>"` でサーバからストリームを終了でき、
+`htmx:sseOpen` / `htmx:sseError` / `htmx:sseClose` をデバッグ用に観測
+できます。拡張は `withCredentials: true` で接続することに注意 —
+クッキーが同乗します。クロスオリジンのストリームには
+`Access-Control-Allow-Credentials` が必要です。
+
+レシピは公認の 2 パターンをエンドツーエンドで扱います: sse-updates
+(フラグメント、out-of-band プッシュ、データグリッド構成)と sse-toast
+(サーバプッシュ通知 + 領域の無効化)です。
+
+## 空ボディは正当
+
+破壊系エンドポイントの多くは、空ボディ + `HX-Trigger` ヘッダーを
+返します:
+
+```text
+HTTP/1.1 200 OK
+HX-Trigger: {"hc:toast":{"message":"Deleted.","variant":"success"}}
+
+(empty body)
+```
+
+クライアント側のスワップは通常、削除された行の `outerHTML` なので、
+ボディの内容にかかわらず htmx が行を取り除きます — そもそもボディには
+スワップするものが何もありません。
+
+## インジケーター
+
+`data-hx-indicator` は、リクエストの実行中にオンになるべき要素を指し
+ます。HC の規約はこれを `.hc-action` ラッパー内の
+`.hc-spinner.htmx-indicator` と組み合わせます — 正準形は
+[`request-action` レシピ](/hypermedia-components/ja/recipes/request-action/)を
+参照してください。
+
+```html
+<span class="hc-action">
+  <button
+    class="hc-button"
+    data-hx-post="/items"
+    data-hx-target="#items"
+    data-hx-disabled-elt="this"
+    data-hx-indicator="closest .hc-action">
+    Save
+  </button>
+  <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+</span>
+```
+
+`hc.htmx.css` が `.htmx-indicator`(デフォルト非表示)と
+`.htmx-request`(実行中状態)をスタイルするため、配線は純粋に宣言的
+です。
+
+## リクエスト中のコントロール無効化
+
+`data-hx-disabled-elt="this"` は、リクエスト中にネイティブの `disabled`
+属性を追加します。カスタム JS なしで二重送信を防ぎ、上のスピナー
+パターンと自然に組み合います。破壊的アクションでは `data-hc-confirm`
+([`confirm-action` レシピ](/hypermedia-components/ja/recipes/confirm-action/))と
+組み合わせてください。
+
+## よくあるパターン — どのレシピが何に答えるか
+
+あらゆるハイパーメディアアプリが最終的に尋ねる質問と、それぞれへの
+公認の答え:
+
+| やりたいこと | 使うもの | 備考 |
+| --- | --- | --- |
+| 領域の自動更新(ポーリング / イベント) | [`data-region`](/hypermedia-components/ja/recipes/data-region/) | `data-hx-trigger="load, every 15s"`、`HX-Trigger` によるイベント駆動、`hx-select` での領域丸ごと自己置換(下記)。 |
+| ビジーインジケーター + 二重送信ガード | [`request-action`](/hypermedia-components/ja/recipes/request-action/) | `data-hx-indicator` + `data-hx-disabled-elt` — [インジケーター](#インジケーター)を参照。 |
+| 破壊的リクエストの前に確認 | [`confirm-action`](/hypermedia-components/ja/recipes/confirm-action/) | ゲートはイベントベース — [下の仕様](#確認ゲートの仕様)を読んでください。 |
+| インラインのサーババリデーションエラー | [`field-errors`](/hypermedia-components/ja/recipes/field-errors/) | ドキュメント化された 422 フラグメント + `installFieldErrors()` — [非 2xx レスポンス](#バリデーションエラーと非-2xx-レスポンス)を参照。 |
+| リクエスト後の通知 | [`toast`](/hypermedia-components/ja/recipes/toast/) | 任意のエンドポイントから `HX-Trigger: {"hc:toast": …}`。 |
+| ダイアログへコンテンツを読み込み | [`remote-dialog`](/hypermedia-components/ja/recipes/remote-dialog/) | `[data-hc-remote-dialog-root]` へスワップ。 |
+
+## 確認ゲートの仕様
+
+`data-hc-confirm` と htmx は 1 つのルールで合成されます: **ビヘイビアが
+アクティベーションをインターセプトし、htmx は `hc:confirmed` を
+待ち受ける**。
+
+```html
+<button class="hc-button" data-variant="error"
+        data-hc-confirm="Disable user alice?"
+        data-hx-post="/users/alice/disable"
+        data-hx-trigger="hc:confirmed"
+        data-hx-target="#user-row">
+  Disable user
+</button>
+```
+
+正確なセマンティクス(ブラウザテスト済み):
+
+1. `installConfirm()` はクリックを**キャプチャフェーズ**で
+   インターセプトします(`preventDefault` + `stopPropagation`)。
+   そのため他のクリックハンドラ — htmx を含む — がそれを観測することは
+   ありません。共有ダイアログが開きます。
+2. **キャンセル** → それ以上何も起きません。リクエストなし。
+3. **承認** → トリガー要素上でバブリングする `hc:confirmed` イベントが
+   発火されます。`data-hx-trigger="hc:confirmed"` で配線された htmx が、
+   ここでリクエストを発行します。
+4. したがって、確認つき要素には `data-hx-trigger="hc:confirmed"` が
+   **必須**です。デフォルトのクリックトリガーのままだと、その要素は
+   htmx にとって不活性です — クリックは届かず、確認イベントも待ち受けて
+   いません。
+5. `hx-confirm` と**組み合わせないでください**: htmx はアクティベーションを
+   観測しないため、`hx-confirm` は決して実行されません。機構は 1 つに。
+6. インターセプトは委譲(document レベル)なので、htmx でスワップイン
+   されたボタンも再初期化なしで確認ゲートを通ります。
+
+## バリデーションエラーと非 2xx レスポンス
+
+htmx ≥ 2 はデフォルトで非 2xx レスポンスをスワップしません。
+[`field-errors`](/hypermedia-components/ja/recipes/field-errors/) の契約
+(ドキュメント化された `hc-alert` フラグメントを返す `422`)のためには、
+一度だけグローバルにスワップを許可します:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+JS 不要の代替: エラーフラグメントを `200` で返すか、
+`HX-Retarget: #form-errors` + `HX-Reswap: innerHTML` を送って
+レスポンスをエラーコンテナへ誘導します
+([レスポンスヘッダー](#htmx-が理解するレスポンスヘッダー))。
+
+## 関連
+
+- [Plain HTML](/hypermedia-components/ja/integrations/) — 最小のアセット
+  配置(インテグレーション index からリンク)。
+- [Hyperscript](/hypermedia-components/ja/integrations/hyperscript/) —
+  HC のビヘイビアと同じやり方で htmx と組み合う、任意のスクリプト言語。
+- フレームワークガイド — Thymeleaf、Django、Rails、Go、Razor — いずれも
+  上の規約を継承し、言語固有の糊を足します。
+- [htmx ドキュメント](https://htmx.org/docs/) — ここに列挙したすべての
+  属性とヘッダーの上流リファレンス。

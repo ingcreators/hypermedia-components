@@ -1,0 +1,129 @@
+---
+title: ステータスカラー
+description: テーマを認識する semantic ステータスパレット — と、それをテーブルセル・行・素のテキストなど任意の要素に適用する .hc-status ユーティリティ。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+5 つの**ステータスインテント** — `neutral`、`info`、`success`、
+`warning`、`error` — がそれぞれ `bg` / `fg` / `border` の 3 点セットを
+持ち、[`data-theme`](/hypermedia-components/ja/tokens/themes/)で切り替わり
+ます。[アラート](/hypermedia-components/ja/components/alert/)、
+[バッジ](/hypermedia-components/ja/components/badge/)、
+[トースト](/hypermedia-components/ja/components/toast/)などの
+コンポーネントは、バリアントをこれらのトークン経由で解決します。下の
+`.hc-status` ユーティリティは同じパレットを**任意の要素** — テーブル
+セル、行全体、1 行のテキスト — に適用するため、サーバが計算した
+ステータスに生の hex 値や手書きのダークモード上書きは不要です。
+
+## トークン
+
+| トークン | CSS 変数 |
+| --- | --- |
+| `semantic.color.status.{intent}.bg` | `--hc-color-status-{intent}-bg` |
+| `semantic.color.status.{intent}.fg` | `--hc-color-status-{intent}-fg` |
+| `semantic.color.status.{intent}.border` | `--hc-color-status-{intent}-border` |
+
+`{intent}` は `neutral | info | success | warning | error` のいずれか。
+ライトの値はティント(背景 `*-50`、テキスト `*-800`)で、
+`[data-theme="dark"]` の下ではダークティント(背景 `*-950`、テキスト
+`*-200`)として再出力されます。そのため `fg` は、単独のテキストとして
+**も**、対になる `bg` の上でも、両テーマで機能します。
+
+## `.hc-status` ユーティリティ
+
+`.hc-status` は要素のテキストをインテントの `fg` で着色します。
+インテントはいつもの `data-variant` です(省略 = neutral)。`data-fill`
+を足すと、対になるティント背景が付きます。
+
+<Demo>
+  <span class="hc-status" data-variant="info">deploying</span>
+  <span class="hc-status" data-variant="success">completed</span>
+  <span class="hc-status" data-variant="warning">degraded</span>
+  <span class="hc-status" data-variant="error">failed</span>
+  <span class="hc-status" data-variant="success" data-fill style="padding:.125rem .5rem;border-radius:999px;">active</span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-status" data-variant="success">completed</span>
+  <span class="hc-status" data-variant="error">failed</span>
+
+  <!-- data-fill adds the paired tinted background -->
+  <span class="hc-status" data-variant="success" data-fill>active</span>
+  ```
+
+  </Fragment>
+</Demo>
+
+### テーブルのセルと行
+
+サーバレンダリングでよくあるケース: クラスがサーバ側で計算される
+ステータス列と、注意が必要なレコードの行ハイライトです。
+[テーブル](/hypermedia-components/ja/components/table/)の中で機能します
+(行の塗りはテーブルのホバー背景にも勝ちます):
+
+<Demo>
+  <table class="hc-table" style="max-inline-size:28rem;">
+    <thead>
+      <tr><th>Job</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>nightly-sync</td>
+        <td class="hc-status" data-variant="success">completed</td>
+      </tr>
+      <tr class="hc-status" data-variant="error" data-fill>
+        <td>outbox-dispatch</td>
+        <td class="hc-status" data-variant="error">failed</td>
+      </tr>
+      <tr>
+        <td>reindex</td>
+        <td class="hc-status" data-variant="info">running</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- status text in a cell (class computed server-side) -->
+  <td class="hc-status" data-variant="success">completed</td>
+
+  <!-- whole-row highlight -->
+  <tr class="hc-status" data-variant="error" data-fill>
+    <td>outbox-dispatch</td>
+    <td class="hc-status" data-variant="error">failed</td>
+  </tr>
+  ```
+
+  </Fragment>
+</Demo>
+
+Thymeleaf / JSP / ERB のテンプレートはバリアントを直接バインドします:
+
+```html
+<td class="hc-status" th:attr="data-variant=${job.statusVariant}"
+    th:text="${job.status}"></td>
+```
+
+…生の hex カラーと重複した `[data-theme="dark"]` 上書きを持つステータス
+別クラスの置き換えです — テーマの切り替えはトークンが運びます。
+
+## アクセシビリティ
+
+- `fg` の値は、デフォルトのページ / 面背景の上の単独テキストとしても、
+  対になる `bg` の上でも、両テーマで WCAG AA(≥ 4.5:1)を満たします。
+- 色だけをメッセージにしないでください: ステータスの**テキスト**を保って
+  ください(緑の点について axe は何も言いませんが、ユーザーは困ります)。
+  枠線つきのピル型ラベルには、代わりに
+  [バッジ](/hypermedia-components/ja/components/badge/)を使ってください。
+
+## 関連
+
+- [テーマ](/hypermedia-components/ja/tokens/themes/) — `data-theme` が
+  パレットを切り替える仕組み。
+- [アラート](/hypermedia-components/ja/components/alert/) /
+  [バッジ](/hypermedia-components/ja/components/badge/) /
+  [トースト](/hypermedia-components/ja/components/toast/) — 同じトークンの
+  上に構築されたコンポーネント。

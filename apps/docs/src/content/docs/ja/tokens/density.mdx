@@ -1,0 +1,363 @@
+---
+title: 密度
+description: data-density 属性 1 つで UI 全体を comfortable・compact・dense のサイズ階層で切り替え。コントロールはコンテナのパディングやギャップと足並みを揃えて縮むため、どの階層でもレイアウトのバランスが保たれます。
+---
+
+`<html>`(または任意の祖先)の `data-density` 属性は、サブツリー全体の
+コントロールサイズ**と**コンテナのパディング / ギャップを切り替えます。
+計画 §9.3 が規定するのは 2 つのコントロール変数ですが、
+Hypermedia Components は同じ属性をひと握りのコンテナ変数にも拡張して、
+レイアウトが均等に締まる / 緩むようにしています — それがないと、ボタンは
+縮むのに周囲のカードやダイアログはゆったりしたままで、ちぐはぐに
+感じられるからです。
+
+## コントロールサイズ(計画 §9.3)
+
+| 属性                                      | `--hc-control-height` | `--hc-control-padding-x` |
+| ----------------------------------------- | --------------------- | ------------------------- |
+| *(なし)* / `[data-density="comfortable"]` | `40px`                | `1rem`(16px)             |
+| `[data-density="compact"]`                | `32px`                | `0.75rem`(12px)          |
+| `[data-density="dense"]`                  | `28px`                | `0.5rem`(8px)            |
+
+[`hc-button`](/hypermedia-components/ja/components/button/) と
+[`hc-input`](/hypermedia-components/ja/components/input/) は、自身の
+カスタムプロパティの `var()` 間接参照を通じてこれらを参照します。
+カスケードはこう流れます: `data-density` → `--hc-control-*` →
+`--hc-button-*` / `--hc-input-*` → 描画されたコントロール。
+
+## コンテナサイズ
+
+同じ密度属性は、コンテナのパディングと要素間ギャップも上書きします。
+これらの変数は component レイヤーに属しますが、密度ファイルが同じ名前を
+より高い詳細度のセレクタで出力するため、上書きは自動的にカスケード
+します:
+
+| 変数                                              | Comfortable | Compact | Dense |
+| ------------------------------------------------- | ----------- | -------- | ------ |
+| `--hc-field-gap`                                  | 8 px        | 6 px     | 4 px  |
+| `--hc-toolbar-gap` / `padding-y`                  | 8 px        | 6 px     | 4 px  |
+| `--hc-toolbar-padding-x`                          | 12 px       | 8 px     | 6 px  |
+| `--hc-card-padding`                               | 16 px       | 12 px    | 8 px  |
+| `--hc-dialog-padding`                             | 16 px       | 12 px    | 8 px  |
+| `--hc-dialog-gap`                                 | 12 px       | 8 px     | 6 px  |
+| `--hc-popover-padding`                            | 12 px       | 8 px     | 6 px  |
+| `--hc-alert-padding-block`                        | 12 px       | 8 px     | 6 px  |
+| `--hc-alert-padding-inline`                       | 16 px       | 12 px    | 8 px  |
+| `--hc-alert-gap`                                  | 8 px        | 6 px     | 4 px  |
+| `--hc-toast-padding-y`                            | 12 px       | 8 px     | 6 px  |
+| `--hc-toast-padding-x`                            | 16 px       | 12 px    | 8 px  |
+| `--hc-toast-gap`                                  | 8 px        | 6 px     | 4 px  |
+| `--hc-table-cell-padding-y`                       | 8 px        | 6 px     | 4 px  |
+| `--hc-table-cell-padding-x`                       | 12 px       | 8 px     | 6 px  |
+| `--hc-checkbox-size`                              | 18 px       | 16 px    | 14 px |
+| `--hc-radio-size`                                 | 18 px       | 16 px    | 14 px |
+
+表にないトークン(角丸、フォントサイズ、バッジ / ページネーションの
+パディング、ダイアログの最大幅など)は、意図的に密度**非対応**です。
+目的はレイアウトを締めることであって、スタイルを変えることでは
+ありません。
+
+チェックボックス / ラジオのサイズは `18 → 16 → 14 px` と段階します。
+dense のターゲット(14 px)は快適なクリックサイズの境界ぎりぎりです —
+デスクトップのキーボード主体なデータ入力 UI には十分ですが、タッチ
+ユーザーが含まれるなら周囲のコントロールを大きめにしてください。
+
+`sm` と `lg` のサイズバリアントは密度階層と足並みを揃えて移動するため、
+相対順序 `sm < md < lg` はどの密度でも保たれます。正確な値:
+
+| コンポーネント | 密度          | `sm`     | `md`(デフォルト) | `lg`     |
+| ---------- | ------------- | -------- | --------------- | -------- |
+| ボタン     | comfortable   | 32 px    | 40 px           | 48 px    |
+| / インプット | compact       | 28 px    | 32 px           | 40 px    |
+| 高さ       | dense         | 24 px    | 28 px           | 32 px    |
+| ボタン     | comfortable   | 12 px    | 16 px           | 20 px    |
+| / インプット | compact       | 8 px     | 12 px           | 16 px    |
+| padding-x  | dense         | 6 px     | 8 px            | 12 px    |
+| チェックボックス | comfortable   | 14 px    | 18 px           | 22 px    |
+| / ラジオ   | compact       | 12 px    | 16 px           | 20 px    |
+| サイズ     | dense         | 12 px    | 14 px           | 18 px    |
+
+以前のイテレーションでは、「明示的な `data-size` は相対でなく絶対で
+あるべき」という理屈で `sm` と `lg` を密度階層をまたいで固定して
+いました。それは逆転を生みました: dense 密度でデフォルトの `md` ボタンが
+28 px に下がる一方 `sm` は 32 px のままで、サイズの順序が壊れたのです。
+現在の挙動は `sm / md / lg` をアクティブな密度の中での**相対的な強調**
+として扱います。
+
+comfortable がデフォルトです。セレクタ
+`:root, [data-density="comfortable"]` により値は無条件に適用されるため、
+明示的な `data-density="comfortable"` と属性なしはまったく同じに
+振る舞います。
+
+## ライブプレビュー — コントロール
+
+以下の 3 つのプレビューは、同じ `<button>` / `<input>` HTML を、異なる
+`data-density` 属性を持つコンテナの中で描画しています。
+
+### Comfortable(デフォルト)
+
+<div class="hc-preview not-content" data-density="comfortable" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+  <button class="hc-button" data-variant="primary">Submit</button>
+  <button class="hc-button">Cancel</button>
+  <input class="hc-input" type="text" placeholder="Type…" style="inline-size:14rem;" />
+</div>
+
+### Compact
+
+<div class="hc-preview not-content" data-density="compact" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+  <button class="hc-button" data-variant="primary">Submit</button>
+  <button class="hc-button">Cancel</button>
+  <input class="hc-input" type="text" placeholder="Type…" style="inline-size:14rem;" />
+</div>
+
+### Dense
+
+<div class="hc-preview not-content" data-density="dense" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+  <button class="hc-button" data-variant="primary">Submit</button>
+  <button class="hc-button">Cancel</button>
+  <input class="hc-input" type="text" placeholder="Type…" style="inline-size:14rem;" />
+</div>
+
+## ライブプレビュー — コンテナ
+
+カード、アラート、ツールバーも属性を拾います。内部のパディングと
+ギャップがコントロールと足並みを揃えて締まり、視覚的リズムが比例して
+保たれることに注目してください。
+
+### Comfortable(デフォルト)
+
+<div class="hc-preview not-content" data-density="comfortable" style="display:grid;gap:.75rem;">
+  <div class="hc-card">
+    <div class="hc-card__header">
+      <h3 class="hc-card__title" style="margin:0;">Plan summary</h3>
+    </div>
+    <div class="hc-card__body">
+      Three seats, monthly billing.
+    </div>
+    <div class="hc-card__footer">
+      <button class="hc-button">Cancel</button>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </div>
+  </div>
+  <div class="hc-alert" data-variant="warning">
+    <strong>Heads up.</strong> Two of three seats are unassigned.
+  </div>
+</div>
+
+### Compact
+
+<div class="hc-preview not-content" data-density="compact" style="display:grid;gap:.75rem;">
+  <div class="hc-card">
+    <div class="hc-card__header">
+      <h3 class="hc-card__title" style="margin:0;">Plan summary</h3>
+    </div>
+    <div class="hc-card__body">
+      Three seats, monthly billing.
+    </div>
+    <div class="hc-card__footer">
+      <button class="hc-button">Cancel</button>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </div>
+  </div>
+  <div class="hc-alert" data-variant="warning">
+    <strong>Heads up.</strong> Two of three seats are unassigned.
+  </div>
+</div>
+
+### Dense
+
+<div class="hc-preview not-content" data-density="dense" style="display:grid;gap:.75rem;">
+  <div class="hc-card">
+    <div class="hc-card__header">
+      <h3 class="hc-card__title" style="margin:0;">Plan summary</h3>
+    </div>
+    <div class="hc-card__body">
+      Three seats, monthly billing.
+    </div>
+    <div class="hc-card__footer">
+      <button class="hc-button">Cancel</button>
+      <button class="hc-button" data-variant="primary">Save</button>
+    </div>
+  </div>
+  <div class="hc-alert" data-variant="warning">
+    <strong>Heads up.</strong> Two of three seats are unassigned.
+  </div>
+</div>
+
+## ライブプレビュー — テーブルとフォームコントロール
+
+密度が真価を発揮する場所: データテーブルは目に見えて締まり、
+チェックボックス / ラジオのグリフも周囲のコントロールと一緒に縮むため、
+フォームの視覚的リズムが保たれます。
+
+### Comfortable(デフォルト)
+
+<div class="hc-preview not-content" data-density="comfortable" style="display:grid;gap:.75rem;">
+  <table class="hc-table">
+    <thead>
+      <tr><th>Member</th><th>Role</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Akira Suzuki</td><td>Editor</td><td>Active</td></tr>
+      <tr><td>Mika Tanaka</td><td>Reader</td><td>Pending</td></tr>
+      <tr><td>Yuki Sato</td><td>Owner</td><td>Active</td></tr>
+    </tbody>
+  </table>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" checked />
+      Notify on changes
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-comfortable" checked />
+      Free
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-comfortable" />
+      Pro
+    </label>
+  </div>
+</div>
+
+### Compact
+
+<div class="hc-preview not-content" data-density="compact" style="display:grid;gap:.75rem;">
+  <table class="hc-table">
+    <thead>
+      <tr><th>Member</th><th>Role</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Akira Suzuki</td><td>Editor</td><td>Active</td></tr>
+      <tr><td>Mika Tanaka</td><td>Reader</td><td>Pending</td></tr>
+      <tr><td>Yuki Sato</td><td>Owner</td><td>Active</td></tr>
+    </tbody>
+  </table>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" checked />
+      Notify on changes
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-compact" checked />
+      Free
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-compact" />
+      Pro
+    </label>
+  </div>
+</div>
+
+### Dense
+
+<div class="hc-preview not-content" data-density="dense" style="display:grid;gap:.75rem;">
+  <table class="hc-table">
+    <thead>
+      <tr><th>Member</th><th>Role</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Akira Suzuki</td><td>Editor</td><td>Active</td></tr>
+      <tr><td>Mika Tanaka</td><td>Reader</td><td>Pending</td></tr>
+      <tr><td>Yuki Sato</td><td>Owner</td><td>Active</td></tr>
+    </tbody>
+  </table>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" checked />
+      Notify on changes
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-dense" checked />
+      Free
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="d-dense" />
+      Pro
+    </label>
+  </div>
+</div>
+
+## ページへの適用
+
+有用な範囲で、できるだけ DOM の高い位置に属性を設定してください。
+たいていのアプリは `<html>` に置いて、選択がすべてのコントロールに
+カスケードするようにします:
+
+```html
+<html data-density="compact">
+  ...
+</html>
+```
+
+より密な UI の単一セクション(例: データテーブルのツールバー)には
+ローカルに付けます:
+
+```html
+<section data-density="dense">
+  <div class="hc-toolbar">
+    <button class="hc-button">Edit</button>
+    <button class="hc-button">Delete</button>
+  </div>
+</section>
+```
+
+## なぜこれで動くのか
+
+**コントロール**階層(`--hc-button-*`、`--hc-input-*`)では、トークン
+ビルドがコンポーネントレベルのカスタムプロパティを `var()` 参照として
+出力します:
+
+```css
+--hc-button-height: var(--hc-control-height);
+--hc-button-padding-x: var(--hc-control-padding-x);
+```
+
+`data-density="compact"` が `--hc-control-height` を `32px` に上書き
+すると、`--hc-button-height` のすべての消費側が、コンポーネントごとの
+明示的なルールなしに新しい値で解決されます。
+
+**コンテナ**階層(`--hc-card-padding`、`--hc-dialog-gap` など)では、
+密度ファイルが同じ変数名をより高い詳細度のセレクタ
+(`[data-density="compact"]`、`[data-density="dense"]`)で出力します。
+カスケードはコンポーネントファイルの `:root` ルールより一致するブロックを
+選ぶため、カード / ダイアログ / ポップオーバー / アラート / トースト /
+ツールバーの CSS は自動的にアクティブな密度の値を読みます。
+
+コンポーネント単位のカスタマイズはどちらの階層でも引き続き機能します —
+スコープに `--hc-button-height: 56px;` や `--hc-card-padding: 0;` を
+設定すれば、要素ごとの宣言のほうが具体的なので密度の値に勝ちます。
+
+## サイズバリアントは独立
+
+ボタン / インプットの `data-size="sm"` と `data-size="lg"` は専用の変数
+(`--hc-button-sm-height` など)を設定し、`data-density` の影響を受け
+ません。意味が違うのです — 「この 1 つのコントロールが大きめの CTA」
+対「UI 全体が詰めて組まれている」。
+
+## CSS 変数
+
+```text
+--hc-control-height          --hc-card-padding
+--hc-control-padding-x       --hc-dialog-padding
+--hc-field-gap               --hc-dialog-gap
+--hc-toolbar-gap             --hc-popover-padding
+--hc-toolbar-padding-y       --hc-alert-padding-block
+--hc-toolbar-padding-x       --hc-alert-padding-inline
+                             --hc-alert-gap
+                             --hc-toast-padding-y
+                             --hc-toast-padding-x
+                             --hc-toast-gap
+```
+
+すべて `:root, [data-density="comfortable"]`、
+`[data-density="compact"]`、`[data-density="dense"]` の下で出力されます。
+
+## 関連
+
+- [トークン概要](/hypermedia-components/ja/tokens/) — 4 レイヤーモデル。
+- [ボタン](/hypermedia-components/ja/components/button/) — 密度対応。
+- [インプット](/hypermedia-components/ja/components/input/) — 密度対応。
+- [カード](/hypermedia-components/ja/components/card/) — 密度対応パディング。
+- [ダイアログ](/hypermedia-components/ja/components/dialog/) — 密度対応パディング + ギャップ。
+- [アラート](/hypermedia-components/ja/components/alert/) — 密度対応パディング + ギャップ。
+- [ツールバー](/hypermedia-components/ja/components/toolbar/) — 密度対応ギャップ + パディング。

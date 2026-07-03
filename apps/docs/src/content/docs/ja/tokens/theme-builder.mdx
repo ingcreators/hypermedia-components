@@ -1,0 +1,82 @@
+---
+title: テーマビルダー
+description: 1 つのブランドカラーからカスタム data-color アクセントテーマを構築。実物のトークンビルドをブラウザ内で実行し、WCAG コントラストをライブ検査し、DTCG ソース・貼り付け用 CSS ブロック・完全なトークン CSS をエクスポートします。
+sidebar:
+  order: 3
+---
+
+import ThemeBuilder from '../../../../components/ThemeBuilder.astro';
+
+ブランドカラーを 1 つ選ぶと、このビルダーが `data-color` アクセント
+セットの残り — ホバーシェード、ソフトティント、primary 上のテキスト色 —
+を導出し、WCAG コントラストを検査し、すぐ使えるエクスポートを生成します。
+
+モードは 2 つ:
+
+- **アクセント** — 新しい `[data-color="<name>"]` 軸を追加します
+  (オプトインで、組み込みの 5 つと並存)。変わるのはアクセントだけです。
+- **フルテーマ** — *デフォルト*の見た目をカスタマイズします: アクセント
+  **に加えて**、**ニュートラルランプ**(gray / slate / zinc / neutral /
+  stone。surface / text / border / secondary を駆動)、**コントロールの
+  角丸**、**タイポグラフィ**(body / heading / mono の `font-family`)を、
+  ライトとダークの両方にわたって。出力はテーマ適用ビルドと素のビルドの
+  差分として計算されるため、変わった変数だけが — それ以上は何も —
+  含まれます。
+
+仕組みは、**実物のトークントランスフォーマー**
+(`@hypermedia-components/core/token-transform`)を**実物の DTCG
+ソース**に対してブラウザ内で実行することです。プレビュー、
+*Apply to this page* ボタン、すべてのエクスポートは、ライブラリのビルドが
+使うのと同じ `buildTokensCss` で生成されます — つまりカスタムテーマは
+組み込みテーマとまったく同じに振る舞い(影響するすべてのコンポーネント
+変数、サブツリー安全)、「DTCG ソース → 生成 CSS 変数」というモデルが
+迂回されることはありません。
+
+<ThemeBuilder />
+
+## 導出の仕組み
+
+| 出力 | 導出 |
+| --- | --- |
+| `action-primary-bg` / `border` | 選んだブランドカラーそのまま。 |
+| `action-primary-hover-bg` / `border` | ブランドカラーを **Hover darkness** のパーセンテージだけ黒方向に暗くしたもの。 |
+| `action-primary-fg` | **Auto** は白と `gray.900`(`#111827`)のうち、ブランドカラーに対してコントラストが高いほうを選びます。好みに応じて手動で上書きできます。 |
+| `action-primary-soft-bg` | `color-mix(in srgb, <brand> N%, transparent)` — ライトとダークどちらの面でも正しくブレンドされる 1 つの値。 |
+| `focus-ring` | デフォルトはブランドカラー。 |
+
+**コントラスト表示**は、ブランドカラーと解決されたテキスト色の間の
+WCAG 2.x 比です。**4.5 : 1**(AA)以上を目指してください。それを下回ると
+バッジが赤くなります。
+
+## 3 つのエクスポート
+
+ビルダーは、あなたの色を合成 `color.<name>` ソースとして注入した
+`buildTokensCss` を実行し、出力を 3 つの形で渡します:
+
+1. **テーマ CSS ブロック** — このテーマの `[data-color="<name>"]`
+   ブロックだけ(影響するすべてのコンポーネント変数、解決済み)。
+   **追加的**です: 素のトークン CSS を保ったままこれを後に読み込み、
+   `data-color="<name>"` を設定します。ビルド不要。これが正しい
+   [パス A](/hypermedia-components/ja/tokens/themes/#パス-a--生成された-css-ブロックを貼り付けリビルドなし)です —
+   7 つの semantic 変数を手で上書きするやり方は動き*ません*
+   ([カスケードの実際の動き(重要)](/hypermedia-components/ja/tokens/themes/#カスケードの実際の動き重要)を参照)。
+
+2. **DTCG トークンファイル** — `color.<name>.tokens.json`。
+   `packages/core/src/tokens/` 配下に保存して `build-tokens.mjs` に
+   登録すれば、テーマをビルドに同梱できます
+   ([パス B](/hypermedia-components/ja/tokens/themes/#パス-b--トークンソースを追加ビルドに同梱))。
+   外部の DTCG ツーリング(Style Dictionary、Figma)にも渡せます。
+
+3. **完全なトークン CSS** — 完全な `hc.tokens.css`(すべての組み込み
+   テーマ**に加えて**あなたのテーマ)。ブロックを足すよりファイルごと
+   差し替えたい場合の、素のトークンスタイルシートのドロップイン代替です。
+
+**Apply to this page** は生成されたブロックを docs サイトの `<html>` に
+注入し、あなたのテーマの下で全コンポーネントを閲覧できるようにします。
+**Reset** で解除します。
+
+## 関連
+
+- [カラーテーマ](/hypermedia-components/ja/tokens/themes/) — 組み込みの 5 つ、カスケードの解説、完全な作成ガイド。
+- [密度](/hypermedia-components/ja/tokens/density/) — 直交するサイズ軸。
+- [トークン概要](/hypermedia-components/ja/tokens/) — 4 レイヤーモデル。

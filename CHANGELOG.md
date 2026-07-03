@@ -22,6 +22,13 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 3** (#316, docs-facing). Nine
+  more pages: the whole `tokens/` section (palette, theme-builder,
+  neutral, status, variants, density, themes) and the two foundation
+  integration guides (`plain-html`, `htmx` — the pages every framework
+  guide inherits). 31 ja pages total; cross-page anchors into the newly
+  translated pages updated to the translated heading slugs.
+
 - **Docs: Japanese translations, phase 2** (#315, docs-facing). Eleven
   more pages: all of `fundamentals/` (index, layout, responsive,
   accessibility, anchored, icons, i18n — naming and tokens shipped in
