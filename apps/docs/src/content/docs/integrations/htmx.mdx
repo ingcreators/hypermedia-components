@@ -205,11 +205,62 @@ behaviors hook into a small set of htmx events:
 | `htmx:configRequest` | `installCsrfHeader`    | Attach the page's CSRF token (`<meta name="csrf-token">`) as a request header — see [the convention above](#csrf-tokens--the-blessed-convention). |
 | `htmx:afterRequest`  | `installCloseDialog` / `installClosePopover` | Close the closest `<dialog>` / `[popover]` on a successful response. |
 | `htmx:afterSwap`     | `installRemoteDialog`  | Open a `<dialog>` that just appeared inside a `[data-hc-remote-dialog-root]`. |
+| `htmx:sseBeforeMessage` | `installSseDispatch` | Bridge an SSE event into a DOM `CustomEvent` instead of a swap — see [Server-sent events](#server-sent-events) below. |
 | `hc:toast`           | `installToast`         | Render a toast into the region. (Not an htmx event, but htmx is usually the dispatcher via `HX-Trigger`.) |
 
 You generally don't have to interact with these directly; they're
 listed here for debugging and for projects that want to plug in their
 own htmx middleware.
+
+## Server-sent events
+
+For server-push ("the page updates because the server said so", not
+because the user acted), load the official
+[htmx SSE extension](https://htmx.org/extensions/sse/) next to htmx —
+same pinning advice as htmx itself:
+
+```html
+<script defer src="/assets/htmx.min.js"></script>
+<script defer src="/assets/sse.min.js"></script>
+```
+
+One `data-sse-connect` scope per stream; elements inside declare which
+named events they receive with `data-sse-swap` (the extension supports
+the `data-` prefixed forms, matching the [`data-hx-*` convention](#data-hx--over-hx-)):
+
+```html
+<div data-hx-ext="sse" data-sse-connect="/events">
+  <!-- server-rendered fragments swap in, honouring data-hx-swap -->
+  <section id="activity" data-sse-swap="activity:item"
+           data-hx-swap="afterbegin">…</section>
+
+  <!-- JSON payloads become DOM events instead of swaps -->
+  <span hidden data-hc-sse-dispatch
+        data-sse-swap="hc:toast, items:changed"></span>
+</div>
+```
+
+The second element is the **bridge**: `installSseDispatch()` (in the
+auto-init `./behaviors` bundle) cancels the swap on any
+`[data-hc-sse-dispatch]` element and re-dispatches the SSE event as a
+bubbling `CustomEvent` — the SSE event name becomes the DOM event name,
+the JSON payload becomes `detail`. `event: hc:toast` shows a toast;
+`event: items:changed` refetches any data-region listening for it. Only
+event names the page lists in `data-sse-swap` can ever be dispatched,
+and payloads must be JSON **objects** (empty data → `{}`; anything else
+is dropped).
+
+Connection lifecycle is htmx-native: `EventSource` reconnects
+automatically (the server's `retry:` hint is honoured, the extension
+adds backoff), `data-sse-close="<event>"` lets the server end the
+stream, and `htmx:sseOpen` / `htmx:sseError` / `htmx:sseClose` are
+observable for debugging. Note the extension connects with
+`withCredentials: true` — cookies ride along; cross-origin streams need
+`Access-Control-Allow-Credentials`.
+
+The recipes cover the two blessed patterns end-to-end: sse-updates
+(fragments, out-of-band pushes, the datagrid composition) and sse-toast
+(server-push notifications + region invalidation).
 
 ## Empty bodies are valid
 

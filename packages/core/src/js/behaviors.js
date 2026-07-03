@@ -40,6 +40,7 @@ import { installValidation } from './validation.js';
 import { installThemeToggle } from './theme-toggle.js';
 import { installFieldErrors } from './field-errors.js';
 import { installCsrfHeader } from './csrf-header.js';
+import { installSseDispatch } from './sse-dispatch.js';
 import { installCopy } from './copy.js';
 import { installSpy } from './spy.js';
 import { installNavCurrent } from './nav-current.js';
@@ -80,6 +81,7 @@ function init() {
   installThemeToggle();
   installFieldErrors();
   installCsrfHeader();
+  installSseDispatch();
   installCopy();
   installSpy();
   installNavCurrent();
@@ -129,6 +131,7 @@ export {
   installThemeToggle,
   installFieldErrors,
   installCsrfHeader,
+  installSseDispatch,
   installCopy,
   installSpy,
   installNavCurrent,
