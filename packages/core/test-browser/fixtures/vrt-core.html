@@ -549,5 +549,42 @@ notes content.</textarea>
     </div>
   </section>
 
+  <section id="vrt-tree">
+    <h2>Tree</h2>
+    <div class="row" style="align-items:flex-start;gap:2rem;">
+      <ul class="hc-tree" aria-label="Project files" style="min-inline-size:14rem;">
+        <li class="hc-tree__item" aria-expanded="true">
+          <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span>
+            <span class="hc-tree__label">src</span></span>
+          <ul class="hc-tree__group">
+            <li class="hc-tree__item" aria-expanded="false">
+              <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span>
+                <span class="hc-tree__label">components</span></span>
+              <ul class="hc-tree__group">
+                <li class="hc-tree__item"><span class="hc-tree__row"><span class="hc-tree__label">button.js</span></span></li>
+              </ul>
+            </li>
+            <li class="hc-tree__item" aria-current="true">
+              <span class="hc-tree__row"><span class="hc-tree__label">app.js</span></span>
+            </li>
+          </ul>
+        </li>
+        <li class="hc-tree__item" aria-expanded="false">
+          <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span>
+            <span class="hc-tree__label">docs</span></span>
+          <ul class="hc-tree__group"></ul>
+        </li>
+        <li class="hc-tree__item"><span class="hc-tree__row"><span class="hc-tree__label">README.md</span></span></li>
+      </ul>
+      <ul class="hc-tree" data-size="sm" aria-label="Reports" style="min-inline-size:12rem;">
+        <li class="hc-tree__item" aria-expanded="true">
+          <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span>
+            <span class="hc-tree__label">2026</span></span>
+          <ul class="hc-tree__group" aria-busy="true"></ul>
+        </li>
+      </ul>
+    </div>
+  </section>
+
 </body>
 </html>

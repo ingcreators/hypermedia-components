@@ -1,0 +1,124 @@
+---
+title: Tree
+description: An ARIA tree view over semantic nested lists — roles and the APG keyboard model applied by the behavior; branch state in aria-expanded; lazy subtrees arrive as server-rendered HTML.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-tree` upgrades a **semantic nested list** into a WAI-ARIA tree:
+file browsers, category hierarchies, admin navigation. Without
+JavaScript the markup is a plain readable list and every link keeps
+working; `installTree()` adds the roles, a roving tabindex, and the
+full APG keyboard model. Server-pushed subtrees are the lazy-tree
+recipe's job.
+
+## Basic HTML
+
+<Demo>
+  <ul class="hc-tree" aria-label="Project files">
+    <li class="hc-tree__item" aria-expanded="true">
+      <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span><span class="hc-tree__label">src</span></span>
+      <ul class="hc-tree__group">
+        <li class="hc-tree__item" aria-expanded="false">
+          <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span><span class="hc-tree__label">components</span></span>
+          <ul class="hc-tree__group">
+            <li class="hc-tree__item"><span class="hc-tree__row"><span class="hc-tree__label">button.js</span></span></li>
+          </ul>
+        </li>
+        <li class="hc-tree__item" aria-current="true">
+          <span class="hc-tree__row"><span class="hc-tree__label">app.js</span></span>
+        </li>
+      </ul>
+    </li>
+    <li class="hc-tree__item">
+      <span class="hc-tree__row"><span class="hc-tree__label">README.md</span></span>
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-tree" aria-label="Project files">
+    <li class="hc-tree__item" aria-expanded="true">
+      <span class="hc-tree__row">
+        <span class="hc-tree__toggle" aria-hidden="true"></span>
+        <span class="hc-tree__label">src</span>
+      </span>
+      <ul class="hc-tree__group">
+        <li class="hc-tree__item">
+          <span class="hc-tree__row">
+            <span class="hc-tree__label"><a href="/files/app.js">app.js</a></span>
+          </span>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
+**Branch-ness is declared by `aria-expanded`** — present means the item
+can expand (the server owns the initial value; the behavior toggles
+it). Levels derive from nesting; there is no `aria-level` bookkeeping.
+
+## Behavior — `installTree()`
+
+Included in the auto-init
+[`./behaviors`](/hypermedia-components/start/installation/#behaviors)
+bundle. Applies `role="tree" / treeitem / group` and a roving tabindex
+(one tab stop per tree); re-applies both when subtrees are swapped in
+by htmx. Expanding an item dispatches a bubbling **`hc:treeexpand`**
+(`detail: { item }`) — the hook lazy subtrees build on. It never
+touches the network.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| ↓ / ↑ | Next / previous **visible** item (collapsed subtrees are skipped). |
+| → | Open a closed branch; on an open branch, move to its first child. |
+| ← | Close an open branch; otherwise move to the parent. |
+| Home / End | First / last visible item. |
+| Enter / Space | Activate: follow the label's link when there is one, otherwise toggle the branch. |
+| *a–z* | Type-ahead — jump to the next visible item starting with the character. |
+
+← and → mirror in RTL.
+
+## States
+
+| State | Selector | Effect |
+| --- | --- | --- |
+| Expanded | `[aria-expanded="true"]` | Group visible; chevron rotated. |
+| Collapsed | `[aria-expanded="false"]` | Group hidden. |
+| Current | `[aria-current]` | Accent row (follows `data-color`) — a **server state**, the "you are here" marker. |
+| Loading | `.hc-tree__group[aria-busy="true"]` | Spinner in the group while a lazy subtree fetches (behavior-set). |
+
+Selection models (`aria-selected`, multi-select, checkboxes) are
+deliberate non-goals for now — activation follows real links, and the
+current node is server-rendered state.
+
+## Sizes
+
+`data-size="sm"` tightens the indent and font for dense panels.
+
+## Accessibility
+
+- Nested `<ul>/<li>` + `role="tree"` + `aria-expanded` + roving
+  tabindex is the APG pattern; levels are announced from the structure.
+- The chevron toggles are `aria-hidden` pointer affordances — the
+  keyboard model duplicates everything they do.
+- Give the tree an `aria-label` (or `aria-labelledby`).
+- Focus is drawn on the row (`:focus-visible`); reduced motion disables
+  the chevron transition and the busy spinner.
+
+## Theming tokens
+
+`--hc-tree-indent` / `-row-padding-y` / `-row-padding-x` /
+`-row-radius` / `-fg` / `-hover-bg` / `-current-bg` / `-current-fg` /
+`-toggle-size` / `-guide` — semantic references throughout.
+
+## Related
+
+- [Navigation menu](/hypermedia-components/components/navmenu/) — flat site navigation; the tree is for hierarchies.
+- [Collapsible](/hypermedia-components/components/collapsible/) — a single disclosure, no tree semantics.

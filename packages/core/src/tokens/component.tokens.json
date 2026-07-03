@@ -2386,6 +2386,48 @@
    "$value": "{semantic.color.border}"
   }
  },
+ "tree": {
+  "indent": {
+   "$type": "dimension",
+   "$value": "1.25rem"
+  },
+  "row-padding-y": {
+   "$type": "dimension",
+   "$value": "{semantic.space.1}"
+  },
+  "row-padding-x": {
+   "$type": "dimension",
+   "$value": "{semantic.space.2}"
+  },
+  "row-radius": {
+   "$type": "dimension",
+   "$value": "{primitive.radius.sm}"
+  },
+  "fg": {
+   "$type": "color",
+   "$value": "{semantic.color.text}"
+  },
+  "hover-bg": {
+   "$type": "color",
+   "$value": "{semantic.color.muted-bg}"
+  },
+  "current-bg": {
+   "$type": "color",
+   "$value": "color-mix(in srgb, {semantic.color.focus-ring} 14%, {semantic.color.surface})"
+  },
+  "current-fg": {
+   "$type": "color",
+   "$value": "{semantic.color.text}"
+  },
+  "toggle-size": {
+   "$type": "dimension",
+   "$value": "1rem"
+  },
+  "guide": {
+   "$type": "color",
+   "$value": "{semantic.color.border}"
+  }
+ },
  "pagination": {
   "gap": {
    "$type": "dimension",

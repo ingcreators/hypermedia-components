@@ -81,6 +81,7 @@ const COMPONENTS = [
   'hc-collapsible.css',
   'hc-breadcrumb.css',
   'hc-stepper.css',
+  'hc-tree.css',
   'hc-toc.css',
   'hc-shell.css',
 ];
