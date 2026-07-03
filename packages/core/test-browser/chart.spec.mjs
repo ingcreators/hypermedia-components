@@ -60,6 +60,28 @@ test.describe('hc-chart (installChart)', () => {
     expect(after).toBe(before + 1);
   });
 
+  test('tier 2: grouped facets, scatter r-channel, sparkline chrome-off', async ({ page }) => {
+    const opts = await page.evaluate(() => window.__plotOpts);
+    const grouped = opts.find((o) => o.fx);
+    expect(grouped.fx.label).toBe('Month');
+    expect(grouped.fx.domain).toEqual(['Jan', 'Feb']);
+    expect(grouped.x).toEqual({ axis: null });
+
+    const spark = opts.find((o) => o.height === 48);
+    expect(spark.y).toEqual({ axis: null, grid: false });
+    expect(spark.color.legend).toBe(false);
+
+    const marks = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-testid="chart-scatter"] svg')].length);
+    expect(marks).toBe(1); // scatter rendered
+
+    // Every tier-2 figure keeps its table for AT and renders an svg.
+    for (const id of ['chart-grouped', 'chart-scatter', 'chart-sparkline']) {
+      await expect(page.locator(`[data-testid="${id}"] svg`)).toHaveCount(1);
+      await expect(page.locator(`[data-testid="${id}"] table`)).toHaveClass(/hc-sr-only/);
+    }
+  });
+
   test('axe finds no violations in the chart section', async ({ page }) => {
     const results = await new AxeBuilder({ page })
       .include('#section-chart')

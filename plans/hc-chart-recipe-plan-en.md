@@ -1,9 +1,9 @@
 # hc-chart — recipe + behavior plan (Observable Plot)
 
-Status: **approved; PR 1 (Tier 1) implemented.** Net-new scope; charts are
+Status: **approved; PR 1 (Tier 1) and PR 2 (Tier 2, #308) implemented.** Net-new scope; charts are
 not mentioned in the v0.4 or v0.5 plans. Tier 1 (bar/line/area/combo) ships
 the `chart` recipe, `installChart`, `hc-chart.css`, and `--hc-chart-*`
-tokens. Tier 2/3 (§11) remain follow-up PRs.
+tokens. Tier 3 (§11) remains a follow-up PR.
 
 ## 1. Goal
 

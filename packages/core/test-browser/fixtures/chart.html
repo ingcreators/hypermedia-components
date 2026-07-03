@@ -88,5 +88,39 @@
       target.dispatchEvent(new CustomEvent('htmx:load', { bubbles: true, detail: {} }));
     });
   </script>
+  <section id="section-tier2" data-testid="section-tier2">
+    <figure class="hc-chart" data-hc-chart="bar-grouped" data-testid="chart-grouped">
+      <table class="hc-table">
+        <caption>Grouped sales</caption>
+        <thead><tr><th>Month</th><th>Tokyo</th><th>Osaka</th></tr></thead>
+        <tbody>
+          <tr><td>Jan</td><td>120</td><td>80</td></tr>
+          <tr><td>Feb</td><td>200</td><td>140</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <figure class="hc-chart" data-hc-chart="scatter" data-testid="chart-scatter">
+      <table class="hc-table">
+        <caption>Height vs weight</caption>
+        <thead><tr><th>Height</th><th>Weight</th><th data-role="r">Count</th></tr></thead>
+        <tbody>
+          <tr><td>150</td><td>52</td><td>3</td></tr>
+          <tr><td>172</td><td>70</td><td>9</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <figure class="hc-chart" data-hc-chart="sparkline" data-testid="chart-sparkline">
+      <table class="hc-table">
+        <caption>Weekly load</caption>
+        <thead><tr><th>Day</th><th>Load</th></tr></thead>
+        <tbody>
+          <tr><td>Mon</td><td>1</td></tr>
+          <tr><td>Tue</td><td>3</td></tr>
+          <tr><td>Wed</td><td>2</td></tr>
+        </tbody>
+      </table>
+    </figure>
+  </section>
+
 </body>
 </html>

@@ -5,7 +5,8 @@
 // page load or an htmx swap and IS the data source + the no-JS / no-Plot
 // accessible fallback.
 //
-//   <figure class="hc-chart" data-hc-chart="bar|line|area|combo">
+//   <figure class="hc-chart" data-hc-chart="bar|line|area|combo
+//                                 |bar-stacked|bar-grouped|scatter|sparkline">
 //     <table class="hc-table">
 //       <thead><tr><th>Month</th><th data-mark="bar">Sales</th><th data-mark="line">Target</th></tr></thead>
 //       <tbody><tr><td>Jan</td><td>120</td><td>150</td></tr>…</tbody>
@@ -41,7 +42,9 @@ function resolvePlot(options) {
 // The mark a column without an explicit `data-mark` should use.
 function defaultMarkOf(figure) {
   const type = (figure.getAttribute('data-hc-chart') || 'bar').toLowerCase();
-  return type === 'line' || type === 'area' ? type : 'bar';
+  if (type === 'line' || type === 'area') return type;
+  if (type === 'sparkline' || type === 'scatter') return 'line';
+  return 'bar';
 }
 
 function markFor(th, fallback) {
@@ -74,15 +77,23 @@ function readTable(figure, table) {
   const body = table.tBodies && table.tBodies[0];
   if (!head || !body) return null;
 
-  const xType = (figure.getAttribute('data-x-type') || 'category').toLowerCase();
+  const type = (figure.getAttribute('data-hc-chart') || 'bar').toLowerCase();
+  const xType = (figure.getAttribute('data-x-type')
+    || (type === 'scatter' ? 'number' : 'category')).toLowerCase();
   const fallbackMark = defaultMarkOf(figure);
 
   const headCells = [...head.cells];
   const xName = (headCells[0] ? headCells[0].textContent : '').trim();
-  const series = headCells.slice(1).map((th) => ({
+  // An optional `<th data-role="r">` column feeds the dot radius
+  // (scatter); it is not a series.
+  const columns = headCells.map((th, index) => ({
+    index,
+    role: (th.getAttribute('data-role') || '').toLowerCase(),
     name: th.textContent.trim(),
     mark: markFor(th, fallbackMark),
   }));
+  const rColumn = columns.slice(1).find((c) => c.role === 'r') || null;
+  const series = columns.slice(1).filter((c) => c !== rColumn);
   if (!series.length) return null;
 
   const rows = [];
@@ -90,15 +101,20 @@ function readTable(figure, table) {
     const cells = [...tr.cells];
     if (!cells.length) continue;
     const x = toX(cells[0].textContent, xType);
-    series.forEach((s, i) => {
-      const cell = cells[i + 1];
-      if (!cell) return;
-      rows.push({ x, series: s.name, mark: s.mark, value: toNumber(cell.textContent) });
-    });
+    const r = rColumn && cells[rColumn.index]
+      ? toNumber(cells[rColumn.index].textContent)
+      : undefined;
+    for (const s of series) {
+      const cell = cells[s.index];
+      if (!cell) continue;
+      const row = { x, series: s.name, mark: s.mark, value: toNumber(cell.textContent) };
+      if (r != null) row.r = r;
+      rows.push(row);
+    }
   }
   if (!rows.length) return null;
 
-  return { xName, xType, series, rows };
+  return { xName, xType, series, rows, hasR: !!rColumn };
 }
 
 // Build the Plot marks for the tidy rows, layering area → bar → line so a
@@ -132,6 +148,69 @@ function buildMarks(plot, rows) {
 
   return marks;
 }
+
+function validRows(rows) {
+  return rows.filter((d) => d.value != null);
+}
+
+// Figure-level Tier 2 presets. Each owns the whole figure: it returns the
+// marks plus per-key overrides of the base plot options. Per-column
+// `data-mark` combos remain a Tier 1 concept (bar/line/area only).
+const TYPE_PRESETS = {
+  // Plot's barY stacks same-x series implicitly — this type states the
+  // intent explicitly (and stays correct with a single series).
+  'bar-stacked': (plot, data) => ({
+    marks: [
+      plot.ruleY([0]),
+      plot.barY(validRows(data.rows), { x: 'x', y: 'value', fill: 'series' }),
+    ],
+  }),
+
+  // Facet by the category; series become the inner x. The facet axis
+  // carries the category labels, so the inner axis is hidden.
+  'bar-grouped': (plot, data, base) => ({
+    marks: [
+      plot.ruleY([0]),
+      plot.barY(validRows(data.rows), { fx: 'x', x: 'series', y: 'value', fill: 'series' }),
+    ],
+    options: {
+      x: { axis: null },
+      fx: { label: base.x.label, domain: base.x.domain },
+    },
+  }),
+
+  // Two numeric axes; each series column is one dot set. An optional
+  // `<th data-role="r">` column drives the radius channel.
+  scatter: (plot, data) => ({
+    marks: [
+      plot.dot(validRows(data.rows), {
+        x: 'x',
+        y: 'value',
+        stroke: 'series',
+        fill: 'series',
+        fillOpacity: 0.4,
+        ...(data.hasR ? { r: 'r' } : { r: 4 }),
+      }),
+    ],
+  }),
+
+  // A Plot-styled inline trend: no axes, no grid, no legend, compact
+  // height. (For a dependency-free inline trend, hc-sparkline is usually
+  // the better fit — this preset exists for Plot-consistent dashboards.)
+  sparkline: (plot, data, base, ctx) => ({
+    marks: [
+      plot.lineY(validRows(data.rows), {
+        x: 'x', y: 'value', z: 'series', stroke: 'series', curve: 'monotone-x',
+      }),
+    ],
+    options: {
+      height: ctx.explicitHeight != null ? ctx.explicitHeight : 48,
+      x: { ...base.x, axis: null, label: null },
+      y: { axis: null, grid: false },
+      color: { ...base.color, legend: false },
+    },
+  }),
+};
 
 // Parse a CSS length ("320", "320px", "20rem") to pixels.
 function parseDim(value, base = 16) {
@@ -194,7 +273,7 @@ function renderFigure(figure, rendered, options) {
     ? [...new Set(data.rows.map((d) => d.x))]
     : undefined;
 
-  const node = plot.plot({
+  const base = {
     width,
     height,
     className: 'hc-chart__plot',
@@ -203,8 +282,23 @@ function renderFigure(figure, rendered, options) {
     x: { label: data.xName || undefined, type: xScaleType(data.xType), domain: xDomain },
     y: { label: figure.getAttribute('data-y-label') || undefined, grid: true },
     color: range ? { range, legend } : { legend },
-    marks: buildMarks(plot, data.rows),
-  });
+  };
+
+  const type = (figure.getAttribute('data-hc-chart') || 'bar').toLowerCase();
+  const preset = TYPE_PRESETS[type];
+  let marks;
+  let overrides = null;
+  if (preset) {
+    // Only the data-height ATTRIBUTE counts as explicit here: the
+    // --hc-chart-height custom property has a global token default
+    // (20rem), which must not defeat a preset's own compact default.
+    const explicitHeight = parseDim(figure.getAttribute('data-height'));
+    ({ marks, options: overrides = null } = preset(plot, data, base, { figure, explicitHeight }));
+  } else {
+    marks = buildMarks(plot, data.rows);
+  }
+
+  const node = plot.plot({ ...base, ...(overrides || {}), marks });
 
   node.classList.add('hc-chart__plot');
   // The accessible data lives in the table (kept for assistive tech); hide

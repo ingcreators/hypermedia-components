@@ -152,6 +152,40 @@ Plot places the line on the bars' band scale automatically, so the points
 align to the bar centres. When series share a y range this needs no extra
 configuration; a true secondary y-axis is out of scope for this recipe.
 
+## Stacked, grouped, scatter, sparkline
+
+Four whole-figure presets extend the same table contract (per-column
+`data-mark` combos don't apply to them):
+
+- **`bar-stacked`** — multiple series stack (the explicit form of what
+  multi-series `bar` already does).
+- **`bar-grouped`** — series render side-by-side within each category;
+  the category axis carries the labels and the legend names the series.
+- **`scatter`** — two numeric axes: the first column is a numeric x
+  (`data-x-type` defaults to `number`), each series column is one dot
+  set, and an optional `<th data-role="r">` column drives the dot
+  radius.
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="scatter" data-y-label="Weight (kg)">
+    <table class="hc-table">
+      <caption>Height vs weight</caption>
+      <thead><tr><th>Height</th><th>Weight</th><th data-role="r">Count</th></tr></thead>
+      <tbody>
+        <tr><td>150</td><td>52</td><td>3</td></tr>
+        <tr><td>172</td><td>70</td><td>9</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+- **`sparkline`** — a compact Plot-styled trend: axes, grid and legend
+  off, 48 px tall unless `data-height` says otherwise. For a
+  dependency-free inline trend, the standalone
+  [sparkline component](/hypermedia-components/components/sparkline/)
+  is usually the better fit — this preset exists for Plot-consistent
+  dashboards.
+
 ## Options
 
 | Attribute       | Default                      | Effect                                  |

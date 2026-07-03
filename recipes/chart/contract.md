@@ -41,10 +41,17 @@ entry, because Plot is not bundled.
 | `line`  | Lines with node dots, one per series.                         |
 | `area`  | Filled areas with a line edge, one per series.                |
 | `combo` | Per-column marks — set each `<th data-mark="bar\|line\|area">`. |
+| `bar-stacked` | Explicitly stacked bars (same rendering as multi-series `bar`, stated intent). |
+| `bar-grouped` | Bars grouped side-by-side per category (faceted; the category axis carries the labels). |
+| `scatter` | Dots on two numeric axes — `data-x-type` defaults to `number`; each series column is one dot set; an optional `<th data-role="r">` column drives the dot radius. |
+| `sparkline` | A compact Plot-styled trend: no axes, no grid, no legend, 48 px tall unless `data-height` says otherwise. For a dependency-free inline trend, prefer the standalone `hc-sparkline` component. |
 
 `data-hc-chart` is the **default mark** for any column without its own
 `data-mark`. For `combo` the default is `bar`. So `bar`/`line`/`area` are
-just the special case where every column shares one mark.
+just the special case where every column shares one mark. The Tier 2
+types (`bar-stacked`, `bar-grouped`, `scatter`, `sparkline`) are
+**whole-figure presets** — per-column `data-mark` combos don't apply to
+them.
 
 ## Per-column mark (combo)
 
