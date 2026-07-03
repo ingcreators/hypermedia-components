@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installSseDispatch()` — bridge SSE events into DOM CustomEvents**
+  (#283). Inside an htmx SSE-extension scope (`data-sse-connect`), an
+  element with `data-hc-sse-dispatch` re-dispatches the SSE events
+  named in its `data-sse-swap` as bubbling `CustomEvent`s instead of
+  swapping them: the SSE event name becomes the DOM event name, the
+  JSON payload becomes `detail` (empty data → `{}`; non-object or
+  malformed payloads are dropped, the swap always cancelled). The
+  markup is the allowlist — only page-declared event names can be
+  dispatched. `event: hc:toast` shows a server-pushed toast unchanged;
+  `event: items:changed` refetches any listening data-region. The
+  behavior never touches the network — the extension owns the
+  `EventSource`. Auto-installed via
+  `@hypermedia-components/core/behaviors`; SSE recipes follow in the
+  next PR (see `plans/hc-sse-recipes-plan-en.md`).
+
 - **`datagrid-bulk-actions` recipe — the blessed bulk-operations
   composition** (#281). Select rows with the grid's checkboxes, act
   from the selection bar, POST over htmx: the ids travel by **native

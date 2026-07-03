@@ -37,6 +37,7 @@ export { installValidation } from './validation.js';
 export { installThemeToggle } from './theme-toggle.js';
 export { installFieldErrors } from './field-errors.js';
 export { installCsrfHeader } from './csrf-header.js';
+export { installSseDispatch } from './sse-dispatch.js';
 export { installCopy } from './copy.js';
 export { installSpy } from './spy.js';
 export { installNavCurrent } from './nav-current.js';
