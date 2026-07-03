@@ -204,6 +204,30 @@ Polyfills live in `test/dom-setup.mjs`. Import it from any test that
 relies on `<dialog>.showModal()` / `close()` — jsdom's implementation
 varies by version.
 
+### Visual regressions
+
+`test-browser/vrt.spec.mjs` screenshots three dense fixture sheets
+(`fixtures/vrt-core.html` / `vrt-data.html` / `vrt-overlays.html`)
+under light/dark × ltr/rtl (plus a compact-density and an accent slice)
+and compares them against the committed linux baselines in
+`test-browser/vrt.spec.mjs-snapshots/`. The sheets pin the font tokens
+to DejaVu so the devcontainer and CI rasterize identically; keep any
+new content deterministic (no network, no timers, no random data).
+
+- **Changed a component's look on purpose?** Regenerate the baselines
+  and commit the PNGs — the PR then shows reviewable image diffs:
+
+  ```bash
+  pnpm --filter @hypermedia-components/core exec playwright test test-browser/vrt.spec.mjs --update-snapshots
+  ```
+
+- **Added a component?** Add it to the relevant sheet (usually
+  `vrt-core.html`), then regenerate.
+- **CI disagrees with your local baselines** (rare — both are linux +
+  the same pinned Chromium): download the Playwright report artifact
+  from the failed browser job and commit its `*-actual.png` images as
+  the baselines.
+
 ---
 
 ## Documentation

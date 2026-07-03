@@ -11,10 +11,25 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   reporter: process.env.CI ? 'github' : 'list',
+  expect: {
+    // Visual regression suites (test-browser/vrt.spec.mjs): one linux
+    // baseline set (devcontainer and CI both run the pinned Chromium on
+    // linux; the sheets pin fonts to DejaVu). Measured devcontainer↔CI
+    // sub-pixel anti-aliasing drift peaks around ~900 px on the densest
+    // sheet (~0.014% of it); 2400 absorbs that with margin while a real
+    // visual break (a broken theme, an un-hidden overlay, a collapsed
+    // layout) differs by tens of thousands of pixels.
+    toHaveScreenshot: { maxDiffPixels: 2400 },
+  },
   use: {
     baseURL: BASE,
     trace: 'retain-on-failure',
     actionTimeout: 5_000,
+    // Scrollbar rendering differs between environments and even between
+    // successive full-page captures (viewport-width changes re-wrap text
+    // and shift the page height by a pixel or two) — hide them so the
+    // VRT sheets rasterize identically everywhere.
+    launchOptions: { args: ['--hide-scrollbars'] },
   },
   projects: [
     {

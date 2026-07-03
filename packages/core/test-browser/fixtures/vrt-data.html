@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>hc VRT sheet — data</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+  <style>
+    /* Deterministic cross-environment rendering: DejaVu is the only
+       font family both the devcontainer and GitHub's runners ship. */
+    :root {
+      --hc-font-family-sans: "DejaVu Sans";
+      --hc-font-family-heading: "DejaVu Sans";
+      --hc-font-family-mono: "DejaVu Sans Mono";
+    }
+    body { padding: 1.5rem; max-inline-size: 60rem; margin: 0 auto; }
+    section { margin-block-end: 1.25rem; }
+    h2 { font-size: 1rem; margin: 0 0 .5rem; }
+    .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>hc VRT — data surfaces</h1>
+
+  <section id="vrt-table">
+    <h2>Table</h2>
+    <table class="hc-table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Status</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Order #123</td>
+          <td><span class="hc-badge" data-variant="success">Active</span></td>
+          <td><button class="hc-button" data-size="sm" type="button">View</button></td>
+        </tr>
+        <tr>
+          <td>Order #124</td>
+          <td><span class="hc-badge" data-variant="warning">Pending</span></td>
+          <td><button class="hc-button" data-size="sm" type="button">View</button></td>
+        </tr>
+        <tr>
+          <td>Order #125</td>
+          <td><span class="hc-badge">Draft</span></td>
+          <td><button class="hc-button" data-size="sm" type="button">View</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="hc-table" data-variant="kv" style="max-inline-size:28rem;margin-block-start:1rem;">
+      <tbody>
+        <tr><th scope="row">Realm id</th><td>local</td></tr>
+        <tr><th scope="row">Display name</th><td>Local development</td></tr>
+        <tr><th scope="row">Created</th><td>2026-06-01</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="vrt-datagrid">
+    <h2>Datagrid — multi-level header, frozen columns, selected row</h2>
+    <!-- Constrained box so the inline axis scrolls, making the frozen
+         columns visually meaningful. Frozen columns set fixed widths and
+         matching --hc-datagrid-left offsets. -->
+    <div class="hc-datagrid" style="--hc-datagrid-max-height: 180px; max-inline-size: 460px;">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" data-frozen rowspan="2"
+                  style="--hc-datagrid-left: 0; width: 36px;" scope="col">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+              </th>
+              <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2"
+                  style="--hc-datagrid-left: 36px; width: 56px;" scope="col">ID</th>
+              <th class="hc-datagrid__headcell" colspan="3">Group A</th>
+              <th class="hc-datagrid__headcell" colspan="3">Group B</th>
+            </tr>
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">Alpha</th>
+              <th class="hc-datagrid__headcell" scope="col">Beta</th>
+              <th class="hc-datagrid__headcell" scope="col">Gamma</th>
+              <th class="hc-datagrid__headcell" scope="col" style="width: 7rem;">Delta</th>
+              <th class="hc-datagrid__headcell" scope="col">Epsilon</th>
+              <th class="hc-datagrid__headcell" scope="col">Zeta</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;width:36px;">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select row 1">
+              </td>
+              <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
+                  style="--hc-datagrid-left:36px;width:56px;">1</th>
+              <td class="hc-datagrid__cell">Alpha 1</td>
+              <td class="hc-datagrid__cell">X</td>
+              <td class="hc-datagrid__cell">Code A</td>
+              <td class="hc-datagrid__cell">
+                <span class="hc-datagrid__truncate" style="max-inline-size:7rem;">Delta 1 very long content xxxxxxxxxxxxxxxxxxxx</span>
+              </td>
+              <td class="hc-datagrid__cell">Epsilon value 1 (wide content)</td>
+              <td class="hc-datagrid__cell">Zeta value 1 (wide content)</td>
+            </tr>
+            <tr class="hc-datagrid__row" data-selected aria-selected="true">
+              <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;width:36px;">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select row 2" checked>
+              </td>
+              <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
+                  style="--hc-datagrid-left:36px;width:56px;">2</th>
+              <td class="hc-datagrid__cell">Alpha 2</td>
+              <td class="hc-datagrid__cell">Y</td>
+              <td class="hc-datagrid__cell">Code B</td>
+              <td class="hc-datagrid__cell">
+                <span class="hc-datagrid__truncate" style="max-inline-size:7rem;">Delta 2 very long content xxxxxxxxxxxxxxxxxxxx</span>
+              </td>
+              <td class="hc-datagrid__cell">Epsilon value 2 (wide content)</td>
+              <td class="hc-datagrid__cell">Zeta value 2 (wide content)</td>
+            </tr>
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;width:36px;">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select row 3">
+              </td>
+              <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
+                  style="--hc-datagrid-left:36px;width:56px;">3</th>
+              <td class="hc-datagrid__cell">Alpha 3</td>
+              <td class="hc-datagrid__cell">Z</td>
+              <td class="hc-datagrid__cell">Code C</td>
+              <td class="hc-datagrid__cell">
+                <span class="hc-datagrid__truncate" style="max-inline-size:7rem;">Delta 3 very long content xxxxxxxxxxxxxxxxxxxx</span>
+              </td>
+              <td class="hc-datagrid__cell">Epsilon value 3 (wide content)</td>
+              <td class="hc-datagrid__cell">Zeta value 3 (wide content)</td>
+            </tr>
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;width:36px;">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select row 4">
+              </td>
+              <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
+                  style="--hc-datagrid-left:36px;width:56px;">4</th>
+              <td class="hc-datagrid__cell">Alpha 4</td>
+              <td class="hc-datagrid__cell">X</td>
+              <td class="hc-datagrid__cell">Code A</td>
+              <td class="hc-datagrid__cell">
+                <span class="hc-datagrid__truncate" style="max-inline-size:7rem;">Delta 4 very long content xxxxxxxxxxxxxxxxxxxx</span>
+              </td>
+              <td class="hc-datagrid__cell">Epsilon value 4 (wide content)</td>
+              <td class="hc-datagrid__cell">Zeta value 4 (wide content)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="vrt-datagrid-multirow">
+    <h2>Datagrid — multi-row records</h2>
+    <!-- Each record is its own <tbody class="hc-datagrid__record"> with two
+         sub-rows; the lead cell spans them with rowspan and holds the
+         record's select checkbox. -->
+    <div class="hc-datagrid" style="max-inline-size: 640px;">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col"
+                  style="--hc-datagrid-left:0; width:56px; text-align:center;">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+              </th>
+              <th class="hc-datagrid__headcell" scope="col">Code</th>
+              <th class="hc-datagrid__headcell" scope="col">Product</th>
+            </tr>
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">Qty</th>
+              <th class="hc-datagrid__headcell" scope="col">Unit price</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__record">
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell" data-frozen data-frozen-edge rowspan="2"
+                  style="--hc-datagrid-left:0; width:56px; text-align:center;">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select record 1">
+                <div>1</div>
+              </td>
+              <td class="hc-datagrid__cell">D0001</td>
+              <td class="hc-datagrid__cell">Product 1 Better Roast Ham</td>
+            </tr>
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell">11 boxes</td>
+              <td class="hc-datagrid__cell">$14,000</td>
+            </tr>
+          </tbody>
+          <tbody class="hc-datagrid__record">
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell" data-frozen data-frozen-edge rowspan="2"
+                  style="--hc-datagrid-left:0; width:56px; text-align:center;">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select record 2">
+                <div>2</div>
+              </td>
+              <td class="hc-datagrid__cell">D0002</td>
+              <td class="hc-datagrid__cell">Product 2 Better Roast Ham</td>
+            </tr>
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell">12 boxes</td>
+              <td class="hc-datagrid__cell">$14,000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="vrt-datagrid-actions">
+    <h2>Datagrid — selection actions bar</h2>
+    <!-- One row is server-rendered selected (checked + aria-selected), so
+         installDatagridActions unhides the bar and writes the count. -->
+    <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+         data-hc-datagrid-actions="#vrt-bulk-grid" hidden>
+      <span data-hc-datagrid-count></span>
+      <button class="hc-button" type="button">Archive</button>
+      <button class="hc-button" data-variant="error" type="button">Delete</button>
+    </div>
+    <div class="hc-datagrid" id="vrt-bulk-grid">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+              </th>
+              <th class="hc-datagrid__headcell" scope="col">ID</th>
+              <th class="hc-datagrid__headcell" scope="col">Product</th>
+              <th class="hc-datagrid__headcell" scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <tr class="hc-datagrid__row" data-selected aria-selected="true">
+              <td class="hc-datagrid__cell">
+                <input type="checkbox" class="hc-checkbox" name="ids" value="101"
+                       aria-label="Select Anvil" checked>
+              </td>
+              <th class="hc-datagrid__cell" scope="row">101</th>
+              <td class="hc-datagrid__cell">Anvil</td>
+              <td class="hc-datagrid__cell">Active</td>
+            </tr>
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell">
+                <input type="checkbox" class="hc-checkbox" name="ids" value="102"
+                       aria-label="Select Rocket skates">
+              </td>
+              <th class="hc-datagrid__cell" scope="row">102</th>
+              <td class="hc-datagrid__cell">Rocket skates</td>
+              <td class="hc-datagrid__cell">Active</td>
+            </tr>
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell">
+                <input type="checkbox" class="hc-checkbox" name="ids" value="103"
+                       aria-label="Select Tornado seeds">
+              </td>
+              <th class="hc-datagrid__cell" scope="row">103</th>
+              <td class="hc-datagrid__cell">Tornado seeds</td>
+              <td class="hc-datagrid__cell">Active</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="vrt-code">
+    <h2>Code — tokens, line numbers, coverage</h2>
+    <pre class="hc-code" tabindex="0" role="region" aria-label="Highlighted query"><code><span class="hc-code__tok" data-tok="keyword">SELECT</span> <span class="hc-code__tok" data-tok="identifier">id</span><span class="hc-code__tok" data-tok="operator">,</span> <span class="hc-code__tok" data-tok="number">1</span> <span class="hc-code__tok" data-tok="comment">-- note</span>
+<span class="hc-code__tok" data-tok="keyword">FROM</span> <span class="hc-code__tok" data-tok="string">'members'</span> <span class="hc-code__tok" data-tok="meta">/*%if x */</span></code></pre>
+    <ol class="hc-code" data-gutter="line-numbers" tabindex="0" aria-label="Covered query"
+        style="margin-block-start:.75rem;">
+      <li class="hc-code__line"><span class="hc-code__tok" data-tok="keyword">SELECT</span> <span class="hc-code__tok" data-tok="operator">*</span></li>
+      <li class="hc-code__line" data-state="covered"><span class="hc-code__tok" data-tok="keyword">FROM</span> orders</li>
+      <li class="hc-code__line" data-state="missed"><span class="hc-code__tok" data-tok="keyword">WHERE</span> total &gt; 0</li>
+    </ol>
+  </section>
+
+  <section id="vrt-code-diff">
+    <h2>Code — unified diff</h2>
+    <ol class="hc-code" data-mode="diff" tabindex="0" aria-label="Draft vs saved members.sql">
+      <li class="hc-code__line" data-state="context" data-old="12" data-new="12">  SELECT id</li>
+      <li class="hc-code__line" data-state="removed" data-old="13">  FROM users</li>
+      <li class="hc-code__line" data-state="added" data-new="13">  FROM app_users</li>
+    </ol>
+  </section>
+
+  <section id="vrt-sparkline">
+    <h2>Sparkline</h2>
+    <p>
+      Line coverage
+      <span class="hc-sparkline" data-values="0.62,0.66,0.7,0.72,0.78,0.82"
+            aria-label="SQL line coverage trend"></span>
+      82%
+    </p>
+    <p>
+      Pass rate
+      <span class="hc-sparkline" data-variant="success" data-area
+            data-values="0.9,0.92,0.95,0.97,0.99" aria-label="Pass rate trend"></span>
+      99%
+    </p>
+    <p>
+      Error rate
+      <span class="hc-sparkline" data-variant="error"
+            data-values="0.01,0.02,0.05,0.08,0.12" aria-label="Error rate trend"></span>
+      12%
+    </p>
+    <p>
+      Server-rendered (markup convention)
+      <span class="hc-sparkline" data-values="1,2,3" role="img" aria-label="Prebuilt trend">
+        <svg class="hc-sparkline__svg" viewBox="0 0 100 100" preserveAspectRatio="none"
+             aria-hidden="true" focusable="false" data-server="1">
+          <polyline class="hc-sparkline__line" points="0,90 50,50 100,10"></polyline>
+        </svg>
+      </span>
+    </p>
+  </section>
+
+  <section id="vrt-chart">
+    <h2>Chart — table fallback (Plot not loaded)</h2>
+    <figure class="hc-chart" data-hc-chart="bar" data-y-label="Sales">
+      <table class="hc-table">
+        <caption>Monthly sales</caption>
+        <thead><tr><th scope="col">Month</th><th scope="col">Sales</th></tr></thead>
+        <tbody>
+          <tr><td>Jan</td><td>1,200</td></tr>
+          <tr><td>Feb</td><td>2,000</td></tr>
+          <tr><td>Mar</td><td>1,500</td></tr>
+        </tbody>
+      </table>
+    </figure>
+  </section>
+
+  <section id="vrt-toc">
+    <h2>Table of contents</h2>
+    <!-- Server-rendered active state: aria-current="location" is authored
+         directly (no data-hc-spy), so the highlight is scroll-independent. -->
+    <nav class="hc-toc" aria-label="On this page" style="max-inline-size:14rem;">
+      <ul class="hc-toc__list">
+        <li class="hc-toc__item"><a class="hc-toc__link" href="#vrt-table">Table</a></li>
+        <li class="hc-toc__item"><a class="hc-toc__link" aria-current="location" href="#vrt-datagrid">Datagrid</a></li>
+        <li class="hc-toc__item"><a class="hc-toc__link" href="#vrt-code">Code</a></li>
+        <li class="hc-toc__item"><a class="hc-toc__link" href="#vrt-sparkline">Sparkline</a></li>
+      </ul>
+    </nav>
+  </section>
+</body>
+</html>

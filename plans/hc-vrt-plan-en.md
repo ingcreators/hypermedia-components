@@ -1,6 +1,6 @@
 # Visual regression testing — Playwright screenshots
 
-Status: **approved; implementation pending (one PR after this plan, §6).**
+Status: **shipped — sheets + spec + committed baselines (#288).**
 Quality infrastructure, not a feature: the kit has no systematic guard
 against purely visual regressions. `.hc-toolbar[hidden]` (caught only
 incidentally, #281) is the proof of the gap: invisible to jsdom,
