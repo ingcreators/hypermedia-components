@@ -1,0 +1,275 @@
+---
+title: Rails
+description: Ruby on Rails から Hypermedia Components を使う — Propshaft / Importmap のアセットパイプライン、ERB パーシャル、HTML フラグメントを返すコントローラ。
+---
+
+このガイドは Hypermedia Components を Rails 7+(Propshaft +
+Importmap)と htmx に組み合わせます。パターンは Sprockets ベースの
+アプリにも読み替えられます。
+
+## アセット読み込み
+
+HC の dist ファイルを `app/assets/builds/hc/`(Propshaft)または
+`vendor/javascript/`(Importmap)に置きます。以下の例は Propshaft を
+使います:
+
+```text
+app/assets/builds/hc/
+  hc.css
+  hc.behaviors.min.js
+  macros/
+    index.min.js
+vendor/javascript/
+  htmx.min.js
+```
+
+htmx は Importmap で pin するか、単に `vendor` から参照します:
+
+```ruby
+# config/importmap.rb
+pin "htmx",           to: "htmx.min.js"
+pin "hc",             to: "hc/hc.behaviors.min.js"
+pin "hc-macros",      to: "hc/macros/index.min.js"
+```
+
+`app/views/layouts/application.html.erb`:
+
+```erb
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= content_for(:title) || "My app" %></title>
+  <%= csrf_meta_tags %>
+
+  <%= stylesheet_link_tag "hc/hc.css" %>
+  <%= javascript_importmap_tags %>
+  <script type="module">
+    import "htmx"
+    import "hc"
+    import "hc-macros"
+  </script>
+</head>
+<body>
+  <%= yield %>
+
+  <div class="hc-toast-region"
+       data-hc-toast-region
+       role="region"
+       aria-label="Notifications"></div>
+
+  <script>
+    // Hand the CSRF token to htmx so every request carries it.
+    document.body.addEventListener("htmx:configRequest", (e) => {
+      const token = document.querySelector('meta[name="csrf-token"]')?.content
+      if (token) e.detail.headers["X-CSRF-Token"] = token
+    })
+  </script>
+</body>
+</html>
+```
+
+## コンポーネントの描画
+
+Rails のパーシャルは HC のパーツクラス構造に自然に対応します。
+
+```erb
+<%# app/views/shared/_field.html.erb %>
+<%# locals: (name:, label:, value: nil, message: nil, invalid: false) %>
+
+<div class="hc-field"<%= " data-invalid=\"true\"".html_safe if invalid %>>
+  <%= label_tag name, label, class: "hc-field__label" %>
+  <%= text_field_tag name, value,
+        class: "hc-input",
+        aria: invalid ? { invalid: true, describedby: "#{name}-error" } : {} %>
+  <% if message.present? %>
+    <p id="<%= name %>-error" class="hc-field__message"><%= message %></p>
+  <% end %>
+</div>
+```
+
+フォームからの利用:
+
+```erb
+<%= form_with url: users_path, method: :post,
+              data: { hx_post: users_path, hx_target: "this", hx_swap: "outerHTML" } do %>
+  <%= render "shared/field",
+        name: "email",
+        label: "Email",
+        value: @user.email,
+        message: @user.errors[:email].first,
+        invalid: @user.errors[:email].any? %>
+
+  <button class="hc-button" data-variant="primary" type="submit">Create</button>
+<% end %>
+```
+
+### `form_with` ヘルパーと HC クラス
+
+標準のフォームヘルパーに `hc-input` を足すには、`class:` を明示的に
+渡します:
+
+```erb
+<%= form.email_field :email, class: "hc-input" %>
+<%= form.select :status, statuses_for_select, {}, class: "hc-input" %>
+```
+
+繰り返し使うスタイリングは、ビューヘルパーで包みます:
+
+```ruby
+# app/helpers/hc_form_helper.rb
+module HcFormHelper
+  def hc_email_field(form, attr, **opts)
+    form.email_field(attr, { class: "hc-input" }.merge(opts))
+  end
+end
+```
+
+## HTML フラグメントを返す
+
+htmx スワップに対しては、コントローラがパーシャルを直接描画します。
+
+```ruby
+# app/controllers/items_controller.rb
+class ItemsController < ApplicationController
+  def create
+    @item = Item.new(item_params)
+    if @item.save
+      response.headers["HX-Trigger"] = {
+        "hc:toast" => { message: %(Saved "#{@item.name}"), variant: "success" }
+      }.to_json
+      render partial: "items/row", locals: { item: @item }, status: :created
+    else
+      render partial: "items/form", locals: { item: @item }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    item = Item.find(params[:id])
+    item.destroy
+    response.headers["HX-Trigger"] = {
+      "hc:toast" => { message: %(Deleted "#{item.name}"), variant: "success" }
+    }.to_json
+    head :ok # empty body — htmx removes the row via outerHTML swap
+  end
+end
+```
+
+`app/views/items/_row.html.erb`:
+
+```erb
+<tr id="item-<%= item.id %>">
+  <td><%= item.name %></td>
+  <td>
+    <span class="hc-badge" data-variant="<%= item.status %>">
+      <%= item.status_label %>
+    </span>
+  </td>
+  <td>
+    <span class="hc-action">
+      <%= button_tag "Delete",
+            type: "button",
+            class: "hc-button",
+            data: {
+              size: "sm",
+              variant: "error",
+              hc_confirm: "Delete #{item.name}?",
+              hx_delete: item_path(item),
+              hx_trigger: "hc:confirmed",
+              hx_target: "closest tr",
+              hx_swap: "outerHTML",
+              hx_disabled_elt: "this",
+              hx_indicator: "closest .hc-action",
+            } %>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </span>
+  </td>
+</tr>
+```
+
+Rails は `data: { hc_confirm: "..." }` を `data-hc-confirm="..."` に
+変換します — アンダースコアがハイフンになり、HC の属性規約と正確に
+一致します。
+
+## HX-Trigger によるトースト
+
+小さな concern でコントローラを整頓できます:
+
+```ruby
+# app/controllers/concerns/hx_triggers.rb
+module HxTriggers
+  extend ActiveSupport::Concern
+
+  def hx_trigger(events)
+    response.headers["HX-Trigger"] =
+      (existing_hx_trigger || {}).merge(events.stringify_keys).to_json
+  end
+
+  private
+
+  def existing_hx_trigger
+    raw = response.headers["HX-Trigger"]
+    raw ? JSON.parse(raw) : {}
+  rescue JSON::ParserError
+    {}
+  end
+end
+```
+
+```ruby
+class ItemsController < ApplicationController
+  include HxTriggers
+
+  def create
+    # …
+    hx_trigger("hc:toast" => { message: "Saved.", variant: "success" })
+    render partial: "items/row", locals: { item: @item }, status: :created
+  end
+end
+```
+
+## CSRF のヒント
+
+- レイアウトの `csrf_meta_tags` + `htmx:configRequest` リスナー(上の
+  レイアウトスニペット参照)で、htmx の全動詞をカバーできます。
+- フォームからの PUT / PATCH / DELETE では、Rails は通常 `_method` を
+  隠し input に忍ばせます — しかし htmx リクエストは `data-hx-{verb}`
+  で本物の動詞を使います。`X-CSRF-Token` ヘッダーは引き続き正しく
+  検証されます。
+- SPA 風のクロスオリジン htmx 呼び出しには、`protect_from_forgery
+  with: :null_session` を設定するか、特定アクションで検査をスキップ
+  してください。
+
+## htmx の検知
+
+```ruby
+class ItemsController < ApplicationController
+  def index
+    @items = Item.all
+    if request.headers["HX-Request"] == "true"
+      render partial: "items/rows", locals: { items: @items }
+    else
+      render :index
+    end
+  end
+end
+```
+
+`respond_to_htmx` ヘルパーとして抽出するのがよくあるパターンです。
+
+## ヒント
+
+- **Importmap と Propshaft** — どちらでも動きます。上の例は JS の pin に
+  Importmap、CSS ファイルに Propshaft を使っています。`hc.css` を
+  プリコンパイルするなら Sprockets でも問題ありません。
+- **Hotwire との併用** — Hypermedia Components は Hotwire(Turbo +
+  Stimulus)と共存できます。HC はスタイリングと小さなビヘイビアを
+  担当し、Hotwire / htmx は直交するトランスポートの選択です。
+- **フォームエラー** — `errors.full_messages_for(:email)`(または
+  `errors[:email]`)を、ラッパーの `data-invalid="true"` と入力の
+  `aria-invalid="true"` と組み合わせてください。
+
+## 関連
+
+- [レシピ → confirm-action](/hypermedia-components/ja/recipes/confirm-action/)
+- [レシピ → request-action](/hypermedia-components/ja/recipes/request-action/)
+- [レシピ → toast](/hypermedia-components/ja/recipes/toast/)

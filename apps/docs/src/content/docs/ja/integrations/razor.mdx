@@ -1,0 +1,283 @@
+---
+title: Razor(ASP.NET Core)
+description: ASP.NET Core の Razor Pages または MVC から Hypermedia Components を使う — 静的ファイル、パーシャルビュー、タグヘルパー、HX-Trigger ヘッダーつきの PartialView レスポンス。
+---
+
+このガイドは ASP.NET Core 8+ の Razor Pages または MVC を扱います。
+Blazor のページ内でサーバレンダリングされたフラグメントと htmx 駆動の
+スワップを混在させたい場合、パターンは Blazor Server でも機能します。
+
+## アセット読み込み
+
+HC の dist ファイルを `wwwroot/` 配下に置きます。静的ファイルは
+`UseStaticFiles()`(新規テンプレートではデフォルトで有効)で配信され
+ます。
+
+```text
+wwwroot/
+  assets/
+    hc/
+      hc.css
+      hc.behaviors.min.js
+      macros/
+        index.min.js
+    htmx.min.js
+Pages/Shared/
+  _Layout.cshtml
+  _ToastRegion.cshtml
+```
+
+`Pages/Shared/_Layout.cshtml`:
+
+```razor
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>@(ViewData["Title"] ?? "My app")</title>
+
+    <link rel="stylesheet" href="~/assets/hc/hc.css" asp-append-version="true">
+    <script defer src="~/assets/htmx.min.js" asp-append-version="true"></script>
+    <script type="module" src="~/assets/hc/hc.behaviors.min.js" asp-append-version="true"></script>
+    <script type="module" src="~/assets/hc/macros/index.min.js" asp-append-version="true"></script>
+
+    @* Antiforgery token for htmx requests *@
+    <meta name="request-verification-token"
+          content="@Antiforgery.GetAndStoreTokens(Context).RequestToken">
+</head>
+<body>
+    @RenderBody()
+
+    <partial name="_ToastRegion" />
+
+    <script>
+      document.body.addEventListener("htmx:configRequest", (e) => {
+        const token = document.querySelector('meta[name="request-verification-token"]')?.content;
+        if (token) e.detail.headers["RequestVerificationToken"] = token;
+      });
+    </script>
+</body>
+</html>
+```
+
+`asp-append-version` タグヘルパーはキャッシュバスティング用ハッシュを
+付けます — HC の CSS バンドルには重要です。
+
+`_ViewImports.cshtml` で `IAntiforgery` を一度だけ注入します:
+
+```razor
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+```
+
+## コンポーネントの描画
+
+Razor のパーシャルビューは HC のパーツクラス構造に自然に対応します。
+
+```razor
+@* Pages/Shared/_Field.cshtml *@
+@model FieldModel
+
+<div class="hc-field" data-invalid="@(Model.Invalid ? "true" : null)">
+    <label class="hc-field__label" for="@Model.Name">@Model.Label</label>
+    <input
+        id="@Model.Name"
+        name="@Model.Name"
+        value="@Model.Value"
+        class="hc-input"
+        aria-invalid="@(Model.Invalid ? "true" : null)"
+        aria-describedby="@(Model.Invalid ? $"{Model.Name}-error" : null)" />
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <p id="@($"{Model.Name}-error")" class="hc-field__message">@Model.Message</p>
+    }
+</div>
+```
+
+```razor
+public record FieldModel(string Name, string Label,
+                          string Value, string Message, bool Invalid);
+```
+
+ページからの利用:
+
+```razor
+@page
+@model CreateUserModel
+
+<form method="post" asp-page="Create"
+      data-hx-post="@Url.Page("Create")"
+      data-hx-target="this"
+      data-hx-swap="outerHTML">
+    <partial name="_Field" model="@(new FieldModel(
+        Name: "email",
+        Label: "Email",
+        Value: Model.Email,
+        Message: ModelState["Email"]?.Errors.FirstOrDefault()?.ErrorMessage,
+        Invalid: !ModelState.IsValid && ModelState["Email"]?.Errors.Count > 0))" />
+
+    <button class="hc-button" data-variant="primary" type="submit">Create</button>
+</form>
+```
+
+## HTML フラグメントを返す
+
+htmx スワップには `PartialViewResult` を返します:
+
+```csharp
+// Pages/Items/Index.cshtml.cs
+public class IndexModel : PageModel
+{
+    private readonly IItemStore _store;
+
+    public IndexModel(IItemStore store) => _store = store;
+
+    public IList<Item> Items { get; private set; } = new List<Item>();
+
+    public IActionResult OnGet()
+    {
+        Items = _store.All();
+        if (Request.Headers["HX-Request"] == "true")
+        {
+            return Partial("_Rows", Items);
+        }
+        return Page();
+    }
+
+    public IActionResult OnPostDelete(int id)
+    {
+        if (!_store.TryDelete(id, out var item))
+        {
+            return NotFound();
+        }
+        Response.Headers["HX-Trigger"] = JsonSerializer.Serialize(new
+        {
+            hcToast = new { message = $"Deleted \"{item.Name}\".", variant = "success" },
+        });
+        // map the property name to "hc:toast" via custom converter,
+        // or build the JSON by hand (next example).
+        return new EmptyResult();
+    }
+}
+```
+
+`Pages/Items/_Rows.cshtml`:
+
+```razor
+@model IEnumerable<Item>
+
+@foreach (var item in Model)
+{
+    <tr id="item-@item.Id">
+        <td>@item.Name</td>
+        <td>
+            <span class="hc-badge" data-variant="@item.Status">@item.StatusLabel</span>
+        </td>
+        <td>
+            <span class="hc-action">
+                <button
+                    class="hc-button"
+                    data-size="sm"
+                    data-variant="error"
+                    type="button"
+                    data-hc-confirm="Delete @item.Name?"
+                    data-hx-delete="/items/@item.Id"
+                    data-hx-trigger="hc:confirmed"
+                    data-hx-target="closest tr"
+                    data-hx-swap="outerHTML"
+                    data-hx-disabled-elt="this"
+                    data-hx-indicator="closest .hc-action">
+                    Delete
+                </button>
+                <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+            </span>
+        </td>
+    </tr>
+}
+```
+
+## HX-Trigger によるトースト
+
+`System.Text.Json` はプロパティ名から `"hc:toast"`(コロン)を直接
+出力できません。JSON をリテラルで組み立てるか、`JsonObject` を使い
+ます:
+
+```csharp
+using System.Text.Json.Nodes;
+
+public static class HxTriggerExtensions
+{
+    public static void HxTrigger(this HttpResponse response,
+                                  string @event, object detail)
+    {
+        var existing = response.Headers["HX-Trigger"].ToString();
+        var node = string.IsNullOrEmpty(existing)
+            ? new JsonObject()
+            : JsonNode.Parse(existing)!.AsObject();
+        node[@event] = JsonSerializer.SerializeToNode(detail);
+        response.Headers["HX-Trigger"] = node.ToJsonString();
+    }
+}
+```
+
+ハンドラでは:
+
+```csharp
+Response.HxTrigger("hc:toast", new {
+    message = "Saved.", variant = "success"
+});
+```
+
+## Antiforgery / CSRF
+
+ASP.NET Core の antiforgery システムは、htmx リクエストに
+`RequestVerificationToken` ヘッダーを使います。上の
+`_Layout.cshtml` スニペットは:
+
+1. トークンを `<meta>` タグに描画します。
+2. `htmx:configRequest` 経由で htmx に転送します。
+
+Razor Pages では、POST ハンドラに対して antiforgery は**デフォルトで
+有効**です。ほとんどの場合 `[ValidateAntiForgeryToken]` は不要です —
+フレームワークが配線してくれます。MVC コントローラでは、
+`POST` / `PUT` / `DELETE` アクションに属性を付けてください。
+
+## htmx の検知
+
+```csharp
+public bool IsHtmx => Request.Headers["HX-Request"] == "true";
+```
+
+カスタム属性やフィルタで、htmx 以外のリクエストをフルページへ
+短絡させられます:
+
+```csharp
+public class HtmxOnlyAttribute : ActionFilterAttribute
+{
+    public override void OnActionExecuting(ActionExecutingContext ctx)
+    {
+        if (ctx.HttpContext.Request.Headers["HX-Request"] != "true")
+        {
+            ctx.Result = new RedirectToActionResult("Index", "Home", null);
+        }
+    }
+}
+```
+
+## ヒント
+
+- **タグヘルパー** — HC は `data-*` 属性に徹しているため、ASP.NET の
+  タグヘルパー(`asp-for`、`asp-validation-for`)と衝突せずに組み合い
+  ます。
+- **バリデーションサマリー** — Razor の `<span asp-validation-for>` を
+  `.hc-field` ラッパーの `data-invalid="true"` と組み合わせ、視覚と
+  支援技術の合図を同期させてください。
+- **Blazor Server** — Blazor と htmx を混在させるときは、サーバ
+  レンダリングの断片は `MarkupString` 経由で HC コンポーネントを描画し、
+  同じ DOM サブツリー内で Blazor の diff と htmx のスワップを交差配線
+  しないようにしてください。
+
+## 関連
+
+- [レシピ → confirm-action](/hypermedia-components/ja/recipes/confirm-action/)
+- [レシピ → request-action](/hypermedia-components/ja/recipes/request-action/)
+- [レシピ → toast](/hypermedia-components/ja/recipes/toast/)

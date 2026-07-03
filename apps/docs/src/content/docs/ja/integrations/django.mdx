@@ -1,0 +1,255 @@
+---
+title: Django
+description: Django テンプレートから Hypermedia Components を使い、ビューから HTML フラグメントを返し、HX-Trigger レスポンスヘッダーでトーストを発火します。
+---
+
+このガイドは Hypermedia Components を Django + htmx と組み合わせます。
+任意の [`django-htmx`](https://django-htmx.readthedocs.io/) パッケージは
+便利なリクエスト側ヘルパーを足しますが、以下はすべてそれなしでも
+動きます。
+
+## アセット読み込み
+
+HC の dist ファイルを static ディレクトリに置き、`base.html` から参照
+します。
+
+```text
+static/
+  assets/
+    hc/
+      hc.css
+      hc.behaviors.min.js
+      macros/
+        index.min.js
+    htmx.min.js
+```
+
+```html
+{# templates/base.html #}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}My app{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'assets/hc/hc.css' %}">
+  <script defer src="{% static 'assets/htmx.min.js' %}"></script>
+  <script type="module" src="{% static 'assets/hc/hc.behaviors.min.js' %}"></script>
+  <script type="module" src="{% static 'assets/hc/macros/index.min.js' %}"></script>
+</head>
+<body
+  data-hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+  {% block content %}{% endblock %}
+
+  <div class="hc-toast-region"
+       data-hc-toast-region
+       role="region"
+       aria-label="Notifications"></div>
+</body>
+</html>
+```
+
+`<body>` の `data-hx-headers` 属性により、すべての htmx リクエストが
+Django の期待する CSRF トークンを運びます。トークンは
+`{% csrf_token %}` コンテキストプロセッサ(新規プロジェクトでは
+デフォルトで有効)から来ます。
+
+## コンポーネントの描画
+
+再利用可能なテンプレートスニペットは HC のパーツクラスとよく組み合い
+ます。シンプルなフィールドのインクルード:
+
+```html
+{# templates/components/_field.html #}
+<div class="hc-field"{% if invalid %} data-invalid="true"{% endif %}>
+  <label class="hc-field__label" for="{{ name }}">{{ label }}</label>
+  <input
+    id="{{ name }}"
+    name="{{ name }}"
+    value="{{ value|default_if_none:'' }}"
+    class="hc-input"
+    {% if invalid %}
+      aria-invalid="true"
+      aria-describedby="{{ name }}-error"
+    {% endif %}>
+  {% if message %}
+    <p id="{{ name }}-error" class="hc-field__message">{{ message }}</p>
+  {% endif %}
+</div>
+```
+
+ページからの利用:
+
+```html
+<form
+  method="post" action="{% url 'users:create' %}"
+  data-hx-post="{% url 'users:create' %}"
+  data-hx-target="this"
+  data-hx-swap="outerHTML">
+  {% include 'components/_field.html' with name='email' label='Email' value=form.email.value message=form.email.errors|first invalid=form.email.errors %}
+  <button class="hc-button" data-variant="primary" type="submit">Create</button>
+</form>
+```
+
+### Django フォームのスタイリング
+
+カスタム HTML を書かずに Django のフォームウィジェットへ `hc-input` を
+適用するには、フォームクラスで属性を設定します:
+
+```python
+class UserForm(forms.Form):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'hc-input'})
+    )
+```
+
+または `{% django-widget-tweaks %}` ライブラリを使ってテンプレート側で:
+
+```html
+{% load widget_tweaks %}
+{{ form.email|add_class:"hc-input"|attr:"aria-invalid:true" }}
+```
+
+## HTML フラグメントを返す
+
+htmx リクエストには、ターゲット領域のフラグメントだけを返します。
+フラグメントごとに専用テンプレートを使うか、`request.htmx` で分岐
+します。
+
+```python
+# views.py
+from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+
+
+def list_items(request):
+    items = Item.objects.all()
+    template = 'items/_rows.html' if request.htmx else 'items/list.html'
+    return render(request, template, {'items': items})
+
+
+def delete_item(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    item.delete()
+    return HttpResponse(
+        '',
+        headers={
+            'HX-Trigger': json.dumps({
+                'hc:toast': {
+                    'message': f'Deleted "{item.name}".',
+                    'variant': 'success',
+                },
+            }),
+        },
+    )
+```
+
+`items/_rows.html`:
+
+```html
+{% for item in items %}
+  <tr id="item-{{ item.id }}">
+    <td>{{ item.name }}</td>
+    <td>
+      <span class="hc-badge" data-variant="{{ item.status }}">
+        {{ item.get_status_display }}
+      </span>
+    </td>
+    <td>
+      <span class="hc-action">
+        <button
+          class="hc-button"
+          data-size="sm"
+          data-variant="error"
+          type="button"
+          data-hc-confirm="Delete {{ item.name }}?"
+          data-hx-delete="{% url 'items:delete' item.id %}"
+          data-hx-trigger="hc:confirmed"
+          data-hx-target="closest tr"
+          data-hx-swap="outerHTML"
+          data-hx-disabled-elt="this"
+          data-hx-indicator="closest .hc-action">
+          Delete
+        </button>
+        <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+      </span>
+    </td>
+  </tr>
+{% endfor %}
+```
+
+## HX-Trigger によるトースト
+
+クライアント側の通知には `HX-Trigger` レスポンスヘッダーを使います。
+`hc:toast` のドキュメント化されたリスナーがトーストビヘイビアです。
+
+```python
+import json
+from django.http import HttpResponse
+
+
+def save_item(request):
+    # …mutate state…
+    return HttpResponse(
+        rendered_fragment,
+        headers={
+            'HX-Trigger': json.dumps({
+                'hc:toast': {'message': 'Saved.', 'variant': 'success'},
+            }),
+        },
+    )
+```
+
+小さなヘルパーで JSON エンコードの繰り返しを避けられます:
+
+```python
+def hx_trigger(response, events):
+    response['HX-Trigger'] = json.dumps(events)
+    return response
+```
+
+## CSRF のヒント
+
+- Django は POST / PUT / PATCH / DELETE に CSRF トークンを要求します。
+  `base.html` の `data-hx-headers` 属性が、すべての htmx リクエストで
+  それを送ります。
+- htmx の構成が状態にクッキーを使う場合、`CSRF_COOKIE_HTTPONLY = False`
+  設定にすると `getCsrfToken()` JS ヘルパーが直接読めます —
+  `data-hx-headers` を `<body>` ではなく要素単位で設定する場合に
+  便利です。
+- DELETE と PATCH では、フォームボディがなくても Django は標準の
+  `X-CSRFToken` ヘッダーを必要とします。`data-hx-headers` がこれを
+  カバーします。
+
+## htmx の検知
+
+`django-htmx` ミドルウェアは `request.htmx`(htmx リクエストで
+truthy)、`request.htmx.boosted`、およびリクエストヘッダーを属性として
+追加します。ミドルウェアなしなら、自分でヘッダーを確認します:
+
+```python
+def list_items(request):
+    is_htmx = request.headers.get('HX-Request') == 'true'
+    template = 'items/_rows.html' if is_htmx else 'items/list.html'
+    return render(request, template, {'items': Item.objects.all()})
+```
+
+## ヒント
+
+- **`whitenoise`** — 本番でハッシュつきアセット URL が機能するよう
+  `STATIC_ROOT` と `STATICFILES_STORAGE` を設定してください。HC の
+  アセットは静的で、キャッシュバスティングの恩恵を受けます。
+- **`form.as_p` のデフォルト** — 同梱のフォーム描画は `hc-input` を
+  出力しません。フィールドを手で描画するか、widget attrs /
+  widget-tweaks でクラスを注入してください。
+- **`HX-Trigger-After-Settle`** — htmx が DOM 変更のセトリングを終えた
+  後にだけ発火すべきイベントには、`HX-Trigger` の代わりに
+  `HX-Trigger-After-Settle` ヘッダーを使ってください。
+
+## 関連
+
+- [レシピ → confirm-action](/hypermedia-components/ja/recipes/confirm-action/)
+- [レシピ → live-search](/hypermedia-components/ja/recipes/live-search/)
+- [レシピ → toast](/hypermedia-components/ja/recipes/toast/)

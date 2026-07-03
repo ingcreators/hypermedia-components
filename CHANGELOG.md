@@ -22,6 +22,13 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 4** (#317, docs-facing). The six
+  framework guides — Thymeleaf, Django, Rails, Go, Razor, and
+  Hyperscript — completing the integrations section. The `/ja/` docs
+  now cover the landing page, start, fundamentals, tokens, and all
+  integrations (37 pages); cross-page anchors updated for the newly
+  translated headings.
+
 - **Docs: Japanese translations, phase 3** (#316, docs-facing). Nine
   more pages: the whole `tokens/` section (palette, theme-builder,
   neutral, status, variants, density, themes) and the two foundation
