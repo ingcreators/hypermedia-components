@@ -1,0 +1,37 @@
+<!-- Fully expanded HTML — the three server-rendered states of one item.
+  The client authors only state 1; states 2 and 3 are what the server
+  returns (contract.md). The pairing key `item-42:restore` appears in
+  exactly two server-generated places: the delete response's toast
+  action and the tombstone's trigger. -->
+
+<!-- 1. Normal row (initial render, and what POST …/restore returns). -->
+<tr id="item-42">
+  <td>Anvil</td>
+  <td>
+    <button class="hc-button" data-size="sm"
+            data-hx-delete="/items/42"
+            data-hx-target="closest tr"
+            data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Delete</button>
+  </td>
+</tr>
+
+<!-- 2. Tombstone (what DELETE /items/42 returns, replacing the row via
+     outerHTML). Hidden, position-preserving, carries the restore
+     wiring. The same response sets:
+     HX-Trigger: {"hc:toast":{"id":"undo-item-42",
+       "message":"\"Anvil\" deleted","variant":"info","duration":10000,
+       "action":{"label":"Undo","event":"item-42:restore"}}} -->
+<tr id="item-42" hidden
+    data-hx-post="/items/42/restore"
+    data-hx-trigger="item-42:restore from:body"
+    data-hx-swap="outerHTML"></tr>
+
+<!-- 3. After Undo: POST /items/42/restore returns fragment 1 again
+     (outerHTML replaces the tombstone — the row reappears in place)
+     and updates the same toast:
+     HX-Trigger: {"hc:toast":{"id":"undo-item-42",
+       "message":"\"Anvil\" restored","variant":"success","duration":3000}}
+
+     After the grace period instead: 200 with fragment 2 again (the
+     slot stays empty) and an error toast — see contract.md. -->

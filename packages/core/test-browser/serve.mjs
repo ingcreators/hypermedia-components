@@ -225,7 +225,7 @@ function handleBulk(req, res, url) {
           : { message: `${ids.length} ${verb}`, variant: 'success' };
         res.statusCode = 200;
         res.setHeader('Content-Type', MIME['.html']);
-        res.setHeader('HX-Trigger', JSON.stringify({ 'hc:toast': toast }));
+        res.setHeader('HX-Trigger', hxTrigger({ 'hc:toast': toast }));
         res.end(rows + status);
       }, 250);
     });
@@ -245,9 +245,104 @@ function handleBulk(req, res, url) {
   return true;
 }
 
+// Mock soft-delete handler for the undo-delete spec (undo-delete.html):
+// three items, per-server-run state. DELETE returns the tombstone (the
+// row's slot, hidden, carrying the restore wiring) + the undo toast;
+// POST …/restore returns the original row + the success toast — unless
+// the item is flagged expired, in which case the 200-with-truth shape
+// returns the tombstone again + an error toast (recipe contract).
+const UNDO_ITEMS = new Map([
+  [1, { name: 'Anvil' }],
+  [2, { name: 'Rocket skates' }],
+  [3, { name: 'Tornado seeds', expired: true }], // grace already over
+]);
+
+function undoRow(id, item) {
+  return `<tr id="undo-item-${id}" data-testid="row-${id}">
+    <td>${item.name}</td>
+    <td><button class="hc-button" data-size="sm"
+          data-hx-delete="/mock/items/${id}"
+          data-hx-target="closest tr"
+          data-hx-swap="outerHTML"
+          data-hx-disabled-elt="this"
+          data-testid="delete-${id}">Delete</button></td>
+  </tr>`;
+}
+
+function undoTombstone(id) {
+  return `<tr id="undo-item-${id}" hidden
+    data-hx-post="/mock/items/${id}/restore"
+    data-hx-trigger="item-${id}:restore from:body"
+    data-hx-swap="outerHTML"></tr>`;
+}
+
+// HTTP header values are latin-1 — a toast message with an em dash (or
+// any localized text) crashes res.setHeader. JSON's \uXXXX escapes keep
+// the HX-Trigger header pure ASCII and htmx parses them natively; the
+// recipe contracts bless this encoding for every HX-Trigger payload.
+function hxTrigger(payload) {
+  return JSON.stringify(payload).replace(
+    /[\u007f-\uffff]/g,
+    (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'),
+  );
+}
+
+function handleUndo(req, res, url) {
+  const del = url.pathname.match(/^\/mock\/items\/(\d+)$/);
+  if (del && req.method === 'DELETE') {
+    req.resume();
+    const id = Number(del[1]);
+    const item = UNDO_ITEMS.get(id);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.setHeader('HX-Trigger', hxTrigger({
+      'hc:toast': {
+        id: `undo-item-${id}`,
+        message: `"${item.name}" deleted`,
+        variant: 'info',
+        duration: 10000,
+        action: { label: 'Undo', event: `item-${id}:restore` },
+      },
+    }));
+    res.end(undoTombstone(id));
+    return true;
+  }
+  const restore = url.pathname.match(/^\/mock\/items\/(\d+)\/restore$/);
+  if (restore && req.method === 'POST') {
+    req.resume();
+    const id = Number(restore[1]);
+    const item = UNDO_ITEMS.get(id);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    if (item.expired) {
+      res.setHeader('HX-Trigger', hxTrigger({
+        'hc:toast': {
+          id: `undo-item-${id}`,
+          message: `Too late — "${item.name}" was permanently deleted`,
+          variant: 'error',
+        },
+      }));
+      res.end(undoTombstone(id));
+    } else {
+      res.setHeader('HX-Trigger', hxTrigger({
+        'hc:toast': {
+          id: `undo-item-${id}`,
+          message: `"${item.name}" restored`,
+          variant: 'success',
+          duration: 3000,
+        },
+      }));
+      res.end(undoRow(id, item));
+    }
+    return true;
+  }
+  return false;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
+  if (handleUndo(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
   req.resume();

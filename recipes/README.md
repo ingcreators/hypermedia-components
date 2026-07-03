@@ -34,4 +34,5 @@ documentation pages.
 | [`datagrid-bulk-actions/`](datagrid-bulk-actions/) | Select datagrid rows and POST one action against all of them.  |
 | [`sse-updates/`](sse-updates/)            | Server-pushed fragment updates over Server-Sent Events.                 |
 | [`sse-toast/`](sse-toast/)                | Server-pushed notifications / domain events via the SSE dispatch bridge. |
+| [`undo-delete/`](undo-delete/)            | Undo instead of confirm — soft delete + grace period + tombstone restore. |
 | [`chart/`](chart/)                        | Server-sent data table upgraded to an Observable Plot SVG chart. *(needs `installChart` + Plot)* |

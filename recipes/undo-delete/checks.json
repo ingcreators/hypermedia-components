@@ -1,0 +1,18 @@
+{
+  "detect": "[data-hx-delete][data-hx-swap=\"outerHTML\"]:not([data-hc-confirm])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "target-declared",
+      "level": "error",
+      "message": "The delete button declares its target (usually closest tr / closest li) — the element the tombstone will replace.",
+      "attr": { "on": "[data-hx-delete]", "name": "data-hx-target", "assert": "present", "matches": "\\S" }
+    },
+    {
+      "id": "double-submit-guard",
+      "level": "warn",
+      "message": "Disable the button during the request (data-hx-disabled-elt=\"this\") so a double click can't fire two deletes.",
+      "attr": { "on": "[data-hx-delete]", "name": "data-hx-disabled-elt", "assert": "present" }
+    }
+  ]
+}

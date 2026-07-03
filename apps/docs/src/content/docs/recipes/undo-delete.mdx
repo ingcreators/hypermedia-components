@@ -1,0 +1,118 @@
+---
+title: Undo delete
+description: Undo instead of confirm — the delete executes immediately, the server soft-deletes with a grace period, and the toast's Undo button restores the row in place via a tombstone. Zero custom JavaScript.
+---
+
+`undo-delete` is the blessed **undo instead of confirm** pattern for
+frequent destructive actions: no dialog — the delete executes
+immediately, the server keeps the item recoverable for a grace period,
+and the result toast carries an **Undo** button that puts the row back
+exactly where it was. It is the counterpart to
+[confirm-action](/hypermedia-components/recipes/confirm-action/), built
+from already-shipped pieces with **zero new JavaScript**, and stable
+under the
+[markup versioning policy](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md).
+
+It needs `installToast()` (in the auto-init
+[`./behaviors`](/hypermedia-components/start/installation/#behaviors)
+bundle) — nothing else.
+
+## The markup
+
+One button per item, in the
+[request-action](/hypermedia-components/recipes/request-action/) shape —
+deliberately **without** `data-hc-confirm`:
+
+```html
+<tr id="item-42">
+  <td>Anvil</td>
+  <td>
+    <button class="hc-button" data-size="sm"
+            data-hx-delete="/items/42"
+            data-hx-target="closest tr"
+            data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Delete</button>
+  </td>
+</tr>
+```
+
+## The tombstone
+
+The DELETE response replaces the row with a hidden **tombstone** that
+preserves the DOM slot and carries the restore wiring, and triggers the
+undo toast:
+
+```html
+<tr id="item-42" hidden
+    data-hx-post="/items/42/restore"
+    data-hx-trigger="item-42:restore from:body"
+    data-hx-swap="outerHTML"></tr>
+```
+
+```text
+HX-Trigger: {"hc:toast":{"id":"undo-item-42","message":"\"Anvil\" deleted",
+  "variant":"info","duration":10000,
+  "action":{"label":"Undo","event":"item-42:restore"}}}
+```
+
+The **pairing key** (`item-42:restore`) is one server-generated string
+in exactly two places: the toast's `action.event` and the tombstone's
+trigger. Clicking Undo makes the toast dispatch that bubbling event
+(the shipped [toast](/hypermedia-components/recipes/toast/) action
+button); the tombstone hears it via `from:body` and POSTs the restore;
+the server returns the original row, which swaps back **into the same
+slot** — position preserved, several pending undos never cross.
+
+The restore response reuses the toast `id`, so the undo toast updates
+in place to "restored". Use `<tr hidden>` in tables, `<li hidden>` in
+lists, `<div hidden>` in card grids.
+
+## Grace period: server truth, toast hint
+
+The server hard-deletes on its own clock (recommended: grace ≥ toast
+duration, e.g. 10 s toast / 30–60 s grace). A dismissed or expired
+toast finalizes nothing. Restore after expiry follows the
+**200-with-truth** doctrine: body = the tombstone again, plus an error
+toast ("permanently deleted") — no status-code choreography, same as
+[datagrid-bulk-actions](/hypermedia-components/recipes/datagrid-bulk-actions/).
+
+:::note[Encode the HX-Trigger header]
+Header values are latin-1 — the first item name with an em dash or
+Japanese text will crash naive header serialization. Escape non-ASCII
+as JSON `\uXXXX` (htmx parses it natively); the
+[contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/undo-delete/contract.md)
+has the one-liner. This applies to every recipe that sends `HX-Trigger`.
+:::
+
+## Undo or confirm?
+
+| | [confirm-action](/hypermedia-components/recipes/confirm-action/) | undo-delete |
+| --- | --- | --- |
+| Fits | rare, catastrophic, hard-to-reverse | frequent, recoverable |
+| Cost | a dialog on every action | a grace window on the server |
+| Failure mode | confirm fatigue | expired grace (error toast) |
+
+Pick one per action — stacking both pays both costs and buys nothing.
+
+## Composition and degradation
+
+Inside a datagrid the tombstone swaps in as a row and the tbody
+observer re-derives roles, offsets and selection on both delete and
+restore. Tombstones are inert leftovers pruned by any full re-render
+(a [data-region](/hypermedia-components/recipes/data-region/) refresh,
+pagination). Without JavaScript, keep a form-fallback delete
+(`method="post"` + `303`, the
+[mutating-form](/hypermedia-components/recipes/mutating-form/)
+branching) — undo itself is toast-borne and honestly unavailable; give
+no-JS deletes a server-side confirm page if they need protection.
+
+The claims here — position-preserving restore, pairing-key isolation
+across two pending undos, the expiry path — are pinned by a real-htmx
+browser test (`test-browser/undo-delete.spec.mjs`).
+
+## Related
+
+- [Confirm action recipe](/hypermedia-components/recipes/confirm-action/) — the counterpart; the decision table above.
+- [Toast recipe](/hypermedia-components/recipes/toast/) — the action button and update-by-id this rides on.
+- [Request action recipe](/hypermedia-components/recipes/request-action/) — the button shape.
+- [Datagrid bulk actions recipe](/hypermedia-components/recipes/datagrid-bulk-actions/) — the 200-with-truth doctrine.
