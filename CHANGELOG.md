@@ -22,6 +22,28 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc validate` — machine-checked recipe contracts**
+  (`@hypermedia-components/cli`, #286).
+  `npx @hypermedia-components/cli validate <file|dir>… [--recipe]
+  [--strict]` parses local HTML (rendered pages, fixtures, server
+  responses), detects recipe instances automatically, and checks them
+  against declarative rules that now ship **inside every recipe**
+  (`recipes/<name>/checks.json`, next to `contract.md`; `add` copies
+  it, the tarball bundles it): required/forbidden attributes,
+  structure, and reference integrity, each finding naming its rule and
+  contract. Signature traps covered include the bulk-actions named
+  select-all, the pager/tbody `outerHTML` mistake, an unconfirmed
+  `data-hc-confirm` + htmx-verb pairing, and an unhidden SSE bridge.
+  The blessed `data-hx-*`/`data-sse-*` spelling is checked, with a
+  warning on short forms. A **self-validation keystone test** pins
+  every recipe's own scaffolds against its own rules in CI — and
+  already caught a real scaffold bug (below). Exit codes are
+  CI-friendly (`1` on errors; `--strict` promotes warnings).
+  [linkedom](https://github.com/WebReflection/linkedom) becomes the
+  CLI's first runtime dependency, lazy-loaded by `validate` only —
+  `add`/`list` are unaffected. The CI unit job now also runs the CLI
+  test suite (it previously didn't run at all in CI).
+
 - **`sse-updates` + `sse-toast` recipes — the blessed server-push
   patterns** (#284). Server-Sent Events over the official htmx SSE
   extension (vendored pinned, `examples/htmx/vendor/sse.min.js`,
@@ -77,6 +99,12 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **`inline-edit` recipe scaffold: the display fragment now declares
+  `data-hx-swap="outerHTML"`** (#286). Without it htmx's default
+  `innerHTML` swap nests the edit form *inside* the display node
+  (duplicating the id) instead of replacing it, contradicting the
+  contract and `expanded.html`. Caught by the new self-validation
+  keystone test on its first run.
 - **`.hc-toolbar[hidden]` now actually hides.** The toolbar's
   `display: flex` defeated the UA's `[hidden]` rule, so a state-toggled
   toolbar (the selection actions bar) stayed visible. Restored with an

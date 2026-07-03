@@ -1,0 +1,28 @@
+{
+  "detect": "[data-hc-confirm]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "gated-trigger",
+      "level": "error",
+      "message": "An element carrying both data-hc-confirm and an htmx verb must fire on hc:confirmed (data-hx-trigger=\"hc:confirmed\"), or htmx sends the request before the dialog.",
+      "attr": {
+        "on": "[data-hc-confirm][data-hx-post], [data-hc-confirm][data-hx-delete], [data-hc-confirm][data-hx-put], [data-hc-confirm][data-hx-patch], [data-hc-confirm][data-hx-get]",
+        "name": "data-hx-trigger",
+        "assert": "present",
+        "matches": "hc:confirmed"
+      }
+    },
+    {
+      "id": "has-message",
+      "level": "error",
+      "message": "data-hc-confirm carries the dialog message — it must not be empty.",
+      "attr": {
+        "on": "[data-hc-confirm]",
+        "name": "data-hc-confirm",
+        "assert": "present",
+        "matches": "\\S"
+      }
+    }
+  ]
+}

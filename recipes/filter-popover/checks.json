@@ -1,0 +1,33 @@
+{
+  "detect": ".hc-popover[popover]:has(form)",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "form-has-verb",
+      "level": "error",
+      "message": "The filter form needs an htmx verb (data-hx-get / data-hx-post).",
+      "exists": {
+        "selector": "form[data-hx-get], form[data-hx-post]"
+      }
+    },
+    {
+      "id": "closes-on-success",
+      "level": "error",
+      "message": "Close the popover after a successful request (data-hc-close-popover-on-success).",
+      "attr": {
+        "on": "form[data-hx-get], form[data-hx-post]",
+        "name": "data-hc-close-popover-on-success",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "target-resolves",
+      "level": "warn",
+      "message": "data-hx-target must point at an element in the document. (warn: fragments may target elements elsewhere on the page)",
+      "resolves": {
+        "on": "form[data-hx-get], form[data-hx-post]",
+        "name": "data-hx-target"
+      }
+    }
+  ]
+}

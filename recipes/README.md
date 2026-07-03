@@ -6,6 +6,9 @@ Each subdirectory is one recipe and follows this contract:
 recipe.html     Short recommended usage (with hc-* classes and data-hx-*).
 expanded.html   Fully expanded HTML — the copy-pasteable, framework-free form.
 contract.md     Server response contract: what HTML / HX-Trigger to return.
+checks.json     The contract's machine-readable rules — `npx
+                @hypermedia-components/cli validate` checks your HTML
+                against them.
 ```
 
 Recipes are the source of truth for the `apps/docs/src/content/docs/recipes/*`

@@ -1,0 +1,36 @@
+{
+  "detect": "[data-hc-sse-dispatch]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "bridge-hidden",
+      "level": "error",
+      "message": "The bridge never renders — give it the hidden attribute.",
+      "attr": {
+        "on": "[data-hc-sse-dispatch]",
+        "name": "hidden",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "bridge-allowlist",
+      "level": "error",
+      "message": "The bridge needs data-sse-swap — the event allowlist.",
+      "attr": {
+        "on": "[data-hc-sse-dispatch]",
+        "name": "data-sse-swap",
+        "assert": "present",
+        "matches": "\\S"
+      }
+    },
+    {
+      "id": "inside-scope",
+      "level": "error",
+      "message": "The bridge must sit inside a data-sse-connect scope.",
+      "closest": {
+        "on": "[data-hc-sse-dispatch]",
+        "selector": "[data-sse-connect]"
+      }
+    }
+  ]
+}

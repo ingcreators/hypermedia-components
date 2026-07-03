@@ -1,0 +1,26 @@
+{
+  "detect": "[data-hc-copy], [data-hc-copy-text]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "source-resolves",
+      "level": "warn",
+      "message": "data-hc-copy is a CSS selector — it must point at an element in the document. (warn: fragments may target elements elsewhere on the page)",
+      "resolves": {
+        "on": "[data-hc-copy]",
+        "name": "data-hc-copy"
+      }
+    },
+    {
+      "id": "real-button",
+      "level": "warn",
+      "message": "The trigger should be a <button type=\"button\"> so it is keyboard-activatable.",
+      "attr": {
+        "on": "button[data-hc-copy], button[data-hc-copy-text]",
+        "name": "type",
+        "assert": "present",
+        "value": "button"
+      }
+    }
+  ]
+}

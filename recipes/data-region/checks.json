@@ -1,0 +1,39 @@
+{
+  "detect": ".hc-data-region[data-hx-get]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "has-id",
+      "level": "error",
+      "message": "The region needs an id — the outerHTML swap must be idempotent (same id back from the server).",
+      "attr": {
+        "on": ".hc-data-region",
+        "name": "id",
+        "assert": "present",
+        "matches": "\\S"
+      }
+    },
+    {
+      "id": "swap-outerhtml",
+      "level": "error",
+      "message": "The region swaps itself with outerHTML (the server returns the whole section).",
+      "attr": {
+        "on": ".hc-data-region",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
+    },
+    {
+      "id": "invalidation-trigger",
+      "level": "error",
+      "message": "The trigger must listen for the domain event on body (…from:body).",
+      "attr": {
+        "on": ".hc-data-region",
+        "name": "data-hx-trigger",
+        "assert": "present",
+        "matches": "from:body"
+      }
+    }
+  ]
+}

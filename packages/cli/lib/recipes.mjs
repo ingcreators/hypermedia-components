@@ -9,8 +9,9 @@ import { fileURLToPath } from 'node:url';
 
 const PKG_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-/** The three files every recipe ships (the recipe DoD's source format). */
-export const RECIPE_FILES = ['recipe.html', 'expanded.html', 'contract.md'];
+/** The files a recipe ships (the recipe DoD's source format; checks.json
+ * is the machine-readable contract used by `validate`). */
+export const RECIPE_FILES = ['recipe.html', 'expanded.html', 'contract.md', 'checks.json'];
 
 /** Bundled copy first (published tarball), repo root second (workspace dev). */
 export function recipesRoot() {

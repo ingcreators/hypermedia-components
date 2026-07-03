@@ -1,0 +1,34 @@
+{
+  "detect": "[data-hc-toast-region]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "position-valid",
+      "level": "error",
+      "message": "data-position must be one of the six documented placements.",
+      "attr": {
+        "on": "[data-hc-toast-region][data-position]",
+        "name": "data-position",
+        "assert": "present",
+        "oneOf": [
+          "top-left",
+          "top-center",
+          "top-right",
+          "bottom-left",
+          "bottom-center",
+          "bottom-right"
+        ]
+      }
+    },
+    {
+      "id": "labelled-region",
+      "level": "warn",
+      "message": "Give the region an aria-label (e.g. \"Notifications\") for assistive tech.",
+      "attr": {
+        "on": "[data-hc-toast-region]",
+        "name": "aria-label",
+        "assert": "present"
+      }
+    }
+  ]
+}

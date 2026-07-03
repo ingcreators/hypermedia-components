@@ -1,0 +1,17 @@
+{
+  "detect": "[data-hc-remote-dialog-root]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "has-id",
+      "level": "error",
+      "message": "The mount point needs an id so triggers can target it.",
+      "attr": {
+        "on": "[data-hc-remote-dialog-root]",
+        "name": "id",
+        "assert": "present",
+        "matches": "\\S"
+      }
+    }
+  ]
+}

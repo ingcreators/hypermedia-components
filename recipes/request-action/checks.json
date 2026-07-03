@@ -1,0 +1,33 @@
+{
+  "detect": ".hc-action:has(button[data-hx-get], button[data-hx-post], button[data-hx-put], button[data-hx-patch], button[data-hx-delete])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "double-submit-guard",
+      "level": "error",
+      "message": "Disable the button during the request (data-hx-disabled-elt).",
+      "attr": {
+        "on": "button[data-hx-get], button[data-hx-post], button[data-hx-put], button[data-hx-patch], button[data-hx-delete]",
+        "name": "data-hx-disabled-elt",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "target-resolves",
+      "level": "warn",
+      "message": "data-hx-target must point at an element in the document. (warn: fragments may target elements elsewhere on the page)",
+      "resolves": {
+        "on": "button[data-hx-target]",
+        "name": "data-hx-target"
+      }
+    },
+    {
+      "id": "has-indicator",
+      "level": "warn",
+      "message": "Show a loading indicator (.hc-spinner.htmx-indicator inside the .hc-action).",
+      "exists": {
+        "selector": ".hc-spinner.htmx-indicator"
+      }
+    }
+  ]
+}
