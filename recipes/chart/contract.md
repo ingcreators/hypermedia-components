@@ -45,6 +45,8 @@ entry, because Plot is not bundled.
 | `bar-grouped` | Bars grouped side-by-side per category (faceted; the category axis carries the labels). |
 | `scatter` | Dots on two numeric axes — `data-x-type` defaults to `number`; each series column is one dot set; an optional `<th data-role="r">` column drives the dot radius. |
 | `sparkline` | A compact Plot-styled trend: no axes, no grid, no legend, 48 px tall unless `data-height` says otherwise. For a dependency-free inline trend, prefer the standalone `hc-sparkline` component. |
+| `histogram` | Bins **one numeric column** (extra columns are ignored) into count bars; `data-bins` caps the bin count. |
+| `heatmap` | The matrix shape: row categories on y, column headers on x, cell values drive a **continuous** fill (`data-scheme` picks the Plot color scheme; the categorical series palette does not apply). |
 
 `data-hc-chart` is the **default mark** for any column without its own
 `data-mark`. For `combo` the default is `bar`. So `bar`/`line`/`area` are
@@ -141,3 +143,30 @@ shim (linkedom) and returned inline, with **no client Plot**. Set
 explicit `marginLeft` / `marginBottom` then, since server DOM shims do not
 measure text for automatic axis margins. This recipe implements the
 client-side path; the SSR path is documented for completeness.
+
+## Server-side rendering (linkedom)
+
+Plot renders wherever a DOM exists — pass it a `document`. On the
+server, [linkedom](https://github.com/WebReflection/linkedom) provides
+one, so the SVG can ship inside the response and the page needs **no
+client-side Plot at all**:
+
+```js
+import { parseHTML } from 'linkedom';
+import * as Plot from '@observablehq/plot';
+
+const { document } = parseHTML('<!doctype html><html><body></body></html>');
+const svg = Plot.plot({
+  document,
+  marks: [Plot.barY(rows, { x: 'month', y: 'sales' })],
+  // Tokens are client-side CSS — pass explicit colors when SSR'ing:
+  color: { range: ['#4f6df5', '#22a06b'] },
+});
+```
+
+Emit the figure with `data-state="rendered"`, the table (kept,
+`hc-sr-only`), and the SVG (`class="hc-chart__plot"`,
+`aria-hidden="true"`). `installChart()` recognizes a figure that is
+already rendered (`data-state="rendered"` or an existing child `<svg>`)
+and leaves it alone, so SSR'd and client-rendered charts coexist on one
+page.

@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Chart Tier 3 — `histogram`, `heatmap`, and the documented SSR
+  path** (#309; completes `plans/hc-chart-recipe-plan-en.md`).
+  `histogram` bins one numeric column into count bars (`data-bins`);
+  `heatmap` maps the matrix shape onto `cell` with a continuous fill,
+  a color legend and authored row/column order (`data-scheme`). The
+  **linkedom server-side rendering path** is now contract: render with
+  Plot on the server (`Plot.plot({ document })`), ship the SVG inline
+  with `data-state="rendered"`, and `installChart()` leaves
+  already-rendered figures alone (new guard) — SSR'd and
+  client-rendered charts coexist on one page.
+
 - **Chart Tier 2 — `bar-stacked`, `bar-grouped`, `scatter`,
   `sparkline`** (#308). Four whole-figure presets on the same
   table-as-data contract: explicit stacking; side-by-side grouping via

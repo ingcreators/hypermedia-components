@@ -186,6 +186,53 @@ Four whole-figure presets extend the same table contract (per-column
   is usually the better fit — this preset exists for Plot-consistent
   dashboards.
 
+## Histogram and heatmap
+
+- **`histogram`** — bins **one numeric column** into count bars
+  (`data-x-type` defaults to `number`; extra columns are ignored;
+  `data-bins` caps the bin count).
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="histogram" data-bins="12">
+    <table class="hc-table">
+      <caption>Response times</caption>
+      <thead><tr><th>ms</th></tr></thead>
+      <tbody><tr><td>120</td></tr><tr><td>90</td></tr><tr><td>340</td></tr></tbody>
+    </table>
+  </figure>
+  ```
+
+- **`heatmap`** — the matrix shape: row categories on y, column headers
+  on x, cell values drive a **continuous** fill with a color legend
+  (`data-scheme` picks the Plot scheme; the categorical series palette
+  does not apply). Row/column order is preserved as authored.
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="heatmap" data-y-label="Visits">
+    <table class="hc-table">
+      <caption>Visits by slot</caption>
+      <thead><tr><th>Slot</th><th>Mon</th><th>Tue</th></tr></thead>
+      <tbody>
+        <tr><td>Morning</td><td>3</td><td>7</td></tr>
+        <tr><td>Evening</td><td>9</td><td>2</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+## Server-side rendering
+
+Plot renders wherever a DOM exists. Give it linkedom's `document` on
+the server and ship the SVG inside the response — the page then needs
+no client-side Plot at all. Emit the figure with
+`data-state="rendered"` (plus the `hc-sr-only` table and the
+`aria-hidden` SVG): `installChart()` recognizes already-rendered
+figures and leaves them alone, so SSR'd and client-rendered charts
+coexist. Tokens are client-side CSS — pass explicit colors when
+SSR'ing. The
+[contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chart/contract.md)
+has the working snippet.
+
 ## Options
 
 | Attribute       | Default                      | Effect                                  |
