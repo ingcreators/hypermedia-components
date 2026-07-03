@@ -1,0 +1,95 @@
+---
+title: Dropzone
+description: A drag-and-drop surface over a native file input — click and keyboard stay 100% native, drops assign the files and fire a normal change event.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-dropzone` decorates a **native `<input type="file">`** with a
+drop surface. The interactive element stays the input: the wrapping
+`<label>` opens the picker on click, keyboard focus lands on the
+(visually hidden, still focusable) input, and `required` / `accept` /
+field-errors wiring attach to it as usual. Drag-and-drop is a
+pointer-only enhancement — a drop assigns `dataTransfer.files` to the
+input and fires a normal bubbling `change`, so everything downstream
+(form serialization, the
+[file-upload recipe](/hypermedia-components/recipes/file-upload/),
+validation) cannot tell the file wasn't browsed.
+
+## Basic HTML
+
+<Demo>
+  <label class="hc-dropzone">
+    <input class="hc-dropzone__input" type="file" name="doc" />
+    <span class="hc-dropzone__body">
+      <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+      <span class="hc-dropzone__files"></span>
+    </span>
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <label class="hc-dropzone">
+    <input class="hc-dropzone__input" type="file" name="doc">
+    <span class="hc-dropzone__body">
+      <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+      <span class="hc-dropzone__files"></span>
+    </span>
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
+
+`.hc-dropzone__files` shows the selected file names (set by the
+behavior on every `change`, dropped or browsed); it collapses when
+empty. The hint is authored markup — write it in your app's language.
+
+## Behavior — `installDropzone()`
+
+Included in the auto-init
+[`./behaviors`](/hypermedia-components/start/installation/#behaviors)
+bundle. While a file drags over the zone it sets `data-dragover`
+(styled below); a drop assigns the files to the input — a single-file
+input takes only the first — and dispatches a bubbling `change`. Drags
+that carry no files (text selections) are ignored, as are zones whose
+input is `disabled`. No new events, no network.
+
+## States
+
+| State | Selector | Effect |
+| --- | --- | --- |
+| Drag over | `[data-dragover]` | Solid accent border (`--hc-dropzone-dragover-border`, follows `data-color`) + tinted background. |
+| Keyboard focus | `:focus-within` | Standard focus ring (focus lives on the input). |
+| Disabled | `:has(> .hc-dropzone__input:disabled)` | Muted, `cursor: not-allowed`; the behavior ignores drops. |
+| Invalid | `:has(> .hc-dropzone__input[aria-invalid="true"])` | Error border — set by field-errors like any other control. |
+
+## Sizes
+
+`data-size="sm"` tightens the padding for dense forms.
+
+## Accessibility
+
+- Everything a keyboard or assistive-tech user needs is the native
+  input: label activation, focus + Enter/Space, constraint validation,
+  `aria-invalid` / `aria-describedby` from
+  [field-errors](/hypermedia-components/recipes/field-errors/).
+- Drag-and-drop is an enhancement; every outcome is reachable via
+  browse. No ARIA is invented.
+- Selected names are visible text inside the label. Pair with a toast
+  if selection must be announced beyond that.
+- Non-goals (v1): paste-to-upload, directory drops.
+
+## Theming tokens
+
+`--hc-dropzone-bg` / `-border` / `-fg` / `-hint` / `-radius` /
+`-padding-y` / `-padding-x` / `-dragover-border` / `-dragover-bg` /
+`-error-border` — all referencing semantic tokens, so themes, accents
+(`data-color`) and dark mode apply automatically.
+
+## Related
+
+- [File upload recipe](/hypermedia-components/recipes/file-upload/) — the multipart + progress contract this drops into unchanged.
+- [Field errors recipe](/hypermedia-components/recipes/field-errors/) — validation wiring on the input.
+- [Input](/hypermedia-components/components/input/) — the plain control this decorates.

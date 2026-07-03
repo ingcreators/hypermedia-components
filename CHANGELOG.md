@@ -20,6 +20,24 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`hc-dropzone` — drag-and-drop upload surface** (#300). A
+  `<label class="hc-dropzone">` decorating a native file input:
+  click-to-browse and keyboard stay 100 % native (the hidden-in-place
+  input keeps focus, constraint validation and field-errors wiring);
+  `installDropzone()` adds only the drag path — `data-dragover` while a
+  file drags over (accent follows `data-color`), drop assigns
+  `dataTransfer.files` to the input (single-file inputs take the first)
+  and fires a bubbling `change`, so the file-upload recipe's whole
+  pipeline (serialization, progress, OOB reset, 422) works unchanged.
+  Selected names render as visible label text
+  (`.hc-dropzone__files`, no i18n keys). States:
+  `[data-dragover]` / `:focus-within` / `:has(:disabled)` /
+  `:has([aria-invalid])`; tokens `--hc-dropzone-*`; `data-size="sm"`.
+  New component stylesheet + auto-installed behavior + docs page + VRT
+  coverage (core-sheet baselines regenerated).
+
 ## [0.1.7] - 2026-07-03
 
 - **CLI `@hypermedia-components/cli@0.2.0`** — the `hc validate` release
