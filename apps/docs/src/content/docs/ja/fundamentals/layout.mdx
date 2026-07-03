@@ -1,0 +1,205 @@
+---
+title: レイアウトユーティリティ
+description: 小さく、本質的にレスポンシブなレイアウトプリミティブ — stack、cluster、grid、container、sidebar — に加えて sr-only と hidden のヘルパー。ブレークポイントもユーティリティファーストフレームワークもなし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+Hypermedia Components は、`hc.utilities` カスケードレイヤーにひと握りの
+**レイアウトユーティリティ**を同梱しています。これらはシステムの残り —
+[`hc-shell`](/hypermedia-components/ja/components/shell/) アプリケーション
+シェルを含む — が依存するレスポンシブな構成部品です。
+
+意図的に少数でセマンティックです。これはユーティリティファーストの
+フレームワークでは**ありません**: クラス名にばらまかれたスペーシング
+スケールも、`md:` / `lg:` ブレークポイントプレフィックスもありません。
+各ユーティリティは*本質的にレスポンシブ*です — `flex-wrap`、グリッドの
+`auto-fill`、コンテンツベースのフレックス比によって与えられたスペースに
+適応し、**メディアクエリなし**。同じクラスがフルページでも、ダイアログ
+でも、カードでも、サイドバーでも正しく振る舞います。ビューポートではなく
+**コンテナ**に応答するからです。
+
+## インポート
+
+ユーティリティはフルスタイルシートに含まれています。粒度の細かい構成
+では、コアの上にこのレイヤーだけをインポートします:
+
+```js
+import '@hypermedia-components/core/css/core';       // tokens + base
+import '@hypermedia-components/core/css/utilities';   // this layer
+```
+
+最後のカスケードレイヤーにあるため、あなたのアプリケーション CSS は
+詳細度の戦いなしにこれらを上書きできます。
+
+## 調整ノブ
+
+各ユーティリティは、トークンベースのフォールバックを持つ 1〜2 個の
+ローカルカスタムプロパティを公開します。インラインまたはラッパーの
+ルールで設定してください — 要素ごとのバリアントクラスを追加しては
+いけません:
+
+```html
+<ul class="hc-cluster" style="--hc-cluster-gap: var(--hc-space-4)">…</ul>
+```
+
+## `.hc-stack` — 縦のリズム
+
+子要素を一定の間隔で縦一列に並べます。ノブ: `--hc-stack-gap`
+(デフォルト `--hc-space-3`)。
+
+<Demo>
+  <div class="hc-stack" style="--hc-stack-gap: var(--hc-space-2);">
+    <div class="hc-card" style="padding:.5rem .75rem;">First</div>
+    <div class="hc-card" style="padding:.5rem .75rem;">Second</div>
+    <div class="hc-card" style="padding:.5rem .75rem;">Third</div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-stack">
+    <div>First</div>
+    <div>Second</div>
+    <div>Third</div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## `.hc-cluster` — 折り返す行
+
+余地がなくなると折り返す横並びグループ — ボタン行、タグリスト、メタ
+バー、ツールバー。ノブ: `--hc-cluster-gap`(デフォルト `--hc-space-2`)、
+`--hc-cluster-align`(デフォルト `center`)。
+
+<Demo>
+  <div class="hc-cluster">
+    <button class="hc-button" type="button">Save</button>
+    <button class="hc-button" data-variant="secondary" type="button">Duplicate</button>
+    <button class="hc-button" data-variant="ghost" type="button">Archive</button>
+    <button class="hc-button" data-variant="error" type="button">Delete</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-cluster">
+    <button class="hc-button">Save</button>
+    <button class="hc-button" data-variant="secondary">Duplicate</button>
+    <button class="hc-button" data-variant="ghost">Archive</button>
+    <button class="hc-button" data-variant="error">Delete</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## `.hc-grid` — レスポンシブグリッド
+
+最小トラック幅で収まるだけ等幅カラムを並べ、収まらなくなったら折り
+返します — ブレークポイントなし。ノブ: `--hc-grid-min`(デフォルト
+`16rem`)、`--hc-grid-gap`(デフォルト `--hc-space-4`)。組み込みの
+`min(…, 100%)` ガードが、広いトラックが狭いコンテナからあふれるのを
+防ぎます。
+
+<Demo>
+  <div class="hc-grid" style="--hc-grid-min: 8rem;">
+    <div class="hc-card" style="padding:.75rem;">A</div>
+    <div class="hc-card" style="padding:.75rem;">B</div>
+    <div class="hc-card" style="padding:.75rem;">C</div>
+    <div class="hc-card" style="padding:.75rem;">D</div>
+    <div class="hc-card" style="padding:.75rem;">E</div>
+    <div class="hc-card" style="padding:.75rem;">F</div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-grid" style="--hc-grid-min: 16rem;">
+    <article class="hc-card">…</article>
+    <article class="hc-card">…</article>
+    <!-- …as many as you like -->
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+空のトラックを残す代わりに少数のアイテムを行いっぱいに伸ばしたい
+ときは、(`grid-template-columns` を自分で設定して)`auto-fill` を
+`auto-fit` に替えてください。
+
+## `.hc-container` — 中央寄せのコンテンツ領域
+
+最大行長とインラインパディングを持つ中央寄せカラム。ノブ:
+`--hc-container-max`(デフォルト `72rem`)、`--hc-container-pad`
+(デフォルト `--hc-space-4`)。
+
+```html
+<div class="hc-container">
+  <!-- page content, capped and centred -->
+</div>
+```
+
+## `.hc-sidebar` — サイドバー + メイン
+
+**最初の子がサイドバー**、2 番目がメイン領域の 2 部レイアウト。メイン
+領域は最小幅を保ち、保てなくなるとサイドバーが自分の行に折り返します。
+純粋なフレックスボックスなので、**コンテナ**幅で再配置します — 狭い
+パネルの中に置けばそこで畳まれ、ビューポートメディアクエリは不要です。
+ノブ: `--hc-sidebar-width`(デフォルト `16rem`)、
+`--hc-sidebar-content-min`(デフォルト `60%`)、`--hc-sidebar-gap`
+(デフォルト `--hc-space-4`)。
+
+<Demo>
+  <div class="hc-sidebar">
+    <nav class="hc-card" style="padding:.75rem;" aria-label="Example">Sidebar</nav>
+    <div class="hc-card" style="padding:.75rem;">Main content area that keeps its width and wraps the sidebar when space runs out.</div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-sidebar">
+    <nav aria-label="Section">…</nav>
+    <main>…</main>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## `.hc-sr-only` — 視覚的に隠す
+
+支援技術には利用可能なまま、視覚的なレイアウトから取り除かれる
+コンテンツ — スキップリンク、アイコンのみコントロールのラベル。
+`.hc-hidden` と違い、アクセシビリティツリーには残ります。
+
+```html
+<button class="hc-button" type="button">
+  <svg aria-hidden="true">…</svg>
+  <span class="hc-sr-only">Delete</span>
+</button>
+```
+
+## `.hc-hidden` — 強制非表示
+
+`display: none !important`。レイヤー順によりコンポーネントのルールに
+勝ち、`!important` はレイヤー外のアプリケーション CSS やインラインの
+display にも勝ちます。サーバから(クラスを出し入れして)、または htmx
+から、インラインスタイルなしで表示を切り替えるのに使います。
+
+```html
+<div class="hc-hidden">Removed from layout entirely</div>
+```
+
+## 関連
+
+- [レスポンシブデザイン](/hypermedia-components/ja/fundamentals/responsive/) —
+  これらのプリミティブが実装するコンテナファースト戦略。
+- [トークン](/hypermedia-components/ja/fundamentals/tokens/) — 各 gap の
+  デフォルトである `--hc-space-*` スケール。
+- [`hc-shell`](/hypermedia-components/ja/components/shell/) — これらの
+  プリミティブの上に構築されたアプリケーションシェル。

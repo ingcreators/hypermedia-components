@@ -1,0 +1,84 @@
+---
+title: インテグレーション
+description: 一般的なサーバレンダリング用テンプレートエンジンに Hypermedia Components を組み込む方法。
+---
+
+Hypermedia Components はテンプレートエンジン非依存の UI キットです。
+このセクションのドキュメントでは、代表的なサーバレンダリングスタックへの
+組み込み方法を示します。各ガイドは共通して次の 5 つの関心事を扱います:
+
+1. **アセット読み込み** — `hc.css`、`hc.behaviors.min.js`、任意の
+   `macros/index.min.js` を、そのフレームワークの静的ファイル構成の
+   どこに置くか。
+2. **コンポーネントの描画** — 繰り返し登場する UI 形状(`hc-field`、
+   `hc-button`、テーブル行)の慣用的なスニペット。
+3. **HTML フラグメント** — コントローラ / ハンドラ / ビューが htmx
+   スワップ用の HTML 片を返す方法。
+4. **HX-Trigger トースト** — サーバが `HX-Trigger` レスポンスヘッダー
+   経由で `hc:toast` イベントを発火する方法。
+5. **CSRF 統合** — フレームワークの CSRF トークンをすべての htmx
+   リクエストに渡す方法。
+
+## ガイド
+
+基礎(初めて HC を組み込むならここから):
+
+- [Plain HTML](/hypermedia-components/ja/integrations/plain-html/) — dist ファイルをコピーするだけ。テンプレートエンジンもバンドラーも不要。
+- [htmx](/hypermedia-components/ja/integrations/htmx/) — すべてのフレームワークガイドが継承する htmx 側の規約(設定、ヘッダー、イベント)。
+
+サーバサイドテンプレートエンジン:
+
+- [Thymeleaf(Spring Boot)](/hypermedia-components/ja/integrations/thymeleaf/)
+- [Django](/hypermedia-components/ja/integrations/django/)
+- [Rails](/hypermedia-components/ja/integrations/rails/)
+- [Go](/hypermedia-components/ja/integrations/go/) — `html/template` + `net/http`
+- [Razor(ASP.NET Core)](/hypermedia-components/ja/integrations/razor/)
+
+クライアントサイドの相棒:
+
+- [Hyperscript](/hypermedia-components/ja/integrations/hyperscript/) — vanilla の `installXxx` ビヘイビアに対するオプトインの代替。
+
+## 共通の規約
+
+いくつかの規約はすべてのガイドで繰り返し登場します。一度身につけて
+おく価値があります:
+
+### htmx は `HX-Request` ヘッダーで検知する
+
+すべての htmx リクエストは `HX-Request: true` を設定します。ハンドラは
+このヘッダーで分岐し、フルページかフラグメントだけかを返し分けます。
+
+```text
+GET /items
+HX-Request: true           → return rows fragment
+                no header  → return full page (with layout + chrome)
+```
+
+### 空ボディは正当
+
+破壊系エンドポイントの多くは、空ボディ + `HX-Trigger` ヘッダーを
+返します:
+
+```text
+HTTP/1.1 200 OK
+HX-Trigger: {"hc:toast":{"message":"Deleted.","variant":"success"}}
+
+(empty body)
+```
+
+クライアント側のスワップは削除された行の `outerHTML` なので、ボディの
+内容にかかわらず htmx が行を取り除きます。
+
+### `hx-*` より `data-hx-*`
+
+HC のドキュメントが `data-hx-*` を選ぶのは、妥当な HTML5 構文であり、
+テンプレートエンジンと相性が良く、たいていのリンターを通るからです。
+htmx は簡潔さを好むスタック向けに `hx-*` も受け付けます — この選択は
+プロジェクト単位であり、コンポーネント単位ではありません。
+
+### CSRF はリクエストヘッダーで運ぶ
+
+レイアウトで一度だけ `htmx:configRequest` をフックするのが最もクリーンな
+パターンです。ハンドラはサーバが描画した `<meta>` タグを読み、
+フレームワークが期待する形式(`X-CSRFToken`、`X-CSRF-Token`、
+`RequestVerificationToken` など)でトークンを転送します。

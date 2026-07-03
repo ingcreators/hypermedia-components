@@ -1,0 +1,99 @@
+---
+title: アンカー配置
+description: ツールチップ・ポップオーバー・ホバーカードのフローティング面の配置方法 — data-side / data-align で駆動する CSS Anchor Positioning、古いエンジン向け JS フォールバック、共有の --hc-anchored-* ノブ。
+---
+
+Hypermedia Components のフローティング面 — ツールチップ、ポップオーバー、
+ホバーカード、メニュー、コンボボックス — は、コンポーネントごとの配置
+コードではなく**共有インフラ**によって配置されます。2 つの協調する部品が、
+すべての面を同一に振る舞わせます:
+
+- **`hc-anchored.css`** — CSS Anchor Positioning のパス。
+  `.hc-tooltip`・`.hc-popover`・`.hc-hovercard` について
+  `data-side` / `data-align` を `position-area` に対応付け
+  (ビューポート端では `position-try-fallbacks` で反転)、任意の
+  `data-arrow` ポインタを描画します。
+- **`anchor-fallback.js`** — ビヘイビア内の JS フォールバック。Anchor
+  Positioning のないエンジンでは `getBoundingClientRect` で計測し、
+  あふれたら反転、ビューポートにクランプし、スクロール / リサイズ中も
+  追従します。ツールチップ、ポップオーバー、ホバーカード、メニュー /
+  サブメニュー、ナビメニュー、コンボボックス、マルチコンボボックスの
+  各ビヘイビアで共有されます。
+
+両パスは**同じ属性**を読むため、エンジンがどちらのパスを取っても要素は
+同一に配置されます。
+
+これは内部インフラです: CSS バンドルとビヘイビアに自動的に含まれ、
+インストールするものはありません。コンポーネント単位のインポートから
+カスタムバンドルを組む場合は、粒度の細かいエクスポートで一度だけ
+含めてください:
+
+```css
+@import '@hypermedia-components/core/css/hc-anchored';
+```
+
+## インスタンスごとの属性
+
+| 属性 | 値 | 意味 |
+| --- | --- | --- |
+| `data-side` | `top` / `right` / `bottom` / `left` | トリガーのどちら側に面を開くか。デフォルトは各コンポーネントがドキュメント化しています。 |
+| `data-align` | `start` / `center` / `end` | 交差軸方向の揃え(デフォルト `center`)。 |
+| `data-arrow` | (真偽値) | アンカー側の辺に小さなポインタを描画。 |
+
+```html
+<button class="hc-button" type="button" popovertarget="filters">Filter</button>
+
+<div id="filters" class="hc-popover" popover
+     data-side="right" data-align="start" data-arrow>
+  Opens to the inline-end, top-aligned, with a pointer.
+</div>
+```
+
+デフォルト値とライブデモは各コンポーネントページにあります:
+[ツールチップ](/hypermedia-components/ja/components/tooltip/)(上に開く)、
+[ポップオーバー](/hypermedia-components/ja/components/popover/#directional-placement)
+(`data-side` を付けるまでブラウザ中央)、
+[ホバーカード](/hypermedia-components/ja/components/hovercard/)(下に開く)。
+
+## 共有ノブ
+
+各コンポーネントは自身の面にこれらのカスタムプロパティを設定します。
+コンポーネント単位(またはインスタンス単位)で上書きして、共有機構を
+調整してください:
+
+| カスタムプロパティ | デフォルト | 意味 |
+| --- | --- | --- |
+| `--hc-anchored-offset` | `0.5rem` | トリガーと面の間の隙間。 |
+| `--hc-anchored-arrow-size` | `0.5rem` | `data-arrow` ポインタ(正方形)のサイズ。 |
+| `--hc-anchored-arrow-border` | `transparent` | 矢印の露出した辺の枠線色(面の枠線に合わせる)。 |
+
+```css
+/* Tighter tooltips, larger arrow */
+.hc-tooltip {
+  --hc-anchored-offset: 0.25rem;
+  --hc-anchored-arrow-size: 0.625rem;
+}
+```
+
+## 2 つのパスの協調
+
+1. CSS Anchor Positioning がある場合、`hc-anchored.css` が
+   `data-side` / `data-align` を `position-area` に解決し、
+   `position-try-fallbacks: flip-block | flip-inline` にビューポート
+   衝突を任せます — 配置に JS は走りません。
+2. ない場合、ビヘイビアが欠落を検知し
+   (`CSS.supports('anchor-name', '--x')`)、JS から面を配置します:
+   同じ side / align セマンティクス、あふれたら反転、面が完全に画面外へ
+   出ないための最終クランプ、開いている間のスクロール / リサイズ追従。
+   ジオメトリは `getBoundingClientRect` から物理的な `top` / `left` で
+   計算されるため、右から左へ書くページでも正しく配置されます
+   (インライン軸は `dir="rtl"` で反転します)。
+3. `data-arrow` ポインタは素の CSS で、両パスで描画されます。
+
+:::note[Baseline]
+CSS Anchor Positioning(`position-area` / `position-try-fallbacks`)は
+**2026 年**に [Baseline](https://developer.mozilla.org/docs/Web/CSS/position-area)
+に到達しました(Chrome / Edge 125+、Safari 26、Firefox 147+)。それより
+古いエンジンでは JS フォールバックが面を配置します — 機能は同一で、
+計算を担うエンジンが違うだけです。
+:::

@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: Japanese translations, phase 2** (#315, docs-facing). Eleven
+  more pages: all of `fundamentals/` (index, layout, responsive,
+  accessibility, anchored, icons, i18n — naming and tokens shipped in
+  phase 1) plus the four section indexes (`components/`, `recipes/`,
+  `tokens/`, `integrations/`). The `/ja/` entry path is now fully
+  translated.
+
+### Fixed
+
+- **Docs: the recipes index now lists all 21 recipes** (#315). Seven
+  pages were missing from the curated index (`field-errors`,
+  `multi-step-form`, `undo-delete`, `file-upload`,
+  `datagrid-bulk-actions`, and the two SSE recipes under a new
+  "Server push" group) — they were only reachable from the sidebar.
+
 - **Docs: Japanese locale (`/ja/`)** (#314, docs-facing). Starlight
   `locales` scaffolding — English stays at the root URLs; Japanese
   lives under `/ja/` with built-in fallback for untranslated pages
