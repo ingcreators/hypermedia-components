@@ -1,0 +1,265 @@
+---
+title: コマンド
+description: コマンドパレット(⌘K ランチャー)— ダイアログ内の入力で絞り込むアクションのリスト。グループ化された結果とキーボードナビゲーション。WAI-ARIA コンボボックスパターン。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-command` はコマンドパレットで、shadcn の `Command` / `cmdk` に相当
+します。アクションランチャーとして使われる WAI-ARIA コンボボックス
+パターンです: 入力してグループ化されたリストを絞り込み、矢印で
+ハイライトし、Enter で実行。`installCommand` がフィルタリング、
+`aria-activedescendant` によるキーボードナビゲーション、選択イベント、
+任意の ⌘K オープナーを配線します。
+
+古典的な中央のパレットにはネイティブの `<dialog>` の中で使ってください —
+フォーカストラップ、Escape で閉じる、バックドロップが無料で付いてき
+ます。インラインでも使えます。
+
+## デモ
+
+<Demo previewClass="hc-preview--start">
+  <button type="button" class="hc-button" onclick="this.nextElementSibling.showModal()">
+    Open command palette
+  </button>
+  <dialog class="hc-command-dialog">
+    <div class="hc-command">
+      <input class="hc-command__input" type="text" role="combobox" autofocus
+             aria-label="Command menu" placeholder="Type a command…" />
+      <div class="hc-command__list" role="listbox">
+        <div class="hc-command__group" role="group" aria-labelledby="d-nav">
+          <div class="hc-command__group-heading" id="d-nav">Navigation</div>
+          <div class="hc-command__item" role="option" data-value="home"><span>Go home</span><kbd class="hc-command__shortcut">G H</kbd></div>
+          <div class="hc-command__item" role="option" data-value="profile"><span>Open profile</span><kbd class="hc-command__shortcut">G P</kbd></div>
+        </div>
+        <div class="hc-command__group" role="group" aria-labelledby="d-act">
+          <div class="hc-command__group-heading" id="d-act">Actions</div>
+          <div class="hc-command__item" role="option" data-value="new"><span>New document</span><kbd class="hc-command__shortcut">⌘ N</kbd></div>
+          <div class="hc-command__item" role="option" data-value="search"><span>Search files</span></div>
+        </div>
+      </div>
+      <div class="hc-command__empty" hidden>No results.</div>
+    </div>
+  </dialog>
+
+  <Fragment slot="code">
+
+  ```html
+  <button type="button" class="hc-button"
+          onclick="this.nextElementSibling.showModal()">
+    Open command palette
+  </button>
+
+  <dialog class="hc-command-dialog" data-hotkey="k">
+    <div class="hc-command">
+      <input class="hc-command__input" type="text" role="combobox" autofocus
+             aria-label="Command menu" placeholder="Type a command…">
+      <div class="hc-command__list" role="listbox">
+        <div class="hc-command__group" role="group" aria-labelledby="g-nav">
+          <div class="hc-command__group-heading" id="g-nav">Navigation</div>
+          <div class="hc-command__item" role="option" data-value="home">
+            <span>Go home</span>
+            <kbd class="hc-command__shortcut">G H</kbd>
+          </div>
+          <div class="hc-command__item" role="option" data-value="profile">
+            <span>Open profile</span>
+          </div>
+        </div>
+      </div>
+      <div class="hc-command__empty" hidden>No results.</div>
+    </div>
+  </dialog>
+  ```
+
+  </Fragment>
+</Demo>
+
+## マークアップ
+
+```html
+<dialog class="hc-command-dialog" data-hotkey="k">
+  <div class="hc-command">
+    <input class="hc-command__input" type="text" role="combobox" autofocus
+           aria-label="Command menu" placeholder="Type a command…">
+    <div class="hc-command__list" role="listbox">
+      <div class="hc-command__group" role="group" aria-labelledby="g-nav">
+        <div class="hc-command__group-heading" id="g-nav">Navigation</div>
+        <div class="hc-command__item" role="option" data-value="home">
+          <span>Go home</span>
+          <kbd class="hc-command__shortcut">G H</kbd>
+        </div>
+        <div class="hc-command__item" role="option" data-value="profile">
+          <span>Open profile</span>
+        </div>
+      </div>
+    </div>
+    <div class="hc-command__empty" hidden>No results.</div>
+  </div>
+</dialog>
+```
+
+リストは `role="listbox"` で、`role="option"` の項目が
+`role="group"` の見出しの下にグループ化されます(cmdk / Radix の
+構造)。各項目の `data-value` が、選択イベントの報告値であり、
+フィルタの照合対象です(`.hc-command__shortcut` のテキストは照合から
+除外されます)。
+
+## JavaScript
+
+```js
+import { installCommand } from '@hypermedia-components/core';
+installCommand(); // idempotent; returns an uninstaller
+```
+
+ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
+インストールします。
+
+## ⌘K で開く
+
+`<dialog>` に `data-hotkey="k"` を置くと(任意の 1 キー。デフォルト
+`k`)、ビヘイビアが <kbd>⌘</kbd>/<kbd>Ctrl</kbd> + そのキーで開閉し、
+開くときに入力へフォーカスしてフィルタをリセットします:
+
+```html
+<dialog class="hc-command-dialog" data-hotkey="k">…</dialog>
+```
+
+ハンドラは `preventDefault()` を呼ぶため、ブラウザ自身の
+<kbd>Ctrl</kbd>+<kbd>K</kbd> ショートカットは同時に発火しません。
+ボタンから `dialog.showModal()` で開くこともできます — 入力の
+`autofocus` がカーソルを検索ボックスに置きます。
+
+:::note
+この docs のデモは ⌘K ではなくボタンから開きます。このサイトの検索が
+すでに <kbd>Ctrl</kbd>+<kbd>K</kbd> をバインドしているためです。ホスト
+アプリと衝突しないホットキーを選んでください。
+:::
+
+## フィルタリングとランキング
+
+入力すると項目を**ファジーに絞り込んで並べ替え**ます: クエリの文字は
+順番どおりに(部分列として)現れる必要があり、文字が**連続**している
+か、**単語 / camelCase の境界**に載っている一致ほど高くスコアされ
+ます。項目はスコア順に並び替わります — 最良の一致がグループを越えてでも
+先頭に浮かび、同点は書かれた順を保ちます。クエリを消すと元の並びが
+戻ります。フィルタリングは常に**クライアントサイド**です — パレットが
+ネットワークに触れることはありません。
+
+以前の素朴な挙動 — 並べ替えなしの大文字小文字を無視した**部分文字列**
+一致 — を保つには、`.hc-command` に `data-filter="substring"` を設定
+します:
+
+```html
+<div class="hc-command" data-filter="substring">…</div>
+```
+
+`.hc-command__shortcut` のテキストは照合から除外されます(検索される
+のは項目のラベルだけです)。
+
+## キーボード
+
+| キー | 動作 |
+| --- | --- |
+| 入力 | ファジーに絞り込んで並べ替え。空になったグループとその見出しは隠れ、何も一致しなければ空状態が表示されます。 |
+| `↓` / `↑` | ハイライトを移動(ラップし、無効な項目をスキップ)。 |
+| `Home` / `End` | 最初 / 最後の見えている項目。 |
+| `Enter` | ハイライト中の項目を実行。 |
+| `Escape` | 閉じる(ネイティブ `<dialog>`)。 |
+
+DOM のフォーカスは入力に留まります。ハイライト中の項目は WAI-ARIA
+コンボボックスパターンに従い `aria-activedescendant` で追跡されます。
+
+## 選択イベント
+
+項目を実行すると、`.hc-command` ルート上でバブリングする
+`hc:commandselect` が発火し、(`<dialog>` の中にいれば)ダイアログが
+閉じます:
+
+```js
+command.addEventListener('hc:commandselect', (e) => {
+  const { item, value } = e.detail; // value = item's data-value
+  routeTo(value);
+});
+```
+
+## htmx での利用
+
+イベントから直接、アクションをサーバサイドで実行します:
+
+```html
+<div class="hc-command"
+     data-hx-post="/commands/run"
+     data-hx-trigger="hc:commandselect"
+     data-hx-vals='js:{ command: event.detail.value }'>
+  …
+</div>
+```
+
+## Hyperscript
+
+JS を配線する代わりに、選ばれたコマンドをインラインで実行します:
+
+```html
+<div class="hc-command"
+     _="on hc:commandselect call runCommand(event.detail.value)">
+  …
+</div>
+```
+
+さらなるパターン:
+[Hyperscript → コンポーネントイベントへの反応](/hypermedia-components/ja/integrations/hyperscript/#コンポーネントイベントへの反応)。
+
+## アクセシビリティ
+
+- 入力は `aria-expanded`、`aria-controls`、`aria-activedescendant` を
+  持つ `role="combobox"`。リストは `role="listbox"`、グループは
+  `aria-labelledby` の見出しつき `role="group"`、項目は
+  `role="option"` です。
+- `showModal()` で開いた `<dialog>` の中では、フォーカスはトラップされ
+  `Escape` で閉じます — どちらもネイティブです。開いたときに検索
+  フィールドが使えるよう、入力の `autofocus` を保ってください。
+- 入力には常にアクセシブルな名前(`aria-label` またはラベル)を与えて
+  ください。
+- 無効な項目(`aria-disabled="true"`)はキーボードからスキップされ、
+  クリックでも無視されます。
+
+## テーマ用トークン
+
+| トークンパス | 用途 |
+| --- | --- |
+| `command.bg` / `fg` / `border` / `radius` | パレットの面。 |
+| `command.input-*` / `placeholder-fg` | 検索行。 |
+| `command.list-max-height` / `list-padding-block` | スクロール可能なリスト。 |
+| `command.heading-*` | グループ見出し。 |
+| `command.item-*` | 項目の行。`item-active-bg` ハイライト(`data-color` に追従)を含む。 |
+| `command.shortcut-*` | ショートカットのチップ。 |
+| `command.empty-*` | 空状態。 |
+| `command.dialog-width` / `dialog-offset` / `backdrop` | `.hc-command-dialog` ラッパー。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-command-bg | -fg | -border | -radius
+--hc-command-input-height | -input-padding-x | -input-font-size | -placeholder-fg
+--hc-command-list-padding-block | -list-max-height
+--hc-command-heading-fg | -heading-font-size | -heading-font-weight | -heading-padding-y
+--hc-command-item-padding-x | -item-padding-y | -item-gap | -item-font-size
+--hc-command-item-fg | -item-hover-bg | -item-active-bg | -item-active-fg | -item-disabled-fg
+--hc-command-shortcut-fg | -shortcut-font-size | -shortcut-padding-x
+--hc-command-empty-fg | -empty-padding-y
+--hc-command-dialog-width | -dialog-offset | -backdrop
+```
+
+</details>
+
+## 関連
+
+- [コンボボックス](/hypermedia-components/ja/components/combobox/) — 同じ
+  入力絞り込みパターンを単一のフォーム値にバインドしたもの。
+- [メニュー](/hypermedia-components/ja/components/menu/) — トリガーボタン
+  からのドロップダウンアクションメニュー。
+- [ダイアログ](/hypermedia-components/ja/components/dialog/) — パレットが
+  載るネイティブの `<dialog>` の面。

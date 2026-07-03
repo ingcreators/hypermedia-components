@@ -1,0 +1,320 @@
+---
+title: チェックボックス
+description: ネイティブの input[type=checkbox] を、ネイティブのセマンティクス・キーボード挙動・フォーム参加を保ったままスタイルするセマンティックなチェックボックスクラス。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-checkbox` は標準の `<input type="checkbox">` に適用します。土台の
+input はネイティブの挙動をすべて保ちます — `Space` で切り替え、
+value / name はフォーム送信に参加し、スクリーンリーダーはチェック
+ボックスとして報告します。`appearance: none` で置き換わるのは描画
+だけです。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked />
+    Send me product updates
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" />
+    Subscribe to the newsletter
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked>
+    Send me product updates
+  </label>
+  
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox">
+    Subscribe to the newsletter
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
+
+`.hc-checkbox-label` は、input とそのテキストをまとめてクリック挙動を
+伝播する薄い inline-flex ヘルパーです。素の
+`<input class="hc-checkbox">` を別の `<label for>` 要素と並べても
+使えます。
+
+## バリアント
+
+`data-variant` は、デフォルト以外のチェック色として `success`、
+`warning`、`error` を受け付けます。デフォルト(省略)のバリアントは
+アクティブなカラーテーマの primary の塗りを使います。
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked />
+    Default (themed)
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-variant="success" checked />
+    Success
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-variant="warning" checked />
+    Warning
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-variant="error" checked />
+    Error
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-checkbox" type="checkbox" checked>
+  <input class="hc-checkbox" type="checkbox" data-variant="success" checked>
+  <input class="hc-checkbox" type="checkbox" data-variant="warning" checked>
+  <input class="hc-checkbox" type="checkbox" data-variant="error" checked>
+  ```
+
+  </Fragment>
+</Demo>
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+`data-density` とは独立です — サイズは密度対応のデフォルトサイズを
+上書きするのではなく、専用の `--hc-checkbox-{sm,lg}-size` 変数を設定
+するため、`data-size="sm"` でオプトインしたコントロールはどの密度階層
+でも 14 px のままです。
+
+<Demo previewClass="hc-preview--start">
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-size="sm" checked />
+    Small
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked />
+    Default
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-size="lg" checked />
+    Large
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-checkbox" type="checkbox" data-size="sm" checked>
+  <input class="hc-checkbox" type="checkbox" checked>
+  <input class="hc-checkbox" type="checkbox" data-size="lg" checked>
+  ```
+
+  </Fragment>
+</Demo>
+
+| `data-size` | 外形寸法 |
+| ----------- | --------------- |
+| `sm`        | `0.875rem`(14 px) |
+| `md`        | `1.125rem`(18 px)— デフォルト |
+| `lg`        | `1.375rem`(22 px) |
+
+## 状態
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" />
+    Focus me to see the ring
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" aria-invalid="true" />
+    Required field (aria-invalid)
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" disabled />
+    Disabled (unchecked)
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" disabled checked />
+    Disabled (checked)
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-checkbox" type="checkbox" aria-invalid="true">
+  <input class="hc-checkbox" type="checkbox" disabled>
+  <input class="hc-checkbox" type="checkbox" disabled checked>
+  ```
+
+  </Fragment>
+</Demo>
+
+不確定状態(JS で `input.indeterminate = true` を設定)は、チェック
+マークの代わりに小さな横棒として描画されます。
+
+## 真偽値フォームフィールドとして
+
+未チェックのチェックボックスは**何も**送信しません — フォーム POST から
+宣言済みの真偽値をバインドするサーバには、`false` ではなくフィールドの
+不在が見えます。これが**公認の真偽値フィールドパターン**です: 値を
+保証する隠し input を、同じ `name` の下でチェックボックスと対にし、
+[`hc-field`](/hypermedia-components/ja/components/field/) の一連の
+マークアップの中に置きます。素のマークアップなので、コード
+ジェネレーターは真偽値カラムに対してそのまま出力でき、
+[マークアップのバージョニングポリシー](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md)の
+下で安定しています。
+
+<Demo previewClass="hc-preview--col">
+  <div class="hc-field" style="max-inline-size:18rem;">
+    <label class="hc-field__label" for="boolfield-demo">Active</label>
+    <input type="hidden" name="active" value="false" />
+    <input class="hc-checkbox" id="boolfield-demo" name="active" type="checkbox" value="true" checked />
+    <p class="hc-field__message">Deactivated accounts are hidden from search.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field">
+    <label class="hc-field__label" for="active">Active</label>
+
+    <!-- Unchecked submits nothing — the hidden input guarantees
+         `active=false`. It must come first: when the checkbox is
+         checked, both submit and the server takes the last value. -->
+    <input type="hidden" name="active" value="false">
+    <input class="hc-checkbox" id="active" name="active" type="checkbox" value="true">
+
+    <p class="hc-field__message">Deactivated accounts are hidden from search.</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+契約はこうです: 未チェックは `active=false` を送信し、チェック済みは
+`active=false&active=true` を送信して、サーバは**最後の**出現を
+バインドします — 主要なフォームバインダーが従う規約です(Rails の
+`check_box` ヘルパーが長年やってきたやり方です)。隠し input は DOM で
+**先**に置いてください。last-wins を機能させているのは文書順です。
+
+### どちらのラベルパターンを使うか
+
+`hc-field` の一連のマークアップの中では、上とまったく同じく
+`hc-field__label` + `for` を使います — ラベルの列が他のすべての
+フィールド型と一貫します。`.hc-checkbox-label` のクラスターは、
+フィールド外のチェックボックス — 単独の同意行や、
+`<fieldset class="hc-field">` グループの項目 — のためのものです。
+
+### スイッチ変種
+
+[`hc-switch`](/hypermedia-components/ja/components/switch/) は文字通り
+`<input type="checkbox" role="switch">` です — フォーム送信への参加は
+同一なので、パターンはそのまま移植できます:
+
+```html
+<div class="hc-field">
+  <label class="hc-field__label" for="notify">Email notifications</label>
+  <input type="hidden" name="notify" value="false">
+  <input class="hc-switch" id="notify" name="notify" type="checkbox" role="switch" value="true">
+</div>
+```
+
+### フィールドエラー
+
+[field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)は
+そのまま機能します: `data-field="active"` を持つサーバの項目は同名
+グループを解決し、メッセージ、`aria-invalid`、フォーカス、編集時
+クリアを**チェックボックス**へ配線します — グループの隠しメンバーは
+スキップされるため、重複した `name` が振り分けを混乱させることは
+ありません。
+
+これらの主張は、まさにこのマークアップに対するブラウザテスト
+(`test-browser/booleanfield.spec.mjs`)で固定されており、生成コード
+にとってパターンは安定しています。
+
+## htmx での利用
+
+`hc-checkbox` はネイティブのチェックボックスと同様にフォーム送信へ
+参加します。サーバサイドバリデーションのフィードバックには、
+`aria-invalid="true"` を設定した input を返します。周囲のメッセージも
+スタイルし直すには
+[`hc-field`](/hypermedia-components/ja/components/field/) と組み合わせて
+ください。
+
+```html
+<label class="hc-checkbox-label">
+  <input
+    class="hc-checkbox"
+    type="checkbox"
+    name="terms"
+    required
+    data-hx-post="/preferences/toggle"
+    data-hx-trigger="change">
+  I accept the terms
+</label>
+```
+
+## アクセシビリティ
+
+- このコンポーネントはネイティブの `<input type="checkbox">` を保つ
+  ため、支援技術は正しく読み上げ、`Space` で切り替わります。
+- input には常にラベルを関連付けてください。最も簡単なのは両方を
+  `<label class="hc-checkbox-label">` で包むパターンです。そうでなければ
+  input の `id` に紐づく別の `<label for>` を使います。
+- バリデーションエラーでは input に `aria-invalid="true"` を設定し、
+  エラーメッセージがあれば `aria-describedby` と対にしてください。
+- コントロールが操作不能であるべきときはネイティブの `disabled` 属性を
+  選び、フォーカス可能であり続けるべきときだけ
+  `aria-disabled="true"` を使ってください。
+- フォーカスのアウトラインを消さないでください。このコンポーネントは
+  デフォルトのアウトラインを、`--hc-color-focus-ring` で駆動される
+  見える box-shadow リングに置き換えています。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス                              | 用途                                 |
+| ----------------------------------------- | ------------------------------------ |
+| `checkbox.size`                           | 外形寸法(正方形)。                 |
+| `checkbox.border` / `border-width` / `radius` | 未チェック状態の枠線。           |
+| `checkbox.bg`                             | 未チェック状態の背景。               |
+| `checkbox.checked-bg` / `checked-border`  | デフォルトバリアントのチェック色。   |
+| `checkbox.success-checked-bg` / `success-checked-border` | `data-variant="success"`。 |
+| `checkbox.warning-checked-bg` / `warning-checked-border` | `data-variant="warning"`。 |
+| `checkbox.error-checked-bg` / `error-checked-border` | `data-variant="error"`。  |
+| `checkbox.sm.size` / `lg.size`            | `data-size="sm"` / `"lg"` の専用サイズ。 |
+| `checkbox.error-border`                 | `aria-invalid="true"` 時の枠線。     |
+| `checkbox.disabled-bg`                    | 無効時の背景。                       |
+| `checkbox.label-gap`                      | input とテキストの間のギャップ。     |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-checkbox-size
+--hc-checkbox-border-width | -border | -radius
+--hc-checkbox-bg
+--hc-checkbox-checked-bg | -checked-border
+--hc-checkbox-success-checked-bg | -success-checked-border
+--hc-checkbox-warning-checked-bg | -warning-checked-border
+--hc-checkbox-error-checked-bg | -error-checked-border
+--hc-checkbox-sm-size | -lg-size
+--hc-checkbox-error-border
+--hc-checkbox-disabled-bg
+--hc-checkbox-label-gap
+--hc-color-focus-ring
+--hc-color-error
+```
+
+</details>
+
+## 関連
+
+- [ラジオ](/hypermedia-components/ja/components/radio/) — 単一選択の兄弟。
+- [フィールド](/hypermedia-components/ja/components/field/) — コントロールをラベルとメッセージで包みます。
+- [インプット](/hypermedia-components/ja/components/input/) — テキスト入力とセレクト。

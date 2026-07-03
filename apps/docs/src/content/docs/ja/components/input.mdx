@@ -1,0 +1,187 @@
+---
+title: インプット
+description: 標準の input・select・textarea 要素に適用するセマンティックな入力クラス。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-input` は、標準の `<input>`・`<select>`・`<textarea>` 要素に適用
+します。状態(`disabled`、`aria-invalid`)は、素の HTML とまったく
+同じように要素自身に置かれます。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <input class="hc-input" type="text" placeholder="Your name" />
+  <input class="hc-input" type="email" placeholder="you@example.com" />
+  <select class="hc-input">
+    <option>One</option>
+    <option>Two</option>
+    <option>Three</option>
+  </select>
+  <textarea class="hc-input" rows="3" placeholder="Notes…"></textarea>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-input" type="text" placeholder="Your name">
+  <input class="hc-input" type="email" placeholder="you@example.com">
+  
+  <select class="hc-input">
+    <option>One</option>
+    <option>Two</option>
+    <option>Three</option>
+  </select>
+  
+  <textarea class="hc-input" rows="3" placeholder="Notes…"></textarea>
+  ```
+
+  </Fragment>
+</Demo>
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <input class="hc-input" data-size="sm" placeholder="Small" />
+  <input class="hc-input" placeholder="Default" />
+  <input class="hc-input" data-size="lg" placeholder="Large" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-input" data-size="sm" placeholder="Small">
+  <input class="hc-input" placeholder="Default">
+  <input class="hc-input" data-size="lg" placeholder="Large">
+  ```
+
+  </Fragment>
+</Demo>
+
+## 状態
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <input class="hc-input" placeholder="Focus me to see the ring" />
+  <input class="hc-input" aria-invalid="true" value="not-an-email" />
+  <input class="hc-input" disabled value="Disabled value" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-input" placeholder="Focus me to see the ring">
+  <input class="hc-input" aria-invalid="true" value="not-an-email">
+  <input class="hc-input" disabled value="Disabled value">
+  ```
+
+  </Fragment>
+</Demo>
+
+`aria-invalid="true"` 属性は、枠線をエラー色に切り替え、フォーカス
+リングの色も変えます。メッセージとの組み合わせは
+[`hc-field`](/hypermedia-components/ja/components/field/) で行って
+ください。
+
+## バリアント
+
+`data-variant` はバリデーションの合図として枠線を塗り替えます —
+`success`(緑)、`warning`(アンバー)、`error`(赤)。
+[セレクト](/hypermedia-components/ja/components/select/)、
+[デートピッカー](/hypermedia-components/ja/components/datepicker/)ほかの
+フォームフィールドと同じ語彙です。(textarea も同じ属性を取ります。)
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <input class="hc-input" data-variant="success" value="Looks good" />
+  <input class="hc-input" data-variant="warning" value="Double-check this" />
+  <input class="hc-input" data-variant="error" value="Fix this" />
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-input" data-variant="success" value="Looks good">
+  <input class="hc-input" data-variant="warning" value="Double-check this">
+  <input class="hc-input" data-variant="error" value="Fix this">
+  ```
+
+  </Fragment>
+</Demo>
+
+エラーには `data-variant="error"` より `aria-invalid="true"` を選んで
+ください — 同じ枠線を塗った*うえで*、状態を支援技術へ伝えます。
+`success` / `warning` にはネイティブ属性がないため、バリアントが唯一の
+表現手段です。コンポーネント横断の
+[バリアントマトリクス](/hypermedia-components/ja/tokens/variants/)を
+参照。
+
+## htmx での利用
+
+`hc-input` は他の入力と同様に htmx と組み合います。`live-search`
+レシピは、入力に応じてリクエストを送るよう入力欄を配線します。
+
+```html
+<input
+  class="hc-input"
+  type="search"
+  name="q"
+  placeholder="Search"
+  data-hx-get="/items"
+  data-hx-trigger="input changed delay:300ms, search"
+  data-hx-target="#results"
+  data-hx-swap="innerHTML">
+```
+
+## アクセシビリティ
+
+- 入力には常にラベルを関連付けてください。入力の `id` に紐づく
+  `<label for="...">` を使うか、入力を `<label>` 要素で包みます。
+- バリデーションエラーでは、入力に `aria-invalid="true"` を設定し、
+  `aria-describedby` でメッセージを参照してください。
+- フォーカスのアウトラインを消さないでください。このコンポーネントは
+  デフォルトのアウトラインを、`--hc-color-focus-ring` で駆動される
+  見える枠線 + box-shadow リングに置き換えています。
+- 入力が操作不能であるべきときはネイティブの `disabled` 属性を選んで
+  ください。コントロールがフォーカス可能であり続けるべきときだけ
+  `aria-disabled="true"` を使います。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス                            | 用途                          |
+| --------------------------------------- | ----------------------------- |
+| `input.height` / `input.padding-x`      | デフォルトサイズ。            |
+| `input.radius`                          | 角丸。                        |
+| `input.bg` / `input.fg`                 | デフォルトの色。              |
+| `input.border` / `input.focus-border`   | 通常時 / フォーカス時の枠線。 |
+| `input.success-border` / `input.warning-border` / `input.error-border` | `data-variant="success"` / `"warning"` / `aria-invalid` の枠線。 |
+| `input.placeholder`                     | プレースホルダーの色。        |
+| `input.disabled-bg`                     | 無効時の背景。                |
+| `input.{sm,lg}.{height,padding-x,font-size}` | サイズ別の上書き。       |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-input-height
+--hc-input-padding-x
+--hc-input-radius
+--hc-input-font-size
+--hc-input-bg | -fg | -border | -placeholder
+--hc-input-focus-border
+--hc-input-success-border | -warning-border | -error-border
+--hc-input-disabled-bg
+--hc-input-sm-height | -padding-x | -font-size
+--hc-input-lg-height | -padding-x | -font-size
+--hc-color-focus-ring
+--hc-color-error
+```
+
+</details>
+
+## 関連
+
+- [フィールド](/hypermedia-components/ja/components/field/) — 入力を
+  ラベルとメッセージと組み合わせます。
+- `live-search` レシピ — 入力 + htmx デバウンス + 結果領域。

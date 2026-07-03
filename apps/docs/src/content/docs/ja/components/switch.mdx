@@ -1,0 +1,221 @@
+---
+title: スイッチ
+description: iOS 風トグルとしてスタイルされたネイティブのチェックボックス。role="switch" で正しいスクリーンリーダーセマンティクス。純 CSS、JavaScript なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-switch` は標準の `<input type="checkbox" role="switch">` に適用
+します。土台の input はネイティブの挙動をすべて保ちます —
+`Space` で切り替え、値はフォーム送信に参加し、role の上書きにより
+スクリーンリーダーはスイッチとして読み上げます — 置き換わるのは
+`appearance: none` による見た目のクロームだけです。
+
+## 基本の例
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" checked />
+    Email notifications
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" />
+    SMS notifications
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" checked>
+    Email notifications
+  </label>
+  
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch">
+    SMS notifications
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
+
+`.hc-switch-label` は、スイッチとそのテキストをまとめる inline-flex
+ヘルパーで、ラベルのクリックで input が切り替わります。
+
+## バリアント
+
+`data-variant` は、デフォルト以外のチェック状態の色味として
+`success`、`warning`、`error` を受け付けます —
+[チェックボックス](/hypermedia-components/ja/components/checkbox/)や
+[ラジオ](/hypermedia-components/ja/components/radio/)と同じ 3 点セット
+です。デフォルト(省略)のバリアントは、アクティブなカラーテーマの
+primary の塗りを使います。
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" checked />
+    Default (themed)
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-variant="success" checked />
+    Success
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-variant="warning" checked />
+    Warning
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-variant="error" checked />
+    Error
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-switch" type="checkbox" role="switch" checked>
+  <input class="hc-switch" type="checkbox" role="switch" data-variant="success" checked>
+  <input class="hc-switch" type="checkbox" role="switch" data-variant="warning" checked>
+  <input class="hc-switch" type="checkbox" role="switch" data-variant="error" checked>
+  ```
+
+  </Fragment>
+</Demo>
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-size="sm" checked />
+    Small
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" checked />
+    Default
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" data-size="lg" checked />
+    Large
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-switch" type="checkbox" role="switch" data-size="sm" checked>
+  <input class="hc-switch" type="checkbox" role="switch" checked>
+  <input class="hc-switch" type="checkbox" role="switch" data-size="lg" checked>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 状態
+
+<Demo previewClass="hc-preview--col">
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" />
+    Focus me with the keyboard to see the ring
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" disabled />
+    Disabled (off)
+  </label>
+  <label class="hc-switch-label">
+    <input class="hc-switch" type="checkbox" role="switch" disabled checked />
+    Disabled (on)
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <input class="hc-switch" type="checkbox" role="switch" disabled>
+  <input class="hc-switch" type="checkbox" role="switch" disabled checked>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx での利用
+
+スイッチはネイティブのチェックボックスと同様にフォーム送信へ参加
+します。即時トグルには `change` を待ち受けます:
+
+```html
+<label class="hc-switch-label">
+  <input
+    class="hc-switch"
+    type="checkbox"
+    role="switch"
+    name="notifications"
+    data-hx-post="/preferences/notifications"
+    data-hx-trigger="change">
+  Email notifications
+</label>
+```
+
+スイッチが素のフォーム POST の一部で、サーバが宣言済みの真偽値に
+バインドする場合、未チェックのスイッチは何も送信しないことを思い出して
+ください —
+[公認の真偽値フィールドパターン](/hypermedia-components/ja/components/checkbox/#真偽値フォームフィールドとして)
+(同じ `name` の下に 隠し `false` + スイッチ `true`)を使います。
+`hc-switch` にそのまま当てはまります。
+
+## アクセシビリティ
+
+- input には常にラベルを対にしてください。両方を
+  `<label class="hc-switch-label">` で包むか、id で関連付けた別の
+  `<label for>` を使います。
+- `role="switch"` は、二値のオン / オフトグルの**まさにその**
+  セマンティックな role です — 素のチェックボックスより選んで
+  ください。スクリーンリーダーが「チェックボックス、チェック済み /
+  未チェック」ではなく「スイッチ、オン / オフ」と読み上げます。土台の
+  要素はフォームシリアライズのために `<input type="checkbox">` の
+  ままです。ARIA role の上書きは読み上げ方だけを変えます。
+- フォーカスのアウトラインを消さないでください。このコンポーネントは
+  デフォルトのアウトラインを、`--hc-color-focus-ring` で駆動される
+  見える box-shadow リングに置き換えています。
+- つまみのスライドのトランジションは
+  `prefers-reduced-motion: reduce` を尊重します — ユーザーがオプト
+  アウトしていれば動きは抑制されます。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `switch.width` / `height` | トラックの寸法。 |
+| `switch.thumb-size` | 動くつまみの直径。 |
+| `switch.padding` | つまみとトラック端の隙間。 |
+| `switch.bg` / `thumb-bg` | オフ状態の色。 |
+| `switch.checked-bg` / `checked-border` | デフォルトバリアントのオン状態。 |
+| `switch.success-checked-bg` / `error-checked-bg` | バリアントのオン状態。 |
+| `switch.disabled-bg` | 無効時の背景。 |
+| `switch.label-gap` | スイッチとテキストの間のギャップ。 |
+| `switch.sm.*` / `lg.*` | 専用の sm / lg 上書き。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-switch-width | -height | -thumb-size | -padding
+--hc-switch-border-width | -border
+--hc-switch-bg | -thumb-bg
+--hc-switch-checked-bg | -checked-border
+--hc-switch-success-checked-bg | -error-checked-bg
+--hc-switch-disabled-bg | -label-gap
+--hc-switch-sm-width | -sm-height | -sm-thumb-size
+--hc-switch-lg-width | -lg-height | -lg-thumb-size
+--hc-color-focus-ring (inherited from data-color)
+```
+
+</details>
+
+## 関連
+
+- [チェックボックス](/hypermedia-components/ja/components/checkbox/) — 比喩が「オン / オフの切り替え」ではなく「同意 / オプトイン」のとき。
+- [ラジオ](/hypermedia-components/ja/components/radio/) — 小さな固定集合からの単一選択。

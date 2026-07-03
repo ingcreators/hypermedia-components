@@ -1,0 +1,148 @@
+---
+title: ツールバー
+description: 関連するコントロールを一貫した間隔と任意のセパレータで横方向にグルーピング。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-toolbar` は、関連するコントロールを横にまとめるレイアウト
+プリミティブです。子のスタイリングには関与しません — ツールバー内の
+ボタンや入力欄は普段の見た目を保ちます。
+
+## 基本の HTML
+
+<Demo>
+  <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
+    <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+    <hr role="separator" aria-orientation="vertical" />
+    <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
+    <span data-hc-spacer="true"></span>
+    <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
+    <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+  
+    <hr role="separator" aria-orientation="vertical">
+  
+    <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
+  
+    <span data-hc-spacer="true"></span>
+  
+    <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 構造
+
+- **子要素** — 通常はボタンですが、フォーカス可能なコントロールなら
+  何でも機能します。
+- **セパレータ** — `<hr role="separator" aria-orientation="vertical">`
+  が 1px の縦の区切り線を描きます。純粋に視覚的なもので、ツールバーに
+  セパレータは必須ではありません。
+- **スペーサー** — `<span data-hc-spacer="true"></span>` が伸びて、
+  後続の子を端へ押しやります(右端の保存ボタンなど)。
+
+## JavaScript
+
+ロービングタブインデックスのキーボード挙動には `installToolbar()` が
+必要です — **ないと矢印キーは何もせず**、ツールバーはネイティブの
+Tab 順にフォールバックします。起動時に一度インストールしてください:
+
+```js
+import { installToolbar } from '@hypermedia-components/core';
+installToolbar(); // idempotent; returns an uninstaller
+```
+
+ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
+インストールします。
+
+## キーボードナビゲーション
+
+`installToolbar()` は、すべての `.hc-toolbar[role="toolbar"]` を
+[WAI-ARIA APG のツールバーパターン](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/)へ
+昇格させます: ツールバー全体が**単一の Tab ストップ**になり、矢印キーが
+コントロール間でフォーカスを動かします。素の `.hc-toolbar` レイアウト
+クラス(`role="toolbar"` なし)はネイティブのフォーカス順を保ち、
+手を付けられません。
+
+| キー | 動作 |
+| --- | --- |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | 1 つのストップとしてツールバーへ入る / 出る。フォーカスは最後に使ったコントロールへ戻ります。 |
+| <kbd>→</kbd> / <kbd>←</kbd> | 前 / 次のコントロール(水平ツールバー)。両端でラップし、RTL ではミラー。 |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | `aria-orientation="vertical"` のときの前 / 次のコントロール。 |
+| <kbd>Home</kbd> / <kbd>End</kbd> | 最初 / 最後のコントロール。 |
+
+無効なコントロール(`disabled` または `aria-disabled="true"`)は
+スキップされます。ナビゲーションはフォーカスを**動かすだけ**です —
+ボタンはネイティブの <kbd>Space</kbd> / <kbd>Enter</kbd> による起動を
+保ちます。
+
+```html
+<!-- Vertical toolbar: arrows become ↑ / ↓ -->
+<div class="hc-toolbar" role="toolbar" aria-orientation="vertical"
+     aria-label="Drawing tools">
+  <button class="hc-button" data-variant="ghost">Pen</button>
+  <button class="hc-button" data-variant="ghost">Brush</button>
+  <button class="hc-button" data-variant="ghost">Eraser</button>
+</div>
+```
+
+ツールバー内のテキストフィールドは、軸方向の矢印を自身のキャレットの
+ために保持します。それを飛び越えてツールバーの両端へ行くには
+<kbd>Home</kbd> / <kbd>End</kbd> を使ってください。
+
+## アクセシビリティ
+
+- ラッパーに `role="toolbar"` を適用し、ツールバーが制御する対象を
+  説明する `aria-label` を**必ず**含めてください(`"Editor
+  toolbar"`、`"Filter actions"`)。
+- ビヘイビアがインストールされていれば、ツールバーは上の APG
+  ロービングタブインデックスパターンに従います。JavaScript なしでは
+  コントロールはネイティブの左から右(または上から下)のフォーカス順に
+  留まります — すべてのコントロールは、個別の Tab ストップとして依然
+  到達可能です。
+- ツールバー内のボタンは依然として標準のボタンです。明確なラベル
+  (トグルボタンには `aria-pressed="true"`)を使ってください。
+
+## テーマ用トークン
+
+| トークンパス                        | 用途                   |
+| ----------------------------------- | ---------------------- |
+| `toolbar.gap`                       | 子要素間のギャップ。   |
+| `toolbar.padding-x` / `-y`          | 内側のパディング。     |
+| `toolbar.bg` / `-border` / `-radius` | 面のスタイリング。    |
+| `toolbar.separator`                 | セパレータの色。       |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-toolbar-gap
+--hc-toolbar-padding-x | -padding-y
+--hc-toolbar-bg | -border | -radius
+--hc-toolbar-separator
+```
+
+</details>
+
+## 関連
+
+- [ボタン](/hypermedia-components/ja/components/button/) — ツールバーの
+  定番の子要素。
+- [ページネーション](/hypermedia-components/ja/components/pagination/) —
+  ページリンクに特化したグルーピング。

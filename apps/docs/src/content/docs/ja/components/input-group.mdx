@@ -1,0 +1,157 @@
+---
+title: インプットグループ
+description: 入力欄と前後のアドオンを 1 つの面の上に合成。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-input-group` は、`hc-input` と前後の**アドオン** — テキスト、
+アイコン、または本物の `hc-button` — を、1 つの共有フォーカスリングを
+持つ 1 枚の枠つき面の上に合成します。ほぼ CSS だけで、内側の
+`<input>` は自身の枠線を手放してグループがそれを所有します。
+
+:::note
+これはコントロールの**内側の合成**で、
+[`hc-field`](/hypermedia-components/ja/components/field/)(コントロールの
+周りにラベルとヘルプテキストを足すもの)とは別物です。両者は一緒に
+使えます: `hc-field` が `hc-input-group` を包む形です。
+:::
+
+## ボタンつき検索
+
+<Demo>
+  <div class="hc-input-group" style="max-inline-size: 22rem;">
+    <span class="hc-input-addon" aria-hidden="true">🔍</span>
+    <input class="hc-input" type="search" aria-label="Search" placeholder="Search…" />
+    <button class="hc-button" data-variant="primary" type="submit">Search</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <form data-hx-get="/search" data-hx-target="#results">
+    <div class="hc-input-group">
+      <span class="hc-input-addon" aria-hidden="true">🔍</span>
+      <input class="hc-input" type="search" name="q" aria-label="Search" />
+      <button class="hc-button" data-variant="primary" type="submit">Search</button>
+    </div>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+内側の `<input>` と `<button>` は普通の要素なので、htmx の配線
+(`data-hx-*`)はそれらに直接置きます — グループは純粋に視覚的な
+ものです。
+
+## 前置 / 後置の単位
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:22rem;">
+  <div class="hc-input-group">
+    <span class="hc-input-addon">https://</span>
+    <input class="hc-input" type="text" aria-label="Domain" value="example.com" />
+  </div>
+  <div class="hc-input-group">
+    <span class="hc-input-addon">$</span>
+    <input class="hc-input" type="number" aria-label="Amount" value="42" />
+    <span class="hc-input-addon">USD</span>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-input-group">
+    <span class="hc-input-addon">$</span>
+    <input class="hc-input" type="number" aria-label="Amount" />
+    <span class="hc-input-addon">USD</span>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## パスワードの表示切り替え(オプトインのビヘイビア)
+
+後置のボタンでパスワードフィールドの可視性を切り替えられます。これが
+グループ唯一の**オプトインビヘイビア**です: `data-hc-password-toggle` を
+足して `installPasswordToggle()` を呼びます(自動初期化バンドルに含まれて
+います)。
+
+<Demo>
+  <div class="hc-input-group" style="max-inline-size: 22rem;">
+    <input class="hc-input" type="password" id="doc-pw" aria-label="Password" value="hunter2" />
+    <button type="button" class="hc-button" data-variant="ghost"
+            data-hc-password-toggle aria-controls="doc-pw" aria-label="Show password">👁</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-input-group">
+    <input class="hc-input" type="password" id="pw" aria-label="Password" />
+    <button type="button" class="hc-button" data-variant="ghost"
+            data-hc-password-toggle aria-controls="pw"
+            aria-label="Show password">👁</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installPasswordToggle } from '@hypermedia-components/core';
+installPasswordToggle();
+```
+
+ビヘイビアは入力の `type` を `password` と `text` の間で切り替え、
+`aria-pressed` と `aria-label` に反映します。文言は
+`data-hc-label-show` / `data-hc-label-hide` でカスタマイズできます
+(デフォルトは "Show password" / "Hide password")。フィールドの値を
+読むことも、ネットワーク呼び出しをすることも決してありません。
+
+## アクセシビリティ
+
+- `<input>` にアクセシブルな名前を与えてください(ここでは
+  `aria-label`。`hc-field` で包む場合は `<label>`)。装飾的なアイコン
+  アドオンは `aria-hidden="true"` にすべきです。
+- 意味のあるテキストアドオン(`USD` のような単位、`https://` のような
+  前置)はソース順に読み上げられます — スクリーンリーダーには問題
+  ありません。短く保ってください。
+- フォーカスリングは共有です: フィールドにフォーカスすると
+  `:focus-within` 経由でグループ全体にリングが付きます。内側のボタンは
+  自身のフォーカスアウトラインを保ちます。
+- パスワードトグルは `aria-pressed` つきの本物の
+  `<button type="button">` です — キーボードで操作でき、トグルとして
+  読み上げられます。
+
+## テーマ用トークン
+
+| トークンパス                | 用途                                 |
+| --------------------------- | ------------------------------------ |
+| `input-group.bg`            | 共有面の背景。                       |
+| `input-group.fg`            | テキストの色。                       |
+| `input-group.border`        | 面の枠線。                           |
+| `input-group.focus-border`  | フォーカス中の枠線色。               |
+| `input-group.radius`        | 外側の角丸。                         |
+| `input-group.addon-bg` / `addon-fg` | アドオンの背景 / テキスト。  |
+| `input-group.addon-padding-x` | アドオンのインラインパディング。   |
+| `input-group.divider`       | アドオン / ボタンとフィールドの間のヘアライン。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-input-group-bg | -fg | -border | -focus-border | -radius
+--hc-input-group-addon-bg | -addon-fg | -addon-padding-x | -divider
+```
+
+</details>
+
+## 関連
+
+- [インプット](/hypermedia-components/ja/components/input/) — 中に置くフィールド。
+- [フィールド](/hypermedia-components/ja/components/field/) — ラベル + ヘルプテキストのラッパー。
+- [ボタングループ](/hypermedia-components/ja/components/button-group/) — (アドオンつき入力ではなく)ボタン同士の連結。

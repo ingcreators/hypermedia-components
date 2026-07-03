@@ -1,0 +1,262 @@
+---
+title: セレクト
+description: 閉じた状態を完全にスタイルし、ドロップダウンには OS / ブラウザのピッカーを使うネイティブの <select> — 純 CSS、JavaScript なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-select` はネイティブの `<select>` 要素をスタイルします。土台の
+要素はネイティブの挙動をすべて保ちます — キーボードナビゲーション、
+フォーム送信、モバイルでの OS ネイティブピッカー、スクリーンリーダーの
+セマンティクス — 閉じた状態だけが、HC フォームコントロールファミリーに
+合わせて完全に再スタイルされます。
+
+## ブラウザのベースライン
+
+`<select>` をサポートするすべてのブラウザ(つまりすべてのブラウザ)で
+動きます。展開されたドロップダウンはブラウザネイティブのままなので、
+体験はユーザーのプラットフォームと一貫します。
+
+モダンな後続 — `appearance: base-select` — により、いずれネイティブ
+コントロールを手放さずに**開いた**ピッカーもスタイルできるようになり
+ます。現状とオプトイン方法は下の
+[ネイティブ志向: 開いたピッカーのスタイリング](#ネイティブ志向-開いたピッカーのスタイリング)を
+参照してください。
+
+## 基本の例
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
+  <select class="hc-select" aria-label="Country">
+    <option value="">Choose a country…</option>
+    <option value="jp">Japan</option>
+    <option value="us">United States</option>
+    <option value="gb">United Kingdom</option>
+  </select>
+
+  <Fragment slot="code">
+
+  ```html
+  <select class="hc-select" name="country">
+    <option value="">Choose a country…</option>
+    <option value="jp">Japan</option>
+    <option value="us">United States</option>
+    <option value="gb">United Kingdom</option>
+  </select>
+  ```
+
+  </Fragment>
+</Demo>
+
+セレクトの上に見えるラベルとヘルパーテキストを付けるには
+[`hc-field`](/hypermedia-components/ja/components/field/) と組み合わせて
+ください。
+
+## バリアント
+
+`data-variant` は、デフォルト以外の枠線色として `success`、`warning`、
+`error` を受け付けます。デフォルト(省略)のバリアントは中立の枠線を
+使います。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
+  <select class="hc-select" aria-label="Default">
+    <option>Default border</option>
+  </select>
+  <select class="hc-select" data-variant="success" aria-label="Success">
+    <option>Success</option>
+  </select>
+  <select class="hc-select" data-variant="warning" aria-label="Warning">
+    <option>Warning</option>
+  </select>
+  <select class="hc-select" data-variant="error" aria-label="Error" aria-invalid="true">
+    <option>Error</option>
+  </select>
+
+  <Fragment slot="code">
+
+  ```html
+  <select class="hc-select" data-variant="error" aria-invalid="true">…</select>
+  ```
+
+  </Fragment>
+</Demo>
+
+支援技術にもフィールドが無効だと認識させるため、
+`data-variant="error"` と一緒に `aria-invalid="true"` を設定して
+ください。
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。サイズは
+`hc-button` / `hc-input` と同じ `--hc-control-*` スケールに従うため、
+`data-density="compact"` は他のコントロールと一貫して縮めます。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:18rem;">
+  <select class="hc-select" data-size="sm" aria-label="Small">
+    <option>Small</option>
+  </select>
+  <select class="hc-select" aria-label="Default">
+    <option>Default</option>
+  </select>
+  <select class="hc-select" data-size="lg" aria-label="Large">
+    <option>Large</option>
+  </select>
+
+  <Fragment slot="code">
+
+  ```html
+  <select class="hc-select" data-size="sm">…</select>
+  <select class="hc-select">…</select>
+  <select class="hc-select" data-size="lg">…</select>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 無効化
+
+コントロールがまったく操作可能であるべきでないときは、ネイティブの
+`disabled` 属性を使います。`aria-disabled="true"` は、コントロールが
+タブ順に残らなければならないまれなケース向けの、フォーカス可能な
+変種です。
+
+<Demo previewStyle="max-inline-size:18rem;">
+  <select class="hc-select" disabled aria-label="Disabled">
+    <option>Disabled select</option>
+  </select>
+
+  <Fragment slot="code">
+
+  ```html
+  <select class="hc-select" disabled>
+    <option>Disabled select</option>
+  </select>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx での利用
+
+`hc-select` はネイティブの `<select>` と同様にフォーム送信へ参加
+します。即時フィルタには `change` を待ち受けます:
+
+```html
+<select class="hc-select"
+        name="status"
+        data-hx-get="/items"
+        data-hx-trigger="change"
+        data-hx-target="#items"
+        data-hx-include="this">
+  <option value="">Any status</option>
+  <option value="open">Open</option>
+  <option value="closed">Closed</option>
+</select>
+```
+
+サーバサイドバリデーションのフィードバックには、
+`aria-invalid="true"` つきのセレクトと、対になる `hc-field` の
+メッセージを返してください。
+
+## アクセシビリティ
+
+- セレクトには常にラベルを関連付けてください。最も簡単なパターンは、
+  `<label for>` つきの `hc-field` の中に置くことです。`aria-label` は
+  見えるラベルがふさわしくない場合(ツールバー内のセレクトなど)に
+  だけ使います。
+- 最初の option が見えるデフォルトです — 何も事前選択されていない
+  ときは `<option value="">Choose…</option>` のようなプレースホルダーを
+  使い、サーバ側で空の値と実際の選択を区別できるようにしてください。
+- ネイティブの `<select>` は `Enter` / `Space` / 矢印キーをすでに
+  処理します。カスタムのキーボードハンドラを足さないでください —
+  ブラウザ組み込みの挙動と衝突するだけです。
+- シェブロンは、`hc-checkbox` / `hc-radio` と同じ規約に倣い、
+  ハードコードされた中立のストローク色の `background-image` で描かれ
+  ます。純粋に装飾であり、スクリーンリーダーは読み上げません。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `select.height` / `padding-x` | サイズ(`--hc-control-*` 経由で密度を継承)。 |
+| `select.radius` / `font-size` / `bg` / `fg` / `border` | 面、テキスト、平常時の枠線。 |
+| `select.focus-border` | フォーカス時の枠線。 |
+| `select.error-border` / `success-border` / `warning-border` | バリアントの枠線。 |
+| `select.disabled-bg` | 無効時の背景。 |
+| `select.chevron-size` | シェブロンアイコンの寸法。 |
+| `select.sm.*` / `lg.*` | 専用の sm / lg 上書き。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-select-height | -padding-x | -radius | -font-size
+--hc-select-bg | -fg | -border
+--hc-select-focus-border | -error-border | -success-border | -warning-border
+--hc-select-disabled-bg
+--hc-select-chevron-size
+--hc-select-sm-height | -sm-padding-x | -sm-font-size
+--hc-select-lg-height | -lg-padding-x | -lg-font-size
+--hc-color-focus-ring (inherited from data-color)
+```
+
+</details>
+
+## ネイティブ志向: 開いたピッカーのスタイリング
+
+ネイティブの `<select>` は、キーボードナビゲーション、フォームへの
+参加、モバイルの OS ピッカー、スクリーンリーダーのセマンティクスを
+無料で与えてくれます — しかし歴史的に、**開いた**ドロップダウンは
+スタイルできませんでした。
+[カスタマイズ可能な `<select>`](https://developer.chrome.com/blog/a-customizable-select)
+の取り組みがそれを変えます: 要素を `appearance: base-select` に
+オプトインすると、*本物の*ネイティブコントロールを保ったまま、
+ピッカー —
+[`::picker(select)`](https://developer.mozilla.org/docs/Web/CSS/::picker)
+疑似要素と各 `<option>` を含む — をスタイルできます。ピッカーは
+(ポップオーバーのように)トップレイヤーに描画され、CSS アンカー
+ポジショニングで配置できます。全容は
+[Open UI の explainer](https://open-ui.org/components/customizableselect/)を
+参照してください。
+
+:::note[Baseline — まだです]
+`appearance: base-select` + `::picker(select)` は 2026 年時点で
+**Baseline ではありません**。Chrome 135+ は安定版で出荷しています。
+Safari は Technology Preview でドキュメント化され、Firefox は Nightly の
+フラグの背後でプロトタイプ中です。まだ相互運用可能ではないため、
+`hc-select` はこれをデフォルトで有効に**しません** — すべてのブラウザが
+一貫したネイティブピッカーを保ちます。
+:::
+
+これは**完全にプログレッシブ**です: `appearance: base-select` を理解
+しないブラウザは単に無視し、ネイティブのドロップダウンを保ちます。
+サポートするブラウザで今日カスタマイズ可能なパスが欲しければ、
+インスタンス単位でオプトインしてください:
+
+```html
+<select class="hc-select" name="country" style="appearance: base-select">
+  <button type="button">
+    <selectedcontent></selectedcontent>
+  </button>
+  <option value="">Choose a country…</option>
+  <option value="jp">Japan</option>
+</select>
+```
+
+**今すぐ、どこでも動く完全にスタイルされたドロップダウンが必要?**
+[`hc-combobox`](/hypermedia-components/ja/components/combobox/)を使って
+ください — Light DOM に ARIA リストボックスを描画する JS の逃げ道
+です。HC はカスタマイズ可能 `<select>` の展開を追跡しており、機能が
+Baseline に達したら `hc-select` に第一級の宣言的オプトインを追加
+します。開いたピッカーのスタイリングだけが `hc-combobox` に手を
+伸ばす理由である場面を、ネイティブパスが置き換えられるように。
+
+## 関連
+
+- [インプット](/hypermedia-components/ja/components/input/) — 同じコントロールスケールを共有するテキスト / textarea の兄弟。
+- [フィールド](/hypermedia-components/ja/components/field/) — ラベル + ヘルパーテキストのラッパー。
+- [コンボボックス](/hypermedia-components/ja/components/combobox/) — 今日、開いたドロップダウンをスタイルする必要があるときの JS 支援リストボックス。
+- [チェックボックス](/hypermedia-components/ja/components/checkbox/) / [ラジオ](/hypermedia-components/ja/components/radio/) — 真偽値 / 単一選択のフォームコントロール。

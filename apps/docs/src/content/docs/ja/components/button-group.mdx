@@ -1,0 +1,177 @@
+---
+title: ボタングループ
+description: 隣接するボタンをセグメント化されたひとかたまりへ視覚的に連結。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-button-group` は、隣接する
+[`hc-button`](/hypermedia-components/ja/components/button/) 要素を 1 つの
+セグメント化されたクラスターへ連結します — スプリットボタン、アイコン
+ボタンの列、ページネーション風のグループなど。**純粋にプレゼン
+テーション目的**です: 共有される内側の角丸を潰し、隣同士を 1px 重ねて
+接する枠線が 1 本のヘアラインに見えるようにし、外側の角だけを丸め
+ます。選択状態なし、JavaScript なし。
+
+:::note
+2 状態のセグメンテッドコントロール(常に 1 つがアクティブ)には
+[`hc-toggle-group`](/hypermedia-components/ja/components/toggle-group/)を
+使ってください — そちらが選択のセマンティクスを担います。
+`hc-button-group` は独立したボタンの視覚的グルーピングにすぎません。
+:::
+
+## 基本の HTML
+
+<Demo>
+  <div class="hc-button-group" role="group" aria-label="Text style">
+    <button class="hc-button" type="button">Bold</button>
+    <button class="hc-button" type="button">Italic</button>
+    <button class="hc-button" type="button">Underline</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-button-group" role="group" aria-label="Text style">
+    <button class="hc-button" type="button">Bold</button>
+    <button class="hc-button" type="button">Italic</button>
+    <button class="hc-button" type="button">Underline</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+各子要素は普通の `.hc-button` なので、バリアント、サイズ、`data-hx-*`
+属性はすべてそのまま機能します。グループのサイズは各ボタンに
+`data-size` を設定して揃えます。
+
+## アイコンボタン
+
+コンパクトなアイコンアクションの列がよくある用途です。アイコンのみの
+ボタンには必ず `aria-label` でアクセシブルな名前を与えてください。
+
+<Demo>
+  <div class="hc-button-group" role="group" aria-label="Alignment">
+    <button class="hc-button" type="button" aria-label="Align left">⬅</button>
+    <button class="hc-button" type="button" aria-label="Align center">↔</button>
+    <button class="hc-button" type="button" aria-label="Align right">➡</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-button-group" role="group" aria-label="Alignment">
+    <button class="hc-button" type="button" aria-label="Align left">
+      <svg aria-hidden="true">…</svg>
+    </button>
+    <button class="hc-button" type="button" aria-label="Align center">…</button>
+    <button class="hc-button" type="button" aria-label="Align right">…</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## スプリットボタン
+
+主アクションと、[メニュー](/hypermedia-components/ja/components/menu/)を
+開くキャレットを組みます。グループの子はこの 2 つのボタンだけにし、
+`popover` メニューはグループの**外**に置いて id で参照します。
+
+<Demo>
+  <div class="hc-button-group">
+    <button class="hc-button" data-variant="primary" type="button">Save</button>
+    <button class="hc-button" data-variant="primary" type="button"
+            popovertarget="doc-save-menu" id="doc-save-caret"
+            aria-label="More save options">▾</button>
+  </div>
+
+  <div class="hc-menu" id="doc-save-menu" popover role="menu" aria-labelledby="doc-save-caret">
+    <button class="hc-menu__item" role="menuitem" type="button">Save and close</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Save as draft</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Save a copy</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-button-group">
+    <button class="hc-button" data-variant="primary" type="button">Save</button>
+    <button class="hc-button" data-variant="primary" type="button"
+            popovertarget="save-menu" id="save-caret"
+            aria-label="More save options">▾</button>
+  </div>
+  
+  <!-- The menu lives outside the group. -->
+  <div class="hc-menu" id="save-menu" popover role="menu"
+       aria-labelledby="save-caret">
+    <button class="hc-menu__item" role="menuitem" type="button">Save and close</button>
+    <button class="hc-menu__item" role="menuitem" type="button">Save as draft</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 縦方向
+
+`data-orientation="vertical"` はボタンを縦に積み、代わりに上下の共有
+枠線を潰します。
+
+<Demo>
+  <div class="hc-button-group" data-orientation="vertical" role="group" aria-label="View">
+    <button class="hc-button" type="button">Day</button>
+    <button class="hc-button" type="button">Week</button>
+    <button class="hc-button" type="button">Month</button>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-button-group" data-orientation="vertical"
+       role="group" aria-label="View">
+    <button class="hc-button" type="button">Day</button>
+    <button class="hc-button" type="button">Week</button>
+    <button class="hc-button" type="button">Month</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## アクセシビリティ
+
+- クラスターを `role="group"` で包み、ボタンたちの共通点を説明する
+  `aria-label`(または `aria-labelledby`)を付けてください。任意ですが、
+  支援技術が関係性を読み上げる助けになります。
+- 各ボタンは自身のアクセシブルな名前を持つ独立したコントロールです —
+  アイコンのみのボタンには `aria-label` が**必須**です。
+- これは選択ウィジェットではありません。ここに `aria-pressed` /
+  `aria-checked` の状態はありません。「どれか 1 つがアクティブ」が
+  必要なら
+  [`hc-toggle-group`](/hypermedia-components/ja/components/toggle-group/)へ。
+- キーボード挙動はネイティブのボタンのデフォルト(Tab で各ボタンへ、
+  Enter / Space で起動)です — グループはロービングタブインデックスを
+  追加しません。
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+`hc-button-group` は独自のトークンを導入しません。外側の角にはボタンの
+角丸を再利用します。
+
+```text
+--hc-button-radius   (the rounded outer corners; inner corners square off)
+```
+
+</details>
+
+## 関連
+
+- [ボタン](/hypermedia-components/ja/components/button/) — グループ化される要素。
+- [トグルグループ](/hypermedia-components/ja/components/toggle-group/) — 選択可能(1 つがアクティブ)なセグメンテッドコントロール。
+- [メニュー](/hypermedia-components/ja/components/menu/) — スプリットボタンのキャレット用ドロップダウン。
+- [ページネーション](/hypermedia-components/ja/components/pagination/) — ページ用に作られた連結クラスター。
