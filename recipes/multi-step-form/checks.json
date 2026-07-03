@@ -1,0 +1,48 @@
+{
+  "detect": "section:has(> .hc-stepper):has(form[data-hx-post])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "region-has-id",
+      "level": "error",
+      "message": "The wizard region needs an id — every response swaps the whole section back (outerHTML), so the id must round-trip.",
+      "attr": { "on": "section", "name": "id", "assert": "present", "matches": "\\S" }
+    },
+    {
+      "id": "whole-step-swap",
+      "level": "error",
+      "message": "Swap the whole region with outerHTML — an inner swap would duplicate the stepper. (outerHTML must be declared: htmx's default is innerHTML.)",
+      "attr": { "on": "form[data-hx-post]", "name": "data-hx-swap", "assert": "present", "value": "outerHTML" }
+    },
+    {
+      "id": "no-js-post",
+      "level": "error",
+      "message": "Keep method/action alongside data-hx-post — the wizard's no-JS path is classic pages at real step URLs.",
+      "attr": { "on": "form[data-hx-post]", "name": "method", "assert": "present", "matches": "^(post|POST)$" }
+    },
+    {
+      "id": "next-submit",
+      "level": "error",
+      "message": "Navigation is a named submit of the step form: a button with name=\"nav\" value=\"next\".",
+      "exists": { "selector": "button[type=\"submit\"][name=\"nav\"][value=\"next\"]" }
+    },
+    {
+      "id": "back-never-validates",
+      "level": "error",
+      "message": "Every back button must carry formnovalidate — without it, required fields on the current step trap the user (drafts are saved unvalidated; only next validates).",
+      "attr": { "on": "button[name=\"nav\"][value=\"back\"]", "name": "formnovalidate", "assert": "present" }
+    },
+    {
+      "id": "current-step-marked",
+      "level": "error",
+      "message": "Exactly the current step carries aria-current=\"step\" on the stepper.",
+      "exists": { "selector": ".hc-stepper__step[aria-current=\"step\"]", "min": 1, "max": 1 }
+    },
+    {
+      "id": "double-submit-guard",
+      "level": "warn",
+      "message": "Disable the submits during the request (data-hx-disabled-elt).",
+      "attr": { "on": "form[data-hx-post]", "name": "data-hx-disabled-elt", "assert": "present" }
+    }
+  ]
+}

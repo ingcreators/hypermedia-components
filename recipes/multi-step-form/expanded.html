@@ -1,0 +1,47 @@
+<!-- Fully expanded HTML — a middle step (2 of 3), which shows every
+  moving part: the re-rendered stepper (step 1 complete), the draft-
+  pre-filled field, and both nav directions. Each server response is
+  this whole <section> again for the neighboring step (contract.md). -->
+<section id="wizard">
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account
+        <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+
+  <form method="post" action="/signup/2"
+        data-hx-post="/signup/2"
+        data-hx-target="#wizard" data-hx-swap="outerHTML"
+        data-hx-disabled-elt="find button[type=submit]">
+    <div id="wizard-errors"></div>
+
+    <h2>Profile</h2><!-- step heading first: reading order restarts sensibly -->
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="display-name">Display name</label>
+      <!-- pre-filled from the draft (a back-then-next round-trip is lossless) -->
+      <input class="hc-input" id="display-name" name="display_name"
+             value="Ada" required>
+    </div>
+
+    <!-- Back: formnovalidate is load-bearing — without it, required
+         fields on THIS step trap the user. The server merges the body
+         into the draft WITHOUT validating and renders step 1. -->
+    <button class="hc-button" type="submit" name="nav" value="back"
+            formnovalidate>Back</button>
+    <!-- Next: validates this step, merges the draft, renders step 3
+         (or 422 + HX-Retarget: #wizard-errors with field-errors). -->
+    <button class="hc-button" data-variant="primary" type="submit"
+            name="nav" value="next">Next</button>
+  </form>
+</section>

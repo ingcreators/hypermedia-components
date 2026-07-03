@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc multi-step-form fixture</title>
+  <!--
+    The blessed multi-step-form recipe, verbatim from the docs: one
+    wizard region (whole-step outerHTML swaps), named nav submits of
+    the step form, back carrying formnovalidate (drafts save without
+    validation), 422 steered into #wizard-errors, HX-Redirect on
+    completion. The /mock/wizard/* routes (serve.mjs) own the draft;
+    the static markup below matches the mock's step-1 render. One
+    documented allowance (422 beforeSwap), no other custom JS.
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size:36rem;">
+    <h1>Signup wizard</h1>
+
+    <section id="wizard" data-testid="wizard">
+      <ol class="hc-stepper">
+        <li class="hc-stepper__step" aria-current="step">
+          <span class="hc-stepper__marker" aria-hidden="true">1</span>
+          <span class="hc-stepper__label">Account</span>
+        </li>
+        <li class="hc-stepper__step">
+          <span class="hc-stepper__marker" aria-hidden="true">2</span>
+          <span class="hc-stepper__label">Profile</span>
+        </li>
+        <li class="hc-stepper__step">
+          <span class="hc-stepper__marker" aria-hidden="true">3</span>
+          <span class="hc-stepper__label">Review</span>
+        </li>
+      </ol>
+
+      <form method="post" action="/mock/wizard/1"
+            data-hx-post="/mock/wizard/1"
+            data-hx-target="#wizard" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="find button[type=submit]">
+        <div id="wizard-errors"></div>
+        <h2 data-testid="step-title">Account</h2>
+        <div class="hc-field" id="email-field">
+          <label class="hc-field__label" for="email">Email</label>
+          <input class="hc-input" id="email" name="email" type="email" required
+                 value="" data-testid="email">
+        </div>
+        <button class="hc-button" data-variant="primary" type="submit"
+                name="nav" value="next" data-testid="next">Next</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    // Documented one-time allowance: htmx ≥ 2 won't swap non-2xx by default.
+    document.body.addEventListener('htmx:beforeSwap', (event) => {
+      if (event.detail.xhr.status === 422) {
+        event.detail.shouldSwap = true;
+        event.detail.isError = false;
+      }
+    });
+  </script>
+</body>
+</html>

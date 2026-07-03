@@ -22,6 +22,24 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`multi-step-form` recipe — the hypermedia wizard** (#304). The
+  server owns the current step and a **draft** of everything entered;
+  the client is one `#wizard` region (whole-step `outerHTML` swaps),
+  one form per step, and an `hc-stepper` the server re-renders with
+  every response. Both nav directions are named submits of the same
+  form (`name="nav"`), with **back carrying `formnovalidate`** — the
+  load-bearing native detail (drafts save without validation; only
+  "next" validates; `hc validate` errors on a back button without it).
+  A `422` on next steers field-errors into the in-step container
+  (`HX-Retarget`) without re-rendering — the user's in-progress values
+  stay untouched; completion is the mutating-form redirect; real step
+  URLs make the no-JS path classic pages. Ships as
+  `recipes/multi-step-form/` (recipe/expanded/contract/checks — 20th
+  recipe) plus a docs page, pinned by a real-htmx browser test:
+  stepper re-render, lossless back-then-next draft round-trip, back
+  escaping an invalid step, the value-preserving `422`, and
+  `HX-Redirect` completion.
+
 - **`hc-stepper` — zero-JavaScript step indicator** (#303). An
   `<ol class="hc-stepper">` whose every state arrives as
   server-rendered markup: `aria-current="step"` for the current step

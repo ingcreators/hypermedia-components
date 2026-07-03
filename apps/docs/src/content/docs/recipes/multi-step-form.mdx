@@ -1,0 +1,104 @@
+---
+title: Multi-step form
+description: The hypermedia wizard — the server owns the step and the draft; one region, whole-step swaps, named nav submits, back that never validates, and a no-JS path of classic pages.
+---
+
+`multi-step-form` is the blessed wizard: **the server owns the current
+step and a draft of everything entered**. The client is one region
+(whole-step `outerHTML` swaps), one form per step, and an
+[hc-stepper](/hypermedia-components/components/stepper/) the server
+re-renders with every response — no client-side step state, no hidden
+fields accumulating across steps, no JavaScript beyond htmx. Stable
+under the
+[markup versioning policy](https://github.com/ingcreators/hypermedia-components/blob/main/VERSIONING.md).
+
+## The markup (a middle step)
+
+```html
+<section id="wizard">
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account
+        <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+
+  <form method="post" action="/signup/2"
+        data-hx-post="/signup/2"
+        data-hx-target="#wizard" data-hx-swap="outerHTML"
+        data-hx-disabled-elt="find button[type=submit]">
+    <div id="wizard-errors"></div>
+    …step 2 fields, pre-filled from the draft…
+    <button class="hc-button" type="submit" name="nav" value="back"
+            formnovalidate>Back</button>
+    <button class="hc-button" data-variant="primary" type="submit"
+            name="nav" value="next">Next</button>
+  </form>
+</section>
+```
+
+Both nav directions are **named submits of the same form**
+(`name="nav"`), so htmx and the native no-JS path send identical
+bodies, and the current step's entries always travel with the
+navigation.
+
+:::caution[Back must never validate]
+`formnovalidate` on the back button is the load-bearing native detail:
+without it, `required` fields on the current step trap the user in the
+browser's validation bubbles. With it, back always works — the server
+stores whatever arrived as a **draft** (drafts are never validated;
+only "next" validates), and a back-then-next round-trip is lossless.
+`hc validate` errors on a back button without it.
+:::
+
+## Server responses
+
+| Case | Response |
+| --- | --- |
+| `nav=next`, valid | `200` — the complete `#wizard` fragment for the following step: stepper re-rendered (this step now `✓`), fields pre-filled from the draft |
+| `nav=back` | `200` — the previous step's fragment; the posted fields were merged into the draft **without validation** |
+| `nav=next`, invalid | `422` + `HX-Retarget: #wizard-errors` + `HX-Reswap: innerHTML` with the [field-errors](/hypermedia-components/recipes/field-errors/) fragment — **the step is not re-rendered**, the user's in-progress values stay untouched |
+| final `nav=next` | the [mutating-form](/hypermedia-components/recipes/mutating-form/) completion: `204` + `HX-Redirect` (htmx) / `303 Location` (no-JS) |
+
+Step URLs are real (`/signup/1`, `/signup/2`, …): refresh and deep
+links land on the server's idea of the current step, and without
+JavaScript the wizard is simply classic pages.
+
+## Accessibility
+
+The stepper announces state structurally (`<ol>` +
+`aria-current="step"` + sr-only `(completed)`); `formnovalidate` keeps
+keyboard users un-trapped; the `422` path preserves field-errors' focus
+management; put the step heading first in each fragment so reading
+order restarts sensibly after a swap.
+
+## Notes
+
+- **Draft storage** (session, draft row) is your framework's concern —
+  the contract only requires lossless back-then-next round-trips and
+  unvalidated drafts.
+- **File inputs don't round-trip** through drafts — upload files
+  separately ([file-upload](/hypermedia-components/recipes/file-upload/))
+  and reference the stored upload in the draft.
+- Completed stepper steps may be links to their step URLs if the flow
+  allows revisiting.
+
+The claims here — the stepper re-render, the lossless draft
+round-trip, back escaping an invalid step, the value-preserving `422`,
+completion — are pinned by a real-htmx browser test
+(`test-browser/multi-step-form.spec.mjs`).
+
+## Related
+
+- [Stepper](/hypermedia-components/components/stepper/) — the zero-JS indicator.
+- [Mutating form recipe](/hypermedia-components/recipes/mutating-form/) — the completion branching and the `422` allowance.
+- [Field errors recipe](/hypermedia-components/recipes/field-errors/) — the validation fragment.

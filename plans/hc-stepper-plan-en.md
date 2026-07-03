@@ -1,6 +1,6 @@
 # hc-stepper + multi-step-form — component + recipe plan
 
-Status: **approved; implementation pending (two PRs, §6).**
+Status: **shipped — PR 1 (component, #303) and PR 2 (recipe + E2E, #304).**
 The wizard pattern, hypermedia-style: a **zero-JavaScript step
 indicator** (server-rendered, state in attributes) plus a recipe where
 **the server owns the wizard** — each step is a form fragment, "next"

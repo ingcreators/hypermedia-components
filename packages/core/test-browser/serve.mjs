@@ -287,6 +287,140 @@ function hxTrigger(payload) {
   );
 }
 
+// Mock 3-step wizard for the multi-step-form spec
+// (multi-step-form.html). The draft lives server-side (module state;
+// GET /mock/wizard/reset isolates specs). nav=next validates the
+// current step (step 1 requires an @example.com address — passes the
+// browser's native type=email check, so the 422 path is reachable);
+// nav=back merges the body into the draft WITHOUT validating. Every
+// response is the whole #wizard fragment; the final next completes via
+// HX-Redirect / 303.
+let wizardDraft = {};
+
+function wizardStepper(step) {
+  const names = ['Account', 'Profile', 'Review'];
+  const items = names.map((label, i) => {
+    const n = i + 1;
+    if (n < step) {
+      return `<li class="hc-stepper__step" data-state="complete">
+        <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+        <span class="hc-stepper__label">${label} <span class="hc-sr-only">(completed)</span></span></li>`;
+    }
+    const current = n === step ? ' aria-current="step"' : '';
+    return `<li class="hc-stepper__step"${current}>
+      <span class="hc-stepper__marker" aria-hidden="true">${n}</span>
+      <span class="hc-stepper__label">${label}</span></li>`;
+  });
+  return `<ol class="hc-stepper">${items.join('')}</ol>`;
+}
+
+function wizardStep(step) {
+  const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  const formOpen = `<form method="post" action="/mock/wizard/${step}"
+        data-hx-post="/mock/wizard/${step}"
+        data-hx-target="#wizard" data-hx-swap="outerHTML"
+        data-hx-disabled-elt="find button[type=submit]">
+      <div id="wizard-errors"></div>`;
+  const back = `<button class="hc-button" type="submit" name="nav" value="back"
+        formnovalidate data-testid="back">Back</button>`;
+  const next = (label) => `<button class="hc-button" data-variant="primary" type="submit"
+        name="nav" value="next" data-testid="next">${label}</button>`;
+  let body;
+  if (step === 1) {
+    body = `${formOpen}
+      <h2 data-testid="step-title">Account</h2>
+      <div class="hc-field" id="email-field">
+        <label class="hc-field__label" for="email">Email</label>
+        <input class="hc-input" id="email" name="email" type="email" required
+               value="${esc(wizardDraft.email)}" data-testid="email">
+      </div>
+      ${next('Next')}
+    </form>`;
+  } else if (step === 2) {
+    body = `${formOpen}
+      <h2 data-testid="step-title">Profile</h2>
+      <div class="hc-field" id="name-field">
+        <label class="hc-field__label" for="display-name">Display name</label>
+        <input class="hc-input" id="display-name" name="display_name" required
+               value="${esc(wizardDraft.display_name)}" data-testid="name">
+      </div>
+      ${back} ${next('Next')}
+    </form>`;
+  } else {
+    body = `${formOpen}
+      <h2 data-testid="step-title">Review</h2>
+      <dl data-testid="review">
+        <dt>Email</dt><dd>${esc(wizardDraft.email)}</dd>
+        <dt>Display name</dt><dd>${esc(wizardDraft.display_name)}</dd>
+      </dl>
+      ${back} ${next('Finish')}
+    </form>`;
+  }
+  return `<section id="wizard" data-testid="wizard">${wizardStepper(step)}${body}</section>`;
+}
+
+function handleWizard(req, res, url) {
+  if (url.pathname === '/mock/wizard/reset' && req.method === 'GET') {
+    req.resume();
+    wizardDraft = {};
+    res.statusCode = 204;
+    res.end();
+    return true;
+  }
+  if (url.pathname === '/mock/wizard/done' && req.method === 'GET') {
+    req.resume();
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end('<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+      '<title>Welcome</title></head><body><h1 data-testid="done-page">Account created</h1></body></html>');
+    return true;
+  }
+  const match = url.pathname.match(/^\/mock\/wizard\/([123])$/);
+  if (match && req.method === 'POST') {
+    const step = Number(match[1]);
+    readBody(req).then((raw) => {
+      const params = new URLSearchParams(raw);
+      // Drafts merge on BOTH directions; only next validates.
+      for (const key of ['email', 'display_name']) {
+        if (params.has(key)) wizardDraft[key] = params.get(key);
+      }
+      const nav = params.get('nav');
+      res.setHeader('Content-Type', MIME['.html']);
+      if (nav === 'back') {
+        res.statusCode = 200;
+        res.end(wizardStep(Math.max(1, step - 1)));
+        return;
+      }
+      if (step === 1 && !String(wizardDraft.email ?? '').endsWith('@example.com')) {
+        res.statusCode = 422;
+        res.setHeader('HX-Retarget', '#wizard-errors');
+        res.setHeader('HX-Reswap', 'innerHTML');
+        res.end(`<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+          <p class="hc-alert__title">Please fix the errors below.</p>
+          <ul class="hc-alert__errors">
+            <li class="hc-alert__error" data-field="email" data-code="domain">email: use your @example.com address</li>
+          </ul>
+        </div>`);
+        return;
+      }
+      if (step === 3) {
+        if (!req.headers['hx-request']) {
+          res.statusCode = 303;
+          res.setHeader('Location', '/mock/wizard/done');
+          return res.end();
+        }
+        res.statusCode = 204;
+        res.setHeader('HX-Redirect', '/mock/wizard/done');
+        return res.end();
+      }
+      res.statusCode = 200;
+      res.end(wizardStep(step + 1));
+    });
+    return true;
+  }
+  return false;
+}
+
 // Mock multipart upload handler for the file-upload spec
 // (file-upload.html). Consumes the multipart body (filename extracted
 // from the Content-Disposition line), then answers after a short delay
@@ -416,6 +550,7 @@ function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
   if (handleUndo(req, res, url)) return true;
+  if (handleWizard(req, res, url)) return true;
   if (handleUpload(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
