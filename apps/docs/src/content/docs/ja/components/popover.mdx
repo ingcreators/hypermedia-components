@@ -1,0 +1,175 @@
+---
+title: ポップオーバー
+description: 標準の popover 属性の上に構築された軽量なフローティングパネル。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-popover` はネイティブの `popover` 属性をスタイルします。開閉、
+トップレイヤー描画、ライトディスミス、Escape で閉じるはブラウザが
+処理します — JavaScript は不要です。
+
+## 基本の HTML
+
+<Demo previewStyle="display:flex;gap:.5rem;align-items:flex-start;min-height:9rem;">
+  <button class="hc-button" type="button" popovertarget="demo-popover">
+    Open popover
+  </button>
+
+  <div id="demo-popover" class="hc-popover" popover>
+    <p>A short, focused message. The browser closes me on Escape or by clicking outside.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button" type="button" popovertarget="filter-popover">
+    Filter
+  </button>
+  
+  <div id="filter-popover" class="hc-popover" popover>
+    <p>Choose filters here.</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+`popover` 属性のデフォルトは `popover="auto"` で、つまり:
+
+- 外側クリックでのライトディスミス。
+- Escape で閉じる。
+- `auto` のポップオーバーは同時に 1 つだけ開く。
+
+ライトディスミスを無視するポップオーバーには `popover="manual"` を
+使い、`element.hidePopover()` で自分で閉じてください。
+
+## JavaScript
+
+上の基本的なライトディスミスのポップオーバーは、ネイティブの
+Popover API だけで機能します。下の**方向つき配置**と **htmx
+自動クローズ**にはビヘイビアが必要です — 使うものを起動時に一度
+インストールしてください:
+
+```js
+import { installPopover, installClosePopover } from '@hypermedia-components/core';
+installPopover();       // data-side / data-align anchoring + aria sync
+installClosePopover();  // close on a successful htmx request (optional)
+```
+
+ゼロ設定の `@hypermedia-components/core/behaviors` エントリは両方を
+自動でインストールします。
+
+## 方向つき配置
+
+素のポップオーバーはブラウザが配置します(トップレイヤーの中央)。
+side と align つきで**トリガーにアンカーする**には、`data-side`
+(`top` / `right` / `bottom` / `left`)と、任意で `data-align`
+(`start` / `center` / `end`、デフォルト `center`)を足します。
+`installPopover()` がアンカリングを配線し、トリガーの
+`aria-expanded` / `aria-controls` を同期し続けます。小さなポインタには
+`data-arrow` を足します。
+
+<Demo previewStyle="display:flex;gap:6rem;align-items:center;min-height:8rem;">
+  <button class="hc-button" type="button" popovertarget="side-popover">Anchored</button>
+  <div id="side-popover" class="hc-popover" popover
+       data-side="right" data-align="start" data-arrow>
+    <p style="margin:0;">Opens to the inline-end, top-aligned.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button" type="button" popovertarget="filters">Filter</button>
+
+  <div id="filters" class="hc-popover" popover
+       data-side="right" data-align="start" data-arrow>
+    <p style="margin:0;">Opens to the inline-end, top-aligned.</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+配置は、サポートされる環境では **CSS Anchor Positioning**
+(`position-area`)を使い、ビューポート端では
+`position-try-fallbacks` で反転します。同じ属性が、それのない
+エンジン向けの JS フォールバック(`getBoundingClientRect`)も駆動する
+ため、両パスはポップオーバーを同一に配置します。共有される機構 —
+両パス、矢印、`--hc-anchored-*` ノブ — は
+[基礎 → アンカー配置](/hypermedia-components/ja/fundamentals/anchored/)に
+ドキュメントがあります。
+
+:::note[Baseline]
+CSS Anchor Positioning(`position-area` / `position-try-fallbacks`)は
+**2026 年**に
+[Baseline](https://developer.mozilla.org/docs/Web/CSS/position-area) に
+到達しました(Chrome / Edge 125+、Safari 26、Firefox 147+)。それより
+古いエンジンでは `installPopover()` の JS フォールバックが配置します。
+JavaScript なしでは `data-side` のポップオーバーはブラウザ中央のまま
+です。`data-arrow` ポインタは素の CSS で、どこでも描画されます。
+:::
+
+## htmx での利用
+
+ポップオーバーは htmx 駆動のフォームをホストできます。リクエスト成功
+後にポップオーバーを閉じるには、`data-hc-close-popover-on-success`
+属性を足して `installClosePopover()` ビヘイビア
+(`@hypermedia-components/core/behaviors` に同梱)をインストール
+します。
+
+```html
+<form
+  class="hc-form"
+  data-hx-get="/items"
+  data-hx-target="#results"
+  data-hc-close-popover-on-success>
+  …
+</form>
+```
+
+ビヘイビアは `htmx:afterRequest` を待ち受けて成功を確認し、
+`closest('[popover]').hidePopover()` を呼びます。
+
+## アクセシビリティ
+
+- ポップオーバーは自動的にメニューになる**わけではありません**。
+  `role="menu"` の設定と矢印キーナビゲーションの提供は、別の場所で
+  ドキュメントされている別の関心事です。
+- ポップオーバーが閉じるとトリガー(`popovertarget` を持つ要素)に
+  フォーカスが戻ります — これはブラウザの挙動です。
+- ホバーやフォーカスで発動するツールチップ風のポップオーバーには、
+  `[popovertargetaction="show"]` 属性ファミリーかカスタムのホバー
+  ハンドラを使ってください。ホバーのみのツールチップは、それ自体では
+  キーボードユーザーにアクセシブルではありません。
+- ポップオーバーのアクセシブルな名前はコンテンツから来ます。見える
+  タイトルがなければ `aria-label` を足してください。
+
+## テーマ用トークン
+
+| トークンパス        | 用途                     |
+| ------------------- | ------------------------ |
+| `popover.bg` / `-fg` / `-border` | 面の色。    |
+| `popover.radius`    | 角丸。                   |
+| `popover.padding`   | 内側のパディング。       |
+| `popover.min-width` / `-max-width` | サイズの範囲。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-popover-bg | -fg | -border
+--hc-popover-radius | -padding
+--hc-popover-min-width | -max-width
+```
+
+</details>
+
+## 関連
+
+- [ダイアログ](/hypermedia-components/ja/components/dialog/) — 確認
+  フロー向けのモーダルな変種。
+- [`filter-popover` レシピ](/hypermedia-components/ja/recipes/filter-popover/)
+  — ポップオーバー + フォーム + htmx。

@@ -1,0 +1,158 @@
+---
+title: ダイアログ
+description: 標準の <dialog> 要素への最小限のスタイリング。モーダルフローは showModal()、非モーダルは show() を使います。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-dialog` は、標準の `<dialog>` 要素に適用する薄いクラスです。
+モーダルのライフサイクル — フォーカストラップ、Escape で閉じる、
+背景の `inert`、トップレイヤー描画 — はブラウザが所有し、この
+コンポーネントは見た目の面だけを足します。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-variant="primary" onclick="document.getElementById('basic-dialog').showModal()">Open dialog</button>
+  <dialog class="hc-dialog" id="basic-dialog" aria-labelledby="basic-dialog-title">
+    <header class="hc-dialog__header">
+      <h2 class="hc-dialog__title" id="basic-dialog-title">Confirm something</h2>
+    </header>
+    <div class="hc-dialog__body">
+      <p>Body content.</p>
+    </div>
+    <footer class="hc-dialog__footer">
+      <form method="dialog"><button class="hc-button">Cancel</button></form>
+      <form method="dialog"><button class="hc-button" data-variant="primary">OK</button></form>
+    </footer>
+  </dialog>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button" data-variant="primary"
+          onclick="document.getElementById('my-dialog').showModal()">
+    Open dialog
+  </button>
+
+  <dialog class="hc-dialog" id="my-dialog" aria-labelledby="my-dialog-title">
+    <header class="hc-dialog__header">
+      <h2 class="hc-dialog__title" id="my-dialog-title">Confirm something</h2>
+    </header>
+    <div class="hc-dialog__body">
+      <p>Body content.</p>
+    </div>
+    <footer class="hc-dialog__footer">
+      <!-- form method="dialog" closes the dialog natively, no JS needed -->
+      <form method="dialog"><button class="hc-button">Cancel</button></form>
+      <form method="dialog"><button class="hc-button" data-variant="primary">OK</button></form>
+    </footer>
+  </dialog>
+  ```
+
+  </Fragment>
+</Demo>
+
+## パーツ
+
+| パーツ                | 用途                                    |
+| --------------------- | --------------------------------------- |
+| `.hc-dialog`          | ルートの `<dialog>` 要素。              |
+| `.hc-dialog__header`  | タイトル行。下に区切り線。              |
+| `.hc-dialog__title`   | ヘッダー内の見出し。                    |
+| `.hc-dialog__body`    | メインのコンテンツ領域。                |
+| `.hc-dialog__footer`  | アクション行。右寄せ、上に区切り線。    |
+
+パーツは慣習です — どれでも省略できます。
+
+## 開閉
+
+ネイティブのメソッドを使います:
+
+```js
+dialog.showModal();   // modal, with focus trap and ::backdrop
+dialog.show();        // non-modal, no backdrop
+dialog.close();       // close (modal or non-modal)
+dialog.close('confirm'); // close and set returnValue
+```
+
+解散に反応するには `close` イベントを待ち受けます:
+
+```js
+dialog.addEventListener('close', () => {
+  if (dialog.returnValue === 'confirm') {
+    // user accepted
+  }
+});
+```
+
+## htmx での利用
+
+本文がサーバから来るモーダルは
+[リモートダイアログレシピ](/hypermedia-components/ja/recipes/remote-dialog/)を
+参照。事前の確認ステップ(承認までラウンドトリップなし)は
+[確認アクション](/hypermedia-components/ja/recipes/confirm-action/)を
+参照してください。
+
+ダイアログ内のフォームを成功時に閉じるには、
+`data-hc-close-dialog-on-success` でオプトインします:
+
+```html
+<form
+  class="hc-form"
+  data-hx-post="/items"
+  data-hx-target="closest dialog"
+  data-hx-swap="outerHTML"
+  data-hc-close-dialog-on-success>
+  …
+</form>
+```
+
+ビヘイビアが `htmx:afterRequest` を待ち受けて成功を確認し、最寄りの
+`<dialog>` 祖先の `dialog.close()` を呼びます。
+
+## アクセシビリティ
+
+- ネイティブの `<dialog>` 要素を使ってください。`showModal()` を
+  本当に使えないのでない限り、`<div role="dialog">` でダイアログを
+  模倣**しない**でください。
+- `showModal()` で開かれたダイアログでは、フォーカストラップと
+  Escape をブラウザが自動処理します。
+- ダイアログにラベルを付けてください。次のいずれかで:
+  - ダイアログにタイトルの id を指す `aria-labelledby` を設定する、
+    または
+  - タイトルを最初のフォーカス可能要素より前に置き、開いたときに
+    読み上げられるようにする。
+- 破壊的な確認では、開いたときに Cancel ボタンへフォーカスして
+  ください — 破壊的アクションへは決して。
+
+## テーマ用トークン
+
+| トークンパス            | 用途                          |
+| ----------------------- | ----------------------------- |
+| `dialog.bg` / `-fg`     | 面の色。                      |
+| `dialog.border`         | ダイアログ周りの枠線。        |
+| `dialog.radius`         | 角丸。                        |
+| `dialog.padding`        | 各パーツのパディング。        |
+| `dialog.gap`            | フッターのボタン間のギャップ。 |
+| `dialog.max-width`      | 最大インラインサイズ。        |
+| `dialog.backdrop`       | `::backdrop` の色。           |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-dialog-bg | -fg | -border
+--hc-dialog-radius | -padding | -gap | -max-width
+--hc-dialog-backdrop
+```
+
+</details>
+
+## 関連
+
+- [ポップオーバーコンポーネント](/hypermedia-components/ja/components/popover/) — 非モーダルの兄弟。
+- [確認アクションレシピ](/hypermedia-components/ja/recipes/confirm-action/)
+- [リモートダイアログレシピ](/hypermedia-components/ja/recipes/remote-dialog/)

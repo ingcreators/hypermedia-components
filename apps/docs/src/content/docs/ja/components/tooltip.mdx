@@ -1,0 +1,177 @@
+---
+title: ツールチップ
+description: ホバーまたはフォーカスで現れる短く一時的なテキストラベル。ネイティブの popover 属性と CSS Anchor Positioning の上に構築。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-tooltip` は、`popover` 要素をトリガーを説明する小さなラベルとして
+スタイルします。トリガーは `aria-describedby` でツールチップを参照する
+ため、トリガーがフォーカスを受けるとスクリーンリーダーが説明を読み上げ
+ます。`installTooltip()` がホバー、フォーカス、`Escape` での視覚的な
+表示 / 非表示を処理します。
+
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+Anchor Positioning のないブラウザは `getBoundingClientRect` ベースの
+配置フックへフォールバックするため、ツールチップは引き続きトリガーの
+上に現れます。`popover` がサポートされる環境ならどこでもツールチップは
+機能します。
+
+新しい
+[`popover="hint"`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover#hint)
+ではなく `popover="manual"` を使うのは、2026 年 5 月時点で Safari に
+`hint` サポートがなかったためです。`manual` + JS トグルは、
+`popover` をサポートするすべてのブラウザで `hint` のセマンティクス —
+別々のツールチップが互いを解散させず共存する — に一致します。
+
+## 基本の例
+
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" type="button" aria-describedby="doc-save-tip">
+    <span aria-hidden="true">💾</span>
+    <span>Save</span>
+  </button>
+  <div class="hc-tooltip" id="doc-save-tip">Save document (Ctrl+S)</div>
+
+  <button class="hc-button" type="button" aria-describedby="doc-delete-tip" data-variant="error">
+    <span aria-hidden="true">🗑️</span>
+    <span>Delete</span>
+  </button>
+  <div class="hc-tooltip" id="doc-delete-tip">Move to trash</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button" type="button" aria-describedby="save-tip">
+    <span aria-hidden="true">💾</span>
+    <span>Save</span>
+  </button>
+  <div class="hc-tooltip" id="save-tip">Save document (Ctrl+S)</div>
+
+  <button class="hc-button" type="button" aria-describedby="delete-tip"
+          data-variant="error">
+    <span aria-hidden="true">🗑️</span>
+    <span>Delete</span>
+  </button>
+  <div class="hc-tooltip" id="delete-tip">Move to trash</div>
+  ```
+
+  </Fragment>
+</Demo>
+
+```js
+import { installTooltip } from '@hypermedia-components/core';
+installTooltip();
+```
+
+## `installTooltip()` がすること
+
+- 作者が付けていなければ、ツールチップ要素に属性を自動付与します:
+  `popover="manual"`(表示 / 非表示の完全な JS 制御)と
+  `role="tooltip"`(スクリーンリーダーのセマンティクス)。
+- `aria-describedby` でツールチップを参照するすべてのトリガーを配線
+  します — 1 つのツールチップが複数のトリガーに仕えられます。
+- 対応する `anchor-name`(アクティブなトリガー)と
+  `position-anchor`(ツールチップ)を注入し、CSS Anchor Positioning で
+  ツールチップがトリガーの上に着地します。別の共有トリガーがホバー /
+  フォーカスされたらアンカーを結び直します。
+- 表示 / 非表示のタイミング:
+  - `mouseenter` → **300 ms** の遅延後に表示(業界標準の「ホバーの
+    意図」しきい値)。
+  - `mouseleave` → **100 ms** の猶予後に非表示(遅延中なら保留中の
+    表示をキャンセル)。
+  - `focus` → **即座に**表示(キーボードユーザーには遅延なし —
+    APG のガイダンス)。
+  - `blur` → 即座に非表示。
+  - フォーカス中の `Escape` → フォーカスを動かさずに非表示。
+
+## 配置
+
+ツールチップはデフォルトでトリガーの**上**に置かれます。インスタンス
+単位で `data-side`(`top` / `right` / `bottom` / `left`)と任意の
+`data-align`(`start` / `center` / `end`、デフォルト `center`)で
+上書きします。小さなポインタには `data-arrow` を足します。
+
+```html
+<button aria-describedby="hint">Help</button>
+<div class="hc-tooltip" id="hint" data-side="right" data-arrow>
+  Appears to the right
+</div>
+```
+
+配置は、サポートされる環境では CSS Anchor Positioning
+(`position-area`)を、そうでなければデフォルト配置と同じ JS
+フォールバックを使います — `data-side` / `data-align` が両パスを
+同一に駆動します。共有の機構 — 両パス、矢印、`--hc-anchored-*` の
+オフセット / 矢印ノブ — は
+[基礎 → アンカー配置](/hypermedia-components/ja/fundamentals/anchored/)に
+ドキュメントがあります。この機構は 2026 年に Baseline へ到達し、古い
+エンジンには JS フォールバックがあります。
+
+## `title` 属性ではなく本物の説明を
+
+`title` 属性から描画されるブラウザのネイティブツールチップは
+スタイルできず、プラットフォーム間で挙動が一貫せず、タッチデバイス
+では現れません。`hc-tooltip` + `aria-describedby` パターンを選んで
+ください。どうしても `title` を残すなら、ビヘイビアは衝突しません —
+しかしブラウザがあなたのツールチップの上に自身のツールチップを
+描画するので、取り除いてください。
+
+## アクセシビリティ
+
+- ツールチップは常にトリガーから
+  `aria-describedby="<tooltip-id>"` で参照してください。視覚的な
+  ツールチップが描画されているかにかかわらず、トリガーがフォーカスを
+  得るとスクリーンリーダーがツールチップのテキストを読み上げます。
+- ツールチップは**短いテキストラベル専用**です。インタラクティブな
+  コンテンツ(ボタン、フォームフィールド)が必要なら、代わりに
+  [ポップオーバー](/hypermedia-components/ja/components/popover/)か
+  [ダイアログ](/hypermedia-components/ja/components/dialog/)を使って
+  ください。ツールチップの面は `pointer-events: none` なので
+  クリックをインターセプトできません。
+- トリガーがフォーカスを保つ間、ツールチップは到達可能であり続け
+  なければなりません — タイマーで隠さないでください。ビヘイビアは
+  フォーカス保持中に自動解散しません。閉じるのは `Escape`、
+  `blur`、`mouseleave` だけです。
+- タッチデバイスにはホバーイベントがありません。ビヘイビアは
+  長押し → 表示をポリフィルしません。トリガーのアクセシブルな名前が
+  本質的な意味を運び、ツールチップはそれを補強する、という前提で
+  設計してください。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `tooltip.bg` / `fg` | 面とテキストの色。慣例に従いデフォルトはライト上のダーク。 |
+| `tooltip.radius` | 角丸。 |
+| `tooltip.padding-x` / `padding-y` | 内側のパディング。 |
+| `tooltip.font-size` | テキストサイズ。 |
+| `tooltip.max-width` | 折り返しまでの上限。 |
+| `tooltip.offset` | トリガーとツールチップの距離。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-tooltip-bg | -fg | -radius
+--hc-tooltip-padding-x | -padding-y | -font-size
+--hc-tooltip-max-width | -offset
+```
+
+</details>
+
+## 関連
+
+- [ポップオーバー](/hypermedia-components/ja/components/popover/) — より豊かな一時コンテンツのための素のポップオーバー面。
+- [メニュー](/hypermedia-components/ja/components/menu/) — popover + アンカー配置の構造を共有するアクションメニュー。
+- [ダイアログ](/hypermedia-components/ja/components/dialog/) — モーダルな代替。

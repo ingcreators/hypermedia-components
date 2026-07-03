@@ -1,0 +1,144 @@
+---
+title: 空状態
+description: 「結果なし」「まだ何もない」状態のための中央寄せブロック。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-empty` は中央寄せの空状態ブロックです: メディアスロット(アイコン
+またはイラスト)、タイトル、説明、任意のアクション。「結果なし」、
+「まだ何もない」、初回起動の状態に使います。トークン駆動の間隔、
+JavaScript なし — そして htmx の「結果なし」パーシャルスワップと
+自然に組み合います。
+
+## 基本の HTML
+
+<Demo>
+  <div class="hc-empty">
+    <div class="hc-empty__media" aria-hidden="true">📭</div>
+    <p class="hc-empty__title">No results</p>
+    <p class="hc-empty__description">
+      We couldn't find anything matching your search. Try a different term or
+      clear the filters.
+    </p>
+    <div class="hc-empty__actions">
+      <button class="hc-button" data-variant="primary" type="button">Clear filters</button>
+      <button class="hc-button" type="button">Browse all</button>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-empty">
+    <div class="hc-empty__media" aria-hidden="true">
+      <!-- an icon, emoji, or <svg> illustration -->
+      📭
+    </div>
+    <p class="hc-empty__title">No results</p>
+    <p class="hc-empty__description">
+      We couldn't find anything matching your search.
+    </p>
+    <div class="hc-empty__actions">
+      <button class="hc-button" data-variant="primary" type="button">Clear filters</button>
+      <button class="hc-button" type="button">Browse all</button>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 構造
+
+| パーツ                   | 必須     | 用途                                 |
+| ------------------------ | -------- | ------------------------------------ |
+| `hc-empty__media`        | 任意     | アイコン / イラストのスロット。      |
+| `hc-empty__title`        | はい     | 短い見出し。                         |
+| `hc-empty__description`  | 任意     | 1〜2 文の案内。                      |
+| `hc-empty__actions`      | 任意     | 1 つ以上の回復アクション。           |
+
+メディアスロットは正方形(`--hc-empty-media-size`)で、中のインライン
+`<svg>` や `<img>` はボックスを満たします。説明は幅が制限され
+(`--hc-empty-description-max-width`)、長い文言も読みやすいまま
+です。
+
+## htmx での利用
+
+リストのエンドポイントに、行かこの空ブロックのどちらかをパーシャルと
+して返させます。空状態のスワップインが読み上げられるよう、ターゲットを
+`aria-live` 領域で包んでください。
+
+```html
+<div id="results" aria-live="polite"
+     data-hx-get="/search?q=widgets"
+     data-hx-trigger="load">
+  <!-- The server returns the results list, or, when there are none: -->
+  <div class="hc-empty">
+    <div class="hc-empty__media" aria-hidden="true">🔍</div>
+    <p class="hc-empty__title">No matches for "widgets"</p>
+    <p class="hc-empty__description">Check the spelling or try a broader term.</p>
+    <div class="hc-empty__actions">
+      <a class="hc-button" data-hx-get="/search" data-hx-target="#results">Reset search</a>
+    </div>
+  </div>
+</div>
+```
+
+挙動は htmx に留まります — `hc-empty` は「結果なし」レスポンスの
+見た目にすぎません。
+
+## アクセシビリティ
+
+- role は文脈に合うよう**作者に委ねられています**。ページの静的な
+  領域としてなら role は不要です。ユーザー入力の結果として htmx が
+  スワップインするときは、(上のように)ターゲットかブロックを
+  `aria-live="polite"` で包み、新しい状態が読み上げられるようにして
+  ください。
+- 装飾のメディアグリフ / イラストには `aria-hidden="true"` を設定して
+  読み上げから外してください — 意味はタイトルが運びます。
+- 空状態がセクションを担うときは、ページのアウトラインに合う見出し
+  レベルを選んでください: `<p>` の代わりに
+  `<h2 class="hc-empty__title">` など。クラスはどちらの要素も
+  スタイルします。
+- 回復アクションのラベルは具体的に(「フィルタをクリア」「最初の
+  アイテムを追加」)。素の「OK」は避けてください。
+
+## テーマ用トークン
+
+| トークンパス                   | 用途                             |
+| ------------------------------ | -------------------------------- |
+| `empty.padding`                | ブロックのパディング。           |
+| `empty.media-size`             | メディアスロットのサイズ + グリフサイズ。 |
+| `empty.media-fg`               | メディア(アイコン)の色。       |
+| `empty.media-margin`           | メディアの下のギャップ。         |
+| `empty.title-font-size` / `-font-weight` / `-fg` | タイトルの文字。 |
+| `empty.description-font-size` / `-fg` | 説明の文字。              |
+| `empty.description-max-width`  | 説明の行長の上限。               |
+| `empty.description-margin`     | タイトルの下のギャップ。         |
+| `empty.actions-margin`         | アクションの上のギャップ。       |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-empty-padding
+--hc-empty-media-size | -media-fg | -media-margin
+--hc-empty-title-font-size | -title-font-weight | -title-fg
+--hc-empty-description-font-size | -description-fg
+--hc-empty-description-max-width | -description-margin
+--hc-empty-actions-margin
+```
+
+</details>
+
+## 関連
+
+- [スピナー](/hypermedia-components/ja/components/spinner/) — 空(または
+  実りある)結果に先立つ*読み込み*状態。
+- [スケルトン](/hypermedia-components/ja/components/skeleton/) —
+  コンテンツ読み込み中のプレースホルダー形状。
+- [カード](/hypermedia-components/ja/components/card/) — パネル内の
+  空状態の定番コンテナ。

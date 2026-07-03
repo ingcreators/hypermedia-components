@@ -1,0 +1,169 @@
+---
+title: スケルトン
+description: pulse / wave アニメーション、テーマ適応の面、prefers-reduced-motion 対応を備えた読み込みプレースホルダーブロック。純 CSS、JavaScript なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-skeleton` は、読み込み中のコンテンツの代わりに描画するプレース
+ホルダーです。任意の要素に `.hc-skeleton` を適用してサイズを与えて
+ください — 面の色、角丸、アニメーションはコンポーネントが供給します。
+JavaScript のない純 CSS です: スケルトンから本物のマークアップへの
+差し替え(htmx スワップ、フレームワークの再描画など)は自分で行い
+ます。
+
+面はテーマ適応のミュート背景を使うため、追加の作業なしにライトと
+ダークの両モードで正しく見えます。
+
+## 基本の使い方
+
+ブロックのサイズは利用側で決めます — インライン `style`、
+ユーティリティクラス、または包んでいるレイアウトで。スケルトンに
+固有のサイズはありません。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <div class="hc-skeleton" style="block-size:1rem;inline-size:80%"></div>
+  <div class="hc-skeleton" style="block-size:1rem;inline-size:60%"></div>
+  <div class="hc-skeleton" style="block-size:1rem;inline-size:90%"></div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-skeleton" style="block-size:1rem;inline-size:80%"></div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## 形状
+
+`data-shape` は `rect`(デフォルト)、`text`、`circle` を受け付け
+ます。
+
+- **rect** — medium の角丸を持つ汎用ブロック。カード、画像、サムネ
+  イルに(サイズは自分で)。
+- **text** — 1 行のテキスト: 高さ `1em`、より締まった角丸。幅を
+  減らしながら複数積むと段落を模せます。
+- **circle** — `aspect-ratio: 1` の完全な丸。片方の寸法(例:
+  `inline-size`)を設定すれば正方形を保ちます — アバター / アイコンの
+  スロットに。
+
+<Demo previewClass="hc-preview--start">
+  <div class="hc-skeleton" data-shape="circle" style="inline-size:3rem"></div>
+  <div style="display:flex;flex-direction:column;gap:.4rem;flex:1;">
+    <div class="hc-skeleton" data-shape="text" style="inline-size:40%"></div>
+    <div class="hc-skeleton" data-shape="text" style="inline-size:80%"></div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- avatar + two-line caption placeholder -->
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <div class="hc-skeleton" data-shape="circle" style="inline-size:3rem"></div>
+    <div style="display:flex;flex-direction:column;gap:.4rem;flex:1;">
+      <div class="hc-skeleton" data-shape="text" style="inline-size:40%"></div>
+      <div class="hc-skeleton" data-shape="text" style="inline-size:80%"></div>
+    </div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## アニメーション
+
+`data-animation` は `pulse`(デフォルト)、`wave`、`none` を受け付け
+ます。
+
+- **pulse** — ブロック全体がフェードイン / アウトします。
+- **wave** — 明るいハイライトの帯がブロックを横切ります。ハイライトは
+  `color-mix()` でベース色から導かれるため、アクティブなテーマに
+  自動追従します。
+- **none** — 静的なブロック。OS の設定にかかわらず動きはオフです —
+  スケルトンだらけのページで便利です。
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <div class="hc-skeleton" data-animation="pulse" style="block-size:1.25rem"></div>
+  <div class="hc-skeleton" data-animation="wave" style="block-size:1.25rem"></div>
+  <div class="hc-skeleton" data-animation="none" style="block-size:1.25rem"></div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-skeleton" data-animation="wave" style="block-size:1.25rem"></div>
+  ```
+
+  </Fragment>
+</Demo>
+
+`pulse` も `wave` も `prefers-reduced-motion: reduce` の下では静的な
+ブロックに畳まれ、動きに敏感なユーザーには平坦なプレースホルダーが
+見えます。
+
+## htmx での利用
+
+スケルトンはただのマークアップです。初期レスポンスで描画し、本物の
+フラグメントが届いたら htmx に置き換えさせます:
+
+```html
+<div
+  data-hx-get="/dashboard/stats"
+  data-hx-trigger="load"
+  data-hx-swap="outerHTML"
+  role="status"
+  aria-busy="true"
+  aria-label="Loading statistics">
+  <div class="hc-skeleton" data-shape="text" style="inline-size:40%"></div>
+  <div class="hc-skeleton" style="block-size:6rem;margin-block-start:.5rem"></div>
+</div>
+```
+
+サーバは(`aria-busy` なしの)完成した `<div>` を返し、スワップが
+スケルトンを読み込み状態ごと取り除きます。
+
+## アクセシビリティ
+
+- スケルトンは**装飾**です。ブロックごとに注釈しないでください。
+  代わりに読み込み領域に `role="status"`、`aria-busy="true"`、
+  アクセシブルな名前(`aria-label="Loading…"`、またはユーティリティが
+  あれば視覚的に隠したテキスト)を付けます。スクリーンリーダーは
+  読み込み状態を、プレースホルダーごとではなく一度だけ読み上げます。
+- 本物のコンテンツが届いたら `aria-busy` を外す(または領域ごと
+  スワップする)ことで、支援技術に読み込み完了を知らせてください。
+- 両方のアニメーションが `prefers-reduced-motion: reduce` を尊重
+  します。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `skeleton.bg` | ベースの面 — `var(--hc-color-muted-bg)`、ライト / ダークに適応。 |
+| `skeleton.highlight` | wave の掃引色。`color-mix()` で `bg` から導出。 |
+| `skeleton.radius` | `rect` 形状の角丸。 |
+| `skeleton.text-radius` | `text` 形状の角丸。 |
+| `skeleton.text-height` | `text` 形状の行の高さ(`1em`)。 |
+| `skeleton.pulse-duration` | pulse の周期。 |
+| `skeleton.wave-duration` | wave の掃引時間。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-skeleton-bg | -highlight
+--hc-skeleton-radius | -text-radius | -text-height
+--hc-skeleton-pulse-duration | -wave-duration
+```
+
+</details>
+
+## 関連
+
+- [スピナー](/hypermedia-components/ja/components/spinner/) — 模すべき
+  コンテンツの形がないときの不確定なインラインインジケーター。
+- [プログレス](/hypermedia-components/ja/components/progress/) —
+  タスクの進み具合が分かっているとき。
