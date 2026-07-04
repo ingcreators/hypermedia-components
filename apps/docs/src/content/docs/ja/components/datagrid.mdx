@@ -579,6 +579,44 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 </tbody>
 ```
 
+## イベント
+
+すべてのイベントはバブリングする `CustomEvent` なので、グリッド(または
+祖先、htmx の `data-hx-trigger`)へのリスナー 1 つですべてを捕捉できます。
+`hc:datagriddetailload` を除き、いずれも `.hc-datagrid` ルートで
+ディスパッチされます:
+
+| イベント | ディスパッチ先 | `detail` |
+| --- | --- | --- |
+| `hc:datagridsort` | `.hc-datagrid` | `{ col, direction }` — `'asc'` / `'desc'` / `null`。 |
+| `hc:datagridcolumnresize` | `.hc-datagrid` | `{ col, width }` — 新しい幅(px)。 |
+| `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — レコード / 行の単位で数えます。 |
+| `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — コミット時のみ、かつ値が変わったときのみ。 |
+| `hc:datagridexpand` | `.hc-datagrid` | `{ record }` — 展開されたレコード `<tbody>`。 |
+| `hc:datagridcollapse` | `.hc-datagrid` | `{ record }` — 折りたたまれたレコード `<tbody>`。 |
+| `hc:datagriddetailload` | `[data-lazy]` の `.hc-datagrid__detail` セル | `{ record }` — 初回の展開のみ。 |
+
+## 機能別の属性
+
+著者が書く `data-*` の一覧です — 機能ごとに、スタイルシートだけで動くか
+`installDatagrid()` が必要かを示します:
+
+| 機能 | 属性(対象) | 必要なもの |
+| --- | --- | --- |
+| 固定列 | `data-frozen`、`data-frozen-edge`(ヘッダー / ボディのセル) | CSS — ビヘイビアは `--hc-datagrid-left` / ヘッダー高さのオフセットを自動化するだけです。 |
+| 縦書きヘッダー | `data-orientation` — `vertical` / `sideways`(ヘッダーセル) | CSS |
+| 列 / セルのハイライト | `data-highlight`(セル) | CSS |
+| 列のリサイズ | `data-resizable` + `data-col`(ヘッダー)· 同じ `data-col`(ボディセル) | `installDatagrid()` |
+| ソート可能な列 | `data-sortable` + `data-col`(ヘッダー) | `installDatagrid()` |
+| 展開可能な行詳細 | `data-hc-datagrid-toggle`(ボタン)· `data-expanded`(レコード `<tbody>`、開いた状態で開始)· `data-lazy`(詳細セル) | `installDatagrid()` |
+| インライン編集 | `data-editable` + `data-col`(+ `data-value`)(セル)· `data-datagrid-editor` + `data-col`(`<template>`) | `installDatagrid()` |
+| 選択アクションバー | `data-hc-datagrid-actions="<selector>"`(バー)· `data-hc-datagrid-count`(件数要素) | `installDatagridActions()` |
+
+ビヘイビアは CSS のために状態属性も*書き込みます* — セルに
+`data-active`、`data-editing`、`data-resized`、レコードに
+`data-selected`、`data-current`、`data-expanded`
+([状態](#状態)を参照)。
+
 ## アクセシビリティ
 
 - `<thead>` / `<tbody>`、ヘッダーセルの `scope`、行選択チェックボックス

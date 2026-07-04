@@ -108,8 +108,12 @@ dialog.addEventListener('close', () => {
 </form>
 ```
 
-ビヘイビアが `htmx:afterRequest` を待ち受けて成功を確認し、最寄りの
-`<dialog>` 祖先の `dialog.close()` を呼びます。
+この糊付けは `installCloseDialog()` ビヘイビアです —
+`htmx:afterRequest` を待ち受けて成功を確認し、最寄りの `<dialog>`
+祖先の `dialog.close()` を呼びます。`installCloseDialog()` は冪等で、
+アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。
 
 ## アクセシビリティ
 

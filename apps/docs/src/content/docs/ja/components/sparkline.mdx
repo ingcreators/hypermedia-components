@@ -38,6 +38,15 @@ import Demo from '../../../../components/Demo.astro';
   </Fragment>
 </Demo>
 
+```js
+import { installSparkline } from '@hypermedia-components/core';
+installSparkline();
+```
+
+`installSparkline()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。
+
 ## 面とバリアント
 
 線の下を塗るには `data-area` を足します。`data-variant` はマーク全体を

@@ -44,19 +44,33 @@ installSplitter(); // idempotent; returns an uninstaller
 ```
 
 The zero-config `@hypermedia-components/core/behaviors` entry installs
-it automatically.
+it automatically and picks up content swapped in by htmx.
 
 ## Vertical
 
 `data-orientation="vertical"` stacks the panes with a horizontal handle.
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-splitter" data-orientation="vertical" data-value="40" style="block-size:14rem;inline-size:16rem;border:1px solid var(--hc-color-border);border-radius:.5rem;overflow:hidden;">
     <div class="hc-splitter__panel" style="padding:.75rem;">Top</div>
     <div class="hc-splitter__handle" role="separator" tabindex="0" aria-label="Resize panels"></div>
     <div class="hc-splitter__panel" style="padding:.75rem;">Bottom</div>
   </div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-splitter" data-orientation="vertical" data-value="40"
+       style="block-size:14rem">
+    <div class="hc-splitter__panel">Top</div>
+    <div class="hc-splitter__handle" role="separator" tabindex="0"
+         aria-label="Resize panels"></div>
+    <div class="hc-splitter__panel">Bottom</div>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Configuration
 

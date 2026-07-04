@@ -16,7 +16,7 @@ inputs inside a toolbar keep their normal appearance.
     <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
-    <hr role="separator" aria-orientation="vertical" />
+    <hr aria-orientation="vertical" />
     <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
     <span data-hc-spacer="true"></span>
@@ -31,7 +31,7 @@ inputs inside a toolbar keep their normal appearance.
     <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
   
-    <hr role="separator" aria-orientation="vertical">
+    <hr aria-orientation="vertical">
   
     <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
@@ -48,11 +48,16 @@ inputs inside a toolbar keep their normal appearance.
 ## Anatomy
 
 - **Children** — usually buttons, but any focusable controls work.
-- **Separator** — `<hr role="separator" aria-orientation="vertical">`
-  draws a 1px vertical divider. It is purely visual; toolbars do not
-  require separators.
+- **Separator** — a bare `<hr aria-orientation="vertical">` draws a 1px
+  vertical divider. Inside a toolbar the `<hr>` is styled by the toolbar
+  itself — no `hc-separator` class (and no explicit `role="separator"`,
+  which is `<hr>`'s implicit role) is needed. It is purely visual;
+  toolbars do not require separators.
 - **Spacer** — `<span data-hc-spacer="true"></span>` expands to push
-  trailing children to the end (e.g. a save button at the right).
+  trailing children to the end (e.g. a save button at the right). It is
+  the toolbar-scoped form of the general `.hc-spacer` utility (the same
+  idea for any flex row — see
+  [Shell](/hypermedia-components/components/shell/)).
 
 ## JavaScript
 
@@ -66,7 +71,7 @@ installToolbar(); // idempotent; returns an uninstaller
 ```
 
 The zero-config `@hypermedia-components/core/behaviors` entry installs it
-automatically.
+automatically and picks up content swapped in by htmx.
 
 ## Keyboard navigation
 

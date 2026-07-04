@@ -70,6 +70,10 @@ import { installTooltip } from '@hypermedia-components/core';
 installTooltip();
 ```
 
+`installTooltip()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。
+
 ## `installTooltip()` がすること
 
 - 作者が付けていなければ、ツールチップ要素に属性を自動付与します:

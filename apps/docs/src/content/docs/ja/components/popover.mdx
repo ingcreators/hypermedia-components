@@ -100,15 +100,8 @@ side と align つきで**トリガーにアンカーする**には、`data-side
 [基礎 → アンカー配置](/hypermedia-components/ja/fundamentals/anchored/)に
 ドキュメントがあります。
 
-:::note[Baseline]
-CSS Anchor Positioning(`position-area` / `position-try-fallbacks`)は
-**2026 年**に
-[Baseline](https://developer.mozilla.org/docs/Web/CSS/position-area) に
-到達しました(Chrome / Edge 125+、Safari 26、Firefox 147+)。それより
-古いエンジンでは `installPopover()` の JS フォールバックが配置します。
-JavaScript なしでは `data-side` のポップオーバーはブラウザ中央のまま
-です。`data-arrow` ポインタは素の CSS で、どこでも描画されます。
-:::
+エンジンの要件とフォールバックの振る舞いは、下の
+[ブラウザのベースライン](#ブラウザのベースライン)を参照してください。
 
 ## htmx での利用
 
@@ -130,6 +123,18 @@ JavaScript なしでは `data-side` のポップオーバーはブラウザ中�
 
 ビヘイビアは `htmx:afterRequest` を待ち受けて成功を確認し、
 `closest('[popover]').hidePopover()` を呼びます。
+
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+Anchor Positioning のないエンジンでは `installPopover()` の JS
+フォールバックが `data-side` のポップオーバーを配置します。JavaScript
+なしではブラウザ中央のままです。`data-arrow` ポインタは素の CSS で、
+どこでも描画されます。
 
 ## アクセシビリティ
 

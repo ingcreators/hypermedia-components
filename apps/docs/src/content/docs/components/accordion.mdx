@@ -12,13 +12,6 @@ the `toggle` event are all provided by the browser. The
 expresses the single-open ("exclusive") variant declaratively, so no
 JS is needed to enforce the "only one item open at a time" rule.
 
-## Browser baseline
-
-| Feature | Required version |
-| --- | --- |
-| `<details>` / `<summary>` | every browser |
-| `<details name="...">` exclusive grouping | Chrome 120+, Firefox 130+, Safari 17.2+ |
-
 ## Exclusive accordion (single-open)
 
 Give every `<details>` in the group the **same `name` value** and
@@ -111,6 +104,20 @@ open at once.
 </div>
 ```
 
+## Anatomy
+
+| Part                     | Purpose                                        |
+| ------------------------ | ---------------------------------------------- |
+| `.hc-accordion`          | The group container.                           |
+| `.hc-accordion__item`    | Each `<details>` element (same `name` for exclusive grouping). |
+| `.hc-accordion__trigger` | The `<summary>` — the clickable toggle.        |
+| `.hc-accordion__icon`    | *Optional* chevron; rotates 180° when open.    |
+| `.hc-accordion__content` | The revealed region.                           |
+
+The trigger resets the native disclosure marker (`list-style: none` +
+the WebKit marker reset), so without `.hc-accordion__icon` the summary
+renders as plain text with no open / closed indicator.
+
 ## Height animation
 
 The panel **animates its height** open and closed — pure CSS, no JavaScript —
@@ -146,10 +153,20 @@ the first time.
     <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">…</svg>
   </summary>
   <div class="hc-accordion__content">
-    <hc-spinner></hc-spinner>
+    <span class="hc-spinner" aria-hidden="true"></span>
   </div>
 </details>
 ```
+
+## Browser baseline
+
+| Feature | Required version |
+| --- | --- |
+| `<details>` / `<summary>` | every browser |
+| `<details name="...">` exclusive grouping | Chrome 120+, Firefox 130+, Safari 17.2+ |
+
+Browsers without the `name` attribute keep every item independently
+collapsible — nothing breaks; only the single-open rule is not enforced.
 
 ## Accessibility
 

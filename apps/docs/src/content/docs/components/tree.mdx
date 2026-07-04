@@ -71,7 +71,10 @@ bundle. Applies `role="tree" / treeitem / group` and a roving tabindex
 by htmx. Expanding an item dispatches a bubbling **`hc:treeexpand`**
 (`detail: { item }`) — the hook the
 [lazy-tree recipe](/hypermedia-components/recipes/lazy-tree/) builds
-on. It never touches the network.
+on. It never touches the network. Like every behavior it is idempotent
+and returns an uninstaller; trees added by a later htmx swap are picked
+up automatically (`MutationObserver`), and a per-tree observer re-applies
+the roles whenever a subtree is swapped in.
 
 ### Keyboard
 
@@ -103,6 +106,30 @@ current node is server-rendered state.
 
 `data-size="sm"` tightens the indent and font for dense panels.
 
+<Demo>
+  <ul class="hc-tree" data-size="sm" aria-label="Project files (compact)">
+    <li class="hc-tree__item" aria-expanded="true">
+      <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span><span class="hc-tree__label">src</span></span>
+      <ul class="hc-tree__group">
+        <li class="hc-tree__item"><span class="hc-tree__row"><span class="hc-tree__label">app.js</span></span></li>
+      </ul>
+    </li>
+    <li class="hc-tree__item">
+      <span class="hc-tree__row"><span class="hc-tree__label">README.md</span></span>
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-tree" data-size="sm" aria-label="Project files (compact)">
+    <!-- …the same items… -->
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
 ## Accessibility
 
 - Nested `<ul>/<li>` + `role="tree"` + `aria-expanded` + roving
@@ -115,9 +142,34 @@ current node is server-rendered state.
 
 ## Theming tokens
 
-`--hc-tree-indent` / `-row-padding-y` / `-row-padding-x` /
-`-row-radius` / `-fg` / `-hover-bg` / `-current-bg` / `-current-fg` /
-`-toggle-size` / `-guide` — semantic references throughout.
+Component tokens (in `component.tokens.json`) — semantic references
+throughout, so themes, accents and dark mode apply automatically:
+
+| Token path | Purpose |
+| --- | --- |
+| `tree.indent` | Indent per nesting level. |
+| `tree.row-padding-y` / `row-padding-x` | Row padding. |
+| `tree.row-radius` | Row corner radius. |
+| `tree.fg` | Tree text color. |
+| `tree.hover-bg` | Hovered-row background. |
+| `tree.current-bg` / `current-fg` | The `aria-current` row accent (follows `data-color`). |
+| `tree.toggle-size` | Chevron toggle box. |
+| `tree.guide` | Nesting guide line (also the busy-spinner track). |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-tree-indent
+--hc-tree-row-padding-y | -row-padding-x | -row-radius
+--hc-tree-fg | -hover-bg
+--hc-tree-current-bg | -current-fg
+--hc-tree-toggle-size | -guide
+```
+
+</details>
 
 ## Related
 

@@ -71,12 +71,76 @@ state is announced; `aria-current="step"` covers the current one.
 Render a completed step's content as a link to its step URL if the flow
 allows revisiting — the stepper styles it quietly (underline on
 hover/focus). This is the server's choice per step; the indicator never
-invents navigation.
+invents navigation. Keep the marker outside the link so the column
+layout holds:
+
+```html
+<li class="hc-stepper__step" data-state="complete">
+  <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+  <a href="/checkout/account">
+    <span class="hc-stepper__label">Account
+      <span class="hc-sr-only">(completed)</span></span>
+  </a>
+</li>
+```
 
 ## Sizes
 
 `data-size="sm"` shrinks the markers for dense layouts. Horizontal
 only — a vertical orientation is a deliberate non-goal for now.
+
+<Demo>
+  <ol class="hc-stepper" data-size="sm" style="max-inline-size:20rem;">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-stepper" data-size="sm">
+    <!-- …the same steps… -->
+  </ol>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx usage
+
+The server re-renders the whole indicator on every step: the step
+form's response (see the
+[multi-step form recipe](/hypermedia-components/recipes/multi-step-form/))
+simply includes the `<ol>` again with `aria-current` moved. After
+completing step 1 the server returns:
+
+```html
+<ol class="hc-stepper">
+  <li class="hc-stepper__step" data-state="complete">
+    <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+    <span class="hc-stepper__label">Account
+      <span class="hc-sr-only">(completed)</span></span>
+  </li>
+  <li class="hc-stepper__step" aria-current="step">
+    <span class="hc-stepper__marker" aria-hidden="true">2</span>
+    <span class="hc-stepper__label">Profile</span>
+  </li>
+  <!-- …remaining steps unchanged (upcoming) -->
+</ol>
+```
+
+No client mutation: the marker content (`✓` / `2`), `data-state`, and
+`aria-current` all arrive as markup.
 
 ## Accessibility
 
@@ -89,10 +153,32 @@ only — a vertical orientation is a deliberate non-goal for now.
 
 ## Theming tokens
 
-`--hc-stepper-marker-size` / `-marker-bg` / `-marker-fg` /
-`-current-bg` / `-current-fg` / `-complete-bg` / `-complete-fg` /
-`-connector` / `-label` / `-gap` — semantic references, so themes,
-accents and dark mode apply automatically.
+Component tokens (in `component.tokens.json`) — semantic references, so
+themes, accents and dark mode apply automatically:
+
+| Token path | Purpose |
+| --- | --- |
+| `stepper.marker-size` | Marker diameter (`data-size="sm"` overrides it). |
+| `stepper.marker-bg` / `marker-fg` | Upcoming-step marker. |
+| `stepper.current-bg` / `current-fg` | Current-step marker (follows `data-color`). |
+| `stepper.complete-bg` / `complete-fg` | Completed-step marker tint. |
+| `stepper.connector` | Connector line between steps. |
+| `stepper.label` | Label color. |
+| `stepper.gap` | Gap between marker and label. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-stepper-marker-size | -marker-bg | -marker-fg
+--hc-stepper-current-bg | -current-fg
+--hc-stepper-complete-bg | -complete-fg
+--hc-stepper-connector | -label | -gap
+```
+
+</details>
 
 ## Related
 

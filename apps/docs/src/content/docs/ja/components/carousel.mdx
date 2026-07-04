@@ -49,6 +49,9 @@ import { installCarousel } from '@hypermedia-components/core';
 installCarousel();
 ```
 
+`installCarousel()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールします。
+
 ## `installCarousel()` がすること
 
 - `IntersectionObserver` で最も見えているスライドを追跡し、
@@ -62,6 +65,23 @@ installCarousel();
   スクロールします — 常にネイティブのスムーズスクロール経由です。
 - 変更のたびに `detail.index` つきのバブリングする
   `hc:carouselchange` を発行します。
+
+## 事前レンダリングされるドット
+
+`[data-hc-carousel-dots]` コンテナに `[data-hc-carousel-dot]` ボタンが
+すでに含まれている場合、ビヘイビアは**自前で生成する代わりにそれらを
+再利用します** — n 番目のボタンが n 番目のスライドを制御し(文書順で
+対応)、その上にクリックの配線と `aria-current` の同期を追加します。
+初期 HTML にドット行を含めたいとき(ビヘイビアの読み込み中もレイアウト
+シフトなし)は、サーバサイドでレンダリングしてください:
+
+```html
+<div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide">
+  <button type="button" class="hc-carousel__dot" data-hc-carousel-dot aria-label="Go to slide 1"></button>
+  <button type="button" class="hc-carousel__dot" data-hc-carousel-dot aria-label="Go to slide 2"></button>
+  <button type="button" class="hc-carousel__dot" data-hc-carousel-dot aria-label="Go to slide 3"></button>
+</div>
+```
 
 ## スライドの幅
 

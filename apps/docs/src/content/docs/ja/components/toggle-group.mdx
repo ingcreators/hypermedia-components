@@ -79,7 +79,7 @@ Enter / クリックがフォーカス中のボタンをオン / オフします
 共有の `--hc-control-*` スケールから値を取ります(そのため
 `data-density` が一貫して縮めます)。
 
-<div class="hc-preview not-content hc-preview--col">
+<Demo previewClass="hc-preview--col">
   <div class="hc-toggle-group" role="radiogroup" data-type="single" data-size="sm" aria-label="Small">
     <button type="button" class="hc-toggle" role="radio" aria-checked="true"  data-value="d">Day</button>
     <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="w">Week</button>
@@ -90,7 +90,19 @@ Enter / クリックがフォーカス中のボタンをオン / オフします
     <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="w">Week</button>
     <button type="button" class="hc-toggle" role="radio" aria-checked="false" data-value="m">Month</button>
   </div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-toggle-group" role="radiogroup" data-type="single"
+       data-size="sm" aria-label="Small">…</div>
+
+  <div class="hc-toggle-group" role="radiogroup" data-type="single"
+       data-size="lg" aria-label="Large">…</div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## キーボード
 
@@ -114,7 +126,8 @@ installToggleGroup(); // idempotent; returns an uninstaller
 ```
 
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
-インストールします。すべての変更はグループ上でバブリングする
+インストールし、htmx でスワップされた内容も自動で拾います。すべての
+変更はグループ上でバブリングする
 `hc:togglegroupchange` を発火します:
 
 ```js

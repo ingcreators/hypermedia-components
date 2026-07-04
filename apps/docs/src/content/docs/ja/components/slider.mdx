@@ -36,6 +36,10 @@ import { installSlider } from '@hypermedia-components/core';
 installSlider();
 ```
 
+`installSlider()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。
+
 ## 塗り色の仕組み
 
 Firefox はトラックの 0→値の部分を `::-moz-range-progress` でネイティブに

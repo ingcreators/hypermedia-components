@@ -336,6 +336,36 @@ the off-canvas overlay instead, and the collapse button is hidden. With
 `data-persist`, the collapsed state restores on the next visit before first
 paint (`localStorage` failures degrade silently).
 
+## htmx usage
+
+The canonical htmx shell is a **boosted app shell**: `data-hx-boost="true"`
+on the shell turns every sidebar link into an AJAX navigation, and the
+inherited `data-hx-target` / `data-hx-select` make each one replace only
+the main region — the chrome (header, sidebar, its scroll position) never
+re-renders:
+
+```html
+<div class="hc-shell" data-hx-boost="true"
+     data-hx-target=".hc-shell__main" data-hx-select=".hc-shell__main"
+     data-hx-swap="outerHTML show:window:top">
+  <header class="hc-shell__header">…</header>
+  <nav class="hc-shell__sidebar" data-hc-nav-current aria-label="Primary">
+    <a class="hc-item" href="/orders">Orders</a>
+    <a class="hc-item" href="/settings">Settings</a>
+  </nav>
+  <main class="hc-shell__main"><!-- swapped per navigation --></main>
+</div>
+```
+
+The server keeps returning **full pages** — `data-hx-select` extracts the
+new page's `.hc-shell__main` from the response, so direct loads, refreshes,
+and no-JS clicks work unchanged. Boosted navigations push the new URL into
+history, and
+[`installNavCurrent()`](#marking-the-active-item-by-url--data-hc-nav-current)
+re-marks on exactly that signal (`htmx:pushedIntoHistory`, plus `popstate`
+for back/forward) — so the `data-hc-nav-current` sidebar's
+`aria-current="page"` follows every boosted navigation with no extra wiring.
+
 ## Accessibility
 
 - Use real landmarks: `<header>`, `<nav aria-label="…">`, `<main>`,
@@ -345,6 +375,13 @@ paint (`localStorage` failures degrade silently).
   toggle.
 - Give the toggle an accessible name (`aria-label` or visible text);
   `installShell()` adds a fallback label if neither is present.
+
+## Theming tokens
+
+The shell defines **no component tokens of its own**: colors and spacing
+come from the shared semantic `--hc-color-*` / `--hc-space-*` tokens, so
+themes, accents (`data-color`), and density apply automatically. Its CSS
+variables below are **layout knobs, not themeable tokens**.
 
 ## CSS variables
 

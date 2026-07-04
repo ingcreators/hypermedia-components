@@ -74,7 +74,11 @@ JavaScript なしではマークアップは素の読めるリストで、すべ
 サブツリーがスワップインされたときに両方を再適用します。項目の展開は
 バブリングする **`hc:treeexpand`**(`detail: { item }`)を発火します —
 [レイジーツリーレシピ](/hypermedia-components/ja/recipes/lazy-tree/)が
-その上に組むフックです。ネットワークには決して触れません。
+その上に組むフックです。ネットワークには決して触れません。他の
+ビヘイビアと同じく冪等で、アンインストーラを返します。後から htmx
+スワップで追加されたツリーは自動で拾われ(`MutationObserver`)、
+ツリーごとのオブザーバーがサブツリーのスワップインのたびにロールを
+再適用します。
 
 ### キーボード
 
@@ -106,6 +110,30 @@ JavaScript なしではマークアップは素の読めるリストで、すべ
 
 `data-size="sm"` は、密なパネル向けにインデントとフォントを詰めます。
 
+<Demo>
+  <ul class="hc-tree" data-size="sm" aria-label="Project files (compact)">
+    <li class="hc-tree__item" aria-expanded="true">
+      <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span><span class="hc-tree__label">src</span></span>
+      <ul class="hc-tree__group">
+        <li class="hc-tree__item"><span class="hc-tree__row"><span class="hc-tree__label">app.js</span></span></li>
+      </ul>
+    </li>
+    <li class="hc-tree__item">
+      <span class="hc-tree__row"><span class="hc-tree__label">README.md</span></span>
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-tree" data-size="sm" aria-label="Project files (compact)">
+    <!-- …the same items… -->
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
 ## アクセシビリティ
 
 - 入れ子の `<ul>/<li>` + `role="tree"` + `aria-expanded` + ロービング
@@ -119,9 +147,34 @@ JavaScript なしではマークアップは素の読めるリストで、すべ
 
 ## テーマ用トークン
 
-`--hc-tree-indent` / `-row-padding-y` / `-row-padding-x` /
-`-row-radius` / `-fg` / `-hover-bg` / `-current-bg` / `-current-fg` /
-`-toggle-size` / `-guide` — 全体を通じて semantic 参照です。
+component トークン(`component.tokens.json`)— 全体を通じて semantic
+参照なので、テーマ、アクセント、ダークモードが自動で適用されます:
+
+| トークンパス | 用途 |
+| --- | --- |
+| `tree.indent` | 入れ子 1 段あたりのインデント。 |
+| `tree.row-padding-y` / `row-padding-x` | 行のパディング。 |
+| `tree.row-radius` | 行の角丸。 |
+| `tree.fg` | ツリーのテキスト色。 |
+| `tree.hover-bg` | ホバー行の背景。 |
+| `tree.current-bg` / `current-fg` | `aria-current` 行のアクセント(`data-color` に追従)。 |
+| `tree.toggle-size` | シェブロントグルのボックス。 |
+| `tree.guide` | 入れ子のガイド線(ビジースピナーのトラックでもあります)。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-tree-indent
+--hc-tree-row-padding-y | -row-padding-x | -row-radius
+--hc-tree-fg | -hover-bg
+--hc-tree-current-bg | -current-fg
+--hc-tree-toggle-size | -guide
+```
+
+</details>
 
 ## 関連
 

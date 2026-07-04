@@ -568,6 +568,42 @@ e.g. on the row or grid:
 </tbody>
 ```
 
+## Events
+
+Every event is a bubbling `CustomEvent`, so one listener on the grid (or
+an ancestor, or an htmx `data-hx-trigger`) sees everything. All dispatch
+on the `.hc-datagrid` root except `hc:datagriddetailload`:
+
+| Event | Dispatches on | `detail` |
+| --- | --- | --- |
+| `hc:datagridsort` | `.hc-datagrid` | `{ col, direction }` — `'asc'` / `'desc'` / `null`. |
+| `hc:datagridcolumnresize` | `.hc-datagrid` | `{ col, width }` — the new width in px. |
+| `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — counted by record/row unit. |
+| `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — commit only, and only when the value changed. |
+| `hc:datagridexpand` | `.hc-datagrid` | `{ record }` — the expanded record `<tbody>`. |
+| `hc:datagridcollapse` | `.hc-datagrid` | `{ record }` — the collapsed record `<tbody>`. |
+| `hc:datagriddetailload` | the `[data-lazy]` `.hc-datagrid__detail` cell | `{ record }` — first expand only. |
+
+## Feature attributes
+
+The authored `data-*` surface at a glance — per feature, and whether it
+works with the stylesheet alone or needs `installDatagrid()`:
+
+| Feature | Attributes (where) | Needs |
+| --- | --- | --- |
+| Frozen columns | `data-frozen`, `data-frozen-edge` (head/body cells) | CSS — the behavior only automates the `--hc-datagrid-left` / header-height offsets. |
+| Vertical headers | `data-orientation` — `vertical` / `sideways` (header cell) | CSS |
+| Column / cell highlight | `data-highlight` (cell) | CSS |
+| Column resize | `data-resizable` + `data-col` (header) · matching `data-col` (body cells) | `installDatagrid()` |
+| Sortable columns | `data-sortable` + `data-col` (header) | `installDatagrid()` |
+| Expandable row detail | `data-hc-datagrid-toggle` (button) · `data-expanded` (record `<tbody>`, start open) · `data-lazy` (detail cell) | `installDatagrid()` |
+| Inline editing | `data-editable` + `data-col` (+ `data-value`) (cell) · `data-datagrid-editor` + `data-col` (`<template>`) | `installDatagrid()` |
+| Selection actions bar | `data-hc-datagrid-actions="<selector>"` (bar) · `data-hc-datagrid-count` (count element) | `installDatagridActions()` |
+
+The behavior also *writes* state attributes for the CSS — `data-active`,
+`data-editing`, `data-resized` on cells; `data-selected`, `data-current`,
+`data-expanded` on records (see [States](#states)).
+
 ## Accessibility
 
 - It is a real `<table>` with `<thead>` / `<tbody>`, `scope` on header

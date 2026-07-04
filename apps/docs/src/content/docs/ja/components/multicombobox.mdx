@@ -73,6 +73,34 @@ installMulticombobox();
 事前に `aria-selected="true"` が付いたオプションは、シードされたタグに
 なります。
 
+## 構造
+
+| パーツ | 必須 | 用途 |
+| --- | --- | --- |
+| `hc-multicombobox` | はい | ラッパー。`data-name` / `data-allow-create` を持ちます。 |
+| `hc-multicombobox__control` | はい | 視覚的なコントロールボックス(`hc-input` と併用)。 |
+| `hc-multicombobox__tags` | はい | ビヘイビアがタグチップで満たす空のコンテナ。 |
+| `hc-multicombobox__input` | はい | フィルタ入力 — `role="combobox"`。 |
+| `hc-multicombobox__listbox` | はい | オプションリスト — `role="listbox"`。 |
+| `hc-multicombobox__option` | はい | オプションごとに 1 つ — `role="option"` + `data-value`。 |
+| `hc-multicombobox__tag` / `__tag-remove` | 生成 | タグチップとその × 削除ボタン。 |
+| `hc-multicombobox__hidden` | 生成 | `data-name` フォーム統合用の hidden input コンテナ。 |
+| `hc-multicombobox__empty` | 生成 | フィルタに一致がない間の「No matches」プレースホルダー。 |
+| `hc-multicombobox__create` | 生成 | 合成の「Add …」オプション(`data-allow-create`)。 |
+
+**はい**のパーツは著者が書きます。*生成*のパーツは
+`installMulticombobox()` が作成・削除するので、自分では書かないで
+ください。空プレースホルダーのテキストは、**リストボックス**に
+`data-hc-empty` があればそれ、なければ i18n キー
+`multicombobox.empty`
+([i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/))
+です:
+
+```html
+<ul class="hc-multicombobox__listbox" id="lang-list" role="listbox"
+    data-hc-empty="No matching language">
+```
+
 ## `installMulticombobox()` がすること
 
 - **ARIA**: リストボックスに `aria-multiselectable="true"`、
@@ -147,6 +175,27 @@ installMulticombobox();
 </div>
 ```
 
+サーバは値を永続化し、`#status` 向けの小さな確認フラグメント
+(「Saved」の表示や検証メッセージ)を返します — コントロール自体は
+再描画**しません**。タグと hidden input はクライアント状態です。
+
+**非同期オプション** — オプションリストをサーバから読み込むには、
+代わりにリストボックスの子をスワップします: ビヘイビアはオプションを
+DOM からライブに読むため、スワップで入った行も静的な行と同じように
+フィルタ・ハイライト・トグルされます。
+
+```html
+<input class="hc-multicombobox__input" type="text" name="q"
+       role="combobox" aria-controls="lang-list" aria-label="Languages"
+       data-hx-get="/languages/options"
+       data-hx-trigger="input changed delay:300ms"
+       data-hx-target="#lang-list" data-hx-swap="innerHTML">
+```
+
+サーバは、入力された `q` に一致する
+`<li class="hc-multicombobox__option" role="option" data-value="…">`
+の行だけを返します。
+
 ## 作成可能(creatable)
 
 `data-allow-create` を足すと、ユーザーはリストにないタグを追加でき
@@ -215,6 +264,27 @@ component トークン(`component.tokens.json`):
 | `multicombobox.listbox.*` | コンボボックスのリストボックストークンのミラー。 |
 | `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, check-color, disabled-fg, indicator-size}` | オプションのレイアウト + チェックマーク。 |
 | `multicombobox.empty-fg` | 「No matches」プレースホルダーの色。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-multicombobox-control-padding-x | -control-padding-y | -control-gap | -control-min-height
+--hc-multicombobox-input-min-width | -input-fg
+--hc-multicombobox-tag-bg | -tag-fg | -tag-border | -tag-radius | -tag-gap | -tag-font-size
+--hc-multicombobox-tag-padding-x | -tag-padding-y
+--hc-multicombobox-tag-remove-fg | -tag-remove-hover-fg
+--hc-multicombobox-listbox-bg | -listbox-fg | -listbox-border | -listbox-radius
+--hc-multicombobox-listbox-max-height | -listbox-padding-block | -listbox-min-width | -listbox-offset
+--hc-multicombobox-option-padding-x | -option-padding-y | -option-font-size | -option-fg
+--hc-multicombobox-option-hover-bg | -option-active-bg | -option-check-color
+--hc-multicombobox-option-disabled-fg | -option-indicator-size
+--hc-multicombobox-empty-fg
+```
+
+</details>
 
 ## 関連
 

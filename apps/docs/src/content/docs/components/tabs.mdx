@@ -83,6 +83,15 @@ import { installTabs } from '@hypermedia-components/core';
 installTabs();
 ```
 
+`installTabs()` is idempotent and returns an uninstaller. The zero-config
+`@hypermedia-components/core/behaviors` entry auto-installs it and picks
+up content swapped in by htmx.
+
+When a panel becomes active, the behavior dispatches a bubbling
+**`hc:tabactivated`** event on that panel (no `detail` payload — the
+event target *is* the panel). Use it to react to tab switches, e.g. to
+lazy-load a panel's content (see [htmx usage](#htmx-usage)).
+
 ### Activation mode
 
 By default the behavior uses **manual activation** — arrow keys move

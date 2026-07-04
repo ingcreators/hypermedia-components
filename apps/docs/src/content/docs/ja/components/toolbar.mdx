@@ -16,7 +16,7 @@ import Demo from '../../../../components/Demo.astro';
     <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
-    <hr role="separator" aria-orientation="vertical" />
+    <hr aria-orientation="vertical" />
     <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
     <span data-hc-spacer="true"></span>
@@ -31,7 +31,7 @@ import Demo from '../../../../components/Demo.astro';
     <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
   
-    <hr role="separator" aria-orientation="vertical">
+    <hr aria-orientation="vertical">
   
     <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
     <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
@@ -49,11 +49,16 @@ import Demo from '../../../../components/Demo.astro';
 
 - **子要素** — 通常はボタンですが、フォーカス可能なコントロールなら
   何でも機能します。
-- **セパレータ** — `<hr role="separator" aria-orientation="vertical">`
-  が 1px の縦の区切り線を描きます。純粋に視覚的なもので、ツールバーに
-  セパレータは必須ではありません。
+- **セパレータ** — 素の `<hr aria-orientation="vertical">` が 1px の
+  縦の区切り線を描きます。ツールバー内の `<hr>` はツールバー自身が
+  スタイルするため、`hc-separator` クラスは不要です(明示的な
+  `role="separator"` も不要 — `<hr>` の暗黙のロールです)。純粋に
+  視覚的なもので、ツールバーにセパレータは必須ではありません。
 - **スペーサー** — `<span data-hc-spacer="true"></span>` が伸びて、
-  後続の子を端へ押しやります(右端の保存ボタンなど)。
+  後続の子を端へ押しやります(右端の保存ボタンなど)。汎用の
+  `.hc-spacer` ユーティリティのツールバースコープ版です(任意の flex
+  行で使える同じ発想 —
+  [シェル](/hypermedia-components/ja/components/shell/)を参照)。
 
 ## JavaScript
 
@@ -67,7 +72,7 @@ installToolbar(); // idempotent; returns an uninstaller
 ```
 
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
-インストールします。
+インストールし、htmx でスワップされた内容も自動で拾います。
 
 ## キーボードナビゲーション
 

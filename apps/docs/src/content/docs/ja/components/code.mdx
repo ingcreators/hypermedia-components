@@ -278,6 +278,31 @@ diff)の中に入れ子になり、`data-state` の色味や diff のガター�
 テーマでコード面上の WCAG AA コントラストを満たします
 (`code-syntax.spec.mjs` で検証済み)。
 
+## htmx での利用
+
+編集可能フィールドはネイティブの `<textarea name="…">` なので、保存は
+普通のフォーム POST です。レスポンスとして、保存された内容の読み取り
+専用ビューがスワップインします:
+
+```html
+<form data-hx-post="/queries/42" data-hx-target="#query-view" data-hx-swap="innerHTML">
+  <div class="hc-code" data-editable data-gutter="line-numbers" data-lang="sql">
+    <textarea class="hc-code__input" name="content" spellcheck="false"
+              aria-label="Route SQL">SELECT id FROM members</textarea>
+  </div>
+  <button class="hc-button" type="submit">Save</button>
+</form>
+
+<div id="query-view"><!-- the tokenized read-only fragment swaps in here --></div>
+```
+
+**サーバ契約:** レスポンスは読み取り専用の `hc-code` フラグメントです —
+例えば各トークンを `<span class="hc-code__tok" data-tok="…">` で包んだ
+`<pre class="hc-code" tabindex="0" role="region" aria-label="…"><code>`、
+つまり上の[シンタックスハイライト](#シンタックスハイライト)そのままの
+マークアップです。キットはそれをスタイルするだけで、スワップされた
+フラグメント上でクライアントのトークナイザは動きません。
+
 ## アクセシビリティ
 
 - 横スクロール可能なブロックはキーボードで到達可能でなければなり

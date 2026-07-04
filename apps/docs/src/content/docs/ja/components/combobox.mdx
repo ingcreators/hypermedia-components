@@ -21,16 +21,6 @@ import Demo from '../../../../components/Demo.astro';
 - `installCombobox()` がフィルタ、キーボード、選択、ARIA の帳簿を
   配線。
 
-## ブラウザのベースライン
-
-| プリミティブ | 必要バージョン |
-| --- | --- |
-| HTML `popover` | Chrome 114、Edge 114、Firefox 125、Safari 17 |
-| CSS Anchor Positioning | Chrome 125、Edge 125、Firefox 147、Safari 26 |
-
-アンカー未対応のブラウザは `getBoundingClientRect` による配置フックへ
-フォールバックします。
-
 ## 基本の例
 
 <Demo>
@@ -78,6 +68,10 @@ import Demo from '../../../../components/Demo.astro';
 import { installCombobox } from '@hypermedia-components/core';
 installCombobox();
 ```
+
+`installCombobox()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。
 
 ## `installCombobox()` がすること
 
@@ -235,6 +229,16 @@ input.addEventListener('hc:comboboxselect', (e) => {
 ```css
 .hc-combobox__option:not([hidden]) { display: grid; … }
 ```
+
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| HTML `popover` | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| CSS Anchor Positioning | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+アンカー未対応のブラウザは `getBoundingClientRect` による配置フックへ
+フォールバックします。
 
 ## アクセシビリティ
 

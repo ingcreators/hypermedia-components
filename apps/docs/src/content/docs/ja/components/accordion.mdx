@@ -12,13 +12,6 @@ import Demo from '../../../../components/Demo.astro';
 単一オープン(「排他」)の変種を宣言的に表現するため、「同時に 1 つ
 だけ開く」ルールの強制に JS は不要です。
 
-## ブラウザのベースライン
-
-| 機能 | 必要バージョン |
-| --- | --- |
-| `<details>` / `<summary>` | すべてのブラウザ |
-| `<details name="...">` の排他グルーピング | Chrome 120+、Firefox 130+、Safari 17.2+ |
-
 ## 排他アコーディオン(単一オープン)
 
 グループ内のすべての `<details>` に**同じ `name` 値**を与えると、
@@ -110,6 +103,21 @@ import Demo from '../../../../components/Demo.astro';
 </div>
 ```
 
+## 構造
+
+| パーツ                   | 用途                                           |
+| ------------------------ | ---------------------------------------------- |
+| `.hc-accordion`          | グループのコンテナ。                           |
+| `.hc-accordion__item`    | 各 `<details>` 要素(排他グルーピングには同じ `name`)。 |
+| `.hc-accordion__trigger` | `<summary>` — クリック可能なトグル。           |
+| `.hc-accordion__icon`    | *任意*のシェブロン。開くと 180° 回転します。   |
+| `.hc-accordion__content` | 開いたときに現れる領域。                       |
+
+トリガーはネイティブのディスクロージャマーカーをリセットする
+(`list-style: none` + WebKit のマーカーリセット)ため、
+`.hc-accordion__icon` がない場合、summary は開閉インジケータのない
+プレーンテキストとして描画されます。
+
 ## 高さのアニメーション
 
 パネルは開閉時に**高さをアニメーション**します — 純 CSS、JavaScript
@@ -146,10 +154,20 @@ import Demo from '../../../../components/Demo.astro';
     <svg class="hc-accordion__icon" viewBox="0 0 16 16" aria-hidden="true">…</svg>
   </summary>
   <div class="hc-accordion__content">
-    <hc-spinner></hc-spinner>
+    <span class="hc-spinner" aria-hidden="true"></span>
   </div>
 </details>
 ```
+
+## ブラウザのベースライン
+
+| 機能 | 必要バージョン |
+| --- | --- |
+| `<details>` / `<summary>` | すべてのブラウザ |
+| `<details name="...">` の排他グルーピング | Chrome 120+、Firefox 130+、Safari 17.2+ |
+
+`name` 属性のないブラウザでも各項目は独立に開閉できます — 何も壊れず、
+単一オープンのルールが強制されないだけです。
 
 ## アクセシビリティ
 

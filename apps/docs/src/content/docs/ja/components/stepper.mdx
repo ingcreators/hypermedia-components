@@ -74,11 +74,75 @@ import Demo from '../../../../components/Demo.astro';
 リンクとして描画してください — ステッパーはそれを控えめにスタイル
 します(ホバー / フォーカスで下線)。これはステップごとのサーバの
 選択です。インジケーターがナビゲーションを発明することはありません。
+カラムレイアウトを保つため、マーカーはリンクの外に置いてください:
+
+```html
+<li class="hc-stepper__step" data-state="complete">
+  <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+  <a href="/checkout/account">
+    <span class="hc-stepper__label">Account
+      <span class="hc-sr-only">(completed)</span></span>
+  </a>
+</li>
+```
 
 ## サイズ
 
 `data-size="sm"` は密なレイアウト向けにマーカーを縮めます。水平のみ —
 縦の向きは当面の意図的な非目標です。
+
+<Demo>
+  <ol class="hc-stepper" data-size="sm" style="max-inline-size:20rem;">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-stepper" data-size="sm">
+    <!-- …the same steps… -->
+  </ol>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx での利用
+
+サーバはステップのたびにインジケーター全体を再描画します: ステップの
+フォームのレスポンス
+([マルチステップフォームレシピ](/hypermedia-components/ja/recipes/multi-step-form/)を
+参照)が、`aria-current` を移した `<ol>` をそのまま含めるだけです。
+ステップ 1 の完了後、サーバはこう返します:
+
+```html
+<ol class="hc-stepper">
+  <li class="hc-stepper__step" data-state="complete">
+    <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+    <span class="hc-stepper__label">Account
+      <span class="hc-sr-only">(completed)</span></span>
+  </li>
+  <li class="hc-stepper__step" aria-current="step">
+    <span class="hc-stepper__marker" aria-hidden="true">2</span>
+    <span class="hc-stepper__label">Profile</span>
+  </li>
+  <!-- …remaining steps unchanged (upcoming) -->
+</ol>
+```
+
+クライアントの変更はありません: マーカーの内容(`✓` / `2`)、
+`data-state`、`aria-current` のすべてがマークアップとして届きます。
 
 ## アクセシビリティ
 
@@ -90,10 +154,32 @@ import Demo from '../../../../components/Demo.astro';
 
 ## テーマ用トークン
 
-`--hc-stepper-marker-size` / `-marker-bg` / `-marker-fg` /
-`-current-bg` / `-current-fg` / `-complete-bg` / `-complete-fg` /
-`-connector` / `-label` / `-gap` — semantic 参照なので、テーマ、
-アクセント、ダークモードが自動で適用されます。
+component トークン(`component.tokens.json`)— semantic 参照なので、
+テーマ、アクセント、ダークモードが自動で適用されます:
+
+| トークンパス | 用途 |
+| --- | --- |
+| `stepper.marker-size` | マーカーの直径(`data-size="sm"` が上書き)。 |
+| `stepper.marker-bg` / `marker-fg` | 未到達ステップのマーカー。 |
+| `stepper.current-bg` / `current-fg` | 現在ステップのマーカー(`data-color` に追従)。 |
+| `stepper.complete-bg` / `complete-fg` | 完了ステップのマーカーのティント。 |
+| `stepper.connector` | ステップ間のコネクタ線。 |
+| `stepper.label` | ラベルの色。 |
+| `stepper.gap` | マーカーとラベルの間隔。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-stepper-marker-size | -marker-bg | -marker-fg
+--hc-stepper-current-bg | -current-fg
+--hc-stepper-complete-bg | -complete-fg
+--hc-stepper-connector | -label | -gap
+```
+
+</details>
 
 ## 関連
 

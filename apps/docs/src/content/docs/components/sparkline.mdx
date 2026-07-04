@@ -38,6 +38,15 @@ behavior renders an inline line that fills the host box; size comes from
   </Fragment>
 </Demo>
 
+```js
+import { installSparkline } from '@hypermedia-components/core';
+installSparkline();
+```
+
+`installSparkline()` is idempotent and returns an uninstaller. The
+zero-config `@hypermedia-components/core/behaviors` entry auto-installs it
+and picks up content swapped in by htmx.
+
 ## Area &amp; variants
 
 Add `data-area` to fill under the line. `data-variant` recolours the whole

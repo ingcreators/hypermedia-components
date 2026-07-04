@@ -69,6 +69,35 @@ input is `disabled`. No new events, no network.
 
 `data-size="sm"` tightens the padding for dense forms.
 
+<Demo>
+  <label class="hc-dropzone" data-size="sm">
+    <input class="hc-dropzone__input" type="file" name="doc-sm" />
+    <span class="hc-dropzone__body">
+      <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+      <span class="hc-dropzone__files"></span>
+    </span>
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <label class="hc-dropzone" data-size="sm">
+    <!-- …the same input and body… -->
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx usage
+
+Uploading is the
+[file-upload recipe](/hypermedia-components/recipes/file-upload/)'s
+contract: `data-hx-encoding="multipart/form-data"` on the form, live
+progress via `installUploadProgress()`, and the server's response shape
+all live there. The dropzone drops into that form unchanged — a drop
+ends in the same native `change` as a browse.
+
 ## Accessibility
 
 - Everything a keyboard or assistive-tech user needs is the native
@@ -83,10 +112,33 @@ input is `disabled`. No new events, no network.
 
 ## Theming tokens
 
-`--hc-dropzone-bg` / `-border` / `-fg` / `-hint` / `-radius` /
-`-padding-y` / `-padding-x` / `-dragover-border` / `-dragover-bg` /
-`-error-border` — all referencing semantic tokens, so themes, accents
-(`data-color`) and dark mode apply automatically.
+Component tokens (in `component.tokens.json`) — all referencing
+semantic tokens, so themes, accents (`data-color`) and dark mode apply
+automatically:
+
+| Token path | Purpose |
+| --- | --- |
+| `dropzone.bg` / `fg` | Surface background and text. |
+| `dropzone.border` | Dashed border color. |
+| `dropzone.hint` | Hint text color. |
+| `dropzone.radius` | Corner radius. |
+| `dropzone.padding-y` / `padding-x` | Surface padding (`data-size="sm"` overrides it). |
+| `dropzone.dragover-border` / `dragover-bg` | Drag-over accent (follows `data-color`). |
+| `dropzone.error-border` | Invalid-state border. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-dropzone-bg | -fg | -border | -hint | -radius
+--hc-dropzone-padding-y | -padding-x
+--hc-dropzone-dragover-border | -dragover-bg
+--hc-dropzone-error-border
+```
+
+</details>
 
 ## Related
 
