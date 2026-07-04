@@ -22,6 +22,13 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Weekly Lighthouse failures now file a tracking issue** (dev-facing).
+  `perf.yml` is a scheduled run with no PR to go red on, so a missed
+  budget (or a crashed run) was only visible in the Actions tab — the
+  2026-06-15 failure went unnoticed. On failure the workflow now opens
+  "Weekly Lighthouse run failed" (or comments on the open one) with a
+  link to the run's score table and report artifact.
+
 - **VRT: the 0.1.8 components joined the screenshot sheets**
   (dev-facing). `vrt-core` grows meter (the three status regions +
   size presets), rating (interactive, checked=3, plus the read-only
