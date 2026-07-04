@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: recipes carry their contracts and the CLI everywhere**
+  (docs-facing; batch 3 of `plans/hc-docs-clarity-plan-en.md`, en +
+  ja). Every recipe page opens with the Scaffold aside
+  (`npx @hypermedia-components/cli add <name>` + `hc validate` + the
+  contract.md link — previously the CLI appeared on zero recipe
+  pages); the index is problem-first tables with searchable synonyms;
+  the seven old-generation pages gained mutating-form-style
+  Request→Response tables and "On failure" notes; datagrid-pager
+  server-renders page 1 again with a real progressive-enhancement
+  section; inline-edit unified on the `htmx:beforeSwap` 422 standard
+  with a keyboard-reachable Edit button as the blessed display state;
+  remote-dialog's Cancel is the native `<form method="dialog">` and
+  its PE trigger a styled link; lazy-panel's tab variant rides
+  `hc-tabs`. Scaffolds updated in lockstep (`hc validate`: 0 errors).
+
 - **Docs: the connective tissue** (docs-facing; batch 4 of
   `plans/hc-docs-clarity-plan-en.md`, en + ja). The fundamentals index
   is now a one-screen mental model (six-conventions table + the five
