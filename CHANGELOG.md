@@ -22,6 +22,12 @@ Security    — security-relevant changes
 
 ### Added
 
+- **CLI `@hypermedia-components/cli@0.2.1`** — re-bundles the recipe set
+  so `npx @hypermedia-components/cli add transfer` /
+  `add cascading-select` work; `hc validate` picks up their
+  `checks.json` from the bundled copies too. No command changes.
+  (Independent `cli-v0.2.1` tag.)
+
 - **`cascading-select` recipe — hierarchical selection as chained
   selects** (Track C, closing `plans/hc-form-patterns-plan-v0.10-en.md`).
   Each parent select's `change` GETs the child `<select>` fragment
