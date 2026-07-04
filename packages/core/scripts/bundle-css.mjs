@@ -42,6 +42,7 @@ const COMPONENTS = [
   'hc-field.css',
   'hc-spinner.css',
   'hc-progress.css',
+  'hc-meter.css',
   'hc-skeleton.css',
   'hc-separator.css',
   'hc-splitter.css',

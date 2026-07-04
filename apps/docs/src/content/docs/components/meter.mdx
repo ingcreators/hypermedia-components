@@ -1,0 +1,160 @@
+---
+title: Meter
+description: Native <meter> element styled with consistent cross-browser chrome — the browser's optimum / suboptimum / critical regions mapped onto the status tokens. Pure CSS, no JavaScript.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-meter` is applied to a standard `<meter>` element — the scalar
+measurement within a known range (disk quota, score, capacity),
+completing the pair with [`hc-progress`](/hypermedia-components/components/progress/)
+(task progress). The native element retains its `role="meter"` semantics
+and the `value` / `min` / `max` / `low` / `high` / `optimum` attributes;
+only the visual chrome is replaced via `appearance: none` and per-vendor
+pseudo-elements.
+
+## Basic HTML
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <label for="score">Review score</label>
+  <meter class="hc-meter" id="score" min="0" max="10" value="7">7 of 10</meter>
+
+  <Fragment slot="code">
+
+  ```html
+  <label for="score">Review score</label>
+  <meter class="hc-meter" id="score" min="0" max="10" value="7">7 of 10</meter>
+  ```
+
+  </Fragment>
+</Demo>
+
+The text child (`7 of 10`) is the fallback for user agents that don't
+render `<meter>` — keep it meaningful.
+
+## Status regions
+
+`low` / `high` / `optimum` tell the **browser** how to classify the
+current value; the component maps the three regions onto the status
+tokens — no `data-variant` needed, the color is derived from the data:
+
+| Region | When | Color token |
+| --- | --- | --- |
+| optimum | value in the best band | `meter.optimum-fill` (success) |
+| suboptimum | value one band away | `meter.suboptimum-fill` (warning) |
+| critical | value two bands away | `meter.critical-fill` (error) |
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <label for="disk-ok">Storage used — 42%</label>
+  <meter class="hc-meter" id="disk-ok" min="0" max="100" low="70" high="90" optimum="10" value="42">42%</meter>
+  <label for="disk-warn">Storage used — 82%</label>
+  <meter class="hc-meter" id="disk-warn" min="0" max="100" low="70" high="90" optimum="10" value="82">82%</meter>
+  <label for="disk-crit">Storage used — 97%</label>
+  <meter class="hc-meter" id="disk-crit" min="0" max="100" low="70" high="90" optimum="10" value="97">97%</meter>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- optimum=10 declares "low is good": ≤70 green, 70–90 amber, ≥90 red -->
+  <meter class="hc-meter" min="0" max="100"
+         low="70" high="90" optimum="10" value="82">82%</meter>
+  ```
+
+  </Fragment>
+</Demo>
+
+Flip `optimum` toward `max` for "high is good" scales (battery, score) —
+the same bands then colour in the opposite direction.
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`.
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <meter class="hc-meter" data-size="sm" min="0" max="100" value="40" aria-label="Small">40%</meter>
+  <meter class="hc-meter" min="0" max="100" value="40" aria-label="Default">40%</meter>
+  <meter class="hc-meter" data-size="lg" min="0" max="100" value="40" aria-label="Large">40%</meter>
+
+  <Fragment slot="code">
+
+  ```html
+  <meter class="hc-meter" data-size="sm" min="0" max="100" value="40" aria-label="Small">40%</meter>
+  <meter class="hc-meter"                min="0" max="100" value="40" aria-label="Default">40%</meter>
+  <meter class="hc-meter" data-size="lg" min="0" max="100" value="40" aria-label="Large">40%</meter>
+  ```
+
+  </Fragment>
+</Demo>
+
+## Meter or progress?
+
+| Use | Element |
+| --- | --- |
+| Task completion moving toward done | [`<progress class="hc-progress">`](/hypermedia-components/components/progress/) |
+| A measurement within a known range (quota, score, load) | `<meter class="hc-meter">` |
+
+A `<meter>` never has an indeterminate state, and a `<progress>` has no
+good/bad regions — the elements encode the distinction for assistive
+tech, so pick by meaning, not by look.
+
+## htmx usage
+
+A `<meter>` is a normal DOM node — swap it like any other element, e.g.
+a quota cell that re-renders after an upload:
+
+```html
+<meter class="hc-meter" id="quota" min="0" max="100"
+       low="70" high="90" optimum="10" value="82"
+       data-hx-get="/account/quota" data-hx-trigger="hc:uploaded from:body"
+       data-hx-swap="outerHTML">82%</meter>
+```
+
+The region color updates itself on swap — it is derived from the new
+`value` by the browser, not by a script.
+
+## Accessibility
+
+- Always give the element an accessible name — a wrapping `<label for>`
+  or an `aria-label`. The element itself is exposed as a meter with its
+  value; no `aria-valuenow` mirroring is needed.
+- Keep the fallback text child in sync with `value` server-side — it is
+  also what copy-paste and reader modes see.
+- Color is **not** the only signal: the value/max pair is in the
+  accessibility tree, and the visible label should carry the number for
+  sighted users too (as in the demos above).
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `meter.height` | Track height. |
+| `meter.radius` | Track corner radius. |
+| `meter.bg` | Track background. |
+| `meter.optimum-fill` | Fill in the best region (success). |
+| `meter.suboptimum-fill` | Fill one band away (warning). |
+| `meter.critical-fill` | Fill two bands away (error). |
+| `meter.sm.height` / `lg.height` | Size variants. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-meter-height | -radius | -bg
+--hc-meter-optimum-fill | -suboptimum-fill | -critical-fill
+--hc-meter-sm-height | -lg-height
+```
+
+</details>
+
+## Related
+
+- [Progress](/hypermedia-components/components/progress/) — task
+  completion; the `<progress>` half of the pair.
+- [Sparkline](/hypermedia-components/components/sparkline/) — the trend
+  next to the current measurement.
+- [Status colors](/hypermedia-components/tokens/status/) — the shared
+  success / warning / error tokens the regions map onto.

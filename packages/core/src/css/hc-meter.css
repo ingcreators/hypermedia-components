@@ -1,0 +1,78 @@
+/* hc-meter — semantic styling for a native <meter> element.
+ *
+ * The scalar-measurement sibling of hc-progress: a value within a known
+ * range (disk quota, score, capacity), not task progress. The native
+ * element retains its role ("meter") and the value/min/max/low/high/
+ * optimum semantics; only the visual chrome is replaced via
+ * `appearance: none` and per-vendor pseudo-elements.
+ *
+ *   <label for="quota">Storage used</label>
+ *   <meter class="hc-meter" id="quota" min="0" max="100"
+ *          low="70" high="90" optimum="10" value="82">82%</meter>
+ *
+ * The browser classifies the current value against low/high/optimum and
+ * exposes it per engine; the three regions map to the status tokens:
+ * optimum → success, suboptimum → warning, even-less-good → error.
+ * Sizes: data-size="sm" | "md" (default) | "lg".
+ */
+@layer hc.components {
+  .hc-meter {
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    block-size: var(--hc-meter-height);
+    border: 0;
+    border-radius: var(--hc-meter-radius);
+    background: var(--hc-meter-bg);
+    overflow: hidden;
+  }
+
+  /* Track — Chromium / WebKit. */
+  .hc-meter::-webkit-meter-bar {
+    background: var(--hc-meter-bg);
+    border: 0;
+    border-radius: var(--hc-meter-radius);
+    block-size: 100%;
+  }
+
+  /* Region fills — Chromium / WebKit. */
+  .hc-meter::-webkit-meter-optimum-value {
+    background: var(--hc-meter-optimum-fill);
+    border-radius: var(--hc-meter-radius);
+  }
+
+  .hc-meter::-webkit-meter-suboptimum-value {
+    background: var(--hc-meter-suboptimum-fill);
+    border-radius: var(--hc-meter-radius);
+  }
+
+  .hc-meter::-webkit-meter-even-less-good-value {
+    background: var(--hc-meter-critical-fill);
+    border-radius: var(--hc-meter-radius);
+  }
+
+  /* Region fills — Firefox (pseudo-class on the meter, bar inside). */
+  .hc-meter:-moz-meter-optimum::-moz-meter-bar {
+    background: var(--hc-meter-optimum-fill);
+    border-radius: var(--hc-meter-radius);
+  }
+
+  .hc-meter:-moz-meter-sub-optimum::-moz-meter-bar {
+    background: var(--hc-meter-suboptimum-fill);
+    border-radius: var(--hc-meter-radius);
+  }
+
+  .hc-meter:-moz-meter-sub-sub-optimum::-moz-meter-bar {
+    background: var(--hc-meter-critical-fill);
+    border-radius: var(--hc-meter-radius);
+  }
+
+  /* Sizes */
+  .hc-meter[data-size="sm"] {
+    block-size: var(--hc-meter-sm-height);
+  }
+
+  .hc-meter[data-size="lg"] {
+    block-size: var(--hc-meter-lg-height);
+  }
+}

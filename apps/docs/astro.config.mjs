@@ -144,6 +144,7 @@ export default defineConfig({
                 'components/alert',
                 'components/toast',
                 'components/progress',
+                'components/meter',
                 'components/spinner',
                 'components/skeleton',
                 'components/empty',
