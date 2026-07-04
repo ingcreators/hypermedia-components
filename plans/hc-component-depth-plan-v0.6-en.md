@@ -1,7 +1,17 @@
 # HC Component-Depth Plan v0.6 — native-first feature parity
 
-Status: **proposed** (created at the end of the v0.5 polish work, after PRs
-up to #90 `feat(splitter): collapse toggle & localStorage persistence`).
+Status: **shipped** (verified against origin/main on 2026-07-04). Every
+track landed, including the two that were Baseline-gated at writing
+time: B3 (breadcrumb ellipsis → `popovertarget` + `hc-menu`, docs
+"Collapsed steps"), E2 (scroll-area `data-shadows`, scrolling-shadows
+gradients — deliberately no scroll-driven animations), and F1
+(accordion height animation behind
+`@supports (interpolate-size: allow-keywords)`). Only **F2 remains
+deferred**: `appearance: base-select` is still Chromium-only
+("limited" per webstatus.dev, checked 2026-07-04); `hc-select.css`
+records the decision and the dropdown stays native everywhere.
+Originally proposed at the end of the v0.5 polish work, after PRs
+up to #90 `feat(splitter): collapse toggle & localStorage persistence`.
 
 This plan closes the highest-value gaps between existing HC components and
 their shadcn/ui equivalents **without violating HC's principles**. It is a
