@@ -1,6 +1,10 @@
 # Visual regression testing — Playwright screenshots
 
 Status: **shipped — sheets + spec + committed baselines (#288).**
+Since then: the sheets grew the 0.1.8 components (#341), and with the
+cross-browser CI matrix (#338) the VRT suite runs on the **Chromium
+leg only** (`testIgnore` on the firefox/webkit projects) — one
+Chromium/linux baseline set remains the contract.
 Quality infrastructure, not a feature: the kit has no systematic guard
 against purely visual regressions. `.hc-toolbar[hidden]` (caught only
 incidentally, #281) is the proof of the gap: invisible to jsdom,

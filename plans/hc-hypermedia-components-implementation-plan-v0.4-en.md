@@ -1,5 +1,10 @@
 # Hypermedia Components Implementation Plan v0.4
 
+Status: **implemented** (PR #1, squash commit `be72271`, 2026-05-28).
+The design principles, naming rules, and the §17 Definitions of Done
+remain the operative reference; the MVP inventory below is historical
+(see CHANGELOG.md for what exists today).
+
 **Project:** Hypermedia Components  
 **Short name:** HC  
 **Prefix:** `hc-` = Hypermedia Components  

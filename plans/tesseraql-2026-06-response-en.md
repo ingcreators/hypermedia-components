@@ -1,5 +1,9 @@
 # Response to the TesseraQL improvement brief (2026-06)
 
+Status: **delivered in full** — the 7 themes shipped as one PR each in
+`0.1.0` (#192–#198); the downstream follow-up issues landed through
+`0.1.6` (#244–#246, #248, #253–#256, #261, #264, #270–#276).
+
 **To:** the TesseraQL project
 **Re:** [`tesseraql-2026-06-brief.md`](tesseraql-2026-06-brief.md)
 **Baseline:** `@hypermedia-components/core` `0.0.1-alpha.0` — the version TesseraQL pins.

@@ -1,7 +1,11 @@
 # HC Component-Breadth Plan v0.7 — closing the shadcn component gap (native-first)
 
-Status: **proposed** (created after the v0.6 component-depth work merged,
-PRs up to #108 `docs(select): track customizable-<select> roadmap`).
+Status: **shipped** (verified against origin/main on 2026-07-04). All
+three tracks landed: G1–G5 (`hc-aspect`, `hc-kbd`, `hc-button-group`,
+`hc-empty`, `hc-collapsible`), H1–H5 (`hc-carousel`, `hc-input-group`,
+`hc-navmenu`, `hc-menubar`, `hc-item`), and I1 (spinner docs page).
+Originally proposed after the v0.6 component-depth work merged,
+PRs up to #108 `docs(select): track customizable-<select> roadmap`.
 
 Where [v0.6](./hc-component-depth-plan-v0.6-en.md) deepened **existing**
 components to native-first parity with their shadcn/ui equivalents, this plan

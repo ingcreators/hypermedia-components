@@ -1,6 +1,11 @@
 # Docs Japanese i18n — phase 1 plan
 
-Status: **complete — all 12 phases shipped (#314–#325), 119 ja pages. Every docs page has a Japanese counterpart; new English pages must add their ja translation per the conventions below.**
+Status: **complete — all 12 phases shipped (#314–#325); the mirror has
+since grown with the docs (125 en / 125 ja as of 2026-07-04). Every
+docs page has a Japanese counterpart, and since #339 CI enforces the
+§6 same-PR rule: the docs job fails a PR that changes an English page
+without touching its `ja/` twin
+(`apps/docs/scripts/check-i18n-drift.mjs`).**
 
 The v0.5 plan's P3 backlog item: *"Japanese i18n — translate the first
 10 docs pages (§7.6) after the English IA settles."* The English IA
