@@ -22,6 +22,13 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Toasts: Escape dismisses the toast that contains the focus.** The
+  keyboard counterpart of swipe-to-dismiss — previously a sticky toast
+  (`duration: 0`) could only be dismissed with a pointer. Tab to the
+  toast's action button and press <kbd>Escape</kbd>; the toast closes
+  without firing the action's event. Scoped to focus-inside-a-toast,
+  so dialog Escape semantics are untouched.
+
 - **Docs: recipes carry their contracts and the CLI everywhere**
   (docs-facing; batch 3 of `plans/hc-docs-clarity-plan-en.md`, en +
   ja). Every recipe page opens with the Scaffold aside
