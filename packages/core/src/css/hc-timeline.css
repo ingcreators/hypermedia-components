@@ -1,0 +1,118 @@
+/* hc-timeline — a vertical activity / audit timeline. Pure CSS.
+ *
+ * A plain list: marker rail on the inline-start side, connector line
+ * between markers, content beside them. All logical properties, so RTL
+ * flips for free; the list semantics are the accessibility story.
+ *
+ *   <ol class="hc-timeline">
+ *     <li class="hc-timeline__item" data-variant="success">
+ *       <span class="hc-timeline__marker" aria-hidden="true"></span>
+ *       <div class="hc-timeline__content">
+ *         <time class="hc-timeline__time" datetime="2026-07-03T09:14">09:14</time>
+ *         <span class="hc-timeline__title">Deploy finished</span>
+ *         <p class="hc-timeline__description">v2.4 to production.</p>
+ *       </div>
+ *     </li>
+ *   </ol>
+ *
+ * data-variant="success" | "warning" | "error" | "info" colours the
+ * marker via the status tokens; a small glyph may be placed inside the
+ * marker (it inherits the marker's colours).
+ */
+@layer hc.components {
+  .hc-timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hc-timeline__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--hc-timeline-marker-size) 1fr;
+    column-gap: var(--hc-timeline-gap);
+    padding-block-end: var(--hc-timeline-item-gap);
+  }
+
+  .hc-timeline__item:last-child {
+    padding-block-end: 0;
+  }
+
+  /* Connector — from below this item's marker down to the next marker.
+   * The last item draws none. */
+  .hc-timeline__item:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: calc(var(--hc-timeline-marker-size) / 2 - var(--hc-timeline-line-size) / 2);
+    inset-block-start: var(--hc-timeline-marker-size);
+    inset-block-end: 0;
+    inline-size: var(--hc-timeline-line-size);
+    background-color: var(--hc-timeline-line-color);
+  }
+
+  .hc-timeline__marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--hc-timeline-marker-size);
+    block-size: var(--hc-timeline-marker-size);
+    border-radius: 50%;
+    background-color: var(--hc-timeline-marker-bg);
+    color: var(--hc-timeline-marker-fg);
+    border: var(--hc-timeline-marker-border-size) solid var(--hc-timeline-marker-border);
+    font-size: calc(var(--hc-timeline-marker-size) * 0.55);
+    line-height: 1;
+  }
+
+  .hc-timeline__item[data-variant="success"] .hc-timeline__marker {
+    background-color: var(--hc-timeline-success-bg);
+    border-color: var(--hc-timeline-success-bg);
+    color: var(--hc-timeline-status-fg);
+  }
+
+  .hc-timeline__item[data-variant="warning"] .hc-timeline__marker {
+    background-color: var(--hc-timeline-warning-bg);
+    border-color: var(--hc-timeline-warning-bg);
+    color: var(--hc-timeline-status-fg);
+  }
+
+  .hc-timeline__item[data-variant="error"] .hc-timeline__marker {
+    background-color: var(--hc-timeline-error-bg);
+    border-color: var(--hc-timeline-error-bg);
+    color: var(--hc-timeline-status-fg);
+  }
+
+  .hc-timeline__item[data-variant="info"] .hc-timeline__marker {
+    background-color: var(--hc-timeline-info-bg);
+    border-color: var(--hc-timeline-info-bg);
+    color: var(--hc-timeline-status-fg);
+  }
+
+  .hc-timeline__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    /* Align the first text line with the marker's centre. */
+    padding-block-start: calc((var(--hc-timeline-marker-size) - 1em * 1.4) / 2);
+    min-inline-size: 0;
+  }
+
+  .hc-timeline__time {
+    color: var(--hc-timeline-time-fg);
+    font-size: var(--hc-timeline-time-font-size);
+  }
+
+  .hc-timeline__title {
+    color: var(--hc-timeline-title-fg);
+    font-weight: var(--hc-timeline-title-font-weight);
+  }
+
+  .hc-timeline__description {
+    margin: 0;
+    color: var(--hc-timeline-description-fg);
+    font-size: var(--hc-timeline-description-font-size);
+  }
+}

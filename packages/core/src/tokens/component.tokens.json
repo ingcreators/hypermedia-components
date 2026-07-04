@@ -2360,6 +2360,88 @@
       "$value": "{semantic.font.size-sm}"
     }
   },
+  "timeline": {
+    "marker-size": {
+      "$type": "dimension",
+      "$value": "1.25rem"
+    },
+    "marker-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.surface}"
+    },
+    "marker-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
+    },
+    "marker-border": {
+      "$type": "color",
+      "$value": "{semantic.color.border}"
+    },
+    "marker-border-size": {
+      "$type": "dimension",
+      "$value": "2px"
+    },
+    "line-size": {
+      "$type": "dimension",
+      "$value": "2px"
+    },
+    "line-color": {
+      "$type": "color",
+      "$value": "{semantic.color.border}"
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space.3}"
+    },
+    "item-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space.5}"
+    },
+    "time-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
+    },
+    "time-font-size": {
+      "$type": "dimension",
+      "$value": "{semantic.font.size-sm}"
+    },
+    "title-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text}"
+    },
+    "title-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{semantic.font.weight-medium}"
+    },
+    "description-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
+    },
+    "description-font-size": {
+      "$type": "dimension",
+      "$value": "{semantic.font.size-sm}"
+    },
+    "status-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.action.primary.fg}"
+    },
+    "success-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.success}"
+    },
+    "warning-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.warning}"
+    },
+    "error-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.error}"
+    },
+    "info-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.info}"
+    }
+  },
   "kbd": {
     "bg": {
       "$type": "color",

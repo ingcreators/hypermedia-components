@@ -63,6 +63,7 @@ const COMPONENTS = [
   'hc-badge.css',
   'hc-chip.css',
   'hc-item.css',
+  'hc-timeline.css',
   'hc-kbd.css',
   'hc-alert.css',
   'hc-toast.css',

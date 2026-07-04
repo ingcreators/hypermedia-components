@@ -137,6 +137,7 @@ export default defineConfig({
                 'components/accordion',
                 'components/collapsible',
                 'components/sparkline',
+                'components/timeline',
               ],
             },
             {

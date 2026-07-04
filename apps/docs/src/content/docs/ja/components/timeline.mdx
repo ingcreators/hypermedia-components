@@ -1,0 +1,146 @@
+---
+title: タイムライン
+description: 縦のアクティビティ / 監査タイムライン — マーカーのレール、コネクタ線、ステータス色のマーカー。素のリスト、純 CSS、JavaScript なし。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-timeline` はアクティビティ履歴 — 監査ログ、デプロイイベント、注文
+ステータス — を、マーカーのレールとコネクタ線を持つ**素の `<ol>`**
+として描画します。純 CSS です: アクセシビリティはリストのセマンティクス
+そのもの、ステータスは `data-variant` に乗り、RTL は論理プロパティで
+自動的に反転します。
+
+## 基本の HTML
+
+<Demo previewStyle="max-inline-size:28rem;">
+  <ol class="hc-timeline" aria-label="Deployment history">
+    <li class="hc-timeline__item" data-variant="success">
+      <span class="hc-timeline__marker" aria-hidden="true">✓</span>
+      <div class="hc-timeline__content">
+        <time class="hc-timeline__time" datetime="2026-07-03T09:14">09:14</time>
+        <span class="hc-timeline__title">Deploy finished</span>
+        <p class="hc-timeline__description">v2.4 to production.</p>
+      </div>
+    </li>
+    <li class="hc-timeline__item" data-variant="warning">
+      <span class="hc-timeline__marker" aria-hidden="true">!</span>
+      <div class="hc-timeline__content">
+        <time class="hc-timeline__time" datetime="2026-07-03T09:10">09:10</time>
+        <span class="hc-timeline__title">Smoke test flaky</span>
+        <p class="hc-timeline__description">Retried once, then green.</p>
+      </div>
+    </li>
+    <li class="hc-timeline__item">
+      <span class="hc-timeline__marker" aria-hidden="true"></span>
+      <div class="hc-timeline__content">
+        <time class="hc-timeline__time" datetime="2026-07-03T09:02">09:02</time>
+        <span class="hc-timeline__title">Build started</span>
+      </div>
+    </li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-timeline" aria-label="Deployment history">
+    <li class="hc-timeline__item" data-variant="success">
+      <span class="hc-timeline__marker" aria-hidden="true">✓</span>
+      <div class="hc-timeline__content">
+        <time class="hc-timeline__time" datetime="2026-07-03T09:14">09:14</time>
+        <span class="hc-timeline__title">Deploy finished</span>
+        <p class="hc-timeline__description">v2.4 to production.</p>
+      </div>
+    </li>
+    <!-- … one <li class="hc-timeline__item"> per event -->
+  </ol>
+  ```
+
+  </Fragment>
+</Demo>
+
+`__time` と `__description` は任意です — タイトルだけの項目でも機能
+します。コネクタ線は最後の項目で自動的に止まります。
+
+## バリアント
+
+**項目**の `data-variant` がそのマーカーをステータストークンで色づけ
+します: `success`、`warning`、`error`、`info`。なければマーカーは
+ニュートラルな中抜きのドットです。マーカー内の任意のグリフは装飾です —
+`aria-hidden` に保ち、意味はタイトルに載せてください。
+
+```html
+<li class="hc-timeline__item" data-variant="error">
+  <span class="hc-timeline__marker" aria-hidden="true">✕</span>
+  …
+</li>
+```
+
+## htmx での利用
+
+アクティビティフィードはサーバ描画された項目のリストです — 新しい
+イベントを out-of-band スワップで前置するか、SSE で更新します
+([sse-updates レシピ](/hypermedia-components/ja/recipes/sse-updates/)を
+参照):
+
+```html
+<ol class="hc-timeline" id="audit-log"
+    data-hx-get="/audit?page=2" data-hx-trigger="revealed from:#log-more"
+    data-hx-swap="beforeend">
+  …
+</ol>
+```
+
+新しい順・古い順はどちらでも構いません — コンポーネントはどちらでも
+同じに描画します。自明でなければ、順序をリストの `aria-label` で
+伝えてください。
+
+## アクセシビリティ
+
+- これはリスト**そのもの**です: `<ol>`/`<li>` は位置と件数つきで
+  読み上げられます。見出しが名前になっていないときはリストに
+  `aria-label` を与えてください。
+- 機械可読なタイムスタンプには `<time datetime="…">` を使います。
+- マーカーのグリフは装飾(`aria-hidden="true"`)です — 意味はタイトルの
+  テキストが運ぶため、ステータスが色だけになることはありません。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `timeline.marker-size` | マーカーの直径。 |
+| `timeline.marker-bg` / `marker-fg` / `marker-border` / `marker-border-size` | ニュートラルのマーカー。 |
+| `timeline.line-size` / `line-color` | コネクタの線分。 |
+| `timeline.gap` | レールとコンテンツの間のカラムギャップ。 |
+| `timeline.item-gap` | 項目間の縦のギャップ。 |
+| `timeline.time-fg` / `time-font-size` | タイムスタンプの文字。 |
+| `timeline.title-fg` / `title-font-weight` | タイトルの文字。 |
+| `timeline.description-fg` / `description-font-size` | 説明の文字。 |
+| `timeline.success-bg` / `warning-bg` / `error-bg` / `info-bg` / `status-fg` | バリアントのマーカー。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-timeline-marker-size | -marker-bg | -marker-fg | -marker-border | -marker-border-size
+--hc-timeline-line-size | -line-color | -gap | -item-gap
+--hc-timeline-time-fg | -time-font-size
+--hc-timeline-title-fg | -title-font-weight
+--hc-timeline-description-fg | -description-font-size
+--hc-timeline-success-bg | -warning-bg | -error-bg | -info-bg | -status-fg
+```
+
+</details>
+
+## 関連
+
+- [アイテム](/hypermedia-components/ja/components/item/) — レールの
+  メタファーを持たないフィード向けのフラットな行プリミティブ。
+- [ステッパー](/hypermedia-components/ja/components/stepper/) — 履歴では
+  なく、ユーザーが進んでいく*プロセス*のステップに。
+- [ステータスカラー](/hypermedia-components/ja/tokens/status/) —
+  バリアントのマーカーの背後にある共有トークン。
