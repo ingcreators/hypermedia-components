@@ -40,8 +40,10 @@ Pages/Shared/
     <script type="module" src="~/assets/hc/hc.behaviors.min.js" asp-append-version="true"></script>
     <script type="module" src="~/assets/hc/macros/index.min.js" asp-append-version="true"></script>
 
-    @* Antiforgery token for htmx requests *@
-    <meta name="request-verification-token"
+    @* Antiforgery token for htmx requests — read by the auto-init
+       installCsrfHeader() behavior; data-header renames the header
+       to what ASP.NET Core expects. *@
+    <meta name="csrf-token" data-header="RequestVerificationToken"
           content="@Antiforgery.GetAndStoreTokens(Context).RequestToken">
 </head>
 <body>
@@ -49,12 +51,6 @@ Pages/Shared/
 
     <partial name="_ToastRegion" />
 
-    <script>
-      document.body.addEventListener("htmx:configRequest", (e) => {
-        const token = document.querySelector('meta[name="request-verification-token"]')?.content;
-        if (token) e.detail.headers["RequestVerificationToken"] = token;
-      });
-    </script>
 </body>
 </html>
 ```
@@ -148,12 +144,13 @@ public class IndexModel : PageModel
         {
             return NotFound();
         }
-        Response.Headers["HX-Trigger"] = JsonSerializer.Serialize(new
+        // HxTrigger is the JsonObject helper from "Toasts via
+        // HX-Trigger" below — System.Text.Json cannot emit the
+        // "hc:toast" key from a C# property name.
+        Response.HxTrigger("hc:toast", new
         {
-            hcToast = new { message = $"Deleted \"{item.Name}\".", variant = "success" },
+            message = $"Deleted \"{item.Name}\".", variant = "success",
         });
-        // map the property name to "hc:toast" via custom converter,
-        // or build the JSON by hand (next example).
         return new EmptyResult();
     }
 }
@@ -229,10 +226,11 @@ Response.HxTrigger("hc:toast", new {
 
 ASP.NET Core's antiforgery system uses the
 `RequestVerificationToken` header for htmx requests. The
-`_Layout.cshtml` snippet above:
-
-1. Renders the token into a `<meta>` tag.
-2. Forwards it to htmx via `htmx:configRequest`.
+`_Layout.cshtml` snippet above renders the token into the kit's
+blessed `<meta name="csrf-token">` tag with
+`data-header="RequestVerificationToken"`; `installCsrfHeader()` (in
+the auto-init behaviors bundle) adds it to every htmx request — no
+hand-written `htmx:configRequest` hook.
 
 For Razor Pages, antiforgery is **on by default** for POST handlers.
 You do not need `[ValidateAntiForgeryToken]` in most cases — the

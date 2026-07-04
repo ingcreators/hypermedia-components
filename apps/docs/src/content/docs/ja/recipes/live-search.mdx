@@ -11,7 +11,7 @@ htmx 属性は本物の `<form action="/items" method="get">` にぶら下がっ
 ## 展開後の HTML
 
 ```html
-<form class="hc-search" action="/items" method="get" role="search">
+<form action="/items" method="get" role="search">
   <input
     class="hc-input"
     type="search"
@@ -95,7 +95,7 @@ htmx 属性は本物の `<form action="/items" method="get">` にぶら下がっ
 
 ```html
 <!-- /items?q=foo -->
-<ul class="hc-list">
+<ul>
   <li><a href="/items/1">Item one</a></li>
   <li><a href="/items/2">Item two</a></li>
 </ul>

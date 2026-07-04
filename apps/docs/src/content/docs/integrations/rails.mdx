@@ -55,13 +55,10 @@ pin "hc-macros",      to: "hc/macros/index.min.js"
        role="region"
        aria-label="Notifications"></div>
 
-  <script>
-    // Hand the CSRF token to htmx so every request carries it.
-    document.body.addEventListener("htmx:configRequest", (e) => {
-      const token = document.querySelector('meta[name="csrf-token"]')?.content
-      if (token) e.detail.headers["X-CSRF-Token"] = token
-    })
-  </script>
+  <%# No CSRF script needed: csrf_meta_tags renders
+      meta[name="csrf-token"], and the auto-init behaviors bundle's
+      installCsrfHeader() adds it to every htmx request — header name
+      X-CSRF-Token, exactly what Rails expects. %>
 </body>
 </html>
 ```

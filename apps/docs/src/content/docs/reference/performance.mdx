@@ -24,7 +24,7 @@ against five representative pages of the **deployed** site:
 | Theme builder | The most JavaScript-heavy page (runs the token build in-browser). |
 
 The run **fails when any category drops below 90** on any page —
-nothing merges through it (it is not a PR gate); a red run is the
+it is not a PR gate — merges never wait on it; a red weekly run is the
 regression signal. Reports are uploaded as workflow artifacts for 30
 days, and each run writes a score table into its job summary.
 

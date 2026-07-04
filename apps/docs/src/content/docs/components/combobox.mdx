@@ -107,6 +107,41 @@ installCombobox();
   `hc:comboboxselect` event whose `detail` carries
   `{ value, label, option, input }`.
 
+## Form participation
+
+The combobox input is a real `<input>` — give it a `name` and it
+submits with the form natively:
+
+```html
+<div class="hc-combobox">
+  <input class="hc-combobox__input hc-input" type="text" name="country"
+         role="combobox" aria-controls="cb-list" aria-label="Country" />
+  <!-- listbox as above -->
+</div>
+```
+
+**What gets submitted is the visible text.** On select,
+`installCombobox()` writes the option's **label** into the input
+(`Japan`), not its `data-value` (`jp`); the user can also type free
+text, so the wire value is always exactly what they see. Validate it
+server-side like any other text field.
+
+When the server needs the code value instead, mirror it into a hidden
+input from the select event (`detail` carries `{ value, label }`):
+
+```html
+<input type="hidden" name="country" id="country-code">
+```
+
+```js
+document.addEventListener('hc:comboboxselect', (e) => {
+  document.getElementById('country-code').value = e.detail.value ?? '';
+});
+```
+
+For htmx round trips the same event can drive a request instead — see
+below.
+
 ## htmx usage
 
 A selection fires `hc:comboboxselect` on the input; wire htmx to

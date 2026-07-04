@@ -107,6 +107,41 @@ installCombobox();
   `{ value, label, option, input }` を運ぶバブリングする
   `hc:comboboxselect` イベントを発火します。
 
+## フォームへの参加
+
+コンボボックスの入力は本物の `<input>` です — `name` を付ければ
+そのままネイティブにフォーム送信されます:
+
+```html
+<div class="hc-combobox">
+  <input class="hc-combobox__input hc-input" type="text" name="country"
+         role="combobox" aria-controls="cb-list" aria-label="Country" />
+  <!-- リストボックスは上の例と同じ -->
+</div>
+```
+
+**送信されるのは表示テキストです。** 選択時に `installCombobox()` は
+オプションの**ラベル**(`Japan`)を入力へ書き込みます —
+`data-value`(`jp`)ではありません。ユーザーは自由入力もできるため、
+ワイヤ上の値は常に「見えているものそのまま」です。サーバー側では
+通常のテキストフィールドと同じように検証してください。
+
+サーバーがコード値を必要とする場合は、選択イベント(`detail` は
+`{ value, label }` を運びます)から hidden 入力へ写してください:
+
+```html
+<input type="hidden" name="country" id="country-code">
+```
+
+```js
+document.addEventListener('hc:comboboxselect', (e) => {
+  document.getElementById('country-code').value = e.detail.value ?? '';
+});
+```
+
+htmx の往復では同じイベントでリクエストを駆動できます — 次節を
+参照してください。
+
 ## htmx での利用
 
 選択は入力上で `hc:comboboxselect` を発火します。htmx をそのイベントに

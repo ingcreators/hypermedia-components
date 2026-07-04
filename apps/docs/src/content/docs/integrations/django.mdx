@@ -36,9 +36,12 @@ static/
   <script defer src="{% static 'assets/htmx.min.js' %}"></script>
   <script type="module" src="{% static 'assets/hc/hc.behaviors.min.js' %}"></script>
   <script type="module" src="{% static 'assets/hc/macros/index.min.js' %}"></script>
+
+  {# Read by the auto-init installCsrfHeader() behavior on every htmx
+     request; data-header renames the header to what Django expects. #}
+  <meta name="csrf-token" content="{{ csrf_token }}" data-header="X-CSRFToken">
 </head>
-<body
-  data-hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body>
 
   {% block content %}{% endblock %}
 
@@ -50,9 +53,15 @@ static/
 </html>
 ```
 
-The `data-hx-headers` attribute on `<body>` makes every htmx request carry
-the CSRF token Django expects. The token comes from the `{% csrf_token %}`
-context processor (enabled by default in new projects).
+The `<meta name="csrf-token">` tag is the kit's blessed CSRF
+convention: `installCsrfHeader()` (in the auto-init behaviors bundle)
+reads it at request time and adds the header to every htmx request —
+`data-header` renames it to Django's `X-CSRFToken`. No JavaScript to
+write, and a rotated token swapped into the meta is picked up
+automatically. (`data-hx-headers` on `<body>` also works if you prefer
+htmx-native wiring; see
+[htmx → CSRF](/hypermedia-components/integrations/htmx/) for the
+trade-offs.)
 
 ## Rendering components
 

@@ -20,6 +20,28 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **Docs: every copy-paste-broken or self-contradictory page from the
+  full-site review** (docs-facing; batch 1 of
+  `plans/hc-docs-clarity-plan-en.md`, en + ja). Highlights: the
+  quick-start toast demo now actually fires (`document.body` dispatch
+  with `bubbles`); combobox gained the missing "Form participation"
+  section (plain submits carry the **label**, hidden-input pattern for
+  code values); hovercard's htmx example no longer waits on an event
+  the behavior never fires; `<hc-spinner>` and the non-existent
+  `hc-search` / `hc-list` / `hc-form` classes are gone from examples;
+  the toast recipe/contract documents the shipped `id` / `action`
+  fields and the "sticky toasts must carry an action" rule; slider
+  points at `hc-range` instead of its pre-range workaround; the
+  density page no longer contradicts itself about `data-size` ×
+  `data-density`; the Rails / Django / Razor CSRF sections use the
+  blessed `installCsrfHeader()` meta convention (and Razor leads with
+  the working `HX-Trigger` helper); pagination documents dropping the
+  boundary link's `href` (keyboard correctness) and its server
+  contract; plus a dozen dead links, stale notes, and cross-page size
+  numbers now deferred to Bundle size.
+
 ### Added
 
 - **`/llms.txt` on the docs site** (docs-facing). The site now emits

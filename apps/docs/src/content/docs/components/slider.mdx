@@ -189,13 +189,11 @@ For instant updates, listen to `input`:
 
 ## Range constraints (single thumb)
 
-A native `<input type="range">` is a single-thumb control. Multi-
-thumb range pickers (price range, brightness span, etc.) are out of
-scope for this component — that pattern requires a custom DOM
-shell and a much larger behavior to manage the two thumbs
-manually. Until that lands, two single sliders side-by-side (with
-linked min/max constraints in form-validation JS) is the recommended
-pattern.
+A native `<input type="range">` is a single-thumb control. For a
+min/max pair (price range, brightness span, etc.) use
+[Range](/hypermedia-components/components/range/) — `hc-range` paints
+two native range inputs on one rail and `installRange()` keeps
+low ≤ high, so serialization stays native.
 
 ## Theming tokens
 
@@ -235,4 +233,5 @@ Component tokens (in `component.tokens.json`):
 ## Related
 
 - [Progress](/hypermedia-components/components/progress/) — for displaying a non-interactive measure of completion.
+- [Range](/hypermedia-components/components/range/) — the dual-thumb min/max companion built on two native range inputs.
 - [Input](/hypermedia-components/components/input/) — text / number inputs share the focus ring contract.
