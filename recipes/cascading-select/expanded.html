@@ -1,0 +1,49 @@
+<!-- Fully expanded HTML — three levels, before and after a selection.
+  Every level except the first starts disabled with a placeholder; the
+  server returns the child <select> enabled and populated, and resets
+  any deeper levels in the same response (out-of-band). -->
+
+<!-- 1. Initial render: level 1 populated, levels 2 and 3 placeholders. -->
+<form method="get" action="/stores/search">
+  <div class="hc-field">
+    <label class="hc-field__label" for="prefecture">Prefecture</label>
+    <select class="hc-select" id="prefecture" name="prefecture"
+            data-hx-get="/areas/cities" data-hx-include="this"
+            data-hx-target="#city" data-hx-swap="outerHTML">
+      <option value="">Select…</option>
+      <option value="13">Tokyo</option>
+      <option value="27">Osaka</option>
+    </select>
+  </div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="city">City</label>
+    <select class="hc-select" id="city" name="city" disabled>
+      <option value="">Select a prefecture first</option>
+    </select>
+  </div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="ward">Ward</label>
+    <select class="hc-select" id="ward" name="ward" disabled>
+      <option value="">Select a city first</option>
+    </select>
+  </div>
+
+  <button class="hc-button" data-variant="primary" type="submit">Search</button>
+</form>
+
+<!-- 2. What GET /areas/cities?prefecture=13 returns: the child enabled
+     and populated (wired to load ITS child), plus the deeper level
+     reset out-of-band — one response keeps the whole chain coherent. -->
+<select class="hc-select" id="city" name="city"
+        data-hx-get="/areas/wards" data-hx-include="this"
+        data-hx-target="#ward" data-hx-swap="outerHTML">
+  <option value="">Select…</option>
+  <option value="13101">Chiyoda</option>
+  <option value="13102">Chuo</option>
+  <option value="13103">Minato</option>
+</select>
+<select class="hc-select" id="ward" name="ward" disabled data-hx-swap-oob="true">
+  <option value="">Select a city first</option>
+</select>

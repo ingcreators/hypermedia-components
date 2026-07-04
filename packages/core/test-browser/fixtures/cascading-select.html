@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cascading-select recipe fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+</head>
+<body>
+  <main id="section-cascade" style="padding:1rem; max-inline-size:28rem; display:grid; gap:1rem;">
+    <h1>Cascading select</h1>
+
+    <form method="get" action="/mock/bulk/done" data-testid="form">
+      <div class="hc-field">
+        <label class="hc-field__label" for="prefecture">Prefecture</label>
+        <select class="hc-select" id="prefecture" name="prefecture"
+                data-hx-get="/mock/areas/cities" data-hx-include="this"
+                data-hx-target="#city" data-hx-swap="outerHTML">
+          <option value="">Select…</option>
+          <option value="13">Tokyo</option>
+          <option value="27">Osaka</option>
+        </select>
+      </div>
+
+      <div class="hc-field">
+        <label class="hc-field__label" for="city">City</label>
+        <select class="hc-select" id="city" name="city" disabled>
+          <option value="">Select a prefecture first</option>
+        </select>
+      </div>
+
+      <div class="hc-field">
+        <label class="hc-field__label" for="ward">Ward</label>
+        <select class="hc-select" id="ward" name="ward" disabled>
+          <option value="">Select a city first</option>
+        </select>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

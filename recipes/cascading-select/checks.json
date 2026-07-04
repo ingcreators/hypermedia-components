@@ -1,0 +1,48 @@
+{
+  "detect": "select.hc-select[data-hx-get]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "includes-own-value",
+      "level": "error",
+      "message": "A parent select must send its own value (data-hx-include=\"this\") — htmx GETs do not include the enclosing form by default.",
+      "attr": {
+        "on": "select[data-hx-get]",
+        "name": "data-hx-include",
+        "assert": "present",
+        "value": "this"
+      }
+    },
+    {
+      "id": "child-target-declared",
+      "level": "error",
+      "message": "A parent select declares its child as the target (data-hx-target=\"#<child-id>\").",
+      "attr": {
+        "on": "select[data-hx-get]",
+        "name": "data-hx-target",
+        "assert": "present",
+        "matches": "^#"
+      }
+    },
+    {
+      "id": "child-swap-outerhtml",
+      "level": "error",
+      "message": "Swap the child select whole (data-hx-swap=\"outerHTML\") so its id, name, and htmx wiring come back consistent.",
+      "attr": {
+        "on": "select[data-hx-get]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
+    },
+    {
+      "id": "child-target-resolves",
+      "level": "warn",
+      "message": "The child target should exist in the document. (warn: server fragments reference elements elsewhere on the page)",
+      "resolves": {
+        "on": "select[data-hx-get]",
+        "name": "data-hx-target"
+      }
+    }
+  ]
+}

@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`cascading-select` recipe — hierarchical selection as chained
+  selects** (Track C, closing `plans/hc-form-patterns-plan-v0.10-en.md`).
+  Each parent select's `change` GETs the child `<select>` fragment
+  (same id/name, wired for its own child); deeper levels reset
+  out-of-band in the same response; re-selecting the placeholder
+  unwinds the chain. Zero custom JS/CSS. Machine-checked scaffold
+  (`hc validate` green), docs (en + ja), and a Playwright suite incl.
+  axe. The CLI re-bundles the recipe at its next release.
+
 - **`transfer` recipe — dual listbox as a server round trip** (Track B
   of `plans/hc-form-patterns-plan-v0.10-en.md`). One form, two checkbox
   panes (available / assigned), add/remove submit buttons: the checked

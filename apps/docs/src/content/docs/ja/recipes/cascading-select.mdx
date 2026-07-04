@@ -1,0 +1,103 @@
+---
+title: カスケードセレクト
+description: 階層選択(Cascader)を連鎖する select で — 各レベルの change が次のレベルの選択肢をサーバから取得。カスタム JavaScript ゼロ。
+---
+
+国 → 都道府県 → 市区町村、カテゴリ → サブカテゴリ — Ant Design の
+Cascader を、ハイパーメディア流で: 各レベルの `change` が次のレベルの
+選択肢をサーバから GET する**連鎖した `<select>`** です。カスタム
+JavaScript はゼロ:
+[`hc-select`](/hypermedia-components/ja/components/select/) + htmx。
+
+## マークアップ
+
+```html
+<div class="hc-field">
+  <label class="hc-field__label" for="prefecture">Prefecture</label>
+  <select class="hc-select" id="prefecture" name="prefecture"
+          data-hx-get="/areas/cities" data-hx-include="this"
+          data-hx-target="#city" data-hx-swap="outerHTML">
+    <option value="">Select…</option>
+    <option value="13">Tokyo</option>
+    <option value="27">Osaka</option>
+  </select>
+</div>
+
+<div class="hc-field">
+  <label class="hc-field__label" for="city">City</label>
+  <select class="hc-select" id="city" name="city" disabled>
+    <option value="">Select a prefecture first</option>
+  </select>
+</div>
+```
+
+各**親**レベルに 4 つの属性:
+
+| 属性 | 理由 |
+| --- | --- |
+| `data-hx-get` | 子の選択肢のエンドポイント |
+| `data-hx-include="this"` | 自分の値を送る — htmx の GET はデフォルトで囲むフォームを含めません |
+| `data-hx-target="#city"` | 置き換える子 |
+| `data-hx-swap="outerHTML"` | 子は丸ごと返るため、`id` / `name` / 配線が一貫したまま |
+
+select に対する htmx のデフォルトトリガー `change` がそのまま正解です —
+`data-hx-trigger` は不要。各**子**はプレースホルダーの option を持つ
+`disabled` で始まるため、選択前でもチェーンは正しく読めます。
+
+## レスポンス
+
+サーバは再描画された子 `<select>` を返します — 有効化され、選択肢が
+入り、(3 レベル以上のチェーンでは)*その*子を読み込むための同じ 4
+属性が配線された状態で。より深いレベルは**同じレスポンスの中で**
+out-of-band スワップとしてリセットします — 1 つのレスポンスがチェーン
+全体を一貫させます:
+
+```html
+<select class="hc-select" id="city" name="city"
+        data-hx-get="/areas/wards" data-hx-include="this"
+        data-hx-target="#ward" data-hx-swap="outerHTML">
+  <option value="">Select…</option>
+  <option value="13101">Chiyoda</option>
+</select>
+<select class="hc-select" id="ward" name="ward" disabled data-hx-swap-oob="true">
+  <option value="">Select a city first</option>
+</select>
+```
+
+プレースホルダーの選び直しも `change` です: サーバは空の値を受け取り、
+無効化されたプレースホルダーの子(+ OOB リセット)で応答してチェーンを
+巻き戻します。未知・陳腐化した親の値にも同じ応答を — エラーページには
+しません。
+
+完全な契約は
+[`recipes/cascading-select/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/cascading-select/contract.md)
+にあり、`hc validate` で機械チェックされます。
+
+## JS なしでの劣化
+
+動的なチェーンは定義上 JavaScript を必要とします。推奨のフォール
+バック: 全レベルをサーバサイドで描画し、素のフォーム GET の往復で
+次のレベルが埋まったページを再描画する、または自由入力を受け付ける。
+いずれにせよ select は周囲のフォームと普通にシリアライズされます —
+このマークアップが no-JS ユーザーを閉じ込めることはありません。
+
+## アクセシビリティ
+
+- すべてのレベルが本物の `<label for>` を保ちます — 子は**同じ `id`**
+  のまま `outerHTML` でスワップされるため、関連づけはスワップを
+  生き延びます。
+- 無効化されたプレースホルダー(「Select a prefecture first」)こそが
+  アフォーダンスです — スクリーンリーダーはそのレベルが不活性な理由を
+  読み上げます。
+- 選択の順序はスクリプトではなくマークアップ(準備できるまで
+  disabled)が強制します — キーボードユーザーが壊せる状態はありません。
+
+## 関連
+
+- [セレクト](/hypermedia-components/ja/components/select/) — 土台となる
+  コントロール。
+- [live-search](/hypermedia-components/ja/recipes/live-search/) —
+  選択肢が select には多すぎるときは、代わりに検索を。
+- [ツリー](/hypermedia-components/ja/components/tree/) +
+  [lazy-tree](/hypermedia-components/ja/recipes/lazy-tree/) — パス全体が
+  見えたままの階層*ブラウジング*に。
