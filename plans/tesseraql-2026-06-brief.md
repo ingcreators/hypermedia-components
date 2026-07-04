@@ -1,5 +1,10 @@
 # TesseraQL → hypermedia-components: improvement brief
 
+Status: **answered and closed out** — see
+[`tesseraql-2026-06-response-en.md`](./tesseraql-2026-06-response-en.md);
+all 7 themes shipped in `0.1.0` (#192–#198) and the follow-up issues
+through `0.1.6`. Kept verbatim as the inbound record.
+
 **From:** the TesseraQL project (downstream consumer)
 **Date:** 2026-06-11
 **Scope:** requests distilled from building TesseraQL 0.1.0 system apps (Studio, Operations console, IAM Admin) on hypermedia-components.

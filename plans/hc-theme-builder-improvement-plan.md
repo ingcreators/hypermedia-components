@@ -1,6 +1,9 @@
 # Theme Builder 改善計画（確定版）
 
-Status: Confirmed
+Status: **出荷済み**(2026-07-04 に origin/main で確認: PR-A の
+`packages/core/scripts/token-transform.mjs` と exports の
+`./token-transform`、ビルダー修正、neutral ランプ(`data-neutral`
+軸)まで実装済み)。以下は計画当時の記録。
 関連: PR #157（マージ済み・本計画で修正）、`apps/docs/src/components/ThemeBuilder.astro`、
 `apps/docs/src/content/docs/tokens/{themes,theme-builder}.mdx`、
 `packages/core/scripts/build-tokens.mjs`

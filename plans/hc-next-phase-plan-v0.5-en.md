@@ -1,5 +1,12 @@
 # Hypermedia Components — Next Phase Plan (v0.5)
 
+Status: **executed** (verified 2026-07-04). Release readiness and MVP
+polish shipped through `0.0.1-alpha.0` and beyond; every §6 P3 backlog
+item has since landed (CLI, Japanese i18n, the component additions,
+performance benchmarks) except the two standing deferrals — package
+split and the Style Dictionary migration — now tracked in
+[`hc-road-to-1.0-en.md`](./hc-road-to-1.0-en.md) §5.
+
 **Project:** Hypermedia Components
 **Predecessor plan:** [`hc-hypermedia-components-implementation-plan-v0.4-en.md`](hc-hypermedia-components-implementation-plan-v0.4-en.md) — implemented and merged in PR #1 (squash commit `be72271`, 2026-05-28).
 **Date:** 2026-05-28

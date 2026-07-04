@@ -216,6 +216,20 @@ CSS), and the `cascading-select` recipe (#332–#335). **CLI `0.2.1`**
 (`cli-v0.2.1` tag, published 2026-07-04) re-bundled the two new
 recipes.
 
+Post-0.1.8 (2026-07-04, PRs #338–#346, in **Unreleased**): a
+quality-hardening batch, no new npm release yet — cross-browser
+Playwright CI (Chromium / Firefox / WebKit matrix legs + a gate job
+that keeps the required-check name; VRT stays Chromium-only), the
+docs-i18n drift check (en page changes must touch their `ja/` twin),
+the VRT sheets grown with the 0.1.8 components, two test-flake root
+fixes (datagrid-lazy timer race; axe sampling theme transitions
+mid-flight — theme-toggling axe specs must emulate
+`reducedMotion: 'reduce'`), weekly-Lighthouse failure auto-issues,
+and `/llms.txt` on the docs site. The
+[road-to-1.0 audit](plans/hc-road-to-1.0-en.md) found **zero breaking
+debt** across the whole public API surface and proposes skipping
+`0.2.0`; the `1.0.0` go/no-go and timing rest with the maintainer.
+
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
 the deprecation-alias rule — renames need aliases now that alpha.0 has
