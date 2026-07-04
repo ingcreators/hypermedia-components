@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-separator` label variant** (S1 of
+  `plans/hc-component-breadth2-plan-v0.9-en.md`). An "or" divider: a
+  separator containing `.hc-separator__label` becomes a flex row whose
+  `::before`/`::after` hairlines grow around a muted centred label
+  (container form with an explicit `role="separator"`, horizontal only;
+  the plain `<hr>` form is untouched). New `separator.label-*` tokens,
+  docs (en + ja), kitchen-sink example, Playwright coverage.
+
 - **`hc-rating` — star rating as a native radio group** (R1 of
   `plans/hc-component-breadth2-plan-v0.9-en.md`). Pure CSS: real radios
   + label glyphs (native serialization, platform arrow-key navigation),
