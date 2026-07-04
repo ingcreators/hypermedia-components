@@ -20,6 +20,8 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-07-04
+
 ### Added
 
 - **CLI `@hypermedia-components/cli@0.2.1`** — re-bundles the recipe set
@@ -3494,7 +3496,14 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.7...v0.1.8
+[0.1.7]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.6...v0.1.7
+[0.1.6]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.5...v0.1.6
+[0.1.5]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.0.1-alpha.0...v0.1.0
 [0.0.1-alpha.0]: https://github.com/ingcreators/hypermedia-components/releases/tag/v0.0.1-alpha.0
