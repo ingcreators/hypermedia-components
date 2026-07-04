@@ -1,0 +1,93 @@
+---
+title: Behaviors
+description: Every installXxx() behavior — what it powers and whether the zero-config bundle auto-installs it.
+---
+
+The kit ships 44 small behaviors. All of them are idempotent, return an
+uninstaller, and — with the single exception of `installChart()` — are
+**auto-installed** by the zero-config
+`@hypermedia-components/core/behaviors` entry, which also picks up
+content swapped in by htmx. Import them individually only when you
+bundle selectively.
+
+```js
+// Everything at once (what the CDN bundle does):
+import '@hypermedia-components/core/behaviors';
+
+// Or pick and choose:
+import { installTabs, installToast } from '@hypermedia-components/core';
+installTabs();
+installToast();
+```
+
+## Actions & forms
+
+| Behavior | Powers | Auto-init |
+| --- | --- | --- |
+| `installValidation()` | Native-validation wiring for [fields](/hypermedia-components/components/field/) (blur/submit validation, message slots). | ✓ |
+| `installFieldErrors()` | Server-driven inline errors — the [field-errors recipe](/hypermedia-components/recipes/field-errors/)'s 422 fragment contract. | ✓ |
+| `installCombobox()` | [Combobox](/hypermedia-components/components/combobox/) keyboard, filtering, ARIA. | ✓ |
+| `installMulticombobox()` | [Multicombobox](/hypermedia-components/components/multicombobox/) tags, keyboard, ARIA. | ✓ |
+| `installInputOtp()` | [Input OTP](/hypermedia-components/components/inputotp/) per-slot editing. | ✓ |
+| `installPasswordToggle()` | The [input-group](/hypermedia-components/components/input-group/) password reveal. | ✓ |
+| `installSlider()` | [Slider](/hypermedia-components/components/slider/) fill + value output sync. | ✓ |
+| `installRange()` | [Range](/hypermedia-components/components/range/) dual-thumb clamping + fill. | ✓ |
+| `installCalendar()` | [Calendar](/hypermedia-components/components/calendar/) grid, keyboard, selection. | ✓ |
+| `installDropzone()` | [Dropzone](/hypermedia-components/components/dropzone/) drag-over state + file list. | ✓ |
+| `installUploadProgress()` | Driving a `<progress>` from htmx upload events — the [file-upload recipe](/hypermedia-components/recipes/file-upload/). | ✓ |
+| `installCodeEditor()` | The editable [code](/hypermedia-components/components/code/) field: gutter, live highlight (`data-lang`). | ✓ |
+
+## Navigation & command
+
+| Behavior | Powers | Auto-init |
+| --- | --- | --- |
+| `installTabs()` | [Tabs](/hypermedia-components/components/tabs/) roving focus + panel switching. | ✓ |
+| `installMenu()` | [Menu](/hypermedia-components/components/menu/) keyboard pattern, anchoring, ARIA. | ✓ |
+| `installMenubar()` | [Menubar](/hypermedia-components/components/menubar/) across-menu arrow keys. | ✓ |
+| `installNavmenu()` | [Navigation menu](/hypermedia-components/components/navmenu/) panels. | ✓ |
+| `installContextMenu()` | [Context menu](/hypermedia-components/components/context-menu/) right-click opening. | ✓ |
+| `installCommand()` | [Command](/hypermedia-components/components/command/) filtering + ranking + keyboard. | ✓ |
+| `installTree()` | [Tree](/hypermedia-components/components/tree/) ARIA roles + expand/collapse. | ✓ |
+| `installSpy()` | [TOC](/hypermedia-components/components/toc/) scrollspy (`aria-current` tracking). | ✓ |
+| `installNavCurrent()` | Marking the current nav link after boosted navigations ([shell](/hypermedia-components/components/shell/)). | ✓ |
+| `installShell()` | [Shell](/hypermedia-components/components/shell/) sidebar collapse + persistence. | ✓ |
+
+## Overlays & feedback
+
+| Behavior | Powers | Auto-init |
+| --- | --- | --- |
+| `installPopover()` | [Popover](/hypermedia-components/components/popover/) anchoring + placement fallback. | ✓ |
+| `installTooltip()` | [Tooltip](/hypermedia-components/components/tooltip/) show/hide + anchoring. | ✓ |
+| `installHovercard()` | [Hovercard](/hypermedia-components/components/hovercard/) intent delays + anchoring. | ✓ |
+| `installDrawer()` | [Drawer](/hypermedia-components/components/drawer/) drag-to-dismiss. | ✓ |
+| `installToast()` | [Toast](/hypermedia-components/components/toast/) region: `hc:toast` events, stacking, update-by-id, actions. | ✓ |
+| `installConfirm()` | The shared confirm dialog — [confirm-action recipe](/hypermedia-components/recipes/confirm-action/) (`data-hc-confirm`). | ✓ |
+| `installRemoteDialog()` | Server-rendered dialogs — the [remote-dialog recipe](/hypermedia-components/recipes/remote-dialog/). | ✓ |
+| `installCloseDialog()` | Closing a [dialog](/hypermedia-components/components/dialog/) after a successful htmx request (`data-hc-close-dialog-on-success`). | ✓ |
+| `installClosePopover()` | The popover equivalent (`data-hc-close-popover-on-success`) — see the [filter-popover recipe](/hypermedia-components/recipes/filter-popover/). | ✓ |
+
+## Data display
+
+| Behavior | Powers | Auto-init |
+| --- | --- | --- |
+| `installDatagrid()` | [Datagrid](/hypermedia-components/components/datagrid/) keyboard grid, sort/resize/edit/detail events. | ✓ |
+| `installDatagridActions()` | The datagrid selection actions bar — [datagrid-bulk-actions recipe](/hypermedia-components/recipes/datagrid-bulk-actions/). | ✓ |
+| `installCarousel()` | [Carousel](/hypermedia-components/components/carousel/) active tracking, dots, keyboard. | ✓ |
+| `installSplitter()` | [Splitter](/hypermedia-components/components/splitter/) drag + keyboard resize + persistence. | ✓ |
+| `installAvatar()` | [Avatar](/hypermedia-components/components/avatar/) image-error → initials fallback. | ✓ |
+| `installSparkline()` | [Sparkline](/hypermedia-components/components/sparkline/) drawing from `data-values`. | ✓ |
+| `installChart()` | [Chart](/hypermedia-components/recipes/chart/) rendering via Observable Plot. | **Opt-in** — needs the `@observablehq/plot` peer; never bundled. |
+
+## Platform glue
+
+| Behavior | Powers | Auto-init |
+| --- | --- | --- |
+| `installCopy()` | Clipboard buttons (`data-hc-copy`) — the [copy recipe](/hypermedia-components/recipes/copy/). | ✓ |
+| `installThemeToggle()` | The light/dark toggle button ([theming](/hypermedia-components/tokens/themes/)). | ✓ |
+| `installCsrfHeader()` | Adding the CSRF header from `meta[name="csrf-token"]` to every htmx request ([htmx guide](/hypermedia-components/integrations/htmx/)). | ✓ |
+| `installSseDispatch()` | Bridging SSE messages into DOM events — the [sse-updates](/hypermedia-components/recipes/sse-updates/) / [sse-toast](/hypermedia-components/recipes/sse-toast/) recipes. | ✓ |
+
+## Related
+
+- [Installation → Behaviors](/hypermedia-components/start/installation/#behaviors) — bundles, idempotency, uninstalling.
+- [Fundamentals](/hypermedia-components/fundamentals/) — the conventions every behavior follows.

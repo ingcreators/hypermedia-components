@@ -1,11 +1,36 @@
 ---
 title: Fundamentals
-description: Concepts that apply across all Hypermedia Components — naming, tokens, htmx integration.
+description: The whole mental model on one screen — conventions, runtime axes, and where each fundamentals page fits.
 ---
 
-Concepts that apply across the whole library. New here? Start with
-**Naming** and **Tokens** — they explain the vocabulary every component
-page assumes.
+Concepts that apply across the whole library. The two tables below are
+the entire mental model — every component page assumes them.
+
+## How HC works (the six conventions)
+
+| Convention | What it means in your templates |
+| --- | --- |
+| **Semantic classes** — `hc-<block>__<part>`, variants via `data-variant` / `data-size` | You emit meaningful class names from the server; there are no utility classes to compose. |
+| **State lives in HTML attributes** — `aria-*`, `data-*`, native `disabled` / `invalid` | Re-render with different attributes and the look follows. No client state to reconcile. |
+| **htmx attributes use the `data-hx-*` form** (not `hx-*`) | Validators and templating tools that require `data-` attributes stay happy; both spellings work at runtime. |
+| **Behaviors never own the network** — htmx does | URLs, routing, and responses stay in your server code. `installX()` functions are idempotent, return uninstallers, and auto-install from the zero-config `/behaviors` bundle ([full list](/hypermedia-components/reference/behaviors/)). |
+| **Tokens are the visual source of truth** — DTCG JSON → generated `--hc-*` custom properties | Theme by overriding variables (or use the [Theme builder](/hypermedia-components/tokens/theme-builder/)), never by editing component CSS. |
+| **Strings are translatable** — behaviors read one message catalog | `setMessages({ 'confirm.cancel': '…' })` covers every string a behavior injects ([i18n](/hypermedia-components/fundamentals/i18n/)). |
+
+## The five runtime axes
+
+All five are attributes on `<html>`; components re-resolve live — no
+rebuild, no JavaScript.
+
+| Axis | Values | Owns |
+| --- | --- | --- |
+| [`data-theme`](/hypermedia-components/fundamentals/tokens/) | `light` (default) / `dark` | Surface, text, and border colors. |
+| [`data-color`](/hypermedia-components/tokens/themes/) | accent name (e.g. `indigo`) | The accent used by primary controls. |
+| [`data-neutral`](/hypermedia-components/tokens/neutral/) | gray-ramp name | The neutral gray family. |
+| [`data-density`](/hypermedia-components/tokens/density/) | `comfortable` (default) / `compact` / `dense` | Control heights, paddings, gaps. |
+| `dir` | `ltr` (default) / `rtl` | Writing direction — all components use logical properties. |
+
+## The section, in reading order
 
 - [Naming](/hypermedia-components/fundamentals/naming/) — classes, data attributes, custom properties, events.
 - [Tokens](/hypermedia-components/fundamentals/tokens/) — the DTCG token layers behind every `--hc-*` value.
@@ -13,7 +38,11 @@ page assumes.
 - [Responsive design](/hypermedia-components/fundamentals/responsive/) — the container-first strategy and where each tool fits.
 - [Internationalization (i18n)](/hypermedia-components/fundamentals/i18n/) — translate the strings behaviors inject, with one message catalog.
 - [Accessibility](/hypermedia-components/fundamentals/accessibility/) — Forced Colors / Windows High Contrast support via CSS system colors.
+- [Icons](/hypermedia-components/fundamentals/icons/) — the inline-SVG stance and sizing conventions.
+- [Anchored positioning](/hypermedia-components/fundamentals/anchored/) — the shared floating-placement machinery behind menus, popovers, and tooltips (internals; useful when debugging placement).
 
-Interactive components rely on small JS *behaviors* — see
+Interactive components rely on small JS *behaviors* — see the
+[behaviors reference](/hypermedia-components/reference/behaviors/) for
+the full roster and
 [Installation → Behaviors](/hypermedia-components/start/installation/#behaviors)
 for how they install and why they are idempotent.

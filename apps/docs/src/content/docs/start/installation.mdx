@@ -7,6 +7,23 @@ Hypermedia Components ships as one CSS file, one behaviors bundle, and an
 optional macros bundle. Always load the CSS; load the JS only if you use
 the interactive behaviors.
 
+## CDN (no build step)
+
+The fastest way to try HC — and a perfectly fine way to run it — is two
+tags straight off jsDelivr:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.min.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.behaviors.min.js"></script>
+```
+
+That's every component and every behavior, ~26 KB gzip total. In
+production, pin a version
+(`…/npm/@hypermedia-components/core@<version>/dist/…`) so a release can't
+change your page underneath you. Exact sizes, granular per-component
+loading, and an import-map variant live on
+[Bundle size & imports](/hypermedia-components/reference/size/).
+
 ## With a bundler (npm)
 
 ```bash

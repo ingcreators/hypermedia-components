@@ -85,7 +85,22 @@ export default defineConfig({
             { slug: 'start/philosophy' },
           ],
         },
-        { label: 'Fundamentals', translations: { ja: '基礎' }, items: [{ autogenerate: { directory: 'fundamentals' } }] },
+        {
+          // Explicit reading order (the index's suggested path), not the
+          // alphabetical order autogenerate would produce.
+          label: 'Fundamentals', translations: { ja: '基礎' },
+          items: [
+            { slug: 'fundamentals' },
+            { slug: 'fundamentals/naming' },
+            { slug: 'fundamentals/tokens' },
+            { slug: 'fundamentals/layout' },
+            { slug: 'fundamentals/responsive' },
+            { slug: 'fundamentals/i18n' },
+            { slug: 'fundamentals/accessibility' },
+            { slug: 'fundamentals/icons' },
+            { slug: 'fundamentals/anchored' },
+          ],
+        },
         { label: 'Kitchen sink', translations: { ja: 'キッチンシンク' }, slug: 'kitchen-sink' },
         {
           // Grouped by purpose instead of one flat ~50-entry alphabetical

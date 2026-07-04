@@ -1,6 +1,52 @@
 ---
 title: トークン
-description: DTCG トークンソースと生成される CSS 変数。
+description: DTCG トークンソースが --hc-* CSS カスタムプロパティになる仕組みと、HTML 属性 1 つでキット全体の見た目を切り替える 5 つのランタイム軸。
+sidebar:
+  order: 1
 ---
 
-トークンは 4 レイヤー: primitive・semantic・component・theme/density。`--hc-*` CSS カスタムプロパティとして生成されます。
+Hypermedia Components のすべての視覚的な決定は、4 つの層を流れます:
+
+1. **DTCG JSON ソース** — primitive・semantic・component・theme の
+   トークンファイルが唯一の情報源です。
+2. ビルドステップがそれらを **`--hc-*` CSS カスタムプロパティ**として
+   出力します。
+3. **セマンティックなクラス**(`hc-button`、`hc-card`、…)はその変数だけを
+   消費します — ハードコードされた値は使いません。
+4. **ランタイム軸** — 素の HTML 属性 — が変数を再解決するため、属性 1 つで
+   全体の見た目が一度に切り替わります。リビルドは不要です。
+
+レイヤーモデル・DTCG の参照構文・変数の命名の詳細は
+[基礎 · トークン](/hypermedia-components/ja/fundamentals/tokens/)を
+参照してください。
+
+## 5 つのランタイム軸
+
+| 軸 | 値 | 設定先 | ドキュメント |
+| --- | --- | --- | --- |
+| `data-theme` | `light` / `dark` | `<html>` | [ライトとダーク](/hypermedia-components/ja/fundamentals/tokens/#ライトとダーク) |
+| `data-color` | アクセントテーマ — `default`、`indigo`、`emerald`、`rose`、`amber` | `<html>` | [カラーテーマ](/hypermedia-components/ja/tokens/themes/) |
+| `data-neutral` | グレーランプ — `gray`、`slate`、`zinc`、`neutral`、`stone` | `<html>` | [ニュートラルランプ](/hypermedia-components/ja/tokens/neutral/) |
+| `data-density` | `comfortable` / `compact` / `dense` | `<html>` | [密度](/hypermedia-components/ja/tokens/density/) |
+| `dir` | `ltr` / `rtl` | `<html>` | [右から左(RTL)](/hypermedia-components/ja/fundamentals/accessibility/#右から左rtl) |
+
+5 つの軸はすべて直交します — 任意の組み合わせで設定できます。また
+`<html>` に限らず任意のサブツリーでも機能するため、あるセクションだけを
+ダークや高密度にすることもできます。
+
+## ブランドカラーを変える
+
+[テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)を開き、
+ブランドカラーを 1 つ貼り付けて、そのまま貼り付けられる CSS ブロック
+(または DTCG ソース)をコピーしてください。実物のトークンビルドを
+ブラウザ内で実行し、WCAG コントラストをライブで検査します。
+
+## このセクションの内容
+
+- [カラーテーマ](/hypermedia-components/ja/tokens/themes/) — 組み込みの `data-color` アクセント。
+- [テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/) — ブランドカラー 1 つからカスタムアクセントを生成。
+- [ニュートラルランプ](/hypermedia-components/ja/tokens/neutral/) — `data-neutral` のグレーファミリー。
+- [カラーパレット](/hypermedia-components/ja/tokens/palette/) — すべてのトークンの背後にある primitive ランプ。
+- [ステータスカラー](/hypermedia-components/ja/tokens/status/) — semantic な info / success / warning / error パレット。
+- [バリアントとサイズ](/hypermedia-components/ja/tokens/variants/) — すべての `data-variant` / `data-size` をコンポーネント横断で。
+- [密度](/hypermedia-components/ja/tokens/density/) — `data-density` のサイズ階層。

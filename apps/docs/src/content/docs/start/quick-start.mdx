@@ -42,7 +42,11 @@ install only the behaviors you use, see
 
 ## 3. Add htmx
 
-Load [htmx](https://htmx.org) to send the request. `data-hx-*` attributes
+Load [htmx](https://htmx.org) to send the request. htmx is a single
+script — `<script defer src="https://unpkg.com/htmx.org@2"></script>` from
+a CDN, or copy it into your assets; see
+[htmx's install docs](https://htmx.org/docs/#installing) for the
+pinned-version + integrity form. `data-hx-*` attributes
 are read by htmx — not by HC; HC only styles the button. Clicking **Add
 item** posts to `/items`; the server returns one `<li>`, which htmx
 appends to the list:
@@ -64,6 +68,41 @@ appends to the list:
 The [Plain HTML guide](/hypermedia-components/integrations/plain-html/) has
 the same shape as a complete, runnable page (with a static server and a
 toast region).
+
+## Try it in one file
+
+No server, no install. Save this as `index.html` and open it in a
+browser — the CSS and behaviors load from the CDN (see
+[Installation → CDN](/hypermedia-components/start/installation/#cdn-no-build-step)):
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hypermedia Components</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.min.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.behaviors.min.js"></script>
+  </head>
+  <body style="padding: 2rem;">
+    <div class="hc-stack" style="--hc-stack-gap: 1rem; max-inline-size: 24rem;">
+      <button class="hc-button" data-variant="primary"
+              onclick="document.body.dispatchEvent(new CustomEvent('hc:toast', { bubbles: true, detail: { message: 'Saved' } }))">
+        Save
+      </button>
+      <label class="hc-switch-label">
+        <input class="hc-switch" type="checkbox" role="switch" checked>
+        Email notifications
+      </label>
+    </div>
+  </body>
+</html>
+```
+
+The button fires a toast (a behavior; the bundle creates the toast region
+for you), the switch renders from CSS alone — the whole kit working from
+two CDN files.
 
 ## Next steps
 

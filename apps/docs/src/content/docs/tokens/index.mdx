@@ -1,6 +1,49 @@
 ---
 title: Tokens
-description: DTCG token sources and generated CSS variables.
+description: How DTCG token sources become --hc-* CSS custom properties, and the five runtime axes that restyle the whole kit from one HTML attribute.
+sidebar:
+  order: 1
 ---
 
-Four token layers: primitive, semantic, component, theme/density. Generated as `--hc-*` CSS custom properties.
+Every visual decision in Hypermedia Components flows through four layers:
+
+1. **DTCG JSON sources** — primitive, semantic, component, and theme
+   token files are the single source of truth.
+2. A build step emits them as **`--hc-*` CSS custom properties**.
+3. The **semantic classes** (`hc-button`, `hc-card`, …) consume only those
+   variables — never hard-coded values.
+4. **Runtime axes** — plain HTML attributes — re-resolve the variables, so
+   one attribute restyles everything at once, with no rebuild.
+
+[Fundamentals · Tokens](/hypermedia-components/fundamentals/tokens/) covers
+the layer model, the DTCG reference syntax, and variable naming in depth.
+
+## The five runtime axes
+
+| Axis | Values | Set on | Docs |
+| --- | --- | --- | --- |
+| `data-theme` | `light` / `dark` | `<html>` | [Light and dark](/hypermedia-components/fundamentals/tokens/#light-and-dark) |
+| `data-color` | accent theme — `default`, `indigo`, `emerald`, `rose`, `amber` | `<html>` | [Color themes](/hypermedia-components/tokens/themes/) |
+| `data-neutral` | gray ramp — `gray`, `slate`, `zinc`, `neutral`, `stone` | `<html>` | [Neutral ramps](/hypermedia-components/tokens/neutral/) |
+| `data-density` | `comfortable` / `compact` / `dense` | `<html>` | [Density](/hypermedia-components/tokens/density/) |
+| `dir` | `ltr` / `rtl` | `<html>` | [Right-to-left](/hypermedia-components/fundamentals/accessibility/#right-to-left-rtl) |
+
+All five are orthogonal — set any combination. Each also works on any
+subtree, not just `<html>`, so a section can run dark or dense on its own.
+
+## Change your brand color
+
+Open the [Theme builder](/hypermedia-components/tokens/theme-builder/),
+paste one brand color, and copy out a ready-to-paste CSS block (or the
+DTCG source). It runs the real token build in your browser and checks
+WCAG contrast live.
+
+## In this section
+
+- [Color themes](/hypermedia-components/tokens/themes/) — the built-in `data-color` accents.
+- [Theme builder](/hypermedia-components/tokens/theme-builder/) — generate a custom accent from one brand color.
+- [Neutral ramps](/hypermedia-components/tokens/neutral/) — the `data-neutral` gray families.
+- [Color palette](/hypermedia-components/tokens/palette/) — the primitive ramps behind every token.
+- [Status colors](/hypermedia-components/tokens/status/) — the semantic info / success / warning / error palette.
+- [Variants and sizes](/hypermedia-components/tokens/variants/) — every `data-variant` / `data-size`, cross-component.
+- [Density](/hypermedia-components/tokens/density/) — the `data-density` sizing tiers.

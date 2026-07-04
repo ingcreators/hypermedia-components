@@ -23,7 +23,7 @@ import Demo from '../../../components/Demo.astro';
 <Demo>
   <form class="hc-card" style="max-inline-size:32rem;inline-size:100%;">
     <div class="hc-card__header"><strong>Account settings</strong></div>
-    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="hc-card__body hc-stack" style="--hc-stack-gap:1rem;">
       <div class="hc-field">
         <label class="hc-field__label" for="b-name">Name</label>
         <input class="hc-input" id="b-name" value="Ada Lovelace" />
@@ -43,7 +43,7 @@ import Demo from '../../../components/Demo.astro';
       <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked /> Email notifications</label>
       <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" /> Product updates</label>
     </div>
-    <div class="hc-card__footer" style="display:flex;gap:.5rem;justify-content:flex-end;">
+    <div class="hc-card__footer hc-cluster" style="--hc-cluster-gap:.5rem;justify-content:flex-end;">
       <button class="hc-button" data-variant="ghost" type="button">Cancel</button>
       <button class="hc-button" data-variant="primary" type="submit">Save changes</button>
     </div>
@@ -54,7 +54,7 @@ import Demo from '../../../components/Demo.astro';
   ```html
   <form class="hc-card" style="max-inline-size:32rem;">
     <div class="hc-card__header"><strong>Account settings</strong></div>
-    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="hc-card__body hc-stack" style="--hc-stack-gap:1rem;">
       <div class="hc-field">
         <label class="hc-field__label" for="name">Name</label>
         <input class="hc-input" id="name" value="Ada Lovelace">
@@ -74,7 +74,7 @@ import Demo from '../../../components/Demo.astro';
       <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked> Email notifications</label>
       <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch"> Product updates</label>
     </div>
-    <div class="hc-card__footer" style="display:flex;gap:.5rem;justify-content:flex-end;">
+    <div class="hc-card__footer hc-cluster" style="--hc-cluster-gap:.5rem;justify-content:flex-end;">
       <button class="hc-button" data-variant="ghost" type="button">Cancel</button>
       <button class="hc-button" data-variant="primary" type="submit">Save changes</button>
     </div>
@@ -95,9 +95,9 @@ import Demo from '../../../components/Demo.astro';
 
 <Demo>
   <div class="hc-card" style="max-inline-size:40rem;inline-size:100%;">
-    <div class="hc-card__header" style="display:flex;gap:.75rem;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+    <div class="hc-card__header hc-cluster" style="--hc-cluster-gap:.75rem;justify-content:space-between;">
       <strong>Users</strong>
-      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+      <div class="hc-cluster" style="--hc-cluster-gap:.5rem;">
         <div class="hc-input-group" style="inline-size:13rem;">
           <span class="hc-input-addon" aria-hidden="true">🔍</span>
           <input class="hc-input" type="search" aria-label="Search users" placeholder="Search…" />
@@ -116,7 +116,7 @@ import Demo from '../../../components/Demo.astro';
         </tbody>
       </table>
     </div>
-    <div class="hc-card__footer" style="display:flex;justify-content:flex-end;">
+    <div class="hc-card__footer hc-cluster" style="justify-content:flex-end;">
       <nav class="hc-pagination" aria-label="Pagination">
         <a class="hc-pagination__item" href="#">‹ Prev</a>
         <a class="hc-pagination__item" aria-current="page" href="#">1</a>
@@ -131,10 +131,10 @@ import Demo from '../../../components/Demo.astro';
 
   ```html
   <div class="hc-card" style="max-inline-size:40rem;">
-    <div class="hc-card__header"
-         style="display:flex;gap:.75rem;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+    <div class="hc-card__header hc-cluster"
+         style="--hc-cluster-gap:.75rem;justify-content:space-between;">
       <strong>Users</strong>
-      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+      <div class="hc-cluster" style="--hc-cluster-gap:.5rem;">
         <div class="hc-input-group" style="inline-size:13rem;">
           <span class="hc-input-addon" aria-hidden="true">🔍</span>
           <input class="hc-input" type="search" aria-label="Search users" placeholder="Search…">
@@ -153,7 +153,7 @@ import Demo from '../../../components/Demo.astro';
         </tbody>
       </table>
     </div>
-    <div class="hc-card__footer" style="display:flex;justify-content:flex-end;">
+    <div class="hc-card__footer hc-cluster" style="justify-content:flex-end;">
       <nav class="hc-pagination" aria-label="Pagination">
         <a class="hc-pagination__item" href="#">‹ Prev</a>
         <a class="hc-pagination__item" aria-current="page" href="#">1</a>
@@ -178,7 +178,7 @@ import Demo from '../../../components/Demo.astro';
 <Demo previewStyle="display:grid;place-items:center;">
   <form class="hc-card" style="max-inline-size:24rem;inline-size:100%;">
     <div class="hc-card__header"><strong>Sign in</strong></div>
-    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="hc-card__body hc-stack" style="--hc-stack-gap:1rem;">
       <div class="hc-field">
         <label class="hc-field__label" for="b-login-email">Email</label>
         <input class="hc-input" id="b-login-email" type="email" placeholder="you@example.com" />
@@ -189,7 +189,7 @@ import Demo from '../../../components/Demo.astro';
       </div>
       <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" /> Remember me</label>
     </div>
-    <div class="hc-card__footer" style="display:flex;flex-direction:column;gap:.5rem;">
+    <div class="hc-card__footer hc-stack" style="--hc-stack-gap:.5rem;">
       <button class="hc-button" data-variant="primary" type="submit" style="inline-size:100%;">Sign in</button>
       <p style="margin:0;text-align:center;font-size:.875rem;color:var(--hc-color-text-muted);">No account? <a href="#">Create one</a></p>
     </div>
@@ -200,7 +200,7 @@ import Demo from '../../../components/Demo.astro';
   ```html
   <form class="hc-card" style="max-inline-size:24rem;">
     <div class="hc-card__header"><strong>Sign in</strong></div>
-    <div class="hc-card__body" style="display:flex;flex-direction:column;gap:1rem;">
+    <div class="hc-card__body hc-stack" style="--hc-stack-gap:1rem;">
       <div class="hc-field">
         <label class="hc-field__label" for="email">Email</label>
         <input class="hc-input" id="email" type="email" placeholder="you@example.com">
@@ -211,7 +211,7 @@ import Demo from '../../../components/Demo.astro';
       </div>
       <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox"> Remember me</label>
     </div>
-    <div class="hc-card__footer" style="display:flex;flex-direction:column;gap:.5rem;">
+    <div class="hc-card__footer hc-stack" style="--hc-stack-gap:.5rem;">
       <button class="hc-button" data-variant="primary" type="submit" style="inline-size:100%;">Sign in</button>
       <p style="margin:0;text-align:center;">No account? <a href="/signup">Create one</a></p>
     </div>
@@ -329,7 +329,7 @@ import Demo from '../../../components/Demo.astro';
       <button class="hc-button" data-variant="ghost" type="button" aria-label="Notifications" style="margin-inline-start:auto;">🔔</button>
       <span class="hc-avatar" aria-label="Your account" data-size="sm">Y</span>
     </header>
-    <nav class="hc-shell__sidebar" aria-label="Primary" data-collapsible style="display:flex;flex-direction:column;gap:.1rem;">
+    <nav class="hc-shell__sidebar hc-stack" aria-label="Primary" data-collapsible style="--hc-stack-gap:.1rem;">
       <button class="hc-button" data-variant="primary" type="button" style="margin-block-end:.5rem;">+ <span class="hc-shell__label">New order</span></button>
       <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
       <a class="hc-item" href="#" data-selected aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Dashboard</span></div></a>
@@ -340,25 +340,25 @@ import Demo from '../../../components/Demo.astro';
       <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">⚙️</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Settings</span></div></a>
     </nav>
     <main class="hc-shell__main">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-block-end:1rem;">
+      <div class="hc-cluster" style="--hc-cluster-gap:.75rem;justify-content:space-between;margin-block-end:1rem;">
         <strong style="font-size:1.05rem;">Dashboard</strong>
-        <div style="display:flex;gap:.5rem;">
+        <div class="hc-cluster" style="--hc-cluster-gap:.5rem;">
           <button class="hc-button" data-size="sm" type="button">Last 30 days ▾</button>
           <button class="hc-button" data-size="sm" data-variant="primary" type="button">Export</button>
         </div>
       </div>
       <div class="hc-grid" style="--hc-grid-min:9rem;">
-        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+        <div class="hc-card hc-stack" style="padding:1rem;--hc-stack-gap:.3rem;">
           <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Revenue</span>
           <strong style="font-size:1.5rem;">$48.2k</strong>
           <span><span class="hc-badge" data-variant="success">▲ 12%</span></span>
         </div>
-        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+        <div class="hc-card hc-stack" style="padding:1rem;--hc-stack-gap:.3rem;">
           <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Orders</span>
           <strong style="font-size:1.5rem;">1,204</strong>
           <span><span class="hc-badge" data-variant="success">▲ 4%</span></span>
         </div>
-        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+        <div class="hc-card hc-stack" style="padding:1rem;--hc-stack-gap:.3rem;">
           <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Refunds</span>
           <strong style="font-size:1.5rem;">18</strong>
           <span><span class="hc-badge" data-variant="warning">▼ 2%</span></span>
@@ -410,8 +410,8 @@ import Demo from '../../../components/Demo.astro';
     <!-- data-collapsible + the [data-hc-shell-collapse] button above let
          installShell() toggle this to an icon rail; .hc-shell__label hides
          each label in the rail but keeps it in the accessibility tree. -->
-    <nav class="hc-shell__sidebar" aria-label="Primary" data-collapsible
-         style="display:flex;flex-direction:column;gap:.1rem;">
+    <nav class="hc-shell__sidebar hc-stack" aria-label="Primary" data-collapsible
+         style="--hc-stack-gap:.1rem;">
       <button class="hc-button" data-variant="primary" type="button">+ <span class="hc-shell__label">New order</span></button>
 
       <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
@@ -440,26 +440,26 @@ import Demo from '../../../components/Demo.astro';
     </nav>
 
     <main class="hc-shell__main">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-block-end:1rem;">
+      <div class="hc-cluster" style="--hc-cluster-gap:.75rem;justify-content:space-between;margin-block-end:1rem;">
         <strong style="font-size:1.05rem;">Dashboard</strong>
-        <div style="display:flex;gap:.5rem;">
+        <div class="hc-cluster" style="--hc-cluster-gap:.5rem;">
           <button class="hc-button" data-size="sm" type="button">Last 30 days ▾</button>
           <button class="hc-button" data-size="sm" data-variant="primary" type="button">Export</button>
         </div>
       </div>
 
       <div class="hc-grid" style="--hc-grid-min:9rem;">
-        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+        <div class="hc-card hc-stack" style="padding:1rem;--hc-stack-gap:.3rem;">
           <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Revenue</span>
           <strong style="font-size:1.5rem;">$48.2k</strong>
           <span><span class="hc-badge" data-variant="success">▲ 12%</span></span>
         </div>
-        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+        <div class="hc-card hc-stack" style="padding:1rem;--hc-stack-gap:.3rem;">
           <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Orders</span>
           <strong style="font-size:1.5rem;">1,204</strong>
           <span><span class="hc-badge" data-variant="success">▲ 4%</span></span>
         </div>
-        <div class="hc-card" style="padding:1rem;display:flex;flex-direction:column;gap:.3rem;">
+        <div class="hc-card hc-stack" style="padding:1rem;--hc-stack-gap:.3rem;">
           <span style="font-size:.78rem;color:var(--hc-color-text-muted);">Refunds</span>
           <strong style="font-size:1.5rem;">18</strong>
           <span><span class="hc-badge" data-variant="warning">▼ 2%</span></span>

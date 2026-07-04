@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: the connective tissue** (docs-facing; batch 4 of
+  `plans/hc-docs-clarity-plan-en.md`, en + ja). The fundamentals index
+  is now a one-screen mental model (six-conventions table + the five
+  runtime axes — previously assembled nowhere); a new
+  **reference/behaviors** page lists all 44 `installXxx()` behaviors
+  with what each powers and the auto-init column; **CDN install** is a
+  first-class path (jsDelivr one-liners in installation, an htmx CDN
+  line and a complete save-and-open single-file example in
+  quick-start); **tokens/** gained a real landing (four-layer model,
+  axis quick table, brand-color quick answer) and an explicit sidebar
+  order; the fundamentals sidebar follows the stated reading order
+  instead of the alphabet; the landing routes the four visitor intents;
+  philosophy principles carry "→ so what" lines for template authors;
+  and the blocks gallery dogfoods `hc-stack` / `hc-cluster` instead of
+  raw inline flex.
+
 - **Docs: the component pages now share one template** (docs-facing;
   batch 2 of `plans/hc-docs-clarity-plan-en.md`, en + ja, 34 page
   pairs). Every behavior-backed page states the same three facts
