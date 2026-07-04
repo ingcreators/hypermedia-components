@@ -44,7 +44,12 @@ JavaScript なしで機能します。
 
 ## 3. htmx を足す
 
-リクエスト送信のために [htmx](https://htmx.org) を読み込みます。
+リクエスト送信のために [htmx](https://htmx.org) を読み込みます。htmx は
+スクリプト 1 つです — CDN から
+`<script defer src="https://unpkg.com/htmx.org@2"></script>` で読み込むか、
+自分のアセットにコピーしてください。バージョン固定 + integrity 付きの形式は
+[htmx のインストールドキュメント](https://htmx.org/docs/#installing)を
+参照してください。
 `data-hx-*` 属性を読むのは htmx であって HC ではありません — HC はボタンの
 スタイルだけを担当します。**Add item** をクリックすると `/items` に POST し、
 サーバが返す `<li>` 1 件を htmx がリストに追加します:
@@ -66,6 +71,41 @@ JavaScript なしで機能します。
 [Plain HTML ガイド](/hypermedia-components/ja/integrations/plain-html/)には、
 同じ構成を完全な実行可能ページ(静的サーバとトースト領域つき)として
 まとめてあります。
+
+## 1 ファイルで試す
+
+サーバもインストールも不要です。これを `index.html` として保存し、
+ブラウザで開いてください — CSS とビヘイビアは CDN から読み込まれます
+([インストール → CDN](/hypermedia-components/ja/start/installation/#cdnビルドステップなし)を参照):
+
+```html
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hypermedia Components</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.min.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.behaviors.min.js"></script>
+  </head>
+  <body style="padding: 2rem;">
+    <div class="hc-stack" style="--hc-stack-gap: 1rem; max-inline-size: 24rem;">
+      <button class="hc-button" data-variant="primary"
+              onclick="document.body.dispatchEvent(new CustomEvent('hc:toast', { bubbles: true, detail: { message: 'Saved' } }))">
+        Save
+      </button>
+      <label class="hc-switch-label">
+        <input class="hc-switch" type="checkbox" role="switch" checked>
+        Email notifications
+      </label>
+    </div>
+  </body>
+</html>
+```
+
+ボタンはトーストを発火し(ビヘイビア。トースト領域はバンドルが自動で
+作成します)、スイッチは CSS だけで描画されます — CDN のファイル 2 つで
+キット全体が動いています。
 
 ## 次のステップ
 

@@ -7,6 +7,24 @@ Hypermedia Components は、CSS ファイル 1 つ・ビヘイビアバンドル
 任意のマクロバンドル 1 つとして配布されます。CSS は常に読み込み、JS は
 インタラクティブなビヘイビアを使う場合のみ読み込んでください。
 
+## CDN(ビルドステップなし)
+
+HC を試す最速の方法 — そしてそのまま本番運用しても問題ない方法 — は、
+jsDelivr から読み込む 2 つのタグです:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.min.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.behaviors.min.js"></script>
+```
+
+これで全コンポーネントと全ビヘイビアが使えます(合計 gzip 約 26 KB)。
+本番ではバージョンを固定してください
+(`…/npm/@hypermedia-components/core@<version>/dist/…`)— リリースが
+ページの表示を勝手に変えてしまうのを防げます。正確なサイズ、
+コンポーネント単位の細粒度ロード、import map 方式は
+[バンドルサイズとインポート](/hypermedia-components/ja/reference/size/)を
+参照してください。
+
 ## バンドラーを使う場合(npm)
 
 ```bash

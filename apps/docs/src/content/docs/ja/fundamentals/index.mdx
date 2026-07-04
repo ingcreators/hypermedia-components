@@ -1,11 +1,36 @@
 ---
 title: 基礎
-description: すべての Hypermedia Components に共通する概念 — 命名規則、トークン、htmx 統合。
+description: メンタルモデル全体を 1 画面で — 規約、ランタイム軸、そして基礎セクション各ページの位置づけ。
 ---
 
-ライブラリ全体に共通する概念です。初めての方は、まず**命名規則**と
-**トークン**から — すべてのコンポーネントページが前提とする語彙を
-説明しています。
+ライブラリ全体に共通する概念です。下の 2 つの表がメンタルモデルの
+すべてで、どのコンポーネントページもこれを前提にしています。
+
+## HC の仕組み(6 つの規約)
+
+| 規約 | テンプレートでの意味 |
+| --- | --- |
+| **セマンティッククラス** — `hc-<block>__<part>`、バリアントは `data-variant` / `data-size` | サーバーから意味のあるクラス名を出力します。組み合わせるユーティリティクラスはありません。 |
+| **状態は HTML 属性に住む** — `aria-*`、`data-*`、ネイティブの `disabled` / `invalid` | 属性を変えて再レンダーすれば見た目が追随します。クライアント状態の同期は不要です。 |
+| **htmx 属性は `data-hx-*` 形式**(`hx-*` ではなく) | `data-` 属性を要求するバリデータやテンプレートツールと衝突しません。実行時はどちらの綴りも動きます。 |
+| **ビヘイビアはネットワークを持たない** — htmx が持つ | URL・ルーティング・レスポンスはサーバーコードに残ります。`installX()` は冪等でアンインストーラを返し、ゼロ設定の `/behaviors` バンドルが自動インストールします([一覧](/hypermedia-components/ja/reference/behaviors/))。 |
+| **トークンが見た目の唯一の情報源** — DTCG JSON → 生成される `--hc-*` カスタムプロパティ | テーマは変数の上書き(または[テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/))で行い、コンポーネント CSS は編集しません。 |
+| **文字列は翻訳可能** — ビヘイビアは 1 つのメッセージカタログを読む | `setMessages({ 'confirm.cancel': '…' })` で、ビヘイビアが注入する全文字列をカバーします([i18n](/hypermedia-components/ja/fundamentals/i18n/))。 |
+
+## 5 つのランタイム軸
+
+5 つとも `<html>` の属性です。コンポーネントはライブに再解決します —
+リビルドも JavaScript も不要です。
+
+| 軸 | 値 | 担当 |
+| --- | --- | --- |
+| [`data-theme`](/hypermedia-components/ja/fundamentals/tokens/) | `light`(デフォルト)/ `dark` | サーフェス・テキスト・ボーダーの色。 |
+| [`data-color`](/hypermedia-components/ja/tokens/themes/) | アクセント名(例: `indigo`) | プライマリコントロールのアクセント。 |
+| [`data-neutral`](/hypermedia-components/ja/tokens/neutral/) | グレーランプ名 | ニュートラルグレーのファミリー。 |
+| [`data-density`](/hypermedia-components/ja/tokens/density/) | `comfortable`(デフォルト)/ `compact` / `dense` | コントロールの高さ・パディング・ギャップ。 |
+| `dir` | `ltr`(デフォルト)/ `rtl` | 書字方向 — 全コンポーネントが論理プロパティを使用。 |
+
+## セクションの読み順
 
 - [命名規則](/hypermedia-components/ja/fundamentals/naming/) — クラス、data 属性、カスタムプロパティ、イベント。
 - [トークン](/hypermedia-components/ja/fundamentals/tokens/) — あらゆる `--hc-*` 値の背後にある DTCG トークンレイヤー。
@@ -13,8 +38,11 @@ description: すべての Hypermedia Components に共通する概念 — 命名
 - [レスポンシブデザイン](/hypermedia-components/ja/fundamentals/responsive/) — コンテナファースト戦略と各ツールの使いどころ。
 - [国際化(i18n)](/hypermedia-components/ja/fundamentals/i18n/) — ビヘイビアが注入する文字列を 1 つのメッセージカタログで翻訳。
 - [アクセシビリティ](/hypermedia-components/ja/fundamentals/accessibility/) — CSS システムカラーによる Forced Colors / Windows ハイコントラスト対応。
+- [アイコン](/hypermedia-components/ja/fundamentals/icons/) — インライン SVG の方針とサイズ規約。
+- [アンカー配置](/hypermedia-components/ja/fundamentals/anchored/) — メニュー・ポップオーバー・ツールチップが共有する配置機構(内部機構。配置のデバッグ時に有用)。
 
 インタラクティブなコンポーネントは小さな JS *ビヘイビア*に依存します —
+全一覧は[ビヘイビアリファレンス](/hypermedia-components/ja/reference/behaviors/)、
 インストール方法と冪等性の理由は
 [インストール → ビヘイビア](/hypermedia-components/ja/start/installation/#ビヘイビア)を
 参照してください。

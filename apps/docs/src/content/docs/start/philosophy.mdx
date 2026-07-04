@@ -4,10 +4,18 @@ description: Design principles for Hypermedia Components.
 ---
 
 1. **Standard HTML first** — native `button`, `input`, `dialog`, `popover` are the primary API.
+   *→ You add classes to the elements your templates already render — no widget rewrite, and browser behavior (focus, forms, Escape) comes free.*
 2. **Light DOM first** — no Shadow DOM; htmx attributes and forms work normally.
+   *→ htmx selectors, CSS overrides, and label `for` all reach the real markup — nothing hides behind a shadow boundary.*
 3. **Semantic classes** — `hc-button` over long utility lists.
+   *→ Templates stay readable and diffable: one class names the component instead of a utility string to copy around.*
 4. **State in HTML attributes** — `data-*`, `aria-*`, native attributes drive styling.
+   *→ The server re-renders with different attributes and the look follows — no client state to reconcile.*
 5. **htmx owns network behavior** — behaviors do not wrap `fetch()`.
+   *→ Every request is visible in your markup as `data-hx-*`; HC never issues a hidden fetch you have to debug.*
 6. **Behaviors stay small** — confirm, toast, close dialog, focus management.
+   *→ Before (or without) the JS, the page still renders and submits — behaviors only enhance, never carry the page.*
 7. **DTCG tokens are the visual source of truth** — CSS consumes custom properties.
+   *→ Rebrand by overriding `--hc-*` variables in your own stylesheet — no rebuild, no fork of the kit's CSS.*
 8. **Macros are optional** — every macro documents its expanded HTML.
+   *→ You can always copy the expanded HTML straight into your template language — macros are a shortcut, never a lock-in.*
