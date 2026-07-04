@@ -25,16 +25,33 @@ export default defineConfig({
     baseURL: BASE,
     trace: 'retain-on-failure',
     actionTimeout: 5_000,
-    // Scrollbar rendering differs between environments and even between
-    // successive full-page captures (viewport-width changes re-wrap text
-    // and shift the page height by a pixel or two) — hide them so the
-    // VRT sheets rasterize identically everywhere.
-    launchOptions: { args: ['--hide-scrollbars'] },
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Scrollbar rendering differs between environments and even
+        // between successive full-page captures (viewport-width changes
+        // re-wrap text and shift the page height by a pixel or two) —
+        // hide them so the VRT sheets rasterize identically everywhere.
+        // Chromium-only flag, so it lives on this project.
+        launchOptions: { args: ['--hide-scrollbars'] },
+      },
+    },
+    // The functional + axe suites run on all three engines; the VRT
+    // sheets keep a single Chromium/linux baseline set (screenshot
+    // rasterization is engine-specific, and one baseline is enough to
+    // catch visual regressions in our own CSS).
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      testIgnore: '**/vrt.spec.mjs',
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+      testIgnore: '**/vrt.spec.mjs',
     },
   ],
   webServer: [

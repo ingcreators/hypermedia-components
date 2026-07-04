@@ -36,9 +36,14 @@ test.describe('hc-carousel', () => {
   });
 
   test('a real scroll to the end marks the last slide active', async ({ page }) => {
-    const viewport = page.getByTestId('carousel').locator('.hc-carousel__viewport');
-    await viewport.evaluate((el) => {
-      el.scrollLeft = el.scrollWidth;
+    // Scroll the rail itself (not the behavior's buttons/dots) so the
+    // IntersectionObserver tracking path is exercised. Land exactly on
+    // the last slide's snap position: Firefox re-snaps a programmatic
+    // scroll to the nearest snap point, so overshooting with
+    // scrollLeft = scrollWidth (clamped off-snap) can snap back to an
+    // earlier slide there.
+    await page.getByTestId('car-2').evaluate((el) => {
+      el.scrollIntoView({ behavior: 'instant', inline: 'start', block: 'nearest' });
     });
     await expect(page.getByTestId('car-2')).toHaveAttribute('data-active');
     await expect(page.getByTestId('car-next')).toBeDisabled();

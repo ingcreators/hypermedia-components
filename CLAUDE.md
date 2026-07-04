@@ -25,7 +25,7 @@ explicit user approval.
 | `recipes/<name>/` | `recipe.html` / `expanded.html` / `contract.md` source-format scaffolds. |
 | `examples/<framework>/` | Runnable usage examples (`plain-html/`, `htmx/`; other stacks are covered by the docs integration guides). |
 | `plans/` | Implementation plans and design documents. |
-| `.github/workflows/` | `ci.yml` (lint / unit / docs / browser) + `release.yml`. |
+| `.github/workflows/` | `ci.yml` (lint / unit / docs / browser×3) + `perf.yml` (weekly Lighthouse) + `release.yml`. |
 
 ## Project conventions
 
@@ -76,8 +76,9 @@ pnpm --filter @hypermedia-components/core lint          # ESLint + Stylelint
 
 # Tests
 pnpm --filter @hypermedia-components/core test          # Vitest + jsdom
-pnpm --filter @hypermedia-components/core test:browser  # Playwright + axe
-# First run only: pnpm --filter @hypermedia-components/core exec playwright install chromium
+pnpm --filter @hypermedia-components/core test:browser  # Playwright + axe (all 3 engines)
+pnpm --filter @hypermedia-components/core test:browser --project=chromium   # one engine
+# First run only: pnpm --filter @hypermedia-components/core exec playwright install --with-deps chromium firefox webkit
 
 # Runnable examples
 cd examples/plain-html && pnpm start    # :4322
@@ -88,14 +89,15 @@ cd examples/htmx       && pnpm start    # :4323
 
 ## CI
 
-`.github/workflows/ci.yml` runs four parallel jobs on every push and PR:
+`.github/workflows/ci.yml` runs parallel jobs on every push and PR:
 
 - **lint** — ESLint + Stylelint
 - **unit** — Vitest (jsdom) + `tsc --noEmit` smoke test of the public type surface
 - **docs** — Astro build (validates internal links via `starlight-links-validator`; uploads `apps/docs/dist` as artifact)
-- **browser** — Playwright + Chromium (cached browser binaries; uploads report + traces on failure)
+- **browser** — Playwright, one matrix leg per engine (Chromium / Firefox / WebKit; cached binaries; report + traces on failure). The VRT screenshot sheets run on the Chromium leg only. A gate job named "Browser tests (Playwright)" aggregates the legs for the branch ruleset.
 
-All four must be green before merging.
+The four required checks (lint, unit, docs, browser gate) must be green
+before merging.
 
 ## Workflow conventions
 
