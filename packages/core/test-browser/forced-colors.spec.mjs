@@ -30,14 +30,21 @@ test.describe('forced-colors / high-contrast', () => {
     expect(await outlineWidth(input)).toBeGreaterThan(0);
   });
 
-  test('checked checkbox opts out of forced colours so its fill stays visible', async ({ page }) => {
+  // WebKit implements the forced-colors media query (the emulation
+  // sanity test above passes there) but not the forced-color-adjust
+  // property — getComputedStyle returns undefined for it. The opt-out
+  // is a Windows High Contrast affordance, so asserting it is
+  // meaningful on the engines that ship it.
+  test('checked checkbox opts out of forced colours so its fill stays visible', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'forced-color-adjust is not implemented in WebKit');
     const adjust = await page
       .getByTestId('fc-check')
       .evaluate((el) => getComputedStyle(el).forcedColorAdjust);
     expect(adjust).toBe('none');
   });
 
-  test('checked switch opts out of forced colours', async ({ page }) => {
+  test('checked switch opts out of forced colours', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'forced-color-adjust is not implemented in WebKit');
     const adjust = await page
       .getByTestId('fc-switch')
       .evaluate((el) => getComputedStyle(el).forcedColorAdjust);

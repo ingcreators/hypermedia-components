@@ -50,10 +50,9 @@ test.describe('hc-accordion — exclusive (name=)', () => {
     expect(before).toBe('none');
 
     await summary.click();
-    // Wait briefly for the rotate transition to settle.
-    await page.waitForTimeout(200);
-    const after = await icon.evaluate((el) => getComputedStyle(el).rotate);
-    expect(after).toMatch(/180deg/);
+    // Retry until the rotate transition settles — a fixed sleep raced
+    // the transition on slower engines (seen on WebKit).
+    await expect(icon).toHaveCSS('rotate', '180deg');
   });
 });
 

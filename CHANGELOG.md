@@ -20,6 +20,17 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Cross-browser CI — the Playwright suite now runs on Firefox and
+  WebKit** (dev-facing). The browser job fans out to one matrix leg per
+  engine (Chromium / Firefox / WebKit) behind the same required check;
+  the VRT screenshot sheets keep their single Chromium/linux baseline
+  set. The clipboard read-back assertions in `copy.spec.mjs` stay
+  Chromium-only (`clipboard-read` is not a grantable permission
+  elsewhere); every engine now asserts the copied text through the
+  `hc:copied` event detail instead.
+
 ## [0.1.8] - 2026-07-04
 
 ### Added

@@ -93,10 +93,16 @@ jobs:
           path: apps/docs/dist
           retention-days: 7
 
+  # One leg per engine; the VRT screenshot sheets only run (and assert)
+  # on the Chromium leg — see playwright.config.mjs projects.
   browser:
-    name: Browser tests (Playwright)
+    name: Playwright (${{ matrix.browser }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
     steps:
       - uses: actions/checkout@v7
 
@@ -116,24 +122,24 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: pw-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: pw-${{ runner.os }}-${{ matrix.browser }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - name: Install Chromium
+      - name: Install ${{ matrix.browser }}
         if: steps.pw-cache.outputs.cache-hit != 'true'
-        run: pnpm --filter @hypermedia-components/core exec playwright install --with-deps chromium
+        run: pnpm --filter @hypermedia-components/core exec playwright install --with-deps ${{ matrix.browser }}
 
-      - name: Install Chromium system deps only
+      - name: Install ${{ matrix.browser }} system deps only
         if: steps.pw-cache.outputs.cache-hit == 'true'
-        run: pnpm --filter @hypermedia-components/core exec playwright install-deps chromium
+        run: pnpm --filter @hypermedia-components/core exec playwright install-deps ${{ matrix.browser }}
 
-      - name: Run Playwright
-        run: pnpm --filter @hypermedia-components/core test:browser
+      - name: Run Playwright (${{ matrix.browser }})
+        run: pnpm --filter @hypermedia-components/core test:browser --project=${{ matrix.browser }}
 
       - name: Upload Playwright report on failure
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.browser }}
           path: packages/core/playwright-report
           retention-days: 7
 
@@ -141,6 +147,19 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-traces
+          name: playwright-traces-${{ matrix.browser }}
           path: packages/core/test-results
           retention-days: 7
+
+  # The branch ruleset requires a check named "Browser tests
+  # (Playwright)"; this gate keeps that contract while the real work
+  # fans out across the matrix above. `if: always()` because a skipped
+  # required check would count as satisfied.
+  browser-gate:
+    name: Browser tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: browser
+    if: always()
+    steps:
+      - name: Require every browser leg to succeed
+        run: test "${{ needs.browser.result }}" = "success"
