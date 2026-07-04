@@ -17,6 +17,14 @@ No Hypermedia Components behavior is needed for fragment pushes — for
 server-pushed *notifications and domain events*, see the
 [SSE toast recipe](/hypermedia-components/recipes/sse-toast/).
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add sse-updates` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/sse-updates/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-updates/contract.md).
+:::
+
 ## The markup
 
 ```html
@@ -88,9 +96,7 @@ accessibility stance too: pushed fragments replace content without
 moving focus, and regions that should announce updates opt in with
 `aria-live="polite"` on the landing element.
 
-The full stream contract lives in
-[`recipes/sse-updates/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-updates/contract.md);
-the claims here are pinned by a real-EventSource browser test
+The claims here are pinned by a real-EventSource browser test
 (`test-browser/sse.spec.mjs`).
 
 ## Related

@@ -9,7 +9,7 @@ Purpose: open a dialog whose contents are fetched from the server.
 
 ## Server response
 
-Return a complete `<dialog class="hc-dialog">` element with the dialog content (title, body, footer, form). The dialog should not already be `open`.
+Return a complete `<dialog class="hc-dialog">` element with the dialog content (title, body, footer, form). The dialog should not already be `open`. Give the Cancel button its own `<form method="dialog">` — the native, JS-free way to close a `<dialog>` (forms cannot nest, so the footer sits outside the edit form and the Save button reaches it via the `form` attribute).
 
 Status: `200 OK` with the fragment. A non-2xx response is not swapped
 (htmx ≥ 2 default), so no dialog opens — surface the failure via an

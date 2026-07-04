@@ -9,6 +9,14 @@ the server, the `installRemoteDialog` behavior opens it, and
 `installCloseDialog` closes it again when the form inside submits
 successfully.
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add remote-dialog` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/remote-dialog/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/remote-dialog/contract.md).
+:::
+
 :::note[Setup]
 This recipe needs **two** behaviors — `installRemoteDialog()` to open the
 fetched dialog and `installCloseDialog()` to close it on success. Install
@@ -56,6 +64,7 @@ The server returns a complete dialog:
   </header>
 
   <form
+    id="edit-item"
     data-hx-post="/items/123"
     data-hx-target="closest dialog"
     data-hx-swap="outerHTML"
@@ -66,15 +75,22 @@ The server returns a complete dialog:
         <input id="name" class="hc-input" name="name" value="Acme">
       </div>
     </div>
-
-    <footer class="hc-dialog__footer">
-      <button class="hc-button" type="button"
-              onclick="this.closest('dialog').close()">Cancel</button>
-      <button class="hc-button" data-variant="primary" type="submit">Save</button>
-    </footer>
   </form>
+
+  <footer class="hc-dialog__footer">
+    <!-- method="dialog" closes the dialog natively — no JS. -->
+    <form method="dialog"><button class="hc-button">Cancel</button></form>
+    <button class="hc-button" data-variant="primary" type="submit"
+            form="edit-item">Save</button>
+  </footer>
 </dialog>
 ```
+
+Cancel sits in its own **`<form method="dialog">`** — submitting a
+dialog-method form closes the dialog natively, with no JavaScript and
+nothing a CSP can object to. Because forms cannot nest, the footer
+lives outside the edit form, and the Save button reaches back to it
+with the `form="edit-item"` attribute.
 
 ## What happens
 
@@ -121,17 +137,26 @@ HX-Trigger: {"hc:toast":{"message":"Saved.","variant":"success"}}
 - Declare a labeled title (`#dialog-title`) and either:
   - Set `aria-labelledby="dialog-title"` on the `<dialog>`, or
   - Make the title the first focusable element so AT picks it up.
-- The Cancel button should *also* close the dialog. The recipe above
-  uses an inline `onclick` for brevity; in a real app prefer a small
-  helper that listens for `click` on `[data-hc-dismiss-dialog]`.
+- The Cancel button also closes the dialog — via the native
+  `<form method="dialog">` pattern above, the same one the
+  [dialog component](/hypermedia-components/components/dialog/) blesses.
+  No click handler, no behavior, CSP-safe.
 
 ## Progressive enhancement
 
 - Without htmx, `<button data-hx-get="…">` does nothing. To keep the
-  Edit action working without JavaScript, render the button inside an
-  `<a href="/items/123/edit">` link that loads a full-page edit
-  screen. The htmx attributes can still live on the link; htmx
-  intercepts when present, and the anchor's `href` is the fallback.
+  Edit action working without JavaScript, make the trigger a **link**
+  (a `<button>` may not sit inside an `<a>` — that is invalid HTML):
+
+  ```html
+  <a class="hc-button" href="/items/123/edit"
+     data-hx-get="/items/123/edit"
+     data-hx-target="#dialog-root"
+     data-hx-swap="innerHTML">Edit</a>
+  ```
+
+  htmx intercepts the click when it is loaded; otherwise the `href`
+  navigates to a full-page edit screen.
 - Without `hc.behaviors.js`, the dialog fragment lands in the page
   but does not auto-open. Add a `<script>` right after the `<dialog>` in
   the server response that opens it — e.g.

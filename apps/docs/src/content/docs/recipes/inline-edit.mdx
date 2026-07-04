@@ -7,25 +7,44 @@ description: Toggle a display cell to an editable input and back, swapping the s
 state and the edit state are two server-rendered HTML fragments at
 the same URL, and htmx swaps between them with `outerHTML`.
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add inline-edit` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/inline-edit/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/inline-edit/contract.md).
+:::
+
 ## Display state
 
-The default rendering of a row cell:
+The default rendering of a row cell — the value plus a small, real
+**Edit** `<button>`:
 
 ```html
-<span
-  id="item-42-name"
-  data-hx-get="/items/42/name/edit"
-  data-hx-trigger="click"
-  data-hx-target="this"
-  data-hx-swap="outerHTML"
-  style="cursor: pointer;">
+<span id="item-42-name">
   Acme widgets
+  <button class="hc-button" data-size="sm" type="button"
+          data-hx-get="/items/42/name/edit"
+          data-hx-target="closest span"
+          data-hx-swap="outerHTML">
+    Edit
+  </button>
 </span>
 ```
 
-Hovering hints at the affordance via cursor; a small pencil icon or
-underline is a common upgrade. The user clicks, htmx fetches the
-edit form, and the cell becomes:
+The button is the affordance: it is keyboard reachable (Tab, then
+Enter or Space), announced by assistive tech, and needs no extra ARIA.
+It targets `closest span` with `outerHTML`, so activating it replaces
+the **whole display node** with the edit form.
+
+:::note[A clickable cell instead of a button?]
+You can make the whole cell the trigger (`data-hx-get` +
+`data-hx-trigger="click"` + `data-hx-target="this"` on the `<span>`
+itself), but a bare `<span>` is invisible to keyboards: you then owe
+it `role="button"`, `tabindex="0"`, and a keydown listener for
+Enter/Space — htmx's `click` trigger does not add keyboard
+activation. The button form above gets all of that for free.
+:::
 
 ## Edit state
 
@@ -46,10 +65,13 @@ edit form, and the cell becomes:
   <button class="hc-button" data-size="sm" data-variant="primary" type="submit">Save</button>
   <button class="hc-button" data-size="sm" type="button"
           data-hx-get="/items/42/name"
-          data-hx-target="this"
+          data-hx-target="closest form"
           data-hx-swap="outerHTML">Cancel</button>
 </form>
 ```
+
+Cancel targets `closest form`, so it swaps the whole edit form back to
+the display fragment.
 
 ## Save loop
 
@@ -59,14 +81,14 @@ display state:
 
 ```html
 <!-- PUT /items/42/name -->
-<span
-  id="item-42-name"
-  data-hx-get="/items/42/name/edit"
-  data-hx-trigger="click"
-  data-hx-target="this"
-  data-hx-swap="outerHTML"
-  style="cursor: pointer;">
+<span id="item-42-name">
   Acme widgets v2
+  <button class="hc-button" data-size="sm" type="button"
+          data-hx-get="/items/42/name/edit"
+          data-hx-target="closest span"
+          data-hx-swap="outerHTML">
+    Edit
+  </button>
 </span>
 ```
 
@@ -76,9 +98,9 @@ re-processes the new attributes automatically.
 
 ## Validation
 
-For a server-side validation failure, return the edit form again with
-the error message inline. Keep the same id so the outerHTML swap
-targets the same node:
+For a server-side validation failure, return **`422`** with the edit
+form re-rendered and the error message inline. Keep the same id so the
+outerHTML swap targets the same node:
 
 ```html
 <!-- PUT /items/42/name → 422 -->
@@ -92,39 +114,49 @@ targets the same node:
   <button class="hc-button" data-size="sm" data-variant="primary" type="submit">Save</button>
   <button class="hc-button" data-size="sm" type="button"
           data-hx-get="/items/42/name"
-          data-hx-target="this"
+          data-hx-target="closest form"
           data-hx-swap="outerHTML">Cancel</button>
 </form>
 ```
 
-htmx's default behavior treats 4xx as a failed swap. To allow the
-422 body to render anyway, either return a 200 with an error class
-(simple) or configure `data-hx-swap="outerHTML"` together with
-`data-hx-swap-oob`-aware error handling. The 200-with-error variant
-is the friendliest path for most apps.
+htmx ≥ 2 does not swap non-2xx responses by default. Allow the 422
+swap once, globally — the same allowance the
+[field-errors recipe](/hypermedia-components/recipes/field-errors/#server-response-contract)
+documents:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+(Alternatives: answer `200` with the error fragment, or send
+`HX-Reswap` / `HX-Retarget` headers. `data-hx-target-422="this"` also
+works, but requires htmx's response-targets extension.)
 
 ## Accessibility
 
-- Use a real `<button>` (or `<a>` with `href`) for the click-to-edit
-  trigger when the affordance is critical. A `<span>` works for
-  visual-only use; if you do that, add `role="button"` and
-  `tabindex="0"`, and listen for Enter/Space keyboard events
-  (htmx's default `click` trigger does not include keyboard
-  activation on `<span>`).
+- The Edit trigger is a real `<button>` — keyboard reachable, announced
+  by assistive tech, no extra ARIA needed. (See the note above before
+  swapping it for a clickable `<span>`.)
 - Use `autofocus` on the input so keyboard users land on the editable
   field immediately.
-- For Escape-to-cancel, attach a small inline listener:
-  `onkeydown="if (event.key==='Escape') this.querySelector('[type=button]:last-child').click()"`.
-  Or skip Escape support and rely on the visible Cancel button.
+- For Escape-to-cancel, add a small `keydown` listener in your own
+  bundle that clicks the Cancel button (no inline `onkeydown` handlers
+  — they break under a CSP) — or skip Escape support and rely on the
+  visible Cancel button.
 
 ## Server response contract
 
 | Request                      | Response                                                              |
 | ---------------------------- | --------------------------------------------------------------------- |
-| `GET /items/:id/name`        | Display fragment (`<span id="item-:id-name">…</span>`).               |
+| `GET /items/:id/name`        | Display fragment (`<span id="item-:id-name">` with the Edit button).  |
 | `GET /items/:id/name/edit`   | Edit fragment (`<form id="item-:id-name">…</form>`).                  |
 | `PUT /items/:id/name` (200)  | Display fragment with the new value.                                  |
-| `PUT /items/:id/name` (422)  | Edit fragment with `data-invalid="true"` and a `.hc-field__message`. |
+| `PUT /items/:id/name` (422)  | Edit fragment with `data-invalid="true"` and a `.hc-field__message` — needs the `htmx:beforeSwap` allowance above. |
 
 All four responses share the same DOM id — that is what makes the
 swap reversible.
@@ -134,9 +166,9 @@ swap reversible.
 - **Optimistic UI?** Skip it for inline edits. The round trip is
   short, the server is authoritative, and the bookkeeping of rolling
   back a failed optimistic update outweighs the perceived speed-up.
-- **Keyboard parity.** Make sure the display state is reachable via
-  keyboard (Tab to it, Enter to activate). Buttons are the easy
-  default.
+- **Keyboard parity.** The Edit button keeps the display state
+  Tab-reachable and Enter-activatable; if you swap it for a custom
+  trigger, preserve that.
 - **Avoid mixing inline edit and remote-dialog** for the same field.
   Pick one. Inline edit is right when the change is one value and
   the user is already looking at it. A remote dialog wins for

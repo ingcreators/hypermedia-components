@@ -8,6 +8,15 @@ description: スケジュールまたはオンデマンドでサーバから新�
 またはその組み合わせで自身を最新に保ちます。コンポーネントはただの
 htmx 駆動コンテナで、ビヘイビアヘルパーは不要です。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add data-region` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/data-region/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/data-region/contract.md)
+にあります。
+:::
+
 ## スケジュールによるポーリング
 
 ```html
@@ -119,6 +128,21 @@ HX-Trigger: {"hc:toast":{"message":"Created"},"orders:refresh":true}
 htmx(`HX-Request: true`)とフルページロードの両方に同じコンテンツを
 返してください。キャッシュは標準の `Cache-Control` ヘッダーで調整
 できます。htmx はそれを尊重します。
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `GET /orders/summary`(ポーリング・イベント・reveal) | `200` + 領域の内側コンテンツのフラグメント |
+| `GET /orders/summary`(`HX-Request` なし — フルページロード) | `200` + 同じコンテンツをフルページで包んだもの |
+| 領域を更新させたい任意の書き込みエンドポイント | `2xx` + `HX-Trigger: {"orders:refresh":true}` |
+| `GET /orders/summary`(失敗) | 非 2xx — スワップされず、領域は直前の描画を保ちます |
+
+### 失敗時
+
+htmx ≥ 2 は非 2xx レスポンスをスワップしないため、ポーリングが失敗
+しても直前の描画が見えたままです — 領域は「少し古い」に劣化するだけで、
+壊れることはありません。ユーザーに知らせるには、エラーレスポンスに
+`HX-Trigger: {"hc:toast":{…}}` ヘッダーを付けてください
+([トーストレシピ](/hypermedia-components/ja/recipes/toast/)を参照)。
 
 ## インジケーター
 

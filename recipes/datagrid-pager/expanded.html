@@ -1,8 +1,11 @@
 <!-- datagrid-pager — expanded form.
      A frozen ID column, a status line ("X–Y / total"), and a prev/next +
-     numbered pager. The grid body and the pager + status are updated
-     together: rows swap into #rows (innerHTML); the pager and status are
-     returned as out-of-band fragments (hx-swap-oob) by the server. -->
+     numbered pager. Page 1 is server-rendered, so the grid is full
+     without JavaScript; each pager link's href="?page=N" is the no-JS
+     path (server branches on HX-Request). The grid body and the pager +
+     status are updated together: rows swap into #rows (innerHTML); the
+     pager and status are returned as out-of-band fragments (hx-swap-oob)
+     by the server. -->
 <div class="hc-datagrid" style="--hc-datagrid-max-height: 24rem;">
   <div class="hc-datagrid__scroll">
     <table class="hc-datagrid__table">
@@ -17,18 +20,16 @@
         </tr>
       </thead>
 
-      <!-- Swap target. Load the first page, then the pager drives it. -->
-      <tbody class="hc-datagrid__body" id="rows"
-             data-hx-get="/products?page=1&size=100" data-hx-trigger="load"
-             data-hx-target="#rows" data-hx-swap="innerHTML">
-        <!-- Server renders the page's rows here, e.g.:
+      <!-- Swap target. Page 1's rows are server-rendered; the pager
+           drives every later page. -->
+      <tbody class="hc-datagrid__body" id="rows">
         <tr class="hc-datagrid__row">
           <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left:0;"><input type="checkbox" class="hc-checkbox" aria-label="Select row 1"></td>
           <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left:2.5rem;">1</th>
           <td class="hc-datagrid__cell" data-col="name">Chai</td>
           <td class="hc-datagrid__cell">$18.00</td>
         </tr>
-        -->
+        <!-- …one <tr> per row in the page… -->
       </tbody>
     </table>
   </div>

@@ -22,6 +22,15 @@ description: グリッドのチェックボックスで行を選び、選択バ�
 [`./behaviors`](/hypermedia-components/ja/start/installation/#ビヘイビア)
 バンドルに同梱)、破壊的変種には加えて `installConfirm()` です。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add datagrid-bulk-actions` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/datagrid-bulk-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-actions/contract.md)
+にあります。
+:::
+
 ## マークアップ
 
 1 つの `<form>` がグリッド**と**バーを包みます:
@@ -161,9 +170,7 @@ htmx がクリックを処理する間、ネイティブ送信が抑止された
 フォームに保ち、サーバにページャーフラグメントと並べて
 `hx-swap-oob="true"` で再描画させてください。ページ横断の「該当する
 全 N 件を選択」、取り消し、サーバ追跡の選択は、このレシピの意図的な
-非目標です。完全なワイヤ契約は
-[`recipes/datagrid-bulk-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-actions/contract.md)に
-あります。
+非目標です。
 
 ## 関連
 

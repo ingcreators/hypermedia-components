@@ -6,8 +6,18 @@ description: A panel that defers its content fetch until first reveal — tab ac
 A **lazy panel** is a region whose content is not fetched at initial
 page render. It loads the first time the panel becomes relevant —
 when an `<details>` opens, when a tab activates, or when the panel
-scrolls into view. The pattern is purely htmx attributes; no behavior
-helper is needed.
+scrolls into view. The intersection and `<details>` variants are pure
+htmx attributes; the tab variant pairs with the
+[Tabs](/hypermedia-components/components/tabs/) behavior's
+`hc:tabactivated` event.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add lazy-panel` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/lazy-panel/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/lazy-panel/contract.md).
+:::
 
 ## On intersection (in-viewport)
 
@@ -52,33 +62,46 @@ button with its own htmx trigger.
 
 ## On tab activation
 
-Tabs are a small custom dance. Apply the lazy pattern to the tab
-**panel**, not the tab control:
+Use [`hc-tabs`](/hypermedia-components/components/tabs/) — its behavior
+dispatches `hc:tabactivated` on a panel each time it becomes active, so
+the lazy trigger is just that event, `once`. Apply the lazy pattern to
+the tab **panel**, not the tab control:
 
 ```html
-<div role="tablist" aria-label="Reports">
-  <button role="tab" aria-controls="panel-overview" aria-selected="true"
-          data-tab-target="panel-overview">Overview</button>
-  <button role="tab" aria-controls="panel-revenue" aria-selected="false"
-          data-tab-target="panel-revenue">Revenue</button>
+<div class="hc-tabs">
+  <div class="hc-tabs__list" role="tablist" aria-label="Reports">
+    <button type="button" class="hc-tabs__tab" role="tab"
+            id="tab-overview" aria-controls="panel-overview"
+            aria-selected="true" tabindex="0">Overview</button>
+    <button type="button" class="hc-tabs__tab" role="tab"
+            id="tab-revenue" aria-controls="panel-revenue"
+            aria-selected="false" tabindex="-1">Revenue</button>
+  </div>
+
+  <div class="hc-tabs__panel" role="tabpanel"
+       id="panel-overview" aria-labelledby="tab-overview" tabindex="0"
+       data-hx-get="/reports/overview"
+       data-hx-trigger="load"
+       data-hx-swap="innerHTML">
+    <p class="hc-field__message">Loading…</p>
+  </div>
+  <div class="hc-tabs__panel" role="tabpanel"
+       id="panel-revenue" aria-labelledby="tab-revenue"
+       tabindex="0" hidden="until-found"
+       data-hx-get="/reports/revenue"
+       data-hx-trigger="hc:tabactivated once"
+       data-hx-swap="innerHTML">
+    <p class="hc-field__message">Loading…</p>
+  </div>
 </div>
-
-<section id="panel-overview" role="tabpanel"
-         data-hx-get="/reports/overview"
-         data-hx-trigger="load"
-         data-hx-swap="innerHTML">
-</section>
-
-<section id="panel-revenue" role="tabpanel" hidden
-         data-hx-get="/reports/revenue"
-         data-hx-trigger="reveal once"
-         data-hx-swap="innerHTML">
-</section>
 ```
 
-The tab-switching JavaScript (whatever your stack uses) flips
-`aria-selected` and `hidden`. When a tab becomes visible (`hidden`
-removed), htmx's `reveal` event fires — once.
+The visible panel loads on `load`; each hidden panel waits for its
+first `hc:tabactivated`. The tabs behavior (`installTabs()`, in the
+auto-init bundle) owns the `aria-selected` / `hidden` flipping and the
+keyboard navigation — see
+[Tabs → htmx usage](/hypermedia-components/components/tabs/#htmx-usage)
+for the same pattern from the component side.
 
 ## Indicators
 
@@ -123,6 +146,13 @@ For an error state, return a 200 with an alert fragment (htmx swaps
   <p class="hc-alert__body">Try again in a moment.</p>
 </div>
 ```
+
+| Request | Response |
+| --- | --- |
+| `GET /reports/revenue` (first reveal) | `200` + the panel's inner HTML (`Cache-Control` as usual) |
+| Failure, keep the placeholder | `4xx`/`5xx` — not swapped; the placeholder stays |
+| Failure, show an error in the slot | non-2xx + `HX-Reswap: innerHTML` + the alert fragment (or `200` + the alert, as above) |
+| Non-fatal warning | `200` + content + `HX-Trigger: {"hc:toast":{…}}` |
 
 ## Accessibility
 

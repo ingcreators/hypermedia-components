@@ -11,6 +11,16 @@ the branch. `installTree()` dispatches a bubbling **`hc:treeexpand`**
 when a branch opens; htmx listens with a `once` trigger and owns the
 request — the behavior never touches the network.
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add lazy-tree` copies this recipe's
+scaffold (`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy —
+`once` on the trigger, the `find .hc-tree__group` target, the innerHTML
+swap, the empty group, and declared `aria-expanded` are all errors when
+missing. The full contract lives in
+[`recipes/lazy-tree/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/lazy-tree/contract.md).
+:::
+
 ## The lazy branch
 
 ```html
@@ -75,16 +85,6 @@ Without JavaScript the markup is a plain nested list — every rendered
 link keeps working. Either render the tree fully expanded on the
 server (lazy loading is purely an enhancement), or give each branch a
 real link to a per-node page: the links **are** the fallback.
-
-## Validate it
-
-The recipe ships machine-checked rules — `once` on the trigger, the
-`find .hc-tree__group` target, innerHTML swap, the empty group, and
-declared `aria-expanded` are all errors when missing:
-
-```bash
-npx @hypermedia-components/cli validate page.html
-```
 
 ## Related
 

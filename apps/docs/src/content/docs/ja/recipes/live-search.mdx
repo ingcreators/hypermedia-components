@@ -8,6 +8,15 @@ description: 入力に応じてデバウンスされた htmx リクエストを�
 htmx 属性は本物の `<form action="/items" method="get">` にぶら下がって
 いるだけです。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add live-search` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/live-search/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/live-search/contract.md)
+にあります。
+:::
+
 ## 展開後の HTML
 
 ```html
@@ -113,6 +122,21 @@ htmx 以外のリクエスト(JavaScript なしでフォーム送信されたあ
 ロード)が来たときも同じ HTML を返します。サーバは `HX-Request: true`
 ヘッダーで htmx リクエストを検知し、レスポンスをフルページレイアウトで
 包むかフラグメントだけ送るかを決められます。
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `GET /items?q=foo`(htmx) | `200` + `#results` の内側の HTML |
+| `GET /items?q=zzz`(該当なし) | `200` + 明示的な空状態マークアップ |
+| `GET /items?q=foo`(`HX-Request` なし — 非 JS 送信) | `200` + 完全な結果ページ |
+| `GET /items?q=foo`(失敗) | 非 2xx — スワップされず、直前の結果が残ります |
+
+### 失敗時
+
+htmx ≥ 2 はデフォルトで非 2xx レスポンスをスワップしないため、サーバ
+エラー時は直前の結果がそのまま残ります — フラグメントで置き換えるべき
+ときにだけ `2xx` を返してください。ユーザーに異常を知らせるには、
+エラーレスポンスに `HX-Trigger: {"hc:toast":{…}}` ヘッダーを付けます
+([トーストレシピ](/hypermedia-components/ja/recipes/toast/)を参照)。
 
 ## ローディングインジケーター
 

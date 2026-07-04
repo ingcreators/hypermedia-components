@@ -9,6 +9,15 @@ description: htmx で hc-datagrid をサーバからページ送り — 行 1 �
 それを [`hc-pagination`](/hypermedia-components/ja/components/pagination/)
 ページャーに配線します。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add datagrid-pager` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/datagrid-pager/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-pager/contract.md)
+にあります。
+:::
+
 :::note[セットアップ]
 このレシピには、スワップのたびに行を再初期化する `installDatagrid()`
 ビヘイビアが必要です。
@@ -25,9 +34,11 @@ installDatagrid();
 
 ## 基本の使い方
 
-グリッドの `<tbody>` をスワップターゲットにして、**`innerHTML`**
-(その*内側*の行)をスワップします。各ページャーリンクは同じ
-`<tbody>` へページを読み込みます:
+**1 ページ目はサーバサイドで**、最初のページに描画します — JavaScript が
+走る前からグリッドは満たされています。グリッドの `<tbody>` をスワップ
+ターゲットにして、**`innerHTML`**(その*内側*の行)をスワップします:
+各ページャーリンクは自分のページを同じ `<tbody>` へ読み込み、その
+`href="?page=N"` は非 JS のパスであり続けます:
 
 ```html
 <div class="hc-datagrid">
@@ -40,9 +51,15 @@ installDatagrid();
           <th class="hc-datagrid__headcell" scope="col">Price</th>
         </tr>
       </thead>
-      <tbody class="hc-datagrid__body" id="rows"
-             data-hx-get="/products?page=1" data-hx-trigger="load"
-             data-hx-target="#rows" data-hx-swap="innerHTML"></tbody>
+      <tbody class="hc-datagrid__body" id="rows">
+        <!-- Page 1's rows, rendered by the server: -->
+        <tr class="hc-datagrid__row">
+          <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">1</th>
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell">$18.00</td>
+        </tr>
+        <!-- … -->
+      </tbody>
     </table>
   </div>
 
@@ -96,6 +113,30 @@ installDatagrid();
 
 現在のページには `aria-current="page"` を付け、両端では Prev / Next を
 `aria-disabled="true"` で無効化してください。
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `GET /products?page=2&size=100`(htmx、`HX-Request: true`) | `200` + そのページの `<tr>` 行 + OOB のページャー / ステータスフラグメント |
+| `GET /products?page=2`(`HX-Request` なし — `href` フォールバック) | `200` + 2 ページ目の行をサーバレンダリングしたフルページ |
+| `GET /products?page=2`(失敗) | 非 2xx — スワップされず、現在の行とページャーが残ります |
+
+### 失敗時
+
+htmx ≥ 2 は非 2xx レスポンスをスワップしないため、ページ読み込みが
+失敗しても現在の行とページャーはそのまま残ります。失敗はエラー
+レスポンスの `HX-Trigger: {"hc:toast":{…}}` ヘッダーで知らせてください
+([トーストレシピ](/hypermedia-components/ja/recipes/toast/)を参照)。
+
+## プログレッシブエンハンスメント
+
+- **1 ページ目はサーバレンダリング**なので、JavaScript がなくても
+  グリッドは完全です — 初期行のためのクライアント取得はありません。
+- すべてのページャーリンクは本物の **`href="?page=N"`** を保ちます。
+  htmx なしでは、そのページへの通常のフルページナビゲーションになり
+  ます。
+- サーバは **`HX-Request` ヘッダー**で分岐します: あれば行フラグメント
+  + OOB のページャー / ステータスを返し、なければそのページの行を
+  `<tbody>` に入れたフルページを描画します。
 
 ## 補足
 

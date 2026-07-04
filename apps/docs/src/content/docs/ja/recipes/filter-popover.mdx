@@ -8,6 +8,15 @@ htmx フォームの組み合わせです。ユーザーが **Apply** をクリ�
 htmx が結果をスワップし、`installClosePopover` ビヘイビアが
 ポップオーバーを閉じます。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add filter-popover` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/filter-popover/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/filter-popover/contract.md)
+にあります。
+:::
+
 :::note[セットアップ]
 このレシピには、リクエスト成功後にポップオーバーを閉じる
 `installClosePopover()` ビヘイビアが必要です。
@@ -101,6 +110,21 @@ installClosePopover();
 
 適用そのもののトーストフィードバック(フィルタでは滅多に不要)には、
 `HX-Trigger: {"hc:toast":{…}}` ヘッダーを含めます。
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `GET /items?status=active&status=pending`(Apply) | `200` + `#items-tbody` の行フラグメント — ポップオーバーは閉じます |
+| フィルタに該当なし | `200` + 明示的な空状態の行 |
+| 失敗 | 非 2xx — スワップされず、テーブルは行を保ち、ポップオーバーは開いたままです |
+
+### 失敗時
+
+htmx ≥ 2 は非 2xx レスポンスをスワップしないため、テーブルは直前の行を
+保ちます — そして `installClosePopover` は成功時にしか閉じないので、
+ポップオーバーは開いたままになり、ユーザーはやり直せます。明示的に
+知らせるには、エラーレスポンスに `HX-Trigger: {"hc:toast":{…}}`
+ヘッダーを付けてください
+([トーストレシピ](/hypermedia-components/ja/recipes/toast/)を参照)。
 
 ## アクセシビリティ
 

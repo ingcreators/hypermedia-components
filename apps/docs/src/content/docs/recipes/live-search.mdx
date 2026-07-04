@@ -7,6 +7,14 @@ Live search is a search input wired to htmx so the results region
 updates as the user types. The form still works without JavaScript —
 htmx attributes hang off a real `<form action="/items" method="get">`.
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add live-search` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/live-search/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/live-search/contract.md).
+:::
+
 ## Expanded HTML
 
 ```html
@@ -114,6 +122,21 @@ Return the same HTML when a non-htmx request comes in (full page load
 after submitting the form without JavaScript). Servers can detect htmx
 requests via the `HX-Request: true` header and decide whether to wrap
 the response in a full page layout or send the fragment only.
+
+| Request | Response |
+| --- | --- |
+| `GET /items?q=foo` (htmx) | `200` + the inner HTML of `#results` |
+| `GET /items?q=zzz` (no matches) | `200` + explicit empty-state markup |
+| `GET /items?q=foo` (no `HX-Request` — no-JS submit) | `200` + the full results page |
+| `GET /items?q=foo` (failure) | non-2xx — not swapped; the previous results stay |
+
+### On failure
+
+htmx ≥ 2 does not swap non-2xx responses by default, so on a server
+error the previous results stay in place — return `2xx` only when the
+fragment should replace them. To tell the user something went wrong,
+add an `HX-Trigger: {"hc:toast":{…}}` header to the error response
+(see the [toast recipe](/hypermedia-components/recipes/toast/)).
 
 ## Loading indicator
 

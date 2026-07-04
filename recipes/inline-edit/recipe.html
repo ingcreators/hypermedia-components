@@ -1,13 +1,15 @@
 <!-- Short recommended usage.
 
-  The display state of an editable cell. Clicking swaps it with the
-  edit-form fragment returned by /items/42/name/edit. -->
-<span
-  id="item-42-name"
-  data-hx-get="/items/42/name/edit"
-  data-hx-trigger="click"
-  data-hx-target="this"
-  data-hx-swap="outerHTML"
-  style="cursor: pointer;">
+  The display state of an editable cell: the value plus a real Edit
+  button (keyboard reachable, no extra ARIA). Activating it swaps the
+  whole display node with the edit-form fragment returned by
+  /items/42/name/edit. -->
+<span id="item-42-name">
   Acme widgets
+  <button class="hc-button" data-size="sm" type="button"
+    data-hx-get="/items/42/name/edit"
+    data-hx-target="closest span"
+    data-hx-swap="outerHTML">
+    Edit
+  </button>
 </span>

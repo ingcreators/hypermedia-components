@@ -27,42 +27,40 @@
   </div>
 </details>
 
-<!-- Variant 3 — on tab activation.
-     The tablist owns the aria-selected / hidden flipping (any tab
-     library will do). The inactive tab panel uses `reveal once`,
-     which fires when its `hidden` attribute is removed. -->
-<div role="tablist" aria-label="Reports">
-  <button
-    role="tab"
-    aria-controls="panel-overview"
-    aria-selected="true"
-    data-tab-target="panel-overview">
-    Overview
-  </button>
-  <button
-    role="tab"
-    aria-controls="panel-revenue"
-    aria-selected="false"
-    data-tab-target="panel-revenue">
-    Revenue
-  </button>
+<!-- Variant 3 — on tab activation (hc-tabs).
+     The hc-tabs behavior (installTabs, auto-init bundle) owns the
+     aria-selected / hidden flipping and dispatches `hc:tabactivated`
+     on a panel each time it becomes active. `once` makes sure the
+     fetch never repeats. -->
+<div class="hc-tabs">
+  <div class="hc-tabs__list" role="tablist" aria-label="Reports">
+    <button type="button" class="hc-tabs__tab" role="tab"
+      id="tab-overview" aria-controls="panel-overview"
+      aria-selected="true" tabindex="0">
+      Overview
+    </button>
+    <button type="button" class="hc-tabs__tab" role="tab"
+      id="tab-revenue" aria-controls="panel-revenue"
+      aria-selected="false" tabindex="-1">
+      Revenue
+    </button>
+  </div>
+
+  <div class="hc-tabs__panel" role="tabpanel"
+    id="panel-overview" aria-labelledby="tab-overview" tabindex="0"
+    data-hx-get="/reports/overview"
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML"
+    data-hx-indicator="this">
+    <p class="hc-field__message">Loading…</p>
+  </div>
+  <div class="hc-tabs__panel" role="tabpanel"
+    id="panel-revenue" aria-labelledby="tab-revenue"
+    tabindex="0" hidden="until-found"
+    data-hx-get="/reports/revenue"
+    data-hx-trigger="hc:tabactivated once"
+    data-hx-swap="innerHTML"
+    data-hx-indicator="this">
+    <p class="hc-field__message">Loading…</p>
+  </div>
 </div>
-
-<section
-  id="panel-overview"
-  role="tabpanel"
-  data-hx-get="/reports/overview"
-  data-hx-trigger="load"
-  data-hx-swap="innerHTML"
-  data-hx-indicator="this">
-</section>
-
-<section
-  id="panel-revenue"
-  role="tabpanel"
-  hidden
-  data-hx-get="/reports/revenue"
-  data-hx-trigger="reveal once"
-  data-hx-swap="innerHTML"
-  data-hx-indicator="this">
-</section>

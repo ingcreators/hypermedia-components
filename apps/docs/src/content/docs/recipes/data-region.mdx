@@ -9,6 +9,14 @@ date by polling, by listening for events, or by combining both. The
 component is just an htmx-driven container — no behavior helper
 needed.
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add data-region` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/data-region/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/data-region/contract.md).
+:::
+
 ## Polling on a schedule
 
 ```html
@@ -120,6 +128,21 @@ The server returns **only the inner content** of the region:
 Return the same content for both htmx (`HX-Request: true`) and
 full-page loads. Caching can be tuned with standard `Cache-Control`
 headers; htmx respects them.
+
+| Request | Response |
+| --- | --- |
+| `GET /orders/summary` (poll, event, or reveal) | `200` + the region's inner content fragment |
+| `GET /orders/summary` (no `HX-Request` — full page load) | `200` + the same content, wrapped in the full page |
+| Any write endpoint that should refresh the region | `2xx` + `HX-Trigger: {"orders:refresh":true}` |
+| `GET /orders/summary` (failure) | non-2xx — not swapped; the region keeps its previous rendering |
+
+### On failure
+
+htmx ≥ 2 does not swap non-2xx responses, so a failed poll leaves the
+previous rendering visible — the region degrades to slightly stale,
+never to broken. To tell the user, add an
+`HX-Trigger: {"hc:toast":{…}}` header to the error response (see the
+[toast recipe](/hypermedia-components/recipes/toast/)).
 
 ## Indicators
 

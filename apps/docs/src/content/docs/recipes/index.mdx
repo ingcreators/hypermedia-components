@@ -4,48 +4,64 @@ description: htmx-friendly patterns — confirm action, live search, remote dial
 ---
 
 Each recipe documents the short form, the expanded HTML, the optional
-macro, and the server response contract. Recipes tagged **needs a
-behavior** require an `installX()` from
+macro, and the server response contract. Recipes with an entry in the
+**Needs** column require an `installX()` from
 [`@hypermedia-components/core`](/hypermedia-components/start/installation/#behaviors);
-the rest are pure htmx attributes.
+the rest ("—") are pure htmx attributes.
+
+Get any recipe's scaffold with `npx @hypermedia-components/cli add <name>`;
+machine-check your copy against its contract with
+`npx @hypermedia-components/cli validate`.
 
 ## Actions &amp; forms
 
-- [Mutating form](/hypermedia-components/recipes/mutating-form/) — post a form with inline 4xx errors, a success redirect, and a double-submit guard. *(needs `installFieldErrors`)*
-- [Field errors](/hypermedia-components/recipes/field-errors/) — distribute a server-sent validation-error fragment to the fields it names. *(needs `installFieldErrors`)*
-- [Multi-step form](/hypermedia-components/recipes/multi-step-form/) — the hypermedia wizard: the server owns the step and the draft; whole-step swaps.
-- [Confirm action](/hypermedia-components/recipes/confirm-action/) — guard a destructive request behind a confirmation dialog. *(needs `installConfirm`)*
-- [Undo delete](/hypermedia-components/recipes/undo-delete/) — delete immediately; the toast's Undo restores the row within a grace period. *(needs `installToast`)*
-- [Request action](/hypermedia-components/recipes/request-action/) — a button that fires an htmx request with a busy state.
-- [Inline edit](/hypermedia-components/recipes/inline-edit/) — swap a value between display and edit modes in place.
-- [File upload](/hypermedia-components/recipes/file-upload/) — multipart upload with a live progress bar and an out-of-band form reset. *(needs `installUploadProgress`)*
-- [Datagrid bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/) — select rows with checkboxes and POST one action against all of them. *(needs `installDatagridActions`)*
-- [Transfer](/hypermedia-components/recipes/transfer/) — a dual listbox (assign / unassign) as a server round trip; whole-form swaps, zero custom JS.
-- [Cascading select](/hypermedia-components/recipes/cascading-select/) — hierarchical selection as chained selects; each change loads the next level. Zero custom JS.
-- [Copy to clipboard](/hypermedia-components/recipes/copy/) — copy a read-only value (URL, token, snippet) to the clipboard. *(needs `installCopy`)*
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [Mutating form](/hypermedia-components/recipes/mutating-form/) | post a form with inline 4xx errors, a success redirect, and a double-submit guard | `installFieldErrors()` |
+| [Field errors](/hypermedia-components/recipes/field-errors/) | distribute a server-sent validation-error fragment to the fields it names | `installFieldErrors()` |
+| [Multi-step form](/hypermedia-components/recipes/multi-step-form/) | build a wizard — the server owns the step and the draft; whole-step swaps | — |
+| [Confirm action](/hypermedia-components/recipes/confirm-action/) | guard a destructive request behind a confirmation dialog | `installConfirm()` |
+| [Undo delete](/hypermedia-components/recipes/undo-delete/) | delete immediately (optimistic delete) — the toast's Undo restores the row within a grace period | `installToast()` |
+| [Request action](/hypermedia-components/recipes/request-action/) | fire an htmx request from a button with a busy state | — |
+| [Inline edit](/hypermedia-components/recipes/inline-edit/) | swap a value between display and edit modes in place (click-to-edit) | — |
+| [File upload](/hypermedia-components/recipes/file-upload/) | upload multipart files with a live progress bar and an out-of-band form reset | `installUploadProgress()` |
+| [Datagrid bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/) | select rows with checkboxes and POST one action against all of them | `installDatagridActions()` |
+| [Transfer](/hypermedia-components/recipes/transfer/) | assign / unassign across a dual listbox as a server round trip — whole-form swaps, zero custom JS | — |
+| [Cascading select](/hypermedia-components/recipes/cascading-select/) | chain dependent selects for hierarchical selection; each change loads the next level | — |
+| [Copy to clipboard](/hypermedia-components/recipes/copy/) | copy a read-only value (URL, token, snippet) to the clipboard | `installCopy()` |
 
 ## Search &amp; filter
 
-- [Live search](/hypermedia-components/recipes/live-search/) — debounced search-as-you-type that swaps results.
-- [Filter popover](/hypermedia-components/recipes/filter-popover/) — a popover hosting a filter form that closes on success. *(needs `installClosePopover`)*
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [Live search](/hypermedia-components/recipes/live-search/) | search as you type (typeahead) — debounced input swaps the results | — |
+| [Filter popover](/hypermedia-components/recipes/filter-popover/) | host a filter form in a popover that closes on success | `installClosePopover()` |
 
 ## Loading &amp; regions
 
-- [Lazy panel](/hypermedia-components/recipes/lazy-panel/) — defer loading a panel until it is revealed.
-- [Lazy tree](/hypermedia-components/recipes/lazy-tree/) — tree branches that load their children on first expand. *(needs `installTree`)*
-- [Data region](/hypermedia-components/recipes/data-region/) — a self-refreshing region driven by `HX-Trigger`.
-- [Datagrid pagination](/hypermedia-components/recipes/datagrid-pager/) — server-driven pager with out-of-band row swaps. *(needs `installDatagrid`)*
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [Lazy panel](/hypermedia-components/recipes/lazy-panel/) | defer loading a panel until it is revealed | — |
+| [Lazy tree](/hypermedia-components/recipes/lazy-tree/) | load a tree branch's children on first expand | `installTree()` |
+| [Data region](/hypermedia-components/recipes/data-region/) | refresh a region on `HX-Trigger` invalidations (self-refreshing region) | — |
+| [Datagrid pagination](/hypermedia-components/recipes/datagrid-pager/) | page a datagrid server-side with out-of-band row swaps | `installDatagrid()` |
 
 ## Server push
 
-- [SSE updates](/hypermedia-components/recipes/sse-updates/) — server-pushed fragment updates over Server-Sent Events; named events and out-of-band pushes.
-- [SSE toast](/hypermedia-components/recipes/sse-toast/) — SSE events with JSON payloads become allow-listed DOM events; toasts work unchanged. *(needs `installSseDispatch`)*
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [SSE updates](/hypermedia-components/recipes/sse-updates/) | push fragment updates from the server over Server-Sent Events — named events and out-of-band pushes | — |
+| [SSE toast](/hypermedia-components/recipes/sse-toast/) | turn SSE events with JSON payloads into allow-listed DOM events; toasts work unchanged | `installSseDispatch()` |
 
 ## Data visualization
 
-- [Chart](/hypermedia-components/recipes/chart/) — upgrade a server-sent data table into an Observable Plot SVG chart. *(needs `installChart` + Plot)*
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [Chart](/hypermedia-components/recipes/chart/) | upgrade a server-sent data table into an Observable Plot SVG chart | `installChart()` + Plot |
 
 ## Overlays &amp; notifications
 
-- [Remote dialog](/hypermedia-components/recipes/remote-dialog/) — load a dialog's contents from the server on open. *(needs `installRemoteDialog` + `installCloseDialog`)*
-- [Toast](/hypermedia-components/recipes/toast/) — fire toast notifications from the client or an `HX-Trigger` header. *(needs `installToast`)*
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [Remote dialog](/hypermedia-components/recipes/remote-dialog/) | load a dialog's (modal's) contents from the server on open | `installRemoteDialog()` + `installCloseDialog()` |
+| [Toast](/hypermedia-components/recipes/toast/) | fire toast notifications (snackbars) from the client or an `HX-Trigger` header | `installToast()` |

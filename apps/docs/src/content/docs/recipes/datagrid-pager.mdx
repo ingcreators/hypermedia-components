@@ -8,6 +8,14 @@ htmx swaps one page of rows, and `installDatagrid()` re-initialises the
 swapped rows. This recipe wires it to an [`hc-pagination`](/hypermedia-components/components/pagination/)
 pager.
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add datagrid-pager` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/datagrid-pager/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-pager/contract.md).
+:::
+
 :::note[Setup]
 This recipe needs the `installDatagrid()` behavior to re-initialise the
 rows after each swap. Install every behavior at once with
@@ -23,8 +31,11 @@ See [Installation](/hypermedia-components/start/installation/).
 
 ## Basic usage
 
-Make the grid's `<tbody>` the swap target and swap **`innerHTML`** (the rows
-*inside* it). Each pager link loads a page into the same `<tbody>`:
+Render **page 1 server-side**, in the initial page — the grid is full
+before any JavaScript runs. Make the grid's `<tbody>` the swap target
+and swap **`innerHTML`** (the rows *inside* it): each pager link loads
+its page into the same `<tbody>`, and its `href="?page=N"` stays the
+no-JS path:
 
 ```html
 <div class="hc-datagrid">
@@ -37,9 +48,15 @@ Make the grid's `<tbody>` the swap target and swap **`innerHTML`** (the rows
           <th class="hc-datagrid__headcell" scope="col">Price</th>
         </tr>
       </thead>
-      <tbody class="hc-datagrid__body" id="rows"
-             data-hx-get="/products?page=1" data-hx-trigger="load"
-             data-hx-target="#rows" data-hx-swap="innerHTML"></tbody>
+      <tbody class="hc-datagrid__body" id="rows">
+        <!-- Page 1's rows, rendered by the server: -->
+        <tr class="hc-datagrid__row">
+          <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">1</th>
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell">$18.00</td>
+        </tr>
+        <!-- … -->
+      </tbody>
     </table>
   </div>
 
@@ -92,6 +109,29 @@ they refresh without a second request:
 
 Mark the current page with `aria-current="page"`; disable Prev / Next at the
 ends with `aria-disabled="true"`.
+
+| Request | Response |
+| --- | --- |
+| `GET /products?page=2&size=100` (htmx, `HX-Request: true`) | `200` + the page's `<tr>` rows + OOB pager / status fragments |
+| `GET /products?page=2` (no `HX-Request` — the `href` fallback) | `200` + the full page with page 2's rows server-rendered |
+| `GET /products?page=2` (failure) | non-2xx — not swapped; the current rows and pager stay |
+
+### On failure
+
+htmx ≥ 2 does not swap non-2xx responses, so a failed page load leaves
+the current rows and pager in place. Surface the failure with an
+`HX-Trigger: {"hc:toast":{…}}` header on the error response (see the
+[toast recipe](/hypermedia-components/recipes/toast/)).
+
+## Progressive enhancement
+
+- **Page 1 is server-rendered**, so the grid is complete without any
+  JavaScript — there is no client fetch for the initial rows.
+- Every pager link keeps a real **`href="?page=N"`**. Without htmx it
+  performs a normal full-page navigation to that page.
+- The server branches on the **`HX-Request` header**: with it, return
+  the rows fragment plus the OOB pager / status; without it, render the
+  full page with that page's rows in the `<tbody>`.
 
 ## Notes
 

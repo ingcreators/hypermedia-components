@@ -1,18 +1,24 @@
-<!-- Fully expanded HTML — what the server returns inside #dialog-root. -->
+<!-- Fully expanded HTML — what the server returns inside #dialog-root.
+     Cancel lives in its own <form method="dialog"> (forms cannot nest),
+     which closes the dialog natively — no JS. The Save button reaches
+     the edit form via the form attribute. -->
 <dialog class="hc-dialog">
   <header class="hc-dialog__header">
     <h2 class="hc-dialog__title">Edit item</h2>
   </header>
 
   <form
-    class="hc-form"
+    id="edit-item"
     data-hx-post="/items/123"
     data-hx-target="closest dialog"
-    data-hx-swap="outerHTML">
+    data-hx-swap="outerHTML"
+    data-hc-close-dialog-on-success>
     <!-- form fields here -->
-    <footer class="hc-dialog__footer">
-      <button class="hc-button" type="button">Cancel</button>
-      <button class="hc-button" data-variant="primary" type="submit">Save</button>
-    </footer>
   </form>
+
+  <footer class="hc-dialog__footer">
+    <form method="dialog"><button class="hc-button">Cancel</button></form>
+    <button class="hc-button" data-variant="primary" type="submit"
+      form="edit-item">Save</button>
+  </footer>
 </dialog>

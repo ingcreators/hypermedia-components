@@ -9,6 +9,14 @@ level's `change` GETs the next level's options from the server. Zero
 custom JavaScript: [`hc-select`](/hypermedia-components/components/select/)
 + htmx.
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add cascading-select` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/cascading-select/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/cascading-select/contract.md).
+:::
+
 ## The markup
 
 ```html
@@ -69,9 +77,13 @@ empty value and answers with the disabled placeholder child (plus OOB
 resets), unwinding the chain. Unknown or stale parent values get the
 same answer — never an error page.
 
-The full contract ships in
-[`recipes/cascading-select/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/cascading-select/contract.md)
-and is machine-checked by `hc validate`.
+## Server response contract
+
+| Request | Response |
+| --- | --- |
+| `GET /areas/cities?prefecture=13` (parent `change`) | `200` + the re-rendered child `<select>`, plus OOB resets for deeper levels |
+| `GET /areas/cities?prefecture=` (placeholder re-selected) | `200` + the disabled placeholder child, plus OOB resets |
+| `GET /areas/cities?prefecture=99` (unknown / stale value) | `200` + the disabled placeholder child — never an error page |
 
 ## No-JS degradation
 

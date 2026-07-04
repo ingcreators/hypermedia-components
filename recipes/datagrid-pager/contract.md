@@ -6,11 +6,15 @@ page of rows; `installDatagrid()` re-initialises the swapped rows.
 
 ## Required client markup
 
+- **Page 1's rows render server-side** in the initial page — there is
+  no client fetch for the initial rows, so the grid is full without
+  JavaScript.
 - The grid's `<tbody class="hc-datagrid__body" id="rows">` is the swap
   target, with `data-hx-target="#rows"` and **`data-hx-swap="innerHTML"`**.
 - The pager is an `hc-pagination` `<nav id="pager">`; each `.hc-pagination__item`
   carries `data-hx-get="/…?page=N"`, `data-hx-target="#rows"`,
-  `data-hx-swap="innerHTML"`.
+  `data-hx-swap="innerHTML"`, and a real `href="?page=N"` as the no-JS
+  path.
 - Optional status text (`#rows-status`, `aria-live="polite"`).
 
 ## Why `innerHTML` (not `outerHTML`)
@@ -60,6 +64,13 @@ response so they update without a second request:
 
 Mark the current page with `aria-current="page"`, and disable Prev/Next at
 the ends with `aria-disabled="true"`.
+
+## Progressive enhancement
+
+Each pager link keeps `href="?page=N"`; without htmx it navigates
+full-page. The server branches on the `HX-Request` header: with it,
+return the rows fragment plus the out-of-band pager/status; without it,
+render the full page with that page's rows in the `<tbody>`.
 
 ## Notes
 

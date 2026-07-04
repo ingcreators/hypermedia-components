@@ -2,17 +2,20 @@
 
 Purpose: defer a region's content fetch until the user actually
 encounters it — scroll, accordion open, or tab activation. The
-recipe is purely htmx attributes; no behavior helper is needed.
+intersection and `<details>` variants are purely htmx attributes; the
+tab variant pairs with the `hc-tabs` behavior's `hc:tabactivated`
+event.
 
 ## Required client markup
 
-One of three trigger forms, all `once` so the fetch never repeats:
+One of these trigger forms, all `once` so the fetch never repeats:
 
 | Trigger                                  | Activated by                           |
 | ---------------------------------------- | -------------------------------------- |
 | `intersect once`                         | The panel scrolls into the viewport.   |
 | `toggle from:closest details once`       | An ancestor `<details>` opens.         |
-| `reveal once`                            | The panel's `hidden` attribute is removed (tab activation). |
+| `hc:tabactivated once`                   | The `hc-tabs` behavior activates the panel's tab. |
+| `reveal once`                            | The panel's `hidden` attribute is removed (non-`hc-tabs` tab libraries). |
 
 Required attributes on the panel:
 

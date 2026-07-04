@@ -5,12 +5,12 @@
     {
       "id": "trigger-form",
       "level": "error",
-      "message": "The lazy trigger is one of: intersect / toggle from:closest details / reveal.",
+      "message": "The lazy trigger is one of: intersect / toggle from:closest details / hc:tabactivated (hc-tabs) / reveal.",
       "attr": {
         "on": "[data-hx-get][data-hx-trigger*=\"once\"]",
         "name": "data-hx-trigger",
         "assert": "present",
-        "matches": "(intersect|toggle|reveal)"
+        "matches": "(intersect|toggle|reveal|hc:tabactivated)"
       }
     },
     {

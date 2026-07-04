@@ -1,7 +1,9 @@
 <!-- datagrid-pager — server pagination for hc-datagrid (short form).
+     Page 1 is server-rendered, so the grid is full without JavaScript.
      htmx swaps the rows INTO the <tbody> (innerHTML), so the <tbody> stays
      put and installDatagrid's MutationObserver re-runs (roles, sticky
-     offsets, resized widths). The pager updates out-of-band. -->
+     offsets, resized widths). The pager updates out-of-band; each link's
+     href="?page=N" is the no-JS path (server branches on HX-Request). -->
 <div class="hc-datagrid">
   <div class="hc-datagrid__scroll">
     <table class="hc-datagrid__table">
@@ -12,10 +14,15 @@
           <th class="hc-datagrid__headcell" scope="col">Price</th>
         </tr>
       </thead>
-      <!-- The swap target: rows replace #rows' children. -->
-      <tbody class="hc-datagrid__body" id="rows"
-             data-hx-get="/products?page=1" data-hx-trigger="load"
-             data-hx-target="#rows" data-hx-swap="innerHTML"></tbody>
+      <!-- The swap target: rows replace #rows' children.
+           Page 1's rows are server-rendered here. -->
+      <tbody class="hc-datagrid__body" id="rows">
+        <tr class="hc-datagrid__row">
+          <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">1</th>
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell">$18.00</td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
