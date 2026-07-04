@@ -98,7 +98,9 @@ jobs:
   browser:
     name: Playwright (${{ matrix.browser }})
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # WebKit runs the suite noticeably slower than Chromium; 15 was
+    # enough for one engine but cancels the webkit leg mid-suite.
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
