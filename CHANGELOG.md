@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-range` — dual-thumb min/max range + `installRange()`** (Track A
+  of `plans/hc-form-patterns-plan-v0.10-en.md`). Two overlapping native
+  `<input type="range">`s on one container-painted rail — native form
+  serialization, per-thumb labels and arrow keys. The behavior clamps
+  low ≤ high, keeps the `--hc-range-low`/`-high` fill percentages live
+  (inline values are the no-JS fallback), and emits `hc:rangechange`
+  `{ low, high }`. Theming reuses the `slider.*` tokens. Docs (en + ja),
+  kitchen-sink entry, Vitest + Playwright suites incl. axe.
+
 - **`hc-timeline` — vertical activity / audit timeline** (T1, closing
   `plans/hc-component-breadth2-plan-v0.9-en.md`). A pure-CSS `<ol>`:
   marker rail, connector segments that stop at the last item, and

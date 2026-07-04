@@ -1,0 +1,136 @@
+/* hc-range — a dual-thumb range built from two native <input type="range">.
+ *
+ * The platform has no dual-thumb input, so the container stacks two real
+ * range inputs on one painted rail: each keeps its own form name, label,
+ * arrow-key handling, and screen-reader value semantics.
+ *
+ *   <div class="hc-range" style="--hc-range-low: 20; --hc-range-high: 80">
+ *     <input class="hc-range__input" type="range" name="price_min"
+ *            min="0" max="100" value="20" aria-label="Minimum price">
+ *     <input class="hc-range__input" type="range" name="price_max"
+ *            min="0" max="100" value="80" aria-label="Maximum price">
+ *   </div>
+ *
+ * The container paints the rail and the low→high fill from
+ * `--hc-range-low` / `--hc-range-high` (0–100 percentages).
+ * `installRange()` keeps them synchronised (and clamps low ≤ high);
+ * the server-rendered fallback is the inline style above.
+ *
+ * The inputs are `pointer-events: none` with `pointer-events: auto`
+ * restored on their thumb pseudo-elements, so each thumb is draggable
+ * even though the two inputs overlap. Theming reuses the
+ * `--hc-slider-*` tokens — the single- and dual-thumb sliders are one
+ * visual family; `--hc-range-*` covers only the fill percentages.
+ */
+@layer hc.components {
+  .hc-range {
+    --hc-range-low: 0;
+    --hc-range-high: 100;
+
+    position: relative;
+    display: block;
+    block-size: var(--hc-slider-thumb-size);
+    inline-size: 100%;
+  }
+
+  /* The rail + fill segment, painted once by the container. */
+  .hc-range::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: calc((var(--hc-slider-thumb-size) - var(--hc-slider-track-height)) / 2);
+    block-size: var(--hc-slider-track-height);
+    border-radius: var(--hc-slider-radius, 9999px);
+    background: linear-gradient(
+      to right,
+      var(--hc-slider-track-bg) 0%,
+      var(--hc-slider-track-bg) calc(var(--hc-range-low) * 1%),
+      var(--hc-slider-fill) calc(var(--hc-range-low) * 1%),
+      var(--hc-slider-fill) calc(var(--hc-range-high) * 1%),
+      var(--hc-slider-track-bg) calc(var(--hc-range-high) * 1%),
+      var(--hc-slider-track-bg) 100%
+    );
+  }
+
+  /* RTL: the painted gradient must follow the inputs' direction. */
+  .hc-range:dir(rtl)::before {
+    background: linear-gradient(
+      to left,
+      var(--hc-slider-track-bg) 0%,
+      var(--hc-slider-track-bg) calc(var(--hc-range-low) * 1%),
+      var(--hc-slider-fill) calc(var(--hc-range-low) * 1%),
+      var(--hc-slider-fill) calc(var(--hc-range-high) * 1%),
+      var(--hc-slider-track-bg) calc(var(--hc-range-high) * 1%),
+      var(--hc-slider-track-bg) 100%
+    );
+  }
+
+  /* Both inputs stack over the rail; their own chrome is erased. */
+  .hc-range__input {
+    appearance: none;
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+
+    /* Only the thumbs take the pointer — the two inputs overlap. */
+    pointer-events: none;
+  }
+
+  .hc-range__input::-webkit-slider-runnable-track {
+    background: transparent;
+    block-size: 100%;
+  }
+
+  .hc-range__input::-webkit-slider-thumb {
+    appearance: none;
+    pointer-events: auto;
+    inline-size: var(--hc-slider-thumb-size);
+    block-size: var(--hc-slider-thumb-size);
+    border: 2px solid var(--hc-slider-thumb-border);
+    border-radius: 50%;
+    background: var(--hc-slider-thumb-bg);
+    cursor: grab;
+  }
+
+  .hc-range__input::-moz-range-track {
+    background: transparent;
+    block-size: 100%;
+  }
+
+  .hc-range__input::-moz-range-thumb {
+    pointer-events: auto;
+    inline-size: var(--hc-slider-thumb-size);
+    block-size: var(--hc-slider-thumb-size);
+    border: 2px solid var(--hc-slider-thumb-border);
+    border-radius: 50%;
+    background: var(--hc-slider-thumb-bg);
+    cursor: grab;
+  }
+
+  /* Focus ring rides on the focused input's thumb. */
+  .hc-range__input:focus-visible {
+    outline: none;
+  }
+
+  .hc-range__input:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  .hc-range__input:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+  }
+
+  .hc-range__input:disabled::-webkit-slider-thumb {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .hc-range__input:disabled::-moz-range-thumb {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}

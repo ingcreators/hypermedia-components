@@ -55,6 +55,7 @@ const FILES = [
   ['src/js/tooltip.js',       'tooltip.js'],
   ['src/js/popover.js',       'popover.js'],
   ['src/js/slider.js',        'slider.js'],
+  ['src/js/range.js',         'range.js'],
   ['src/js/combobox.js',      'combobox.js'],
   ['src/js/multicombobox.js', 'multicombobox.js'],
   ['src/js/drawer.js',        'drawer.js'],
