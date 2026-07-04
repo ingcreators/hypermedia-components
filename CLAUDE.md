@@ -46,15 +46,15 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.1.7` (published 2026-07-03): 56 component stylesheets ·
-41 behaviors (40 auto-init + opt-in chart) · 2 macros · 19 recipes ·
-8 integration guides · ~115 docs pages (components, tokens,
-fundamentals, integrations, recipes, blocks) · runtime axes
+As of `0.1.8` (published 2026-07-04): 64 component stylesheets ·
+44 behaviors (43 auto-init + opt-in chart) · 2 macros · 23 recipes ·
+8 integration guides · 125 docs pages **fully mirrored in Japanese
+(`/ja/`, 125 pages)** · runtime axes
 `data-theme` / `data-color` / `data-neutral` / `data-density` / `dir` ·
 i18n message catalog (`setMessages()`) · examples for plain-html +
-htmx · 53 Vitest suites (core + CLI) · 96 Playwright suites (incl. axe
+htmx · 56 Vitest suites (core + CLI) · 104 Playwright suites (incl. axe
 scans and the VRT screenshot sheets) · `hc validate` machine-checked
-recipe contracts (`@hypermedia-components/cli@0.2.0`).
+recipe contracts (`@hypermedia-components/cli@0.2.1`).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -200,6 +200,19 @@ upload-progress ancestor-re-dispatch guard. All additive + fixes →
 patch. **CLI `0.2.0`** (`cli-v0.2.0` tag) ships `validate` + the five
 new recipe scaffolds, with linkedom as its first (lazy-loaded) runtime
 dependency.
+
+Core `0.1.8` (2026-07-04, `v0.1.8` tag) followed — the largest patch
+yet, all additive: `hc-dropzone` + the file-upload dropzone variant
+(#300, #301); `hc-stepper` + the `multi-step-form` wizard recipe
+(#303, #304); chart Tiers 2 and 3 (#308, #309); `hc-tree` +
+`installTree()` + the `lazy-tree` recipe (#311, #312); the complete
+Japanese docs mirror (`/ja/`, phases 1–12, #313–#325); the v0.9
+breadth set — `hc-meter`, `hc-rating`, the `hc-separator` label
+variant, `hc-timeline` (#327–#331); and the v0.10 form patterns —
+`hc-range` + `installRange()`, the `transfer` recipe (+`hc-transfer`
+CSS), and the `cascading-select` recipe (#332–#335). **CLI `0.2.1`**
+(`cli-v0.2.1` tag, published 2026-07-04) re-bundled the two new
+recipes.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and
