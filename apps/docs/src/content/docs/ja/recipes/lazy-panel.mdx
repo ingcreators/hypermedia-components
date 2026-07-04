@@ -6,8 +6,18 @@ description: コンテンツの取得を初回表示まで遅延するパネル 
 **レイジーパネル**は、初期ページ描画時にはコンテンツを取得しない領域
 です。パネルが初めて意味を持つとき — `<details>` が開く、タブが
 アクティブになる、パネルがビューポートへスクロールインする — に
-読み込まれます。パターンは純粋に htmx 属性だけで、ビヘイビアヘルパーは
-不要です。
+読み込まれます。交差と `<details>` の変種は純粋に htmx 属性だけです。
+タブの変種は[タブ](/hypermedia-components/ja/components/tabs/)
+ビヘイビアの `hc:tabactivated` イベントと組み合わせます。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add lazy-panel` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/lazy-panel/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/lazy-panel/contract.md)
+にあります。
+:::
 
 ## 交差時(ビューポート内)
 
@@ -53,33 +63,48 @@ description: コンテンツの取得を初回表示まで遅延するパネル 
 
 ## タブのアクティブ化時
 
-タブは少しだけ独自の作法があります。レイジーパターンはタブ
-コントロールではなくタブ**パネル**に適用します:
+[`hc-tabs`](/hypermedia-components/ja/components/tabs/) を使います —
+そのビヘイビアはパネルがアクティブになるたびにパネル上で
+`hc:tabactivated` を発火するので、レイジートリガーはそのイベント +
+`once` だけです。レイジーパターンはタブコントロールではなくタブ
+**パネル**に適用します:
 
 ```html
-<div role="tablist" aria-label="Reports">
-  <button role="tab" aria-controls="panel-overview" aria-selected="true"
-          data-tab-target="panel-overview">Overview</button>
-  <button role="tab" aria-controls="panel-revenue" aria-selected="false"
-          data-tab-target="panel-revenue">Revenue</button>
+<div class="hc-tabs">
+  <div class="hc-tabs__list" role="tablist" aria-label="Reports">
+    <button type="button" class="hc-tabs__tab" role="tab"
+            id="tab-overview" aria-controls="panel-overview"
+            aria-selected="true" tabindex="0">Overview</button>
+    <button type="button" class="hc-tabs__tab" role="tab"
+            id="tab-revenue" aria-controls="panel-revenue"
+            aria-selected="false" tabindex="-1">Revenue</button>
+  </div>
+
+  <div class="hc-tabs__panel" role="tabpanel"
+       id="panel-overview" aria-labelledby="tab-overview" tabindex="0"
+       data-hx-get="/reports/overview"
+       data-hx-trigger="load"
+       data-hx-swap="innerHTML">
+    <p class="hc-field__message">Loading…</p>
+  </div>
+  <div class="hc-tabs__panel" role="tabpanel"
+       id="panel-revenue" aria-labelledby="tab-revenue"
+       tabindex="0" hidden="until-found"
+       data-hx-get="/reports/revenue"
+       data-hx-trigger="hc:tabactivated once"
+       data-hx-swap="innerHTML">
+    <p class="hc-field__message">Loading…</p>
+  </div>
 </div>
-
-<section id="panel-overview" role="tabpanel"
-         data-hx-get="/reports/overview"
-         data-hx-trigger="load"
-         data-hx-swap="innerHTML">
-</section>
-
-<section id="panel-revenue" role="tabpanel" hidden
-         data-hx-get="/reports/revenue"
-         data-hx-trigger="reveal once"
-         data-hx-swap="innerHTML">
-</section>
 ```
 
-タブ切り替えの JavaScript(スタックが何であれ)が `aria-selected` と
-`hidden` を切り替えます。タブが見えるようになる(`hidden` が外れる)と、
-htmx の `reveal` イベントが発火します — 一度だけ。
+見えているパネルは `load` で読み込み、隠れた各パネルは自分への最初の
+`hc:tabactivated` を待ちます。`aria-selected` / `hidden` の切り替えと
+キーボードナビゲーションはタブビヘイビア(`installTabs()`、自動
+インストールのバンドルに含まれます)が担います — コンポーネント側から
+見た同じパターンは
+[タブ → htmx での利用](/hypermedia-components/ja/components/tabs/#htmx-での利用)
+を参照してください。
 
 ## インジケーター
 
@@ -124,6 +149,13 @@ htmx の `reveal` イベントが発火します — 一度だけ。
   <p class="hc-alert__body">Try again in a moment.</p>
 </div>
 ```
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `GET /reports/revenue`(初回の表示) | `200` + パネルの内側の HTML(`Cache-Control` は通常どおり) |
+| 失敗・プレースホルダーを保つ | `4xx`/`5xx` — スワップされず、プレースホルダーが残ります |
+| 失敗・同じスロットにエラーを表示 | 非 2xx + `HX-Reswap: innerHTML` + アラートフラグメント(または上記のとおり `200` + アラート) |
+| 致命的でない警告 | `200` + コンテンツ + `HX-Trigger: {"hc:toast":{…}}` |
 
 ## アクセシビリティ
 

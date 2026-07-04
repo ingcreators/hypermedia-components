@@ -27,6 +27,15 @@ installFieldErrors();
 [インストール](/hypermedia-components/ja/start/installation/)を参照。
 :::
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add field-errors` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md)
+にあります。
+:::
+
 ## フラグメント
 
 サーバが返す正準の形はこれです。htmx がフォーム内(またはフォームを
@@ -192,10 +201,7 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 
 代わりにフラグメントを `200` で返すか、`HX-Retarget: #form-errors` +
 `HX-Reswap: innerHTML` で任意のレスポンスをエラーコンテナへ誘導しても
-構いません。完全な契約(必須マークアップ、全属性、ビヘイビアの
-ステップ)は
-[`recipes/field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md)に
-あります。
+構いません。
 
 ## クライアントサイドバリデーションとの関係
 

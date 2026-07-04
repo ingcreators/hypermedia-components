@@ -8,6 +8,15 @@ description: ダイアログ全体(マークアップ + フォーム)をサー�
 `installRemoteDialog` ビヘイビアがそれを開き、中のフォームが正常に
 送信されると `installCloseDialog` が再び閉じます。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add remote-dialog` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/remote-dialog/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/remote-dialog/contract.md)
+にあります。
+:::
+
 :::note[セットアップ]
 このレシピには **2 つ**のビヘイビアが必要です — 取得したダイアログを
 開く `installRemoteDialog()` と、成功時に閉じる
@@ -56,6 +65,7 @@ installCloseDialog();
   </header>
 
   <form
+    id="edit-item"
     data-hx-post="/items/123"
     data-hx-target="closest dialog"
     data-hx-swap="outerHTML"
@@ -66,15 +76,22 @@ installCloseDialog();
         <input id="name" class="hc-input" name="name" value="Acme">
       </div>
     </div>
-
-    <footer class="hc-dialog__footer">
-      <button class="hc-button" type="button"
-              onclick="this.closest('dialog').close()">Cancel</button>
-      <button class="hc-button" data-variant="primary" type="submit">Save</button>
-    </footer>
   </form>
+
+  <footer class="hc-dialog__footer">
+    <!-- method="dialog" closes the dialog natively — no JS. -->
+    <form method="dialog"><button class="hc-button">Cancel</button></form>
+    <button class="hc-button" data-variant="primary" type="submit"
+            form="edit-item">Save</button>
+  </footer>
 </dialog>
 ```
+
+Cancel は自分専用の **`<form method="dialog">`** に置きます —
+dialog メソッドのフォームの送信はネイティブにダイアログを閉じます。
+JavaScript は不要で、CSP が咎めるものもありません。フォームは入れ子に
+できないため、フッターは編集フォームの外に置き、Save ボタンは
+`form="edit-item"` 属性でフォームへ届きます。
 
 ## 何が起きるか
 
@@ -121,18 +138,27 @@ HX-Trigger: {"hc:toast":{"message":"Saved.","variant":"success"}}
 - ラベルつきタイトル(`#dialog-title`)を宣言し、次のいずれかを:
   - `<dialog>` に `aria-labelledby="dialog-title"` を設定する、または
   - タイトルを最初のフォーカス可能要素にして AT に拾わせる。
-- Cancel ボタン*も*ダイアログを閉じるべきです。上のレシピは簡潔さの
-  ためにインライン `onclick` を使っていますが、実アプリでは
-  `[data-hc-dismiss-dialog]` 上の `click` を待ち受ける小さなヘルパーを
-  選んでください。
+- Cancel ボタンもダイアログを閉じます — 上のネイティブな
+  `<form method="dialog">` パターンで、
+  [ダイアログコンポーネント](/hypermedia-components/ja/components/dialog/)が
+  推奨するのと同じものです。クリックハンドラーなし、ビヘイビアなし、
+  CSP セーフです。
 
 ## プログレッシブエンハンスメント
 
 - htmx なしでは、`<button data-hx-get="…">` は何もしません。JavaScript
-  なしでも Edit アクションを動かし続けるには、フルページの編集画面を
-  読み込む `<a href="/items/123/edit">` リンクの中にボタンを描画して
-  ください。htmx 属性はリンクに置けます。htmx があればインターセプト
-  し、アンカーの `href` がフォールバックです。
+  なしでも Edit アクションを動かし続けるには、トリガーを**リンク**に
+  します(`<a>` の中に `<button>` は置けません — 不正な HTML です):
+
+  ```html
+  <a class="hc-button" href="/items/123/edit"
+     data-hx-get="/items/123/edit"
+     data-hx-target="#dialog-root"
+     data-hx-swap="innerHTML">Edit</a>
+  ```
+
+  htmx が読み込まれていればクリックをインターセプトし、そうでなければ
+  `href` がフルページの編集画面へ遷移します。
 - `hc.behaviors.js` なしでは、ダイアログのフラグメントはページに着地
   しますが自動では開きません。サーバレスポンスの `<dialog>` の直後に
   開くための `<script>` を足すか — 例:

@@ -11,6 +11,17 @@ description: 空のまま出荷され、初回展開時にサーバレンダリ�
 **`hc:treeexpand`** を発火し、htmx が `once` トリガーで待ち受けて
 リクエストを所有します — ビヘイビアはネットワークに触れません。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add lazy-tree` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します — トリガーの `once`、`find .hc-tree__group`
+ターゲット、innerHTML スワップ、空のグループ、宣言された
+`aria-expanded` は、欠けるとすべてエラーです。完全な契約は
+[`recipes/lazy-tree/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/lazy-tree/contract.md)
+にあります。
+:::
+
 ## レイジーな枝
 
 ```html
@@ -77,16 +88,6 @@ JavaScript なしでは、マークアップは素の入れ子リストです �
 (レイジーロードは純粋なエンハンスメント)か、各枝のラベルにノード別
 ページへの本物のリンクを与えてください: リンク**こそ**が
 フォールバックです。
-
-## 検証する
-
-このレシピは機械検証されるルールを同梱しています — トリガーの
-`once`、`find .hc-tree__group` ターゲット、innerHTML スワップ、空の
-グループ、宣言された `aria-expanded` は、欠けるとすべてエラーです:
-
-```bash
-npx @hypermedia-components/cli validate page.html
-```
 
 ## 関連
 

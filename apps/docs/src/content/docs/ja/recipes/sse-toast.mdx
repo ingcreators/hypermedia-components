@@ -19,6 +19,15 @@ JSON ペイロードつきの名前付き SSE イベントをプッシュし、1
 バンドルに同梱)、加えて
 [SSE 拡張](/hypermedia-components/ja/integrations/htmx/#server-sent-events)です。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add sse-toast` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/sse-toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-toast/contract.md)
+にあります。
+:::
+
 ## マークアップ
 
 ```html
@@ -80,9 +89,7 @@ data: {}
 ([sse-updates](/hypermedia-components/ja/recipes/sse-updates/) の領域)に
 置くべきです。
 
-完全な契約は
-[`recipes/sse-toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-toast/contract.md)に
-あります。ペイロードのルールと領域無効化の合成は、実 EventSource の
+ペイロードのルールと領域無効化の合成は、実 EventSource の
 ブラウザテスト(`test-browser/sse.spec.mjs`)で固定されています。
 
 ## 関連

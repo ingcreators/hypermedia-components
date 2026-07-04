@@ -27,6 +27,14 @@ installFieldErrors();
 See [Installation](/hypermedia-components/start/installation/).
 :::
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add field-errors` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md).
+:::
+
 ## The fragment
 
 This is the canonical shape the server returns; htmx swaps it into a
@@ -188,9 +196,7 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 
 Alternatively answer `200` with the fragment, or steer any response
 into the error container with `HX-Retarget: #form-errors` +
-`HX-Reswap: innerHTML`. The full contract (required markup, all
-attributes, behavior steps) lives in
-[`recipes/field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md).
+`HX-Reswap: innerHTML`.
 
 ## Interplay with client-side validation
 

@@ -18,6 +18,15 @@ description: Server-Sent Events によるサーバプッシュのフラグメン
 [SSE トーストレシピ](/hypermedia-components/ja/recipes/sse-toast/)を
 参照してください。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add sse-updates` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/sse-updates/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-updates/contract.md)
+にあります。
+:::
+
 ## マークアップ
 
 ```html
@@ -90,9 +99,7 @@ data: <p>All systems normal</p><span id="alert-badge" hx-swap-oob="true">3</span
 フォーカスを動かさずにコンテンツを置き換え、更新を読み上げるべき領域は
 着地要素の `aria-live="polite"` でオプトインします。
 
-完全なストリーム契約は
-[`recipes/sse-updates/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-updates/contract.md)に
-あります。ここでの主張は実 EventSource のブラウザテスト
+ここでの主張は実 EventSource のブラウザテスト
 (`test-browser/sse.spec.mjs`)で固定されています。
 
 ## 関連

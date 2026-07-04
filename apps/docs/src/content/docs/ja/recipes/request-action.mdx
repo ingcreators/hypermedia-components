@@ -8,6 +8,15 @@ description: htmx リクエストを送り、実行中はスピナーを表示�
 リクエストの所有者は htmx、進行表示は(`htmx-indicator` として印を
 付けた)兄弟の `.hc-spinner` が担います。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add request-action` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/request-action/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/request-action/contract.md)
+にあります。
+:::
+
 ## 基本の使い方
 
 ```html
@@ -56,19 +65,15 @@ description: htmx リクエストを送り、実行中はスピナーを表示�
 
 ## サーバレスポンス契約
 
-- **成功時** — `data-hx-target` の HTML を返します。デフォルトの
-  スワップモードは `innerHTML`。このレシピは `outerHTML` を使うため、
-  返されたフラグメントがターゲット自体を置き換えます。
-- **トーストを出すには** — `HX-Trigger` ヘッダーを含めます
-  ([トーストレシピ](/hypermedia-components/ja/recipes/toast/)を参照):
+| リクエスト | レスポンス |
+| --- | --- |
+| `POST /items`(成功) | `200` + `data-hx-target` の HTML — このレシピは `outerHTML` でスワップするため、フラグメントがターゲット自体を置き換えます |
+| `POST /items`(成功 + トースト) | `200` + フラグメント and/or `HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}`([トーストレシピ](/hypermedia-components/ja/recipes/toast/)を参照) |
+| `POST /items`(失敗) | `4xx`/`5xx` + ボディ HTML — 必要なら `HX-Reswap` / `HX-Retarget` でスワップをフラッシュ領域へ振り向けます |
 
-  ```text
-  HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}
-  ```
-
-- **エラー時** — ボディ HTML つきの 4xx/5xx を返します。必要なら
-  `HX-Reswap` や `HX-Retarget` でスワップをフラッシュ領域へ振り向け
-  ます。
+htmx ≥ 2 はデフォルトで非 2xx レスポンスをスワップしません:
+`HX-Reswap` / `HX-Retarget`(または `htmx:beforeSwap` の許可)が
+なければ、失敗時にターゲットは直前のコンテンツを保ちます。
 
 ## アクセシビリティ
 

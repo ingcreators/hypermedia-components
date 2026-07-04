@@ -7,25 +7,44 @@ description: 表示セルを編集可能な入力欄へ、そしてまた表示�
 表示状態と編集状態は、同じ URL にあるサーバレンダリングされた 2 つの
 HTML フラグメントで、htmx が `outerHTML` で相互にスワップします。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add inline-edit` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/inline-edit/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/inline-edit/contract.md)
+にあります。
+:::
+
 ## 表示状態
 
-行セルのデフォルト描画:
+行セルのデフォルト描画 — 値 + 小さな本物の **Edit** `<button>`:
 
 ```html
-<span
-  id="item-42-name"
-  data-hx-get="/items/42/name/edit"
-  data-hx-trigger="click"
-  data-hx-target="this"
-  data-hx-swap="outerHTML"
-  style="cursor: pointer;">
+<span id="item-42-name">
   Acme widgets
+  <button class="hc-button" data-size="sm" type="button"
+          data-hx-get="/items/42/name/edit"
+          data-hx-target="closest span"
+          data-hx-swap="outerHTML">
+    Edit
+  </button>
 </span>
 ```
 
-ホバー時のカーソルが操作可能であることを示唆します。小さな鉛筆アイコン
-や下線を足すのがよくある改善です。ユーザーがクリックすると htmx が
-編集フォームを取得し、セルはこうなります:
+ボタンこそがアフォーダンスです: キーボードで到達でき(Tab のあと
+Enter か Space)、支援技術に読み上げられ、追加の ARIA は不要です。
+`closest span` を `outerHTML` でターゲットするため、起動すると
+**表示ノード全体**が編集フォームに置き換わります。
+
+:::note[ボタンの代わりにクリック可能なセル?]
+セル全体をトリガーにもできます(`<span>` 自体に `data-hx-get` +
+`data-hx-trigger="click"` + `data-hx-target="this"`)。ただし素の
+`<span>` はキーボードから見えません: その場合は `role="button"` と
+`tabindex="0"`、そして Enter / Space の keydown リスナーが必要です —
+htmx の `click` トリガーはキーボードアクティベーションを足して
+くれません。上のボタン形式なら、そのすべてが無料で手に入ります。
+:::
 
 ## 編集状態
 
@@ -46,10 +65,13 @@ HTML フラグメントで、htmx が `outerHTML` で相互にスワップしま
   <button class="hc-button" data-size="sm" data-variant="primary" type="submit">Save</button>
   <button class="hc-button" data-size="sm" type="button"
           data-hx-get="/items/42/name"
-          data-hx-target="this"
+          data-hx-target="closest form"
           data-hx-swap="outerHTML">Cancel</button>
 </form>
 ```
+
+Cancel は `closest form` をターゲットするため、編集フォーム全体が表示
+フラグメントへスワップされて戻ります。
 
 ## 保存ループ
 
@@ -58,14 +80,14 @@ HTML フラグメントで、htmx が `outerHTML` で相互にスワップしま
 
 ```html
 <!-- PUT /items/42/name -->
-<span
-  id="item-42-name"
-  data-hx-get="/items/42/name/edit"
-  data-hx-trigger="click"
-  data-hx-target="this"
-  data-hx-swap="outerHTML"
-  style="cursor: pointer;">
+<span id="item-42-name">
   Acme widgets v2
+  <button class="hc-button" data-size="sm" type="button"
+          data-hx-get="/items/42/name/edit"
+          data-hx-target="closest span"
+          data-hx-swap="outerHTML">
+    Edit
+  </button>
 </span>
 ```
 
@@ -76,8 +98,8 @@ HTML フラグメントで、htmx が `outerHTML` で相互にスワップしま
 ## バリデーション
 
 サーバサイドバリデーションの失敗時は、エラーメッセージをインラインに
-載せた編集フォームを再度返します。outerHTML スワップが同じノードを
-ターゲットするよう、id は同じに保ちます:
+載せた編集フォームを **`422`** で再度返します。outerHTML スワップが
+同じノードをターゲットするよう、id は同じに保ちます:
 
 ```html
 <!-- PUT /items/42/name → 422 -->
@@ -91,39 +113,49 @@ HTML フラグメントで、htmx が `outerHTML` で相互にスワップしま
   <button class="hc-button" data-size="sm" data-variant="primary" type="submit">Save</button>
   <button class="hc-button" data-size="sm" type="button"
           data-hx-get="/items/42/name"
-          data-hx-target="this"
+          data-hx-target="closest form"
           data-hx-swap="outerHTML">Cancel</button>
 </form>
 ```
 
-htmx のデフォルト挙動は 4xx をスワップ失敗として扱います。422 のボディを
-それでも描画させるには、エラークラスつきの 200 を返す(簡単)か、
-`data-hx-swap="outerHTML"` を `data-hx-swap-oob` を意識したエラー処理と
-組み合わせて設定します。ほとんどのアプリにとって親切なのは
-200 + エラーの変種です。
+htmx ≥ 2 はデフォルトで非 2xx レスポンスをスワップしません。一度だけ
+グローバルに 422 のスワップを許可します —
+[field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/#サーバレスポンス契約)が
+ドキュメント化しているのと同じ許可です:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+(代替: エラーフラグメントを `200` で返す、または `HX-Reswap` /
+`HX-Retarget` ヘッダーを送る。`data-hx-target-422="this"` も動きますが、
+htmx の response-targets 拡張が必要です。)
 
 ## アクセシビリティ
 
-- 操作可能性が重要なら、クリックして編集のトリガーには本物の
-  `<button>`(または `href` つきの `<a>`)を使ってください。視覚のみの
-  用途なら `<span>` でも動きますが、その場合は `role="button"` と
-  `tabindex="0"` を足し、Enter / Space のキーボードイベントを待ち受けて
-  ください(htmx のデフォルト `click` トリガーは、`<span>` 上の
-  キーボードアクティベーションを含みません)。
+- Edit トリガーは本物の `<button>` です — キーボードで到達でき、支援
+  技術に読み上げられ、追加の ARIA は不要です。(クリック可能な
+  `<span>` に替える前に、上の注記を確認してください。)
 - キーボードユーザーがすぐ編集フィールドに着地できるよう、入力に
   `autofocus` を使ってください。
-- Escape でキャンセルするには、小さなインラインリスナーを付けます:
-  `onkeydown="if (event.key==='Escape') this.querySelector('[type=button]:last-child').click()"`。
+- Escape でキャンセルするには、Cancel ボタンをクリックする小さな
+  `keydown` リスナーを自分のバンドルに足します(インラインの
+  `onkeydown` ハンドラーは使わないでください — CSP の下で壊れます)。
   あるいは Escape 対応を省き、見えるキャンセルボタンに頼ります。
 
 ## サーバレスポンス契約
 
 | リクエスト                   | レスポンス                                                            |
 | ---------------------------- | --------------------------------------------------------------------- |
-| `GET /items/:id/name`        | 表示フラグメント(`<span id="item-:id-name">…</span>`)。             |
+| `GET /items/:id/name`        | 表示フラグメント(Edit ボタンつきの `<span id="item-:id-name">`)。   |
 | `GET /items/:id/name/edit`   | 編集フラグメント(`<form id="item-:id-name">…</form>`)。             |
 | `PUT /items/:id/name`(200) | 新しい値の表示フラグメント。                                          |
-| `PUT /items/:id/name`(422) | `data-invalid="true"` + `.hc-field__message` つきの編集フラグメント。 |
+| `PUT /items/:id/name`(422) | `data-invalid="true"` + `.hc-field__message` つきの編集フラグメント — 上記の `htmx:beforeSwap` の許可が必要です。 |
 
 4 つのレスポンスすべてが同じ DOM id を共有します — それがスワップを
 可逆にしている当のものです。
@@ -133,9 +165,9 @@ htmx のデフォルト挙動は 4xx をスワップ失敗として扱います�
 - **楽観的 UI?** インライン編集では省いてください。ラウンドトリップは
   短く、サーバが権威であり、失敗した楽観的更新を巻き戻す帳簿作業は
   体感速度の向上に見合いません。
-- **キーボードの同等性。** 表示状態がキーボードで到達可能(Tab で
-  到達、Enter で起動)なことを確認してください。ボタンが楽な
-  デフォルトです。
+- **キーボードの同等性。** Edit ボタンが、表示状態を Tab で到達可能・
+  Enter で起動可能に保ちます。カスタムトリガーに替えるなら、それを
+  維持してください。
 - 同じフィールドで**インライン編集とリモートダイアログを混ぜない**で
   ください。どちらかに絞ります。変更が 1 つの値で、ユーザーがすでに
   それを見ているならインライン編集が正解。複数フィールドの更新なら

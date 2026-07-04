@@ -9,6 +9,15 @@ Ant Design の Transfer / PrimeVue の PickList を、ハイパーメディア�
 です。id はネイティブなフォームシリアライズで、動詞は送信ボタンで
 運ばれます — カスタム JavaScript はゼロです。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add transfer` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/transfer/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/transfer/contract.md)
+にあります。
+:::
+
 ## マークアップ
 
 ```html
@@ -86,10 +95,9 @@ available=7&available=9&action=add
 422 の経路はキットの
 [エラー処理の許可](/hypermedia-components/ja/recipes/mutating-form/)を
 使います(htmx ≥ 2 はデフォルトで非 2xx をスワップしません —
-`htmx:beforeSwap` で一度だけ有効化します)。CSRF の注意を含む完全な
-契約は
-[`recipes/transfer/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/transfer/contract.md)
-にあり、`hc validate` で機械チェックされます。
+`htmx:beforeSwap` で一度だけ有効化します)。CSRF の注意は
+[契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/transfer/contract.md)にも
+記載されています。
 
 ## JS なしでの劣化
 

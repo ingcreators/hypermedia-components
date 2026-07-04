@@ -7,6 +7,14 @@ description: A button that sends an htmx request and shows a spinner while in fl
 feedback. The button stays a normal `<button>`; htmx owns the request;
 a sibling `.hc-spinner` (marked as an `htmx-indicator`) shows progress.
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add request-action` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/request-action/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/request-action/contract.md).
+:::
+
 ## Basic usage
 
 ```html
@@ -55,18 +63,15 @@ What happens:
 
 ## Server response contract
 
-- **On success** — return HTML for the `data-hx-target`. The default
-  swap mode is `innerHTML`; this recipe uses `outerHTML` so the
-  responding fragment replaces the target itself.
-- **For a toast** — include an `HX-Trigger` header (see the
-  [toast recipe](/hypermedia-components/recipes/toast/)):
+| Request | Response |
+| --- | --- |
+| `POST /items` (success) | `200` + HTML for the `data-hx-target` — this recipe swaps `outerHTML`, so the fragment replaces the target itself |
+| `POST /items` (success + toast) | `200` + fragment and/or `HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}` (see the [toast recipe](/hypermedia-components/recipes/toast/)) |
+| `POST /items` (failure) | `4xx`/`5xx` + body HTML — use `HX-Reswap` / `HX-Retarget` to redirect the swap to a flash region if needed |
 
-  ```text
-  HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}
-  ```
-
-- **On error** — return a 4xx/5xx with body HTML; use `HX-Reswap` or
-  `HX-Retarget` to redirect the swap to a flash region if needed.
+htmx ≥ 2 does not swap non-2xx responses by default: without
+`HX-Reswap` / `HX-Retarget` (or an `htmx:beforeSwap` allowance), the
+target keeps its previous content on failure.
 
 ## Accessibility
 

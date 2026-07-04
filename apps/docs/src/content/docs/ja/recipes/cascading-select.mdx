@@ -9,6 +9,15 @@ Cascader を、ハイパーメディア流で: 各レベルの `change` が次�
 JavaScript はゼロ:
 [`hc-select`](/hypermedia-components/ja/components/select/) + htmx。
 
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add cascading-select` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/cascading-select/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/cascading-select/contract.md)
+にあります。
+:::
+
 ## マークアップ
 
 ```html
@@ -69,9 +78,13 @@ out-of-band スワップとしてリセットします — 1 つのレスポン�
 巻き戻します。未知・陳腐化した親の値にも同じ応答を — エラーページには
 しません。
 
-完全な契約は
-[`recipes/cascading-select/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/cascading-select/contract.md)
-にあり、`hc validate` で機械チェックされます。
+## サーバレスポンス契約
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `GET /areas/cities?prefecture=13`(親の `change`) | `200` + 再描画された子 `<select>`、より深いレベルの OOB リセットつき |
+| `GET /areas/cities?prefecture=`(プレースホルダーの選び直し) | `200` + 無効化されたプレースホルダーの子、OOB リセットつき |
+| `GET /areas/cities?prefecture=99`(未知・陳腐化した値) | `200` + 無効化されたプレースホルダーの子 — エラーページにはしません |
 
 ## JS なしでの劣化
 
