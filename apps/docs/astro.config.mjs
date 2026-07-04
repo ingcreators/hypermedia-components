@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightLinksValidator from 'starlight-links-validator';
+import starlightLlmsTxt from 'starlight-llms-txt';
 import rehypeHcTables from './rehype-hc-tables.mjs';
 
 export default defineConfig({
@@ -38,6 +39,30 @@ export default defineConfig({
       // arrive later simply take the fallback's place.
       plugins: [
         starlightLinksValidator({ exclude: ['#*'], errorOnFallbackPages: false }),
+        // /llms.txt, /llms-full.txt, /llms-small.txt for AI coding
+        // agents. The markup IS the wire contract here, so a model
+        // holding these files can emit working HC + htmx fragments
+        // without scraping the site. Only the default (English) locale
+        // is emitted; /ja/ mirrors the same content for humans.
+        starlightLlmsTxt({
+          projectName: 'Hypermedia Components',
+          description:
+            'Semantic CSS components, small vanilla-JS behaviors, and htmx recipes for hypermedia (HTML-over-the-wire) applications — the markup is the wire contract.',
+          details: [
+            'Facts an agent should hold when generating code with this kit:',
+            '',
+            '- Class prefix `hc-`; theming via `--hc-*` custom properties; variants via `data-variant` / `data-size`, never utility classes.',
+            '- htmx attributes are written in the `data-hx-*` form (not `hx-*`).',
+            '- Light DOM only. State lives in HTML attributes (`aria-*`, `data-*`, native disabled/invalid).',
+            '- Behaviors auto-install from `hc.behaviors.js` and never own network requests — htmx does.',
+            '- Runtime axes on `<html>`: `data-theme`, `data-color`, `data-neutral`, `data-density`, `dir`.',
+            '- Every recipe documents its server response contract; `npx @hypermedia-components/cli add <recipe>` copies the scaffold and `hc validate` machine-checks it.',
+          ].join('\n'),
+          // The two demo galleries are huge and pure markup showcase —
+          // keep the trimmed set focused on contracts and guides.
+          exclude: ['kitchen-sink', 'blocks'],
+          promote: ['index*', 'start/**', 'fundamentals/**'],
+        }),
       ],
       editLink: {
         baseUrl:

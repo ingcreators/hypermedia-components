@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`/llms.txt` on the docs site** (docs-facing). The site now emits
+  the [llms.txt](https://llmstxt.org/) convention via
+  `starlight-llms-txt`: `/llms.txt` (index), `/llms-full.txt`
+  (every English page), and `/llms-small.txt` (trimmed; the
+  kitchen-sink and blocks galleries excluded). The preamble hands AI
+  coding agents the kit's load-bearing facts (`hc-` prefix,
+  `data-hx-*` htmx attributes, Light DOM, attribute-borne state,
+  behaviors never own the network, recipe server contracts) so
+  generated fragments match the markup-as-wire-contract design. Only
+  the default English locale is emitted.
+
 - **Weekly Lighthouse failures now file a tracking issue** (dev-facing).
   `perf.yml` is a scheduled run with no PR to go red on, so a missed
   budget (or a crashed run) was only visible in the Actions tab — the
