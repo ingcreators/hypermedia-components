@@ -16,6 +16,7 @@ export { installNavmenu } from './navmenu.js';
 export { installTooltip } from './tooltip.js';
 export { installPopover } from './popover.js';
 export { installSlider } from './slider.js';
+export { installRange } from './range.js';
 export { installCombobox } from './combobox.js';
 export { installMulticombobox } from './multicombobox.js';
 export { installDrawer } from './drawer.js';

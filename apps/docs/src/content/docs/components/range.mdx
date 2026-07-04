@@ -1,0 +1,112 @@
+---
+title: Range
+description: A dual-thumb min/max range built from two overlapping native <input type="range"> elements, with a small behavior that clamps the thumbs and paints the fill. Serializes natively.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-range` is the dual-thumb companion to
+[`hc-slider`](/hypermedia-components/components/slider/) — a min/max
+band for filters (price range, date window). The platform has no
+dual-thumb input, so the component stacks **two real
+`<input type="range">`s** on one painted rail: each keeps its own form
+name, label, arrow-key handling, and screen-reader value semantics.
+`installRange()` clamps the thumbs against each other and keeps the
+fill segment in sync — it is the only JavaScript involved, and it never
+fetches.
+
+## Basic HTML
+
+<Demo previewStyle="max-inline-size:24rem;">
+  <div class="hc-range" style="--hc-range-low: 20; --hc-range-high: 80;">
+    <input class="hc-range__input" type="range" name="price_min" min="0" max="100" value="20" aria-label="Minimum price" />
+    <input class="hc-range__input" type="range" name="price_max" min="0" max="100" value="80" aria-label="Maximum price" />
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-range" style="--hc-range-low: 20; --hc-range-high: 80">
+    <input class="hc-range__input" type="range" name="price_min"
+           min="0" max="100" value="20" aria-label="Minimum price">
+    <input class="hc-range__input" type="range" name="price_max"
+           min="0" max="100" value="80" aria-label="Maximum price">
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+Order matters: the **low** input first, the **high** input second. The
+inline `--hc-range-low` / `--hc-range-high` (0–100 percentages) are the
+server-rendered fallback for the fill — `installRange()` takes over and
+keeps them live.
+
+## Behavior — `installRange()`
+
+```js
+import { installRange } from '@hypermedia-components/core';
+installRange(); // or the auto-init bundle: @hypermedia-components/core/behaviors
+```
+
+- Clamps so **low ≤ high**: the thumb being dragged stops at its
+  sibling; the sibling never moves.
+- Syncs the container's fill percentages on every change.
+- Emits a bubbling **`hc:rangechange`** with
+  `detail: { low, high }` (numeric input values).
+- Idempotent, returns an uninstaller, picks up swapped-in ranges via
+  `MutationObserver`.
+
+Without JavaScript the two inputs still work and serialize — only the
+cross-thumb clamp and the live fill are lost (the server can validate
+`min ≤ max` anyway).
+
+## htmx usage
+
+The two named inputs serialize natively, so a filter form needs no
+custom wiring — debounce on the component's event:
+
+```html
+<form data-hx-get="/products" data-hx-target="#results"
+      data-hx-trigger="hc:rangechange delay:300ms from:find .hc-range">
+  <div class="hc-range" style="--hc-range-low: 0; --hc-range-high: 100">
+    <input class="hc-range__input" type="range" name="price_min"
+           min="0" max="500" value="0" aria-label="Minimum price">
+    <input class="hc-range__input" type="range" name="price_max"
+           min="0" max="500" value="500" aria-label="Maximum price">
+  </div>
+</form>
+```
+
+The server receives `price_min=120&price_max=340` in the standard form
+encoding.
+
+## Accessibility
+
+- Label **each** input separately (`aria-label` or `<label for>`):
+  "Minimum price" / "Maximum price". Screen readers announce each thumb
+  as its own slider with role, value, and range — no ARIA re-plumbing.
+- Both thumbs are keyboard-operable with the platform's own keys
+  (←/→, Home/End, PageUp/PageDown); the focused thumb shows a ring.
+- The clamp guarantees the pair can never express an invalid band, and
+  the visible values (pair the component with text inputs or output
+  elements if exact numbers matter) should mirror the state.
+
+## Theming tokens
+
+The rail and thumbs reuse the [`hc-slider`](/hypermedia-components/components/slider/#theming-tokens)
+tokens (`slider.track-*`, `slider.thumb-*`, `slider.fill`) so the two
+components theme as one family. The only range-specific knobs are the
+runtime fill percentages:
+
+```text
+--hc-range-low    (0–100; set inline server-side, kept live by installRange)
+--hc-range-high   (0–100)
+```
+
+## Related
+
+- [Slider](/hypermedia-components/components/slider/) — the single-thumb
+  form.
+- [Filter popover recipe](/hypermedia-components/recipes/filter-popover/) —
+  a natural host for a range filter.

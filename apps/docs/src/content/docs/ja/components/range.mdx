@@ -1,0 +1,114 @@
+---
+title: レンジ
+description: 重ねた 2 つのネイティブ <input type="range"> から作るデュアルサムの最小 / 最大レンジ。つまみ同士をクランプしフィルを描く小さなビヘイビアつき。ネイティブにシリアライズ。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-range` は [`hc-slider`](/hypermedia-components/ja/components/slider/)
+のデュアルサム版です — フィルタのための最小 / 最大の帯(価格帯、期間)。
+プラットフォームにデュアルサムの入力は存在しないため、このコンポーネント
+は **2 つの本物の `<input type="range">`** を 1 本の描画されたレールに
+重ねます: それぞれが自分のフォーム名、ラベル、矢印キー処理、スクリーン
+リーダーの値セマンティクスを保ちます。`installRange()` はつまみ同士を
+クランプしフィル区間を同期します — 関与する JavaScript はそれだけで、
+ネットワーク取得は決してしません。
+
+## 基本の HTML
+
+<Demo previewStyle="max-inline-size:24rem;">
+  <div class="hc-range" style="--hc-range-low: 20; --hc-range-high: 80;">
+    <input class="hc-range__input" type="range" name="price_min" min="0" max="100" value="20" aria-label="Minimum price" />
+    <input class="hc-range__input" type="range" name="price_max" min="0" max="100" value="80" aria-label="Maximum price" />
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-range" style="--hc-range-low: 20; --hc-range-high: 80">
+    <input class="hc-range__input" type="range" name="price_min"
+           min="0" max="100" value="20" aria-label="Minimum price">
+    <input class="hc-range__input" type="range" name="price_max"
+           min="0" max="100" value="80" aria-label="Maximum price">
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+順序が重要です: **低い側**の入力が先、**高い側**が後。インラインの
+`--hc-range-low` / `--hc-range-high`(0–100 のパーセンテージ)はフィルの
+サーバ描画フォールバックです — `installRange()` が引き継いでライブに
+保ちます。
+
+## ビヘイビア — `installRange()`
+
+```js
+import { installRange } from '@hypermedia-components/core';
+installRange(); // or the auto-init bundle: @hypermedia-components/core/behaviors
+```
+
+- **low ≤ high** になるようクランプします: ドラッグ中のつまみが
+  相方の位置で止まり、相方は決して動きません。
+- 変更のたびにコンテナのフィルパーセンテージを同期します。
+- バブリングする **`hc:rangechange`** を
+  `detail: { low, high }`(数値の入力値)つきで発行します。
+- 冪等で、アンインストーラを返し、スワップで追加されたレンジも
+  `MutationObserver` で拾います。
+
+JavaScript がなくても 2 つの入力は動作しシリアライズされます —
+失われるのはつまみ間のクランプとライブのフィルだけです(`min ≤ max` は
+いずれにせよサーバで検証できます)。
+
+## htmx での利用
+
+2 つの名前つき入力はネイティブにシリアライズされるため、フィルタ
+フォームにカスタム配線は不要です — コンポーネントのイベントで
+デバウンスします:
+
+```html
+<form data-hx-get="/products" data-hx-target="#results"
+      data-hx-trigger="hc:rangechange delay:300ms from:find .hc-range">
+  <div class="hc-range" style="--hc-range-low: 0; --hc-range-high: 100">
+    <input class="hc-range__input" type="range" name="price_min"
+           min="0" max="500" value="0" aria-label="Minimum price">
+    <input class="hc-range__input" type="range" name="price_max"
+           min="0" max="500" value="500" aria-label="Maximum price">
+  </div>
+</form>
+```
+
+サーバは標準のフォームエンコーディングで
+`price_min=120&price_max=340` を受け取ります。
+
+## アクセシビリティ
+
+- **各**入力に個別のラベルを(`aria-label` か `<label for>`):
+  「Minimum price」/「Maximum price」。スクリーンリーダーは各つまみを
+  role・値・範囲を持つ独立したスライダーとして読み上げます — ARIA の
+  組み替えは不要です。
+- どちらのつまみもプラットフォーム自身のキー(←/→、Home/End、
+  PageUp/PageDown)でキーボード操作でき、フォーカスされたつまみには
+  リングが表示されます。
+- クランプによりペアが不正な帯を表現することはありません。正確な数値が
+  重要な場面では、コンポーネントにテキスト入力や output 要素を並べて
+  状態をミラーしてください。
+
+## テーマ用トークン
+
+レールとつまみは [`hc-slider`](/hypermedia-components/ja/components/slider/#テーマ用トークン)
+のトークン(`slider.track-*`、`slider.thumb-*`、`slider.fill`)を再利用
+するため、2 つのコンポーネントは 1 つのファミリーとしてテーマされます。
+レンジ固有のノブはランタイムのフィルパーセンテージだけです:
+
+```text
+--hc-range-low    (0–100; set inline server-side, kept live by installRange)
+--hc-range-high   (0–100)
+```
+
+## 関連
+
+- [スライダー](/hypermedia-components/ja/components/slider/) —
+  シングルサムの形。
+- [filter-popover レシピ](/hypermedia-components/ja/recipes/filter-popover/) —
+  レンジフィルタの自然な置き場所。

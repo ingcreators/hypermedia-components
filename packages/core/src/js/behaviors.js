@@ -19,6 +19,7 @@ import { installNavmenu } from './navmenu.js';
 import { installTooltip } from './tooltip.js';
 import { installPopover } from './popover.js';
 import { installSlider } from './slider.js';
+import { installRange } from './range.js';
 import { installCombobox } from './combobox.js';
 import { installMulticombobox } from './multicombobox.js';
 import { installDrawer } from './drawer.js';
@@ -63,6 +64,7 @@ function init() {
   installTooltip();
   installPopover();
   installSlider();
+  installRange();
   installCombobox();
   installMulticombobox();
   installDrawer();
@@ -116,6 +118,7 @@ export {
   installTooltip,
   installPopover,
   installSlider,
+  installRange,
   installCombobox,
   installMulticombobox,
   installDrawer,
