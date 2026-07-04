@@ -45,6 +45,9 @@ test.describe('theme toggle', () => {
   });
 
   test('axe (incl. colour contrast) passes in both themes', async ({ page }) => {
+    // hc.a11y.css zeroes the kit's gated transitions under reduced motion,
+    // so the dark flip applies instantly and axe samples final palettes.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/theme-toggle.html');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 

@@ -5,6 +5,9 @@ import AxeBuilder from '@axe-core/playwright';
 // spans coloured from the `--hc-code-tok-*` palette. Pure CSS, no client
 // tokenizer; composes with line state and diff mode, themed light + dark.
 test.beforeEach(async ({ page }) => {
+  // hc.a11y.css zeroes the kit's gated transitions under reduced motion,
+  // so the dark flip applies instantly and axe samples final palettes.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/code-syntax.html');
 });
 
