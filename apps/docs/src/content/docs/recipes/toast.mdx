@@ -130,8 +130,9 @@ recipes build on:
   renders a button; htmx can listen with
   `data-hx-trigger="hc:undo from:body"` — see the
   [undo-delete recipe](/hypermedia-components/recipes/undo-delete/).
-  A sticky toast (`duration: 0`) **must** carry an `action`: without
-  one, keyboard users currently have no way to dismiss it.
+  A sticky toast (`duration: 0`) should carry an `action`: its button
+  is what makes the toast focusable, and **Escape dismisses the toast
+  that contains the focus** (without firing the action's event).
 
 ## Examples
 

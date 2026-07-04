@@ -281,11 +281,24 @@ export function installToast(root = (typeof document !== 'undefined' ? document 
     }
   }
 
+  // Escape dismisses the toast that contains the focus (reachable via
+  // its action button) — the keyboard counterpart of swipe-to-dismiss.
+  // Without it a sticky toast (duration: 0) is undismissable without a
+  // pointer. Scoped to focus-inside-a-toast so dialog Escape semantics
+  // are untouched.
+  function onKeydown(event) {
+    if (event.key !== 'Escape') return;
+    const toast = event.target && event.target.closest?.('.hc-toast');
+    if (toast) removeToast(toast);
+  }
+
   root.body.addEventListener('hc:toast', onToast);
+  root.addEventListener('keydown', onKeydown);
 
   const uninstall = () => {
     if (root[INSTALL_KEY] !== uninstall) return;
     root.body.removeEventListener('hc:toast', onToast);
+    root.removeEventListener('keydown', onKeydown);
     if (createdRegion && createdRegion.isConnected) createdRegion.remove();
     createdRegion = null;
     delete root[INSTALL_KEY];

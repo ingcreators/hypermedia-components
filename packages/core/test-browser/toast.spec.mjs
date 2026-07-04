@@ -70,6 +70,18 @@ test.describe('toast behavior', () => {
     await expect(toast).toHaveCount(0); // dismissed after the action
   });
 
+  test('Escape dismisses the toast that contains the focus', async ({ page }) => {
+    await page.getByTestId('toast-undo').click(); // sticky toast with an action button
+    const toast = page.locator('.hc-toast');
+    await expect(toast).toHaveCount(1);
+
+    await toast.locator('.hc-toast__action').focus();
+    await page.keyboard.press('Escape');
+    await expect(toast).toHaveCount(0);
+    // The action event did NOT fire — Escape dismisses without acting.
+    await expect(page.getByTestId('toast-undo-fired')).not.toHaveText('undone');
+  });
+
   test('a second toast with the same id updates in place (no duplicate)', async ({ page }) => {
     await page.getByTestId('toast-start').click();
     const toast = page.locator('.hc-toast');

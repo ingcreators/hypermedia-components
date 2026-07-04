@@ -47,7 +47,7 @@ The behavior listens for `hc:toast` on `document.body`, renders a
 | `variant`  | string | `'info'`     | `info` / `success` / `warning` / `error`.     |
 | `duration` | number | `4500`       | Milliseconds. `0` keeps the toast indefinitely. |
 | `id`       | string | _(omitted)_  | Stable handle: a later `hc:toast` with the same `id` updates the existing toast in place (loading → success / error). |
-| `action`   | object | _(omitted)_  | `{ label, event }`: renders an action button; activation dispatches a bubbling `CustomEvent(event)` with `detail: { id, action, toast }` and dismisses the toast. Sticky toasts (`duration: 0`) must carry one. |
+| `action`   | object | _(omitted)_  | `{ label, event }`: renders an action button; activation dispatches a bubbling `CustomEvent(event)` with `detail: { id, action, toast }` and dismisses the toast. Sticky toasts (`duration: 0`) should carry one — the button makes the toast focusable, and Escape dismisses the focused toast without firing the event. |
 
 `variant="error"` is mapped to `role="alert"` /
 `aria-live="assertive"` so screen readers interrupt to announce it.
