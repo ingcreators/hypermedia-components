@@ -1,8 +1,8 @@
 # HC Component-Breadth Plan v0.9 — business-app gaps (meter, rating, timeline, separator label)
 
-Status: **approved 2026-07-03** — user-approved scope: the three small
-native-first components/variants plus `hc-timeline`. One concern per PR,
-merged sequentially (no stacked PRs).
+Status: **shipped in full** — plan #327, `hc-meter` #328, `hc-rating`
+#329, separator label variant #330, `hc-timeline` #331 (2026-07-04).
+One concern per PR, merged sequentially.
 
 Where [v0.7](./hc-component-breadth-plan-v0.7-en.md) closed the shadcn/ui
 gap (parity reached; every "genuinely missing" candidate shipped), this
