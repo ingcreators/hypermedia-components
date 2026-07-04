@@ -13,7 +13,7 @@ attribute drives both the visual state and the assistive-tech signal.
 
 <Demo>
   <nav class="hc-pagination" aria-label="Pagination">
-    <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
+    <a class="hc-pagination__item" aria-disabled="true">‹ Prev</a>
     <a class="hc-pagination__item" href="#">1</a>
     <a class="hc-pagination__item" aria-current="page" href="#">2</a>
     <a class="hc-pagination__item" href="#">3</a>
@@ -25,7 +25,7 @@ attribute drives both the visual state and the assistive-tech signal.
 
   ```html
   <nav class="hc-pagination" aria-label="Pagination">
-    <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
+    <a class="hc-pagination__item" aria-disabled="true">‹ Prev</a>
     <a class="hc-pagination__item" href="?page=1">1</a>
     <a class="hc-pagination__item" aria-current="page" href="?page=2">2</a>
     <a class="hc-pagination__item" href="?page=3">3</a>
@@ -42,11 +42,16 @@ attribute drives both the visual state and the assistive-tech signal.
 - `aria-current="page"` — the current page. Visually filled, not
   clickable (pointer-events disabled).
 - `aria-disabled="true"` — applied to the prev/next link when at the
-  boundary. The link stays focusable but does not navigate.
+  boundary. **Also omit its `href`** (as the examples do): the CSS only
+  removes pointer events, so an anchor that keeps an `href` still
+  activates with <kbd>Enter</kbd>. An `<a>` without `href` is a
+  non-interactive placeholder — unfocusable and skipped by assistive
+  tech, which is exactly right at a boundary.
 
 The component never relies on plain `disabled` for anchors because
-anchors do not support that attribute. Setting `aria-disabled` is the
-correct pattern; the CSS does the rest.
+anchors do not support that attribute. `aria-disabled` plus a
+template that drops the `href` at the boundary is the correct pattern;
+the CSS does the rest.
 
 ## htmx usage
 
@@ -70,7 +75,11 @@ Page links can drive an htmx swap of the surrounding region.
 ```
 
 `data-hx-push-url="true"` updates the address bar so deep links and
-the browser's back button work.
+the browser's back button work. The server returns the **whole
+`#orders` region** — the table plus a pagination whose `aria-current`
+and boundary states have moved; the
+[datagrid-pager recipe](/hypermedia-components/recipes/datagrid-pager/)
+pins the full contract.
 
 ## Accessibility
 

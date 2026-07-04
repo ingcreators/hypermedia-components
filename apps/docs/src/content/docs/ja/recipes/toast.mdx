@@ -102,11 +102,30 @@ HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}, "items:refresh"
 | `title`    | string   | _(省略)_       | メッセージの上の太字 1 行。             |
 | `variant`  | string   | `'info'`       | `info` / `success` / `warning` / `error`。 |
 | `duration` | number   | `4500`         | ミリ秒。`0` は手動で消されるまで保持。  |
+| `id`       | string   | _(省略)_       | 安定ハンドル: 同じ `id` の後続 `hc:toast` は新規に積まず、**既存トーストをその場で更新**します。 |
+| `action`   | object   | _(省略)_       | `{ label, event }` — アクションボタンを描画。押下で `detail: { id, action, toast }` を持つバブリング `CustomEvent(event)` を発火し、トーストを閉じます。 |
 
 `variant="error"` はトーストを `role="alert"` /
 `aria-live="assertive"` にも切り替えるため、スクリーンリーダーは割り込ん
 で読み上げます。他のバリアントは `role="status"` /
 `aria-live="polite"` を使います。
+
+### アクションボタンと id による更新
+
+`id` と `action` を組み合わせると、他のレシピが依拠する 2 つの
+サーバー駆動パターンになります:
+
+- **id による更新**(loading → success / error): まず
+  `{ id: 'job-42', message: 'Exporting…', duration: 0 }` を送り、次に
+  同じ `id` で `hc:toast` を送ると、表示中のトーストがその場で
+  変化します([トースト → id による更新](/hypermedia-components/ja/components/toast/)の
+  プロミストーストパターン)。
+- **アクション**(例: 元に戻す): `{ action: { label: 'Undo', event: 'hc:undo' } }`
+  でボタンが描画され、htmx は `data-hx-trigger="hc:undo from:body"` で
+  受け取れます — [undo-delete レシピ](/hypermedia-components/ja/recipes/undo-delete/)を
+  参照。スティッキートースト(`duration: 0`)には**必ず** `action` を
+  付けてください: 無いと、キーボードユーザーには現状閉じる手段が
+  ありません。
 
 ## 例
 

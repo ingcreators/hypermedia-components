@@ -32,7 +32,7 @@ JavaScript なしで機能します。
 <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
 
 <button class="hc-button"
-        onclick="dispatchEvent(new CustomEvent('hc:toast', { detail: { message: 'Saved' } }))">
+        onclick="document.body.dispatchEvent(new CustomEvent('hc:toast', { bubbles: true, detail: { message: 'Saved' } }))">
   Save
 </button>
 ```

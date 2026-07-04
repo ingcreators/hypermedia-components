@@ -111,26 +111,26 @@ Baseline の注記は
 
 ## htmx での利用
 
-htmx の `data-hx-trigger="mouseenter"`(または自分で配線するなら
-`hc:hovercardrequest`)と組み合わせて、初回ホバー時にカードの本文を
-取得します。
+カード本文は、トリガー自身のホバー / フォーカスから遅延取得します:
+htmx の `from:` 修飾子でリンク側をリッスンし、スワップ先はカードに
+します。
 
 ```html
-<a href="/users/ada"
+<a href="/users/ada" id="ada-link"
    aria-describedby="ada-card">Ada Lovelace</a>
 
 <div class="hc-hovercard" id="ada-card"
      data-hx-get="/users/ada/preview"
-     data-hx-trigger="hc:hovercardrequest once"
+     data-hx-trigger="mouseenter once from:#ada-link, focus once from:#ada-link"
      data-hx-target="this">
-  <hc-spinner></hc-spinner>
+  <span class="hc-spinner" aria-hidden="true"></span>
 </div>
 ```
 
-アプリ側の小さなラッパーで、カードが初めて開いたときに
-`hc:hovercardrequest` を発火できます。(`installHovercard` は現在
-これを発火しません — ドキュメント化された拡張パターンとして示して
-います。)
+`once` により最初のホバー(またはキーボードフォーカス)でフラグメントを
+取得し、サーバーはカードの内側 HTML を返します。同じ遅延読み込み契約の
+全体は[レイジーパネルのレシピ](/hypermedia-components/ja/recipes/lazy-panel/)が
+文書化しています。
 
 ## ブラウザのベースライン
 

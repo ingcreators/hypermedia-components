@@ -10,7 +10,7 @@ htmx attributes hang off a real `<form action="/items" method="get">`.
 ## Expanded HTML
 
 ```html
-<form class="hc-search" action="/items" method="get" role="search">
+<form action="/items" method="get" role="search">
   <input
     class="hc-input"
     type="search"
@@ -96,7 +96,7 @@ the surrounding `<div>`.
 
 ```html
 <!-- /items?q=foo -->
-<ul class="hc-list">
+<ul>
   <li><a href="/items/1">Item one</a></li>
   <li><a href="/items/2">Item two</a></li>
 </ul>

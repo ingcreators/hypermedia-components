@@ -192,11 +192,11 @@ OS のつまみ、フルのキーボード(<kbd>↑</kbd> / <kbd>↓</kbd> ス�
 ## レンジの制約(単一つまみ)
 
 ネイティブの `<input type="range">` は単一つまみのコントロールです。
-複数つまみのレンジピッカー(価格帯、明るさの幅など)はこの
-コンポーネントのスコープ外です — あのパターンにはカスタムの DOM
-シェルと、2 つのつまみを手動管理するはるかに大きなビヘイビアが必要
-です。それが来るまでは、単一スライダー 2 本を並べる(フォーム
-バリデーション JS で min/max 制約を連動させる)のが推奨パターンです。
+min/max のペア(価格帯、明るさの幅など)には
+[レンジ](/hypermedia-components/ja/components/range/)を使ってください —
+`hc-range` は 2 つのネイティブ range 入力を 1 本のレールに描画し、
+`installRange()` が low ≤ high を保つので、シリアライズはネイティブの
+ままです。
 
 ## テーマ用トークン
 
@@ -236,4 +236,5 @@ component トークン(`component.tokens.json`):
 ## 関連
 
 - [プログレス](/hypermedia-components/ja/components/progress/) — 対話しない完了度の表示に。
+- [レンジ](/hypermedia-components/ja/components/range/) — 2 つのネイティブ range 入力で作る min/max のデュアルサム版。
 - [インプット](/hypermedia-components/ja/components/input/) — テキスト / 数値入力はフォーカスリングの契約を共有します。

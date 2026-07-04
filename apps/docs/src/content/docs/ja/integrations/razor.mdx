@@ -41,8 +41,10 @@ Pages/Shared/
     <script type="module" src="~/assets/hc/hc.behaviors.min.js" asp-append-version="true"></script>
     <script type="module" src="~/assets/hc/macros/index.min.js" asp-append-version="true"></script>
 
-    @* Antiforgery token for htmx requests *@
-    <meta name="request-verification-token"
+    @* htmx リクエスト用の antiforgery トークン — auto-init の
+       installCsrfHeader() ビヘイビアが読み取り、data-header で
+       ASP.NET Core の期待するヘッダー名に変えます。 *@
+    <meta name="csrf-token" data-header="RequestVerificationToken"
           content="@Antiforgery.GetAndStoreTokens(Context).RequestToken">
 </head>
 <body>
@@ -50,12 +52,6 @@ Pages/Shared/
 
     <partial name="_ToastRegion" />
 
-    <script>
-      document.body.addEventListener("htmx:configRequest", (e) => {
-        const token = document.querySelector('meta[name="request-verification-token"]')?.content;
-        if (token) e.detail.headers["RequestVerificationToken"] = token;
-      });
-    </script>
 </body>
 </html>
 ```
@@ -149,12 +145,13 @@ public class IndexModel : PageModel
         {
             return NotFound();
         }
-        Response.Headers["HX-Trigger"] = JsonSerializer.Serialize(new
+        // HxTrigger is the JsonObject helper from "Toasts via
+        // HX-Trigger" below — System.Text.Json cannot emit the
+        // "hc:toast" key from a C# property name.
+        Response.HxTrigger("hc:toast", new
         {
-            hcToast = new { message = $"Deleted \"{item.Name}\".", variant = "success" },
+            message = $"Deleted \"{item.Name}\".", variant = "success",
         });
-        // map the property name to "hc:toast" via custom converter,
-        // or build the JSON by hand (next example).
         return new EmptyResult();
     }
 }
@@ -231,10 +228,11 @@ Response.HxTrigger("hc:toast", new {
 
 ASP.NET Core の antiforgery システムは、htmx リクエストに
 `RequestVerificationToken` ヘッダーを使います。上の
-`_Layout.cshtml` スニペットは:
-
-1. トークンを `<meta>` タグに描画します。
-2. `htmx:configRequest` 経由で htmx に転送します。
+`_Layout.cshtml` スニペットは、トークンをキットの blessed な
+`<meta name="csrf-token">` タグに `data-header="RequestVerificationToken"`
+付きで描画します。auto-init の behaviors バンドルの
+`installCsrfHeader()` がそれを全 htmx リクエストに付与するため、
+手書きの `htmx:configRequest` フックは不要です。
 
 Razor Pages では、POST ハンドラに対して antiforgery は**デフォルトで
 有効**です。ほとんどの場合 `[ValidateAntiForgeryToken]` は不要です —

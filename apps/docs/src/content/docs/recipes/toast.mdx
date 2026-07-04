@@ -101,10 +101,29 @@ HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}, "items:refresh"
 | `title`    | string   | _(omitted)_    | Bold one-liner above the message.       |
 | `variant`  | string   | `'info'`       | `info` / `success` / `warning` / `error`. |
 | `duration` | number   | `4500`         | Milliseconds. `0` keeps the toast until removed manually. |
+| `id`       | string   | _(omitted)_    | Stable handle: a later `hc:toast` with the same `id` **updates the existing toast in place** instead of stacking a new one. |
+| `action`   | object   | _(omitted)_    | `{ label, event }` — renders an action button; activating it dispatches a bubbling `CustomEvent(event)` with `detail: { id, action, toast }`, then dismisses the toast. |
 
 `variant="error"` also flips the toast to `role="alert"` /
 `aria-live="assertive"` so screen readers interrupt to announce it.
 Other variants use `role="status"` / `aria-live="polite"`.
+
+### Action button and update-by-id
+
+`id` and `action` combine into the two server-driven patterns other
+recipes build on:
+
+- **Update by id** (loading → success / error): send a first toast with
+  `{ id: 'job-42', message: 'Exporting…', duration: 0 }`, then a second
+  `hc:toast` with the same `id` — the visible toast morphs in place
+  (used by the promise-toast pattern in
+  [Toast → Update by id](/hypermedia-components/components/toast/)).
+- **Action** (e.g. Undo): `{ action: { label: 'Undo', event: 'hc:undo' } }`
+  renders a button; htmx can listen with
+  `data-hx-trigger="hc:undo from:body"` — see the
+  [undo-delete recipe](/hypermedia-components/recipes/undo-delete/).
+  A sticky toast (`duration: 0`) **must** carry an `action`: without
+  one, keyboard users currently have no way to dismiss it.
 
 ## Examples
 

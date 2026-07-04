@@ -163,7 +163,9 @@ the **oldest** is evicted. Without it the stack is unbounded.
 
 Every toast can be **dragged horizontally** to dismiss it — past ~40% of its
 width it flies out, otherwise it snaps back. This is a pointer / touch
-affordance (keyboard users rely on auto-dismiss); vertical drags still scroll
+affordance (keyboard users rely on auto-dismiss). Because of that, a
+**sticky toast (`duration: 0`) must carry an `action`** — its button is
+the only keyboard-reachable way to dismiss it. Vertical drags still scroll
 the page. The motion is removed under `prefers-reduced-motion`.
 
 ## Accessibility

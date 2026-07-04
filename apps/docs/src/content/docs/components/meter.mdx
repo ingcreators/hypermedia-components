@@ -109,8 +109,11 @@ a quota cell that re-renders after an upload:
        data-hx-swap="outerHTML">82%</meter>
 ```
 
-The region color updates itself on swap — it is derived from the new
-`value` by the browser, not by a script.
+`hc:uploaded` here is **your application's event** (fired by whatever
+completes the upload), not a kit event — any htmx trigger works, e.g.
+`every 30s` for a polling quota. The region color updates itself on
+swap — it is derived from the new `value` by the browser, not by a
+script.
 
 ## Accessibility
 

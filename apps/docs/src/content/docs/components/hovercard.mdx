@@ -108,26 +108,26 @@ baseline note.
 
 ## htmx usage
 
-Pair with htmx's `data-hx-trigger="mouseenter"` (or
-`hc:hovercardrequest` if you wire your own) to fetch the card body
-on first hover.
+Fetch the card body lazily from the trigger's own hover / focus:
+htmx's `from:` modifier listens on the link while the swap targets
+the card.
 
 ```html
-<a href="/users/ada"
+<a href="/users/ada" id="ada-link"
    aria-describedby="ada-card">Ada Lovelace</a>
 
 <div class="hc-hovercard" id="ada-card"
      data-hx-get="/users/ada/preview"
-     data-hx-trigger="hc:hovercardrequest once"
+     data-hx-trigger="mouseenter once from:#ada-link, focus once from:#ada-link"
      data-hx-target="this">
-  <hc-spinner></hc-spinner>
+  <span class="hc-spinner" aria-hidden="true"></span>
 </div>
 ```
 
-A small wrapper in your app can dispatch `hc:hovercardrequest` on
-the card the first time it opens. (`installHovercard` does not
-currently dispatch this — it is shown here as a documented
-extension pattern.)
+`once` makes the first hover (or keyboard focus) fetch the fragment;
+the server returns the card's inner HTML. The
+[lazy-panel recipe](/hypermedia-components/recipes/lazy-panel/)
+documents the same load-on-demand contract in full.
 
 ## Browser baseline
 

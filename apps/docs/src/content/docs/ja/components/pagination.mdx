@@ -13,7 +13,7 @@ import Demo from '../../../../components/Demo.astro';
 
 <Demo>
   <nav class="hc-pagination" aria-label="Pagination">
-    <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
+    <a class="hc-pagination__item" aria-disabled="true">‹ Prev</a>
     <a class="hc-pagination__item" href="#">1</a>
     <a class="hc-pagination__item" aria-current="page" href="#">2</a>
     <a class="hc-pagination__item" href="#">3</a>
@@ -25,7 +25,7 @@ import Demo from '../../../../components/Demo.astro';
 
   ```html
   <nav class="hc-pagination" aria-label="Pagination">
-    <a class="hc-pagination__item" aria-disabled="true" href="#">‹ Prev</a>
+    <a class="hc-pagination__item" aria-disabled="true">‹ Prev</a>
     <a class="hc-pagination__item" href="?page=1">1</a>
     <a class="hc-pagination__item" aria-current="page" href="?page=2">2</a>
     <a class="hc-pagination__item" href="?page=3">3</a>
@@ -42,11 +42,16 @@ import Demo from '../../../../components/Demo.astro';
 - `aria-current="page"` — 現在のページ。視覚的には塗りつぶし、
   クリック不可(pointer-events 無効)。
 - `aria-disabled="true"` — 境界にいるときの前 / 次リンクに適用。
-  リンクはフォーカス可能なまま、ナビゲートしません。
+  **あわせて `href` も外してください**(例のとおり): CSS が消すのは
+  ポインタイベントだけで、`href` が残ったアンカーは
+  <kbd>Enter</kbd> で作動してしまいます。`href` の無い `<a>` は
+  非インタラクティブなプレースホルダー — フォーカス不能で支援技術にも
+  スキップされ、境界ではそれが正解です。
 
 このコンポーネントがアンカーに素の `disabled` を決して使わないのは、
-アンカーがその属性をサポートしないからです。`aria-disabled` の設定が
-正しいパターンで、残りは CSS がやります。
+アンカーがその属性をサポートしないからです。`aria-disabled` +
+境界で `href` を出力しないテンプレートが正しいパターンで、残りは
+CSS がやります。
 
 ## htmx での利用
 
@@ -70,7 +75,11 @@ import Demo from '../../../../components/Demo.astro';
 ```
 
 `data-hx-push-url="true"` がアドレスバーを更新するため、ディープ
-リンクとブラウザの戻るボタンが機能します。
+リンクとブラウザの戻るボタンが機能します。サーバーは **`#orders`
+領域全体**を返します — テーブルに加え、`aria-current` と境界状態が
+移動したページネーションまで。完全な契約は
+[datagrid-pager レシピ](/hypermedia-components/ja/recipes/datagrid-pager/)が
+固定しています。
 
 ## アクセシビリティ
 

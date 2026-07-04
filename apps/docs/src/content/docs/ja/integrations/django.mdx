@@ -36,9 +36,12 @@ static/
   <script defer src="{% static 'assets/htmx.min.js' %}"></script>
   <script type="module" src="{% static 'assets/hc/hc.behaviors.min.js' %}"></script>
   <script type="module" src="{% static 'assets/hc/macros/index.min.js' %}"></script>
+
+  {# auto-init の installCsrfHeader() ビヘイビアが毎リクエスト読み取り、
+     data-header で Django の期待するヘッダー名に変えます。 #}
+  <meta name="csrf-token" content="{{ csrf_token }}" data-header="X-CSRFToken">
 </head>
-<body
-  data-hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body>
 
   {% block content %}{% endblock %}
 
@@ -50,10 +53,14 @@ static/
 </html>
 ```
 
-`<body>` の `data-hx-headers` 属性により、すべての htmx リクエストが
-Django の期待する CSRF トークンを運びます。トークンは
-`{% csrf_token %}` コンテキストプロセッサ(新規プロジェクトでは
-デフォルトで有効)から来ます。
+`<meta name="csrf-token">` タグはキットの blessed な CSRF 規約です:
+auto-init の behaviors バンドルに入っている `installCsrfHeader()` が
+リクエスト時に読み取り、すべての htmx リクエストにヘッダーを付与します —
+`data-header` で Django の `X-CSRFToken` に改名します。JavaScript を
+書く必要はなく、meta に差し替えられたローテーション後のトークンも
+自動で拾われます。(htmx ネイティブの配線が好みなら `<body>` の
+`data-hx-headers` でも動きます —
+[htmx → CSRF](/hypermedia-components/ja/integrations/htmx/) を参照。)
 
 ## コンポーネントの描画
 
@@ -213,8 +220,8 @@ def hx_trigger(response, events):
 ## CSRF のヒント
 
 - Django は POST / PUT / PATCH / DELETE に CSRF トークンを要求します。
-  `base.html` の `data-hx-headers` 属性が、すべての htmx リクエストで
-  それを送ります。
+  `base.html` の `meta[name="csrf-token"]` を `installCsrfHeader()` が
+  読み取り、すべての htmx リクエストでそれを送ります。
 - htmx の構成が状態にクッキーを使う場合、`CSRF_COOKIE_HTTPONLY = False`
   設定にすると `getCsrfToken()` JS ヘルパーが直接読めます —
   `data-hx-headers` を `<body>` ではなく要素単位で設定する場合に

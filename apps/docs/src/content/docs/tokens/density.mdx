@@ -65,17 +65,17 @@ The `sm` and `lg` size variants shift in lockstep with the density
 tier so the relative ordering `sm < md < lg` is preserved at every
 density. The exact values:
 
-| Component  | Density       | `sm`     | `md` (default) | `lg`     |
-| ---------- | ------------- | -------- | --------------- | -------- |
-| Button     | comfortable   | 32 px    | 40 px           | 48 px    |
-| / Input    | compact       | 28 px    | 32 px           | 40 px    |
-| height     | dense         | 24 px    | 28 px           | 32 px    |
-| Button     | comfortable   | 12 px    | 16 px           | 20 px    |
-| / Input    | compact       | 8 px     | 12 px           | 16 px    |
-| padding-x  | dense         | 6 px     | 8 px            | 12 px    |
-| Checkbox   | comfortable   | 14 px    | 18 px           | 22 px    |
-| / Radio    | compact       | 12 px    | 16 px           | 20 px    |
-| size       | dense         | 12 px    | 14 px           | 18 px    |
+| Property                  | Density     | `sm`  | `md` (default) | `lg`  |
+| ------------------------- | ----------- | ----- | -------------- | ----- |
+| Button / input height     | comfortable | 32 px | 40 px          | 48 px |
+|                           | compact     | 28 px | 32 px          | 40 px |
+|                           | dense       | 24 px | 28 px          | 32 px |
+| Button / input padding-x  | comfortable | 12 px | 16 px          | 20 px |
+|                           | compact     | 8 px  | 12 px          | 16 px |
+|                           | dense       | 6 px  | 8 px           | 12 px |
+| Checkbox / radio size     | comfortable | 14 px | 18 px          | 22 px |
+|                           | compact     | 12 px | 16 px          | 20 px |
+|                           | dense       | 12 px | 14 px          | 18 px |
 
 Earlier iterations kept `sm` and `lg` fixed across density tiers
 under the theory that "explicit `data-size` should be absolute, not
@@ -326,12 +326,13 @@ Per-component customization still works at both tiers — setting
 overrides the density value because the per-element declaration is
 more specific.
 
-## Size variants are independent
+## Size variants and density compose
 
-`data-size="sm"` and `data-size="lg"` on buttons / inputs set their
-own dedicated variables (`--hc-button-sm-height`, etc.) and are not
-affected by `data-density`. They mean different things — "this one
-control is a bigger CTA" vs. "the whole UI is laid out tightly."
+`data-size` picks one control's rung on the size ladder ("this one
+control is a bigger CTA"); `data-density` moves the whole ladder
+("the entire UI is laid out tightly"). The `sm` / `lg` variables shift
+with the density tier — see the table above — so the relative ordering
+`sm < md < lg` is preserved at every density.
 
 ## CSS variables
 
@@ -346,6 +347,8 @@ control is a bigger CTA" vs. "the whole UI is laid out tightly."
                              --hc-toast-padding-y
                              --hc-toast-padding-x
                              --hc-toast-gap
+--hc-table-cell-padding-y    --hc-checkbox-size
+--hc-table-cell-padding-x    --hc-radio-size
 ```
 
 All emitted under `:root, [data-density="comfortable"]`,

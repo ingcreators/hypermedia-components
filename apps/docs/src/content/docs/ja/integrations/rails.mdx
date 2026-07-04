@@ -57,13 +57,10 @@ pin "hc-macros",      to: "hc/macros/index.min.js"
        role="region"
        aria-label="Notifications"></div>
 
-  <script>
-    // Hand the CSRF token to htmx so every request carries it.
-    document.body.addEventListener("htmx:configRequest", (e) => {
-      const token = document.querySelector('meta[name="csrf-token"]')?.content
-      if (token) e.detail.headers["X-CSRF-Token"] = token
-    })
-  </script>
+  <%# CSRF スクリプトは不要: csrf_meta_tags が
+      meta[name="csrf-token"] を描画し、auto-init の behaviors バンドルの
+      installCsrfHeader() がそれを全 htmx リクエストに付与します —
+      ヘッダー名は X-CSRF-Token、まさに Rails の期待どおりです。 %>
 </body>
 </html>
 ```
@@ -229,8 +226,9 @@ end
 
 ## CSRF のヒント
 
-- レイアウトの `csrf_meta_tags` + `htmx:configRequest` リスナー(上の
-  レイアウトスニペット参照)で、htmx の全動詞をカバーできます。
+- レイアウトの `csrf_meta_tags` + auto-init の `installCsrfHeader()`
+  (上のレイアウトスニペット参照)で、htmx の全動詞をカバーできます —
+  手書きのリスナーは不要です。
 - フォームからの PUT / PATCH / DELETE では、Rails は通常 `_method` を
   隠し input に忍ばせます — しかし htmx リクエストは `data-hx-{verb}`
   で本物の動詞を使います。`X-CSRF-Token` ヘッダーは引き続き正しく

@@ -65,17 +65,17 @@ dense のターゲット(14 px)は快適なクリックサイズの境界ぎり�
 `sm` と `lg` のサイズバリアントは密度階層と足並みを揃えて移動するため、
 相対順序 `sm < md < lg` はどの密度でも保たれます。正確な値:
 
-| コンポーネント | 密度          | `sm`     | `md`(デフォルト) | `lg`     |
-| ---------- | ------------- | -------- | --------------- | -------- |
-| ボタン     | comfortable   | 32 px    | 40 px           | 48 px    |
-| / インプット | compact       | 28 px    | 32 px           | 40 px    |
-| 高さ       | dense         | 24 px    | 28 px           | 32 px    |
-| ボタン     | comfortable   | 12 px    | 16 px           | 20 px    |
-| / インプット | compact       | 8 px     | 12 px           | 16 px    |
-| padding-x  | dense         | 6 px     | 8 px            | 12 px    |
-| チェックボックス | comfortable   | 14 px    | 18 px           | 22 px    |
-| / ラジオ   | compact       | 12 px    | 16 px           | 20 px    |
-| サイズ     | dense         | 12 px    | 14 px           | 18 px    |
+| プロパティ                     | 密度        | `sm`  | `md`(デフォルト) | `lg`  |
+| ------------------------------ | ----------- | ----- | ---------------- | ----- |
+| ボタン / インプットの高さ      | comfortable | 32 px | 40 px            | 48 px |
+|                                | compact     | 28 px | 32 px            | 40 px |
+|                                | dense       | 24 px | 28 px            | 32 px |
+| ボタン / インプットの padding-x | comfortable | 12 px | 16 px            | 20 px |
+|                                | compact     | 8 px  | 12 px            | 16 px |
+|                                | dense       | 6 px  | 8 px             | 12 px |
+| チェックボックス / ラジオのサイズ | comfortable | 14 px | 18 px            | 22 px |
+|                                | compact     | 12 px | 16 px            | 20 px |
+|                                | dense       | 12 px | 14 px            | 18 px |
 
 以前のイテレーションでは、「明示的な `data-size` は相対でなく絶対で
 あるべき」という理屈で `sm` と `lg` を密度階層をまたいで固定して
@@ -327,12 +327,13 @@ comfortable がデフォルトです。セレクタ
 スコープに `--hc-button-height: 56px;` や `--hc-card-padding: 0;` を
 設定すれば、要素ごとの宣言のほうが具体的なので密度の値に勝ちます。
 
-## サイズバリアントは独立
+## サイズバリアントと密度は合成される
 
-ボタン / インプットの `data-size="sm"` と `data-size="lg"` は専用の変数
-(`--hc-button-sm-height` など)を設定し、`data-density` の影響を受け
-ません。意味が違うのです — 「この 1 つのコントロールが大きめの CTA」
-対「UI 全体が詰めて組まれている」。
+`data-size` は 1 つのコントロールがサイズ梯子のどの段に乗るかを選び
+(「この 1 つのコントロールが大きめの CTA」)、`data-density` は梯子
+全体を動かします(「UI 全体が詰めて組まれている」)。`sm` / `lg` の
+変数は密度階層と連動して移動するため — 上の表のとおり — 相対順序
+`sm < md < lg` はどの密度でも保たれます。
 
 ## CSS 変数
 
@@ -347,6 +348,8 @@ comfortable がデフォルトです。セレクタ
                              --hc-toast-padding-y
                              --hc-toast-padding-x
                              --hc-toast-gap
+--hc-table-cell-padding-y    --hc-checkbox-size
+--hc-table-cell-padding-x    --hc-radio-size
 ```
 
 すべて `:root, [data-density="comfortable"]`、
