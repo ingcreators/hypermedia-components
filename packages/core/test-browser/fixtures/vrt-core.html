@@ -287,6 +287,61 @@ notes content.</textarea>
       <hr class="hc-separator" data-orientation="vertical" aria-orientation="vertical">
       <span>Settings</span>
     </div>
+    <div style="max-inline-size:24rem;margin-block-start:.5rem;">
+      <div class="hc-separator" role="separator" aria-orientation="horizontal">
+        <span class="hc-separator__label">or</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="vrt-meter">
+    <h2>Meter</h2>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:.5rem;max-inline-size:24rem;">
+      <meter class="hc-meter" min="0" max="100" low="30" high="70" optimum="90"
+             value="85" aria-label="Storage health optimum">85</meter>
+      <meter class="hc-meter" min="0" max="100" low="30" high="70" optimum="90"
+             value="50" aria-label="Storage health suboptimum">50</meter>
+      <meter class="hc-meter" min="0" max="100" low="30" high="70" optimum="90"
+             value="15" aria-label="Storage health critical">15</meter>
+      <meter class="hc-meter" data-size="sm" min="0" max="10" value="7" aria-label="Small meter">7 of 10</meter>
+      <meter class="hc-meter" data-size="lg" min="0" max="10" value="7" aria-label="Large meter">7 of 10</meter>
+    </div>
+  </section>
+
+  <section id="vrt-rating">
+    <h2>Rating</h2>
+    <div class="row">
+      <fieldset class="hc-rating">
+        <legend class="hc-sr-only">Rate this article</legend>
+        <input class="hc-rating__input" type="radio" name="vrt-rate" value="1" id="vrt-r1">
+        <label class="hc-rating__star" for="vrt-r1" aria-label="1 of 5">★</label>
+        <input class="hc-rating__input" type="radio" name="vrt-rate" value="2" id="vrt-r2">
+        <label class="hc-rating__star" for="vrt-r2" aria-label="2 of 5">★</label>
+        <input class="hc-rating__input" type="radio" name="vrt-rate" value="3" id="vrt-r3" checked>
+        <label class="hc-rating__star" for="vrt-r3" aria-label="3 of 5">★</label>
+        <input class="hc-rating__input" type="radio" name="vrt-rate" value="4" id="vrt-r4">
+        <label class="hc-rating__star" for="vrt-r4" aria-label="4 of 5">★</label>
+        <input class="hc-rating__input" type="radio" name="vrt-rate" value="5" id="vrt-r5">
+        <label class="hc-rating__star" for="vrt-r5" aria-label="5 of 5">★</label>
+      </fieldset>
+      <span class="hc-rating" data-readonly data-size="sm" role="img" aria-label="4 of 5 stars">
+        <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+        <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+        <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+        <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+        <span class="hc-rating__star" aria-hidden="true">★</span>
+      </span>
+    </div>
+  </section>
+
+  <section id="vrt-range">
+    <h2>Range (dual thumb)</h2>
+    <div style="max-inline-size:24rem;">
+      <div class="hc-range" style="--hc-range-low: 20; --hc-range-high: 80;">
+        <input class="hc-range__input" type="range" name="vrt_price_min" min="0" max="100" value="20" aria-label="Minimum price">
+        <input class="hc-range__input" type="range" name="vrt_price_max" min="0" max="100" value="80" aria-label="Maximum price">
+      </div>
+    </div>
   </section>
 
   <section id="vrt-alert">
@@ -584,6 +639,44 @@ notes content.</textarea>
         </li>
       </ul>
     </div>
+  </section>
+
+  <section id="vrt-transfer">
+    <h2>Transfer</h2>
+    <form class="hc-transfer" aria-label="Role members" style="max-inline-size:36rem;">
+      <fieldset class="hc-transfer__pane">
+        <legend class="hc-transfer__title">Available
+          <span class="hc-transfer__count">(2)</span></legend>
+        <div class="hc-transfer__list">
+          <label class="hc-item">
+            <input class="hc-checkbox" type="checkbox" name="available" value="7" checked>
+            <span class="hc-item__title">Ada Lovelace</span>
+          </label>
+          <label class="hc-item">
+            <input class="hc-checkbox" type="checkbox" name="available" value="9">
+            <span class="hc-item__title">Grace Hopper</span>
+          </label>
+        </div>
+      </fieldset>
+      <div class="hc-transfer__controls">
+        <button class="hc-button" type="button" aria-label="Add selected">
+          <span class="hc-transfer__arrow" aria-hidden="true">→</span>
+        </button>
+        <button class="hc-button" type="button" aria-label="Remove selected">
+          <span class="hc-transfer__arrow" aria-hidden="true">←</span>
+        </button>
+      </div>
+      <fieldset class="hc-transfer__pane">
+        <legend class="hc-transfer__title">Assigned
+          <span class="hc-transfer__count">(1)</span></legend>
+        <div class="hc-transfer__list">
+          <label class="hc-item">
+            <input class="hc-checkbox" type="checkbox" name="assigned" value="4">
+            <span class="hc-item__title">Alan Turing</span>
+          </label>
+        </div>
+      </fieldset>
+    </form>
   </section>
 
 </body>
