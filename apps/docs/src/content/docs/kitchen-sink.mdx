@@ -202,6 +202,18 @@ splitter, type in the OTP field — it all works.
   <div class="hc-calendar" data-value="2026-05-15" data-locale="en-US" aria-label="Pick a date"></div>
 </div>
 
+### [Dropzone](/hypermedia-components/components/dropzone/)
+
+<div class="hc-preview not-content" style="max-inline-size:24rem;">
+  <label class="hc-dropzone">
+    <input class="hc-dropzone__input" type="file" name="ks-doc" />
+    <span class="hc-dropzone__body">
+      <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+      <span class="hc-dropzone__files"></span>
+    </span>
+  </label>
+</div>
+
 ## Navigation
 
 ### [Breadcrumb](/hypermedia-components/components/breadcrumb/) · [Pagination](/hypermedia-components/components/pagination/)
@@ -221,6 +233,25 @@ splitter, type in the OTP field — it all works.
     <a class="hc-pagination__item" href="#">3</a>
     <a class="hc-pagination__item" href="#">Next ›</a>
   </nav>
+</div>
+
+### [Stepper](/hypermedia-components/components/stepper/)
+
+<div class="hc-preview not-content">
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Account <span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
 </div>
 
 ### [Tabs](/hypermedia-components/components/tabs/)
@@ -290,6 +321,27 @@ splitter, type in the OTP field — it all works.
     <hr class="hc-menu__separator" />
     <button class="hc-menu__item" role="menuitem" type="button" data-variant="error">Delete</button>
   </div>
+</div>
+
+### [Tree](/hypermedia-components/components/tree/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <ul class="hc-tree" aria-label="Project files" style="min-inline-size:14rem;">
+    <li class="hc-tree__item" aria-expanded="true">
+      <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span><span class="hc-tree__label">src</span></span>
+      <ul class="hc-tree__group">
+        <li class="hc-tree__item" aria-expanded="false">
+          <span class="hc-tree__row"><span class="hc-tree__toggle" aria-hidden="true"></span><span class="hc-tree__label">components</span></span>
+          <ul class="hc-tree__group">
+            <li class="hc-tree__item"><span class="hc-tree__row"><span class="hc-tree__label">button.js</span></span></li>
+          </ul>
+        </li>
+        <li class="hc-tree__item" aria-current="true">
+          <span class="hc-tree__row"><span class="hc-tree__label">app.js</span></span>
+        </li>
+      </ul>
+    </li>
+  </ul>
 </div>
 
 ## Overlays
@@ -415,6 +467,16 @@ splitter, type in the OTP field — it all works.
   <span class="hc-badge" data-variant="success">Success</span>
   <span class="hc-badge" data-variant="warning">Warning</span>
   <span class="hc-badge" data-variant="error">Error</span>
+</div>
+
+### [Chip](/hypermedia-components/components/chip/)
+
+<div class="hc-preview not-content hc-preview--start">
+  <ul class="hc-chips" aria-label="Scopes">
+    <li class="hc-chip">read:members</li>
+    <li class="hc-chip">write:members</li>
+    <li class="hc-chip">admin:realm</li>
+  </ul>
 </div>
 
 ### [Separator](/hypermedia-components/components/separator/)
