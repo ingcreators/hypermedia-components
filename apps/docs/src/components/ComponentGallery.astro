@@ -10,17 +10,24 @@ import { getCollection } from 'astro:content';
 
 const CATEGORIES = [
   { label: 'Actions', items: ['button', 'button-group', 'toggle-group', 'toolbar', 'command', 'kbd'] },
-  { label: 'Forms', items: ['field', 'input', 'input-group', 'inputotp', 'select', 'combobox', 'multicombobox', 'checkbox', 'radio', 'switch', 'slider', 'datepicker', 'calendar'] },
-  { label: 'Navigation', items: ['breadcrumb', 'toc', 'pagination', 'tabs', 'menu', 'menubar', 'navmenu', 'context-menu'] },
+  { label: 'Forms', items: ['field', 'input', 'input-group', 'inputotp', 'select', 'combobox', 'multicombobox', 'checkbox', 'radio', 'switch', 'slider', 'rating', 'range', 'datepicker', 'calendar', 'dropzone'] },
+  { label: 'Navigation', items: ['breadcrumb', 'toc', 'pagination', 'stepper', 'tabs', 'menu', 'menubar', 'navmenu', 'context-menu', 'tree'] },
   { label: 'Overlays', items: ['dialog', 'drawer', 'popover', 'hovercard', 'tooltip'] },
-  { label: 'Data display', items: ['table', 'code', 'datagrid', 'card', 'item', 'avatar', 'badge', 'separator', 'accordion', 'collapsible', 'sparkline'] },
-  { label: 'Feedback', items: ['alert', 'toast', 'progress', 'spinner', 'skeleton', 'empty'] },
+  { label: 'Data display', items: ['table', 'code', 'datagrid', 'card', 'item', 'avatar', 'badge', 'chip', 'separator', 'accordion', 'collapsible', 'sparkline', 'timeline'] },
+  { label: 'Feedback', items: ['alert', 'toast', 'progress', 'meter', 'spinner', 'skeleton', 'empty'] },
   { label: 'Layout', items: ['aspect', 'scroll-area', 'shell', 'splitter', 'carousel'] },
 ];
 
 const docs = await getCollection('docs');
 const byId = new Map(docs.map((e) => [e.id, e]));
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+// When embedded on a /ja/ page, pull the ja entries (card title +
+// blurb) and link to the /ja/ routes; fall back to the English entry
+// so a not-yet-translated page still gets a card (its /ja/ route
+// exists via Starlight's locale fallback).
+const isJa = Astro.url.pathname.includes('/ja/');
+const idPrefix = isJa ? 'ja/' : '';
+const linkBase = isJa ? `${base}/ja` : base;
 const anchor = (label) => label.toLowerCase().replace(/\s+/g, '-');
 ---
 
@@ -30,10 +37,10 @@ const anchor = (label) => label.toLowerCase().replace(/\s+/g, '-');
       <h2 id={anchor(cat.label)}>{cat.label}</h2>
       <div class="hc-grid not-content" style="--hc-grid-min: 15rem;">
         {cat.items.map((name) => {
-          const entry = byId.get(`components/${name}`);
+          const entry = byId.get(`${idPrefix}components/${name}`) ?? byId.get(`components/${name}`);
           if (!entry) return null;
           return (
-            <a class="hc-card hc-gallery__card" href={`${base}/components/${name}/`}>
+            <a class="hc-card hc-gallery__card" href={`${linkBase}/components/${name}/`}>
               <div class="hc-card__header">
                 <strong>{entry.data.title}</strong>
               </div>

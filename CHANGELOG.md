@@ -65,6 +65,18 @@ Security    — security-relevant changes
   elsewhere); every engine now asserts the copied text through the
   `hc:copied` event detail instead.
 
+### Fixed
+
+- **Docs: the component overview, sidebar, and kitchen sink caught up
+  with the component set** (docs-facing). The `/components/` gallery
+  was missing eight shipped components (chip, dropzone, meter, range,
+  rating, stepper, timeline, tree), the sidebar three (dropzone,
+  stepper, tree), and the kitchen sink four (chip, dropzone, stepper,
+  tree) — all added under their sidebar categories, en + ja. The
+  gallery is also locale-aware now: on `/ja/` it renders the Japanese
+  card blurbs and links to the `/ja/` routes instead of the English
+  ones.
+
 ## [0.1.8] - 2026-07-04
 
 ### Added

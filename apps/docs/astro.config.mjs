@@ -123,6 +123,7 @@ export default defineConfig({
                 'components/range',
                 'components/datepicker',
                 'components/calendar',
+                'components/dropzone',
               ],
             },
             {
@@ -131,11 +132,13 @@ export default defineConfig({
                 'components/breadcrumb',
                 'components/toc',
                 'components/pagination',
+                'components/stepper',
                 'components/tabs',
                 'components/menu',
                 'components/menubar',
                 'components/navmenu',
                 'components/context-menu',
+                'components/tree',
               ],
             },
             {
