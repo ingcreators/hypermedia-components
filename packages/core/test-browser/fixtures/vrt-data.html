@@ -348,5 +348,35 @@
       </ul>
     </nav>
   </section>
+
+  <section id="vrt-timeline">
+    <h2>Timeline</h2>
+    <ol class="hc-timeline" aria-label="Deployment history" style="max-inline-size:28rem;">
+      <li class="hc-timeline__item" data-variant="success">
+        <span class="hc-timeline__marker" aria-hidden="true">✓</span>
+        <div class="hc-timeline__content">
+          <time class="hc-timeline__time" datetime="2026-07-03T09:14">09:14</time>
+          <span class="hc-timeline__title">Deploy finished</span>
+          <p class="hc-timeline__description">v2.4 to production.</p>
+        </div>
+      </li>
+      <li class="hc-timeline__item" data-variant="warning">
+        <span class="hc-timeline__marker" aria-hidden="true">!</span>
+        <div class="hc-timeline__content">
+          <time class="hc-timeline__time" datetime="2026-07-03T09:10">09:10</time>
+          <span class="hc-timeline__title">Smoke test flaky</span>
+          <p class="hc-timeline__description">Retried once, then green.</p>
+        </div>
+      </li>
+      <li class="hc-timeline__item" data-variant="error">
+        <span class="hc-timeline__marker" aria-hidden="true">✕</span>
+        <div class="hc-timeline__content">
+          <time class="hc-timeline__time" datetime="2026-07-03T08:57">08:57</time>
+          <span class="hc-timeline__title">Canary rolled back</span>
+          <p class="hc-timeline__description">Error budget burn alert.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
 </body>
 </html>

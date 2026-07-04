@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **VRT: the 0.1.8 components joined the screenshot sheets**
+  (dev-facing). `vrt-core` grows meter (the three status regions +
+  size presets), rating (interactive, checked=3, plus the read-only
+  display form), the dual-thumb range, the separator label variant,
+  and the transfer two-pane form; `vrt-data` grows the timeline
+  (success / warning / error markers, last-item connector stop).
+  Chromium/linux baselines regenerated for the affected sheets.
+
 - **Docs i18n drift check in CI** (docs-facing). The docs job now fails
   a PR that changes an English docs page without touching its `ja/`
   twin, mechanizing the CONTRIBUTING.md § "Japanese translations"
