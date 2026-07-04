@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-rating fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body>
+  <main id="section-rating" style="padding:1rem; max-inline-size:40rem; display:grid; gap:1rem;">
+    <h1>Rating</h1>
+
+    <form data-testid="form">
+      <fieldset class="hc-rating" data-testid="interactive">
+        <legend class="hc-sr-only">Rate this article</legend>
+        <input class="hc-rating__input" type="radio" name="rate" value="1" id="r1">
+        <label class="hc-rating__star" for="r1" aria-label="1 of 5">★</label>
+        <input class="hc-rating__input" type="radio" name="rate" value="2" id="r2">
+        <label class="hc-rating__star" for="r2" aria-label="2 of 5">★</label>
+        <input class="hc-rating__input" type="radio" name="rate" value="3" id="r3" checked>
+        <label class="hc-rating__star" for="r3" aria-label="3 of 5">★</label>
+        <input class="hc-rating__input" type="radio" name="rate" value="4" id="r4">
+        <label class="hc-rating__star" for="r4" aria-label="4 of 5">★</label>
+        <input class="hc-rating__input" type="radio" name="rate" value="5" id="r5">
+        <label class="hc-rating__star" for="r5" aria-label="5 of 5">★</label>
+      </fieldset>
+    </form>
+
+    <span class="hc-rating" data-readonly role="img" aria-label="4 of 5 stars" data-testid="readonly">
+      <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+      <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+      <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+      <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+      <span class="hc-rating__star" aria-hidden="true">★</span>
+    </span>
+
+    <fieldset class="hc-rating" data-size="lg" data-testid="lg">
+      <legend class="hc-sr-only">Large</legend>
+      <input class="hc-rating__input" type="radio" name="lg" value="1" id="lg1">
+      <label class="hc-rating__star" for="lg1" aria-label="1 of 2">★</label>
+      <input class="hc-rating__input" type="radio" name="lg" value="2" id="lg2">
+      <label class="hc-rating__star" for="lg2" aria-label="2 of 2">★</label>
+    </fieldset>
+  </main>
+</body>
+</html>

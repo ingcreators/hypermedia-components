@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-rating` — star rating as a native radio group** (R1 of
+  `plans/hc-component-breadth2-plan-v0.9-en.md`). Pure CSS: real radios
+  + label glyphs (native serialization, platform arrow-key navigation),
+  fill-up-to-checked via `:has()`, a read-only display form
+  (`data-readonly` + `data-filled`), `data-size="sm|lg"` presets, and
+  new `rating.*` tokens. Docs (en + ja), kitchen-sink entry, and a
+  Playwright suite incl. axe.
+
 - **`hc-meter` — native `<meter>` skin** (first track of
   `plans/hc-component-breadth2-plan-v0.9-en.md`). The scalar-measurement
   sibling of `hc-progress`: pure CSS over the native element, with the

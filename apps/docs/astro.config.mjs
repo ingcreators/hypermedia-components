@@ -94,6 +94,7 @@ export default defineConfig({
                 'components/radio',
                 'components/switch',
                 'components/slider',
+                'components/rating',
                 'components/datepicker',
                 'components/calendar',
               ],

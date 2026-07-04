@@ -1,0 +1,174 @@
+---
+title: Rating
+description: A star rating as a native radio group — serializes with the form, arrow-key navigation from the platform, fill-up-to-checked in pure CSS.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-rating` renders a star rating as a **radio group**: each star is a
+real `<input type="radio">` with a `<label>` glyph. The value serializes
+with the form natively, arrow-key group navigation comes from the
+platform, and the fill-up-to-checked rendering is pure CSS (`:has()`,
+Baseline 2023) — no JavaScript.
+
+## Basic HTML
+
+One `input` + `label` pair per star, in ascending DOM order; name the
+group with a visually-hidden `<legend>`.
+
+<Demo>
+  <fieldset class="hc-rating">
+    <legend class="hc-sr-only">Rate this article</legend>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="1" id="doc-r1" />
+    <label class="hc-rating__star" for="doc-r1" aria-label="1 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="2" id="doc-r2" />
+    <label class="hc-rating__star" for="doc-r2" aria-label="2 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="3" id="doc-r3" checked />
+    <label class="hc-rating__star" for="doc-r3" aria-label="3 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="4" id="doc-r4" />
+    <label class="hc-rating__star" for="doc-r4" aria-label="4 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="5" id="doc-r5" />
+    <label class="hc-rating__star" for="doc-r5" aria-label="5 of 5">★</label>
+  </fieldset>
+
+  <Fragment slot="code">
+
+  ```html
+  <fieldset class="hc-rating">
+    <legend class="hc-sr-only">Rate this article</legend>
+    <input class="hc-rating__input" type="radio" name="rate" value="1" id="r1">
+    <label class="hc-rating__star" for="r1" aria-label="1 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="rate" value="2" id="r2">
+    <label class="hc-rating__star" for="r2" aria-label="2 of 5">★</label>
+    <!-- … up to value="5" -->
+  </fieldset>
+  ```
+
+  </Fragment>
+</Demo>
+
+The glyph is the label's content and inherits `currentColor` — swap the
+`★` for any character or an inline SVG without touching the CSS.
+
+## Read-only display
+
+For showing an existing rating (a review list, a product card), skip the
+form entirely: spans with `data-filled`, one accessible name on the
+container.
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-rating" data-readonly role="img" aria-label="4 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-rating" data-readonly role="img" aria-label="4 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+  ```
+
+  </Fragment>
+</Demo>
+
+## Sizes
+
+`data-size` accepts `sm`, `md` (default), and `lg`.
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-rating" data-readonly data-size="sm" role="img" aria-label="3 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+  <span class="hc-rating" data-readonly role="img" aria-label="3 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+  <span class="hc-rating" data-readonly data-size="lg" role="img" aria-label="3 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+
+  <Fragment slot="code">
+
+  ```html
+  <fieldset class="hc-rating" data-size="sm">…</fieldset>
+  <fieldset class="hc-rating">…</fieldset>
+  <fieldset class="hc-rating" data-size="lg">…</fieldset>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx usage
+
+The rating is a normal radio group — submit it like any form control,
+or save on change:
+
+```html
+<form data-hx-post="/reviews/42/rate" data-hx-trigger="change"
+      data-hx-target="#rate-status" data-hx-swap="innerHTML">
+  <fieldset class="hc-rating">
+    <legend class="hc-sr-only">Rate this article</legend>
+    <!-- … the radios … -->
+  </fieldset>
+</form>
+<p id="rate-status" role="status"></p>
+```
+
+The server receives `rate=4` in the standard form encoding — no custom
+serialization, no hidden inputs.
+
+## Accessibility
+
+- Name the group: a `<legend>` (visually hidden is fine) on the
+  interactive form, `role="img"` + `aria-label` on the read-only form.
+- Give each star's label an `aria-label` ("1 of 5" …) — the visible `★`
+  glyph would otherwise be announced as "black star" five times.
+- The radios are visually hidden but stay in the tree: `Tab` reaches the
+  group, arrow keys move within it, and the focused star shows a ring.
+- A disabled group (`<fieldset disabled>`) mutes the stars and blocks
+  input natively.
+- Half-star values can't be expressed by a radio group — for display,
+  round to whole stars and put the exact value in the `aria-label`
+  (and visible text): `aria-label="4.5 of 5 stars"`.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `rating.gap` | Gap between stars. |
+| `rating.size` | Glyph size (default). |
+| `rating.color` | Empty-star color. |
+| `rating.filled-color` | Filled-star color (warning/amber). |
+| `rating.transition-duration` | Fill color transition. |
+| `rating.sm.size` / `lg.size` | Size variants. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-rating-gap | -size | -color | -filled-color
+--hc-rating-transition-duration
+--hc-rating-sm-size | -lg-size
+--hc-color-focus-ring   (inherited from data-color)
+```
+
+</details>
+
+## Related
+
+- [Radio](/hypermedia-components/components/radio/) — the underlying
+  control, in its plain form.
+- [Badge](/hypermedia-components/components/badge/) — pairs with a
+  read-only rating in review lists.
