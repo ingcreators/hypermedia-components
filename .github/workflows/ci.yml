@@ -79,6 +79,15 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      # A PR that changes an English docs page must change its ja/ twin
+      # in the same PR (CONTRIBUTING.md § "Japanese translations").
+      # Cheap (git + node only), so it runs before the build.
+      - name: Docs i18n drift check
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.base.sha }}
+          node apps/docs/scripts/check-i18n-drift.mjs ${{ github.event.pull_request.base.sha }} HEAD
+
       - run: pnpm install --frozen-lockfile
 
       # `pnpm docs:build` chains: core build → astro build → pagefind → sitemap.

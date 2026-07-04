@@ -259,10 +259,12 @@ untranslated pages are served under `/ja/**` automatically via
 Starlight's fallback (English content + a notice), so never copy an
 English page unchanged into `ja/`.
 
-- **If you edit an English page that has a `ja/` counterpart, update
-  the translation in the same PR.** The translated set is small and
-  curated (see `plans/hc-docs-ja-i18n-plan-en.md`); keeping the pair in
-  one PR is what stops drift.
+- **If you edit an English page, update the `ja/` translation in the
+  same PR.** Every page is mirrored (the full translation shipped in
+  0.1.8; see `plans/hc-docs-ja-i18n-plan-en.md`), and CI enforces the
+  pairing: the docs job fails a PR that changes an English page without
+  touching its `ja/` twin (`apps/docs/scripts/check-i18n-drift.mjs`;
+  run it locally with `pnpm -w run docs:i18n-drift origin/main HEAD`).
 - Identifiers stay in English: class names, attributes, tokens, file
   paths, `installXxx()`, code blocks and their comments, and all markup
   inside `<Demo>` slots (preview and code slot must stay identical).

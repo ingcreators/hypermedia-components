@@ -14,7 +14,8 @@
     "lint:fix": "pnpm -r --if-present lint:fix",
     "docs:dev": "pnpm --filter @hypermedia-components/docs dev",
     "docs:build": "pnpm --filter @hypermedia-components/docs build",
-    "docs:preview": "pnpm --filter @hypermedia-components/docs preview"
+    "docs:preview": "pnpm --filter @hypermedia-components/docs preview",
+    "docs:i18n-drift": "node apps/docs/scripts/check-i18n-drift.mjs"
   },
   "devDependencies": {}
 }

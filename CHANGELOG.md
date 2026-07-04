@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs i18n drift check in CI** (docs-facing). The docs job now fails
+  a PR that changes an English docs page without touching its `ja/`
+  twin, mechanizing the CONTRIBUTING.md § "Japanese translations"
+  same-PR rule now that every page is mirrored (125 en / 125 ja).
+  `apps/docs/scripts/check-i18n-drift.mjs`; locally:
+  `pnpm -w run docs:i18n-drift origin/main HEAD`. ja-only edits stay
+  exempt (English is the source language).
+
 - **Cross-browser CI — the Playwright suite now runs on Firefox and
   WebKit** (dev-facing). The browser job fans out to one matrix leg per
   engine (Chromium / Firefox / WebKit) behind the same required check;
