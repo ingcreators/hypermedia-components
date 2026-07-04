@@ -229,6 +229,14 @@ and `/llms.txt` on the docs site. The
 [road-to-1.0 audit](plans/hc-road-to-1.0-en.md) found **zero breaking
 debt** across the whole public API surface and proposes skipping
 `0.2.0`; the `1.0.0` go/no-go and timing rest with the maintainer.
+A second wave (#347–#354) followed the same day: the plans status
+sweep, the component-index consistency fix, and the
+[docs clarity plan](plans/hc-docs-clarity-plan-en.md) **shipped in
+full** — every copy-paste-broken example fixed, one template across
+the component pages, recipe contract tables + the CLI aside
+everywhere, the fundamentals cheat sheet / behaviors reference /
+CDN path / tokens landing, and the toast Escape-dismiss fix
+(the review's one component-side finding).
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and

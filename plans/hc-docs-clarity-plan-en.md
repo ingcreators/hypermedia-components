@@ -1,8 +1,11 @@
 # HC Docs Clarity Plan — full-site review for framework users
 
-Status: **approved; implementation in progress** (review completed
-2026-07-04: all 125 English pages read against origin/main `512c0b2`,
-claims verified against core sources; ~85 findings). Reader persona:
+Status: **shipped in full** (2026-07-04, PRs #349–#354: the plan,
+four docs batches — #350 breakage, #351 component template, #353
+recipes, #352 connective tissue — and the #354 toast Escape fix).
+Review basis: all 125 English pages read against origin/main
+`512c0b2`, claims verified against core sources; ~85 findings, all
+addressed or explicitly deferred in §Out of scope. Reader persona:
 a server-side framework developer (Rails / Django / Thymeleaf / Razor /
 htmx) emitting HC markup from templates.
 
