@@ -99,12 +99,25 @@ JavaScript がなくても 2 つの入力は動作しシリアライズされま
 レールとつまみは [`hc-slider`](/hypermedia-components/ja/components/slider/#テーマ用トークン)
 のトークン(`slider.track-*`、`slider.thumb-*`、`slider.fill`)を再利用
 するため、2 つのコンポーネントは 1 つのファミリーとしてテーマされます。
-レンジ固有のノブはランタイムのフィルパーセンテージだけです:
+レンジ固有のノブはランタイムのフィルパーセンテージだけです。
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
 
 ```text
 --hc-range-low    (0–100; set inline server-side, kept live by installRange)
 --hc-range-high   (0–100)
+--hc-slider-track-height | -track-bg | -fill | -radius   (inherited)
+--hc-slider-thumb-size | -thumb-bg | -thumb-border       (inherited)
+--hc-color-focus-ring   (inherited from data-color)
 ```
+
+見た目のノブは継承した `--hc-slider-*` 変数です — `hc-range` 自身が
+足すのは 2 つのフィルパーセンテージだけです。
+
+</details>
 
 ## 関連
 

@@ -11,6 +11,17 @@ with the form natively, arrow-key group navigation comes from the
 platform, and the fill-up-to-checked rendering is pure CSS (`:has()`,
 Baseline 2023) — no JavaScript.
 
+## Browser baseline
+
+| Primitive | Status |
+| --- | --- |
+| `:has()` (fill-up-to-checked, hover preview) | Baseline 2023 |
+
+Without `:has()` only the visual run-up degrades — the adjacent-sibling
+rule still fills the checked (or hovered) star itself, the radios remain
+a fully functional, serializing form control, and the read-only display
+(`data-filled` spans) doesn't use `:has()` at all.
+
 ## Basic HTML
 
 One `input` + `label` pair per star, in ascending DOM order; name the

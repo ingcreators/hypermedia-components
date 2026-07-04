@@ -81,6 +81,10 @@ import { installDrawer } from '@hypermedia-components/core';
 installDrawer();
 ```
 
+`installDrawer()` is idempotent and returns an uninstaller. The
+zero-config `@hypermedia-components/core/behaviors` entry auto-installs it
+and picks up content swapped in by htmx.
+
 ## Sides
 
 `data-side` accepts `right` (default), `left`, `top`, and `bottom`.

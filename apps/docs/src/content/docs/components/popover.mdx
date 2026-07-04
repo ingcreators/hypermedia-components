@@ -96,14 +96,8 @@ it, so both paths place the popover identically. The shared mechanics —
 both paths, the arrow, and the `--hc-anchored-*` knobs — are documented in
 [Fundamentals → Anchored positioning](/hypermedia-components/fundamentals/anchored/).
 
-:::note[Baseline]
-CSS Anchor Positioning (`position-area` / `position-try-fallbacks`) reached
-[Baseline](https://developer.mozilla.org/docs/Web/CSS/position-area) in
-**2026** (Chrome / Edge 125+, Safari 26, Firefox 147+). On engines older than
-that, `installPopover()`'s JS fallback positions the popover; without
-JavaScript a `data-side` popover stays browser-centred. The `data-arrow`
-pointer is plain CSS and renders everywhere.
-:::
+See [Browser baseline](#browser-baseline) below for the engine
+requirements and the fallback behavior.
 
 ## htmx usage
 
@@ -124,6 +118,18 @@ and install the `installClosePopover()` behavior (bundled in
 
 The behavior listens for `htmx:afterRequest`, checks for success, and
 calls `closest('[popover]').hidePopover()`.
+
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+On engines without Anchor Positioning, `installPopover()`'s JS fallback
+positions a `data-side` popover; without JavaScript it stays
+browser-centred. The `data-arrow` pointer is plain CSS and renders
+everywhere.
 
 ## Accessibility
 

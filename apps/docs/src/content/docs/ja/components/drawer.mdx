@@ -81,6 +81,10 @@ import { installDrawer } from '@hypermedia-components/core';
 installDrawer();
 ```
 
+`installDrawer()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。
+
 ## 端
 
 `data-side` は `right`(デフォルト)、`left`、`top`、`bottom` を

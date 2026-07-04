@@ -42,7 +42,7 @@ installCalendar(); // idempotent; returns an uninstaller
 ```
 
 The zero-config `@hypermedia-components/core/behaviors` entry installs
-it automatically.
+it automatically and picks up content swapped in by htmx.
 
 ## Configuration
 
@@ -62,10 +62,20 @@ Month and weekday names come from `Intl.DateTimeFormat`. The first day
 of the week is taken from `data-first-day` (not `Intl.Locale`'s
 `getWeekInfo()`, which is not yet Baseline).
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-calendar" data-value="2026-05-15" data-first-day="1" data-locale="en-GB"
        data-min="2026-05-04" data-max="2026-06-20" aria-label="Pick a date (Mon start, ranged)"></div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-calendar" data-value="2026-05-15" data-first-day="1"
+       data-locale="en-GB" data-min="2026-05-04" data-max="2026-06-20"
+       aria-label="Pick a date (Mon start, ranged)"></div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Month / year navigation
 

@@ -97,12 +97,25 @@ encoding.
 The rail and thumbs reuse the [`hc-slider`](/hypermedia-components/components/slider/#theming-tokens)
 tokens (`slider.track-*`, `slider.thumb-*`, `slider.fill`) so the two
 components theme as one family. The only range-specific knobs are the
-runtime fill percentages:
+runtime fill percentages.
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
 
 ```text
 --hc-range-low    (0–100; set inline server-side, kept live by installRange)
 --hc-range-high   (0–100)
+--hc-slider-track-height | -track-bg | -fill | -radius   (inherited)
+--hc-slider-thumb-size | -thumb-bg | -thumb-border       (inherited)
+--hc-color-focus-ring   (inherited from data-color)
 ```
+
+The visual knobs are the inherited `--hc-slider-*` variables — `hc-range`
+itself adds only the two fill percentages.
+
+</details>
 
 ## Related
 

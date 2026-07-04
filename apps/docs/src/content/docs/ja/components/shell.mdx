@@ -349,6 +349,37 @@ installShell(); // or the auto-init bundle: @hypermedia-components/core/behavior
 ボタンは隠れます。`data-persist` があれば、折りたたみ状態は次の訪問で
 最初の描画前に復元されます(`localStorage` の失敗は静かに劣化)。
 
+## htmx での利用
+
+htmx でのシェルの定番は **boost されたアプリシェル**です: シェルに
+`data-hx-boost="true"` を置くとサイドバーの各リンクが AJAX
+ナビゲーションになり、継承される `data-hx-target` / `data-hx-select`
+によって各リンクはメインリージョンだけを置き換えます — クローム
+(ヘッダー、サイドバー、そのスクロール位置)は再描画されません:
+
+```html
+<div class="hc-shell" data-hx-boost="true"
+     data-hx-target=".hc-shell__main" data-hx-select=".hc-shell__main"
+     data-hx-swap="outerHTML show:window:top">
+  <header class="hc-shell__header">…</header>
+  <nav class="hc-shell__sidebar" data-hc-nav-current aria-label="Primary">
+    <a class="hc-item" href="/orders">Orders</a>
+    <a class="hc-item" href="/settings">Settings</a>
+  </nav>
+  <main class="hc-shell__main"><!-- swapped per navigation --></main>
+</div>
+```
+
+サーバは**フルページ**を返し続けます — `data-hx-select` がレスポンス
+から新しいページの `.hc-shell__main` を抽出するため、直接のロード、
+リロード、no-JS のクリックはそのまま動きます。boost された
+ナビゲーションは新しい URL を履歴にプッシュし、
+[`installNavCurrent()`](#url-からアクティブ項目に印を付ける--data-hc-nav-current)
+はまさにそのシグナル(`htmx:pushedIntoHistory`、加えて戻る / 進む用の
+`popstate`)で再マークします — つまり `data-hc-nav-current` を持つ
+サイドバーの `aria-current="page"` は、追加の配線なしにすべての
+boost ナビゲーションに追随します。
+
 ## アクセシビリティ
 
 - 本物のランドマークを使ってください: `<header>`、
@@ -360,6 +391,14 @@ installShell(); // or the auto-init bundle: @hypermedia-components/core/behavior
 - トグルにはアクセシブルな名前を与えてください(`aria-label` か
   見えるテキスト)。どちらもなければ `installShell()` がフォールバック
   のラベルを足します。
+
+## テーマ用トークン
+
+シェルは**固有の component トークンを定義しません**: 色とスペーシング
+は共有のセマンティックな `--hc-color-*` / `--hc-space-*` トークンから
+来るため、テーマ、アクセント(`data-color`)、密度は自動で適用され
+ます。下の CSS 変数は**テーマ可能なトークンではなくレイアウトのノブ**
+です。
 
 ## CSS 変数
 

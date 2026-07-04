@@ -20,6 +20,28 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Docs: the component pages now share one template** (docs-facing;
+  batch 2 of `plans/hc-docs-clarity-plan-en.md`, en + ja, 34 page
+  pairs). Every behavior-backed page states the same three facts
+  (idempotent, returns an uninstaller, auto-installed by the
+  zero-config `/behaviors` entry — with the htmx-swap pickup verified
+  per behavior in source); the "Browser baseline" block has one shape
+  and one position on every popover/anchor page; token-less pages
+  carry an explicit "None of its own" stub so the tail always scans
+  the same. Content upgrades: datagrid gained consolidated **Events**
+  and **Feature attributes** tables; code and shell gained htmx
+  round-trip sections; multicombobox gained an Anatomy table
+  (author-written vs generated parts) and the previously undocumented
+  `data-hc-empty`; stepper / tree / dropzone / rating were brought up
+  to the house format (size demos, token tables, CSS-variables blocks,
+  rating's `:has()` baseline note); tabs documents `hc:tabactivated`
+  (dispatched on the revealed panel, no detail); accordion gained an
+  Anatomy table and carousel the pre-rendered-dots example. Also
+  fixed: accordion's htmx example still used the non-existent
+  `<hc-spinner>` element.
+
 ### Fixed
 
 - **Docs: every copy-paste-broken or self-contradictory page from the

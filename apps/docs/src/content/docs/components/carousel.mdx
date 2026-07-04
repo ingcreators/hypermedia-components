@@ -48,6 +48,9 @@ import { installCarousel } from '@hypermedia-components/core';
 installCarousel();
 ```
 
+`installCarousel()` is idempotent and returns an uninstaller. The
+zero-config `@hypermedia-components/core/behaviors` entry auto-installs it.
+
 ## What `installCarousel()` does
 
 - Tracks the most-visible slide with an `IntersectionObserver` and marks it
@@ -59,6 +62,23 @@ installCarousel();
 - Scrolls on prev / next / dot click and on ←/→ while the rail is focused —
   always via native smooth scrolling.
 - Emits a bubbling `hc:carouselchange` with `detail.index` on every change.
+
+## Pre-rendered dots
+
+If the `[data-hc-carousel-dots]` container already contains
+`[data-hc-carousel-dot]` buttons, the behavior **reuses them instead of
+generating its own** — the nth button controls the nth slide (matched by
+document order), and click wiring plus `aria-current` sync are added on
+top. Render them server-side when you want the dot row in the initial
+HTML (no layout shift while the behavior loads):
+
+```html
+<div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide">
+  <button type="button" class="hc-carousel__dot" data-hc-carousel-dot aria-label="Go to slide 1"></button>
+  <button type="button" class="hc-carousel__dot" data-hc-carousel-dot aria-label="Go to slide 2"></button>
+  <button type="button" class="hc-carousel__dot" data-hc-carousel-dot aria-label="Go to slide 3"></button>
+</div>
+```
 
 ## Slide width
 

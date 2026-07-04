@@ -107,8 +107,12 @@ For a form inside a dialog that should close on success, opt in with
 </form>
 ```
 
-The behavior listens for `htmx:afterRequest`, checks for success,
-and calls `dialog.close()` on the closest `<dialog>` ancestor.
+This glue is the `installCloseDialog()` behavior — it listens for
+`htmx:afterRequest`, checks for success, and calls `dialog.close()` on
+the closest `<dialog>` ancestor. `installCloseDialog()` is idempotent
+and returns an uninstaller. The zero-config
+`@hypermedia-components/core/behaviors` entry auto-installs it and picks
+up content swapped in by htmx.
 
 ## Accessibility
 

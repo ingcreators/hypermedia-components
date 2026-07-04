@@ -70,6 +70,10 @@ import { installTooltip } from '@hypermedia-components/core';
 installTooltip();
 ```
 
+`installTooltip()` is idempotent and returns an uninstaller. The
+zero-config `@hypermedia-components/core/behaviors` entry auto-installs it
+and picks up content swapped in by htmx.
+
 ## What `installTooltip()` does
 
 - Auto-attributes the tooltip element if the author has not:

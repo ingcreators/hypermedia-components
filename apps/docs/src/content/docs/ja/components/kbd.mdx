@@ -109,12 +109,23 @@ JavaScript はありません。
 `hc-kbd` は、メニュー項目やコマンド行の隣に置いてそのショートカットを
 知らせるのに自然にはまります。
 
-<div class="hc-preview not-content" style="display:flex;justify-content:space-between;align-items:center;gap:2rem;max-inline-size:18rem;padding:.4rem .6rem;border:1px solid var(--hc-color-border);border-radius:var(--hc-control-radius);">
+<Demo previewStyle="display:flex;justify-content:space-between;align-items:center;gap:2rem;max-inline-size:18rem;padding:.4rem .6rem;border:1px solid var(--hc-color-border);border-radius:var(--hc-control-radius);">
   <span>Command palette</span>
   <kbd class="hc-kbd-group">
     <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
   </kbd>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <span>Command palette</span>
+  <kbd class="hc-kbd-group">
+    <kbd class="hc-kbd">⌘</kbd> + <kbd class="hc-kbd">K</kbd>
+  </kbd>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## アクセシビリティ
 

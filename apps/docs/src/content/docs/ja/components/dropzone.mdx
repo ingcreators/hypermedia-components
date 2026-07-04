@@ -71,6 +71,35 @@ input に代入して — 単一ファイルの input は最初の 1 つだけ�
 
 `data-size="sm"` は密なフォーム向けにパディングを詰めます。
 
+<Demo>
+  <label class="hc-dropzone" data-size="sm">
+    <input class="hc-dropzone__input" type="file" name="doc-sm" />
+    <span class="hc-dropzone__body">
+      <span class="hc-dropzone__hint">Drop a file here, or click to browse</span>
+      <span class="hc-dropzone__files"></span>
+    </span>
+  </label>
+
+  <Fragment slot="code">
+
+  ```html
+  <label class="hc-dropzone" data-size="sm">
+    <!-- …the same input and body… -->
+  </label>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx での利用
+
+アップロードは
+[ファイルアップロードレシピ](/hypermedia-components/ja/recipes/file-upload/)の
+契約です: フォームの `data-hx-encoding="multipart/form-data"`、
+`installUploadProgress()` によるライブ進捗、サーバのレスポンスの形は
+すべてそこにあります。ドロップゾーンはそのフォームに無変更で差し込め
+ます — ドロップは「参照」と同じネイティブの `change` に行き着きます。
+
 ## アクセシビリティ
 
 - キーボードや支援技術の利用者が必要とするものはすべてネイティブの
@@ -86,10 +115,33 @@ input に代入して — 単一ファイルの input は最初の 1 つだけ�
 
 ## テーマ用トークン
 
-`--hc-dropzone-bg` / `-border` / `-fg` / `-hint` / `-radius` /
-`-padding-y` / `-padding-x` / `-dragover-border` / `-dragover-bg` /
-`-error-border` — すべて semantic トークンを参照するため、テーマ、
-アクセント(`data-color`)、ダークモードが自動で適用されます。
+component トークン(`component.tokens.json`)— すべて semantic
+トークンを参照するため、テーマ、アクセント(`data-color`)、ダーク
+モードが自動で適用されます:
+
+| トークンパス | 用途 |
+| --- | --- |
+| `dropzone.bg` / `fg` | 面の背景とテキスト。 |
+| `dropzone.border` | 破線の枠線色。 |
+| `dropzone.hint` | ヒントテキストの色。 |
+| `dropzone.radius` | 角丸。 |
+| `dropzone.padding-y` / `padding-x` | 面のパディング(`data-size="sm"` が上書き)。 |
+| `dropzone.dragover-border` / `dragover-bg` | ドラッグオーバーのアクセント(`data-color` に追従)。 |
+| `dropzone.error-border` | 無効値状態の枠線。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-dropzone-bg | -fg | -border | -hint | -radius
+--hc-dropzone-padding-y | -padding-x
+--hc-dropzone-dragover-border | -dragover-bg
+--hc-dropzone-error-border
+```
+
+</details>
 
 ## 関連
 

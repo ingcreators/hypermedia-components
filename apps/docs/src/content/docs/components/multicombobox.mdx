@@ -75,6 +75,32 @@ installMulticombobox();
 The pre-selected `aria-selected="true"` option becomes the
 seeded tag.
 
+## Anatomy
+
+| Part | Required | Purpose |
+| --- | --- | --- |
+| `hc-multicombobox` | yes | Wrapper; carries `data-name` / `data-allow-create`. |
+| `hc-multicombobox__control` | yes | The visual control box (pair it with `hc-input`). |
+| `hc-multicombobox__tags` | yes | Empty container the behavior fills with tag chips. |
+| `hc-multicombobox__input` | yes | The filter input — `role="combobox"`. |
+| `hc-multicombobox__listbox` | yes | The option list — `role="listbox"`. |
+| `hc-multicombobox__option` | yes | One per option — `role="option"` + `data-value`. |
+| `hc-multicombobox__tag` / `__tag-remove` | generated | A tag chip and its × remove button. |
+| `hc-multicombobox__hidden` | generated | Hidden-input container for `data-name` form integration. |
+| `hc-multicombobox__empty` | generated | "No matches" placeholder while the filter has no hit. |
+| `hc-multicombobox__create` | generated | The synthetic "Add …" option (`data-allow-create`). |
+
+You author the **yes** parts; the *generated* ones are created and
+removed by `installMulticombobox()` — never write them yourself. The
+empty placeholder's text comes from `data-hc-empty` on the **listbox**
+when present, else from the i18n key `multicombobox.empty` (see the
+[i18n catalog](/hypermedia-components/fundamentals/i18n/)):
+
+```html
+<ul class="hc-multicombobox__listbox" id="lang-list" role="listbox"
+    data-hc-empty="No matching language">
+```
+
 ## What `installMulticombobox()` does
 
 - **ARIA**: `aria-multiselectable="true"` on the listbox,
@@ -145,6 +171,27 @@ edit is one trigger declaration:
 </div>
 ```
 
+The server persists the values and returns a small confirmation
+fragment for `#status` (a "Saved" note, a validation message) — the
+control itself is **not** re-rendered; its tags and hidden inputs are
+client state.
+
+**Async options** — to load the option list from the server, swap the
+listbox's children instead: the behavior reads options live from the
+DOM, so swapped-in rows filter, highlight, and toggle like static ones.
+
+```html
+<input class="hc-multicombobox__input" type="text" name="q"
+       role="combobox" aria-controls="lang-list" aria-label="Languages"
+       data-hx-get="/languages/options"
+       data-hx-trigger="input changed delay:300ms"
+       data-hx-target="#lang-list" data-hx-swap="innerHTML">
+```
+
+The server returns only
+`<li class="hc-multicombobox__option" role="option" data-value="…">`
+rows matching the typed `q`.
+
 ## Creatable
 
 Add `data-allow-create` to let users add tags that aren't in the list. When
@@ -208,6 +255,27 @@ Component tokens (in `component.tokens.json`):
 | `multicombobox.listbox.*` | Mirror of the combobox listbox tokens. |
 | `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, check-color, disabled-fg, indicator-size}` | Option layout + check mark. |
 | `multicombobox.empty-fg` | "No matches" placeholder color. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-multicombobox-control-padding-x | -control-padding-y | -control-gap | -control-min-height
+--hc-multicombobox-input-min-width | -input-fg
+--hc-multicombobox-tag-bg | -tag-fg | -tag-border | -tag-radius | -tag-gap | -tag-font-size
+--hc-multicombobox-tag-padding-x | -tag-padding-y
+--hc-multicombobox-tag-remove-fg | -tag-remove-hover-fg
+--hc-multicombobox-listbox-bg | -listbox-fg | -listbox-border | -listbox-radius
+--hc-multicombobox-listbox-max-height | -listbox-padding-block | -listbox-min-width | -listbox-offset
+--hc-multicombobox-option-padding-x | -option-padding-y | -option-font-size | -option-fg
+--hc-multicombobox-option-hover-bg | -option-active-bg | -option-check-color
+--hc-multicombobox-option-disabled-fg | -option-indicator-size
+--hc-multicombobox-empty-fg
+```
+
+</details>
 
 ## Related
 

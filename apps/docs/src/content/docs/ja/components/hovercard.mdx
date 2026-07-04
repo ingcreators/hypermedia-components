@@ -74,6 +74,10 @@ import { installHovercard } from '@hypermedia-components/core';
 installHovercard();
 ```
 
+`installHovercard()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。
+
 ## `installHovercard()` の表示 / 非表示ルーティング
 
 | トリガーイベント | 効果 |

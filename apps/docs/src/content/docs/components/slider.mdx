@@ -36,6 +36,10 @@ import { installSlider } from '@hypermedia-components/core';
 installSlider();
 ```
 
+`installSlider()` is idempotent and returns an uninstaller. The
+zero-config `@hypermedia-components/core/behaviors` entry auto-installs it
+and picks up content swapped in by htmx.
+
 ## How the fill color works
 
 Firefox renders the 0→value portion of the track natively via

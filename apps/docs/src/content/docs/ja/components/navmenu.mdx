@@ -68,6 +68,10 @@ import { installNavmenu } from '@hypermedia-components/core';
 installNavmenu();
 ```
 
+`installNavmenu()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。
+
 トリガーには `aria-haspopup` / `aria-expanded` / `aria-controls` が
 自動で配線され、パネルはその下にアンカーされた `popover` になります。
 
@@ -94,6 +98,17 @@ installNavmenu();
 して描画します。レイアウトの切り替えはメディアクエリで — リンクと構造は
 同一なので、重複するマークアップは不要です。
 
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+Anchor Positioning のない環境では `installNavmenu()` が JS 配置に
+フォールバックします — `popover` がサポートされる環境ならどこでも、
+パネルは正しく開いて解散します。
+
 ## アクセシビリティ
 
 - メニューは `aria-label` つきの `<nav>` で包みます。各パネルトリガーは
@@ -102,10 +117,6 @@ installNavmenu();
   フォームから来ます。`Esc` でフォーカスはトリガーへ戻ります。
 - パネルのコンテンツは、Tab で到達可能で普通に読み上げられるよう、
   ソース順の本物のリンク / ボタンに保ってください。
-- Anchor Positioning は **Baseline 2026** です。ない環境では
-  `installNavmenu()` が JS 配置にフォールバックします(`popover` が
-  サポートされる環境ならどこでも、パネルは正しく開いて解散します)。
-
 ## テーマ用トークン
 
 | トークンパス                   | 用途                             |

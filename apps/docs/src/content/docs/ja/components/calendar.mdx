@@ -43,7 +43,7 @@ installCalendar(); // idempotent; returns an uninstaller
 ```
 
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリは自動で
-インストールします。
+インストールし、htmx でスワップされた内容も自動で拾います。
 
 ## 設定
 
@@ -63,10 +63,20 @@ installCalendar(); // idempotent; returns an uninstaller
 `data-first-day` から取られます(まだ Baseline でない
 `Intl.Locale` の `getWeekInfo()` は使いません)。
 
-<div class="hc-preview not-content">
+<Demo>
   <div class="hc-calendar" data-value="2026-05-15" data-first-day="1" data-locale="en-GB"
        data-min="2026-05-04" data-max="2026-06-20" aria-label="Pick a date (Mon start, ranged)"></div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-calendar" data-value="2026-05-15" data-first-day="1"
+       data-locale="en-GB" data-min="2026-05-04" data-max="2026-06-20"
+       aria-label="Pick a date (Mon start, ranged)"></div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## 月 / 年ナビゲーション
 

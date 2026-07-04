@@ -67,6 +67,10 @@ import { installNavmenu } from '@hypermedia-components/core';
 installNavmenu();
 ```
 
+`installNavmenu()` is idempotent and returns an uninstaller. The
+zero-config `@hypermedia-components/core/behaviors` entry auto-installs it
+and picks up content swapped in by htmx.
+
 A trigger gets `aria-haspopup` / `aria-expanded` / `aria-controls` wired
 automatically; its panel becomes a `popover` anchored beneath it.
 
@@ -92,6 +96,17 @@ and let each section render as a stacked
 layouts with a media query — the links and structure are identical, so no
 duplicate markup is required.
 
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+Where Anchor Positioning is missing, `installNavmenu()` falls back to JS
+positioning — the panel still opens and dismisses correctly everywhere
+`popover` is supported.
+
 ## Accessibility
 
 - Wrap the menu in a `<nav>` with an `aria-label`; each panel trigger is a
@@ -100,9 +115,6 @@ duplicate markup is required.
   platform; focus returns to the trigger on `Esc`.
 - Keep panel contents as real links / buttons in source order so they are
   reachable by Tab and announced normally.
-- Anchor Positioning is **Baseline 2026**; where it is missing,
-  `installNavmenu()` falls back to JS positioning (the panel still opens and
-  dismisses correctly everywhere `popover` is supported).
 
 ## Theming tokens
 

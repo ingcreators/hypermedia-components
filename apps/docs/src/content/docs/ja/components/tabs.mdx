@@ -85,6 +85,16 @@ import { installTabs } from '@hypermedia-components/core';
 installTabs();
 ```
 
+`installTabs()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。
+
+パネルがアクティブになると、ビヘイビアはそのパネル上でバブリングする
+**`hc:tabactivated`** イベントを発行します(`detail` ペイロードは
+ありません — イベントターゲット自体がパネルです)。タブ切り替えへの
+反応に使えます。例えばパネル内容の遅延読み込みなど
+([htmx での利用](#htmx-での利用)を参照)。
+
 ### アクティベーションモード
 
 デフォルトでビヘイビアは**手動アクティベーション**を使います —

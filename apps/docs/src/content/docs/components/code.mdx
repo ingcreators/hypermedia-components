@@ -263,6 +263,29 @@ Token colour wins over a context line's muted text; line tints (`data-state`)
 and the diff gutter are unaffected. The palette meets WCAG AA contrast on the
 code surface in both themes (verified by `code-syntax.spec.mjs`).
 
+## htmx usage
+
+The editable field is a native `<textarea name="…">`, so saving is a plain
+form POST; the response swaps in the read-only view of what was stored:
+
+```html
+<form data-hx-post="/queries/42" data-hx-target="#query-view" data-hx-swap="innerHTML">
+  <div class="hc-code" data-editable data-gutter="line-numbers" data-lang="sql">
+    <textarea class="hc-code__input" name="content" spellcheck="false"
+              aria-label="Route SQL">SELECT id FROM members</textarea>
+  </div>
+  <button class="hc-button" type="submit">Save</button>
+</form>
+
+<div id="query-view"><!-- the tokenized read-only fragment swaps in here --></div>
+```
+
+**Server contract:** the response is a read-only `hc-code` fragment — e.g. a
+`<pre class="hc-code" tabindex="0" role="region" aria-label="…"><code>` with
+each token wrapped in `<span class="hc-code__tok" data-tok="…">`, exactly the
+[syntax-highlighting](#syntax-highlighting) markup above — the kit only styles
+it; no client tokenizer runs on the swapped fragment.
+
 ## Accessibility
 
 - A horizontally scrollable block must be reachable by keyboard. Make it a
