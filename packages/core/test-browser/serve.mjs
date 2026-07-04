@@ -582,6 +582,88 @@ function handleUndo(req, res, url) {
   return false;
 }
 
+// Mock membership store for the transfer recipe spec (transfer.html):
+// every move POST re-renders the whole form from this state; the reset
+// endpoint isolates specs.
+const TRANSFER_PEOPLE = { 7: 'Ada Lovelace', 9: 'Grace Hopper', 4: 'Alan Turing' };
+const transferInitial = () => ({ available: ['7', '9'], assigned: ['4'] });
+let transferState = transferInitial();
+
+function transferPane(title, name, ids) {
+  const items = ids
+    .map((id) => `<label class="hc-item">
+        <input class="hc-checkbox" type="checkbox" name="${name}" value="${id}">
+        <span class="hc-item__title">${TRANSFER_PEOPLE[id]}</span>
+      </label>`)
+    .join('');
+  return `<fieldset class="hc-transfer__pane">
+    <legend class="hc-transfer__title">${title}
+      <span class="hc-transfer__count" data-testid="count-${name}">(${ids.length})</span></legend>
+    <div class="hc-transfer__list">${items}</div>
+  </fieldset>`;
+}
+
+function transferForm(alert = '') {
+  return `<form class="hc-transfer" id="members" method="post" action="/mock/transfer"
+      data-hx-post="/mock/transfer" data-hx-target="this" data-hx-swap="outerHTML"
+      aria-label="Role members" data-testid="transfer">
+    ${alert}
+    ${transferPane('Available', 'available', transferState.available)}
+    <div class="hc-transfer__controls">
+      <button class="hc-button" type="submit" name="action" value="add"
+              data-hx-disabled-elt="this" aria-label="Add selected" data-testid="add">
+        <span class="hc-transfer__arrow" aria-hidden="true">→</span>
+      </button>
+      <button class="hc-button" type="submit" name="action" value="remove"
+              data-hx-disabled-elt="this" aria-label="Remove selected" data-testid="remove">
+        <span class="hc-transfer__arrow" aria-hidden="true">←</span>
+      </button>
+    </div>
+    ${transferPane('Assigned', 'assigned', transferState.assigned)}
+  </form>`;
+}
+
+function handleTransfer(req, res, url) {
+  if (url.pathname === '/mock/transfer/reset' && req.method === 'GET') {
+    transferState = transferInitial();
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(transferForm());
+    return true;
+  }
+  if (url.pathname === '/mock/transfer' && req.method === 'POST') {
+    readBody(req).then((body) => {
+      const params = new URLSearchParams(body);
+      const action = params.get('action');
+      const moved = action === 'add' ? params.getAll('available') : params.getAll('assigned');
+      if (!req.headers['hx-request']) {
+        res.statusCode = 303;
+        res.setHeader('Location', '/mock/bulk/done');
+        return res.end();
+      }
+      res.setHeader('Content-Type', MIME['.html']);
+      if (moved.length === 0) {
+        res.statusCode = 422;
+        return res.end(transferForm(
+          '<div class="hc-alert" data-variant="error" role="alert" style="flex-basis:100%;" data-testid="transfer-alert">'
+          + '<p class="hc-alert__title">Select at least one member to move.</p></div>',
+        ));
+      }
+      const [from, to] = action === 'add'
+        ? [transferState.available, transferState.assigned]
+        : [transferState.assigned, transferState.available];
+      for (const id of moved) {
+        const i = from.indexOf(id);
+        if (i !== -1) { from.splice(i, 1); to.push(id); } // idempotent per id
+      }
+      res.statusCode = 200;
+      res.end(transferForm());
+    });
+    return true;
+  }
+  return false;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -589,6 +671,7 @@ function handleMock(req, res, url) {
   if (handleWizard(req, res, url)) return true;
   if (handleUpload(req, res, url)) return true;
   if (handleTree(req, res, url)) return true;
+  if (handleTransfer(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
   req.resume();

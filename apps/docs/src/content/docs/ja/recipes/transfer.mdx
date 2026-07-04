@@ -1,0 +1,131 @@
+---
+title: トランスファー
+description: デュアルリストボックス(割り当て / 解除)をサーバ往復で — チェックボックスのペイン、add / remove の送信ボタン、フォーム全体のスワップ。カスタム JavaScript ゼロ。
+---
+
+メンバー、権限、カテゴリの割り当て・解除を 2 つのペインと移動ボタンで —
+Ant Design の Transfer / PrimeVue の PickList を、ハイパーメディア流で:
+**所属はサーバに住み**、すべての移動はフォーム全体を再描画する POST
+です。id はネイティブなフォームシリアライズで、動詞は送信ボタンで
+運ばれます — カスタム JavaScript はゼロです。
+
+## マークアップ
+
+```html
+<form class="hc-transfer" id="members" method="post" action="/roles/42/members"
+      data-hx-post="/roles/42/members"
+      data-hx-target="this" data-hx-swap="outerHTML"
+      aria-label="Role members">
+  <fieldset class="hc-transfer__pane">
+    <legend class="hc-transfer__title">Available
+      <span class="hc-transfer__count">(2)</span></legend>
+    <div class="hc-transfer__list">
+      <label class="hc-item">
+        <input class="hc-checkbox" type="checkbox" name="available" value="7">
+        <span class="hc-item__title">Ada Lovelace</span>
+      </label>
+      <!-- … -->
+    </div>
+  </fieldset>
+
+  <div class="hc-transfer__controls">
+    <button class="hc-button" type="submit" name="action" value="add"
+            data-hx-disabled-elt="this" aria-label="Add selected">
+      <span class="hc-transfer__arrow" aria-hidden="true">→</span>
+    </button>
+    <button class="hc-button" type="submit" name="action" value="remove"
+            data-hx-disabled-elt="this" aria-label="Remove selected">
+      <span class="hc-transfer__arrow" aria-hidden="true">←</span>
+    </button>
+  </div>
+
+  <fieldset class="hc-transfer__pane">
+    <legend class="hc-transfer__title">Assigned
+      <span class="hc-transfer__count">(1)</span></legend>
+    <div class="hc-transfer__list">
+      <label class="hc-item">
+        <input class="hc-checkbox" type="checkbox" name="assigned" value="4">
+        <span class="hc-item__title">Alan Turing</span>
+      </label>
+    </div>
+  </fieldset>
+</form>
+```
+
+`hc-transfer`(スタイルシート)はレイアウトだけです: コントロール列を
+挟んだ 2 つの `fieldset` ペイン、スクロール可能なリスト、RTL で反転する
+矢印(`.hc-transfer__arrow`)、狭いコンテナでのスタック。行は素の
+[`hc-item`](/hypermedia-components/ja/components/item/) のラベルです。
+
+## id の運ばれ方
+
+**フォームがスワップ単位**です(`data-hx-target="this"` +
+`data-hx-swap="outerHTML"`)。チェックされた id はネイティブに
+シリアライズされます — 片方のペインは `name="available"`、もう片方は
+`name="assigned"`。トリガーしたボタンが `action=add|remove` を
+添えます:
+
+```text
+POST /roles/42/members
+available=7&available=9&action=add
+```
+
+サーバは動詞に対応するペインだけを読み(ユーザーは両側をチェック
+できます)、各 id を冪等に扱い、**再描画されたフォーム**で応答します:
+両ペインが更新され、件数が更新され、チェックボックスはクリアされます。
+クライアントに選択状態は残りません — レスポンスが真実です。
+
+## サーバレスポンス契約
+
+| ケース | ステータス | ボディ |
+| --- | --- | --- |
+| 移動が適用された(htmx) | 200 | 再描画された `<form class="hc-transfer">` |
+| 移動が適用された(JS なし) | 303 | ページに戻る `Location` |
+| 未選択 / 不正 | 422 | 先頭の子にインライン `.hc-alert[role="alert"]` を持つ同じフォーム |
+
+422 の経路はキットの
+[エラー処理の許可](/hypermedia-components/ja/recipes/mutating-form/)を
+使います(htmx ≥ 2 はデフォルトで非 2xx をスワップしません —
+`htmx:beforeSwap` で一度だけ有効化します)。CSRF の注意を含む完全な
+契約は
+[`recipes/transfer/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/transfer/contract.md)
+にあり、`hc validate` で機械チェックされます。
+
+## JS なしでの劣化
+
+JavaScript がなくてもフォームはネイティブに POST し、サーバは
+303 → GET → 更新されたフォームを含むフルページで応答します。パターンは
+端から端まで機能し、htmx はフルページリロードを取り除くだけです。
+
+## スコープと組み合わせ
+
+- ペイン内の検索が必要?
+  [live-search レシピ](/hypermedia-components/ja/recipes/live-search/)を
+  ペインごとに組み合わせてください — サーバは再描画するペインを
+  フィルタします。
+- とても大きな集合?
+  [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/)の
+  ように *available* ペインをサーバサイドでページングします —
+  フォームスワップの形は変わりません。
+- ペイン間のドラッグ & ドロップは意図的に対象外です — ボタンが
+  アクセシブルな経路であり、ドロップでも同じ POST が必要になるだけ
+  です。
+
+## アクセシビリティ
+
+- 各ペインは `<legend>` を持つ `<fieldset>` です — チェックボックスに
+  入るとスクリーンリーダーが「Available、グループ」と読み上げます。
+- グリフのみの移動ボタンは `aria-label` を持ちます。グリフは
+  `aria-hidden` で、`dir="rtl"` では反転します。
+- フォーム全体のスワップはフォーカスの文脈をリセットします。ペインは
+  legend を通じて再アナウンスされます。件数は legend の中に置いて、
+  グループ名の一部にしてください。
+
+## 関連
+
+- [datagrid-bulk-actions](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) —
+  同じ「シリアライズで id を運ぶ」考え方をグリッドに。
+- [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) —
+  このレシピが再利用する 4xx 再描画の規約。
+- [アイテム](/hypermedia-components/ja/components/item/) — ペイン内の
+  行プリミティブ。

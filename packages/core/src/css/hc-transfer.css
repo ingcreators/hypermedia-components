@@ -1,0 +1,92 @@
+/* hc-transfer — dual-listbox layout for the transfer recipe.
+ *
+ * Membership lives on the server: the recipe posts add / remove and the
+ * server re-renders the whole form. This stylesheet is only the layout —
+ * two checkbox panes around a controls column:
+ *
+ *   <form class="hc-transfer" method="post" action="…"
+ *         data-hx-post="…" data-hx-target="this" data-hx-swap="outerHTML">
+ *     <fieldset class="hc-transfer__pane">
+ *       <legend class="hc-transfer__title">Available
+ *         <span class="hc-transfer__count">(3)</span></legend>
+ *       <div class="hc-transfer__list">
+ *         <label class="hc-item">
+ *           <input class="hc-checkbox" type="checkbox" name="available" value="7">
+ *           <span class="hc-item__title">Ada Lovelace</span>
+ *         </label>
+ *       </div>
+ *     </fieldset>
+ *     <div class="hc-transfer__controls">…add / remove buttons…</div>
+ *     <fieldset class="hc-transfer__pane">…assigned…</fieldset>
+ *   </form>
+ *
+ * Logical properties throughout — RTL flips the panes; wrap the arrow
+ * glyphs in .hc-transfer__arrow so they mirror too. On narrow
+ * containers the flex row wraps into a stack.
+ */
+@layer hc.components {
+  .hc-transfer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: var(--hc-transfer-gap);
+  }
+
+  .hc-transfer__pane {
+    flex: 1 1 14rem;
+    min-inline-size: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--hc-transfer-pane-border);
+    border-radius: var(--hc-transfer-pane-radius);
+    background: var(--hc-transfer-pane-bg);
+    overflow: hidden;
+  }
+
+  .hc-transfer__title {
+    /* A <legend> renders inside the fieldset border by default; float
+     * resets that so it behaves as a normal header row. */
+    float: inline-start;
+    inline-size: 100%;
+    box-sizing: border-box;
+    padding: var(--hc-transfer-title-padding-y) var(--hc-transfer-title-padding-x);
+    border-block-end: 1px solid var(--hc-transfer-pane-border);
+    font-weight: var(--hc-transfer-title-font-weight);
+  }
+
+  .hc-transfer__count {
+    color: var(--hc-transfer-count-fg);
+    font-weight: normal;
+  }
+
+  .hc-transfer__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--hc-transfer-list-padding);
+    max-block-size: var(--hc-transfer-list-max-height);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* Checkbox rows reuse hc-item; make the whole label a hover target. */
+  .hc-transfer__list > .hc-item {
+    cursor: pointer;
+  }
+
+  .hc-transfer__controls {
+    flex: 0 0 auto;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--hc-transfer-controls-gap);
+  }
+
+  /* Directional glyphs mirror with the panes under RTL. */
+  .hc-transfer:dir(rtl) .hc-transfer__arrow {
+    display: inline-block;
+    transform: scaleX(-1);
+  }
+}

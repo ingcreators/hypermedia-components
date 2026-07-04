@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>transfer recipe fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+</head>
+<body>
+  <main id="section-transfer" style="padding:1rem; max-inline-size:44rem;">
+    <h1>Transfer</h1>
+
+    <!-- The initial form is fetched from the mock so the markup and the
+         server state always agree; the specs reset it in beforeEach. -->
+    <div data-hx-get="/mock/transfer/reset" data-hx-trigger="load"
+         data-hx-swap="innerHTML"></div>
+  </main>
+
+  <script>
+    // Documented one-time allowance: htmx ≥ 2 won't swap non-2xx by default.
+    document.body.addEventListener('htmx:beforeSwap', (event) => {
+      if (event.detail.xhr.status === 422) {
+        event.detail.shouldSwap = true;
+        event.detail.isError = false;
+      }
+    });
+  </script>
+</body>
+</html>

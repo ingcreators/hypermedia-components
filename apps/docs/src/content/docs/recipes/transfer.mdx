@@ -1,0 +1,127 @@
+---
+title: Transfer
+description: A dual listbox (assign / unassign) as a server round trip — checkbox panes, add/remove submit buttons, and a whole-form swap. Zero custom JavaScript.
+---
+
+Assign and unassign members, permissions, or categories with two panes
+and move buttons — Ant Design's Transfer / PrimeVue's PickList, done the
+hypermedia way: **membership lives on the server**, every move is a POST
+that re-renders the whole form. The ids travel by native form
+serialization, the verbs by submit buttons — zero custom JavaScript.
+
+## The markup
+
+```html
+<form class="hc-transfer" id="members" method="post" action="/roles/42/members"
+      data-hx-post="/roles/42/members"
+      data-hx-target="this" data-hx-swap="outerHTML"
+      aria-label="Role members">
+  <fieldset class="hc-transfer__pane">
+    <legend class="hc-transfer__title">Available
+      <span class="hc-transfer__count">(2)</span></legend>
+    <div class="hc-transfer__list">
+      <label class="hc-item">
+        <input class="hc-checkbox" type="checkbox" name="available" value="7">
+        <span class="hc-item__title">Ada Lovelace</span>
+      </label>
+      <!-- … -->
+    </div>
+  </fieldset>
+
+  <div class="hc-transfer__controls">
+    <button class="hc-button" type="submit" name="action" value="add"
+            data-hx-disabled-elt="this" aria-label="Add selected">
+      <span class="hc-transfer__arrow" aria-hidden="true">→</span>
+    </button>
+    <button class="hc-button" type="submit" name="action" value="remove"
+            data-hx-disabled-elt="this" aria-label="Remove selected">
+      <span class="hc-transfer__arrow" aria-hidden="true">←</span>
+    </button>
+  </div>
+
+  <fieldset class="hc-transfer__pane">
+    <legend class="hc-transfer__title">Assigned
+      <span class="hc-transfer__count">(1)</span></legend>
+    <div class="hc-transfer__list">
+      <label class="hc-item">
+        <input class="hc-checkbox" type="checkbox" name="assigned" value="4">
+        <span class="hc-item__title">Alan Turing</span>
+      </label>
+    </div>
+  </fieldset>
+</form>
+```
+
+`hc-transfer` (the stylesheet) is only layout: two `fieldset` panes
+around a controls column, scrollable lists, RTL-flipping arrows
+(`.hc-transfer__arrow`), and a stack on narrow containers. The rows are
+plain [`hc-item`](/hypermedia-components/components/item/) labels.
+
+## How the ids travel
+
+The **form is the swap unit** (`data-hx-target="this"` +
+`data-hx-swap="outerHTML"`). Checked ids serialize natively —
+`name="available"` in one pane, `name="assigned"` in the other; the
+triggering button contributes `action=add|remove`:
+
+```text
+POST /roles/42/members
+available=7&available=9&action=add
+```
+
+The server reads only the pane matching the verb (a user can check both
+sides), treats each id idempotently, and answers with the **re-rendered
+form**: both panes updated, counts refreshed, checkboxes cleared. No
+selection state survives on the client — the response is the truth.
+
+## Server response contract
+
+| Case | Status | Body |
+| --- | --- | --- |
+| Move applied (htmx) | 200 | the re-rendered `<form class="hc-transfer">` |
+| Move applied (no JS) | 303 | `Location` back to the page |
+| Nothing selected / invalid | 422 | the same form with an inline `.hc-alert[role="alert"]` first child |
+
+The 422 path uses the kit's
+[error-handling allowance](/hypermedia-components/recipes/mutating-form/)
+(htmx ≥ 2 doesn't swap non-2xx by default — enable it once via
+`htmx:beforeSwap`). The full contract, including CSRF notes, ships in
+[`recipes/transfer/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/transfer/contract.md)
+and is machine-checked by `hc validate`.
+
+## No-JS degradation
+
+Without JavaScript the form posts natively and the server answers
+303 → GET → full page with the updated form. The pattern works
+end-to-end; htmx only removes the full-page reload.
+
+## Scope and composition
+
+- Need search within a pane? Compose the
+  [live-search recipe](/hypermedia-components/recipes/live-search/) per
+  pane — the server filters the pane it re-renders.
+- Very large sets? Page the *available* pane server-side like the
+  [datagrid pager](/hypermedia-components/recipes/datagrid-pager/); the
+  form-swap shape is unchanged.
+- Drag-and-drop between panes is deliberately out of scope — the
+  buttons are the accessible path, and a drop would still need the same
+  POST.
+
+## Accessibility
+
+- Each pane is a `<fieldset>` with a `<legend>` — screen readers
+  announce "Available, group" when entering the checkboxes.
+- The glyph-only move buttons carry `aria-label`s; the glyphs are
+  `aria-hidden` and mirror under `dir="rtl"`.
+- The whole-form swap resets focus context; the panes re-announce
+  through their legends. Keep the counts inside the legends so they are
+  part of the group names.
+
+## Related
+
+- [Datagrid bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/) —
+  the same ids-by-serialization idea against a grid.
+- [Mutating form](/hypermedia-components/recipes/mutating-form/) — the
+  4xx re-render convention this recipe reuses.
+- [Item](/hypermedia-components/components/item/) — the row primitive
+  inside the panes.

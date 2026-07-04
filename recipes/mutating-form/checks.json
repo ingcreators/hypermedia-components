@@ -1,5 +1,5 @@
 {
-  "detect": "form[data-hx-post][action]:not([data-hx-encoding]):not(:has(button[name=\"nav\"]))",
+  "detect": "form[data-hx-post][action]:not([data-hx-encoding]):not(:has(button[name=\"nav\"])):not(.hc-transfer)",
   "contract": "contract.md",
   "rules": [
     {
