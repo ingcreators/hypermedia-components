@@ -1,0 +1,54 @@
+{
+  "detect": "form.hc-transfer",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "form-is-swap-unit",
+      "level": "error",
+      "message": "The form is the swap unit: data-hx-target=\"this\" + data-hx-swap=\"outerHTML\" so the server re-renders the whole transfer.",
+      "attr": { "on": "form.hc-transfer", "name": "data-hx-swap", "assert": "present", "value": "outerHTML" }
+    },
+    {
+      "id": "form-target-self",
+      "level": "error",
+      "message": "The form targets itself (data-hx-target=\"this\").",
+      "attr": { "on": "form.hc-transfer", "name": "data-hx-target", "assert": "present", "value": "this" }
+    },
+    {
+      "id": "nojs-post-path",
+      "level": "error",
+      "message": "Keep the native path: method=\"post\" + action=\"…\" so the form works without JavaScript.",
+      "attr": { "on": "form.hc-transfer", "name": "action", "assert": "present", "matches": "\\S" }
+    },
+    {
+      "id": "available-named",
+      "level": "error",
+      "message": "Available-pane checkboxes carry name=\"available\" value=\"<id>\" — that is how the ids travel.",
+      "exists": { "selector": ".hc-transfer__pane input[type=\"checkbox\"][name=\"available\"]" }
+    },
+    {
+      "id": "assigned-named",
+      "level": "error",
+      "message": "Assigned-pane checkboxes carry name=\"assigned\" value=\"<id>\".",
+      "exists": { "selector": ".hc-transfer__pane input[type=\"checkbox\"][name=\"assigned\"]" }
+    },
+    {
+      "id": "native-submit-verbs",
+      "level": "error",
+      "message": "Move buttons are real submit buttons with name=\"action\" — htmx and native submits both send the verb.",
+      "attr": { "on": ".hc-transfer__controls button", "name": "name", "assert": "present", "value": "action" }
+    },
+    {
+      "id": "double-submit-guard",
+      "level": "warn",
+      "message": "Disable the button during the request (data-hx-disabled-elt=\"this\") so a double click can't fire two moves.",
+      "attr": { "on": ".hc-transfer__controls button", "name": "data-hx-disabled-elt", "assert": "present" }
+    },
+    {
+      "id": "glyph-buttons-labelled",
+      "level": "warn",
+      "message": "Glyph-only move buttons need an aria-label (\"Add selected\" / \"Remove selected\").",
+      "attr": { "on": ".hc-transfer__controls button", "name": "aria-label", "assert": "present" }
+    }
+  ]
+}

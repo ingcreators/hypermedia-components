@@ -2442,6 +2442,52 @@
       "$value": "{semantic.color.info}"
     }
   },
+  "transfer": {
+    "gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space.3}"
+    },
+    "pane-border": {
+      "$type": "color",
+      "$value": "{semantic.color.border}"
+    },
+    "pane-radius": {
+      "$type": "dimension",
+      "$value": "{primitive.radius.md}"
+    },
+    "pane-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.surface}"
+    },
+    "title-padding-x": {
+      "$type": "dimension",
+      "$value": "{semantic.space.3}"
+    },
+    "title-padding-y": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
+    },
+    "title-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{semantic.font.weight-medium}"
+    },
+    "count-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
+    },
+    "list-padding": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
+    },
+    "list-max-height": {
+      "$type": "dimension",
+      "$value": "16rem"
+    },
+    "controls-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
+    }
+  },
   "kbd": {
     "bg": {
       "$type": "color",

@@ -1,0 +1,51 @@
+<!-- Short recommended usage.
+
+  Transfer (dual listbox) as a server round trip: membership lives on
+  the server, every move is a POST that re-renders the whole form.
+  One <form class="hc-transfer"> holds two checkbox panes (available /
+  assigned) and two submit buttons (name="action" value="add|remove");
+  the checked ids travel by native form serialization. Zero custom JS —
+  htmx swaps the form, checkboxes and submit buttons do the rest. See
+  expanded.html for the full two-pane form and contract.md for the
+  server contract. -->
+<form class="hc-transfer" id="members" method="post" action="/roles/42/members"
+      data-hx-post="/roles/42/members"
+      data-hx-target="this" data-hx-swap="outerHTML"
+      aria-label="Role members">
+  <fieldset class="hc-transfer__pane">
+    <legend class="hc-transfer__title">Available
+      <span class="hc-transfer__count">(2)</span></legend>
+    <div class="hc-transfer__list">
+      <label class="hc-item">
+        <input class="hc-checkbox" type="checkbox" name="available" value="7">
+        <span class="hc-item__title">Ada Lovelace</span>
+      </label>
+      <label class="hc-item">
+        <input class="hc-checkbox" type="checkbox" name="available" value="9">
+        <span class="hc-item__title">Grace Hopper</span>
+      </label>
+    </div>
+  </fieldset>
+
+  <div class="hc-transfer__controls">
+    <button class="hc-button" type="submit" name="action" value="add"
+            data-hx-disabled-elt="this" aria-label="Add selected">
+      <span class="hc-transfer__arrow" aria-hidden="true">→</span>
+    </button>
+    <button class="hc-button" type="submit" name="action" value="remove"
+            data-hx-disabled-elt="this" aria-label="Remove selected">
+      <span class="hc-transfer__arrow" aria-hidden="true">←</span>
+    </button>
+  </div>
+
+  <fieldset class="hc-transfer__pane">
+    <legend class="hc-transfer__title">Assigned
+      <span class="hc-transfer__count">(1)</span></legend>
+    <div class="hc-transfer__list">
+      <label class="hc-item">
+        <input class="hc-checkbox" type="checkbox" name="assigned" value="4">
+        <span class="hc-item__title">Alan Turing</span>
+      </label>
+    </div>
+  </fieldset>
+</form>

@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`transfer` recipe — dual listbox as a server round trip** (Track B
+  of `plans/hc-form-patterns-plan-v0.10-en.md`). One form, two checkbox
+  panes (available / assigned), add/remove submit buttons: the checked
+  ids travel by native serialization and every move re-renders the
+  whole form (`outerHTML` swap; 422 re-render with an inline alert).
+  Zero custom JS. Ships `hc-transfer` layout CSS + `transfer.*` tokens,
+  the machine-checked scaffold (`hc validate` green), docs (en + ja),
+  and a Playwright suite incl. axe. The CLI re-bundles the recipe at
+  its next release.
+
 - **`hc-range` — dual-thumb min/max range + `installRange()`** (Track A
   of `plans/hc-form-patterns-plan-v0.10-en.md`). Two overlapping native
   `<input type="range">`s on one container-painted rail — native form
