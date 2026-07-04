@@ -5,6 +5,10 @@ import AxeBuilder from '@axe-core/playwright';
 // surface, upgraded with a synced line-number gutter (#255). The value is a
 // native form control, so it submits in forms and with htmx.
 test.beforeEach(async ({ page }) => {
+  // hc.a11y.css zeroes the kit's gated transitions under reduced motion,
+  // so the dark flip applies instantly and axe samples final palettes
+  // (not a 120 ms colour interpolation mid-flight).
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/code-editable.html');
 });
 

@@ -5,6 +5,9 @@ import AxeBuilder from '@axe-core/playwright';
 // #256 unified diff). Pure CSS: per-line `data-state` colours from the
 // semantic status tokens and re-resolves with `data-theme`.
 test.beforeEach(async ({ page }) => {
+  // hc.a11y.css zeroes the kit's gated transitions under reduced motion,
+  // so the dark flip applies instantly and axe samples final palettes.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/code.html');
 });
 

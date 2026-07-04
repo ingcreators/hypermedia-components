@@ -6,6 +6,9 @@ import AxeBuilder from '@axe-core/playwright';
 // stroke uses currentColor, so `data-variant` re-colours the whole mark and
 // it re-resolves under `data-theme`.
 test.beforeEach(async ({ page }) => {
+  // hc.a11y.css zeroes the kit's gated transitions under reduced motion,
+  // so the dark flip applies instantly and axe samples final palettes.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/sparkline.html');
 });
 

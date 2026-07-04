@@ -5,6 +5,9 @@ import AxeBuilder from '@axe-core/playwright';
 // emphasis via data-variant, tinted surface via data-fill), theme-aware
 // through the same tokens the alert/badge/toast variants use.
 test.beforeEach(async ({ page }) => {
+  // hc.a11y.css zeroes the kit's gated transitions under reduced motion,
+  // so the dark flip applies instantly and axe samples final palettes.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/status.html');
 });
 

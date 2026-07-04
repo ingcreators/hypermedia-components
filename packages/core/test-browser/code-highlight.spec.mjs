@@ -7,6 +7,9 @@ import AxeBuilder from '@axe-core/playwright';
 // registerCodeLanguage()). The textarea glyphs are hidden so the coloured
 // overlay shows through while the caret stays visible; the value still submits.
 test.beforeEach(async ({ page }) => {
+  // hc.a11y.css zeroes the kit's gated transitions under reduced motion,
+  // so the dark flip applies instantly and axe samples final palettes.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/code-highlight.html');
 });
 
