@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  issues: write # the failure step files / updates a tracking issue
 
 env:
   BASE: https://hypermedia-components.ichimura-12c.workers.dev/hypermedia-components
@@ -88,3 +89,23 @@ jobs:
           name: lighthouse-reports
           path: reports/
           retention-days: 30
+
+      # Scheduled runs have no PR to go red on — without this, a missed
+      # budget (or a crashed run) is only visible to someone reading the
+      # Actions tab (the 2026-06-15 failure went unnoticed for a week).
+      # One open tracking issue at a time: comment if it already exists.
+      - name: File a tracking issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Weekly Lighthouse run failed"
+          body="The Lighthouse run failed — a category scored below the budget, or the run itself crashed. See the run for the score table (step summary) and the JSON reports (artifact): $RUN_URL"
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+            --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --repo "$GITHUB_REPOSITORY" --body "Failed again: $body"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"
+          fi
