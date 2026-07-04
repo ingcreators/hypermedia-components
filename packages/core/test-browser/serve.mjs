@@ -664,6 +664,57 @@ function handleTransfer(req, res, url) {
   return false;
 }
 
+// Stateless area data for the cascading-select recipe spec
+// (cascading-select.html): each GET returns the child <select> fragment
+// plus an OOB reset of the deeper level, per the recipe contract.
+const CASCADE_CITIES = {
+  13: [['13101', 'Chiyoda'], ['13102', 'Chuo'], ['13103', 'Minato']],
+  27: [['27102', 'Kita'], ['27104', 'Chuo (Osaka)']],
+};
+const CASCADE_WARDS = {
+  13101: [['A', 'Kanda'], ['B', 'Marunouchi']],
+};
+
+function cascadeSelect(id, name, opts, { wired = false, disabled = false, placeholder = 'Select…', oob = false } = {}) {
+  const wiring = wired
+    ? ' data-hx-get="/mock/areas/wards" data-hx-include="this" data-hx-target="#ward" data-hx-swap="outerHTML"'
+    : '';
+  const options = [`<option value="">${placeholder}</option>`]
+    .concat(opts.map(([v, label]) => `<option value="${v}">${label}</option>`))
+    .join('');
+  return `<select class="hc-select" id="${id}" name="${name}"`
+    + `${disabled ? ' disabled' : ''}${oob ? ' data-hx-swap-oob="true"' : ''}${wiring}>${options}</select>`;
+}
+
+function handleCascade(req, res, url) {
+  if (req.method !== 'GET') return false;
+  if (url.pathname === '/mock/areas/cities') {
+    const pref = url.searchParams.get('prefecture');
+    const cities = CASCADE_CITIES[pref] ?? [];
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    const city = cities.length
+      ? cascadeSelect('city', 'city', cities, { wired: true })
+      : cascadeSelect('city', 'city', [], { disabled: true, placeholder: 'Select a prefecture first' });
+    const wardReset = cascadeSelect('ward', 'ward', [], {
+      disabled: true, placeholder: 'Select a city first', oob: true,
+    });
+    res.end(city + wardReset);
+    return true;
+  }
+  if (url.pathname === '/mock/areas/wards') {
+    const city = url.searchParams.get('city');
+    const wards = CASCADE_WARDS[city] ?? [];
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(wards.length
+      ? cascadeSelect('ward', 'ward', wards)
+      : cascadeSelect('ward', 'ward', [], { disabled: true, placeholder: 'Select a city first' }));
+    return true;
+  }
+  return false;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -672,6 +723,7 @@ function handleMock(req, res, url) {
   if (handleUpload(req, res, url)) return true;
   if (handleTree(req, res, url)) return true;
   if (handleTransfer(req, res, url)) return true;
+  if (handleCascade(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
   req.resume();

@@ -1,0 +1,25 @@
+<!-- Short recommended usage.
+
+  Cascading select (Cascader): hierarchical selection as chained
+  <select>s — the canonical hypermedia shape. Each level's change GETs
+  the next level's <select> fragment; downstream levels reset to their
+  disabled placeholder in the same response. Zero custom JS: hc-select
+  + htmx. See expanded.html for a populated child and contract.md for
+  the server contract. -->
+<div class="hc-field">
+  <label class="hc-field__label" for="prefecture">Prefecture</label>
+  <select class="hc-select" id="prefecture" name="prefecture"
+          data-hx-get="/areas/cities" data-hx-include="this"
+          data-hx-target="#city" data-hx-swap="outerHTML">
+    <option value="">Select…</option>
+    <option value="13">Tokyo</option>
+    <option value="27">Osaka</option>
+  </select>
+</div>
+
+<div class="hc-field">
+  <label class="hc-field__label" for="city">City</label>
+  <select class="hc-select" id="city" name="city" disabled>
+    <option value="">Select a prefecture first</option>
+  </select>
+</div>

@@ -1,9 +1,10 @@
 # HC Form-Patterns Plan v0.10 — range slider, transfer, cascading select
 
-Status: **approved 2026-07-04** — the three items the
-[v0.9 breadth plan](./hc-component-breadth2-plan-v0.9-en.md) deferred to
-"a future recipes plan": the dual-thumb range slider, Transfer (dual
-listbox), and Cascader. One concern per PR, merged sequentially.
+Status: **shipped in full** — plan #332, `hc-range` #333, `transfer`
+#334, `cascading-select` #335 (2026-07-04). The three items the
+[v0.9 breadth plan](./hc-component-breadth2-plan-v0.9-en.md) deferred;
+one concern per PR, merged sequentially. Remaining follow-up: the CLI
+re-bundles the two new recipes at its next release (`cli-v0.2.1`).
 
 Unlike v0.9 (pure CSS), these are **composite form patterns**: one small
 behavior (`installRange` — the platform has no dual-thumb `<input>`),
