@@ -1114,6 +1114,40 @@
       }
     }
   },
+  "rating": {
+    "gap": {
+      "$type": "dimension",
+      "$value": "0.15rem"
+    },
+    "size": {
+      "$type": "dimension",
+      "$value": "1.5rem"
+    },
+    "color": {
+      "$type": "color",
+      "$value": "{semantic.color.border}"
+    },
+    "filled-color": {
+      "$type": "color",
+      "$value": "{semantic.color.warning}"
+    },
+    "transition-duration": {
+      "$type": "duration",
+      "$value": "120ms"
+    },
+    "sm": {
+      "size": {
+        "$type": "dimension",
+        "$value": "1.125rem"
+      }
+    },
+    "lg": {
+      "size": {
+        "$type": "dimension",
+        "$value": "2rem"
+      }
+    }
+  },
   "progress": {
     "height": {
       "$type": "dimension",

@@ -1,0 +1,175 @@
+---
+title: レーティング
+description: ネイティブなラジオグループとしての星評価 — フォームと一緒にシリアライズされ、矢印キーのナビゲーションはプラットフォームが提供、チェック位置までのフィルは純 CSS。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-rating` は星評価を**ラジオグループ**として描画します: 各星は本物の
+`<input type="radio">` と `<label>` のグリフです。値はフォームと一緒に
+ネイティブにシリアライズされ、矢印キーでのグループ内ナビゲーションは
+プラットフォームが提供し、チェック位置までのフィルは純 CSS
+(`:has()`、Baseline 2023)です — JavaScript はありません。
+
+## 基本の HTML
+
+星ごとに `input` + `label` のペアを 1 組、昇順の DOM 順で置きます。
+グループには視覚的に隠した `<legend>` で名前を付けます。
+
+<Demo>
+  <fieldset class="hc-rating">
+    <legend class="hc-sr-only">Rate this article</legend>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="1" id="doc-r1" />
+    <label class="hc-rating__star" for="doc-r1" aria-label="1 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="2" id="doc-r2" />
+    <label class="hc-rating__star" for="doc-r2" aria-label="2 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="3" id="doc-r3" checked />
+    <label class="hc-rating__star" for="doc-r3" aria-label="3 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="4" id="doc-r4" />
+    <label class="hc-rating__star" for="doc-r4" aria-label="4 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="doc-rate" value="5" id="doc-r5" />
+    <label class="hc-rating__star" for="doc-r5" aria-label="5 of 5">★</label>
+  </fieldset>
+
+  <Fragment slot="code">
+
+  ```html
+  <fieldset class="hc-rating">
+    <legend class="hc-sr-only">Rate this article</legend>
+    <input class="hc-rating__input" type="radio" name="rate" value="1" id="r1">
+    <label class="hc-rating__star" for="r1" aria-label="1 of 5">★</label>
+    <input class="hc-rating__input" type="radio" name="rate" value="2" id="r2">
+    <label class="hc-rating__star" for="r2" aria-label="2 of 5">★</label>
+    <!-- … up to value="5" -->
+  </fieldset>
+  ```
+
+  </Fragment>
+</Demo>
+
+グリフはラベルの内容で、`currentColor` を継承します — CSS に触れずに
+`★` を任意の文字やインライン SVG に差し替えられます。
+
+## 読み取り専用の表示
+
+既存の評価の表示(レビューリスト、商品カード)ではフォームを丸ごと
+省きます: `data-filled` つきの span と、コンテナ上の 1 つの
+アクセシブルな名前です。
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-rating" data-readonly role="img" aria-label="4 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+
+  <Fragment slot="code">
+
+  ```html
+  <span class="hc-rating" data-readonly role="img" aria-label="4 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+    <span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+  ```
+
+  </Fragment>
+</Demo>
+
+## サイズ
+
+`data-size` は `sm`、`md`(デフォルト)、`lg` を受け付けます。
+
+<Demo previewClass="hc-preview--start">
+  <span class="hc-rating" data-readonly data-size="sm" role="img" aria-label="3 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+  <span class="hc-rating" data-readonly role="img" aria-label="3 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+  <span class="hc-rating" data-readonly data-size="lg" role="img" aria-label="3 of 5 stars">
+    <span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" data-filled aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span><span class="hc-rating__star" aria-hidden="true">★</span>
+  </span>
+
+  <Fragment slot="code">
+
+  ```html
+  <fieldset class="hc-rating" data-size="sm">…</fieldset>
+  <fieldset class="hc-rating">…</fieldset>
+  <fieldset class="hc-rating" data-size="lg">…</fieldset>
+  ```
+
+  </Fragment>
+</Demo>
+
+## htmx での利用
+
+レーティングは通常のラジオグループです — 任意のフォームコントロールと
+同じように送信するか、変更時に保存します:
+
+```html
+<form data-hx-post="/reviews/42/rate" data-hx-trigger="change"
+      data-hx-target="#rate-status" data-hx-swap="innerHTML">
+  <fieldset class="hc-rating">
+    <legend class="hc-sr-only">Rate this article</legend>
+    <!-- … the radios … -->
+  </fieldset>
+</form>
+<p id="rate-status" role="status"></p>
+```
+
+サーバは標準のフォームエンコーディングで `rate=4` を受け取ります —
+カスタムのシリアライズも hidden input も不要です。
+
+## アクセシビリティ
+
+- グループに名前を: インタラクティブな形では `<legend>`(視覚的に隠して
+  可)、読み取り専用の形ではコンテナに `role="img"` + `aria-label`。
+- 各星のラベルに `aria-label`(「1 of 5」…)を与えてください —
+  さもないと見える `★` グリフが「黒い星」と 5 回読み上げられます。
+- ラジオは視覚的に隠れていますがツリーには残ります: `Tab` でグループに
+  到達し、矢印キーで中を移動し、フォーカスされた星にはリングが
+  表示されます。
+- 無効化されたグループ(`<fieldset disabled>`)は星をミュートし、
+  ネイティブに入力をブロックします。
+- 半分の星の値はラジオグループでは表現できません — 表示では整数の星に
+  丸め、正確な値は `aria-label`(と見えるテキスト)に載せてください:
+  `aria-label="4.5 of 5 stars"`。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `rating.gap` | 星の間のギャップ。 |
+| `rating.size` | グリフのサイズ(デフォルト)。 |
+| `rating.color` | 空の星の色。 |
+| `rating.filled-color` | 塗られた星の色(warning / アンバー)。 |
+| `rating.transition-duration` | フィル色のトランジション。 |
+| `rating.sm.size` / `lg.size` | サイズバリアント。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-rating-gap | -size | -color | -filled-color
+--hc-rating-transition-duration
+--hc-rating-sm-size | -lg-size
+--hc-color-focus-ring   (inherited from data-color)
+```
+
+</details>
+
+## 関連
+
+- [ラジオ](/hypermedia-components/ja/components/radio/) — 土台となる
+  コントロールの素の形。
+- [バッジ](/hypermedia-components/ja/components/badge/) — レビュー
+  リストで読み取り専用レーティングと組み合わせます。

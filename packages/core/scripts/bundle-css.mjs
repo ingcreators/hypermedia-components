@@ -35,6 +35,7 @@ const COMPONENTS = [
   'hc-radio.css',
   'hc-switch.css',
   'hc-slider.css',
+  'hc-rating.css',
   'hc-combobox.css',
   'hc-multicombobox.css',
   'hc-input-group.css',
