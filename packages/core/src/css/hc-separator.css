@@ -14,6 +14,13 @@
  *               element for a vertical separator, so add
  *               `aria-orientation="vertical"` to keep the semantics
  *               correct for assistive tech.
+ *
+ * Label variant — an "or" divider. <hr> cannot contain text, so this
+ * form is a container with an explicit role (horizontal only):
+ *
+ *   <div class="hc-separator" role="separator" aria-orientation="horizontal">
+ *     <span class="hc-separator__label">or</span>
+ *   </div>
  */
 @layer hc.components {
   .hc-separator {
@@ -43,5 +50,31 @@
     align-self: stretch;
     margin-block: 0;
     margin-inline: var(--hc-separator-spacing);
+  }
+
+  /* Label variant — hairlines grow around a centred muted label. The
+   * container stops painting its own background; the ::before/::after
+   * rules draw the two line segments instead. */
+  .hc-separator:has(> .hc-separator__label) {
+    display: flex;
+    align-items: center;
+    gap: var(--hc-separator-label-gap);
+    background: none;
+    block-size: auto;
+  }
+
+  .hc-separator:has(> .hc-separator__label)::before,
+  .hc-separator:has(> .hc-separator__label)::after {
+    content: "";
+    flex: 1;
+    block-size: var(--hc-separator-size);
+    background-color: var(--hc-separator-color);
+  }
+
+  .hc-separator__label {
+    color: var(--hc-separator-label-fg);
+    font-size: var(--hc-separator-label-font-size);
+    line-height: 1;
+    white-space: nowrap;
   }
 }

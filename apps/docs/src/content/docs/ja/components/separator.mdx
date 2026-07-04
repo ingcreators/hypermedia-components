@@ -65,6 +65,35 @@ import Demo from '../../../../components/Demo.astro';
 あるべきです(行の高さが線の長さを決めます)。stretch の文脈の外でも
 見えるよう、`min-block-size` のフォールバックがあります。
 
+## ラベル
+
+「または」の区切り(認証オプション、代替フロー)には、内側に
+`.hc-separator__label` を置きます — ミュートされた中央のラベルの周りに
+ヘアラインが伸びます。`<hr>` はテキストを含められないため、この形は
+明示的な `role="separator"` を持つコンテナです(水平のみ):
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:20rem;">
+  <button class="hc-button" type="button" style="inline-size:100%;">Sign in with SSO</button>
+  <div class="hc-separator" role="separator" aria-orientation="horizontal">
+    <span class="hc-separator__label">or</span>
+  </div>
+  <button class="hc-button" type="button" style="inline-size:100%;">Sign in with email</button>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-separator" role="separator" aria-orientation="horizontal">
+    <span class="hc-separator__label">or</span>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+ラベルのテキストはページコンテンツの一部として読み上げられます —
+短く保ってください(「or」「and」)。区切りが純粋に装飾であるべきなら、
+代わりに素の `<hr>` 形を使います。
+
 ## アクセシビリティ
 
 - コンテンツセクション間のセパレータは装飾ではなく意味のある構造
@@ -86,6 +115,9 @@ component トークン(`component.tokens.json`):
 | `separator.color` | 線の色(デフォルトは border トークン)。 |
 | `separator.size` | 線の太さ(`1px`)。 |
 | `separator.spacing` | マージン — 水平はブロック方向、垂直はインライン方向。 |
+| `separator.label-gap` | ラベルと線分の間のギャップ。 |
+| `separator.label-fg` | ラベルの色(ミュートテキスト)。 |
+| `separator.label-font-size` | ラベルのフォントサイズ。 |
 
 ## CSS 変数
 
@@ -94,6 +126,7 @@ component トークン(`component.tokens.json`):
 
 ```text
 --hc-separator-color | -size | -spacing
+--hc-separator-label-gap | -label-fg | -label-font-size
 ```
 
 </details>

@@ -39,6 +39,35 @@ test.describe('hc-separator', () => {
     expect(bg).toMatch(/rgba?\(\s*208,\s*213,\s*221/);
   });
 
+  test('the label variant grows hairlines around a muted label', async ({ page }) => {
+    const sep = page.getByTestId('sep-label');
+    const styles = await sep.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const before = getComputedStyle(el, '::before');
+      return {
+        display: cs.display,
+        background: cs.backgroundColor,
+        beforeContent: before.content,
+        beforeFlex: before.flexGrow,
+        beforeBg: before.backgroundColor,
+      };
+    });
+    expect(styles.display).toBe('flex');
+    // The container stops painting its own line…
+    expect(styles.background).toMatch(/rgba\(0,\s*0,\s*0,\s*0\)|transparent/);
+    // …and the pseudo-element segments draw it instead.
+    expect(styles.beforeContent).toBe('""');
+    expect(styles.beforeFlex).toBe('1');
+    expect(styles.beforeBg).toMatch(/rgba?\(\s*208,\s*213,\s*221/);
+
+    // The label sits between the segments, muted.
+    const label = sep.locator('.hc-separator__label');
+    await expect(label).toHaveText('or');
+
+    // The explicit role keeps the div a separator for assistive tech.
+    await expect(sep).toHaveRole('separator');
+  });
+
   test('axe finds no violations in the separator section', async ({ page }) => {
     const results = await new AxeBuilder({ page })
       .include('#section-separator')

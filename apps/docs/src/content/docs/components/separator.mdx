@@ -65,6 +65,35 @@ The vertical variant relies on `align-self: stretch`, so its parent
 should be a flex row (the row's height sets the line's length). A
 `min-block-size` fallback keeps it visible outside a stretch context.
 
+## Label
+
+For an "or" divider (auth options, alternative flows), put a
+`.hc-separator__label` inside — hairlines grow around a muted, centred
+label. `<hr>` cannot contain text, so this form is a container with an
+explicit `role="separator"` (horizontal only):
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:20rem;">
+  <button class="hc-button" type="button" style="inline-size:100%;">Sign in with SSO</button>
+  <div class="hc-separator" role="separator" aria-orientation="horizontal">
+    <span class="hc-separator__label">or</span>
+  </div>
+  <button class="hc-button" type="button" style="inline-size:100%;">Sign in with email</button>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-separator" role="separator" aria-orientation="horizontal">
+    <span class="hc-separator__label">or</span>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+The label text is announced as part of the page content; keep it short
+("or", "and"). If the divider should be purely decorative, use the plain
+`<hr>` form instead.
+
 ## Accessibility
 
 - A separator between content sections is meaningful structure, not
@@ -86,6 +115,9 @@ Component tokens (in `component.tokens.json`):
 | `separator.color` | Line color (defaults to the border token). |
 | `separator.size` | Line thickness (`1px`). |
 | `separator.spacing` | Margin — block for horizontal, inline for vertical. |
+| `separator.label-gap` | Gap between the label and the line segments. |
+| `separator.label-fg` | Label color (muted text). |
+| `separator.label-font-size` | Label font size. |
 
 ## CSS variables
 
@@ -94,6 +126,7 @@ Component tokens (in `component.tokens.json`):
 
 ```text
 --hc-separator-color | -size | -spacing
+--hc-separator-label-gap | -label-fg | -label-font-size
 ```
 
 </details>
