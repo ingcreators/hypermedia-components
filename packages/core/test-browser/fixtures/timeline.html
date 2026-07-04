@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-timeline fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body>
+  <main id="section-timeline" style="padding:1rem; max-inline-size:32rem;">
+    <h1>Timeline</h1>
+
+    <ol class="hc-timeline" data-testid="timeline" aria-label="Deployment history">
+      <li class="hc-timeline__item" data-variant="success" data-testid="first">
+        <span class="hc-timeline__marker" aria-hidden="true">✓</span>
+        <div class="hc-timeline__content">
+          <time class="hc-timeline__time" datetime="2026-07-03T09:14">09:14</time>
+          <span class="hc-timeline__title">Deploy finished</span>
+          <p class="hc-timeline__description">v2.4 to production.</p>
+        </div>
+      </li>
+      <li class="hc-timeline__item" data-variant="warning" data-testid="middle">
+        <span class="hc-timeline__marker" aria-hidden="true">!</span>
+        <div class="hc-timeline__content">
+          <time class="hc-timeline__time" datetime="2026-07-03T09:10">09:10</time>
+          <span class="hc-timeline__title">Smoke test flaky</span>
+          <p class="hc-timeline__description">Retried once, then green.</p>
+        </div>
+      </li>
+      <li class="hc-timeline__item" data-testid="last">
+        <span class="hc-timeline__marker" aria-hidden="true"></span>
+        <div class="hc-timeline__content">
+          <time class="hc-timeline__time" datetime="2026-07-03T09:02">09:02</time>
+          <span class="hc-timeline__title">Build started</span>
+        </div>
+      </li>
+    </ol>
+  </main>
+</body>
+</html>

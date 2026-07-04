@@ -1,0 +1,143 @@
+---
+title: Timeline
+description: A vertical activity / audit timeline — marker rail, connector line, status-colored markers. A plain list, pure CSS, no JavaScript.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-timeline` renders activity history — audit logs, deployment events,
+order status — as a **plain `<ol>`** with a marker rail and connector
+line. Pure CSS: the list semantics are the accessibility story, statuses
+ride on `data-variant`, and RTL flips for free (logical properties).
+
+## Basic HTML
+
+<Demo previewStyle="max-inline-size:28rem;">
+  <ol class="hc-timeline" aria-label="Deployment history">
+    <li class="hc-timeline__item" data-variant="success">
+      <span class="hc-timeline__marker" aria-hidden="true">✓</span>
+      <div class="hc-timeline__content">
+        <time class="hc-timeline__time" datetime="2026-07-03T09:14">09:14</time>
+        <span class="hc-timeline__title">Deploy finished</span>
+        <p class="hc-timeline__description">v2.4 to production.</p>
+      </div>
+    </li>
+    <li class="hc-timeline__item" data-variant="warning">
+      <span class="hc-timeline__marker" aria-hidden="true">!</span>
+      <div class="hc-timeline__content">
+        <time class="hc-timeline__time" datetime="2026-07-03T09:10">09:10</time>
+        <span class="hc-timeline__title">Smoke test flaky</span>
+        <p class="hc-timeline__description">Retried once, then green.</p>
+      </div>
+    </li>
+    <li class="hc-timeline__item">
+      <span class="hc-timeline__marker" aria-hidden="true"></span>
+      <div class="hc-timeline__content">
+        <time class="hc-timeline__time" datetime="2026-07-03T09:02">09:02</time>
+        <span class="hc-timeline__title">Build started</span>
+      </div>
+    </li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-timeline" aria-label="Deployment history">
+    <li class="hc-timeline__item" data-variant="success">
+      <span class="hc-timeline__marker" aria-hidden="true">✓</span>
+      <div class="hc-timeline__content">
+        <time class="hc-timeline__time" datetime="2026-07-03T09:14">09:14</time>
+        <span class="hc-timeline__title">Deploy finished</span>
+        <p class="hc-timeline__description">v2.4 to production.</p>
+      </div>
+    </li>
+    <!-- … one <li class="hc-timeline__item"> per event -->
+  </ol>
+  ```
+
+  </Fragment>
+</Demo>
+
+`__time` and `__description` are optional; a title-only item works. The
+connector line stops at the last item automatically.
+
+## Variants
+
+`data-variant` on an **item** colors its marker via the status tokens:
+`success`, `warning`, `error`, `info`. Without it the marker is a
+neutral hollow dot. The optional glyph inside the marker is decorative —
+keep it `aria-hidden` and put the meaning in the title.
+
+```html
+<li class="hc-timeline__item" data-variant="error">
+  <span class="hc-timeline__marker" aria-hidden="true">✕</span>
+  …
+</li>
+```
+
+## htmx usage
+
+An activity feed is a list of server-rendered items — prepend new events
+with an out-of-band swap, or refresh via SSE (see the
+[sse-updates recipe](/hypermedia-components/recipes/sse-updates/)):
+
+```html
+<ol class="hc-timeline" id="audit-log"
+    data-hx-get="/audit?page=2" data-hx-trigger="revealed from:#log-more"
+    data-hx-swap="beforeend">
+  …
+</ol>
+```
+
+Newest-first or oldest-first is your choice — the component draws the
+same either way; announce the order in the list's `aria-label` if it is
+not obvious.
+
+## Accessibility
+
+- It **is** a list: `<ol>`/`<li>` are announced with position and count.
+  Give the list an `aria-label` when the heading doesn't already name it.
+- Use `<time datetime="…">` for machine-readable timestamps.
+- Marker glyphs are decorative (`aria-hidden="true"`) — the title text
+  carries the meaning, so the status is never color-only.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `timeline.marker-size` | Marker diameter. |
+| `timeline.marker-bg` / `marker-fg` / `marker-border` / `marker-border-size` | Neutral marker. |
+| `timeline.line-size` / `line-color` | Connector segment. |
+| `timeline.gap` | Column gap between rail and content. |
+| `timeline.item-gap` | Vertical gap between items. |
+| `timeline.time-fg` / `time-font-size` | Timestamp text. |
+| `timeline.title-fg` / `title-font-weight` | Title text. |
+| `timeline.description-fg` / `description-font-size` | Description text. |
+| `timeline.success-bg` / `warning-bg` / `error-bg` / `info-bg` / `status-fg` | Variant markers. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-timeline-marker-size | -marker-bg | -marker-fg | -marker-border | -marker-border-size
+--hc-timeline-line-size | -line-color | -gap | -item-gap
+--hc-timeline-time-fg | -time-font-size
+--hc-timeline-title-fg | -title-font-weight
+--hc-timeline-description-fg | -description-font-size
+--hc-timeline-success-bg | -warning-bg | -error-bg | -info-bg | -status-fg
+```
+
+</details>
+
+## Related
+
+- [Item](/hypermedia-components/components/item/) — the flat row
+  primitive for feeds without the rail metaphor.
+- [Stepper](/hypermedia-components/components/stepper/) — for *process*
+  steps the user moves through, rather than history.
+- [Status colors](/hypermedia-components/tokens/status/) — the shared
+  tokens behind the variant markers.

@@ -22,6 +22,13 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-timeline` — vertical activity / audit timeline** (T1, closing
+  `plans/hc-component-breadth2-plan-v0.9-en.md`). A pure-CSS `<ol>`:
+  marker rail, connector segments that stop at the last item, and
+  status-colored markers via `data-variant` on the item; all logical
+  properties so RTL flips for free. New `timeline.*` tokens, docs
+  (en + ja), kitchen-sink entry, and a Playwright suite incl. axe.
+
 - **`hc-separator` label variant** (S1 of
   `plans/hc-component-breadth2-plan-v0.9-en.md`). An "or" divider: a
   separator containing `.hc-separator__label` becomes a flex row whose
