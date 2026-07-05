@@ -1,0 +1,79 @@
+---
+title: Chat messages
+description: Chat as a server round trip — one POST appends the user message and the aria-busy assistant placeholder, and resets the composer out of band.
+---
+
+A conversation is just a transcript the server renders and a form that
+appends to it. One POST returns **three fragments in one body**: the
+user's message, the assistant's `aria-busy` placeholder — the handle
+the **streaming-response** recipe (ships next)
+fills over SSE — and a fresh composer swapped out of band. No custom
+JavaScript; `installChatScroll()` (auto-init) keeps the reader at the
+bottom.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add chat-messages` copies this recipe's scaffold (`recipe.html`, `expanded.html`, `contract.md`, `checks.json`); `npx @hypermedia-components/cli validate` machine-checks your copy. The full contract lives in [`recipes/chat-messages/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chat-messages/contract.md).
+:::
+
+## The blessed markup
+
+The composer nests as the [chat](/hypermedia-components/components/chat/)
+root's last child, so the whole exchange is one composition:
+
+```html
+<div class="hc-chat" role="log" aria-label="Conversation">
+  <ol class="hc-chat__list" tabindex="0" id="chat-list">
+    <!-- server-rendered history -->
+  </ol>
+  <button class="hc-chat__jump hc-button" data-size="sm" type="button">↓ Latest</button>
+
+  <form class="hc-field" id="composer" method="post" action="/chat/messages"
+        data-hx-post="/chat/messages"
+        data-hx-target="#chat-list" data-hx-swap="beforeend">
+    <label class="hc-field__label" for="prompt">Message</label>
+    <textarea class="hc-input" id="prompt" name="prompt" rows="2"></textarea>
+    <button class="hc-button" data-variant="primary" type="submit">Send</button>
+  </form>
+</div>
+```
+
+Why each attribute is there:
+
+| Attribute | Purpose |
+| --- | --- |
+| `role="log"` (root) | Appended **complete** messages are announced; the role is not allowed on `<ol>`. |
+| `tabindex="0"` (list) | The scrollable region is keyboard-reachable. |
+| `data-hx-target="#chat-list"` + `data-hx-swap="beforeend"` | The POST appends to the transcript — nothing is re-rendered wholesale. |
+| `method="post"` + `action` | The no-JS path: a plain form post, answered with `303`. |
+
+## Server response contract
+
+| Case | Status | Body |
+| --- | --- | --- |
+| Message accepted | `200` | The user `<li data-role="user">` + the assistant placeholder `<li data-role="assistant" data-state="streaming" aria-busy="true" id="reply-…">` (both land via `beforeend`), plus the fresh composer with `data-hx-swap-oob="outerHTML"` — the textarea clears without touching the transcript. |
+| Empty / invalid prompt | `422` | **Only** the out-of-band composer re-render: `data-invalid`, `aria-invalid` + `aria-describedby`, and the `.hc-field__message` error. Nothing targets the transcript, so no bogus entry appears. Needs the one-time [`htmx:beforeSwap` 422 allowance](/hypermedia-components/recipes/field-errors/). |
+| No JS | `303` | Redirect back to the conversation page (branch on the `HX-Request` header); the full page includes the new exchange. |
+
+The server owns rendering: **escape the echoed prompt** (the transcript
+is an HTML sink), and never ship client-side markdown — assistant
+replies arrive as server-rendered HTML fragments, `hc-code` blocks
+included.
+
+## Accessibility
+
+- The placeholder's `aria-busy="true"` **defers** the log region's
+  announcement: assistive tech reads the reply once, when the final
+  swap removes the attribute (streaming-response's `done` event, or
+  your non-streaming completion).
+- The 422 composer follows the field-errors pattern (`aria-invalid`,
+  `aria-describedby`).
+- Pinned by a real-htmx browser test
+  (`test-browser/chat-messages.spec.mjs`): append + placeholder, OOB
+  reset, 422 isolation, stick-to-bottom across six exchanges, axe.
+
+## Related
+
+- [Chat](/hypermedia-components/components/chat/) — the transcript component and its tokens.
+- Streaming response — fills the placeholder over SSE (recipe ships next; the [sse-updates recipe](/hypermedia-components/recipes/sse-updates/) documents the push channel today).
+- [field-errors](/hypermedia-components/recipes/field-errors/) — the 422 convention this composer reuses.
+- [file-upload](/hypermedia-components/recipes/file-upload/) — the OOB fresh-form reset pattern.

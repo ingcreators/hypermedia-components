@@ -179,11 +179,12 @@ fragments appended to the list with `beforeend`:
 </div>
 ```
 
-For the push channel — the assistant's reply arriving from the server —
-see the [sse-updates recipe](/hypermedia-components/recipes/sse-updates/).
-Dedicated `chat-messages` and `streaming-response` recipes, which own
-the full request / response contracts for transcripts and token
-streaming, land next.
+The [chat-messages recipe](/hypermedia-components/recipes/chat-messages/)
+owns the composer round trip (append the user message + the aria-busy
+placeholder from one POST). For the push channel — the assistant's
+reply arriving from the server — see the
+[sse-updates recipe](/hypermedia-components/recipes/sse-updates/); the
+dedicated `streaming-response` recipe lands next.
 
 ## Accessibility
 
