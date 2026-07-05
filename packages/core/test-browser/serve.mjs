@@ -723,7 +723,8 @@ function handleCascade(req, res, url) {
 // nothing lands in the transcript. The reset endpoint isolates specs.
 let chatNextId = 1;
 
-function chatComposer(error = '') {
+function chatComposer(error = '', stream = false) {
+  const post = stream ? '/mock/chat/messages?stream=1' : '/mock/chat/messages';
   const invalid = error ? ' data-invalid="true"' : '';
   const aria = error
     ? ' aria-invalid="true" aria-describedby="prompt-error"'
@@ -731,8 +732,8 @@ function chatComposer(error = '') {
   const message = error
     ? `<p id="prompt-error" class="hc-field__message" data-testid="prompt-error">${error}</p>`
     : '';
-  return `<form class="hc-field" id="composer" method="post" action="/mock/chat/messages"
-      data-hx-post="/mock/chat/messages"
+  return `<form class="hc-field" id="composer" method="post" action="${post}"
+      data-hx-post="${post}"
       data-hx-target="#chat-list" data-hx-swap="beforeend"
       data-hx-swap-oob="outerHTML"${invalid} data-testid="composer">
     <label class="hc-field__label" for="prompt">Message</label>
@@ -742,12 +743,32 @@ function chatComposer(error = '') {
   </form>`;
 }
 
+// Streamed placeholder for the streaming-response recipe spec: the
+// placeholder itself owns the SSE connection (data-sse-swap="done,error"
+// outerHTML-swaps it away, which also closes the EventSource via htmx's
+// beforeCleanupElement), the body is the chunk sink, and the stop button
+// POSTs the cancel — the response replaces the whole <li>, closing the
+// stream in the same round trip.
+function chatStreamingReply(id, scenario) {
+  return `<li class="hc-chat__message" data-role="assistant" data-state="streaming"
+      aria-busy="true" id="reply-${id}" data-testid="reply-${id}"
+      data-hx-ext="sse" data-sse-connect="/mock/chat/stream/${id}?scenario=${scenario}"
+      data-sse-swap="done,error" data-hx-swap="outerHTML">
+    <div class="hc-chat__body" data-sse-swap="chunk" data-hx-swap="beforeend"></div>
+    <button class="hc-button" data-size="sm" type="button"
+        data-hx-post="/mock/chat/stream/${id}/stop"
+        data-hx-target="closest li" data-hx-swap="outerHTML"
+        data-testid="stop-${id}">Stop</button>
+  </li>`;
+}
+
 function handleChat(req, res, url) {
+  const streamed = url.searchParams.get('stream') === '1';
   if (url.pathname === '/mock/chat/reset' && req.method === 'GET') {
     chatNextId = 1;
     res.statusCode = 200;
     res.setHeader('Content-Type', MIME['.html']);
-    res.end(chatComposer().replace(' data-hx-swap-oob="outerHTML"', ''));
+    res.end(chatComposer('', streamed).replace(' data-hx-swap-oob="outerHTML"', ''));
     return true;
   }
   if (url.pathname === '/mock/chat/messages' && req.method === 'POST') {
@@ -762,19 +783,81 @@ function handleChat(req, res, url) {
       if (!prompt) {
         // 422: no transcript content — only the OOB composer re-render.
         res.statusCode = 422;
-        return res.end(chatComposer('Type a message first.'));
+        return res.end(chatComposer('Type a message first.', streamed));
       }
       const id = chatNextId++;
+      // Streamed variant: the prompt picks the SSE scenario so the spec
+      // can drive the happy path, the error event and the stop ride.
+      const scenario =
+        prompt === 'fail' ? 'error' : prompt === 'slow' ? 'slow' : 'ok';
+      const placeholder = streamed
+        ? chatStreamingReply(id, scenario)
+        : `<li class="hc-chat__message" data-role="assistant" data-state="streaming"
+            aria-busy="true" id="reply-${id}" data-testid="reply-${id}">
+          <div class="hc-chat__body"></div>
+        </li>`;
       res.statusCode = 200;
       res.end(`<li class="hc-chat__message" data-role="user" data-testid="user-${id}">
           <div class="hc-chat__body">${prompt.replace(/</g, '&lt;')}</div>
         </li>
-        <li class="hc-chat__message" data-role="assistant" data-state="streaming"
-            aria-busy="true" id="reply-${id}" data-testid="reply-${id}">
-          <div class="hc-chat__body"></div>
-        </li>
-        ${chatComposer()}`);
+        ${placeholder}
+        ${chatComposer('', streamed)}`);
     });
+    return true;
+  }
+  // SSE reply stream for the streaming-response recipe: named events
+  // whose data is a finished fragment — `chunk` (HTML text appended
+  // into the placeholder body), `done` (the complete final <li>,
+  // outerHTML-swapped over the placeholder, no aria-busy), `error`
+  // (a final <li data-state="error"> with a retry affordance). Data is
+  // single-line by construction (SSE frames one line per data:).
+  const stream = url.pathname.match(/^\/mock\/chat\/stream\/(\d+)$/);
+  if (stream && req.method === 'GET') {
+    const id = stream[1];
+    const scenario = url.searchParams.get('scenario') ?? 'ok';
+    req.resume();
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-store',
+      Connection: 'keep-alive',
+    });
+    res.write('retry: 1000\n\n');
+    const send = (event, data, delay) =>
+      setTimeout(() => {
+        if (!res.writableEnded) res.write(`event: ${event}\ndata: ${data}\n\n`);
+      }, delay);
+    if (scenario === 'error') {
+      send('chunk', 'Thinking', 100);
+      send('error', `<li class="hc-chat__message" data-role="assistant" data-state="error" id="reply-${id}" data-testid="error-${id}"><div class="hc-chat__body">The reply stream failed. <button class="hc-button" data-size="sm" type="button" data-hx-post="/mock/chat/messages?stream=1" data-hx-vals='{"prompt":"retry"}' data-hx-target="#chat-list" data-hx-swap="beforeend" data-testid="retry-${id}">Retry</button></div></li>`, 300);
+      setTimeout(() => {
+        if (!res.writableEnded) res.end();
+      }, 500);
+    } else if (scenario === 'slow') {
+      // Keeps chunking so the spec can click Stop mid-stream.
+      for (let i = 1; i <= 40; i += 1) send('chunk', `tok${i} `, i * 150);
+      setTimeout(() => {
+        if (!res.writableEnded) res.end();
+      }, 6500);
+    } else {
+      send('chunk', 'Here', 100);
+      send('chunk', ' is the', 220);
+      send('chunk', ' answer.', 340);
+      send('done', `<li class="hc-chat__message" data-role="assistant" id="reply-${id}" data-testid="done-${id}"><div class="hc-chat__body">Here is the answer.</div></li>`, 500);
+      setTimeout(() => {
+        if (!res.writableEnded) res.end();
+      }, 700);
+    }
+    return true;
+  }
+  const stop = url.pathname.match(/^\/mock\/chat\/stream\/(\d+)\/stop$/);
+  if (stop && req.method === 'POST') {
+    const id = stop[1];
+    req.resume();
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(`<li class="hc-chat__message" data-role="assistant" id="reply-${id}" data-testid="stopped-${id}">
+        <div class="hc-chat__body">Generation stopped.</div>
+      </li>`);
     return true;
   }
   return false;

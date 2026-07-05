@@ -1,0 +1,19 @@
+<!-- Short recommended usage.
+
+  The SSE reply contract: the assistant placeholder appended by the
+  chat-messages recipe owns its own stream connection (htmx SSE
+  extension — load sse.min.js next to htmx). `chunk` events append
+  server-rendered HTML text into the body while aria-busy defers the
+  announcement; `done` (or `error`) outerHTML-swaps the complete final
+  message over the placeholder, which also closes the EventSource.
+  See expanded.html for the full transcript composition, the error
+  variant and the stop button; contract.md for the event contract. -->
+<li class="hc-chat__message" data-role="assistant" data-state="streaming"
+    aria-busy="true" id="reply-42"
+    data-hx-ext="sse" data-sse-connect="/chat/messages/42/stream"
+    data-sse-swap="done,error" data-hx-swap="outerHTML">
+  <div class="hc-chat__body" data-sse-swap="chunk" data-hx-swap="beforeend"></div>
+  <button class="hc-button" data-size="sm" type="button"
+      data-hx-post="/chat/messages/42/stop"
+      data-hx-target="closest li" data-hx-swap="outerHTML">Stop</button>
+</li>

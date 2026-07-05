@@ -6,7 +6,7 @@ description: Chat as a server round trip — one POST appends the user message a
 A conversation is just a transcript the server renders and a form that
 appends to it. One POST returns **three fragments in one body**: the
 user's message, the assistant's `aria-busy` placeholder — the handle
-the **streaming-response** recipe (ships next)
+the [streaming-response recipe](/hypermedia-components/recipes/streaming-response/)
 fills over SSE — and a fresh composer swapped out of band. No custom
 JavaScript; `installChatScroll()` (auto-init) keeps the reader at the
 bottom.
@@ -71,9 +71,28 @@ included.
   (`test-browser/chat-messages.spec.mjs`): append + placeholder, OOB
   reset, 422 isolation, stick-to-bottom across six exchanges, axe.
 
+## Attachments
+
+The composer composes with the upload patterns end to end — no new
+contract:
+
+1. Make the composer `enctype="multipart/form-data"` and put a
+   [dropzone](/hypermedia-components/components/dropzone/) (or a plain
+   file input) next to the textarea.
+2. While the POST uploads, `installUploadProgress()` (the
+   [file-upload recipe](/hypermedia-components/recipes/file-upload/))
+   drives the progress row on each pending
+   [attachment card](/hypermedia-components/components/attachment/).
+3. The server echoes the files **inside the user `<li>`** as an
+   `hc-attachments` list — attachment cards are message markup, so
+   the transcript stays one server-rendered document.
+4. The reply side is unchanged: the placeholder and the
+   [streaming contract](/hypermedia-components/recipes/streaming-response/)
+   are the same with or without attachments.
+
 ## Related
 
 - [Chat](/hypermedia-components/components/chat/) — the transcript component and its tokens.
-- Streaming response — fills the placeholder over SSE (recipe ships next; the [sse-updates recipe](/hypermedia-components/recipes/sse-updates/) documents the push channel today).
+- [Streaming response](/hypermedia-components/recipes/streaming-response/) — fills the placeholder over SSE ([sse-updates](/hypermedia-components/recipes/sse-updates/) documents the general push channel).
 - [field-errors](/hypermedia-components/recipes/field-errors/) — the 422 convention this composer reuses.
 - [file-upload](/hypermedia-components/recipes/file-upload/) — the OOB fresh-form reset pattern.

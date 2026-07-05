@@ -6,8 +6,8 @@ description: サーバー往復としてのチャット — 1 回の POST がユ
 会話とは、サーバーが描画するトランスクリプトと、そこへ追記する
 フォームにすぎません。1 回の POST が **1 つのボディに 3 つの
 フラグメント**を返します: ユーザーのメッセージ、アシスタントの
-`aria-busy` プレースホルダー — **streaming-response** レシピ(次に
-登場)が SSE で埋めるハンドルです — そして帯域外でスワップされる
+`aria-busy` プレースホルダー — [streaming-response レシピ](/hypermedia-components/ja/recipes/streaming-response/)が
+SSE で埋めるハンドルです — そして帯域外でスワップされる
 新しいコンポーザー。カスタム JavaScript はゼロで、auto-init の
 `installChatScroll()` が読者を最下部に保ちます。
 
@@ -72,9 +72,29 @@ markdown は使いません — アシスタントの応答はサーバー描画
   固定: 追記 + プレースホルダー、OOB リセット、422 の隔離、6 往復
   にわたる最下部追従、axe。
 
+## 添付ファイル
+
+コンポーザーはアップロード系のパターンと端から端まで合成できます —
+新しい契約は不要です:
+
+1. コンポーザーを `enctype="multipart/form-data"` にし、textarea の
+   隣に[ドロップゾーン](/hypermedia-components/ja/components/dropzone/)
+   (または素の file input)を置きます。
+2. POST のアップロード中は、`installUploadProgress()`
+   ([file-upload レシピ](/hypermedia-components/ja/recipes/file-upload/))
+   が保留中の各[添付カード](/hypermedia-components/ja/components/attachment/)の
+   進捗行を駆動します。
+3. サーバーはファイルを **ユーザーの `<li>` の内側**に
+   `hc-attachments` リストとしてエコーします — 添付カードは
+   メッセージのマークアップの一部なので、トランスクリプトは 1 つの
+   サーバー描画ドキュメントのままです。
+4. 応答側は不変です: プレースホルダーと
+   [ストリーミング契約](/hypermedia-components/ja/recipes/streaming-response/)は
+   添付の有無にかかわらず同じです。
+
 ## 関連
 
 - [チャット](/hypermedia-components/ja/components/chat/) — トランスクリプトコンポーネントとそのトークン。
-- ストリーミングレスポンス — プレースホルダーを SSE で埋めます(レシピは次に登場。プッシュチャネル自体は今日も [sse-updates レシピ](/hypermedia-components/ja/recipes/sse-updates/)が文書化しています)。
+- [ストリーミングレスポンス](/hypermedia-components/ja/recipes/streaming-response/) — プレースホルダーを SSE で埋めます(汎用のプッシュチャネルは [sse-updates](/hypermedia-components/ja/recipes/sse-updates/)が文書化しています)。
 - [field-errors](/hypermedia-components/ja/recipes/field-errors/) — このコンポーザーが再利用する 422 の規約。
 - [file-upload](/hypermedia-components/ja/recipes/file-upload/) — OOB の新フォームリセットパターン。
