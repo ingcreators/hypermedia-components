@@ -679,5 +679,30 @@ notes content.</textarea>
     </form>
   </section>
 
+  <section id="vrt-attachments">
+    <h2>Attachments</h2>
+    <ul class="hc-attachments" aria-label="Attachments" style="max-inline-size:24rem;">
+      <li class="hc-attachment">
+        <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+        <span class="hc-attachment__name">notes.md</span>
+        <span class="hc-attachment__size">4 KB</span>
+        <button class="hc-attachment__remove" type="button" aria-label="Remove notes.md">×</button>
+      </li>
+      <li class="hc-attachment" data-state="uploading">
+        <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+        <span class="hc-attachment__name">report.pdf</span>
+        <span class="hc-attachment__size">1.2 MB</span>
+        <progress class="hc-progress hc-attachment__progress" max="100" value="40" aria-label="Uploading report.pdf"></progress>
+        <button class="hc-attachment__remove" type="button" aria-label="Remove report.pdf">×</button>
+      </li>
+      <li class="hc-attachment" data-state="error">
+        <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+        <span class="hc-attachment__name">huge.iso</span>
+        <span class="hc-attachment__size">9.8 GB</span>
+        <button class="hc-attachment__remove" type="button" aria-label="Remove huge.iso">×</button>
+      </li>
+    </ul>
+  </section>
+
 </body>
 </html>

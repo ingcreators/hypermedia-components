@@ -1,5 +1,51 @@
 {
   "$description": "Component-level tokens. Emitted under :root.",
+  "attachment": {
+    "bg": {
+      "$type": "color",
+      "$value": "{semantic.color.surface}"
+    },
+    "border": {
+      "$type": "color",
+      "$value": "{semantic.color.border}"
+    },
+    "radius": {
+      "$type": "dimension",
+      "$value": "{semantic.control.radius}"
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{semantic.space.1}"
+    },
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
+    },
+    "name-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text}"
+    },
+    "size-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
+    },
+    "icon-size": {
+      "$type": "dimension",
+      "$value": "1.25rem"
+    },
+    "error-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.error.bg}"
+    },
+    "error-border": {
+      "$type": "color",
+      "$value": "{semantic.color.status.error.border}"
+    }
+  },
   "button": {
     "height": {
       "$type": "dimension",
@@ -160,6 +206,64 @@
         "$type": "dimension",
         "$value": "{semantic.font.size-lg}"
       }
+    }
+  },
+  "chat": {
+    "gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space.4}"
+    },
+    "bubble-radius": {
+      "$type": "dimension",
+      "$value": "0.75rem"
+    },
+    "bubble-max-inline": {
+      "$type": "dimension",
+      "$value": "46rem"
+    },
+    "bubble-padding-block": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
+    },
+    "bubble-padding-inline": {
+      "$type": "dimension",
+      "$value": "{semantic.space.3}"
+    },
+    "user-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.action.primary-soft.bg}"
+    },
+    "user-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text}"
+    },
+    "assistant-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.muted-bg}"
+    },
+    "assistant-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text}"
+    },
+    "system-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
+    },
+    "meta-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
+    },
+    "caret-color": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
+    },
+    "error-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.error.bg}"
+    },
+    "error-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.error.fg}"
     }
   },
   "toggle": {

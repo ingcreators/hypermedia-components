@@ -32,6 +32,7 @@ const FILES = [
   ['src/js/sse-dispatch.js',  'sse-dispatch.js'],
   ['src/js/upload-progress.js', 'upload-progress.js'],
   ['src/js/dropzone.js',      'dropzone.js'],
+  ['src/js/chat-scroll.js',   'chat-scroll.js'],
   ['src/js/tree.js',          'tree.js'],
   ['src/js/copy.js',          'copy.js'],
   ['src/js/spy.js',           'spy.js'],

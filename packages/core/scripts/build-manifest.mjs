@@ -20,6 +20,7 @@ const REPO = resolve(CORE, '..', '..');
 /** Components whose behavior does not follow the name-normalization
  * rule (block name with dashes removed == install name lowercased). */
 const EXPLICIT_BEHAVIOR = {
+  chat: 'installChatScroll',
   toc: 'installSpy',
   'input-group': 'installPasswordToggle', // opt-in reveal; the group itself is CSS
   code: 'installCodeEditor', // the editable field; read-only code is pure CSS

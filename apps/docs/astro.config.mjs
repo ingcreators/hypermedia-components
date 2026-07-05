@@ -154,6 +154,7 @@ export default defineConfig({
                 'components/datepicker',
                 'components/calendar',
                 'components/dropzone',
+                'components/attachment',
               ],
             },
             {
@@ -197,6 +198,7 @@ export default defineConfig({
                 'components/collapsible',
                 'components/sparkline',
                 'components/timeline',
+                'components/chat',
               ],
             },
             {

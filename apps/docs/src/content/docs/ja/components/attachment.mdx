@@ -1,0 +1,174 @@
+---
+title: 添付ファイル
+description: ファイルカード — アイコン、名前、サイズ、削除ボタン — と hc-attachments リストラッパー、進捗行が現れるアップロード中状態、エラー状態。純 CSS。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-attachment` は**ファイルカード**です: アイコン、ファイル名、
+サイズ、削除ボタンが 1 つのグリッド行に並びます。`hc-attachments` は
+それを包むリストです — `hc-chips` と同じく複数形です。*添付ファイルの
+リスト*そのものだからで、本物の `<ul>`/`<li>` に保つことでセットが
+読み上げ可能になります。純 CSS です:
+[ドロップゾーン](/hypermedia-components/ja/components/dropzone/)が
+ファイルを集め、
+[ファイルアップロードレシピ](/hypermedia-components/ja/recipes/file-upload/)が
+マルチパート + 進捗の契約を所有し、
+[`hc-progress`](/hypermedia-components/ja/components/progress/) が
+`installUploadProgress()` の駆動するバーです。
+
+## 基本の HTML
+
+<Demo previewStyle="max-inline-size:28rem;">
+  <ul class="hc-attachments" aria-label="Attachments">
+    <li class="hc-attachment">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">notes.md</span>
+      <span class="hc-attachment__size">4 KB</span>
+      <button class="hc-attachment__remove" type="button" aria-label="Remove notes.md">×</button>
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-attachments" aria-label="Attachments">
+    <li class="hc-attachment">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">notes.md</span>
+      <span class="hc-attachment__size">4 KB</span>
+      <button class="hc-attachment__remove" type="button"
+              aria-label="Remove notes.md">×</button>
+    </li>
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
+`data-state` がなければファイルは**確定** — アップロード済みで一覧に
+載った状態です。アイコンのスロットにはインライン SVG(または絵文字の
+プレースホルダ)が入ります。装飾なので `aria-hidden` に保って
+ください。長いファイル名は行を壊さず、省略記号で切り詰められます。
+
+## 状態
+
+`data-state="uploading"` はカードの**進捗行**を表示します — カードの
+全幅にわたるネイティブの
+[`hc-progress`](/hypermedia-components/ja/components/progress/) 要素で、
+htmx がフォームをアップロードする間、その `value` を
+`installUploadProgress()` が駆動します。`data-state="error"` は共有の
+[ステータストークン](/hypermedia-components/ja/tokens/status/)でカードを
+色づけします。
+
+<Demo previewStyle="max-inline-size:28rem;">
+  <ul class="hc-attachments" aria-label="Attachments">
+    <li class="hc-attachment" data-state="uploading">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">report.pdf</span>
+      <span class="hc-attachment__size">1.2 MB</span>
+      <progress class="hc-progress hc-attachment__progress" max="100" value="40" aria-label="Uploading report.pdf"></progress>
+      <button class="hc-attachment__remove" type="button" aria-label="Remove report.pdf">×</button>
+    </li>
+    <li class="hc-attachment" data-state="error">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">huge.iso</span>
+      <span class="hc-attachment__size">9.8 GB</span>
+      <button class="hc-attachment__remove" type="button" aria-label="Remove huge.iso">×</button>
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <li class="hc-attachment" data-state="uploading">
+    <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+    <span class="hc-attachment__name">report.pdf</span>
+    <span class="hc-attachment__size">1.2 MB</span>
+    <progress class="hc-progress hc-attachment__progress"
+              max="100" value="40" aria-label="Uploading report.pdf"></progress>
+    <button class="hc-attachment__remove" type="button"
+            aria-label="Remove report.pdf">×</button>
+  </li>
+
+  <li class="hc-attachment" data-state="error">
+    <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+    <span class="hc-attachment__name">huge.iso</span>
+    <span class="hc-attachment__size">9.8 GB</span>
+    <button class="hc-attachment__remove" type="button"
+            aria-label="Remove huge.iso">×</button>
+  </li>
+  ```
+
+  </Fragment>
+</Demo>
+
+進捗行は `data-state="uploading"` の間だけ描画されます — サーバの
+成功フラグメントは確定カード(状態なし、`<progress>` なし)をそのまま
+スワップし、失敗は `data-state="error"` をスワップします。
+
+## 組み合わせ
+
+添付ファイルカードはファイルアップロードフローの*表示*側です。
+残りの半分はすでに存在します:
+
+- [ドロップゾーン](/hypermedia-components/ja/components/dropzone/)が
+  ファイルを集めます — ドロップはネイティブの `<input type="file">` に
+  代入して普通の `change` を発火するので、周囲のフォームはいつも
+  どおりシリアライズされます。
+- [ファイルアップロードレシピ](/hypermedia-components/ja/recipes/file-upload/)が
+  マルチパート + 進捗の契約を所有します: htmx がフォームを POST し、
+  `installUploadProgress()` が実際のアップロード進捗を `<progress>`
+  要素へ写し、レスポンスが確定フラグメントを追記してフォームを
+  out-of-band でリセットします。
+
+## アクセシビリティ
+
+- 削除コントロールは本物の `<button>` で、`aria-label` にファイル名を
+  含めます — 素の「×」ではなく「Remove report.pdf」です。
+- `<ul>`/`<li>` 構造により、セットは位置と件数つきで読み上げ可能です。
+  見出しが名前になっていないときはリストに `aria-label` を与えて
+  ください。
+- `<progress>` はアクセシブルネームを持ちます(その `aria-label` も
+  ファイル名を含む)。読み上げられるパーセンテージがどのファイルの
+  ものか分かります。
+- アイコンは装飾(`aria-hidden="true"`)です — アイデンティティは
+  ファイル名のテキストが担います。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `attachment.bg` / `border` / `radius` | カードの面。 |
+| `attachment.gap` | カード内のグリッドギャップとカード間のギャップ。 |
+| `attachment.padding-block` / `padding-inline` | カードのパディング。 |
+| `attachment.name-fg` / `size-fg` | ファイル名 / サイズの文字。 |
+| `attachment.icon-size` | アイコンと削除ボタンの正方形。 |
+| `attachment.error-bg` / `error-border` | エラー状態のカード。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-attachment-bg | -border | -radius | -gap
+--hc-attachment-padding-block | -padding-inline
+--hc-attachment-name-fg | -size-fg | -icon-size
+--hc-attachment-error-bg | -error-border
+```
+
+</details>
+
+## 関連
+
+- [ドロップゾーン](/hypermedia-components/ja/components/dropzone/) —
+  このカードが表示するファイルを集めます。
+- [プログレス](/hypermedia-components/ja/components/progress/) —
+  アップロード中状態の中のネイティブなバー。
+- [チップ](/hypermedia-components/ja/components/chip/) —
+  ファイルではない事実のための、より軽いトークン。
+- [ファイルアップロードレシピ](/hypermedia-components/ja/recipes/file-upload/) —
+  マルチパート + ライブ進捗のパターン一式。

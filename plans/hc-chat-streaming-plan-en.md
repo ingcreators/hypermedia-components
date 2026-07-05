@@ -15,8 +15,8 @@ the two missing wire contracts.
 ### `hc-chat` — the transcript
 
 ```html
-<div class="hc-chat" aria-label="Conversation">
-  <ol class="hc-chat__list" role="log">
+<div class="hc-chat" role="log" aria-label="Conversation">
+  <ol class="hc-chat__list" tabindex="0">
     <li class="hc-chat__message" data-role="user">
       <span class="hc-avatar" data-size="sm">…</span>
       <div class="hc-chat__body">…server-rendered HTML…</div>
@@ -30,6 +30,7 @@ the two missing wire contracts.
 </div>
 ```
 
+- Implementation note (axe-driven): `role="log"` lives on the **root div** — the role is not allowed on `<ol>` — and the scrollable list carries `tabindex="0"` (scrollable-region-focusable).
 - `data-role="user | assistant | system"` drives bubble alignment and
   colors (new `chat.*` tokens referencing semantic colors). `system`
   renders as a centered muted line.
@@ -37,8 +38,7 @@ the two missing wire contracts.
   `.hc-chat__body::after` (animation removed under
   `prefers-reduced-motion`); `data-state="error"` tints via the status
   tokens.
-- **Accessibility is the design**: the list is `role="log"` (implicit
-  polite live region) so *appended complete messages* are announced;
+- **Accessibility is the design**: the root is `role="log"` (implicit polite live region) so *appended complete messages* are announced;
   a streaming placeholder carries **`aria-busy="true"`, which defers
   announcement until the final swap removes it** — the standards
   mechanism for "don't read half a sentence". DOM stays in
