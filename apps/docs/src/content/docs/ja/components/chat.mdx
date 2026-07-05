@@ -181,11 +181,12 @@ htmx でスワップされた内容も自動で拾います。ネットワーク
 </div>
 ```
 
-プッシュチャネル — アシスタントの応答がサーバから届く経路 — は
-[sse-updates レシピ](/hypermedia-components/ja/recipes/sse-updates/)を
-参照してください。トランスクリプトとトークンストリーミングの
-リクエスト / レスポンス契約一式を所有する専用の `chat-messages` /
-`streaming-response` レシピは、この次に登場します。
+コンポーザーの往復(1 回の POST でユーザーメッセージ + aria-busy の
+プレースホルダーを追記)は
+[chat-messages レシピ](/hypermedia-components/ja/recipes/chat-messages/)が
+所有します。プッシュチャネル — アシスタントの応答がサーバから届く
+経路 — は [sse-updates レシピ](/hypermedia-components/ja/recipes/sse-updates/)を
+参照してください。専用の `streaming-response` レシピはこの次に登場します。
 
 ## アクセシビリティ
 

@@ -1,0 +1,80 @@
+---
+title: チャットメッセージ
+description: サーバー往復としてのチャット — 1 回の POST がユーザーメッセージと aria-busy のアシスタントプレースホルダーを追記し、コンポーザーを帯域外でリセットします。
+---
+
+会話とは、サーバーが描画するトランスクリプトと、そこへ追記する
+フォームにすぎません。1 回の POST が **1 つのボディに 3 つの
+フラグメント**を返します: ユーザーのメッセージ、アシスタントの
+`aria-busy` プレースホルダー — **streaming-response** レシピ(次に
+登場)が SSE で埋めるハンドルです — そして帯域外でスワップされる
+新しいコンポーザー。カスタム JavaScript はゼロで、auto-init の
+`installChatScroll()` が読者を最下部に保ちます。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add chat-messages` がこのレシピのスキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` がコピーを機械検証します。完全な契約は [`recipes/chat-messages/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chat-messages/contract.md) にあります。
+:::
+
+## blessed マークアップ
+
+コンポーザーは[チャット](/hypermedia-components/ja/components/chat/)
+ルートの最後の子として入れ子になり、やり取り全体が 1 つの合成に
+なります:
+
+```html
+<div class="hc-chat" role="log" aria-label="Conversation">
+  <ol class="hc-chat__list" tabindex="0" id="chat-list">
+    <!-- server-rendered history -->
+  </ol>
+  <button class="hc-chat__jump hc-button" data-size="sm" type="button">↓ Latest</button>
+
+  <form class="hc-field" id="composer" method="post" action="/chat/messages"
+        data-hx-post="/chat/messages"
+        data-hx-target="#chat-list" data-hx-swap="beforeend">
+    <label class="hc-field__label" for="prompt">Message</label>
+    <textarea class="hc-input" id="prompt" name="prompt" rows="2"></textarea>
+    <button class="hc-button" data-variant="primary" type="submit">Send</button>
+  </form>
+</div>
+```
+
+各属性がある理由:
+
+| 属性 | 目的 |
+| --- | --- |
+| `role="log"`(ルート) | 追記された**完成した**メッセージが読み上げられます。このロールは `<ol>` には許可されません。 |
+| `tabindex="0"`(リスト) | スクロール領域にキーボードで到達できます。 |
+| `data-hx-target="#chat-list"` + `data-hx-swap="beforeend"` | POST はトランスクリプトへ追記します — 全体の再描画はしません。 |
+| `method="post"` + `action` | no-JS の経路: 素のフォーム送信で、`303` が返ります。 |
+
+## サーバーレスポンス契約
+
+| ケース | ステータス | ボディ |
+| --- | --- | --- |
+| メッセージ受理 | `200` | ユーザーの `<li data-role="user">` + アシスタントのプレースホルダー `<li data-role="assistant" data-state="streaming" aria-busy="true" id="reply-…">`(どちらも `beforeend` で着地)、さらに `data-hx-swap-oob="outerHTML"` 付きの新しいコンポーザー — トランスクリプトに触れずに textarea がクリアされます。 |
+| 空 / 不正なプロンプト | `422` | **帯域外のコンポーザー再描画のみ**: `data-invalid`、textarea の `aria-invalid` + `aria-describedby`、`.hc-field__message` のエラー。トランスクリプトを対象にするものが無いため、偽エントリは現れません。一度きりの [`htmx:beforeSwap` 422 許可](/hypermedia-components/ja/recipes/field-errors/)が必要です。 |
+| JS なし | `303` | 会話ページへのリダイレクト(`HX-Request` ヘッダーで分岐)。フルページに新しいやり取りが含まれます。 |
+
+描画はサーバーの責務です: **エコーするプロンプトは必ずエスケープ**
+してください(トランスクリプトは HTML シンクです)。クライアント側
+markdown は使いません — アシスタントの応答はサーバー描画の HTML
+フラグメント(`hc-code` ブロック込み)で届きます。
+
+## アクセシビリティ
+
+- プレースホルダーの `aria-busy="true"` が log リージョンの読み上げを
+  **保留**します: 最終スワップ(streaming-response の `done`
+  イベント、または非ストリーミングでの完成)が属性を外した瞬間に、
+  支援技術は応答を 1 回だけ読み上げます。
+- 422 のコンポーザーは field-errors のパターン(`aria-invalid`、
+  `aria-describedby`)に従います。
+- 実 htmx のブラウザテスト(`test-browser/chat-messages.spec.mjs`)で
+  固定: 追記 + プレースホルダー、OOB リセット、422 の隔離、6 往復
+  にわたる最下部追従、axe。
+
+## 関連
+
+- [チャット](/hypermedia-components/ja/components/chat/) — トランスクリプトコンポーネントとそのトークン。
+- ストリーミングレスポンス — プレースホルダーを SSE で埋めます(レシピは次に登場。プッシュチャネル自体は今日も [sse-updates レシピ](/hypermedia-components/ja/recipes/sse-updates/)が文書化しています)。
+- [field-errors](/hypermedia-components/ja/recipes/field-errors/) — このコンポーザーが再利用する 422 の規約。
+- [file-upload](/hypermedia-components/ja/recipes/file-upload/) — OOB の新フォームリセットパターン。

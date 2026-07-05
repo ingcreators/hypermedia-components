@@ -1,0 +1,31 @@
+<!-- Short recommended usage.
+
+  Chat messages as a server round trip: the transcript is server
+  history, the composer is a plain form nested as the chat root's last
+  child, and one POST appends BOTH the user's message and the
+  assistant's aria-busy placeholder — the placeholder is what the
+  streaming-response recipe fills over SSE. An empty prompt is a 422
+  whose only payload is the out-of-band composer re-render (with its
+  field error), so the transcript never gains a bogus entry. See
+  expanded.html for a full exchange and contract.md for the server
+  contract. -->
+<div class="hc-chat" role="log" aria-label="Conversation">
+  <ol class="hc-chat__list" tabindex="0" id="chat-list">
+    <li class="hc-chat__message" data-role="user">
+      <div class="hc-chat__body">What failed in CI?</div>
+    </li>
+    <li class="hc-chat__message" data-role="assistant" data-state="streaming"
+        aria-busy="true" id="reply-42">
+      <div class="hc-chat__body"></div>
+    </li>
+  </ol>
+  <button class="hc-chat__jump hc-button" data-size="sm" type="button">↓ Latest</button>
+
+  <form class="hc-field" id="composer" method="post" action="/chat/messages"
+        data-hx-post="/chat/messages"
+        data-hx-target="#chat-list" data-hx-swap="beforeend">
+    <label class="hc-field__label" for="prompt">Message</label>
+    <textarea class="hc-input" id="prompt" name="prompt" rows="2"></textarea>
+    <button class="hc-button" data-variant="primary" type="submit">Send</button>
+  </form>
+</div>

@@ -715,6 +715,71 @@ function handleCascade(req, res, url) {
   return false;
 }
 
+
+// Mock chat backend for the chat-messages recipe spec (chat-messages.html):
+// POST appends the user message + the assistant placeholder (aria-busy,
+// data-state="streaming") and resets the composer out of band; an empty
+// prompt is a 422 whose only content is the OOB composer re-render, so
+// nothing lands in the transcript. The reset endpoint isolates specs.
+let chatNextId = 1;
+
+function chatComposer(error = '') {
+  const invalid = error ? ' data-invalid="true"' : '';
+  const aria = error
+    ? ' aria-invalid="true" aria-describedby="prompt-error"'
+    : '';
+  const message = error
+    ? `<p id="prompt-error" class="hc-field__message" data-testid="prompt-error">${error}</p>`
+    : '';
+  return `<form class="hc-field" id="composer" method="post" action="/mock/chat/messages"
+      data-hx-post="/mock/chat/messages"
+      data-hx-target="#chat-list" data-hx-swap="beforeend"
+      data-hx-swap-oob="outerHTML"${invalid} data-testid="composer">
+    <label class="hc-field__label" for="prompt">Message</label>
+    <textarea class="hc-input" id="prompt" name="prompt" rows="2"${aria} data-testid="prompt"></textarea>
+    ${message}
+    <button class="hc-button" data-variant="primary" type="submit" data-testid="send">Send</button>
+  </form>`;
+}
+
+function handleChat(req, res, url) {
+  if (url.pathname === '/mock/chat/reset' && req.method === 'GET') {
+    chatNextId = 1;
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(chatComposer().replace(' data-hx-swap-oob="outerHTML"', ''));
+    return true;
+  }
+  if (url.pathname === '/mock/chat/messages' && req.method === 'POST') {
+    readBody(req).then((body) => {
+      const prompt = (new URLSearchParams(body).get('prompt') ?? '').trim();
+      if (!req.headers['hx-request']) {
+        res.statusCode = 303;
+        res.setHeader('Location', '/chat-messages.html');
+        return res.end();
+      }
+      res.setHeader('Content-Type', MIME['.html']);
+      if (!prompt) {
+        // 422: no transcript content — only the OOB composer re-render.
+        res.statusCode = 422;
+        return res.end(chatComposer('Type a message first.'));
+      }
+      const id = chatNextId++;
+      res.statusCode = 200;
+      res.end(`<li class="hc-chat__message" data-role="user" data-testid="user-${id}">
+          <div class="hc-chat__body">${prompt.replace(/</g, '&lt;')}</div>
+        </li>
+        <li class="hc-chat__message" data-role="assistant" data-state="streaming"
+            aria-busy="true" id="reply-${id}" data-testid="reply-${id}">
+          <div class="hc-chat__body"></div>
+        </li>
+        ${chatComposer()}`);
+    });
+    return true;
+  }
+  return false;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -724,6 +789,7 @@ function handleMock(req, res, url) {
   if (handleTree(req, res, url)) return true;
   if (handleTransfer(req, res, url)) return true;
   if (handleCascade(req, res, url)) return true;
+  if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
   req.resume();

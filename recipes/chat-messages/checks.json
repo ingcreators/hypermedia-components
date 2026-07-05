@@ -1,0 +1,74 @@
+{
+  "detect": ".hc-chat:has(form[data-hx-swap=\"beforeend\"]):not(:has([data-sse-connect]))",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "transcript-is-log",
+      "level": "error",
+      "message": "The chat root carries role=\"log\" so appended complete messages are announced (the role is not allowed on <ol>).",
+      "attr": {
+        "on": ".hc-chat",
+        "name": "role",
+        "assert": "present",
+        "value": "log"
+      }
+    },
+    {
+      "id": "list-keyboard-reachable",
+      "level": "error",
+      "message": "The scrollable list needs tabindex=\"0\" (axe: scrollable-region-focusable).",
+      "attr": {
+        "on": ".hc-chat__list",
+        "name": "tabindex",
+        "assert": "present",
+        "value": "0"
+      }
+    },
+    {
+      "id": "composer-appends",
+      "level": "error",
+      "message": "The composer appends to the transcript: data-hx-swap=\"beforeend\" on the form.",
+      "attr": {
+        "on": "form[data-hx-post]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "beforeend"
+      }
+    },
+    {
+      "id": "composer-target-resolves",
+      "level": "error",
+      "message": "The composer's data-hx-target must resolve to the transcript list.",
+      "resolves": {
+        "on": "form[data-hx-post]",
+        "name": "data-hx-target"
+      }
+    },
+    {
+      "id": "composer-native-fallback",
+      "level": "error",
+      "message": "The composer stays a real form: method=\"post\" + action mirror the htmx attributes for the no-JS path.",
+      "attr": {
+        "on": "form[data-hx-post]",
+        "name": "action",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "placeholder-defers-announcement",
+      "level": "error",
+      "message": "The assistant placeholder carries aria-busy=\"true\" so the log region announces the reply only once, when the final swap removes it.",
+      "exists": {
+        "selector": ".hc-chat__message[data-state=\"streaming\"][aria-busy=\"true\"]"
+      }
+    },
+    {
+      "id": "prompt-native-name",
+      "level": "warn",
+      "message": "The prompt travels by native serialization: keep a name on the textarea.",
+      "exists": {
+        "selector": "form[data-hx-post] textarea[name]"
+      }
+    }
+  ]
+}

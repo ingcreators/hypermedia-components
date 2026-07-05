@@ -1,5 +1,5 @@
 {
-  "detect": "form[data-hx-post][action]:not([data-hx-encoding]):not(:has(button[name=\"nav\"])):not(.hc-transfer)",
+  "detect": "form[data-hx-post][action]:not([data-hx-encoding]):not(:has(button[name=\"nav\"])):not(.hc-transfer):not([data-hx-swap=\"beforeend\"])",
   "contract": "contract.md",
   "rules": [
     {
@@ -25,7 +25,7 @@
     {
       "id": "error-swap-innerhtml",
       "level": "error",
-      "message": "Swap the field-errors fragment with innerHTML into the error container. (innerHTML is also the htmx default — omitting the attribute is fine; anything else is not)",
+      "message": "Swap the field-errors fragment with innerHTML into the error container. (innerHTML is also the htmx default \u2014 omitting the attribute is fine; anything else is not)",
       "attr": {
         "on": "form[data-hx-target][data-hx-swap]",
         "name": "data-hx-swap",

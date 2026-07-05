@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>chat-messages recipe fixture</title>
+  <!--
+    Pins the blessed chat-messages composition against real htmx: the
+    composer POSTs to /mock/chat/messages (serve.mjs), the response
+    appends the user message + the aria-busy assistant placeholder to
+    the transcript and resets the composer out of band. No custom JS
+    beyond the one-time htmx:beforeSwap allowance the recipe documents.
+  -->
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main id="section-chat-messages" style="padding:1rem; max-inline-size:40rem;">
+    <h1>Chat</h1>
+
+    <div class="hc-chat" role="log" aria-label="Conversation" data-testid="chat">
+      <ol class="hc-chat__list" tabindex="0" id="chat-list" data-testid="list" style="max-block-size:16rem;">
+        <li class="hc-chat__message" data-role="assistant">
+          <div class="hc-chat__body">Hello! Ask me anything.</div>
+        </li>
+      </ol>
+      <button class="hc-chat__jump hc-button" data-size="sm" type="button">↓ Latest</button>
+
+      <div id="composer-slot" data-hx-get="/mock/chat/reset" data-hx-trigger="load" data-hx-swap="innerHTML"></div>
+    </div>
+  </main>
+
+  <script>
+    // Documented one-time allowance: htmx ≥ 2 won't swap non-2xx by
+    // default; the recipe re-renders the composer (with its field
+    // error) from a 422.
+    document.body.addEventListener('htmx:beforeSwap', (event) => {
+      if (event.detail.xhr.status === 422) event.detail.shouldSwap = true;
+    });
+  </script>
+</body>
+</html>

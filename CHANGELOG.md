@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`chat-messages` recipe — chat as a server round trip** (PR-B of
+  `plans/hc-chat-streaming-plan-en.md`). The composer nests as the
+  chat root's last child; one POST returns three fragments in one
+  body — the user `<li>`, the `aria-busy` assistant placeholder the
+  upcoming streaming-response recipe fills, and the out-of-band
+  composer reset — while a 422 re-renders only the composer, so the
+  transcript never gains a bogus entry, and no-JS posts get a 303.
+  Machine-checked scaffold (`hc validate` green; mutating-form's
+  detect now excludes `beforeend` composers), docs (en + ja), and a
+  real-htmx Playwright suite incl. the six-exchange stick-to-bottom
+  ride and axe.
+
 - **`hc-chat` — a conversation transcript** (PR-A of
   `plans/hc-chat-streaming-plan-en.md`). Chronological DOM (no
   column-reverse), a `role="log"` root whose appended complete
