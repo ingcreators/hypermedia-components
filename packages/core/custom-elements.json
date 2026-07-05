@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "The kit's two optional macro elements. Both expand to documented plain-HTML markup on connect (see the docs' Custom elements reference); the expanded form is always a supported alternative.",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/macros/confirm-action.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "HcConfirmAction",
+          "tagName": "hc-confirm-action",
+          "customElement": true,
+          "summary": "A button that asks for confirmation (shared confirm dialog) before sending an htmx request.",
+          "attributes": [
+            {
+              "name": "action",
+              "description": "Request URL (required)."
+            },
+            {
+              "name": "cancel-label",
+              "description": "Cancel button label override."
+            },
+            {
+              "name": "confirm-label",
+              "description": "Confirm button label override."
+            },
+            {
+              "name": "disabled-elt",
+              "description": "htmx hx-disabled-elt value; default \"this\"."
+            },
+            {
+              "name": "indicator",
+              "description": "htmx hx-indicator value; default \"closest .hc-action\"."
+            },
+            {
+              "name": "message",
+              "description": "Dialog body text; default \"Continue?\"."
+            },
+            {
+              "name": "method",
+              "description": "HTTP method; default \"post\"."
+            },
+            {
+              "name": "swap",
+              "description": "htmx swap strategy; default \"outerHTML\"."
+            },
+            {
+              "name": "target",
+              "description": "htmx target selector for the swap."
+            },
+            {
+              "name": "title",
+              "description": "Optional dialog title."
+            },
+            {
+              "name": "variant",
+              "description": "Confirm-button variant (e.g. \"error\" for destructive)."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "hc-confirm-action",
+          "declaration": {
+            "name": "HcConfirmAction"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/macros/live-search.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "HcLiveSearch",
+          "tagName": "hc-live-search",
+          "customElement": true,
+          "summary": "A debounced search input that GETs a result fragment into a target region.",
+          "attributes": [
+            {
+              "name": "action",
+              "description": "GET URL for the search request (required)."
+            },
+            {
+              "name": "aria-label",
+              "description": "Accessible name when no visible label; default \"Search\"."
+            },
+            {
+              "name": "delay",
+              "description": "Debounce delay for the htmx trigger; default \"300ms\"."
+            },
+            {
+              "name": "input-id",
+              "description": "id for the generated input (label association); auto-generated when omitted."
+            },
+            {
+              "name": "label",
+              "description": "Visible label text (renders a label element)."
+            },
+            {
+              "name": "name",
+              "description": "Query parameter name; default \"q\"."
+            },
+            {
+              "name": "placeholder",
+              "description": "Input placeholder; default \"Search\"."
+            },
+            {
+              "name": "submit-label",
+              "description": "Submit button label; default \"Search\"."
+            },
+            {
+              "name": "swap",
+              "description": "htmx swap strategy for the result region; default \"innerHTML\"."
+            },
+            {
+              "name": "target",
+              "description": "htmx target selector for the result region."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "hc-live-search",
+          "declaration": {
+            "name": "HcLiveSearch"
+          }
+        }
+      ]
+    }
+  ]
+}

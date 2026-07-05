@@ -1,0 +1,67 @@
+---
+title: マシンマニフェスト
+description: manifest.json と custom-elements.json — ツールとエージェント向けの構造化インデックス。
+---
+
+2 つの JSON アーティファクトが、**ツール**(ジェネレータ・リンタ・
+IDE プラグイン・構造を求めるエージェント)向けにキットを記述します。
+どちらもビルド時にソースから生成され、npm パッケージに同梱され、
+このサイトから配信されます:
+
+| アーティファクト | このサイト | パッケージ |
+| --- | --- | --- |
+| キットマニフェスト | [`/api/manifest.json`](/hypermedia-components/api/manifest.json) | `@hypermedia-components/core/manifest.json` |
+| Custom Elements Manifest(マクロ) | [`/api/custom-elements.json`](/hypermedia-components/api/custom-elements.json) | `@hypermedia-components/core/custom-elements.json`(`package.json#customElements` でも参照) |
+
+LLM の*コンテキスト*用(構造ではなく散文)には
+[`/llms.txt`](/hypermedia-components/llms.txt) を使ってください —
+そこからここへリンクが張られています。
+
+## マニフェストの内容
+
+| キー | 形 | 真実の源 |
+| --- | --- | --- |
+| `version` | core パッケージのバージョン。 | `package.json` |
+| `components[]` | `block`、`parts[]`、`dataAttributes[]`(そのブロックのスタイルシートに現れる属性面)、`tokensGroup`(または `null`)、`behavior`(または `null`)、`docsPath`。 | `src/css/hc-*.css`、`component.tokens.json` |
+| `behaviors[]` | `name`、`autoInit`(オプトインは `installChart` の 1 つだけ)。 | `src/js/index.js`、`src/js/behaviors.js` |
+| `events[]` | `name` + 発生元 `modules[]`。detail の形は各コンポーネントページが持ちます。 | `src/js/*.js` |
+| `recipes[]` | `name`、`purpose`、`needsBehavior`(または `null`)、`files[]`、`docsPath`、`contractPath`。 | `recipes/*/`(+ 各レシピの機械検証 `checks.json`) |
+| `macros[]` | `tag` + `attributes[]`。 | `src/macros/*.js` |
+| `i18nKeys[]` | 上書き可能な全メッセージキー。 | `DEFAULT_MESSAGES` |
+| `exports[]` | パッケージ export map のパス。 | `package.json` |
+
+## 保証
+
+- **手書きではなく生成。** core ビルド中に `scripts/build-manifest.mjs`
+  がすべてをソースから抽出します。出力は決定論的(ソート済み・
+  タイムスタンプなし)です。
+- **CI が完全性を強制。** 新しい `installXxx()` export が把握されて
+  いないとビルドが失敗し、ユニットスイートがマニフェストを実体と
+  突き合わせます: 全スタイルシートブロックの存在、auto-init 名簿の
+  一致、recipes ディレクトリとの一致、マクロ属性と Custom Elements
+  Manifest の一致。新しい API 面は、マニフェストが知らないままでは
+  出荷できません。
+- **npm がバージョン管理。** 各リリースの tarball にその版の
+  マニフェストが同梱されます — バージョン履歴はレジストリそのものです。
+
+## 例
+
+```bash
+# Every component block name:
+curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
+  | jq -r '.components[].block'
+
+# Which recipes need a behavior, and which one:
+curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
+  | jq -r '.recipes[] | select(.needsBehavior) | "\(.name): \(.needsBehavior)"'
+
+# The data-attribute surface of one component:
+curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
+  | jq '.components[] | select(.block == "hc-datagrid") | .dataAttributes'
+```
+
+## 関連
+
+- [ビヘイビア](/hypermedia-components/ja/reference/behaviors/) — `behaviors[]` の人間可読版。
+- [バージョニング](/hypermedia-components/ja/reference/versioning/) — 何が公開 API か。マニフェストはその機械可読版です。
+- [カスタム要素](/hypermedia-components/ja/reference/custom-elements/) — CEM が記述するマクロ。

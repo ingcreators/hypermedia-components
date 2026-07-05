@@ -55,15 +55,18 @@
     },
     "./behaviors/min": "./dist/hc.behaviors.min.js",
     "./tokens/*": "./src/tokens/*",
-    "./token-transform": "./scripts/token-transform.mjs"
+    "./token-transform": "./scripts/token-transform.mjs",
+    "./manifest.json": "./dist/manifest.json",
+    "./custom-elements.json": "./custom-elements.json"
   },
   "files": [
     "dist",
     "src/tokens",
-    "scripts/token-transform.mjs"
+    "scripts/token-transform.mjs",
+    "custom-elements.json"
   ],
   "scripts": {
-    "build": "pnpm run build:tokens && pnpm run build:css && pnpm run build:types && pnpm run build:js && pnpm run build:min",
+    "build": "pnpm run build:tokens && pnpm run build:css && pnpm run build:types && pnpm run build:js && pnpm run build:min && pnpm run build:manifest",
     "build:tokens": "node scripts/build-tokens.mjs",
     "build:css": "node scripts/bundle-css.mjs",
     "build:types": "tsc -p tsconfig.json",
@@ -75,7 +78,8 @@
     "lint": "pnpm run lint:js && pnpm run lint:css",
     "lint:js": "eslint .",
     "lint:css": "stylelint \"src/css/**/*.css\"",
-    "lint:fix": "eslint . --fix && stylelint \"src/css/**/*.css\" --fix"
+    "lint:fix": "eslint . --fix && stylelint \"src/css/**/*.css\" --fix",
+    "build:manifest": "node scripts/build-manifest.mjs"
   },
   "keywords": [
     "hypermedia",
@@ -106,5 +110,6 @@
     "stylelint-config-standard": "^40.0.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.9"
-  }
+  },
+  "customElements": "custom-elements.json"
 }
