@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`streaming-response` recipe — the SSE reply contract** (PR-C of
+  `plans/hc-chat-streaming-plan-en.md`; closes the plan). The
+  aria-busy placeholder appended by chat-messages owns its own SSE
+  connection: `chunk` events append server-rendered HTML into its
+  body while announcements stay deferred, `done` / `error`
+  outerHTML-swap the complete final message over it (which also
+  closes the EventSource — the connect element leaves the DOM), and
+  the stop button cancels in one round trip. Machine-checked scaffold,
+  docs (en + ja, incl. the composer + dropzone + upload-progress
+  attachment composition on the chat-messages page), and a real-SSE
+  Playwright suite (chunk growth under aria-busy, done/error swaps,
+  stop, stick-to-bottom while streaming, axe mid-stream).
+
 - **`chat-messages` recipe — chat as a server round trip** (PR-B of
   `plans/hc-chat-streaming-plan-en.md`). The composer nests as the
   chat root's last child; one POST returns three fragments in one

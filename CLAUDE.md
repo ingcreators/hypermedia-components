@@ -46,13 +46,13 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.1.8` (published 2026-07-04): 64 component stylesheets ·
-44 behaviors (43 auto-init + opt-in chart) · 2 macros · 23 recipes ·
-8 integration guides · 125 docs pages **fully mirrored in Japanese
-(`/ja/`, 125 pages)** · runtime axes
+As of `0.1.8` + Unreleased (2026-07-05): 66 component stylesheets ·
+45 behaviors (44 auto-init + opt-in chart) · 2 macros · 26 recipes ·
+8 integration guides · ~129 docs pages **fully mirrored in Japanese
+(`/ja/`)** · runtime axes
 `data-theme` / `data-color` / `data-neutral` / `data-density` / `dir` ·
 i18n message catalog (`setMessages()`) · examples for plain-html +
-htmx · 56 Vitest suites (core + CLI) · 104 Playwright suites (incl. axe
+htmx · 57 Vitest suites (core + CLI) · 107 Playwright suites (incl. axe
 scans and the VRT screenshot sheets) · `hc validate` machine-checked
 recipe contracts (`@hypermedia-components/cli@0.2.1`).
 
@@ -237,6 +237,15 @@ the component pages, recipe contract tables + the CLI aside
 everywhere, the fundamentals cheat sheet / behaviors reference /
 CDN path / tokens landing, and the toast Escape-dismiss fix
 (the review's one component-side finding).
+
+The [chat & streaming plan](plans/hc-chat-streaming-plan-en.md)
+(#358) shipped next (2026-07-05), one PR per phase: `hc-chat` +
+`hc-attachment` + `installChatScroll()` (#359), the `chat-messages`
+recipe — one POST appends the user message + the aria-busy assistant
+placeholder, 422 re-renders only the composer (#360), and the
+`streaming-response` recipe — the placeholder owns its SSE connection,
+`chunk` appends while aria-busy defers, `done`/`error` swap the final
+message and close the stream (#361). All additive.
 
 [`VERSIONING.md`](VERSIONING.md) defines the public API surface
 (class names, data attributes, custom properties, exports, events) and

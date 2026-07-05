@@ -1,0 +1,73 @@
+---
+title: Streaming response
+description: The SSE reply contract — chunk events append server-rendered HTML into the aria-busy placeholder, and done swaps in the complete final message, closing the stream.
+---
+
+The [chat-messages](/hypermedia-components/recipes/chat-messages/) POST
+leaves an `aria-busy` assistant placeholder in the transcript. This
+recipe is how the server fills it: the placeholder **owns its own SSE
+connection**, `chunk` events append rendered HTML into its body, and
+`done` replaces the whole placeholder with the complete final message
+— which also closes the EventSource, because htmx closes streams whose
+connect element leaves the DOM. No custom JavaScript.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add streaming-response` copies this recipe's scaffold (`recipe.html`, `expanded.html`, `contract.md`, `checks.json`); `npx @hypermedia-components/cli validate` machine-checks your copy. The full contract lives in [`recipes/streaming-response/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/streaming-response/contract.md).
+:::
+
+## The blessed markup
+
+This is the placeholder `<li>` your chat-messages `200` returns —
+everything rides on it (load `sse.min.js` next to htmx, exactly like
+[sse-updates](/hypermedia-components/recipes/sse-updates/)):
+
+```html
+<li class="hc-chat__message" data-role="assistant" data-state="streaming"
+    aria-busy="true" id="reply-42"
+    data-hx-ext="sse" data-sse-connect="/chat/messages/42/stream"
+    data-sse-swap="done,error" data-hx-swap="outerHTML">
+  <div class="hc-chat__body" data-sse-swap="chunk" data-hx-swap="beforeend"></div>
+  <button class="hc-button" data-size="sm" type="button"
+      data-hx-post="/chat/messages/42/stop"
+      data-hx-target="closest li" data-hx-swap="outerHTML">Stop</button>
+</li>
+```
+
+Why each attribute is there:
+
+| Attribute | Purpose |
+| --- | --- |
+| `data-sse-connect` (on the `<li>`) | The placeholder owns the stream. When `done`/`error` swap the `<li>` away, htmx closes the EventSource — no cleanup code. |
+| `data-sse-swap="chunk"` + `data-hx-swap="beforeend"` (body) | Each `chunk` event's data is appended into the body. |
+| `data-sse-swap="done,error"` + `data-hx-swap="outerHTML"` (the `<li>`) | The final events carry a complete replacement `<li>`. |
+| The stop button | One round trip: cancels server-side, swaps in the truncated final message, closes the stream. |
+
+## Event contract
+
+| Event | Data | Effect |
+| --- | --- | --- |
+| `chunk` | An HTML **text** fragment — server-escaped, single line (SSE frames one line per `data:`) | Appended to the body. Announcements stay deferred: the subtree is `aria-busy`. |
+| `done` | The **complete final message `<li>`** — server-rendered (`hc-code` tokens included), no `aria-busy`, no `data-state`, no stream markup | Replaces the placeholder. Removing `aria-busy` is what makes the `role="log"` region announce the finished reply, once. |
+| `error` | A final `<li data-state="error">` with a retry affordance (no `aria-busy` — the failure is announced) | Same swap and close as `done`. |
+
+The server renders and escapes everything — `chunk` text included. No
+client-side markdown: stream rendered HTML, and send more events
+rather than multi-line `data:`.
+
+## Accessibility
+
+- Chunks land inside an `aria-busy="true"` subtree, so assistive tech
+  is not spammed per token; the reply is announced **once, complete**,
+  when the final swap removes the attribute.
+- The stop button is a real button inside the placeholder — reachable
+  while the stream runs, gone from the final message.
+- Pinned by a real-SSE browser test
+  (`test-browser/streaming-response.spec.mjs`): body grows while
+  `aria-busy` holds, `done`/`error` swaps, the one-round-trip stop,
+  stick-to-bottom under streaming, axe mid-stream.
+
+## Related
+
+- [chat-messages](/hypermedia-components/recipes/chat-messages/) — the composer round trip that appends this placeholder (and documents attachment composition).
+- [Chat](/hypermedia-components/components/chat/) — the transcript component; `installChatScroll()` keeps the reader at the bottom while chunks land.
+- [sse-updates](/hypermedia-components/recipes/sse-updates/) — the general SSE fragment contract this rides on.

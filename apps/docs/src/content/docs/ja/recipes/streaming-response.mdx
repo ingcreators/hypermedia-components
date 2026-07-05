@@ -1,0 +1,75 @@
+---
+title: ストリーミングレスポンス
+description: SSE の応答契約 — chunk イベントがサーバー描画の HTML を aria-busy のプレースホルダーへ追記し、done が完成した最終メッセージに置換してストリームを閉じます。
+---
+
+[chat-messages](/hypermedia-components/ja/recipes/chat-messages/) の
+POST は、`aria-busy` のアシスタントプレースホルダーをトランスクリプト
+に残します。このレシピは、サーバーがそれを埋める方法です:
+プレースホルダーが **自分自身の SSE 接続を所有**し、`chunk`
+イベントが描画済み HTML をボディへ追記、`done` がプレースホルダー全体
+を完成した最終メッセージに置換します — この置換が同時に EventSource
+を閉じます(htmx は接続要素が DOM から離れたストリームを閉じます)。
+カスタム JavaScript はゼロです。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add streaming-response` がこのレシピのスキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` がコピーを機械検証します。完全な契約は [`recipes/streaming-response/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/streaming-response/contract.md) にあります。
+:::
+
+## blessed マークアップ
+
+これは chat-messages の `200` が返すプレースホルダー `<li>` です —
+すべてがこの要素に載ります(htmx の隣に `sse.min.js` を読み込みます。
+[sse-updates](/hypermedia-components/ja/recipes/sse-updates/) と同じ
+です):
+
+```html
+<li class="hc-chat__message" data-role="assistant" data-state="streaming"
+    aria-busy="true" id="reply-42"
+    data-hx-ext="sse" data-sse-connect="/chat/messages/42/stream"
+    data-sse-swap="done,error" data-hx-swap="outerHTML">
+  <div class="hc-chat__body" data-sse-swap="chunk" data-hx-swap="beforeend"></div>
+  <button class="hc-button" data-size="sm" type="button"
+      data-hx-post="/chat/messages/42/stop"
+      data-hx-target="closest li" data-hx-swap="outerHTML">Stop</button>
+</li>
+```
+
+各属性がある理由:
+
+| 属性 | 目的 |
+| --- | --- |
+| `data-sse-connect`(`<li>` 上) | プレースホルダーがストリームを所有します。`done` / `error` が `<li>` をスワップした瞬間に htmx が EventSource を閉じるので、後始末のコードは不要です。 |
+| `data-sse-swap="chunk"` + `data-hx-swap="beforeend"`(ボディ) | 各 `chunk` イベントのデータがボディへ追記されます。 |
+| `data-sse-swap="done,error"` + `data-hx-swap="outerHTML"`(`<li>`) | 最終イベントは完全な置換用 `<li>` を運びます。 |
+| 停止ボタン | 1 往復で完結: サーバー側でキャンセルし、途中までの最終メッセージに置換し、ストリームを閉じます。 |
+
+## イベント契約
+
+| イベント | データ | 効果 |
+| --- | --- | --- |
+| `chunk` | HTML **テキスト**フラグメント — サーバーでエスケープ済み、1 行(SSE は `data:` 1 行を 1 フレームにします) | ボディへ追記。サブツリーが `aria-busy` のため、読み上げは保留されたままです。 |
+| `done` | **完成した最終メッセージ `<li>`** — サーバー描画(`hc-code` トークン込み)、`aria-busy` なし、`data-state` なし、ストリーム属性なし | プレースホルダーを置換。`aria-busy` が外れることが、`role="log"` リージョンに完成した応答を 1 回だけ読み上げさせます。 |
+| `error` | リトライ手段を持つ最終 `<li data-state="error">`(`aria-busy` なし — 失敗は読み上げられます) | `done` と同じスワップとクローズ。 |
+
+描画とエスケープはすべてサーバーの責務です — `chunk` のテキストも
+含めて。クライアント側 markdown は使わず、描画済み HTML をストリーム
+してください。複数行の `data:` にはせず、イベントを分けて送ります。
+
+## アクセシビリティ
+
+- チャンクは `aria-busy="true"` のサブツリー内に着地するため、支援
+  技術がトークンごとに読み上げに追われることはありません。最終
+  スワップが属性を外したときに、応答は**一度だけ、完成形で**読み上げ
+  られます。
+- 停止ボタンはプレースホルダー内の実ボタンです — ストリーム実行中は
+  到達可能で、最終メッセージからは消えます。
+- 実 SSE のブラウザテスト(`test-browser/streaming-response.spec.mjs`)
+  で固定: `aria-busy` 保持中のボディ成長、`done` / `error` スワップ、
+  1 往復の停止、ストリーミング中の最下部追従、ストリーム途中の axe。
+
+## 関連
+
+- [chat-messages](/hypermedia-components/ja/recipes/chat-messages/) — このプレースホルダーを追記するコンポーザーの往復(添付の合成もここで文書化)。
+- [チャット](/hypermedia-components/ja/components/chat/) — トランスクリプトコンポーネント。チャンク着地中も `installChatScroll()` が読者を最下部に保ちます。
+- [sse-updates](/hypermedia-components/ja/recipes/sse-updates/) — このレシピが乗る汎用 SSE フラグメント契約。

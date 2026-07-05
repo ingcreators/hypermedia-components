@@ -1,0 +1,48 @@
+<!-- Fully expanded, framework-free form of the streaming-response
+  recipe: the chat-messages transcript with a completed exchange, a
+  live streaming placeholder (SSE connection + chunk sink + stop
+  button) and, below it, the error variant a failed stream swaps in.
+  Requires htmx + the SSE extension (sse.min.js, vendored/pinned) and
+  the chat-messages recipe for the composer round trip that appends
+  the placeholder. The stream format is specified in contract.md. -->
+<div class="hc-chat" role="log" aria-label="Conversation">
+  <ol class="hc-chat__list" tabindex="0" id="chat-list">
+
+    <!-- A finished exchange (what `done` leaves behind: no aria-busy,
+         no data-state, no stream markup). -->
+    <li class="hc-chat__message" data-role="user">
+      <div class="hc-chat__body">What failed in CI?</div>
+    </li>
+    <li class="hc-chat__message" data-role="assistant" id="reply-41">
+      <div class="hc-chat__body">The browser job — two axe violations.</div>
+    </li>
+
+    <!-- The live placeholder (appended by the chat-messages 200): it
+         owns the connection; `chunk` appends into the body while
+         aria-busy defers the announcement; `done`/`error` replace the
+         whole <li>, which also closes the EventSource. The stop
+         button cancels server-side and swaps in the truncated final
+         message in the same round trip. -->
+    <li class="hc-chat__message" data-role="assistant" data-state="streaming"
+        aria-busy="true" id="reply-42"
+        data-hx-ext="sse" data-sse-connect="/chat/messages/42/stream"
+        data-sse-swap="done,error" data-hx-swap="outerHTML">
+      <div class="hc-chat__body" data-sse-swap="chunk" data-hx-swap="beforeend"></div>
+      <button class="hc-button" data-size="sm" type="button"
+          data-hx-post="/chat/messages/42/stop"
+          data-hx-target="closest li" data-hx-swap="outerHTML">Stop</button>
+    </li>
+
+    <!-- What the `error` event swaps in: final (no aria-busy — the
+         log announces it once), flagged, with a retry affordance that
+         re-enters the chat-messages contract. -->
+    <li class="hc-chat__message" data-role="assistant" data-state="error" id="reply-43">
+      <div class="hc-chat__body">The reply stream failed.
+        <button class="hc-button" data-size="sm" type="button"
+            data-hx-post="/chat/messages" data-hx-vals='{"prompt":"retry"}'
+            data-hx-target="#chat-list" data-hx-swap="beforeend">Retry</button>
+      </div>
+    </li>
+  </ol>
+  <button class="hc-chat__jump hc-button" data-size="sm" type="button">↓ Latest</button>
+</div>

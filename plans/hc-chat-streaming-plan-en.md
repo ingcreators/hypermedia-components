@@ -1,6 +1,8 @@
 # HC Chat & Streaming — transcript, attachments, and the SSE reply contract
 
-Status: **approved; implementation in progress** (2026-07-05).
+Status: **shipped** (2026-07-05) — PR-A #359 (`hc-chat` +
+`hc-attachment` + `installChatScroll()`), PR-B #360
+(`chat-messages`), PR-C #361 (`streaming-response`).
 
 Chat surfaces are where markup-as-wire-contract shines: the server
 renders every message as HTML, htmx delivers it, and the stream is

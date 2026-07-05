@@ -1,0 +1,80 @@
+{
+  "detect": ".hc-chat__message[data-sse-connect]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "ext-declared",
+      "level": "error",
+      "message": "The placeholder must enable the extension (data-hx-ext=\"sse\") alongside data-sse-connect.",
+      "attr": {
+        "on": ".hc-chat__message[data-sse-connect]",
+        "name": "data-hx-ext",
+        "assert": "present",
+        "matches": "sse"
+      }
+    },
+    {
+      "id": "placeholder-defers-announcement",
+      "level": "error",
+      "message": "The streaming placeholder carries aria-busy=\"true\" so chunks never spam the log region — the reply is announced once, when the final swap removes it.",
+      "attr": {
+        "on": ".hc-chat__message[data-sse-connect]",
+        "name": "aria-busy",
+        "assert": "present",
+        "value": "true"
+      }
+    },
+    {
+      "id": "chunk-sink-appends",
+      "level": "error",
+      "message": "The body is the chunk sink: data-sse-swap on .hc-chat__body with data-hx-swap=\"beforeend\".",
+      "attr": {
+        "on": ".hc-chat__body[data-sse-swap]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "beforeend"
+      }
+    },
+    {
+      "id": "final-swap-replaces",
+      "level": "error",
+      "message": "The placeholder listens for the final events (data-sse-swap lists done) and replaces itself: data-hx-swap=\"outerHTML\" — that swap is also what closes the EventSource.",
+      "attr": {
+        "on": ".hc-chat__message[data-sse-connect]",
+        "name": "data-sse-swap",
+        "assert": "present",
+        "matches": "done"
+      }
+    },
+    {
+      "id": "final-swap-outer",
+      "level": "error",
+      "message": "The final events replace the whole placeholder: data-hx-swap=\"outerHTML\" on the connect element.",
+      "attr": {
+        "on": ".hc-chat__message[data-sse-connect]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
+    },
+    {
+      "id": "handles-error-event",
+      "level": "warn",
+      "message": "Listen for the error event too (data-sse-swap=\"done,error\") so a failed stream resolves the placeholder instead of leaving it busy forever.",
+      "attr": {
+        "on": ".hc-chat__message[data-sse-connect]",
+        "name": "data-sse-swap",
+        "assert": "present",
+        "matches": "error"
+      }
+    },
+    {
+      "id": "stop-cancels-in-one-round-trip",
+      "level": "warn",
+      "message": "A stop affordance is recommended: a button with data-hx-post to the cancel endpoint, data-hx-target=\"closest li\", data-hx-swap=\"outerHTML\".",
+      "exists": {
+        "selector": ".hc-chat__message[data-sse-connect] button[data-hx-post]"
+      }
+    }
+  ]
+}
