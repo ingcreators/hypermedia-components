@@ -1,0 +1,246 @@
+---
+title: Chat
+description: A conversation transcript — a chronological role="log" region with role-tinted bubbles, a CSS-only streaming caret, and a stick-to-bottom scroll behavior.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-chat` renders a conversation transcript as a **plain `<ol>` in
+chronological DOM order** — no `column-reverse` trick, which would
+reverse reading order for assistive tech. The root is a `role="log"`
+live region, so each **complete** message appended by the server is
+announced once. A message that is still streaming carries
+`aria-busy="true"`, which **defers its announcement**: screen-reader
+users don't hear token-by-token noise, they hear the finished message
+when the final swap removes the attribute. Following the newest message
+is not CSS's job either — that's [`installChatScroll()`](#stick-to-bottom).
+
+## Basic HTML
+
+<Demo previewStyle="max-inline-size:32rem;">
+  <div class="hc-chat" role="log" aria-label="Conversation">
+    <ol class="hc-chat__list" tabindex="0" style="max-block-size:16rem;">
+      <li class="hc-chat__message" data-role="user">
+        <span class="hc-avatar" data-size="sm" aria-label="Ada Bell">AB</span>
+        <div class="hc-chat__body">Show me the failing checks.</div>
+        <div class="hc-chat__meta"><time datetime="2026-07-05T09:00">09:00</time></div>
+      </li>
+      <li class="hc-chat__message" data-role="system">
+        <div class="hc-chat__body">Context switched to project “ops”.</div>
+      </li>
+      <li class="hc-chat__message" data-role="assistant">
+        <div class="hc-chat__body">
+          <p>Two checks are red:</p>
+          <pre class="hc-code" data-lang="text"><code>lint: ok
+unit: FAIL</code></pre>
+        </div>
+        <div class="hc-chat__meta"><time datetime="2026-07-05T09:01">09:01</time></div>
+      </li>
+    </ol>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-chat" role="log" aria-label="Conversation">
+    <ol class="hc-chat__list" tabindex="0" style="max-block-size:16rem">
+      <li class="hc-chat__message" data-role="user">
+        <span class="hc-avatar" data-size="sm" aria-label="Ada Bell">AB</span>
+        <div class="hc-chat__body">Show me the failing checks.</div>
+        <div class="hc-chat__meta"><time datetime="2026-07-05T09:00">09:00</time></div>
+      </li>
+      <li class="hc-chat__message" data-role="system">
+        <div class="hc-chat__body">Context switched to project “ops”.</div>
+      </li>
+      <li class="hc-chat__message" data-role="assistant">
+        <div class="hc-chat__body">…server-rendered HTML…</div>
+        <div class="hc-chat__meta"><time datetime="2026-07-05T09:01">09:01</time></div>
+      </li>
+    </ol>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+Give the list a `max-block-size` (or size the `.hc-chat` container) so
+it scrolls. The avatar and the `__meta` row are optional — a message
+without an avatar collapses the first grid column. The `__body` holds
+server-rendered HTML; code blocks inside it are plain
+[`hc-code`](/hypermedia-components/components/code/) markup.
+
+## Roles
+
+`data-role` on a **message** decides its alignment and bubble color:
+
+| `data-role` | Meaning | Presentation |
+| --- | --- | --- |
+| `user` | What the person typed. | Accent bubble, aligned inline-end. |
+| `assistant` | The reply. | Muted bubble, aligned inline-start. |
+| `system` | Context notes — joins, mode switches. | Centered muted line, no bubble. |
+
+Alignment uses logical properties, so RTL flips for free. The role is
+visual shorthand only — the message *text* (or the avatar's label)
+should make the speaker clear without color.
+
+## Streaming state
+
+While a reply is being generated, mark the message
+`data-state="streaming"` **and** `aria-busy="true"`. The stylesheet
+appends a caret after the body — **pure CSS**, a `::after`
+pseudo-element, with the blink animation removed under
+`prefers-reduced-motion`. When the final content arrives, the swap that
+replaces the message drops both attributes.
+
+<Demo previewStyle="max-inline-size:32rem;">
+  <div class="hc-chat" role="log" aria-label="Streaming example">
+    <ol class="hc-chat__list" tabindex="0">
+      <li class="hc-chat__message" data-role="assistant" data-state="streaming" aria-busy="true">
+        <div class="hc-chat__body">The unit failure is</div>
+      </li>
+      <li class="hc-chat__message" data-role="assistant" data-state="error">
+        <div class="hc-chat__body">Generation failed — connection lost.</div>
+      </li>
+    </ol>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- while streaming: caret shown, announcement deferred -->
+  <li class="hc-chat__message" data-role="assistant"
+      data-state="streaming" aria-busy="true">
+    <div class="hc-chat__body">The unit failure is</div>
+  </li>
+
+  <!-- the stream failed -->
+  <li class="hc-chat__message" data-role="assistant" data-state="error">
+    <div class="hc-chat__body">Generation failed — connection lost.</div>
+  </li>
+  ```
+
+  </Fragment>
+</Demo>
+
+`data-state="error"` tints the bubble via the shared
+[status tokens](/hypermedia-components/tokens/status/) — use it when a
+stream aborts or a message fails to send.
+
+## Stick to bottom
+
+A transcript should follow the newest message while the reader is at
+the bottom — and **stop** following the moment they scroll up to
+re-read. `installChatScroll()` does exactly that:
+
+- On install, every `.hc-chat` list is pinned to the bottom.
+- New content re-pins the list — a `MutationObserver` watches
+  `childList` **and** `characterData`, so streamed text chunks count —
+  but only while pinned.
+- Scrolling more than ~24 px above the bottom releases the pin;
+  scrolling back down re-arms it.
+- The pin state is reflected as `data-stuck="true|false"` on the
+  `.hc-chat` root. The stylesheet shows the `.hc-chat__jump` button only
+  when it is `"false"`, and a click on it re-pins. Without the behavior
+  the attribute is absent and the button stays hidden.
+
+```html
+<div class="hc-chat" role="log" aria-label="Conversation">
+  <ol class="hc-chat__list" tabindex="0" style="max-block-size:24rem">
+    …
+  </ol>
+  <button class="hc-chat__jump hc-button" data-size="sm" type="button">↓ Latest</button>
+</div>
+```
+
+```js
+import { installChatScroll } from '@hypermedia-components/core';
+installChatScroll();
+```
+
+`installChatScroll()` is idempotent and returns an uninstaller. The
+zero-config `@hypermedia-components/core/behaviors` entry auto-installs it
+and picks up content swapped in by htmx. It never touches the network —
+scroll pinning is its whole job.
+
+## htmx usage
+
+Messages arrive as server-rendered `<li class="hc-chat__message">`
+fragments appended to the list with `beforeend`:
+
+```html
+<form data-hx-post="/chat/messages"
+      data-hx-target="#chat-log" data-hx-swap="beforeend">
+  <input class="hc-input" type="text" name="message" aria-label="Message">
+  <button class="hc-button" data-variant="primary" type="submit">Send</button>
+</form>
+
+<div class="hc-chat" role="log" aria-label="Conversation">
+  <ol class="hc-chat__list" tabindex="0" id="chat-log">…</ol>
+</div>
+```
+
+For the push channel — the assistant's reply arriving from the server —
+see the [sse-updates recipe](/hypermedia-components/recipes/sse-updates/).
+Dedicated `chat-messages` and `streaming-response` recipes, which own
+the full request / response contracts for transcripts and token
+streaming, land next.
+
+## Accessibility
+
+- The root is `role="log"` (the role is not allowed on `<ol>`; the list keeps plain list semantics and `tabindex="0"` so the scrollable region is keyboard-reachable) — appended **complete** messages are
+  announced politely, without moving focus. Name the conversation with
+  `aria-label` on the `.hc-chat` (and keep the list an `<ol>`: order is
+  meaning here).
+- The streaming message carries `aria-busy="true"`, deferring its
+  announcement until the final swap removes it — one announcement per
+  message, not one per token. The caret is a CSS pseudo-element, purely
+  visual.
+- DOM order is chronological — the kit never uses `column-reverse`,
+  which reverses reading order for assistive tech.
+- The jump control is a real `<button type="button">` — focusable and
+  keyboard-operable whenever it is shown.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `chat.gap` | List padding and gap between messages. |
+| `chat.bubble-radius` / `bubble-max-inline` | Bubble corner radius / message max width. |
+| `chat.bubble-padding-block` / `bubble-padding-inline` | Bubble padding. |
+| `chat.user-bg` / `user-fg` | User bubble. |
+| `chat.assistant-bg` / `assistant-fg` | Assistant bubble. |
+| `chat.system-fg` | System line text. |
+| `chat.meta-fg` | Meta row (timestamp) text. |
+| `chat.caret-color` | Streaming caret. |
+| `chat.error-bg` / `error-fg` | Error-state bubble. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-chat-gap
+--hc-chat-bubble-radius | -bubble-max-inline | -bubble-padding-block | -bubble-padding-inline
+--hc-chat-user-bg | -user-fg
+--hc-chat-assistant-bg | -assistant-fg
+--hc-chat-system-fg | -meta-fg | -caret-color
+--hc-chat-error-bg | -error-fg
+```
+
+</details>
+
+## Related
+
+- [Timeline](/hypermedia-components/components/timeline/) — history as
+  a list, when the events aren't a dialogue.
+- [Avatar](/hypermedia-components/components/avatar/) — the speaker
+  identity in a message's first column.
+- [Code](/hypermedia-components/components/code/) — code blocks inside
+  message bodies.
+- [Toast](/hypermedia-components/components/toast/) — transient
+  notifications that don't belong in the transcript.
+- [Scroll area](/hypermedia-components/components/scroll-area/) — the
+  same thin themed scrollbars for non-chat regions.

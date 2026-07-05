@@ -1,0 +1,169 @@
+---
+title: Attachment
+description: A file card — icon, name, size, remove button — with an hc-attachments list wrapper, an uploading state that reveals a progress row, and an error state. Pure CSS.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-attachment` is a **file card**: icon, filename, size, and a remove
+button on one grid row. `hc-attachments` is its wrapping list —
+pluralized like `hc-chips`, because it *is* a list of attachments — and
+keeping it a real `<ul>`/`<li>` keeps the set announceable. Pure CSS:
+the [dropzone](/hypermedia-components/components/dropzone/) collects
+the files, the
+[file-upload recipe](/hypermedia-components/recipes/file-upload/) owns
+the multipart + progress contract, and
+[`hc-progress`](/hypermedia-components/components/progress/) is the bar
+`installUploadProgress()` drives.
+
+## Basic HTML
+
+<Demo previewStyle="max-inline-size:28rem;">
+  <ul class="hc-attachments" aria-label="Attachments">
+    <li class="hc-attachment">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">notes.md</span>
+      <span class="hc-attachment__size">4 KB</span>
+      <button class="hc-attachment__remove" type="button" aria-label="Remove notes.md">×</button>
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-attachments" aria-label="Attachments">
+    <li class="hc-attachment">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">notes.md</span>
+      <span class="hc-attachment__size">4 KB</span>
+      <button class="hc-attachment__remove" type="button"
+              aria-label="Remove notes.md">×</button>
+    </li>
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
+No `data-state` means the file is **settled** — uploaded and listed.
+The icon slot takes an inline SVG (or an emoji placeholder); it is
+decorative, so keep it `aria-hidden`. A long filename truncates with an
+ellipsis rather than breaking the row.
+
+## States
+
+`data-state="uploading"` reveals the card's **progress row** — a native
+[`hc-progress`](/hypermedia-components/components/progress/) element
+spanning the full card width, whose `value` is driven by
+`installUploadProgress()` while htmx uploads the form.
+`data-state="error"` tints the card via the shared
+[status tokens](/hypermedia-components/tokens/status/).
+
+<Demo previewStyle="max-inline-size:28rem;">
+  <ul class="hc-attachments" aria-label="Attachments">
+    <li class="hc-attachment" data-state="uploading">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">report.pdf</span>
+      <span class="hc-attachment__size">1.2 MB</span>
+      <progress class="hc-progress hc-attachment__progress" max="100" value="40" aria-label="Uploading report.pdf"></progress>
+      <button class="hc-attachment__remove" type="button" aria-label="Remove report.pdf">×</button>
+    </li>
+    <li class="hc-attachment" data-state="error">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">huge.iso</span>
+      <span class="hc-attachment__size">9.8 GB</span>
+      <button class="hc-attachment__remove" type="button" aria-label="Remove huge.iso">×</button>
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <li class="hc-attachment" data-state="uploading">
+    <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+    <span class="hc-attachment__name">report.pdf</span>
+    <span class="hc-attachment__size">1.2 MB</span>
+    <progress class="hc-progress hc-attachment__progress"
+              max="100" value="40" aria-label="Uploading report.pdf"></progress>
+    <button class="hc-attachment__remove" type="button"
+            aria-label="Remove report.pdf">×</button>
+  </li>
+
+  <li class="hc-attachment" data-state="error">
+    <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+    <span class="hc-attachment__name">huge.iso</span>
+    <span class="hc-attachment__size">9.8 GB</span>
+    <button class="hc-attachment__remove" type="button"
+            aria-label="Remove huge.iso">×</button>
+  </li>
+  ```
+
+  </Fragment>
+</Demo>
+
+The progress row only renders while `data-state="uploading"` — the
+server's success fragment simply swaps in the settled card (no state,
+no `<progress>`), and a failure swaps in `data-state="error"`.
+
+## Composition
+
+The attachment card is the *display* half of a file-upload flow; the
+other halves already exist:
+
+- The [dropzone](/hypermedia-components/components/dropzone/) collects
+  the files — its drop assigns to a native `<input type="file">` and
+  fires a normal `change`, so the surrounding form serializes as usual.
+- The [file-upload recipe](/hypermedia-components/recipes/file-upload/)
+  owns the multipart + progress contract: htmx posts the form,
+  `installUploadProgress()` maps real upload progress onto the
+  `<progress>` element, and the response appends the settled fragment
+  and resets the form out-of-band.
+
+## Accessibility
+
+- The remove control is a real `<button>` whose `aria-label` includes
+  the filename — “Remove report.pdf”, never a bare “×”.
+- The `<ul>`/`<li>` structure keeps the set announceable with position
+  and count; give the list an `aria-label` when no heading names it.
+- The `<progress>` carries an accessible name (its `aria-label` also
+  naming the file), so the announced percentage is attributable.
+- The icon is decorative — `aria-hidden="true"`; the filename text is
+  the identity.
+
+## Theming tokens
+
+Component tokens (in `component.tokens.json`):
+
+| Token path | Purpose |
+| --- | --- |
+| `attachment.bg` / `border` / `radius` | Card surface. |
+| `attachment.gap` | Grid gap inside the card and between cards. |
+| `attachment.padding-block` / `padding-inline` | Card padding. |
+| `attachment.name-fg` / `size-fg` | Filename / size text. |
+| `attachment.icon-size` | Icon and remove-button square. |
+| `attachment.error-bg` / `error-border` | Error-state card. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-attachment-bg | -border | -radius | -gap
+--hc-attachment-padding-block | -padding-inline
+--hc-attachment-name-fg | -size-fg | -icon-size
+--hc-attachment-error-bg | -error-border
+```
+
+</details>
+
+## Related
+
+- [Dropzone](/hypermedia-components/components/dropzone/) — collects
+  the files this card displays.
+- [Progress](/hypermedia-components/components/progress/) — the native
+  bar inside the uploading state.
+- [Chip](/hypermedia-components/components/chip/) — the lighter token
+  for facts that aren't files.
+- [File upload recipe](/hypermedia-components/recipes/file-upload/) —
+  the full multipart + live-progress pattern.

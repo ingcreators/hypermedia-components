@@ -1,0 +1,174 @@
+/* hc-chat — a conversation transcript. CSS + a small scroll behavior.
+ *
+ * The DOM stays in chronological order (no column-reverse trick — it
+ * reverses reading order for assistive tech); following the bottom is
+ * installChatScroll()'s job. The root is a `role="log"` live
+ * region (allowed on a div; not on <ol>), so appended complete
+ * messages are announced; a streaming placeholder
+ * carries aria-busy="true", which defers announcement until the final
+ * swap removes it.
+ *
+ *   <div class="hc-chat" role="log" aria-label="Conversation">
+ *     <ol class="hc-chat__list" tabindex="0" style="max-block-size:24rem">
+ *       <li class="hc-chat__message" data-role="user">
+ *         <span class="hc-avatar" data-size="sm">AB</span>
+ *         <div class="hc-chat__body">…server-rendered HTML…</div>
+ *         <div class="hc-chat__meta"><time datetime="…">14:03</time></div>
+ *       </li>
+ *       <li class="hc-chat__message" data-role="assistant"
+ *           data-state="streaming" aria-busy="true">
+ *         <div class="hc-chat__body">The first tokens…</div>
+ *       </li>
+ *     </ol>
+ *     <button class="hc-chat__jump hc-button" data-size="sm" type="button">↓</button>
+ *   </div>
+ *
+ * data-role="user" (accent bubble, inline-end) | "assistant" (muted
+ * bubble, inline-start) | "system" (centered muted line, no bubble).
+ * data-state="streaming" shows a caret after the body (blink removed
+ * under prefers-reduced-motion); data-state="error" tints via the
+ * status tokens. Give the list a max-block-size (or size the chat) so
+ * it scrolls, and keep tabindex="0" on the list — a scrollable region
+ * must be keyboard-reachable (axe: scrollable-region-focusable).
+ * Code blocks inside the body are plain hc-code markup.
+ */
+@layer hc.components {
+  .hc-chat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+  }
+
+  .hc-chat__list {
+    list-style: none;
+    margin: 0;
+    padding: var(--hc-chat-gap);
+    display: flex;
+    flex-direction: column;
+    gap: var(--hc-chat-gap);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  .hc-chat__list:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: -2px;
+  }
+
+  .hc-chat__message {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--hc-chat-gap);
+    align-items: start;
+    max-inline-size: min(var(--hc-chat-bubble-max-inline), 100%);
+  }
+
+  /* Messages without an avatar collapse the first column. */
+  .hc-chat__message > .hc-chat__body:first-child,
+  .hc-chat__message > .hc-chat__body:first-child + .hc-chat__meta {
+    grid-column: 2;
+  }
+
+  .hc-chat__body {
+    grid-column: 2;
+    border-radius: var(--hc-chat-bubble-radius);
+    padding-block: var(--hc-chat-bubble-padding-block);
+    padding-inline: var(--hc-chat-bubble-padding-inline);
+    overflow-wrap: anywhere;
+  }
+
+  .hc-chat__body > :first-child {
+    margin-block-start: 0;
+  }
+
+  .hc-chat__body > :last-child {
+    margin-block-end: 0;
+  }
+
+  .hc-chat__meta {
+    grid-column: 2;
+    margin-block-start: var(--hc-space-1, 0.25rem);
+    font-size: var(--hc-font-size-sm, 0.875rem);
+    color: var(--hc-chat-meta-fg);
+  }
+
+  .hc-chat__message[data-role="user"] {
+    margin-inline-start: auto;
+  }
+
+  .hc-chat__message[data-role="user"] .hc-chat__body {
+    background: var(--hc-chat-user-bg);
+    color: var(--hc-chat-user-fg);
+  }
+
+  .hc-chat__message[data-role="user"] .hc-chat__meta {
+    justify-self: end;
+  }
+
+  .hc-chat__message[data-role="assistant"] {
+    margin-inline-end: auto;
+  }
+
+  .hc-chat__message[data-role="assistant"] .hc-chat__body {
+    background: var(--hc-chat-assistant-bg);
+    color: var(--hc-chat-assistant-fg);
+  }
+
+  .hc-chat__message[data-role="system"] {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .hc-chat__message[data-role="system"] .hc-chat__body {
+    background: none;
+    color: var(--hc-chat-system-fg);
+    padding-block: 0;
+  }
+
+  /* Streaming caret — announcement is deferred by aria-busy, the
+   * caret is the visual counterpart. Blink is gated on motion. */
+  .hc-chat__message[data-state="streaming"] .hc-chat__body::after {
+    content: "▍";
+    margin-inline-start: 0.1em;
+    color: var(--hc-chat-caret-color);
+    animation: hc-chat-caret 1s steps(2) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-chat__message[data-state="streaming"] .hc-chat__body::after {
+      animation: none;
+    }
+  }
+
+  .hc-chat__message[data-state="error"] .hc-chat__body {
+    background: var(--hc-chat-error-bg);
+    color: var(--hc-chat-error-fg);
+  }
+
+  /* Jump-to-latest: shown only when installChatScroll() has released
+   * the pin (data-stuck="false"); without the behavior the attribute
+   * is absent and the button stays hidden. */
+  .hc-chat__jump {
+    display: none;
+    position: absolute;
+    inset-block-end: var(--hc-chat-gap);
+    inset-inline-start: 50%;
+    translate: -50% 0;
+  }
+
+  .hc-chat[data-stuck="false"] .hc-chat__jump {
+    display: inline-flex;
+  }
+
+  [dir="rtl"] .hc-chat__jump {
+    translate: 50% 0;
+  }
+}
+
+@keyframes hc-chat-caret {
+  50% {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,248 @@
+---
+title: チャット
+description: 会話のトランスクリプト — 時系列の role="log" リージョンに、ロールで色分けされたバブル、CSS のみのストリーミングキャレット、最下部への追従スクロールビヘイビア。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-chat` は会話のトランスクリプトを、**時系列の DOM 順のままの素の
+`<ol>`** として描画します — 支援技術の読み上げ順を逆転させてしまう
+`column-reverse` のトリックは使いません。ルートは `role="log"` の
+ライブリージョンなので、サーバが追記した**完成した**メッセージは
+それぞれ一度だけ読み上げられます。ストリーミング中のメッセージは
+`aria-busy="true"` を持ち、これが**読み上げを保留**します:
+スクリーンリーダーのユーザーはトークンごとのノイズを聞かされず、
+最終スワップが属性を外したときに完成したメッセージを聞きます。
+最新メッセージへの追従も CSS の仕事ではありません —
+それは [`installChatScroll()`](#最下部への追従) が担います。
+
+## 基本の HTML
+
+<Demo previewStyle="max-inline-size:32rem;">
+  <div class="hc-chat" role="log" aria-label="Conversation">
+    <ol class="hc-chat__list" tabindex="0" style="max-block-size:16rem;">
+      <li class="hc-chat__message" data-role="user">
+        <span class="hc-avatar" data-size="sm" aria-label="Ada Bell">AB</span>
+        <div class="hc-chat__body">Show me the failing checks.</div>
+        <div class="hc-chat__meta"><time datetime="2026-07-05T09:00">09:00</time></div>
+      </li>
+      <li class="hc-chat__message" data-role="system">
+        <div class="hc-chat__body">Context switched to project “ops”.</div>
+      </li>
+      <li class="hc-chat__message" data-role="assistant">
+        <div class="hc-chat__body">
+          <p>Two checks are red:</p>
+          <pre class="hc-code" data-lang="text"><code>lint: ok
+unit: FAIL</code></pre>
+        </div>
+        <div class="hc-chat__meta"><time datetime="2026-07-05T09:01">09:01</time></div>
+      </li>
+    </ol>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-chat" role="log" aria-label="Conversation">
+    <ol class="hc-chat__list" tabindex="0" style="max-block-size:16rem">
+      <li class="hc-chat__message" data-role="user">
+        <span class="hc-avatar" data-size="sm" aria-label="Ada Bell">AB</span>
+        <div class="hc-chat__body">Show me the failing checks.</div>
+        <div class="hc-chat__meta"><time datetime="2026-07-05T09:00">09:00</time></div>
+      </li>
+      <li class="hc-chat__message" data-role="system">
+        <div class="hc-chat__body">Context switched to project “ops”.</div>
+      </li>
+      <li class="hc-chat__message" data-role="assistant">
+        <div class="hc-chat__body">…server-rendered HTML…</div>
+        <div class="hc-chat__meta"><time datetime="2026-07-05T09:01">09:01</time></div>
+      </li>
+    </ol>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+リストに `max-block-size` を与えて(または `.hc-chat` コンテナを
+サイズして)スクロールさせてください。アバターと `__meta` の行は
+任意です — アバターのないメッセージは最初のグリッドカラムを畳みます。
+`__body` にはサーバ描画の HTML が入ります。中のコードブロックは素の
+[`hc-code`](/hypermedia-components/ja/components/code/) マークアップです。
+
+## ロール
+
+**メッセージ**の `data-role` が配置とバブルの色を決めます:
+
+| `data-role` | 意味 | 見た目 |
+| --- | --- | --- |
+| `user` | 本人が入力した内容。 | アクセントのバブル、inline-end 寄せ。 |
+| `assistant` | 応答。 | ミュートのバブル、inline-start 寄せ。 |
+| `system` | コンテキストの注記 — 参加、モード切り替えなど。 | 中央寄せのミュートの行、バブルなし。 |
+
+配置は論理プロパティによるため、RTL は自動的に反転します。ロールは
+あくまで視覚的な速記です — 話者はメッセージの*テキスト*(または
+アバターのラベル)で、色に頼らず分かるようにしてください。
+
+## ストリーミング状態
+
+応答の生成中は、メッセージに `data-state="streaming"` **と**
+`aria-busy="true"` を付けます。スタイルシートが本文の後ろに
+キャレットを描きます — `::after` 疑似要素による**純 CSS** で、点滅
+アニメーションは `prefers-reduced-motion` 下で除去されます。最終
+コンテンツが届いたら、メッセージを置き換えるスワップが両属性を
+落とします。
+
+<Demo previewStyle="max-inline-size:32rem;">
+  <div class="hc-chat" role="log" aria-label="Streaming example">
+    <ol class="hc-chat__list" tabindex="0">
+      <li class="hc-chat__message" data-role="assistant" data-state="streaming" aria-busy="true">
+        <div class="hc-chat__body">The unit failure is</div>
+      </li>
+      <li class="hc-chat__message" data-role="assistant" data-state="error">
+        <div class="hc-chat__body">Generation failed — connection lost.</div>
+      </li>
+    </ol>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <!-- while streaming: caret shown, announcement deferred -->
+  <li class="hc-chat__message" data-role="assistant"
+      data-state="streaming" aria-busy="true">
+    <div class="hc-chat__body">The unit failure is</div>
+  </li>
+
+  <!-- the stream failed -->
+  <li class="hc-chat__message" data-role="assistant" data-state="error">
+    <div class="hc-chat__body">Generation failed — connection lost.</div>
+  </li>
+  ```
+
+  </Fragment>
+</Demo>
+
+`data-state="error"` は共有の
+[ステータストークン](/hypermedia-components/ja/tokens/status/)でバブルを
+色づけします — ストリームの中断や送信失敗に使ってください。
+
+## 最下部への追従
+
+トランスクリプトは、読者が最下部にいる間は最新メッセージに追従し、
+読み返そうと上へスクロールした瞬間に追従を**やめる**べきです。
+`installChatScroll()` はまさにそれを行います:
+
+- インストール時に、すべての `.hc-chat` のリストが最下部にピン
+  されます。
+- 新しいコンテンツはリストを再ピンします — `MutationObserver` が
+  `childList` **と** `characterData` を監視するため、ストリームされた
+  テキストチャンクも対象です — ただしピン中のみです。
+- 最下部から約 24 px を超えて上にスクロールするとピンが解除され、
+  下へ戻ると再び有効になります。
+- ピン状態は `.hc-chat` ルートに `data-stuck="true|false"` として
+  反映されます。スタイルシートは `"false"` のときだけ
+  `.hc-chat__jump` ボタンを表示し、クリックで再ピンします。
+  ビヘイビアなしでは属性が存在せず、ボタンは隠れたままです。
+
+```html
+<div class="hc-chat" role="log" aria-label="Conversation">
+  <ol class="hc-chat__list" tabindex="0" style="max-block-size:24rem">
+    …
+  </ol>
+  <button class="hc-chat__jump hc-button" data-size="sm" type="button">↓ Latest</button>
+</div>
+```
+
+```js
+import { installChatScroll } from '@hypermedia-components/core';
+installChatScroll();
+```
+
+`installChatScroll()` は冪等で、アンインストーラを返します。ゼロ設定の
+`@hypermedia-components/core/behaviors` エントリが自動インストールし、
+htmx でスワップされた内容も自動で拾います。ネットワークには決して
+触れません — スクロールのピン留めだけが仕事です。
+
+## htmx での利用
+
+メッセージはサーバ描画の `<li class="hc-chat__message">` フラグメント
+として届き、`beforeend` でリストに追記されます:
+
+```html
+<form data-hx-post="/chat/messages"
+      data-hx-target="#chat-log" data-hx-swap="beforeend">
+  <input class="hc-input" type="text" name="message" aria-label="Message">
+  <button class="hc-button" data-variant="primary" type="submit">Send</button>
+</form>
+
+<div class="hc-chat" role="log" aria-label="Conversation">
+  <ol class="hc-chat__list" tabindex="0" id="chat-log">…</ol>
+</div>
+```
+
+プッシュチャネル — アシスタントの応答がサーバから届く経路 — は
+[sse-updates レシピ](/hypermedia-components/ja/recipes/sse-updates/)を
+参照してください。トランスクリプトとトークンストリーミングの
+リクエスト / レスポンス契約一式を所有する専用の `chat-messages` /
+`streaming-response` レシピは、この次に登場します。
+
+## アクセシビリティ
+
+- ルートが `role="log"` です(このロールは `<ol>` には許可されません。リストは素のリスト意味論を保ち、スクロール領域へキーボードで到達できるよう `tabindex="0"` を持ちます)— 追記された**完成した**メッセージは、
+  フォーカスを動かさずに polite に読み上げられます。会話には
+  `.hc-chat` の `aria-label` で名前を与えてください(リストは `<ol>`
+  のまま: ここでは順序が意味です)。
+- ストリーミング中のメッセージは `aria-busy="true"` を持ち、最終
+  スワップがそれを外すまで読み上げを保留します — トークンごとでは
+  なく、メッセージごとに一度の読み上げです。キャレットは CSS の
+  疑似要素で、純粋に視覚的なものです。
+- DOM 順は時系列です — このキットは、支援技術の読み上げ順を逆転させる
+  `column-reverse` を決して使いません。
+- ジャンプコントロールは本物の `<button type="button">` です —
+  表示されている間はフォーカス可能でキーボード操作できます。
+
+## テーマ用トークン
+
+component トークン(`component.tokens.json`):
+
+| トークンパス | 用途 |
+| --- | --- |
+| `chat.gap` | リストのパディングとメッセージ間のギャップ。 |
+| `chat.bubble-radius` / `bubble-max-inline` | バブルの角丸 / メッセージの最大幅。 |
+| `chat.bubble-padding-block` / `bubble-padding-inline` | バブルのパディング。 |
+| `chat.user-bg` / `user-fg` | ユーザーのバブル。 |
+| `chat.assistant-bg` / `assistant-fg` | アシスタントのバブル。 |
+| `chat.system-fg` | システム行の文字。 |
+| `chat.meta-fg` | メタ行(タイムスタンプ)の文字。 |
+| `chat.caret-color` | ストリーミングのキャレット。 |
+| `chat.error-bg` / `error-fg` | エラー状態のバブル。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-chat-gap
+--hc-chat-bubble-radius | -bubble-max-inline | -bubble-padding-block | -bubble-padding-inline
+--hc-chat-user-bg | -user-fg
+--hc-chat-assistant-bg | -assistant-fg
+--hc-chat-system-fg | -meta-fg | -caret-color
+--hc-chat-error-bg | -error-fg
+```
+
+</details>
+
+## 関連
+
+- [タイムライン](/hypermedia-components/ja/components/timeline/) —
+  対話ではないイベントの履歴をリストで。
+- [アバター](/hypermedia-components/ja/components/avatar/) —
+  メッセージの最初のカラムに入る話者のアイデンティティ。
+- [コード](/hypermedia-components/ja/components/code/) —
+  メッセージ本文内のコードブロック。
+- [トースト](/hypermedia-components/ja/components/toast/) —
+  トランスクリプトに属さない一時的な通知。
+- [スクロールエリア](/hypermedia-components/ja/components/scroll-area/) —
+  チャット以外の領域にも同じ細いテーマ付きスクロールバーを。

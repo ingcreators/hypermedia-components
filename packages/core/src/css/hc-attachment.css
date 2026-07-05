@@ -1,0 +1,112 @@
+/* hc-attachment — a file card, and hc-attachments, its wrapping list.
+ *
+ * Pure CSS. Composes with the dropzone (which collects the files), the
+ * file-upload recipe (multipart + progress contract), and hc-progress
+ * (the bar installUploadProgress() drives).
+ *
+ *   <ul class="hc-attachments" aria-label="Attachments">
+ *     <li class="hc-attachment" data-state="uploading">
+ *       <span class="hc-attachment__icon" aria-hidden="true">…svg…</span>
+ *       <span class="hc-attachment__name">report.pdf</span>
+ *       <span class="hc-attachment__size">1.2 MB</span>
+ *       <progress class="hc-progress hc-attachment__progress" max="100" value="40"></progress>
+ *       <button class="hc-attachment__remove" type="button"
+ *               aria-label="Remove report.pdf">×</button>
+ *     </li>
+ *   </ul>
+ *
+ * data-state="uploading" reveals the progress row; data-state="error"
+ * tints the card via the status tokens; no state means settled. The
+ * list wrapper pluralizes like hc-chips (it is "a list of
+ * attachments"); the <ul>/<li> form keeps the set announceable.
+ */
+@layer hc.components {
+  .hc-attachments {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--hc-attachment-gap);
+  }
+
+  .hc-attachment {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    column-gap: var(--hc-attachment-gap);
+    background: var(--hc-attachment-bg);
+    border: 1px solid var(--hc-attachment-border);
+    border-radius: var(--hc-attachment-radius);
+    padding-block: var(--hc-attachment-padding-block);
+    padding-inline: var(--hc-attachment-padding-inline);
+  }
+
+  .hc-attachment__icon {
+    inline-size: var(--hc-attachment-icon-size);
+    block-size: var(--hc-attachment-icon-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--hc-attachment-size-fg);
+  }
+
+  .hc-attachment__icon > svg {
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .hc-attachment__name {
+    color: var(--hc-attachment-name-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hc-attachment__size {
+    color: var(--hc-attachment-size-fg);
+    font-size: var(--hc-font-size-sm, 0.875rem);
+  }
+
+  .hc-attachment__remove {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    inline-size: var(--hc-attachment-icon-size);
+    block-size: var(--hc-attachment-icon-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--hc-attachment-radius);
+    color: var(--hc-attachment-size-fg);
+    cursor: pointer;
+  }
+
+  .hc-attachment__remove:hover {
+    color: var(--hc-attachment-name-fg);
+    background: var(--hc-color-muted-bg);
+  }
+
+  .hc-attachment__remove:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 1px;
+  }
+
+  /* The progress row spans the full card and appears only while
+   * uploading (installUploadProgress() drives the value). */
+  .hc-attachment__progress {
+    display: none;
+    grid-column: 1 / -1;
+    inline-size: 100%;
+  }
+
+  .hc-attachment[data-state="uploading"] .hc-attachment__progress {
+    display: block;
+  }
+
+  .hc-attachment[data-state="error"] {
+    background: var(--hc-attachment-error-bg);
+    border-color: var(--hc-attachment-error-border);
+  }
+}

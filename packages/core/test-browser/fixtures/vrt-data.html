@@ -378,5 +378,28 @@
       </li>
     </ol>
   </section>
+
+  <section id="vrt-chat">
+    <h2>Chat</h2>
+    <div class="hc-chat" role="log" aria-label="Conversation" style="max-inline-size:34rem;">
+      <ol class="hc-chat__list" tabindex="0">
+        <li class="hc-chat__message" data-role="user">
+          <span class="hc-avatar" data-size="sm"><span class="hc-avatar__initials" aria-hidden="true">AB</span></span>
+          <div class="hc-chat__body">Show me the failing checks.</div>
+          <div class="hc-chat__meta"><time datetime="2026-07-05T09:00">09:00</time></div>
+        </li>
+        <li class="hc-chat__message" data-role="system">
+          <div class="hc-chat__body">Context switched to project ops.</div>
+        </li>
+        <li class="hc-chat__message" data-role="assistant">
+          <div class="hc-chat__body"><p>Two checks are red — the unit failure is a missing fixture.</p></div>
+          <div class="hc-chat__meta"><time datetime="2026-07-05T09:01">09:01</time></div>
+        </li>
+        <li class="hc-chat__message" data-role="assistant" data-state="error">
+          <div class="hc-chat__body">The stream was interrupted.</div>
+        </li>
+      </ol>
+    </div>
+  </section>
 </body>
 </html>

@@ -22,6 +22,30 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc-chat` — a conversation transcript** (PR-A of
+  `plans/hc-chat-streaming-plan-en.md`). Chronological DOM (no
+  column-reverse), a `role="log"` root whose appended complete
+  messages are announced while a streaming placeholder's
+  `aria-busy="true"` defers announcement until the final swap;
+  `data-role="user | assistant | system"` bubbles on new `chat.*`
+  tokens; a CSS-only streaming caret (blink removed under reduced
+  motion); `data-state="error"` on the status tokens. Code blocks
+  inside replies are plain `hc-code` markup — the server-tokenized
+  highlighting story applies unchanged.
+- **`installChatScroll()` — stick-to-bottom for transcripts.** Pins
+  the list to the newest message while the reader is at the bottom,
+  releases on scroll-up (streamed chunks never drag the reader back
+  down), reflects `data-stuck` for the stylesheet, and wires the
+  `.hc-chat__jump` button. Idempotent, uninstaller, auto-init.
+- **`hc-attachment` — a file card** (+ the `hc-attachments` list
+  wrapper). `data-state="uploading"` reveals an `hc-progress` row —
+  the bar `installUploadProgress()` already drives — and
+  `data-state="error"` tints via the status tokens; composes with the
+  dropzone and the file-upload recipe. New `attachment.*` tokens.
+  Both components ship docs (en + ja), kitchen-sink and VRT coverage,
+  and land in the generated manifest automatically. The dedicated
+  chat recipes (composer contract, SSE streaming reply) follow next.
+
 - **Machine manifest — the kit as structured JSON**
   (`plans/hc-machine-manifest-plan-en.md`). The core build now emits
   `manifest.json` (components with parts / attribute surface / token

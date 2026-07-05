@@ -41,6 +41,7 @@ export { installCsrfHeader } from './csrf-header.js';
 export { installSseDispatch } from './sse-dispatch.js';
 export { installUploadProgress } from './upload-progress.js';
 export { installDropzone } from './dropzone.js';
+export { installChatScroll } from './chat-scroll.js';
 export { installTree } from './tree.js';
 export { installCopy } from './copy.js';
 export { installSpy } from './spy.js';
