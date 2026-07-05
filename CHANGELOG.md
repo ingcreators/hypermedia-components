@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Machine manifest — the kit as structured JSON**
+  (`plans/hc-machine-manifest-plan-en.md`). The core build now emits
+  `manifest.json` (components with parts / attribute surface / token
+  group / behavior, behaviors with the auto-init flag, `hc:*` events,
+  recipes with purpose + needed behavior + contract path, macros,
+  i18n keys, export paths) — generated from the sources, deterministic,
+  and enforced by a keystone test so new API surface cannot ship
+  without it. Ships as `@hypermedia-components/core/manifest.json` and
+  at `/api/manifest.json` on the docs site. The two macro elements
+  gained a spec-shaped **`custom-elements.json`**
+  (`package.json#customElements`, `/api/custom-elements.json`).
+  `llms.txt` links both, and the new
+  [reference/manifest](https://ingcreators.com/hypermedia-components/reference/manifest/)
+  page documents the schema and guarantees.
+
 - **Toasts: Escape dismisses the toast that contains the focus.** The
   keyboard counterpart of swipe-to-dismiss — previously a sticky toast
   (`duration: 0`) could only be dismissed with a pointer. Tab to the

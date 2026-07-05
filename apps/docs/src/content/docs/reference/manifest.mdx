@@ -1,0 +1,66 @@
+---
+title: Machine manifest
+description: manifest.json and custom-elements.json — the kit's structured index for tools and agents.
+---
+
+Two JSON artifacts describe the kit for **tools** — generators,
+linters, IDE plugins, and agents that want structure rather than
+prose. Both are generated from the sources at build time, shipped in
+the npm package, and served by this site:
+
+| Artifact | On this site | In the package |
+| --- | --- | --- |
+| Kit manifest | [`/api/manifest.json`](/hypermedia-components/api/manifest.json) | `@hypermedia-components/core/manifest.json` |
+| Custom Elements Manifest (macros) | [`/api/custom-elements.json`](/hypermedia-components/api/custom-elements.json) | `@hypermedia-components/core/custom-elements.json` (also `package.json#customElements`) |
+
+For LLM *context* (prose, not structure) use
+[`/llms.txt`](/hypermedia-components/llms.txt) — it links back here.
+
+## What the manifest contains
+
+| Key | Shape | Source of truth |
+| --- | --- | --- |
+| `version` | The core package version. | `package.json` |
+| `components[]` | `block`, `parts[]`, `dataAttributes[]` (the attribute surface appearing in the block's stylesheet), `tokensGroup` (or `null`), `behavior` (or `null`), `docsPath`. | `src/css/hc-*.css`, `component.tokens.json` |
+| `behaviors[]` | `name`, `autoInit` (`installChart` is the single opt-in). | `src/js/index.js`, `src/js/behaviors.js` |
+| `events[]` | `name` + the source `modules[]`. Detail shapes live on the component pages. | `src/js/*.js` |
+| `recipes[]` | `name`, `purpose`, `needsBehavior` (or `null`), `files[]`, `docsPath`, `contractPath`. | `recipes/*/` (+ each recipe's machine-checked `checks.json`) |
+| `macros[]` | `tag` + `attributes[]`. | `src/macros/*.js` |
+| `i18nKeys[]` | Every overridable message key. | `DEFAULT_MESSAGES` |
+| `exports[]` | The package export-map paths. | `package.json` |
+
+## Guarantees
+
+- **Generated, not hand-written.** `scripts/build-manifest.mjs` extracts
+  everything from the sources during the core build; the output is
+  deterministic (sorted, no timestamps).
+- **CI-enforced completeness.** The build fails if a new `installXxx()`
+  export is not accounted for, and the unit suite asserts the manifest
+  against reality: every stylesheet block present, the auto-init roster
+  exact, recipes matching the directory, macro attributes matching the
+  Custom Elements Manifest. New API surface cannot ship without the
+  manifest learning about it.
+- **Versioned by npm.** Each release's manifest ships in its tarball —
+  the version history is the registry.
+
+## Examples
+
+```bash
+# Every component block name:
+curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
+  | jq -r '.components[].block'
+
+# Which recipes need a behavior, and which one:
+curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
+  | jq -r '.recipes[] | select(.needsBehavior) | "\(.name): \(.needsBehavior)"'
+
+# The data-attribute surface of one component:
+curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
+  | jq '.components[] | select(.block == "hc-datagrid") | .dataAttributes'
+```
+
+## Related
+
+- [Behaviors](/hypermedia-components/reference/behaviors/) — the human-readable version of `behaviors[]`.
+- [Versioning](/hypermedia-components/reference/versioning/) — what counts as public API; the manifest is that surface, machine-readable.
+- [Custom elements](/hypermedia-components/reference/custom-elements/) — the macros the CEM describes.

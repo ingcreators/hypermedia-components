@@ -62,6 +62,21 @@ export default defineConfig({
           // keep the trimmed set focused on contracts and guides.
           exclude: ['kitchen-sink', 'blocks'],
           promote: ['index*', 'start/**', 'fundamentals/**'],
+          // Structured counterparts to this prose: agents that prefer
+          // JSON can enumerate the kit instead of parsing pages.
+          optionalLinks: [
+            {
+              label: 'Kit manifest (JSON)',
+              url: 'https://ingcreators.com/hypermedia-components/api/manifest.json',
+              description:
+                'components, behaviors, events, recipes, macros, i18n keys — generated from source, CI-verified',
+            },
+            {
+              label: 'Custom Elements Manifest (JSON)',
+              url: 'https://ingcreators.com/hypermedia-components/api/custom-elements.json',
+              description: 'the two optional macro elements and their attributes',
+            },
+          ],
         }),
       ],
       editLink: {
