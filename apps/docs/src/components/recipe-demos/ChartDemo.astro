@@ -1,0 +1,51 @@
+---
+/*
+ * Live demo for the chart recipe. The region buttons refetch the
+ * <figure class="hc-chart"> fragment from the demo API
+ * (apps/docs/demo-api/recipes/chart.mjs) with a different query
+ * string; the initial figure loads on `load`.
+ *
+ * Why the swapped-in table becomes a real chart: Head.astro
+ * lazy-installs installChart (with the docs' bundled Observable Plot)
+ * when `[data-hc-chart]` exists at DOMContentLoaded — and the chart
+ * recipe page already has static chart Demos, so the behavior is
+ * installed there. installChart listens for `htmx:load`, so every
+ * fragment this demo swaps in is drawn automatically. Without Plot
+ * (or JavaScript) the semantic table simply stays visible — that is
+ * the recipe's fallback story.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/chart`;
+---
+
+<DemoFrame class="hc-preview--col" label="Chart demo">
+  <div class="hc-button-group" role="group" aria-label="Sales region">
+    <button
+      class="hc-button"
+      data-size="sm"
+      type="button"
+      data-hx-get={`${api}/reports/sales?region=emea`}
+      data-hx-target="#chart-demo-region-chart"
+      data-hx-swap="innerHTML">
+      EMEA
+    </button>
+    <button
+      class="hc-button"
+      data-size="sm"
+      type="button"
+      data-hx-get={`${api}/reports/sales?region=apac`}
+      data-hx-target="#chart-demo-region-chart"
+      data-hx-swap="innerHTML">
+      APAC
+    </button>
+  </div>
+
+  <div
+    id="chart-demo-region-chart"
+    style="inline-size:100%;max-inline-size:38rem;"
+    data-hx-get={`${api}/reports/sales?region=emea`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+</DemoFrame>

@@ -3,6 +3,8 @@ title: データグリッド一括操作
 description: グリッドのチェックボックスで行を選び、選択バーから操作し、ids を htmx で POST — ネイティブなフォームシリアライズ、200-with-truth レスポンス、非 JS パス。
 ---
 
+import DatagridBulkActionsDemo from '../../../../components/recipe-demos/DatagridBulkActionsDemo.astro';
+
 `datagrid-bulk-actions` は、多数の
 [データグリッド](/hypermedia-components/ja/components/datagrid/)行に
 1 つのアクションを一括実行するための公認の合成です: グリッド既存の
@@ -30,6 +32,17 @@ description: グリッドのチェックボックスで行を選び、選択バ�
 [`recipes/datagrid-bulk-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-actions/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+行にチェックを入れてみてください — 一括操作バーがライブの件数とともに
+現れます。**Archive** と **Delete** はチェックされた `ids` と、サーバが
+out-of-band で再描画する隠し state 入力を POST し(サーバ自体は
+ステートレス)、行はトーストとともに「ページの真実」として戻ってきます。
+*Anvil*(101)は保護されていて常に失敗するので、含めると部分失敗の
+`warning` トーストが見られます。
+
+<DatagridBulkActionsDemo />
 
 ## マークアップ
 

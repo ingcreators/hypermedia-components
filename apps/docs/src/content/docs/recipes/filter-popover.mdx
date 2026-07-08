@@ -3,6 +3,8 @@ title: Filter popover
 description: A popover containing a form that updates a results region and closes itself after a successful request.
 ---
 
+import FilterPopoverDemo from '../../../components/recipe-demos/FilterPopoverDemo.astro';
+
 `filter-popover` pairs the native popover with an htmx form that
 filters a results region. When the user clicks **Apply**, htmx swaps
 the results and the `installClosePopover` behavior dismisses the
@@ -28,6 +30,16 @@ installClosePopover();
 
 See [Installation](/hypermedia-components/start/installation/).
 :::
+
+## Live demo
+
+Open **Filter**, pick a status or type part of a name, and hit
+**Apply** — htmx GETs a demo endpoint under
+`api/recipes/filter-popover/` (a real app would use its own URL such
+as `/items`), swaps the list, and because the response is a 2xx the
+`installClosePopover` behavior dismisses the popover for you.
+
+<FilterPopoverDemo />
 
 ## Basic usage
 

@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Live recipe demos — collections & overlays batch** (PR-C of
+  `plans/hc-live-recipe-demos-plan-en.md`). Nine more recipes gain a
+  working demo API + live demo section on the en + ja pages:
+  data-region, datagrid-pager, datagrid-bulk-actions, filter-popover,
+  lazy-panel (incl. the 503 + `HX-Reswap` error branch), lazy-tree,
+  remote-dialog, undo-delete (30 s grace threaded through the
+  tombstone's restore URL — no server state) and chart; the copy page
+  notes its previews are already live (client-only, no server
+  contract). The datagrid pager pages 5,000 deterministic rows with
+  out-of-band pager/status swaps; bulk actions thread grid state
+  through an out-of-band hidden input and reach all three toast
+  variants (success / partial-failure warning / stale-selection info).
+
 - **Live recipe demos — forms & actions batch** (PR-B of
   `plans/hc-live-recipe-demos-plan-en.md`). Nine more recipes gain a
   working demo API + live demo section on the en + ja pages:

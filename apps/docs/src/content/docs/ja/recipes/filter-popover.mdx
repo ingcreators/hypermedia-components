@@ -3,6 +3,8 @@ title: フィルタポップオーバー
 description: 結果領域を更新するフォームを載せ、リクエスト成功後に自分を閉じるポップオーバー。
 ---
 
+import FilterPopoverDemo from '../../../../components/recipe-demos/FilterPopoverDemo.astro';
+
 `filter-popover` は、ネイティブの popover と、結果領域をフィルタする
 htmx フォームの組み合わせです。ユーザーが **Apply** をクリックすると
 htmx が結果をスワップし、`installClosePopover` ビヘイビアが
@@ -30,6 +32,16 @@ installClosePopover();
 
 [インストール](/hypermedia-components/ja/start/installation/)を参照。
 :::
+
+## ライブデモ
+
+**Filter** を開いてステータスを選ぶか名前の一部を入力し、**Apply** を
+押してみてください — htmx が `api/recipes/filter-popover/` 配下のデモ
+エンドポイント(実際のアプリでは `/items` など自前の URL)へ GET を
+送ってリストをスワップし、レスポンスが 2xx なので
+`installClosePopover` ビヘイビアがポップオーバーを閉じます。
+
+<FilterPopoverDemo />
 
 ## 基本の使い方
 

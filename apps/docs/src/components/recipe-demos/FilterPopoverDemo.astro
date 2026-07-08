@@ -1,0 +1,62 @@
+---
+/*
+ * Live demo for the filter-popover recipe. Same markup as
+ * recipes/filter-popover/expanded.html, pointed at the demo API
+ * namespace (a real app would use its own URL such as `/items`).
+ * Any 2xx response makes the auto-installed `installClosePopover`
+ * behavior dismiss the popover (`data-hc-close-popover-on-success`).
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/filter-popover`;
+---
+
+<DemoFrame class="hc-preview--col" label="Filter popover demo">
+  <button
+    class="hc-button"
+    type="button"
+    popovertarget="filter-popover-demo-popover"
+    aria-expanded="false">
+    Filter
+  </button>
+
+  <div id="filter-popover-demo-popover" class="hc-popover" popover>
+    <form
+      class="hc-form"
+      data-hx-get={`${api}/items`}
+      data-hx-target="#filter-popover-demo-results"
+      data-hx-swap="innerHTML"
+      data-hc-close-popover-on-success>
+      <div class="hc-field">
+        <label class="hc-field__label" for="filter-popover-demo-status">Status</label>
+        <select class="hc-select" id="filter-popover-demo-status" name="status">
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+        </select>
+      </div>
+
+      <div class="hc-field">
+        <label class="hc-field__label" for="filter-popover-demo-q">Name</label>
+        <input
+          class="hc-input"
+          id="filter-popover-demo-q"
+          type="text"
+          name="q"
+          placeholder="Contains…" />
+      </div>
+
+      <footer class="hc-popover__footer">
+        <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+      </footer>
+    </form>
+  </div>
+
+  <div
+    id="filter-popover-demo-results"
+    data-hx-get={`${api}/items`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+</DemoFrame>

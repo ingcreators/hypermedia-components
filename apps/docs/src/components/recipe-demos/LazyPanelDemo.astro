@@ -1,0 +1,110 @@
+---
+/*
+ * Live demo for the lazy-panel recipe. Four sub-demos in one frame,
+ * mirroring recipes/lazy-panel/expanded.html and pointed at the demo
+ * API namespace (a real app would use its own URLs such as
+ * `/dashboards/usage`):
+ *
+ *   1. `intersect once`             — loads when scrolled into view
+ *   2. `toggle from:closest details once` — loads on <details> open
+ *   3. `load` / `hc:tabactivated once`    — hc-tabs (installTabs is in
+ *      the auto-init bundle the docs pages load)
+ *   4. the contract's 503 + HX-Reswap error branch (see the page prose
+ *      — htmx 2's default responseHandling does not swap 5xx, so the
+ *      visible reaction is the HX-Trigger error toast)
+ *
+ * Every card ends with a "Loaded at <UTC time>" line, proving the
+ * fetch really was deferred.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/lazy-panel`;
+---
+
+<DemoFrame class="hc-preview--col" label="Lazy panel demo">
+  <h4>On intersection</h4>
+  <section
+    data-hx-get={`${api}/panels/usage`}
+    data-hx-trigger="intersect once"
+    data-hx-swap="innerHTML"
+    data-hx-indicator="this">
+    <p class="hc-field__message">Loading when visible…</p>
+  </section>
+
+  <h4>On <code>&lt;details&gt;</code> open</h4>
+  <details>
+    <summary>Advanced settings</summary>
+    <div
+      data-hx-get={`${api}/panels/advanced`}
+      data-hx-trigger="toggle from:closest details once"
+      data-hx-swap="innerHTML"
+      data-hx-indicator="this">
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </div>
+  </details>
+
+  <h4>On tab activation</h4>
+  <div class="hc-tabs">
+    <div class="hc-tabs__list" role="tablist" aria-label="Reports">
+      <button
+        type="button"
+        class="hc-tabs__tab"
+        role="tab"
+        id="lazy-panel-demo-tab-overview"
+        aria-controls="lazy-panel-demo-panel-overview"
+        aria-selected="true"
+        tabindex="0">
+        Overview
+      </button>
+      <button
+        type="button"
+        class="hc-tabs__tab"
+        role="tab"
+        id="lazy-panel-demo-tab-revenue"
+        aria-controls="lazy-panel-demo-panel-revenue"
+        aria-selected="false"
+        tabindex="-1">
+        Revenue
+      </button>
+    </div>
+
+    <div
+      class="hc-tabs__panel"
+      role="tabpanel"
+      id="lazy-panel-demo-panel-overview"
+      aria-labelledby="lazy-panel-demo-tab-overview"
+      tabindex="0"
+      data-hx-get={`${api}/panels/overview`}
+      data-hx-trigger="load"
+      data-hx-swap="innerHTML"
+      data-hx-indicator="this">
+      <p class="hc-field__message">Loading…</p>
+    </div>
+    <div
+      class="hc-tabs__panel"
+      role="tabpanel"
+      id="lazy-panel-demo-panel-revenue"
+      aria-labelledby="lazy-panel-demo-tab-revenue"
+      tabindex="0"
+      hidden="until-found"
+      data-hx-get={`${api}/panels/revenue`}
+      data-hx-trigger="hc:tabactivated once"
+      data-hx-swap="innerHTML"
+      data-hx-indicator="this">
+      <p class="hc-field__message">Loading…</p>
+    </div>
+  </div>
+
+  <h4>Error branch (503)</h4>
+  <div id="lazy-panel-demo-flaky">
+    <button
+      class="hc-button"
+      type="button"
+      data-hx-get={`${api}/panels/flaky`}
+      data-hx-target="#lazy-panel-demo-flaky"
+      data-hx-swap="innerHTML"
+      data-hx-disabled-elt="this">
+      Load the flaky report
+    </button>
+  </div>
+</DemoFrame>

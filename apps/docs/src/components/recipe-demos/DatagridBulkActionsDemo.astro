@@ -1,0 +1,87 @@
+---
+/*
+ * Live demo for the datagrid-bulk-actions recipe, mirroring
+ * recipes/datagrid-bulk-actions/expanded.html: one form wraps the
+ * selection bar (installDatagridActions shows it with the first
+ * selected row), the grid, and the status line. The checked ids travel
+ * by native form serialization; the server (apps/docs/demo-api/
+ * recipes/datagrid-bulk-actions.mjs) is stateless — the grid state
+ * rides in the hidden `state` input it re-renders out-of-band on every
+ * POST. "Anvil" (101) is protected server-side, so including it shows
+ * the contract's partial-failure warning toast.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-bulk-actions`;
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid bulk actions demo">
+  <form method="post" action={`${api}/products/bulk`}>
+    <div
+      class="hc-toolbar"
+      role="toolbar"
+      aria-label="Bulk actions"
+      data-hc-datagrid-actions="#datagrid-bulk-actions-demo-grid"
+      hidden>
+      <span data-hc-datagrid-count></span>
+      <button
+        class="hc-button"
+        type="submit"
+        name="action"
+        value="archive"
+        data-hx-post={`${api}/products/bulk`}
+        data-hx-target="#datagrid-bulk-actions-demo-rows"
+        data-hx-swap="innerHTML"
+        data-hx-disabled-elt="this">
+        Archive
+      </button>
+      <button
+        class="hc-button"
+        data-variant="error"
+        type="submit"
+        name="action"
+        value="delete"
+        data-hc-confirm="Delete the selected products? This cannot be undone."
+        data-hc-confirm-title="Delete products"
+        data-hx-trigger="hc:confirmed"
+        data-hx-post={`${api}/products/bulk`}
+        data-hx-target="#datagrid-bulk-actions-demo-rows"
+        data-hx-swap="innerHTML"
+        data-hx-disabled-elt="this">
+        Delete
+      </button>
+    </div>
+
+    <!-- The server re-renders this out-of-band on every POST; the form
+         serializes it back, so the grid state threads through a
+         stateless server. -->
+    <input type="hidden" id="datagrid-bulk-actions-demo-state" name="state" value="" />
+
+    <div class="hc-datagrid" id="datagrid-bulk-actions-demo-grid">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" data-frozen>
+                <!-- Select-all: no name attribute — must never serialize. -->
+                <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+              </th>
+              <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+              <th class="hc-datagrid__headcell" scope="col">Product</th>
+              <th class="hc-datagrid__headcell" scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody
+            class="hc-datagrid__body"
+            id="datagrid-bulk-actions-demo-rows"
+            data-hx-get={`${api}/products/rows`}
+            data-hx-trigger="load"
+            data-hx-swap="innerHTML">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p id="datagrid-bulk-actions-demo-rows-status" aria-live="polite">6 products</p>
+  </form>
+</DemoFrame>

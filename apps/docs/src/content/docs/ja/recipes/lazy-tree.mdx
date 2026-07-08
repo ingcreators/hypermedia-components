@@ -3,6 +3,8 @@ title: レイジーツリー
 description: 空のまま出荷され、初回展開時にサーバレンダリングされた treeitem として子を読み込むツリーの枝 — hc:treeexpand と htmx の once トリガーの組み合わせ。
 ---
 
+import LazyTreeDemo from '../../../../components/recipe-demos/LazyTreeDemo.astro';
+
 **レイジーツリー**は深い枝を先送りします:
 [ツリーコンポーネント](/hypermedia-components/ja/components/tree/)は
 **空のグループ**つきで描画され、ユーザーが枝を初めて展開したときに、
@@ -21,6 +23,18 @@ description: 空のまま出荷され、初回展開時にサーバレンダリ�
 [`recipes/lazy-tree/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/lazy-tree/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+枝を展開してみてください(行をクリックするか <kbd>→</kbd>)—
+`api/recipes/lazy-tree/` 配下のデモエンドポイントから、子がサーバ
+レンダリングされた treeitem として届きます。`once` により、畳んで
+再展開しても再取得されません。**Restricted** は契約のエラー緩和策の
+デモです: 空の `200` がグループの `aria-busy` をクリアし、`HX-Trigger`
+ヘッダーがエラートーストを出します — `once` トリガーは消費済みなので、
+再展開してもリトライされない点に注意してください。
+
+<LazyTreeDemo />
 
 ## レイジーな枝
 

@@ -4,6 +4,7 @@ description: Upgrade a server-sent semantic data table into an Observable Plot S
 ---
 
 import Demo from '../../../components/Demo.astro';
+import ChartDemo from '../../../components/recipe-demos/ChartDemo.astro';
 
 The chart recipe turns a server-rendered **data table** into an
 [Observable Plot](https://observablehq.com/plot/) SVG chart. The table is
@@ -31,6 +32,16 @@ table. Switch to **Code** to copy the markup.
 full contract lives in
 [`recipes/chart/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chart/contract.md).
 :::
+
+## Live demo
+
+Switch regions — each button refetches the `<figure class="hc-chart">`
+fragment (a semantic data table) from a real endpoint under
+`api/recipes/chart/`, and `installChart` redraws it on `htmx:load`.
+Without JavaScript the same endpoint serves the table as a readable
+page — the table **is** the fallback.
+
+<ChartDemo />
 
 ## Short form
 
