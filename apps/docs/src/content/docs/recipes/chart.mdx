@@ -118,6 +118,90 @@ Set `data-hc-chart` on the figure:
 `data-mark`. `bar` / `line` / `area` are just the case where every column
 shares one mark.
 
+### Line
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="line" data-y-label="Sessions (k)">
+    <table class="hc-table">
+      <caption>Weekly sessions</caption>
+      <thead>
+        <tr><th>Week</th><th>Web</th><th>Mobile</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>W1</td><td>42</td><td>18</td></tr>
+        <tr><td>W2</td><td>48</td><td>24</td></tr>
+        <tr><td>W3</td><td>39</td><td>31</td></tr>
+        <tr><td>W4</td><td>55</td><td>36</td></tr>
+        <tr><td>W5</td><td>61</td><td>33</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="line" data-y-label="Sessions (k)">
+    <table class="hc-table">
+      <caption>Weekly sessions</caption>
+      <thead>
+        <tr><th>Week</th><th>Web</th><th>Mobile</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>W1</td><td>42</td><td>18</td></tr>
+        <tr><td>W2</td><td>48</td><td>24</td></tr>
+        <tr><td>W3</td><td>39</td><td>31</td></tr>
+        <tr><td>W4</td><td>55</td><td>36</td></tr>
+        <tr><td>W5</td><td>61</td><td>33</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+### Area
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="area" data-y-label="Storage (GB)">
+    <table class="hc-table">
+      <caption>Storage used</caption>
+      <thead>
+        <tr><th>Month</th><th>Used</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td></tr>
+        <tr><td>Feb</td><td>135</td></tr>
+        <tr><td>Mar</td><td>170</td></tr>
+        <tr><td>Apr</td><td>165</td></tr>
+        <tr><td>May</td><td>210</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="area" data-y-label="Storage (GB)">
+    <table class="hc-table">
+      <caption>Storage used</caption>
+      <thead>
+        <tr><th>Month</th><th>Used</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>120</td></tr>
+        <tr><td>Feb</td><td>135</td></tr>
+        <tr><td>Mar</td><td>170</td></tr>
+        <tr><td>Apr</td><td>165</td></tr>
+        <tr><td>May</td><td>210</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
 ## Combo charts (bar + line)
 
 Declare the mark per column with `data-mark`. The default for unmarked
@@ -174,70 +258,292 @@ configuration; a true secondary y-axis is out of scope for this recipe.
 ## Stacked, grouped, scatter, sparkline
 
 Four whole-figure presets extend the same table contract (per-column
-`data-mark` combos don't apply to them):
+`data-mark` combos don't apply to them).
 
-- **`bar-stacked`** — multiple series stack (the explicit form of what
-  multi-series `bar` already does).
-- **`bar-grouped`** — series render side-by-side within each category;
-  the category axis carries the labels and the legend names the series.
-- **`scatter`** — two numeric axes: the first column is a numeric x
-  (`data-x-type` defaults to `number`), each series column is one dot
-  set, and an optional `<th data-role="r">` column drives the dot
-  radius.
+### Stacked bars (`bar-stacked`)
+
+Multiple series stack (the explicit form of what multi-series `bar`
+already does).
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="bar-stacked" data-y-label="Orders">
+    <table class="hc-table">
+      <caption>Orders by channel</caption>
+      <thead>
+        <tr><th>Quarter</th><th>Store</th><th>Online</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Q1</td><td>80</td><td>45</td></tr>
+        <tr><td>Q2</td><td>95</td><td>70</td></tr>
+        <tr><td>Q3</td><td>60</td><td>98</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="bar-stacked" data-y-label="Orders">
+    <table class="hc-table">
+      <caption>Orders by channel</caption>
+      <thead>
+        <tr><th>Quarter</th><th>Store</th><th>Online</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Q1</td><td>80</td><td>45</td></tr>
+        <tr><td>Q2</td><td>95</td><td>70</td></tr>
+        <tr><td>Q3</td><td>60</td><td>98</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+### Grouped bars (`bar-grouped`)
+
+Series render side-by-side within each category; the category axis
+carries the labels and the legend names the series.
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="bar-grouped" data-y-label="Orders">
+    <table class="hc-table">
+      <caption>Orders by channel</caption>
+      <thead>
+        <tr><th>Quarter</th><th>Store</th><th>Online</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Q1</td><td>80</td><td>45</td></tr>
+        <tr><td>Q2</td><td>95</td><td>70</td></tr>
+        <tr><td>Q3</td><td>60</td><td>98</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="bar-grouped" data-y-label="Orders">
+    <table class="hc-table">
+      <caption>Orders by channel</caption>
+      <thead>
+        <tr><th>Quarter</th><th>Store</th><th>Online</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Q1</td><td>80</td><td>45</td></tr>
+        <tr><td>Q2</td><td>95</td><td>70</td></tr>
+        <tr><td>Q3</td><td>60</td><td>98</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+### Scatter (`scatter`)
+
+Two numeric axes: the first column is a numeric x (`data-x-type`
+defaults to `number`), each series column is one dot set, and an
+optional `<th data-role="r">` column drives the dot radius.
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="scatter" data-y-label="Weight (kg)">
+    <table class="hc-table">
+      <caption>Height vs weight</caption>
+      <thead>
+        <tr><th>Height</th><th>Weight</th><th data-role="r">Count</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>150</td><td>52</td><td>3</td></tr>
+        <tr><td>158</td><td>58</td><td>6</td></tr>
+        <tr><td>165</td><td>63</td><td>12</td></tr>
+        <tr><td>172</td><td>70</td><td>9</td></tr>
+        <tr><td>180</td><td>78</td><td>4</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
 
   ```html
   <figure class="hc-chart" data-hc-chart="scatter" data-y-label="Weight (kg)">
     <table class="hc-table">
       <caption>Height vs weight</caption>
-      <thead><tr><th>Height</th><th>Weight</th><th data-role="r">Count</th></tr></thead>
+      <thead>
+        <tr><th>Height</th><th>Weight</th><th data-role="r">Count</th></tr>
+      </thead>
       <tbody>
         <tr><td>150</td><td>52</td><td>3</td></tr>
+        <tr><td>158</td><td>58</td><td>6</td></tr>
+        <tr><td>165</td><td>63</td><td>12</td></tr>
         <tr><td>172</td><td>70</td><td>9</td></tr>
+        <tr><td>180</td><td>78</td><td>4</td></tr>
       </tbody>
     </table>
   </figure>
   ```
 
-- **`sparkline`** — a compact Plot-styled trend: axes, grid and legend
-  off, 48 px tall unless `data-height` says otherwise. For a
-  dependency-free inline trend, the standalone
-  [sparkline component](/hypermedia-components/components/sparkline/)
-  is usually the better fit — this preset exists for Plot-consistent
-  dashboards.
+  </Fragment>
+</Demo>
 
-## Histogram and heatmap
+### Sparkline (`sparkline`)
 
-- **`histogram`** — bins **one numeric column** into count bars
-  (`data-x-type` defaults to `number`; extra columns are ignored;
-  `data-bins` caps the bin count).
+A compact Plot-styled trend: axes, grid and legend off, 48 px tall
+unless `data-height` says otherwise. For a dependency-free inline
+trend, the standalone
+[sparkline component](/hypermedia-components/components/sparkline/)
+is usually the better fit — this preset exists for Plot-consistent
+dashboards.
+
+<Demo previewStyle="max-inline-size:14rem;">
+  <figure class="hc-chart" data-hc-chart="sparkline">
+    <table class="hc-table">
+      <caption>30-day trend</caption>
+      <thead>
+        <tr><th>Day</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>12</td></tr>
+        <tr><td>2</td><td>18</td></tr>
+        <tr><td>3</td><td>9</td></tr>
+        <tr><td>4</td><td>22</td></tr>
+        <tr><td>5</td><td>17</td></tr>
+        <tr><td>6</td><td>28</td></tr>
+        <tr><td>7</td><td>25</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
 
   ```html
-  <figure class="hc-chart" data-hc-chart="histogram" data-bins="12">
+  <figure class="hc-chart" data-hc-chart="sparkline">
     <table class="hc-table">
-      <caption>Response times</caption>
-      <thead><tr><th>ms</th></tr></thead>
-      <tbody><tr><td>120</td></tr><tr><td>90</td></tr><tr><td>340</td></tr></tbody>
+      <caption>30-day trend</caption>
+      <thead>
+        <tr><th>Day</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>12</td></tr>
+        <tr><td>2</td><td>18</td></tr>
+        <tr><td>3</td><td>9</td></tr>
+        <tr><td>4</td><td>22</td></tr>
+        <tr><td>5</td><td>17</td></tr>
+        <tr><td>6</td><td>28</td></tr>
+        <tr><td>7</td><td>25</td></tr>
+      </tbody>
     </table>
   </figure>
   ```
 
-- **`heatmap`** — the matrix shape: row categories on y, column headers
-  on x, cell values drive a **continuous** fill with a color legend
-  (`data-scheme` picks the Plot scheme; the categorical series palette
-  does not apply). Row/column order is preserved as authored.
+  </Fragment>
+</Demo>
+
+## Histogram and heatmap
+
+### Histogram (`histogram`)
+
+Bins **one numeric column** into count bars (`data-x-type` defaults to
+`number`; extra columns are ignored; `data-bins` caps the bin count).
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="histogram" data-bins="6" data-y-label="Requests">
+    <table class="hc-table">
+      <caption>Response times (ms)</caption>
+      <thead>
+        <tr><th>ms</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>90</td></tr>
+        <tr><td>95</td></tr>
+        <tr><td>110</td></tr>
+        <tr><td>120</td></tr>
+        <tr><td>125</td></tr>
+        <tr><td>140</td></tr>
+        <tr><td>160</td></tr>
+        <tr><td>180</td></tr>
+        <tr><td>210</td></tr>
+        <tr><td>260</td></tr>
+        <tr><td>340</td></tr>
+        <tr><td>520</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="histogram" data-bins="6" data-y-label="Requests">
+    <table class="hc-table">
+      <caption>Response times (ms)</caption>
+      <thead>
+        <tr><th>ms</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>90</td></tr>
+        <tr><td>95</td></tr>
+        <tr><td>110</td></tr>
+        <tr><td>120</td></tr>
+        <tr><td>125</td></tr>
+        <tr><td>140</td></tr>
+        <tr><td>160</td></tr>
+        <tr><td>180</td></tr>
+        <tr><td>210</td></tr>
+        <tr><td>260</td></tr>
+        <tr><td>340</td></tr>
+        <tr><td>520</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+### Heatmap (`heatmap`)
+
+The matrix shape: row categories on y, column headers on x, cell values
+drive a **continuous** fill with a color legend (`data-scheme` picks
+the Plot scheme; the categorical series palette does not apply).
+Row/column order is preserved as authored.
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="heatmap" data-y-label="Visits">
+    <table class="hc-table">
+      <caption>Visits by slot</caption>
+      <thead>
+        <tr><th>Slot</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Morning</td><td>3</td><td>7</td><td>5</td><td>8</td><td>4</td></tr>
+        <tr><td>Afternoon</td><td>6</td><td>4</td><td>9</td><td>5</td><td>7</td></tr>
+        <tr><td>Evening</td><td>9</td><td>2</td><td>6</td><td>3</td><td>10</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
 
   ```html
   <figure class="hc-chart" data-hc-chart="heatmap" data-y-label="Visits">
     <table class="hc-table">
       <caption>Visits by slot</caption>
-      <thead><tr><th>Slot</th><th>Mon</th><th>Tue</th></tr></thead>
+      <thead>
+        <tr><th>Slot</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th></tr>
+      </thead>
       <tbody>
-        <tr><td>Morning</td><td>3</td><td>7</td></tr>
-        <tr><td>Evening</td><td>9</td><td>2</td></tr>
+        <tr><td>Morning</td><td>3</td><td>7</td><td>5</td><td>8</td><td>4</td></tr>
+        <tr><td>Afternoon</td><td>6</td><td>4</td><td>9</td><td>5</td><td>7</td></tr>
+        <tr><td>Evening</td><td>9</td><td>2</td><td>6</td><td>3</td><td>10</td></tr>
       </tbody>
     </table>
   </figure>
   ```
+
+  </Fragment>
+</Demo>
 
 ## Options
 

@@ -22,6 +22,13 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Chart recipe docs — a live preview for every chart type** (en +
+  ja). `line`, `area`, `bar-stacked`, `bar-grouped`, `scatter`,
+  `sparkline`, `histogram` and `heatmap` now each have a rendered
+  Demo (preview + code) next to their table contract, so all ten
+  `data-hc-chart` presets are visible on the page — previously only
+  `bar` and `combo` had previews.
+
 - **Live recipe demos — streaming & upload batch** (PR-D of
   `plans/hc-live-recipe-demos-plan-en.md`; completes the plan — all
   25 recipe pages now have a live demo). sse-toast and sse-updates
