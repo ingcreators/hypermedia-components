@@ -71,7 +71,37 @@ describe('mutating-form demo API', () => {
     expect(body).toContain('/hypermedia-components/recipes/mutating-form/');
   });
 
+  it('answers an htmx confirmed delete with 204 + HX-Redirect (same success contract)', async () => {
+    const response = await call(mod, 'POST', '/members/42/delete', { body: form({}) });
+    expect(response.status).toBe(204);
+    expect(response.headers.get('HX-Redirect')).toBe(`${LANDING}?deleted=1`);
+    expect(response.body).toBeNull();
+    // The header value is pure ASCII (headers are latin-1).
+    expect(response.headers.get('HX-Redirect')).toMatch(/^[\x20-\x7e]*$/);
+  });
+
+  it('answers a no-JS delete with 303 + Location (post/redirect/get, no confirm gate)', async () => {
+    const response = await call(mod, 'POST', '/members/42/delete', {
+      body: form({}),
+      htmx: false,
+    });
+    expect(response.status).toBe(303);
+    expect(response.headers.get('Location')).toBe(`${LANDING}?deleted=1`);
+  });
+
+  it('serves the deleted landing page', async () => {
+    const response = await call(mod, 'GET', '/members/42?deleted=1');
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    expect(body).toContain('<!doctype html>');
+    expect(body).toContain('Member deleted');
+    expect(body).not.toContain('Member created');
+    expect(body).toContain('/hypermedia-components/recipes/mutating-form/');
+  });
+
   it('returns null for unknown routes', async () => {
-    expect(await call(mod, 'POST', '/members/42/delete', { body: form({}) })).toBeNull();
+    expect(await call(mod, 'POST', '/members/7/delete', { body: form({}) })).toBeNull();
+    expect(await call(mod, 'GET', '/members/42/delete')).toBeNull();
+    expect(await call(mod, 'DELETE', '/members/42')).toBeNull();
   });
 });

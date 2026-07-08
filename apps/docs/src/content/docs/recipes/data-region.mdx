@@ -28,6 +28,12 @@ The endpoint is a namespaced demo implementation of the
 [server response contract](#server-response-contract) under
 `api/recipes/data-region/`.
 
+The second region (**Polling region**) demos
+[polling on a schedule](#polling-on-a-schedule): it refetches itself
+every 10 seconds — its re-rendered fragment carries `every 10s` only,
+and htmx re-arms the interval on each swap. Watch its *Rendered at*
+line tick over.
+
 <DataRegionDemo />
 
 ## Polling on a schedule

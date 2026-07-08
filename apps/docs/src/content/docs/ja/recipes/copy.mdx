@@ -77,11 +77,23 @@ installCopy();
 参照した要素の代わりに固定文字列をコピーするには `data-hc-copy-text` を
 使います:
 
-```html
-<button class="hc-button" data-hc-copy-text="npm i @hypermedia-components/core">
-  Copy install command
-</button>
-```
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-hc-copy-text="npm i @hypermedia-components/core" data-hc-copy-ok="Copied">
+    Copy install command
+  </button>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button"
+          data-hc-copy-text="npm i @hypermedia-components/core"
+          data-hc-copy-ok="Copied">
+    Copy install command
+  </button>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## 属性
 

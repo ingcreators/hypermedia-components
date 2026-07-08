@@ -7,6 +7,12 @@
  * listens for `items:changed from:body` only. The button simulates a
  * mutation elsewhere: 204 + HX-Trigger fires the domain event (plus a
  * toast) and the region refetches itself.
+ *
+ * The second region demos "Polling on a schedule": the placeholder
+ * carries `load, every 10s` (initial fetch + the schedule), and the
+ * server fragment carries `every 10s` only — htmx re-arms the interval
+ * on each outerHTML self-swap, so every tick refetches. Echoing `load`
+ * back would loop, same as the event region.
  */
 import DemoFrame from './DemoFrame.astro';
 
@@ -35,4 +41,18 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/data-reg
     data-hx-swap="none">
     Simulate a change elsewhere
   </button>
+
+  <section
+    id="data-region-demo-poll"
+    class="hc-data-region"
+    data-hx-get={`${api}/items?poll=1`}
+    data-hx-trigger="load, every 10s"
+    data-hx-swap="outerHTML"
+    data-hx-indicator="closest .hc-data-region"
+    aria-busy="false">
+    <header class="hc-data-region__header">
+      <h2>Polling region</h2>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </header>
+  </section>
 </DemoFrame>

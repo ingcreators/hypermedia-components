@@ -6,6 +6,12 @@
  * `required` is omitted so the server-side `required` error can be
  * demoed. A successful submit navigates the whole window to the
  * demo's landing page via HX-Redirect — that IS the contract.
+ *
+ * The second form is the confirmed destructive variant from the same
+ * recipe: `data-hc-confirm` on the submit button + the form firing on
+ * `hc:confirmed` instead of the native submit (installConfirm() is in
+ * the auto-init behaviors bundle). Its success branch follows the same
+ * contract — HX-Redirect to the "Member deleted" landing.
  */
 import DemoFrame from './DemoFrame.astro';
 
@@ -47,6 +53,28 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/mutating
 
     <span class="hc-action">
       <button class="hc-button" data-variant="primary" type="submit">Create</button>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </span>
+  </form>
+
+  <form
+    method="post"
+    action={`${api}/members/42/delete`}
+    data-hx-post={`${api}/members/42/delete`}
+    data-hx-trigger="hc:confirmed"
+    data-hx-target="#mutating-form-demo-errors"
+    data-hx-swap="innerHTML"
+    data-hx-disabled-elt="find button[type=submit]"
+    data-hx-indicator="find .hc-spinner">
+    <span class="hc-action">
+      <button
+        class="hc-button"
+        data-variant="error"
+        type="submit"
+        data-hc-confirm="Delete this member? This cannot be undone."
+        data-hc-confirm-title="Delete member">
+        Delete
+      </button>
       <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
     </span>
   </form>

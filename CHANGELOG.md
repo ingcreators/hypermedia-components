@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Recipe live demos — every documented variant demoed** (en + ja;
+  audit follow-up). copy gains a `data-hc-copy-text` live preview;
+  data-region adds a second region polling `every 10s` (interval-only
+  trigger on the re-rendered fragment — no `load` echo); mutating-form
+  demos the confirm-gated destructive variant (204 + `HX-Redirect` /
+  303 PRG); file-upload adds the dropzone variant against the same
+  endpoint (per-form OOB reset + retargeted 422s via a sanitized
+  discriminator); sse-updates pushes two `products:rows` datagrid
+  pages over the stream; chat-messages demos the attachments
+  composition (multipart composer + upload progress + attachment card
+  echoed in the user message, `variant="attachments"` on the shared
+  ChatDemo).
+
 - **Component docs — previews for every documented variant** (en +
   ja; audit follow-up to the chart-types fix). Fifteen pages gain
   live Demos for capabilities that were code-fence- or prose-only:

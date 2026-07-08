@@ -34,6 +34,9 @@ Pick a small PDF or PNG and upload it: the progress bar is driven by
 response prepends the new item to the list while swapping in a pristine
 form out-of-band — the blessed file-input reset. Try a disallowed
 extension (say a `.txt`) to see the retargeted `422` field-error path.
+The second form is the [dropzone variant](#dropzone-variant) — drop a
+file onto it (or click) and the same contract plays out against its own
+error container and out-of-band reset.
 Uploads aren't stored: the demo derives the item from the request and
 forgets it, so reloading resets the list.
 

@@ -9,6 +9,15 @@ function post(fields, opts = {}) {
   return call(mod, 'POST', '/chat/messages', { body: form(fields), ...opts });
 }
 
+/** Multipart POST for the attach variant (`demo=attach` rides in the
+ * body like the composer's hidden input; values may be File objects). */
+function postAttach(fields, opts = {}) {
+  const body = new FormData();
+  body.append('demo', 'attach');
+  for (const [key, value] of Object.entries(fields)) body.append(key, value);
+  return call(mod, 'POST', '/chat/messages', { body, ...opts });
+}
+
 /** Parse an SSE body into ordered `{ event, data }` frames. */
 function parseSse(text) {
   return text
@@ -167,6 +176,128 @@ describe('chat-messages demo API — POST stop', () => {
     expect(body).not.toContain('data-sse-connect');
     expect(body).not.toContain('data-hx-ext');
     expect(body).not.toContain('Stop');
+  });
+});
+
+describe('chat-messages demo API — attachments variant (demo=attach)', () => {
+  const file = new File(['x'.repeat(2048)], '<img>.png', { type: 'image/png' });
+
+  it('echoes the attachment card inside the user <li> and prefixes every id/URL', async () => {
+    const response = await postAttach({ prompt: 'see this', attachment: file });
+    expect(response.status).toBe(200);
+    const body = await response.text();
+
+    // (a) the user <li> carries the hc-attachment card in the bubble —
+    // filename escaped, size humanized.
+    expect(body).toContain('data-role="user"');
+    expect(body).toContain('<ul class="hc-attachments" aria-label="Attachments">');
+    expect(body).toContain('<span class="hc-attachment__name">&lt;img&gt;.png</span>');
+    expect(body).not.toContain('<img>.png');
+    expect(body).toContain('<span class="hc-attachment__size">2 kB</span>');
+
+    // (b) the placeholder id and its stream/stop URLs carry the attach
+    // prefix + the demo/file params.
+    const id = body.match(/id="chat-messages-attach-demo-reply-(\d+)"/)?.[1];
+    expect(id).toBeTruthy();
+    expect(body).toContain(
+      `data-sse-connect="${API}/chat/messages/${id}/stream?prompt=see%20this&amp;demo=attach&amp;file=%3Cimg%3E.png"`,
+    );
+    expect(body).toContain(
+      `data-hx-post="${API}/chat/messages/${id}/stop?prompt=see%20this&amp;demo=attach&amp;file=%3Cimg%3E.png"`,
+    );
+
+    // (c) the OOB fresh composer is the multipart variant with the
+    // attach prefix — nothing in the body uses the default prefix.
+    expect(body).toContain('id="chat-messages-attach-demo-composer"');
+    expect(body).toContain('data-hx-swap-oob="outerHTML"');
+    expect(body).toContain('enctype="multipart/form-data"');
+    expect(body).toContain('data-hx-encoding="multipart/form-data"');
+    expect(body).toContain('data-hx-target="#chat-messages-attach-demo-list"');
+    expect(body).toContain('<input type="hidden" name="demo" value="attach">');
+    expect(body).toContain('name="attachment" type="file"');
+    expect(body).toContain('data-hc-upload-progress');
+    expect(body).toContain('data-hx-indicator="find progress"');
+    expect(body).not.toContain('"chat-messages-demo');
+    expect(body).not.toContain('#chat-messages-demo');
+  });
+
+  it('allows an attachment-only send (blank prompt + file)', async () => {
+    const response = await postAttach({ prompt: '   ', attachment: file });
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    expect(body).toContain('data-role="user"');
+    expect(body).toContain('<span class="hc-attachment__name">&lt;img&gt;.png</span>');
+    expect(body).toContain('id="chat-messages-attach-demo-composer"');
+  });
+
+  it('answers a blank prompt without a file with 422 + the attach-prefixed composer only', async () => {
+    const response = await postAttach({ prompt: '' });
+    expect(response.status).toBe(422);
+    const body = await response.text();
+    expect(body).toContain('id="chat-messages-attach-demo-composer"');
+    expect(body).toContain('data-hx-swap-oob="outerHTML"');
+    expect(body).toContain('data-invalid="true"');
+    expect(body).toContain('aria-describedby="chat-messages-attach-demo-prompt-error"');
+    expect(body).toContain('enctype="multipart/form-data"');
+    expect(body).not.toContain('"chat-messages-demo');
+    expect(body).not.toContain('<li');
+  });
+
+  it('rejects an attachment over 1 MiB with 422 on the file field', async () => {
+    const big = new File([new Uint8Array(1024 * 1024 + 1)], 'big.bin');
+    const response = await postAttach({ prompt: 'hi', attachment: big });
+    expect(response.status).toBe(422);
+    const body = await response.text();
+    expect(body).toContain('id="chat-messages-attach-demo-composer"');
+    expect(body).toContain('data-invalid="true"');
+    expect(body).toContain('aria-describedby="chat-messages-attach-demo-file-error"');
+    expect(body).toContain('Attach a file 1 MB or smaller.');
+    expect(body).not.toContain('<li');
+  });
+
+  it('streams a reply that mentions the file and finishes with an attach-prefixed <li>', async () => {
+    const response = await call(
+      mod,
+      'GET',
+      '/chat/messages/42/stream?prompt=see%20this&demo=attach&file=notes.md&fast=1',
+    );
+    const frames = parseSse(await response.text());
+    expect(frames.at(-1).event).toBe('done');
+    const reply = frames
+      .filter((f) => f.event === 'chunk')
+      .map((f) => f.data)
+      .join('');
+    expect(reply).toContain('attached “notes.md”');
+
+    const done = frames.at(-1).data;
+    expect(done).toContain('id="chat-messages-attach-demo-reply-42"');
+    expect(done).not.toContain('id="chat-messages-demo-reply');
+  });
+
+  it('keeps the error retry inside the attach demo (prefix + demo val)', async () => {
+    const response = await call(
+      mod,
+      'GET',
+      '/chat/messages/7/stream?prompt=fail&demo=attach&fast=1',
+    );
+    const frames = parseSse(await response.text());
+    const error = frames.at(-1);
+    expect(error.event).toBe('error');
+    expect(error.data).toContain('id="chat-messages-attach-demo-reply-7"');
+    expect(error.data).toContain('data-hx-vals=\'{"prompt":"retry","demo":"attach"}\'');
+    expect(error.data).toContain('data-hx-target="#chat-messages-attach-demo-list"');
+  });
+
+  it('stops into an attach-prefixed truncated <li>', async () => {
+    const response = await call(
+      mod,
+      'POST',
+      '/chat/messages/42/stop?prompt=hello&demo=attach&file=notes.md',
+    );
+    const body = await response.text();
+    expect(body).toContain('id="chat-messages-attach-demo-reply-42"');
+    expect(body).toContain('You asked about “hello” …');
+    expect(body).not.toContain('aria-busy');
   });
 });
 
