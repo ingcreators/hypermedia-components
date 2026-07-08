@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Live recipe demos — streaming & upload batch** (PR-D of
+  `plans/hc-live-recipe-demos-plan-en.md`; completes the plan — all
+  25 recipe pages now have a live demo). sse-toast and sse-updates
+  play self-terminating scripted SSE streams (JSON-payload events
+  through the `installSseDispatch` bridge with an update-in-place
+  toast and an `items:changed` region refetch; single-line HTML
+  events with an out-of-band badge and a `stream:done` close);
+  chat-messages + streaming-response share one composed demo (the
+  three-fragment POST body, chunk/done/error reply streaming over
+  the placeholder's own SSE connection, Stop, the `fail` prompt for
+  the error path); file-upload accepts real multipart posts with the
+  progress bar, 422 field-error fragments and the out-of-band
+  pristine-form reset. The recipes index (en + ja) and DEPLOYMENT.md
+  smoke checks now cover the demo API.
+
 - **Live recipe demos — collections & overlays batch** (PR-C of
   `plans/hc-live-recipe-demos-plan-en.md`). Nine more recipes gain a
   working demo API + live demo section on the en + ja pages:

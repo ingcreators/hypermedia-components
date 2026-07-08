@@ -3,6 +3,8 @@ title: File upload
 description: Multipart upload with a live progress bar — htmx owns the transport, installUploadProgress drives the native progress element, the response appends the file and resets the form out-of-band.
 ---
 
+import FileUploadDemo from '../../../components/recipe-demos/FileUploadDemo.astro';
+
 `file-upload` is the blessed multipart pattern: selecting a file and
 uploading shows a **live progress bar**, appends the new file's
 fragment to the list, resets the form, and toasts. htmx owns the
@@ -24,6 +26,18 @@ bundle).
 full contract lives in
 [`recipes/file-upload/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/file-upload/contract.md).
 :::
+
+## Live demo
+
+Pick a small PDF or PNG and upload it: the progress bar is driven by
+`htmx:xhr:progress` (the `installUploadProgress()` bridge), and the
+response prepends the new item to the list while swapping in a pristine
+form out-of-band — the blessed file-input reset. Try a disallowed
+extension (say a `.txt`) to see the retargeted `422` field-error path.
+Uploads aren't stored: the demo derives the item from the request and
+forgets it, so reloading resets the list.
+
+<FileUploadDemo />
 
 ## The form
 

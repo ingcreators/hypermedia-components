@@ -1,0 +1,58 @@
+---
+/*
+ * Live demo for the file-upload recipe. Same markup as
+ * recipes/file-upload/expanded.html, pointed at the demo API
+ * namespace (a real app would use its own URL such as `/files`).
+ *
+ * The form mirrors composerFormHtml() in
+ * apps/docs/demo-api/recipes/file-upload.mjs attribute-for-attribute —
+ * the server re-sends that exact form as an `hx-swap-oob` fragment
+ * after every successful upload (file inputs cannot be reset from
+ * markup; the pristine copy is the recipe's blessed reset). Keep the
+ * two in sync.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/file-upload`;
+---
+
+<DemoFrame class="hc-preview--col" label="File upload demo">
+  <form
+    id="file-upload-demo-form"
+    method="post"
+    action={`${api}/files`}
+    enctype="multipart/form-data"
+    data-hx-post={`${api}/files`}
+    data-hx-encoding="multipart/form-data"
+    data-hx-target="#file-upload-demo-files"
+    data-hx-swap="afterbegin"
+    data-hx-indicator="find progress"
+    data-hx-disabled-elt="find button[type=submit]">
+    <div id="file-upload-demo-errors"></div>
+    <div class="hc-field">
+      <label class="hc-field__label" for="file-upload-demo-doc">Document</label>
+      <input
+        class="hc-input"
+        id="file-upload-demo-doc"
+        name="doc"
+        type="file"
+        required
+        accept=".pdf,.png" />
+    </div>
+    <progress
+      class="hc-progress htmx-indicator"
+      data-hc-upload-progress
+      value="0"
+      max="100"
+      aria-label="Upload progress"></progress>
+    <button class="hc-button" data-variant="primary" type="submit">Upload</button>
+  </form>
+
+  <ul
+    id="file-upload-demo-files"
+    class="hc-list"
+    data-hx-get={`${api}/files`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </ul>
+</DemoFrame>

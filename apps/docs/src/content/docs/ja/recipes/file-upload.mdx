@@ -3,6 +3,8 @@ title: ファイルアップロード
 description: ライブ進捗バーつきのマルチパートアップロード — トランスポートは htmx が所有し、installUploadProgress がネイティブの progress 要素を駆動、レスポンスはファイルを追記しフォームを out-of-band でリセットします。
 ---
 
+import FileUploadDemo from '../../../../components/recipe-demos/FileUploadDemo.astro';
+
 `file-upload` は公認のマルチパートパターンです: ファイルを選んで
 アップロードすると**ライブ進捗バー**が表示され、新しいファイルの
 フラグメントがリストへ追記され、フォームがリセットされ、トーストが
@@ -26,6 +28,19 @@ description: ライブ進捗バーつきのマルチパートアップロード 
 [`recipes/file-upload/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/file-upload/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+小さな PDF か PNG を選んでアップロードしてください: 進捗バーは
+`htmx:xhr:progress`(`installUploadProgress()` ブリッジ)が駆動し、
+レスポンスは新しいアイテムをリスト先頭に追記しつつ、まっさらなフォームを
+out-of-band でスワップします — 公認の file input リセットです。許可外の
+拡張子(たとえば `.txt`)を試すと、リターゲットされた `422`
+フィールドエラー経路が見られます。アップロードは保存されません: デモは
+アイテムをリクエストから導出して忘れるため、リロードするとリストは
+リセットされます。
+
+<FileUploadDemo />
 
 ## フォーム
 

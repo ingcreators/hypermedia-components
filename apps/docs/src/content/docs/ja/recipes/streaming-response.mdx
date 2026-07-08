@@ -3,6 +3,8 @@ title: ストリーミングレスポンス
 description: SSE の応答契約 — chunk イベントがサーバー描画の HTML を aria-busy のプレースホルダーへ追記し、done が完成した最終メッセージに置換してストリームを閉じます。
 ---
 
+import ChatDemo from '../../../../components/recipe-demos/ChatDemo.astro';
+
 [chat-messages](/hypermedia-components/ja/recipes/chat-messages/) の
 POST は、`aria-busy` のアシスタントプレースホルダーをトランスクリプト
 に残します。このレシピは、サーバーがそれを埋める方法です:
@@ -15,6 +17,18 @@ POST は、`aria-busy` のアシスタントプレースホルダーをトラン
 :::tip[スキャフォールド]
 `npx @hypermedia-components/cli add streaming-response` がこのレシピのスキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` がコピーを機械検証します。完全な契約は [`recipes/streaming-response/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/streaming-response/contract.md) にあります。
 :::
+
+## ライブデモ
+
+chat-messages と同じ合成デモを、ストリーム側から観察します:
+POST が追記したプレースホルダーが自分の SSE 接続を開き、`chunk`
+イベントがエスケープ済みテキストを追記する間 `aria-busy` が読み上げを
+保留し、`done` が完成した最終 `<li>` に置換して EventSource を閉じます。
+Stop は 1 往復で切り詰め、「fail」を含むプロンプトは `error` イベントと
+リトライ手段を実演します。このデモは chat-messages の名前空間
+(`api/recipes/chat-messages/…`)を共有しています。
+
+<ChatDemo />
 
 ## blessed マークアップ
 

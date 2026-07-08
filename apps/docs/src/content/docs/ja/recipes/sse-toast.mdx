@@ -3,6 +3,8 @@ title: SSE トースト
 description: サーバプッシュの通知 — JSON ペイロードつき SSE イベントが、ディスパッチブリッジ経由で許可リスト方式の DOM イベントになります。トーストとデータ領域の無効化はそのまま機能します。
 ---
 
+import SseToastDemo from '../../../../components/recipe-demos/SseToastDemo.astro';
+
 `sse-toast` は**サーバ起点の通知**のための公認パターンです: サーバが
 JSON ペイロードつきの名前付き SSE イベントをプッシュし、1 つの隠れた
 ブリッジ要素がそれを DOM の `CustomEvent` に変えます — そのため既存の
@@ -27,6 +29,17 @@ JSON ペイロードつきの名前付き SSE イベントをプッシュし、1
 [`recipes/sse-toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-toast/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+ストリームは約 15 秒のスクリプト済みシーケンスを一度だけ再生し、
+`data-sse-close` に名指しされた `demo:done` イベントで自ら閉じます:
+固定表示の *Build #42 started* トーストがその場で *finished* に更新され
+(id による更新パターン)、`items:changed` のプッシュで下の領域が
+再取得され(*Rendered at* の時刻に注目)、閉じる前に最後の info
+トーストが届きます。ページをリロードすると再生し直せます。
+
+<SseToastDemo />
 
 ## マークアップ
 

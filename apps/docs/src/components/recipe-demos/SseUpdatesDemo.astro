@@ -1,0 +1,44 @@
+---
+/*
+ * Live demo for the sse-updates recipe. The scope connects to the demo
+ * API's scripted stream (apps/docs/demo-api/recipes/sse-updates.mjs):
+ * activity:item fragments prepend into the feed (afterbegin),
+ * status:panel fragments replace the status section (innerHTML
+ * default), and one status push also updates the alert badge
+ * out-of-band via hx-swap-oob — same markup as
+ * recipes/sse-updates/expanded.html (minus the datagrid composition,
+ * which the page describes but the demo keeps out of scope). The
+ * stream ends deliberately with `stream:done` (data-sse-close); its
+ * payload is never swapped, so the server sends a visible end marker
+ * as a final status:panel push first.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/sse-updates`;
+---
+
+<DemoFrame class="hc-preview--col" label="SSE live updates demo">
+  <div
+    data-hx-ext="sse"
+    data-sse-connect={`${api}/events`}
+    data-sse-close="stream:done">
+    <section
+      id="sse-updates-demo-status"
+      aria-live="polite"
+      data-sse-swap="status:panel">
+      <p>Waiting for updates…</p>
+    </section>
+
+    <p>
+      Alerts:
+      <span class="hc-badge" id="sse-updates-demo-alert-badge">0</span>
+    </p>
+
+    <ul
+      id="sse-updates-demo-activity"
+      class="hc-list"
+      data-sse-swap="activity:item"
+      data-hx-swap="afterbegin">
+    </ul>
+  </div>
+</DemoFrame>

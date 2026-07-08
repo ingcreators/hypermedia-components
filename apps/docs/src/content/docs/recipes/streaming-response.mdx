@@ -3,6 +3,8 @@ title: Streaming response
 description: The SSE reply contract — chunk events append server-rendered HTML into the aria-busy placeholder, and done swaps in the complete final message, closing the stream.
 ---
 
+import ChatDemo from '../../../components/recipe-demos/ChatDemo.astro';
+
 The [chat-messages](/hypermedia-components/recipes/chat-messages/) POST
 leaves an `aria-busy` assistant placeholder in the transcript. This
 recipe is how the server fills it: the placeholder **owns its own SSE
@@ -14,6 +16,18 @@ connect element leaves the DOM. No custom JavaScript.
 :::tip[Scaffold]
 `npx @hypermedia-components/cli add streaming-response` copies this recipe's scaffold (`recipe.html`, `expanded.html`, `contract.md`, `checks.json`); `npx @hypermedia-components/cli validate` machine-checks your copy. The full contract lives in [`recipes/streaming-response/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/streaming-response/contract.md).
 :::
+
+## Live demo
+
+The same composed demo as chat-messages, watched from the stream's side:
+the placeholder the POST appends opens its own SSE connection, `chunk`
+events append escaped text while `aria-busy` defers the announcement,
+and `done` swaps in the complete final `<li>` — which closes the
+EventSource. Stop truncates in one round trip; a prompt containing
+“fail” shows the `error` event and its retry affordance. The demo shares
+the chat-messages namespace (`api/recipes/chat-messages/…`).
+
+<ChatDemo />
 
 ## The blessed markup
 

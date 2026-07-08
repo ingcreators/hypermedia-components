@@ -21,11 +21,13 @@
 import { notFound } from './html.mjs';
 import * as cascadingSelect from './recipes/cascading-select.mjs';
 import * as chart from './recipes/chart.mjs';
+import * as chatMessages from './recipes/chat-messages.mjs';
 import * as confirmAction from './recipes/confirm-action.mjs';
 import * as dataRegion from './recipes/data-region.mjs';
 import * as datagridBulkActions from './recipes/datagrid-bulk-actions.mjs';
 import * as datagridPager from './recipes/datagrid-pager.mjs';
 import * as fieldErrors from './recipes/field-errors.mjs';
+import * as fileUpload from './recipes/file-upload.mjs';
 import * as filterPopover from './recipes/filter-popover.mjs';
 import * as inlineEdit from './recipes/inline-edit.mjs';
 import * as lazyPanel from './recipes/lazy-panel.mjs';
@@ -35,6 +37,8 @@ import * as multiStepForm from './recipes/multi-step-form.mjs';
 import * as mutatingForm from './recipes/mutating-form.mjs';
 import * as remoteDialog from './recipes/remote-dialog.mjs';
 import * as requestAction from './recipes/request-action.mjs';
+import * as sseToast from './recipes/sse-toast.mjs';
+import * as sseUpdates from './recipes/sse-updates.mjs';
 import * as toast from './recipes/toast.mjs';
 import * as transfer from './recipes/transfer.mjs';
 import * as undoDelete from './recipes/undo-delete.mjs';
@@ -42,11 +46,13 @@ import * as undoDelete from './recipes/undo-delete.mjs';
 const RECIPES = new Map([
   ['cascading-select', cascadingSelect],
   ['chart', chart],
+  ['chat-messages', chatMessages],
   ['confirm-action', confirmAction],
   ['data-region', dataRegion],
   ['datagrid-bulk-actions', datagridBulkActions],
   ['datagrid-pager', datagridPager],
   ['field-errors', fieldErrors],
+  ['file-upload', fileUpload],
   ['filter-popover', filterPopover],
   ['inline-edit', inlineEdit],
   ['lazy-panel', lazyPanel],
@@ -56,6 +62,8 @@ const RECIPES = new Map([
   ['mutating-form', mutatingForm],
   ['remote-dialog', remoteDialog],
   ['request-action', requestAction],
+  ['sse-toast', sseToast],
+  ['sse-updates', sseUpdates],
   ['toast', toast],
   ['transfer', transfer],
   ['undo-delete', undoDelete],

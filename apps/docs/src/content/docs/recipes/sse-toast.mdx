@@ -3,6 +3,8 @@ title: SSE toast
 description: Server-pushed notifications — SSE events with JSON payloads become allow-listed DOM events via the dispatch bridge; toasts and data-region invalidations work unchanged.
 ---
 
+import SseToastDemo from '../../../components/recipe-demos/SseToastDemo.astro';
+
 `sse-toast` is the blessed pattern for **server-initiated
 notifications**: the server pushes a named SSE event with a JSON
 payload, and one hidden bridge element turns it into a DOM
@@ -26,6 +28,17 @@ bundle) plus the
 full contract lives in
 [`recipes/sse-toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-toast/contract.md).
 :::
+
+## Live demo
+
+The stream plays a ~15 s scripted sequence once, then closes itself
+with a `demo:done` event (named in `data-sse-close`): a sticky
+*Build #42 started* toast updates in place to *finished* (the
+update-by-`id` pattern), an `items:changed` push makes the region
+below refetch (watch the *Rendered at* time), and a last info toast
+arrives before the close. Reload the page to replay.
+
+<SseToastDemo />
 
 ## The markup
 

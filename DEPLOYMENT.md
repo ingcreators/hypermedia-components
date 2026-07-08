@@ -38,7 +38,8 @@ time. None of them should need editing during a routine deploy.
 | File | Purpose |
 | --- | --- |
 | [`wrangler.jsonc`](wrangler.jsonc) | Worker config. Points the Static Assets binding at `./apps/docs/dist` and wires `worker.mjs` as the entrypoint. |
-| [`worker.mjs`](worker.mjs) | Strips the `/hypermedia-components` base path from incoming URLs and forwards to `env.ASSETS.fetch()`. Bare `/` is redirected to `/hypermedia-components/`. |
+| [`worker.mjs`](worker.mjs) | Strips the `/hypermedia-components` base path from incoming URLs and forwards to `env.ASSETS.fetch()`. Bare `/` is redirected to `/hypermedia-components/`. Routes `api/recipes/*` to the recipe demo API instead of the assets binding. |
+| [`apps/docs/demo-api/`](apps/docs/demo-api/) | The recipe demo API — stateless handlers implementing each `recipes/<name>/contract.md` for the docs' live demos. Bundled into the Worker by `wrangler deploy`; the same module also serves `docs:dev` via a Vite middleware. See [`plans/hc-live-recipe-demos-plan-en.md`](plans/hc-live-recipe-demos-plan-en.md). |
 | [`apps/docs/public/_headers`](apps/docs/public/_headers) | Long-cache for fingerprinted `_astro/*` assets, revalidate for HTML, baseline security headers. Astro copies this into the build root. |
 
 The base-path stripping has to live in JS because Workers Static
@@ -101,6 +102,10 @@ the docs from there. Smoke-check:
 - [ ] Code blocks render with syntax highlighting.
 - [ ] Component preview boxes render (CSS from `@hypermedia-components/core` loaded via the workspace dep).
 - [ ] A deliberate 404 (e.g. `/hypermedia-components/no-such-page`) shows Astro's 404.html, not Cloudflare's default.
+- [ ] The recipe demo API answers: `curl -H "HX-Request: true" "<origin>/hypermedia-components/api/recipes/live-search/items?q=tab"` returns an `hc-list` fragment with `Cache-Control: no-store`.
+- [ ] `/hypermedia-components/api/manifest.json` still serves through Static Assets (the demo API only owns `api/recipes/*`).
+- [ ] A live demo works end-to-end: type into the search box on `/recipes/live-search/` and the results region updates.
+- [ ] An SSE demo streams and terminates: `curl -N "<origin>/hypermedia-components/api/recipes/sse-updates/events"` emits events and closes itself (≤ ~25 s).
 
 If anything is broken, check the Worker logs in the dashboard before
 re-pushing.
