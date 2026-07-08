@@ -3,6 +3,8 @@ title: インライン編集
 description: 表示セルを編集可能な入力欄へ、そしてまた表示へ切り替え。どちら向きも同じ HTML ノードをスワップします。
 ---
 
+import InlineEditDemo from '../../../../components/recipe-demos/InlineEditDemo.astro';
+
 `inline-edit` は最もシンプルな「クリックして編集」パターンです。
 表示状態と編集状態は、同じ URL にあるサーバレンダリングされた 2 つの
 HTML フラグメントで、htmx が `outerHTML` で相互にスワップします。
@@ -15,6 +17,17 @@ HTML フラグメントで、htmx が `outerHTML` で相互にスワップしま
 [`recipes/inline-edit/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/inline-edit/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+**Edit** を押して名前を変えて保存してみてください — 空のまま保存すると
+エラー状態の 422 編集フラグメントが返り、Cancel で元の値に戻れます。
+どの状態もサーバレンダリングされたフラグメントで、契約のデモ実装が
+`api/recipes/inline-edit/` 配下で提供します(ステートレス: 現在の値は
+クエリパラメータで持ち回ります)。実際のアプリでは `/items/42/name`
+など自前の URL を使います。
+
+<InlineEditDemo />
 
 ## 表示状態
 

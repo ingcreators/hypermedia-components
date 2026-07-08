@@ -3,6 +3,8 @@ title: Inline edit
 description: Toggle a display cell to an editable input and back, swapping the same HTML node each way.
 ---
 
+import InlineEditDemo from '../../../components/recipe-demos/InlineEditDemo.astro';
+
 `inline-edit` is the simplest "click to edit" pattern. The display
 state and the edit state are two server-rendered HTML fragments at
 the same URL, and htmx swaps between them with `outerHTML`.
@@ -14,6 +16,18 @@ the same URL, and htmx swaps between them with `outerHTML`.
 full contract lives in
 [`recipes/inline-edit/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/inline-edit/contract.md).
 :::
+
+## Live demo
+
+Activate **Edit**, change the name, and save — or save it blank to see
+the 422 edit fragment with the error state, then Cancel back to the
+original value. Every state is a server-rendered fragment from a demo
+implementation of the contract, namespaced under
+`api/recipes/inline-edit/` (stateless: the current value rides along
+as a query parameter); your app would use its own URL such as
+`/items/42/name`.
+
+<InlineEditDemo />
 
 ## Display state
 

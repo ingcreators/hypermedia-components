@@ -1,0 +1,19 @@
+---
+/*
+ * Live demo for the multi-step-form recipe. The wizard fragment
+ * (stepper + step form, recipes/multi-step-form/expanded.html) is
+ * always rendered by the demo API — this wrapper only fetches step 1
+ * on load, so the server stays the single source of the markup.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/multi-step-form`;
+---
+
+<DemoFrame class="hc-preview--col" label="Multi-step form demo">
+  <div
+    data-hx-get={`${api}/signup/1`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+</DemoFrame>

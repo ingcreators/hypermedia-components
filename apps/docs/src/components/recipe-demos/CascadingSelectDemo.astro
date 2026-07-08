@@ -1,0 +1,44 @@
+---
+/*
+ * Live demo for the cascading-select recipe. Same markup as
+ * recipes/cascading-select/expanded.html, pointed at the demo API
+ * namespace (a real app would use its own URLs such as
+ * `/areas/cities`). Each parent's `change` GETs the child <select>;
+ * deeper levels come back reset out of band.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/cascading-select`;
+---
+
+<DemoFrame class="hc-preview--col" label="Cascading select demo">
+  <div class="hc-field">
+    <label class="hc-field__label" for="cascading-select-demo-prefecture">Prefecture</label>
+    <select
+      class="hc-select"
+      id="cascading-select-demo-prefecture"
+      name="prefecture"
+      data-hx-get={`${api}/areas/cities`}
+      data-hx-include="this"
+      data-hx-target="#cascading-select-demo-city"
+      data-hx-swap="outerHTML">
+      <option value="">Select…</option>
+      <option value="13">Tokyo</option>
+      <option value="27">Osaka</option>
+    </select>
+  </div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="cascading-select-demo-city">City</label>
+    <select class="hc-select" id="cascading-select-demo-city" name="city" disabled>
+      <option value="">Select a prefecture first</option>
+    </select>
+  </div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="cascading-select-demo-ward">Ward</label>
+    <select class="hc-select" id="cascading-select-demo-ward" name="ward" disabled>
+      <option value="">Select a city first</option>
+    </select>
+  </div>
+</DemoFrame>

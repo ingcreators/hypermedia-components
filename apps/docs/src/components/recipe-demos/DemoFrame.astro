@@ -39,10 +39,14 @@ const classes = ['hc-preview', 'not-content', extra].filter(Boolean).join(' ');
 </div>
 
 <script>
-  import 'htmx.org';
+  import htmx from 'htmx.org';
   // The SSE extension's ESM build imports htmx itself; registering it
   // unconditionally keeps this bootstrap identical on every page.
   import 'htmx-ext-sse';
+
+  // The ESM build does not register the usual global. Expose it so
+  // demo tests (and curious readers) can detect readiness.
+  window.htmx = htmx;
 
   // The recipe contracts standardize on 422 responses carrying a
   // fragment (field errors, invalid wizard steps, …). htmx ≥ 2 does

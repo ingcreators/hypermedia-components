@@ -1,0 +1,20 @@
+---
+/*
+ * Live demo for the transfer recipe. The whole form is the swap unit
+ * and every response re-renders it (recipes/transfer/expanded.html) —
+ * this wrapper only fetches the initial membership state on load, so
+ * the server stays the single source of the form markup. Membership is
+ * threaded statelessly through the form's own `?assigned=` URLs.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/transfer`;
+---
+
+<DemoFrame class="hc-preview--col" label="Transfer demo">
+  <div
+    data-hx-get={`${api}/roles/42/members?assigned=2`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+</DemoFrame>

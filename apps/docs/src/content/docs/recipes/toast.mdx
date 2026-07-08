@@ -4,6 +4,7 @@ description: Transient notification dispatched from the server (HX-Trigger) or t
 ---
 
 import Demo from '../../../components/Demo.astro';
+import ToastDemo from '../../../components/recipe-demos/ToastDemo.astro';
 
 A toast is a short, time-limited notification that appears in a corner
 of the screen. The `installToast` behavior listens for `hc:toast`
@@ -30,6 +31,18 @@ See [Installation](/hypermedia-components/start/installation/).
 full contract lives in
 [`recipes/toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/toast/contract.md).
 :::
+
+## Live demo
+
+Each button POSTs to a demo endpoint that answers `204 No Content` plus
+an `HX-Trigger: {"hc:toast":…}` header — htmx dispatches the event on
+`<body>` and `installToast` renders it. Unlike the client-dispatched
+preview further down the page, these toasts round-trip through a real
+endpoint: a namespaced demo implementation of the server contract under
+`api/recipes/toast/`. The **Sticky error** toast has `duration: 0`, so
+it stays until the page reloads.
+
+<ToastDemo />
 
 ## Markup
 

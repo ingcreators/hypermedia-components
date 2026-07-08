@@ -3,6 +3,8 @@ title: Transfer
 description: A dual listbox (assign / unassign) as a server round trip — checkbox panes, add/remove submit buttons, and a whole-form swap. Zero custom JavaScript.
 ---
 
+import TransferDemo from '../../../components/recipe-demos/TransferDemo.astro';
+
 Assign and unassign members, permissions, or categories with two panes
 and move buttons — Ant Design's Transfer / PrimeVue's PickList, done the
 hypermedia way: **membership lives on the server**, every move is a POST
@@ -16,6 +18,17 @@ serialization, the verbs by submit buttons — zero custom JavaScript.
 full contract lives in
 [`recipes/transfer/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/transfer/contract.md).
 :::
+
+## Live demo
+
+Check members and move them with the arrow buttons — every move is a
+real POST and the whole form comes back re-rendered (counts refreshed,
+boxes cleared); moving nothing answers a 422 with an inline alert. The
+endpoint is a namespaced demo implementation of the
+[server response contract](#server-response-contract) under
+`api/recipes/transfer/`.
+
+<TransferDemo />
 
 ## The markup
 

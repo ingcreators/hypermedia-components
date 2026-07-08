@@ -3,6 +3,8 @@ title: Request action
 description: A button that sends an htmx request and shows a spinner while in flight.
 ---
 
+import RequestActionDemo from '../../../components/recipe-demos/RequestActionDemo.astro';
+
 `request-action` is the simplest htmx pattern with first-class loading
 feedback. The button stays a normal `<button>`; htmx owns the request;
 a sibling `.hc-spinner` (marked as an `htmx-indicator`) shows progress.
@@ -14,6 +16,17 @@ a sibling `.hc-spinner` (marked as an `htmx-indicator`) shows progress.
 full contract lives in
 [`recipes/request-action/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/request-action/contract.md).
 :::
+
+## Live demo
+
+Click **Add item** — the button POSTs a real htmx request, the button
+disables itself and the spinner shows while in flight, the whole region
+is swapped `outerHTML`, and an `HX-Trigger` header raises a success
+toast. The endpoint is a namespaced demo implementation of the server
+contract under `api/recipes/request-action/` (a real app would use its
+own URL such as `/items`).
+
+<RequestActionDemo />
 
 ## Basic usage
 

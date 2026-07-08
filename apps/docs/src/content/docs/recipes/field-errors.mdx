@@ -4,6 +4,7 @@ description: Distribute a server-sent validation-error fragment to the form fiel
 ---
 
 import Demo from '../../../components/Demo.astro';
+import FieldErrorsDemo from '../../../components/recipe-demos/FieldErrorsDemo.astro';
 
 `field-errors` is the kit's contract for **server-side validation
 errors** over htmx. The server answers a failed submission (typically a
@@ -34,6 +35,18 @@ See [Installation](/hypermedia-components/start/installation/).
 full contract lives in
 [`recipes/field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md).
 :::
+
+## Live demo
+
+Submit with the email left blank to see the `required` error, or use
+`taken@example.com` to see the `duplicate` item distributed into the
+field (message, `aria-invalid`, focus). Any other email succeeds: the
+server answers with an empty body that clears the errors, plus an
+`HX-Trigger` toast. The endpoint is a demo implementation of the
+server contract below, namespaced under `api/recipes/field-errors/` —
+your app would use its own URL such as `/members`.
+
+<FieldErrorsDemo />
 
 ## The fragment
 

@@ -3,6 +3,8 @@ title: カスケードセレクト
 description: 階層選択(Cascader)を連鎖する select で — 各レベルの change が次のレベルの選択肢をサーバから取得。カスタム JavaScript ゼロ。
 ---
 
+import CascadingSelectDemo from '../../../../components/recipe-demos/CascadingSelectDemo.astro';
+
 国 → 都道府県 → 市区町村、カテゴリ → サブカテゴリ — Ant Design の
 Cascader を、ハイパーメディア流で: 各レベルの `change` が次のレベルの
 選択肢をサーバから GET する**連鎖した `<select>`** です。カスタム
@@ -17,6 +19,16 @@ JavaScript はゼロ:
 [`recipes/cascading-select/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/cascading-select/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+都道府県を選んでみてください — その `change` が実際の htmx リクエストで
+市区町村の選択肢を GET し、同じレスポンスが区レベルをアウトオブバンドで
+リセットします。プレースホルダーを選び直すと連鎖が巻き戻ります。
+エンドポイントはサーバレスポンス契約を実装した名前空間付きデモで、
+`api/recipes/cascading-select/` 配下にあります。
+
+<CascadingSelectDemo />
 
 ## マークアップ
 

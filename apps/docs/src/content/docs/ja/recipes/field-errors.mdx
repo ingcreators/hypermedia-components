@@ -4,6 +4,7 @@ description: サーバが送るバリデーションエラーフラグメント�
 ---
 
 import Demo from '../../../../components/Demo.astro';
+import FieldErrorsDemo from '../../../../components/recipe-demos/FieldErrorsDemo.astro';
 
 `field-errors` は、htmx 越しの**サーバサイドバリデーションエラー**の
 ためのキットの契約です。サーバは失敗した送信(通常 `422`)に、問題の
@@ -35,6 +36,18 @@ installFieldErrors();
 [`recipes/field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+メールを空のまま送信すると `required` エラーが、`taken@example.com` を
+使うと `duplicate` の項目がフィールドへ振り分けられます(メッセージ、
+`aria-invalid`、フォーカス)。それ以外のメールは成功します: サーバは
+エラーをクリアする空ボディと `HX-Trigger` トーストで応答します。
+エンドポイントは下記サーバ契約のデモ実装で、`api/recipes/field-errors/`
+配下に置かれています(実際のアプリでは `/members` など自前の URL を
+使います)。
+
+<FieldErrorsDemo />
 
 ## フラグメント
 
