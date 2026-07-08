@@ -3,9 +3,21 @@ title: Live search
 description: An input that issues a debounced htmx request as the user types and replaces a results region.
 ---
 
+import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astro';
+
 Live search is a search input wired to htmx so the results region
 updates as the user types. The form still works without JavaScript —
 htmx attributes hang off a real `<form action="/items" method="get">`.
+
+## Live demo
+
+Type below — each keystroke (debounced 300 ms) issues a real htmx
+request to a demo endpoint served by this docs site's Worker, which
+implements the [server response contract](#server-response-contract).
+The demo endpoint lives under `api/recipes/live-search/`; your app
+would use its own URL such as `/items`.
+
+<LiveSearchDemo />
 
 :::tip[Scaffold]
 `npx @hypermedia-components/cli add live-search` copies this recipe's scaffold

@@ -3,6 +3,7 @@ import starlight from '@astrojs/starlight';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import rehypeHcTables from './rehype-hc-tables.mjs';
+import { demoApiDevPlugin } from './demo-api/vite-plugin.mjs';
 
 export default defineConfig({
   site: 'https://ingcreators.com',
@@ -289,4 +290,10 @@ export default defineConfig({
       },
     }),
   ],
+  // Mount the recipe demo API in `astro dev` / `astro preview` on the
+  // same /api/recipes/ prefix the Cloudflare Worker serves in
+  // production, so the live demos on the recipe pages work locally.
+  vite: {
+    plugins: [demoApiDevPlugin()],
+  },
 });

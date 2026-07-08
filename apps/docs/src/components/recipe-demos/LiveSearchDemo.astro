@@ -1,0 +1,35 @@
+---
+/*
+ * Live demo for the live-search recipe. Same markup as
+ * recipes/live-search/expanded.html, pointed at the demo API
+ * namespace (a real app would use its own URL such as `/items`).
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/live-search`;
+---
+
+<DemoFrame class="hc-preview--col" label="Live search demo">
+  <form class="hc-search" action={`${api}/items`} method="get" role="search">
+    <input
+      class="hc-input"
+      type="search"
+      name="q"
+      placeholder="Search components"
+      aria-label="Search components"
+      data-hx-get={`${api}/items`}
+      data-hx-trigger="input changed delay:300ms, search"
+      data-hx-target="#live-search-demo-results"
+      data-hx-swap="innerHTML"
+      data-hx-sync="closest form:replace" />
+    <button class="hc-button" type="submit">Search</button>
+  </form>
+
+  <div
+    id="live-search-demo-results"
+    aria-live="polite"
+    data-hx-get={`${api}/items`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+</DemoFrame>
