@@ -212,12 +212,52 @@ optional attributes keep filtering and selection clean:
 - **`data-search`** — the text the filter matches against (otherwise the
   label). Use it to match aliases / keywords that aren't shown.
 
-```html
-<li class="hc-combobox__option" role="option" data-value="jp"
-    data-label="Japan" data-search="japan nippon 日本 jp">
-  <img src="/flags/jp.svg" alt=""> <strong>Japan</strong> <small>Asia</small>
-</li>
-```
+<Demo>
+  <div class="hc-combobox" style="max-inline-size:18rem;">
+    <input class="hc-combobox__input hc-input"
+           type="text"
+           role="combobox"
+           aria-controls="demo-rich-cb-list"
+           aria-label="Country" />
+    <ul class="hc-combobox__listbox" id="demo-rich-cb-list" role="listbox">
+      <li class="hc-combobox__option" role="option" data-value="jp"
+          data-label="Japan" data-search="japan nippon 日本 jp">🇯🇵 <strong>Japan</strong> <small>Asia</small></li>
+      <li class="hc-combobox__option" role="option" data-value="fr"
+          data-label="France" data-search="france fr">🇫🇷 <strong>France</strong> <small>Europe</small></li>
+      <li class="hc-combobox__option" role="option" data-value="br"
+          data-label="Brazil" data-search="brazil brasil br">🇧🇷 <strong>Brazil</strong> <small>South America</small></li>
+    </ul>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-combobox">
+    <input class="hc-combobox__input hc-input"
+           type="text"
+           role="combobox"
+           aria-controls="country-rich-list"
+           aria-label="Country">
+
+    <ul class="hc-combobox__listbox" id="country-rich-list" role="listbox">
+      <li class="hc-combobox__option" role="option" data-value="jp"
+          data-label="Japan" data-search="japan nippon 日本 jp">
+        🇯🇵 <strong>Japan</strong> <small>Asia</small>
+      </li>
+      <li class="hc-combobox__option" role="option" data-value="fr"
+          data-label="France" data-search="france fr">
+        🇫🇷 <strong>France</strong> <small>Europe</small>
+      </li>
+      <li class="hc-combobox__option" role="option" data-value="br"
+          data-label="Brazil" data-search="brazil brasil br">
+        🇧🇷 <strong>Brazil</strong> <small>South America</small>
+      </li>
+    </ul>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 The filter hides non-matching options with the `hidden` attribute. If you give
 options a `display` (flex/grid) for the rich layout, **scope it to

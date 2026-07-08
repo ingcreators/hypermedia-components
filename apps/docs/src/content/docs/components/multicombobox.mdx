@@ -214,12 +214,58 @@ for the tag's label and the matched value, and **`data-search`** for the
 filter haystack (aliases/keywords), so the rich markup's text doesn't pollute
 either:
 
-```html
-<li class="hc-multicombobox__option" role="option" data-value="py"
-    data-label="Python" data-search="python py snake">
-  <strong>Python</strong> <small>scripting</small>
-</li>
-```
+<Demo>
+  <div class="hc-multicombobox" style="max-inline-size:22rem;">
+    <div class="hc-multicombobox__control hc-input">
+      <span class="hc-multicombobox__tags"></span>
+      <input class="hc-multicombobox__input"
+             type="text"
+             role="combobox"
+             aria-controls="demo-rich-mc-list"
+             aria-label="Languages" />
+    </div>
+    <ul class="hc-multicombobox__listbox" id="demo-rich-mc-list" role="listbox">
+      <li class="hc-multicombobox__option" role="option" data-value="py"
+          data-label="Python" data-search="python py snake"><strong>Python</strong> <small>scripting</small></li>
+      <li class="hc-multicombobox__option" role="option" data-value="js"
+          data-label="JavaScript" data-search="javascript js node"><strong>JavaScript</strong> <small>web</small></li>
+      <li class="hc-multicombobox__option" role="option" data-value="go"
+          data-label="Go" data-search="go golang"><strong>Go</strong> <small>services</small></li>
+    </ul>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-multicombobox" data-name="languages">
+    <div class="hc-multicombobox__control hc-input">
+      <span class="hc-multicombobox__tags"></span>
+      <input class="hc-multicombobox__input"
+             type="text"
+             role="combobox"
+             aria-controls="lang-rich-list"
+             aria-label="Languages">
+    </div>
+
+    <ul class="hc-multicombobox__listbox" id="lang-rich-list" role="listbox">
+      <li class="hc-multicombobox__option" role="option" data-value="py"
+          data-label="Python" data-search="python py snake">
+        <strong>Python</strong> <small>scripting</small>
+      </li>
+      <li class="hc-multicombobox__option" role="option" data-value="js"
+          data-label="JavaScript" data-search="javascript js node">
+        <strong>JavaScript</strong> <small>web</small>
+      </li>
+      <li class="hc-multicombobox__option" role="option" data-value="go"
+          data-label="Go" data-search="go golang">
+        <strong>Go</strong> <small>services</small>
+      </li>
+    </ul>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 If you set a `display` on options for the rich layout, scope it to
 `:not([hidden])` so it doesn't override the filter's hide.

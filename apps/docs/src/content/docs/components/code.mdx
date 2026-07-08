@@ -41,9 +41,17 @@ WHERE active = true</code></pre>
 Long lines scroll horizontally by default. Set `data-wrap="on"` to soft-wrap
 them instead.
 
-```html
-<pre class="hc-code" data-wrap="on"><code>SELECT a_very_long_column_name, another_long_one FROM a_table_with_a_long_name</code></pre>
-```
+<Demo previewClass="hc-preview--col hc-preview--start" previewStyle="max-inline-size:24rem;">
+  <pre class="hc-code" data-wrap="on"><code>SELECT a_very_long_column_name, another_long_one FROM a_table_with_a_long_name</code></pre>
+
+  <Fragment slot="code">
+
+  ```html
+  <pre class="hc-code" data-wrap="on"><code>SELECT a_very_long_column_name, another_long_one FROM a_table_with_a_long_name</code></pre>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Line numbers &amp; per-line state
 

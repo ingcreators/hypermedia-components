@@ -138,13 +138,22 @@ calendar.addEventListener('hc:calendarchange', (e) => {
 (または <kbd>Enter</kbd>)が開始を、次が終了を設定し(開始 ≤ 終了に
 なるよう自動入れ替え)、3 回目は新しい範囲を始めます。2 つ目の端を
 選んでいる間、暫定の帯がポインタまたはキーボードフォーカスの下で
-プレビューされます。
+プレビューされます。試してみてください — 下で新しい開始日と終了日を
+選べます:
 
-```html
-<div class="hc-calendar" data-mode="range"
-     data-value="2026-05-10/2026-05-14"
-     data-name="stay" aria-label="Pick a date range"></div>
-```
+<Demo>
+  <div class="hc-calendar" data-mode="range" data-value="2026-05-10/2026-05-14" data-locale="en-US" aria-label="Pick a date range"></div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-calendar" data-mode="range"
+       data-value="2026-05-10/2026-05-14"
+       data-name="stay" aria-label="Pick a date range"></div>
+  ```
+
+  </Fragment>
+</Demo>
 
 両端の間の日は `data-in-range` を運びます(`data-range-start` /
 `data-range-end` マーカーと、選択中の `data-range-preview*` つき)ので、

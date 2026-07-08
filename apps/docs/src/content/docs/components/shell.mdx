@@ -213,19 +213,42 @@ without custom CSS: put a `.hc-spacer` where the content should split,
 and everything after it — a back link, action links, a badge — sits at
 the inline end:
 
-```html
-<header class="hc-shell__header">
-  <button class="hc-button" data-variant="ghost"
-          data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
-  <strong>Outbox events</strong>
-  <span class="hc-badge" data-variant="warning">3 pending</span>
-  <span class="hc-spacer"></span>
-  <nav class="hc-cluster" aria-label="Page actions">
-    <a class="hc-button" data-variant="ghost" data-size="sm" href="/ops/console">← Back</a>
-    <a class="hc-button" data-size="sm" href="/ops/console/outbox/export">Export</a>
-  </nav>
-</header>
-```
+<Demo>
+  <div class="hc-shell" style="block-size: 16rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header">
+      <strong>Outbox events</strong>
+      <span class="hc-badge" data-variant="warning">3 pending</span>
+      <span class="hc-spacer"></span>
+      <nav class="hc-cluster" aria-label="Page actions">
+        <a class="hc-button" data-variant="ghost" data-size="sm" href="#shell-header-back">← Back</a>
+        <a class="hc-button" data-size="sm" href="#shell-header-export">Export</a>
+      </nav>
+    </header>
+    <nav class="hc-shell__sidebar" aria-label="Demo navigation">
+      <div>Dashboard</div>
+      <div>Orders</div>
+    </nav>
+    <main class="hc-shell__main">Everything after the spacer sits at the inline end of the header.</main>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <header class="hc-shell__header">
+    <button class="hc-button" data-variant="ghost"
+            data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+    <strong>Outbox events</strong>
+    <span class="hc-badge" data-variant="warning">3 pending</span>
+    <span class="hc-spacer"></span>
+    <nav class="hc-cluster" aria-label="Page actions">
+      <a class="hc-button" data-variant="ghost" data-size="sm" href="/ops/console">← Back</a>
+      <a class="hc-button" data-size="sm" href="/ops/console/outbox/export">Export</a>
+    </nav>
+  </header>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Optional aside
 
@@ -233,14 +256,30 @@ Add an `<aside class="hc-shell__aside">` as a direct child and the grid
 grows a third column automatically (detected with `:has()`). On mobile it
 drops below `main` in normal flow.
 
-```html
-<div class="hc-shell">
-  <header class="hc-shell__header">…</header>
-  <nav class="hc-shell__sidebar">…</nav>
-  <main class="hc-shell__main">…</main>
-  <aside class="hc-shell__aside">…</aside>
-</div>
-```
+<Demo>
+  <div class="hc-shell" style="block-size: 16rem; --hc-shell-sidebar-width: 9rem; --hc-shell-aside-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme</strong></header>
+    <nav class="hc-shell__sidebar" aria-label="Demo navigation">
+      <div>Dashboard</div>
+      <div>Orders</div>
+    </nav>
+    <main class="hc-shell__main">Main content.</main>
+    <aside class="hc-shell__aside">Aside — a third column, added automatically.</aside>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-shell">
+    <header class="hc-shell__header">…</header>
+    <nav class="hc-shell__sidebar">…</nav>
+    <main class="hc-shell__main">…</main>
+    <aside class="hc-shell__aside">…</aside>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Responsive behavior
 
@@ -289,24 +328,45 @@ with `data-collapsible` on the `.hc-shell__sidebar`, add a
 `[data-hc-shell-collapse]` button anywhere in the shell, and (optionally)
 `data-persist="<key>"` to remember the state in `localStorage`:
 
-```html
-<div class="hc-shell">
-  <header class="hc-shell__header">
-    <button data-hc-shell-toggle …>Menu</button>
-    <button data-hc-shell-collapse type="button" aria-label="Collapse sidebar">⇔</button>
-  </header>
+<Demo>
+  <div class="hc-shell" style="block-size: 16rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header">
+      <button class="hc-button" data-variant="ghost" data-hc-shell-collapse type="button" aria-label="Collapse sidebar">⇔</button>
+      <strong>Acme</strong>
+    </header>
+    <nav class="hc-shell__sidebar" aria-label="Demo navigation" data-collapsible>
+      <a class="hc-item" href="#shell-collapse-dashboard"><span class="hc-item__media" aria-hidden="true">▦</span><span class="hc-item__title hc-shell__label">Dashboard</span></a>
+      <a class="hc-item" href="#shell-collapse-orders"><span class="hc-item__media" aria-hidden="true">▤</span><span class="hc-item__title hc-shell__label">Orders</span></a>
+    </nav>
+    <main class="hc-shell__main">Press ⇔ — the labels hide, the icons remain.</main>
+  </div>
 
-  <nav class="hc-shell__sidebar" aria-label="Primary"
-       data-collapsible data-persist="app.sidebar">
-    <ul>
-      <li><a href="/"><span aria-hidden="true">▦</span>
-        <span class="hc-shell__label">Dashboard</span></a></li>
-      …
-    </ul>
-  </nav>
-  …
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-shell">
+    <header class="hc-shell__header">
+      <button data-hc-shell-collapse type="button" aria-label="Collapse sidebar">⇔</button>
+    </header>
+
+    <nav class="hc-shell__sidebar" aria-label="Primary"
+         data-collapsible data-persist="app.sidebar">
+      <a class="hc-item" href="/dashboard">
+        <span class="hc-item__media" aria-hidden="true">▦</span>
+        <span class="hc-item__title hc-shell__label">Dashboard</span>
+      </a>
+      <a class="hc-item" href="/orders">
+        <span class="hc-item__media" aria-hidden="true">▤</span>
+        <span class="hc-item__title hc-shell__label">Orders</span>
+      </a>
+    </nav>
+
+    <main class="hc-shell__main">…</main>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 `installShell()` toggles `data-sidebar-collapsed` on the shell (the CSS
 narrows the grid column from `--hc-shell-sidebar-width` to

@@ -55,6 +55,7 @@ htmx でスワップされた内容も自動で拾います。
 
 <Demo previewClass="hc-preview--start">
   <span>Pass rate <span class="hc-sparkline" data-variant="success" data-area="" data-values="0.9,0.92,0.95,0.97,0.99" aria-label="Pass-rate trend"></span></span>
+  <span>Flaky rate <span class="hc-sparkline" data-variant="warning" data-values="0.04,0.03,0.06,0.05,0.08" aria-label="Flaky-rate trend"></span></span>
   <span>Error rate <span class="hc-sparkline" data-variant="error" data-values="0.01,0.02,0.05,0.08,0.12" aria-label="Error-rate trend"></span></span>
 
   <Fragment slot="code">
@@ -62,6 +63,9 @@ htmx でスワップされた内容も自動で拾います。
   ```html
   <span class="hc-sparkline" data-variant="success" data-area
         data-values="0.9,0.92,0.95,0.97,0.99" aria-label="Pass-rate trend"></span>
+
+  <span class="hc-sparkline" data-variant="warning"
+        data-values="0.04,0.03,0.06,0.05,0.08" aria-label="Flaky-rate trend"></span>
 
   <span class="hc-sparkline" data-variant="error"
         data-values="0.01,0.02,0.05,0.08,0.12" aria-label="Error-rate trend"></span>

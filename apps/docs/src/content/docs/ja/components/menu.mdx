@@ -200,22 +200,47 @@ shadcn の destructive バリアントに倣い、メニュー項目の
 [`hc-context-menu`](/hypermedia-components/ja/components/context-menu/)の
 サブメニューも無料で駆動します。
 
-```html
-<div class="hc-menu" id="edit-menu" popover role="menu"
-     aria-labelledby="edit-trigger">
-  <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+<Demo>
+  <button class="hc-button" type="button" popovertarget="demo-edit-menu" id="demo-edit-trigger">
+    Edit
+  </button>
 
-  <!-- parent: data-hc-submenu references the nested menu's id -->
-  <button class="hc-menu__item" role="menuitem" type="button"
-          data-hc-submenu="edit-more">More tools</button>
-  <div class="hc-menu" id="edit-more" role="menu" aria-label="More tools">
-    <button class="hc-menu__item" role="menuitem" type="button">Inspect</button>
-    <button class="hc-menu__item" role="menuitem" type="button">Save as…</button>
+  <div class="hc-menu" id="demo-edit-menu" popover role="menu" aria-labelledby="demo-edit-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+    <button class="hc-menu__item" role="menuitem" type="button" data-hc-submenu="demo-edit-more">More tools</button>
+    <div class="hc-menu" id="demo-edit-more" role="menu" aria-label="More tools">
+      <button class="hc-menu__item" role="menuitem" type="button">Inspect</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Save as…</button>
+    </div>
+    <button class="hc-menu__item" role="menuitem" type="button">Paste</button>
   </div>
 
-  <button class="hc-menu__item" role="menuitem" type="button">Paste</button>
-</div>
-```
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button" type="button"
+          popovertarget="edit-menu" id="edit-trigger">
+    Edit
+  </button>
+
+  <div class="hc-menu" id="edit-menu" popover role="menu"
+       aria-labelledby="edit-trigger">
+    <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+
+    <!-- parent: data-hc-submenu references the nested menu's id -->
+    <button class="hc-menu__item" role="menuitem" type="button"
+            data-hc-submenu="edit-more">More tools</button>
+    <div class="hc-menu" id="edit-more" role="menu" aria-label="More tools">
+      <button class="hc-menu__item" role="menuitem" type="button">Inspect</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Save as…</button>
+    </div>
+
+    <button class="hc-menu__item" role="menuitem" type="button">Paste</button>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 サブメニューをルートの popover 内に入れ子にすることが、サブメニュー
 表示中もルートを開いたまま保つ当のものです(HTML popover の

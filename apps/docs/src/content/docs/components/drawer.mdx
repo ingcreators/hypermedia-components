@@ -92,12 +92,72 @@ Right/left drawers fill the viewport height and cap their width at
 `--hc-drawer-side-max-width`; top/bottom drawers fill the viewport
 width and cap their height at `--hc-drawer-vert-max-height`.
 
-```html
-<dialog class="hc-drawer" data-side="right">…</dialog>
-<dialog class="hc-drawer" data-side="left">…</dialog>
-<dialog class="hc-drawer" data-side="top">…</dialog>
-<dialog class="hc-drawer" data-side="bottom">…</dialog>
-```
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" type="button" onclick="document.getElementById('demo-sides-left').showModal()">Open left</button>
+  <button class="hc-button" type="button" onclick="document.getElementById('demo-sides-top').showModal()">Open top</button>
+  <button class="hc-button" type="button" onclick="document.getElementById('demo-sides-bottom').showModal()">Open bottom</button>
+  <dialog class="hc-drawer" data-side="left" id="demo-sides-left">
+    <header class="hc-drawer__header">
+      <h2 class="hc-drawer__title">Left drawer</h2>
+      <form method="dialog">
+        <button class="hc-button" data-variant="ghost" data-size="sm" type="submit" aria-label="Close">×</button>
+      </form>
+    </header>
+    <div class="hc-drawer__body">
+      <p>Slides in from the left edge.</p>
+    </div>
+  </dialog>
+  <dialog class="hc-drawer" data-side="top" id="demo-sides-top">
+    <header class="hc-drawer__header">
+      <h2 class="hc-drawer__title">Top drawer</h2>
+      <form method="dialog">
+        <button class="hc-button" data-variant="ghost" data-size="sm" type="submit" aria-label="Close">×</button>
+      </form>
+    </header>
+    <div class="hc-drawer__body">
+      <p>Slides in from the top edge.</p>
+    </div>
+  </dialog>
+  <dialog class="hc-drawer" data-side="bottom" id="demo-sides-bottom">
+    <header class="hc-drawer__header">
+      <h2 class="hc-drawer__title">Bottom drawer</h2>
+      <form method="dialog">
+        <button class="hc-button" data-variant="ghost" data-size="sm" type="submit" aria-label="Close">×</button>
+      </form>
+    </header>
+    <div class="hc-drawer__body">
+      <p>Slides in from the bottom edge.</p>
+    </div>
+  </dialog>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button" type="button"
+          onclick="document.getElementById('left-drawer').showModal()">
+    Open left
+  </button>
+
+  <dialog class="hc-drawer" data-side="left" id="left-drawer">
+    <header class="hc-drawer__header">
+      <h2 class="hc-drawer__title">Left drawer</h2>
+      <form method="dialog">
+        <button class="hc-button" data-variant="ghost" data-size="sm"
+                type="submit" aria-label="Close">×</button>
+      </form>
+    </header>
+    <div class="hc-drawer__body">
+      <p>Slides in from the left edge.</p>
+    </div>
+  </dialog>
+
+  <!-- same structure, other edges -->
+  <dialog class="hc-drawer" data-side="top" id="top-drawer">…</dialog>
+  <dialog class="hc-drawer" data-side="bottom" id="bottom-drawer">…</dialog>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Closing the drawer
 

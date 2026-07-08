@@ -93,16 +93,30 @@ import Demo from '../../../../components/Demo.astro';
 [field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)が
 htmx 越しのサーバサイドバリデーションのために定義するワイヤ形式です:
 
-```html
-<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
-  <p class="hc-alert__title">Unprocessable Entity</p>
-  <ul class="hc-alert__errors">
-    <li class="hc-alert__error" data-field="email" data-code="duplicate">
-      email: duplicate</li>
-  </ul>
-  <p class="hc-alert__body">optional hint line</p>
-</div>
-```
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:36rem;">
+  <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+    <p class="hc-alert__title">Unprocessable Entity</p>
+    <ul class="hc-alert__errors">
+      <li class="hc-alert__error" data-field="email" data-code="duplicate">email: duplicate</li>
+    </ul>
+    <p class="hc-alert__body">optional hint line</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+    <p class="hc-alert__title">Unprocessable Entity</p>
+    <ul class="hc-alert__errors">
+      <li class="hc-alert__error" data-field="email" data-code="duplicate">
+        email: duplicate</li>
+    </ul>
+    <p class="hc-alert__body">optional hint line</p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 `installFieldErrors()` がアクティブなら、各 `.hc-alert__error` は
 その `data-field` が名指しするフィールドへ振り分けられ、サマリーでは

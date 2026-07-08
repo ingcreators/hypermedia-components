@@ -67,11 +67,47 @@ table is announceable to assistive tech.
 
 `data-density="compact"` reduces vertical padding for data-dense lists.
 
-```html
-<table class="hc-table" data-density="compact">
-  …
-</table>
-```
+<Demo previewClass="hc-preview--col">
+  <small>Default</small>
+  <table class="hc-table">
+    <thead>
+      <tr><th scope="col">Name</th><th scope="col">Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Order #123</td><td>Active</td></tr>
+      <tr><td>Order #124</td><td>Pending</td></tr>
+      <tr><td>Order #125</td><td>Draft</td></tr>
+    </tbody>
+  </table>
+  <small>data-density="compact"</small>
+  <table class="hc-table" data-density="compact">
+    <thead>
+      <tr><th scope="col">Name</th><th scope="col">Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Order #123</td><td>Active</td></tr>
+      <tr><td>Order #124</td><td>Pending</td></tr>
+      <tr><td>Order #125</td><td>Draft</td></tr>
+    </tbody>
+  </table>
+
+  <Fragment slot="code">
+
+  ```html
+  <table class="hc-table" data-density="compact">
+    <thead>
+      <tr><th scope="col">Name</th><th scope="col">Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Order #123</td><td>Active</td></tr>
+      <tr><td>Order #124</td><td>Pending</td></tr>
+      <tr><td>Order #125</td><td>Draft</td></tr>
+    </tbody>
+  </table>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Key-value variant
 

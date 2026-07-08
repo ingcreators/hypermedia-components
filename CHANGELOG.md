@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Component docs — previews for every documented variant** (en +
+  ja; audit follow-up to the chart-types fix). Fifteen pages gain
+  live Demos for capabilities that were code-fence- or prose-only:
+  calendar range selection, drawer `data-side` left/top/bottom,
+  shell header actions / optional aside / collapsible icon rail,
+  menu submenus, combobox & multicombobox rich options, datagrid
+  sideways headers, timeline error/info variants, stepper clickable
+  completed step, table compact density, alert validation-error
+  fragment, aspect `data-fit="contain"`, carousel slide width, code
+  soft-wrap, and the sparkline warning variant.
+
 - **Chart recipe docs — a live preview for every chart type** (en +
   ja). `line`, `area`, `bar-stacked`, `bar-grouped`, `scatter`,
   `sparkline`, `histogram` and `heatmap` now each have a rendered
