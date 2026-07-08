@@ -1,0 +1,29 @@
+---
+/*
+ * Live demo for the remote-dialog recipe. The button fetches a
+ * complete <dialog class="hc-dialog"> fragment from the demo API
+ * (apps/docs/demo-api/recipes/remote-dialog.mjs); after the swap into
+ * the [data-hc-remote-dialog-root] host, the auto-installed
+ * installRemoteDialog behavior showModal()s it. Submitting with a
+ * blank name gets the 422 error-state dialog back (the dialog stays
+ * open — installCloseDialog only closes on 2xx); a valid save returns
+ * an empty 200 whose outerHTML swap removes the dialog, plus a toast.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/remote-dialog`;
+---
+
+<DemoFrame label="Remote dialog demo">
+  <button
+    class="hc-button"
+    type="button"
+    data-hx-get={`${api}/items/123/edit`}
+    data-hx-target="#remote-dialog-demo-root"
+    data-hx-swap="innerHTML"
+    data-hx-disabled-elt="this">
+    Edit item…
+  </button>
+
+  <div id="remote-dialog-demo-root" data-hc-remote-dialog-root></div>
+</DemoFrame>

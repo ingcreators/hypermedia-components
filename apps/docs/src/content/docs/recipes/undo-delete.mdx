@@ -3,6 +3,8 @@ title: Undo delete
 description: Undo instead of confirm — the delete executes immediately, the server soft-deletes with a grace period, and the toast's Undo button restores the row in place via a tombstone. Zero custom JavaScript.
 ---
 
+import UndoDeleteDemo from '../../../components/recipe-demos/UndoDeleteDemo.astro';
+
 `undo-delete` is the blessed **undo instead of confirm** pattern for
 frequent destructive actions: no dialog — the delete executes
 immediately, the server keeps the item recoverable for a grace period,
@@ -24,6 +26,17 @@ bundle) — nothing else.
 full contract lives in
 [`recipes/undo-delete/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/undo-delete/contract.md).
 :::
+
+## Live demo
+
+Click **Delete** — no confirmation — then **Undo** in the toast within
+10 seconds to put the row back. The server keeps a 30-second grace
+window (threaded statelessly through the tombstone's restore URL);
+after it expires the restore comes back as a "Too late" error toast.
+The endpoints live under `api/recipes/undo-delete/`; **Reset rows**
+refetches the canned rows.
+
+<UndoDeleteDemo />
 
 ## The markup
 

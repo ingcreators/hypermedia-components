@@ -3,6 +3,8 @@ title: レイジーパネル
 description: コンテンツの取得を初回表示まで遅延するパネル — タブのアクティブ化、交差、アコーディオンの展開。
 ---
 
+import LazyPanelDemo from '../../../../components/recipe-demos/LazyPanelDemo.astro';
+
 **レイジーパネル**は、初期ページ描画時にはコンテンツを取得しない領域
 です。パネルが初めて意味を持つとき — `<details>` が開く、タブが
 アクティブになる、パネルがビューポートへスクロールインする — に
@@ -18,6 +20,19 @@ description: コンテンツの取得を初回表示まで遅延するパネル 
 [`recipes/lazy-panel/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/lazy-panel/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+4 つの変種すべてが `api/recipes/lazy-panel/` 配下の実際のデモ
+エンドポイント(実アプリでは自前の URL)へリクエストします。各カードは
+読み込まれた UTC 時刻を表示します — 取得が遅延された証拠で、`once` に
+より再度畳んだり再アクティブ化しても再取得されません。最後のボタンは
+契約の 503 エラーブランチです: htmx 2 はデフォルトで 5xx をスワップせず
+(`HX-Reswap` 単体ではそれを上書きできません)、このページで見えるのは
+`HX-Trigger` のエラートーストです。アラート本文をスロットへスワップ
+したい場合は `htmx.config.responseHandling` を設定してください。
+
+<LazyPanelDemo />
 
 ## 交差時(ビューポート内)
 

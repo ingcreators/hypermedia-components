@@ -3,6 +3,8 @@ title: Data region
 description: A self-refreshing region that pulls fresh HTML from the server on a schedule or on demand.
 ---
 
+import DataRegionDemo from '../../../components/recipe-demos/DataRegionDemo.astro';
+
 A **data region** is a piece of UI that owns its own refresh
 lifecycle. It loads once on page render and then keeps itself up to
 date by polling, by listening for events, or by combining both. The
@@ -16,6 +18,17 @@ needed.
 full contract lives in
 [`recipes/data-region/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/data-region/contract.md).
 :::
+
+## Live demo
+
+Press **Simulate a change elsewhere** — the endpoint answers `204` with
+`HX-Trigger: {"items:changed":{}, "hc:toast":…}`, and the region hears
+the event and refetches itself (watch the *Rendered at* time change).
+The endpoint is a namespaced demo implementation of the
+[server response contract](#server-response-contract) under
+`api/recipes/data-region/`.
+
+<DataRegionDemo />
 
 ## Polling on a schedule
 

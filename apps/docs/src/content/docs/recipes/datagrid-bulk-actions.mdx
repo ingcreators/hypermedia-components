@@ -3,6 +3,8 @@ title: Datagrid bulk actions
 description: Select rows with the grid's checkboxes, act from a selection bar, POST the ids over htmx — native form serialization, a 200-with-truth response, and a no-JS path.
 ---
 
+import DatagridBulkActionsDemo from '../../../components/recipe-demos/DatagridBulkActionsDemo.astro';
+
 `datagrid-bulk-actions` is the blessed composition for running one
 action against many [datagrid](/hypermedia-components/components/datagrid/)
 rows at once: the grid's existing row selection, a **selection actions
@@ -27,6 +29,18 @@ bundle), plus `installConfirm()` for the destructive variant.
 full contract lives in
 [`recipes/datagrid-bulk-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-actions/contract.md).
 :::
+
+## Live demo
+
+Check some rows — the bulk bar appears with the live count. **Archive**
+and **Delete** POST the checked `ids` plus a hidden state input the
+server re-renders out-of-band (the server itself is stateless), and the
+rows come back as the page's truth with a toast. *Anvil* (101) is
+protected and always fails, so including it shows the partial-failure
+`warning` toast from the
+[contract](#server-response-contract).
+
+<DatagridBulkActionsDemo />
 
 ## The markup
 

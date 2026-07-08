@@ -3,6 +3,8 @@ title: Datagrid pager
 description: Paginate an hc-datagrid from the server with htmx — swap one page of rows into the tbody and update the pager out-of-band, keeping headers, frozen columns, and resized widths.
 ---
 
+import DatagridPagerDemo from '../../../components/recipe-demos/DatagridPagerDemo.astro';
+
 `hc-datagrid` is built for **paged** data: the server owns the data window,
 htmx swaps one page of rows, and `installDatagrid()` re-initialises the
 swapped rows. This recipe wires it to an [`hc-pagination`](/hypermedia-components/components/pagination/)
@@ -28,6 +30,17 @@ installDatagrid();
 
 See [Installation](/hypermedia-components/start/installation/).
 :::
+
+## Live demo
+
+Page through 5,000 fake products — each pager link swaps just its
+page's rows into the `<tbody>` (`innerHTML`), while the pager and the
+status line arrive out-of-band in the same response. The endpoint is a
+namespaced demo implementation of the
+[server response contract](#server-response) under
+`api/recipes/datagrid-pager/`.
+
+<DatagridPagerDemo />
 
 ## Basic usage
 

@@ -3,6 +3,8 @@ title: リモートダイアログ
 description: ダイアログ全体(マークアップ + フォーム)をサーバから取得して開き、成功時に自動で閉じます。
 ---
 
+import RemoteDialogDemo from '../../../../components/recipe-demos/RemoteDialogDemo.astro';
+
 `remote-dialog` は、**サーバが所有する**モーダルフローの正準パターン
 です: トリガーボタンが完全な `<dialog>` フラグメントをサーバから取得し、
 `installRemoteDialog` ビヘイビアがそれを開き、中のフォームが正常に
@@ -32,6 +34,17 @@ installCloseDialog();
 
 [インストール](/hypermedia-components/ja/start/installation/)を参照。
 :::
+
+## ライブデモ
+
+**Edit item…** をクリックしてみてください — ボタンが完全な `<dialog>`
+フラグメントを `api/recipes/remote-dialog/` 配下の実エンドポイントから
+取得し、スワップ後に `installRemoteDialog` が開きます。**Name** を
+空にして保存すると、サーバはエラー状態で再レンダリングしたダイアログを
+422 で返し、ダイアログは開いたままになります。有効な保存は空の 200 を
+返します — ダイアログが消え、保存内容を告げるトーストが上がります。
+
+<RemoteDialogDemo />
 
 ## 基本の使い方
 

@@ -3,6 +3,8 @@ title: データグリッドのページネーション
 description: htmx で hc-datagrid をサーバからページ送り — 行 1 ページ分を tbody へスワップし、ページャーを out-of-band で更新。ヘッダー、固定列、リサイズ済みの幅は保たれます。
 ---
 
+import DatagridPagerDemo from '../../../../components/recipe-demos/DatagridPagerDemo.astro';
+
 `hc-datagrid` は**ページング**されたデータのために作られています:
 データウィンドウはサーバが所有し、htmx が 1 ページ分の行をスワップし、
 `installDatagrid()` がスワップされた行を再初期化します。このレシピは
@@ -31,6 +33,16 @@ installDatagrid();
 
 [インストール](/hypermedia-components/ja/start/installation/)を参照。
 :::
+
+## ライブデモ
+
+5,000 件のフェイク商品をページ送りしてみてください — 各ページャー
+リンクはそのページの行だけを `<tbody>` へスワップし(`innerHTML`)、
+ページャーとステータス行は同じレスポンスで out-of-band に届きます。
+エンドポイントはサーバレスポンス契約を実装した名前空間付きデモで、
+`api/recipes/datagrid-pager/` 配下にあります。
+
+<DatagridPagerDemo />
 
 ## 基本の使い方
 

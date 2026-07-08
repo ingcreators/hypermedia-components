@@ -3,6 +3,8 @@ title: Remote dialog
 description: Fetch an entire dialog (markup + form) from the server, open it, and close it automatically on success.
 ---
 
+import RemoteDialogDemo from '../../../components/recipe-demos/RemoteDialogDemo.astro';
+
 `remote-dialog` is the canonical pattern for **server-owned** modal
 flows: the trigger button fetches a complete `<dialog>` fragment from
 the server, the `installRemoteDialog` behavior opens it, and
@@ -31,6 +33,17 @@ installCloseDialog();
 
 See [Installation](/hypermedia-components/start/installation/).
 :::
+
+## Live demo
+
+Click **Edit item…** — the button fetches a complete `<dialog>` fragment
+from a real endpoint under `api/recipes/remote-dialog/`, and
+`installRemoteDialog` opens it after the swap. Clear the **Name** field
+and save: the server answers 422 with the dialog re-rendered in its
+error state, and it stays open. A valid save returns an empty 200 —
+the dialog disappears and a toast names what was saved.
+
+<RemoteDialogDemo />
 
 ## Basic usage
 

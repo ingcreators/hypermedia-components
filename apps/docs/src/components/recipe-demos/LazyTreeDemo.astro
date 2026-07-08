@@ -1,0 +1,67 @@
+---
+/*
+ * Live demo for the lazy-tree recipe. Same markup as
+ * recipes/lazy-tree/expanded.html, pointed at the demo API namespace
+ * (a real app would use its own URLs such as `/nodes/42/children`).
+ * `installTree()` is in the auto-init bundle the docs pages load, so
+ * the roles / roving tabindex / `hc:treeexpand` wiring is automatic.
+ * The `restricted` branch demos the contract's error mitigation: an
+ * empty 200 (clears aria-busy) + an HX-Trigger error toast — its
+ * `once` trigger is spent after that first expand.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/lazy-tree`;
+---
+
+<DemoFrame class="hc-preview--col" label="Lazy tree demo">
+  <ul class="hc-tree" aria-label="Files">
+    <li
+      class="hc-tree__item"
+      aria-expanded="false"
+      data-hx-get={`${api}/nodes/reports/children`}
+      data-hx-target="find .hc-tree__group"
+      data-hx-swap="innerHTML"
+      data-hx-trigger="hc:treeexpand once">
+      <span class="hc-tree__row">
+        <span class="hc-tree__toggle" aria-hidden="true"></span>
+        <span class="hc-tree__label">Reports</span>
+      </span>
+      <ul class="hc-tree__group"></ul>
+    </li>
+
+    <li
+      class="hc-tree__item"
+      aria-expanded="false"
+      data-hx-get={`${api}/nodes/assets/children`}
+      data-hx-target="find .hc-tree__group"
+      data-hx-swap="innerHTML"
+      data-hx-trigger="hc:treeexpand once">
+      <span class="hc-tree__row">
+        <span class="hc-tree__toggle" aria-hidden="true"></span>
+        <span class="hc-tree__label">Assets</span>
+      </span>
+      <ul class="hc-tree__group"></ul>
+    </li>
+
+    <li
+      class="hc-tree__item"
+      aria-expanded="false"
+      data-hx-get={`${api}/nodes/restricted/children`}
+      data-hx-target="find .hc-tree__group"
+      data-hx-swap="innerHTML"
+      data-hx-trigger="hc:treeexpand once">
+      <span class="hc-tree__row">
+        <span class="hc-tree__toggle" aria-hidden="true"></span>
+        <span class="hc-tree__label">Restricted</span>
+      </span>
+      <ul class="hc-tree__group"></ul>
+    </li>
+
+    <li class="hc-tree__item">
+      <span class="hc-tree__row">
+        <span class="hc-tree__label">readme.md</span>
+      </span>
+    </li>
+  </ul>
+</DemoFrame>

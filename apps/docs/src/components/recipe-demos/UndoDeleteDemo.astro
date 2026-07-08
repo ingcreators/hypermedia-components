@@ -1,0 +1,42 @@
+---
+/*
+ * Live demo for the undo-delete recipe. The rows come from the demo
+ * API (apps/docs/demo-api/recipes/undo-delete.mjs) and carry plain
+ * Delete buttons — no data-hc-confirm; undo and confirm never stack.
+ * DELETE swaps in a hidden tombstone and raises an undo toast; the
+ * toast's Undo button dispatches the pairing event the tombstone
+ * listens for, which POSTs the restore. The grace period is stateless
+ * — a deletedAt timestamp threaded through the tombstone's restore
+ * URL — so Reset just refetches the rows.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/undo-delete`;
+---
+
+<DemoFrame class="hc-preview--col" label="Undo delete demo">
+  <table class="hc-table">
+    <thead>
+      <tr>
+        <th scope="col">Item</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody
+      id="undo-delete-demo-rows"
+      data-hx-get={`${api}/items`}
+      data-hx-trigger="load"
+      data-hx-swap="innerHTML">
+    </tbody>
+  </table>
+
+  <button
+    class="hc-button"
+    data-size="sm"
+    type="button"
+    data-hx-get={`${api}/items`}
+    data-hx-target="#undo-delete-demo-rows"
+    data-hx-swap="innerHTML">
+    Reset rows
+  </button>
+</DemoFrame>

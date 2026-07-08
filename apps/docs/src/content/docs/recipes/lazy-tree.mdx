@@ -3,6 +3,8 @@ title: Lazy tree
 description: Tree branches that ship empty and load their children as server-rendered treeitems on first expand — hc:treeexpand paired with an htmx once trigger.
 ---
 
+import LazyTreeDemo from '../../../components/recipe-demos/LazyTreeDemo.astro';
+
 A **lazy tree** defers deep branches: the
 [tree component](/hypermedia-components/components/tree/) renders with
 an **empty group**, and the children arrive as server-rendered
@@ -20,6 +22,18 @@ swap, the empty group, and declared `aria-expanded` are all errors when
 missing. The full contract lives in
 [`recipes/lazy-tree/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/lazy-tree/contract.md).
 :::
+
+## Live demo
+
+Expand a branch (click the row or press <kbd>→</kbd>) — the children
+arrive from a demo endpoint under `api/recipes/lazy-tree/` as
+server-rendered treeitems, and `once` means re-collapsing and
+re-expanding never refetches. **Restricted** shows the contract's error
+mitigation: an empty `200` clears the group's `aria-busy` and an
+`HX-Trigger` header raises the error toast — note the `once` trigger is
+spent, so re-expanding it will not retry.
+
+<LazyTreeDemo />
 
 ## The lazy branch
 

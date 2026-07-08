@@ -3,6 +3,8 @@ title: データ領域
 description: スケジュールまたはオンデマンドでサーバから新しい HTML を取得する自己更新領域。
 ---
 
+import DataRegionDemo from '../../../../components/recipe-demos/DataRegionDemo.astro';
+
 **データ領域**は、自身の更新ライフサイクルを所有する UI の一部です。
 ページ描画時に一度読み込み、その後はポーリング、イベントの待ち受け、
 またはその組み合わせで自身を最新に保ちます。コンポーネントはただの
@@ -16,6 +18,16 @@ htmx 駆動コンテナで、ビヘイビアヘルパーは不要です。
 [`recipes/data-region/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/data-region/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+**Simulate a change elsewhere** を押してください — エンドポイントは
+`204` と `HX-Trigger: {"items:changed":{}, "hc:toast":…}` で応答し、
+イベントを聞いた領域が自分自身を再取得します(*Rendered at* の時刻が
+変わるのが見えます)。エンドポイントはサーバレスポンス契約を実装した
+名前空間付きデモで、`api/recipes/data-region/` 配下にあります。
+
+<DataRegionDemo />
 
 ## スケジュールによるポーリング
 

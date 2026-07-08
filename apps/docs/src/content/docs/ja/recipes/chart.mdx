@@ -4,6 +4,7 @@ description: サーバが送るセマンティックなデータテーブルを 
 ---
 
 import Demo from '../../../../components/Demo.astro';
+import ChartDemo from '../../../../components/recipe-demos/ChartDemo.astro';
 
 チャートレシピは、サーバレンダリングされた**データテーブル**を
 [Observable Plot](https://observablehq.com/plot/) の SVG チャートに
@@ -34,6 +35,17 @@ Plot をバンドルして `installChart` を呼んでいるため、以下の�
 [`recipes/chart/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chart/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+リージョンを切り替えてみてください — 各ボタンが
+`<figure class="hc-chart">` フラグメント(セマンティックなデータ
+テーブル)を `api/recipes/chart/` 配下の実エンドポイントから再取得し、
+`installChart` が `htmx:load` で再描画します。JavaScript がなければ
+同じエンドポイントがテーブルを読めるページとして返します —
+テーブルこそがフォールバック**そのもの**です。
+
+<ChartDemo />
 
 ## 短縮形
 

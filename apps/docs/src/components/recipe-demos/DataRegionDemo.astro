@@ -1,0 +1,38 @@
+---
+/*
+ * Live demo for the data-region recipe. The placeholder section fires
+ * its `load` trigger and the demo API (apps/docs/demo-api/recipes/
+ * data-region.mjs) replaces it with the complete region — same markup
+ * as recipes/data-region/expanded.html; the re-rendered fragment
+ * listens for `items:changed from:body` only. The button simulates a
+ * mutation elsewhere: 204 + HX-Trigger fires the domain event (plus a
+ * toast) and the region refetches itself.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/data-region`;
+---
+
+<DemoFrame class="hc-preview--col" label="Data region demo">
+  <section
+    id="data-region-demo-items"
+    class="hc-data-region"
+    data-hx-get={`${api}/items`}
+    data-hx-trigger="load, items:changed from:body"
+    data-hx-swap="outerHTML"
+    data-hx-indicator="closest .hc-data-region"
+    aria-busy="false">
+    <header class="hc-data-region__header">
+      <h2>Items</h2>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </header>
+  </section>
+
+  <button
+    class="hc-button"
+    type="button"
+    data-hx-post={`${api}/refresh`}
+    data-hx-swap="none">
+    Simulate a change elsewhere
+  </button>
+</DemoFrame>

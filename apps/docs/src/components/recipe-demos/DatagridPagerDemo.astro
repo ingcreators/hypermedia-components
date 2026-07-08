@@ -1,0 +1,46 @@
+---
+/*
+ * Live demo for the datagrid-pager recipe. The tbody's `load` trigger
+ * fetches page 1 from the demo API (apps/docs/demo-api/recipes/
+ * datagrid-pager.mjs); every pager link swaps just that page's rows
+ * into the same tbody (innerHTML — never outerHTML, so installDatagrid
+ * keeps its observed node) while the pager and status line arrive
+ * out-of-band in the same response. Markup mirrors
+ * recipes/datagrid-pager/expanded.html.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-pager`;
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid pager demo">
+  <div class="hc-datagrid" style="--hc-datagrid-max-height: 24rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen scope="col">
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+            </th>
+            <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+            <th class="hc-datagrid__headcell" data-resizable data-col="name" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col">Unit price</th>
+          </tr>
+        </thead>
+        <tbody
+          class="hc-datagrid__body"
+          id="datagrid-pager-demo-rows"
+          data-hx-get={`${api}/products?page=1&size=100`}
+          data-hx-trigger="load"
+          data-hx-target="#datagrid-pager-demo-rows"
+          data-hx-swap="innerHTML">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="hc-cluster" style="justify-content: space-between; inline-size: 100%;">
+    <p id="datagrid-pager-demo-status" aria-live="polite" style="margin:0;">Loading…</p>
+    <nav class="hc-pagination" id="datagrid-pager-demo-pager" aria-label="Pagination"></nav>
+  </div>
+</DemoFrame>

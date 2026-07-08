@@ -3,6 +3,8 @@ title: 削除の取り消し
 description: 確認の代わりに取り消し — 削除は即座に実行され、サーバは猶予期間つきでソフトデリートし、トーストの Undo ボタンがトゥームストーン経由で行をその場に復元します。カスタム JavaScript ゼロ。
 ---
 
+import UndoDeleteDemo from '../../../../components/recipe-demos/UndoDeleteDemo.astro';
+
 `undo-delete` は、頻繁な破壊的アクションのための公認
 **「確認の代わりに取り消し」**パターンです: ダイアログなし — 削除は
 即座に実行され、サーバはアイテムを猶予期間の間だけ復元可能に保ち、
@@ -25,6 +27,17 @@ description: 確認の代わりに取り消し — 削除は即座に実行さ�
 [`recipes/undo-delete/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/undo-delete/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+**Delete** をクリック — 確認はありません — そしてトーストの **Undo** を
+10 秒以内に押すと行が戻ります。サーバは 30 秒の猶予期間を保持します
+(トゥームストーンの復元 URL にステートレスに織り込まれています)。
+期限切れ後の復元は「Too late」のエラートーストとして返ってきます。
+エンドポイントは `api/recipes/undo-delete/` 配下にあり、
+**Reset rows** が定型の行を再取得します。
+
+<UndoDeleteDemo />
 
 ## マークアップ
 
