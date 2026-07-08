@@ -3,10 +3,23 @@ title: ライブ検索
 description: 入力に応じてデバウンスされた htmx リクエストを発行し、結果領域を差し替える検索入力。
 ---
 
+import LiveSearchDemo from '../../../../components/recipe-demos/LiveSearchDemo.astro';
+
 ライブ検索は、htmx に配線された検索入力です。ユーザーの入力に応じて
 結果領域が更新されます。フォームは JavaScript なしでも動きます —
 htmx 属性は本物の `<form action="/items" method="get">` にぶら下がって
 いるだけです。
+
+## ライブデモ
+
+下の入力欄にタイプしてみてください — 各キーストローク(300ms の
+デバウンス付き)が、この docs サイトの Worker が提供するデモ
+エンドポイントへ実際の htmx リクエストを発行します。エンドポイントは
+サーバー応答契約をそのまま実装したもので、`api/recipes/live-search/`
+配下に置かれています(実際のアプリでは `/items` など自前の URL を
+使います)。
+
+<LiveSearchDemo />
 
 :::tip[スキャフォールド]
 `npx @hypermedia-components/cli add live-search` がこのレシピの

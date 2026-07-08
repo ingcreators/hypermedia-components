@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Live recipe demos on the docs site — foundation + live-search**
+  (PR-A of `plans/hc-live-recipe-demos-plan-en.md`). The docs
+  Cloudflare Worker now serves a stateless demo API under
+  `/api/recipes/<name>/…` implementing each recipe's server response
+  contract, with the exact same handler mounted in `docs:dev` /
+  `docs:preview` via a Vite middleware (`apps/docs/demo-api/`).
+  Recipe pages embed shared live-demo components (htmx is a docs-only
+  devDependency; core still ships zero runtime deps), starting with a
+  working live-search demo on the en + ja pages. Vitest covers the
+  handler per contract (fragments, no-JS fallback, `no-store`).
+
 - **`streaming-response` recipe — the SSE reply contract** (PR-C of
   `plans/hc-chat-streaming-plan-en.md`; closes the plan). The
   aria-busy placeholder appended by chat-messages owns its own SSE

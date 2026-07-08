@@ -1,0 +1,58 @@
+---
+/*
+ * DemoFrame — shared frame for the live recipe demos.
+ *
+ * Renders its slot inside the same `.hc-preview` canvas the static
+ * Demo widgets use, and loads htmx (a docs-only dependency — core
+ * ships no runtime deps) exactly once per page via Astro's script
+ * dedup. The markup inside the slot talks to the demo API the docs
+ * Worker serves under `<base>/api/recipes/<recipe>/…`
+ * (apps/docs/demo-api/); in `docs:dev` a Vite middleware mounts the
+ * same handler, so the demos work identically in both hosts.
+ *
+ * Usage in a recipe demo component:
+ *
+ *   <DemoFrame label="Live search demo">
+ *     …markup with data-hx-* attributes…
+ *   </DemoFrame>
+ */
+interface Props {
+  /** Extra class(es) on the `.hc-preview` (e.g. `hc-preview--col`). */
+  class?: string;
+  /** Slim inline style for one-off demo dimensions. */
+  style?: string;
+  /** Accessible name for the demo region. */
+  label?: string;
+}
+
+const { class: extra = '', style, label = 'Live demo' } = Astro.props;
+const classes = ['hc-preview', 'not-content', extra].filter(Boolean).join(' ');
+---
+
+<div
+  class={classes}
+  style={style}
+  data-hc-live-demo
+  role="group"
+  aria-label={label}>
+  <slot />
+</div>
+
+<script>
+  import 'htmx.org';
+  // The SSE extension's ESM build imports htmx itself; registering it
+  // unconditionally keeps this bootstrap identical on every page.
+  import 'htmx-ext-sse';
+
+  // The recipe contracts standardize on 422 responses carrying a
+  // fragment (field errors, invalid wizard steps, …). htmx ≥ 2 does
+  // not swap non-2xx responses by default; this one-time allowance is
+  // the exact hook the contracts document.
+  document.body.addEventListener('htmx:beforeSwap', (event) => {
+    const detail = (event as CustomEvent).detail;
+    if (detail?.xhr?.status === 422) {
+      detail.shouldSwap = true;
+      detail.isError = false;
+    }
+  });
+</script>

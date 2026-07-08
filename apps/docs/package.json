@@ -10,7 +10,8 @@
     "prebuild": "pnpm --filter @hypermedia-components/core build",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "vitest run"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.41.2",
@@ -21,6 +22,9 @@
     "starlight-llms-txt": "^0.11.0"
   },
   "devDependencies": {
-    "starlight-links-validator": "^0.25.2"
+    "htmx-ext-sse": "^2.2.4",
+    "htmx.org": "^2.0.10",
+    "starlight-links-validator": "^0.25.2",
+    "vitest": "^4.1.9"
   }
 }

@@ -14,6 +14,8 @@
 // is true so bare `/` visits are redirected to the base path before
 // the assets binding ever sees them.
 
+import { handleDemoApi } from './apps/docs/demo-api/index.mjs';
+
 const BASE = '/hypermedia-components';
 
 export default {
@@ -42,6 +44,15 @@ export default {
     // Strip the base prefix and forward to the Static Assets binding.
     const stripped = url.pathname.slice(BASE.length);
     const innerUrl = new URL(stripped + url.search, url.origin);
+
+    // The recipe demo API (apps/docs/demo-api/) owns the
+    // /api/recipes/ subtree; everything else — including the static
+    // /api/manifest.json — keeps resolving through Static Assets.
+    if (stripped.startsWith('/api/recipes/')) {
+      const response = await handleDemoApi(new Request(innerUrl.href, request));
+      if (response) return response;
+    }
+
     return env.ASSETS.fetch(new Request(innerUrl.href, request));
   },
 };
