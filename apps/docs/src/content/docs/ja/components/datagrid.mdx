@@ -179,6 +179,37 @@ import Demo from '../../../../components/Demo.astro';
 `--hc-datagrid-head-writing-mode` を自分で設定します(例:
 `sideways-rl`、`vertical-lr`)。
 
+<Demo>
+  <div class="hc-datagrid" style="max-inline-size: 22rem;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Region</th>
+            <th class="hc-datagrid__headcell" data-orientation="sideways" scope="col">Units sold</th>
+            <th class="hc-datagrid__headcell" data-orientation="sideways" scope="col">Returns</th>
+            <th class="hc-datagrid__headcell" data-orientation="sideways" scope="col">Backorders</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row"><td class="hc-datagrid__cell">North</td><td class="hc-datagrid__cell">412</td><td class="hc-datagrid__cell">8</td><td class="hc-datagrid__cell">3</td></tr>
+          <tr class="hc-datagrid__row"><td class="hc-datagrid__cell">South</td><td class="hc-datagrid__cell">376</td><td class="hc-datagrid__cell">5</td><td class="hc-datagrid__cell">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <th class="hc-datagrid__headcell" data-orientation="sideways" scope="col">
+    Units sold
+  </th>
+  ```
+
+  </Fragment>
+</Demo>
+
 その上のグループ / サブヘッダーは水平のままにしてください。スティッキー
 の積み重ねを単純に保つため、回転させるのはリーフ行だけにします。
 

@@ -68,12 +68,51 @@ connector line stops at the last item automatically.
 neutral hollow dot. The optional glyph inside the marker is decorative —
 keep it `aria-hidden` and put the meaning in the title.
 
-```html
-<li class="hc-timeline__item" data-variant="error">
-  <span class="hc-timeline__marker" aria-hidden="true">✕</span>
-  …
-</li>
-```
+<Demo previewStyle="max-inline-size:28rem;">
+  <ol class="hc-timeline" aria-label="Status variants">
+    <li class="hc-timeline__item" data-variant="success">
+      <span class="hc-timeline__marker" aria-hidden="true">✓</span>
+      <div class="hc-timeline__content"><span class="hc-timeline__title">Deploy finished</span></div>
+    </li>
+    <li class="hc-timeline__item" data-variant="warning">
+      <span class="hc-timeline__marker" aria-hidden="true">!</span>
+      <div class="hc-timeline__content"><span class="hc-timeline__title">Smoke test flaky</span></div>
+    </li>
+    <li class="hc-timeline__item" data-variant="error">
+      <span class="hc-timeline__marker" aria-hidden="true">✕</span>
+      <div class="hc-timeline__content"><span class="hc-timeline__title">Rollback triggered</span></div>
+    </li>
+    <li class="hc-timeline__item" data-variant="info">
+      <span class="hc-timeline__marker" aria-hidden="true">i</span>
+      <div class="hc-timeline__content"><span class="hc-timeline__title">Maintenance window opened</span></div>
+    </li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <ol class="hc-timeline" aria-label="Status variants">
+    <li class="hc-timeline__item" data-variant="success">
+      <span class="hc-timeline__marker" aria-hidden="true">✓</span>
+      <div class="hc-timeline__content"><span class="hc-timeline__title">Deploy finished</span></div>
+    </li>
+    <li class="hc-timeline__item" data-variant="warning">
+      <span class="hc-timeline__marker" aria-hidden="true">!</span>
+      <div class="hc-timeline__content"><span class="hc-timeline__title">Smoke test flaky</span></div>
+    </li>
+    <li class="hc-timeline__item" data-variant="error">
+      <span class="hc-timeline__marker" aria-hidden="true">✕</span>
+      <div class="hc-timeline__content"><span class="hc-timeline__title">Rollback triggered</span></div>
+    </li>
+    <li class="hc-timeline__item" data-variant="info">
+      <span class="hc-timeline__marker" aria-hidden="true">i</span>
+      <div class="hc-timeline__content"><span class="hc-timeline__title">Maintenance window opened</span></div>
+    </li>
+  </ol>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## htmx usage
 

@@ -76,15 +76,38 @@ import Demo from '../../../../components/Demo.astro';
 選択です。インジケーターがナビゲーションを発明することはありません。
 カラムレイアウトを保つため、マーカーはリンクの外に置いてください:
 
-```html
-<li class="hc-stepper__step" data-state="complete">
-  <span class="hc-stepper__marker" aria-hidden="true">✓</span>
-  <a href="/checkout/account">
-    <span class="hc-stepper__label">Account
-      <span class="hc-sr-only">(completed)</span></span>
-  </a>
-</li>
-```
+<Demo>
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <a href="#stepper-account">
+        <span class="hc-stepper__label">Account <span class="hc-sr-only">(completed)</span></span>
+      </a>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Profile</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+  </ol>
+
+  <Fragment slot="code">
+
+  ```html
+  <li class="hc-stepper__step" data-state="complete">
+    <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+    <a href="/checkout/account">
+      <span class="hc-stepper__label">Account
+        <span class="hc-sr-only">(completed)</span></span>
+    </a>
+  </li>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## サイズ
 

@@ -136,13 +136,21 @@ Add `data-mode="range"` to pick a start and end date. The first click (or
 <kbd>Enter</kbd>) sets the start, the next sets the end (auto-swapped so
 start ≤ end), and a third starts a fresh range. While the second end is
 being chosen, the tentative band previews under the pointer or the
-keyboard focus.
+keyboard focus. Try it — pick a new start and end below:
 
-```html
-<div class="hc-calendar" data-mode="range"
-     data-value="2026-05-10/2026-05-14"
-     data-name="stay" aria-label="Pick a date range"></div>
-```
+<Demo>
+  <div class="hc-calendar" data-mode="range" data-value="2026-05-10/2026-05-14" data-locale="en-US" aria-label="Pick a date range"></div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-calendar" data-mode="range"
+       data-value="2026-05-10/2026-05-14"
+       data-name="stay" aria-label="Pick a date range"></div>
+  ```
+
+  </Fragment>
+</Demo>
 
 The days carry `data-in-range` between the ends (with `data-range-start` /
 `data-range-end` markers, and `data-range-preview*` during selection) so you

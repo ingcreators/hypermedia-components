@@ -42,9 +42,17 @@ WHERE active = true</code></pre>
 長い行はデフォルトで横スクロールします。代わりにソフトラップするには
 `data-wrap="on"` を設定します。
 
-```html
-<pre class="hc-code" data-wrap="on"><code>SELECT a_very_long_column_name, another_long_one FROM a_table_with_a_long_name</code></pre>
-```
+<Demo previewClass="hc-preview--col hc-preview--start" previewStyle="max-inline-size:24rem;">
+  <pre class="hc-code" data-wrap="on"><code>SELECT a_very_long_column_name, another_long_one FROM a_table_with_a_long_name</code></pre>
+
+  <Fragment slot="code">
+
+  ```html
+  <pre class="hc-code" data-wrap="on"><code>SELECT a_very_long_column_name, another_long_one FROM a_table_with_a_long_name</code></pre>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## 行番号と行ごとの状態
 
