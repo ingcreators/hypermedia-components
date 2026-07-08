@@ -1,0 +1,22 @@
+---
+/*
+ * Live demo for the request-action recipe. The whole region —
+ * list, Add button (recipes/request-action/expanded.html shape),
+ * spinner — comes from the demo API
+ * (apps/docs/demo-api/recipes/request-action.mjs); each response
+ * replaces the region's outerHTML and threads the next count
+ * through the button's URL, so the server stays stateless.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/request-action`;
+---
+
+<DemoFrame class="hc-preview--col" label="Request action demo">
+  <div
+    id="request-action-demo-items"
+    data-hx-get={`${api}/items`}
+    data-hx-trigger="load"
+    data-hx-swap="outerHTML">
+  </div>
+</DemoFrame>

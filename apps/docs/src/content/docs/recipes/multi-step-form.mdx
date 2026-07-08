@@ -3,6 +3,8 @@ title: Multi-step form
 description: The hypermedia wizard — the server owns the step and the draft; one region, whole-step swaps, named nav submits, back that never validates, and a no-JS path of classic pages.
 ---
 
+import MultiStepFormDemo from '../../../components/recipe-demos/MultiStepFormDemo.astro';
+
 `multi-step-form` is the blessed wizard: **the server owns the current
 step and a draft of everything entered**. The client is one region
 (whole-step `outerHTML` swaps), one form per step, and an
@@ -19,6 +21,17 @@ under the
 full contract lives in
 [`recipes/multi-step-form/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/multi-step-form/contract.md).
 :::
+
+## Live demo
+
+Walk the wizard below — **Next** validates the step (natively via
+`required`, and authoritatively on the server, whose 422 answers a
+field-errors fragment), **Back** never validates even with a blank
+field, and the final step redirects to a plain confirmation page with a
+link back here. The endpoint is a namespaced demo implementation of the
+[server responses](#server-responses) under `api/recipes/multi-step-form/`.
+
+<MultiStepFormDemo />
 
 ## The markup (a middle step)
 

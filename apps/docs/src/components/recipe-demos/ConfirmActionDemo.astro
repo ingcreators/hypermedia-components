@@ -1,0 +1,39 @@
+---
+/*
+ * Live demo for the confirm-action recipe. The rows come from the
+ * demo API (apps/docs/demo-api/recipes/confirm-action.mjs) and carry
+ * the same confirm-gated Delete buttons as
+ * recipes/confirm-action/expanded.html. The server is stateless —
+ * deleting only removes the row client-side; Reset refetches.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/confirm-action`;
+---
+
+<DemoFrame class="hc-preview--col" label="Confirm action demo">
+  <table class="hc-table">
+    <thead>
+      <tr>
+        <th scope="col">Item</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody
+      id="confirm-action-demo-rows"
+      data-hx-get={`${api}/items`}
+      data-hx-trigger="load"
+      data-hx-swap="innerHTML">
+    </tbody>
+  </table>
+
+  <button
+    class="hc-button"
+    data-size="sm"
+    type="button"
+    data-hx-get={`${api}/items`}
+    data-hx-target="#confirm-action-demo-rows"
+    data-hx-swap="innerHTML">
+    Reset rows
+  </button>
+</DemoFrame>

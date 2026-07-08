@@ -3,6 +3,8 @@ title: トランスファー
 description: デュアルリストボックス(割り当て / 解除)をサーバ往復で — チェックボックスのペイン、add / remove の送信ボタン、フォーム全体のスワップ。カスタム JavaScript ゼロ。
 ---
 
+import TransferDemo from '../../../../components/recipe-demos/TransferDemo.astro';
+
 メンバー、権限、カテゴリの割り当て・解除を 2 つのペインと移動ボタンで —
 Ant Design の Transfer / PrimeVue の PickList を、ハイパーメディア流で:
 **所属はサーバに住み**、すべての移動はフォーム全体を再描画する POST
@@ -17,6 +19,16 @@ Ant Design の Transfer / PrimeVue の PickList を、ハイパーメディア�
 [`recipes/transfer/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/transfer/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+メンバーにチェックを入れて矢印ボタンで移動してみてください — すべての
+移動が実際の POST で、フォーム全体が再描画されて戻ってきます(カウント
+更新、チェック解除)。何も選ばずに移動すると 422 とインラインアラートが
+返ります。エンドポイントはサーバレスポンス契約を実装した名前空間付き
+デモで、`api/recipes/transfer/` 配下にあります。
+
+<TransferDemo />
 
 ## マークアップ
 

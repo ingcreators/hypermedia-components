@@ -3,6 +3,8 @@ title: ミューテーションフォーム
 description: サーバ状態を変更する htmx フォームの正準形 — インラインの 4xx フィールドエラー、成功時リダイレクト、二重送信ガード、非 JS のデグラデーションパス。
 ---
 
+import MutatingFormDemo from '../../../../components/recipe-demos/MutatingFormDemo.astro';
+
 `mutating-form` は、**サーバ状態を変更する**フォームのための公認の
 合成です: htmx の POST、4xx でのインラインバリデーションエラー、成功時の
 フルページリダイレクト、ビジースピナーつき二重送信ガード、非 JS
@@ -28,6 +30,18 @@ description: サーバ状態を変更する htmx フォームの正準形 — �
 [`recipes/mutating-form/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/mutating-form/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+メールを空のまま(または `taken@example.com` で)送信すると、422 の
+field-errors フラグメントがインラインに描画されます。有効な送信は契約の
+成功ブランチに従います: サーバが `204` + `HX-Redirect` で応答し、htmx が
+ウィンドウ全体をデモのランディングページへ遷移させます(戻るリンク
+付き)。エンドポイントはサーバ契約のデモ実装で、
+`api/recipes/mutating-form/` 配下に置かれています(実際のアプリでは
+`/members` など自前の URL を使います)。
+
+<MutatingFormDemo />
 
 ## フォーム
 

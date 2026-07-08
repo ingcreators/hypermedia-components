@@ -19,10 +19,28 @@
 //     headers follow recipes/<name>/contract.md.
 
 import { notFound } from './html.mjs';
+import * as cascadingSelect from './recipes/cascading-select.mjs';
+import * as confirmAction from './recipes/confirm-action.mjs';
+import * as fieldErrors from './recipes/field-errors.mjs';
+import * as inlineEdit from './recipes/inline-edit.mjs';
 import * as liveSearch from './recipes/live-search.mjs';
+import * as multiStepForm from './recipes/multi-step-form.mjs';
+import * as mutatingForm from './recipes/mutating-form.mjs';
+import * as requestAction from './recipes/request-action.mjs';
+import * as toast from './recipes/toast.mjs';
+import * as transfer from './recipes/transfer.mjs';
 
 const RECIPES = new Map([
+  ['cascading-select', cascadingSelect],
+  ['confirm-action', confirmAction],
+  ['field-errors', fieldErrors],
+  ['inline-edit', inlineEdit],
   ['live-search', liveSearch],
+  ['multi-step-form', multiStepForm],
+  ['mutating-form', mutatingForm],
+  ['request-action', requestAction],
+  ['toast', toast],
+  ['transfer', transfer],
 ]);
 
 /**

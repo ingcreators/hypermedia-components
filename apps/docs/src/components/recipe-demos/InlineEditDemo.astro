@@ -1,0 +1,21 @@
+---
+/*
+ * Live demo for the inline-edit recipe. The initial display fragment
+ * is loaded from the demo API on page load (single source of truth:
+ * the server renders every state, exactly as in
+ * recipes/inline-edit/expanded.html), then htmx swaps between the
+ * display and edit fragments with outerHTML.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/inline-edit`;
+---
+
+<DemoFrame label="Inline edit demo">
+  <div
+    id="inline-edit-demo-slot"
+    data-hx-get={`${api}/items/42/name`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+</DemoFrame>

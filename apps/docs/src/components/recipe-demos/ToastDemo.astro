@@ -1,0 +1,40 @@
+---
+/*
+ * Live demo for the toast recipe: the server-driven trigger path.
+ * Each button POSTs to the demo API
+ * (apps/docs/demo-api/recipes/toast.mjs), which answers
+ * `204 No Content` + an `HX-Trigger: {"hc:toast": …}` header — the
+ * contract's minimal header-driven response. Nothing is swapped
+ * (data-hx-swap="none"); htmx dispatches hc:toast on <body> and the
+ * page's installToast renders it.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/toast`;
+---
+
+<DemoFrame label="Toast demo (server-driven)">
+  <button
+    class="hc-button"
+    data-variant="primary"
+    type="button"
+    data-hx-post={`${api}/save?variant=success`}
+    data-hx-swap="none">
+    Success
+  </button>
+  <button
+    class="hc-button"
+    data-variant="error"
+    type="button"
+    data-hx-post={`${api}/save?variant=error`}
+    data-hx-swap="none">
+    Sticky error
+  </button>
+  <button
+    class="hc-button"
+    type="button"
+    data-hx-post={`${api}/save?variant=info`}
+    data-hx-swap="none">
+    Info
+  </button>
+</DemoFrame>

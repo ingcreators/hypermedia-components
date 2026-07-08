@@ -1,0 +1,52 @@
+---
+/*
+ * Live demo for the field-errors recipe. Same markup as
+ * recipes/field-errors/expanded.html, pointed at the demo API
+ * namespace (a real app would use its own URL such as `/members`).
+ * `required` is omitted from the email input on purpose so the
+ * server-side `required` error can be demoed; method/action keep the
+ * no-JS submit working.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/field-errors`;
+---
+
+<DemoFrame class="hc-preview--col" label="Field errors demo">
+  <form
+    method="post"
+    action={`${api}/members`}
+    data-hx-post={`${api}/members`}
+    data-hx-target="#field-errors-demo-errors"
+    data-hx-swap="innerHTML"
+    data-hx-disabled-elt="find button[type=submit]">
+    <div id="field-errors-demo-errors"></div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="field-errors-demo-email">Email</label>
+      <input
+        class="hc-input"
+        id="field-errors-demo-email"
+        name="email"
+        type="email"
+        aria-describedby="field-errors-demo-email-help" />
+      <p class="hc-field__message" id="field-errors-demo-email-help">
+        We never share it.
+      </p>
+      <p class="hc-field__error" aria-live="polite"></p>
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="field-errors-demo-display-name">
+        Display name
+      </label>
+      <input
+        class="hc-input"
+        id="field-errors-demo-display-name"
+        name="display_name"
+        type="text" />
+    </div>
+
+    <button type="submit" class="hc-button" data-variant="primary">Save</button>
+  </form>
+</DemoFrame>

@@ -3,6 +3,8 @@ title: Cascading select
 description: Hierarchical selection (Cascader) as chained selects — each level's change fetches the next level's options from the server. Zero custom JavaScript.
 ---
 
+import CascadingSelectDemo from '../../../components/recipe-demos/CascadingSelectDemo.astro';
+
 Country → prefecture → city, category → subcategory — Ant Design's
 Cascader, done the hypermedia way: **chained `<select>`s** where each
 level's `change` GETs the next level's options from the server. Zero
@@ -16,6 +18,17 @@ custom JavaScript: [`hc-select`](/hypermedia-components/components/select/)
 full contract lives in
 [`recipes/cascading-select/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/cascading-select/contract.md).
 :::
+
+## Live demo
+
+Pick a prefecture — its `change` GETs the city options with a real htmx
+request, and the same response resets the ward level out of band; pick
+the placeholder again to unwind the chain. The endpoint is a namespaced
+demo implementation of the
+[server response contract](#server-response-contract) under
+`api/recipes/cascading-select/`.
+
+<CascadingSelectDemo />
 
 ## The markup
 

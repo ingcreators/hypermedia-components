@@ -3,6 +3,8 @@ title: リクエストアクション
 description: htmx リクエストを送り、実行中はスピナーを表示するボタン。
 ---
 
+import RequestActionDemo from '../../../../components/recipe-demos/RequestActionDemo.astro';
+
 `request-action` は、一級のローディングフィードバックを備えた最も
 シンプルな htmx パターンです。ボタンは普通の `<button>` のまま、
 リクエストの所有者は htmx、進行表示は(`htmx-indicator` として印を
@@ -16,6 +18,17 @@ description: htmx リクエストを送り、実行中はスピナーを表示�
 [`recipes/request-action/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/request-action/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+**Add item** をクリックしてみてください — ボタンが本物の htmx
+リクエストを POST し、実行中はボタンが無効化されてスピナーが表示され、
+領域全体が `outerHTML` でスワップされ、`HX-Trigger` ヘッダーが成功
+トーストを発火します。エンドポイントはサーバ応答契約をそのまま実装した
+デモで、`api/recipes/request-action/` 配下に置かれています(実際の
+アプリでは `/items` など自前の URL を使います)。
+
+<RequestActionDemo />
 
 ## 基本の使い方
 

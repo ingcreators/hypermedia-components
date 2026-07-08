@@ -4,6 +4,7 @@ description: サーバ(HX-Trigger)またはクライアント(CustomEvent)から
 ---
 
 import Demo from '../../../../components/Demo.astro';
+import ToastDemo from '../../../../components/recipe-demos/ToastDemo.astro';
 
 トーストは、画面の隅に現れる短い時間制限つきの通知です。
 `installToast` ビヘイビアが `document.body` 上の `hc:toast` イベントを
@@ -32,6 +33,18 @@ installToast();
 [`recipes/toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/toast/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+各ボタンはデモエンドポイントに POST し、サーバは `204 No Content` と
+`HX-Trigger: {"hc:toast":…}` ヘッダーを返します — htmx が `<body>` 上で
+イベントを発火し、`installToast` がトーストを描画します。下のクライアント
+発火のプレビューと違い、こちらは実際のエンドポイントを往復します —
+サーバ応答契約をそのまま実装したデモで、`api/recipes/toast/` 配下に
+置かれています。**Sticky error** は `duration: 0` なので、ページを
+再読み込みするまで残ります。
+
+<ToastDemo />
 
 ## マークアップ
 

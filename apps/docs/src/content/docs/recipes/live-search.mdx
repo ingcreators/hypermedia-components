@@ -9,6 +9,14 @@ Live search is a search input wired to htmx so the results region
 updates as the user types. The form still works without JavaScript —
 htmx attributes hang off a real `<form action="/items" method="get">`.
 
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add live-search` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/live-search/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/live-search/contract.md).
+:::
+
 ## Live demo
 
 Type below — each keystroke (debounced 300 ms) issues a real htmx
@@ -18,14 +26,6 @@ The demo endpoint lives under `api/recipes/live-search/`; your app
 would use its own URL such as `/items`.
 
 <LiveSearchDemo />
-
-:::tip[Scaffold]
-`npx @hypermedia-components/cli add live-search` copies this recipe's scaffold
-(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
-`npx @hypermedia-components/cli validate` machine-checks your copy. The
-full contract lives in
-[`recipes/live-search/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/live-search/contract.md).
-:::
 
 ## Expanded HTML
 

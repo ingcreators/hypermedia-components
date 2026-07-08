@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Live recipe demos — forms & actions batch** (PR-B of
+  `plans/hc-live-recipe-demos-plan-en.md`). Nine more recipes gain a
+  working demo API + live demo section on the en + ja pages:
+  field-errors, mutating-form, inline-edit, multi-step-form,
+  cascading-select, transfer, confirm-action, request-action and
+  toast. All handlers stay stateless (drafts ride as hidden inputs,
+  transfer membership and the inline-edit value thread through the
+  fragments' own URLs) and follow each contract's status/`HX-*`
+  choreography (422 field-error fragments, `HX-Retarget`/`HX-Reswap`,
+  204 + `HX-Redirect`, ASCII-escaped `HX-Trigger` toasts).
+
 - **Live recipe demos on the docs site — foundation + live-search**
   (PR-A of `plans/hc-live-recipe-demos-plan-en.md`). The docs
   Cloudflare Worker now serves a stateless demo API under

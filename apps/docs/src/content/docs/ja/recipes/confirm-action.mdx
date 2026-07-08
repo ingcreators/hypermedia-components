@@ -4,6 +4,7 @@ description: 破壊的な htmx リクエストを送る前に確認ダイアロ�
 ---
 
 import Demo from '../../../../components/Demo.astro';
+import ConfirmActionDemo from '../../../../components/recipe-demos/ConfirmActionDemo.astro';
 
 `confirm-action` は、破壊的な htmx リクエストの前段にモーダルの確認
 ステップを追加します。ボタンは普通の `<button>` のまま、ネットワーク
@@ -32,6 +33,18 @@ installConfirm();
 [`recipes/confirm-action/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/confirm-action/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+**Delete** をクリックして承認してみてください — `outerHTML` スワップで
+行が消え、本物の `HX-Trigger` ヘッダーが削除されたアイテム名を告げる
+トーストを発火します。下の「基本の使い方」のサーバなしプレビュー
+(結果を表示するだけ)と違い、こちらは実際のエンドポイントを往復します —
+サーバ応答契約をそのまま実装したデモで、`api/recipes/confirm-action/`
+配下に置かれています。サーバはステートレスなので、**Reset rows** は
+行を再取得するだけです。
+
+<ConfirmActionDemo />
 
 ## 基本の使い方
 

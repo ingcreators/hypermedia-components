@@ -3,6 +3,8 @@ title: マルチステップフォーム
 description: ハイパーメディア版ウィザード — ステップとドラフトはサーバが所有。1 つの領域、ステップ全体のスワップ、名前付きナビ送信、決してバリデートしない「戻る」、そして古典的ページによる非 JS パス。
 ---
 
+import MultiStepFormDemo from '../../../../components/recipe-demos/MultiStepFormDemo.astro';
+
 `multi-step-form` は公認のウィザードです: **現在のステップと、入力
 されたすべてのドラフトをサーバが所有します**。クライアントは 1 つの
 領域(ステップ全体の `outerHTML` スワップ)、ステップごとに 1 つの
@@ -21,6 +23,18 @@ description: ハイパーメディア版ウィザード — ステップとド�
 [`recipes/multi-step-form/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/multi-step-form/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+下のウィザードを操作してみてください — **Next** はステップを
+バリデートし(ネイティブの `required` に加え、サーバが権威として
+422 + field-errors フラグメントで応答)、**Back** は空欄があっても
+決してバリデートしません。最終ステップは確認ページへリダイレクト
+します(戻るリンク付き)。エンドポイントはサーバレスポンス契約を
+実装した名前空間付きデモで、`api/recipes/multi-step-form/` 配下に
+あります。
+
+<MultiStepFormDemo />
 
 ## マークアップ(中間ステップ)
 
