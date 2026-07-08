@@ -3,10 +3,16 @@ import * as mod from '../recipes/file-upload.mjs';
 import { call } from './helpers.mjs';
 
 /** Multipart POST /files with an optional File in the `doc` field. */
-function upload(file, opts = {}) {
+function upload(file, { fields = {}, ...opts } = {}) {
   const body = new FormData();
   if (file) body.append('doc', file);
+  for (const [key, value] of Object.entries(fields)) body.append(key, value);
   return call(mod, 'POST', '/files', { body, ...opts });
+}
+
+/** Same, but as the dropzone form (hidden `form=dropzone` field). */
+function dropzoneUpload(file, opts = {}) {
+  return upload(file, { fields: { form: 'dropzone' }, ...opts });
 }
 
 function file(name, bytes, type = 'application/octet-stream') {
@@ -78,6 +84,46 @@ describe('file-upload demo API', () => {
     const response = await upload(new File([], ''));
     expect(response.status).toBe(422);
     expect(await response.text()).toContain('data-code="required"');
+  });
+
+  it('answers a dropzone upload with the item + the OOB pristine DROPZONE form', async () => {
+    const response = await dropzoneUpload(file('scan.pdf', 4096, 'application/pdf'));
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    expect(body).toContain('scan.pdf — 4 kB');
+    // The OOB reset re-sends the dropzone form, not the plain one.
+    expect(body).toContain('id="file-upload-demo-dropzone-form" hx-swap-oob="true"');
+    expect(body).not.toContain('id="file-upload-demo-form"');
+    // Pristine dropzone markup + the discriminator ride along.
+    expect(body).toContain('class="hc-dropzone"');
+    expect(body).toContain('class="hc-dropzone__input"');
+    expect(body).toContain('<input type="hidden" name="form" value="dropzone">');
+    expect(body).toContain('data-hx-target="#file-upload-demo-files"');
+  });
+
+  it('retargets a dropzone 422 into the dropzone form\'s own errors div', async () => {
+    const response = await dropzoneUpload(file('notes.txt', 64, 'text/plain'));
+    expect(response.status).toBe(422);
+    expect(response.headers.get('HX-Retarget')).toBe(
+      '#file-upload-demo-dropzone-errors',
+    );
+    expect(response.headers.get('HX-Reswap')).toBe('innerHTML');
+    expect(await response.text()).toContain('data-code="type"');
+  });
+
+  it('treats an unrecognized form discriminator as the plain form (strict allow-list)', async () => {
+    const response = await upload(file('notes.txt', 64, 'text/plain'), {
+      fields: { form: '"><script>alert(1)</script>' },
+    });
+    expect(response.status).toBe(422);
+    expect(response.headers.get('HX-Retarget')).toBe('#file-upload-demo-errors');
+
+    const ok = await upload(file('scan.pdf', 4096, 'application/pdf'), {
+      fields: { form: 'DROPZONE' },
+    });
+    const body = await ok.text();
+    expect(body).toContain('id="file-upload-demo-form"');
+    expect(body).not.toContain('file-upload-demo-dropzone-form');
   });
 
   it('answers a no-JS valid upload with a 303 post/redirect/get', async () => {

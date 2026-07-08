@@ -71,11 +71,23 @@ or any other element's `textContent`.
 To copy a fixed string instead of a referenced element, use
 `data-hc-copy-text`:
 
-```html
-<button class="hc-button" data-hc-copy-text="npm i @hypermedia-components/core">
-  Copy install command
-</button>
-```
+<Demo previewClass="hc-preview--start">
+  <button class="hc-button" data-hc-copy-text="npm i @hypermedia-components/core" data-hc-copy-ok="Copied">
+    Copy install command
+  </button>
+
+  <Fragment slot="code">
+
+  ```html
+  <button class="hc-button"
+          data-hc-copy-text="npm i @hypermedia-components/core"
+          data-hc-copy-ok="Copied">
+    Copy install command
+  </button>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Attributes
 

@@ -20,7 +20,7 @@ function parseEvents(body) {
     });
 }
 
-// The stream sleeps ~20.5 s at demo pace; `?fast=1` divides every
+// The stream sleeps ~23.5 s at demo pace; `?fast=1` divides every
 // sleep by 50 so the whole body reads in well under a second.
 async function fastStream() {
   const response = await call(sseUpdates, 'GET', '/events?fast=1', { htmx: false });
@@ -43,10 +43,12 @@ describe('sse-updates demo API', () => {
       'activity:item',
       'activity:item',
       'status:panel',
+      'products:rows',
       'activity:item',
       'activity:item',
       'status:panel',
       'activity:item',
+      'products:rows',
       'activity:item',
       'status:panel',
       'stream:done',
@@ -67,6 +69,28 @@ describe('sse-updates demo API', () => {
     }
     // Varied copy, not six clones.
     expect(new Set(items.map((e) => e.dataLines[0])).size).toBe(6);
+  });
+
+  it('GET /events pushes two full tbody pages of datagrid rows', async () => {
+    const { body } = await fastStream();
+    const pages = parseEvents(body).filter((e) => e.event === 'products:rows');
+    expect(pages).toHaveLength(2);
+    for (const { dataLines } of pages) {
+      // A page is the tbody's innerHTML on one line: 3 compact rows
+      // (id / status / timestamp), nothing outside the <tr>s — the
+      // demo tbody swaps innerHTML, never outerHTML.
+      const page = dataLines[0];
+      expect(page.match(/<tr class="hc-datagrid__row">/g)).toHaveLength(3);
+      expect(page.match(/<th class="hc-datagrid__cell" scope="row">\d+<\/th>/g)).toHaveLength(3);
+      expect(page.match(/\d{2}:\d{2}:\d{2}/g)).toHaveLength(3);
+      expect(page.startsWith('<tr ')).toBe(true);
+      expect(page.endsWith('</tr>')).toBe(true);
+      expect(page).not.toContain('tbody');
+    }
+    // Different ids/statuses so the swap is visible on replay.
+    expect(pages[0].dataLines[0]).toContain('Queued');
+    expect(pages[1].dataLines[0]).toContain('Deploying');
+    expect(pages[0].dataLines[0]).not.toBe(pages[1].dataLines[0]);
   });
 
   it('GET /events carries the out-of-band badge inside a status:panel payload', async () => {

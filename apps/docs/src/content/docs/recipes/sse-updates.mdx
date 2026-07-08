@@ -29,10 +29,12 @@ full contract lives in
 
 ## Live demo
 
-The stream plays a ~20 s scripted sequence once, then ends itself
+The stream plays a ~25 s scripted sequence once, then ends itself
 deliberately with `stream:done`: timestamped activity items prepend
-into the feed, the status panel re-renders, and one push also updates
-the alert badge out-of-band in the same event. Reload the page to
+into the feed, the status panel re-renders, one push also updates
+the alert badge out-of-band in the same event, and two `products:rows`
+pushes swap a full page of rows into the datagrid's tbody (the
+[composition below](#datagrid-composition)). Reload the page to
 replay.
 
 <SseUpdatesDemo />

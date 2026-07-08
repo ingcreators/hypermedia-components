@@ -4,13 +4,14 @@
  * API's scripted stream (apps/docs/demo-api/recipes/sse-updates.mjs):
  * activity:item fragments prepend into the feed (afterbegin),
  * status:panel fragments replace the status section (innerHTML
- * default), and one status push also updates the alert badge
- * out-of-band via hx-swap-oob — same markup as
- * recipes/sse-updates/expanded.html (minus the datagrid composition,
- * which the page describes but the demo keeps out of scope). The
- * stream ends deliberately with `stream:done` (data-sse-close); its
- * payload is never swapped, so the server sends a visible end marker
- * as a final status:panel push first.
+ * default), one status push also updates the alert badge out-of-band
+ * via hx-swap-oob, and products:rows pushes replace the datagrid
+ * tbody's rows wholesale (innerHTML on the kept tbody — never
+ * outerHTML, the datagrid-pager rule) — same markup as
+ * recipes/sse-updates/expanded.html. The stream ends deliberately with
+ * `stream:done` (data-sse-close); its payload is never swapped, so the
+ * server sends a visible end marker as a final status:panel push
+ * first.
  */
 import DemoFrame from './DemoFrame.astro';
 
@@ -40,5 +41,30 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/sse-upda
       data-sse-swap="activity:item"
       data-hx-swap="afterbegin">
     </ul>
+
+    <div class="hc-datagrid">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">ID</th>
+              <th class="hc-datagrid__headcell" scope="col">Status</th>
+              <th class="hc-datagrid__headcell" scope="col">Updated</th>
+            </tr>
+          </thead>
+          <tbody
+            class="hc-datagrid__body"
+            id="sse-updates-demo-rows"
+            data-sse-swap="products:rows"
+            data-hx-swap="innerHTML">
+            <tr class="hc-datagrid__row">
+              <th class="hc-datagrid__cell" scope="row">—</th>
+              <td class="hc-datagrid__cell">Waiting for pushed rows…</td>
+              <td class="hc-datagrid__cell">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </DemoFrame>

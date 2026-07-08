@@ -7,13 +7,17 @@
 //       performs a full window.location navigation)
 //     → 303 + `Location: …/members/42` (no-JS success — classic
 //       post/redirect/get)
+//   POST /members/42/delete  (the confirmed destructive variant —
+//       gated by the confirm dialog client-side; same success
+//       contract per the recipe contract)
+//     → 204 + `HX-Redirect: …/members/42?deleted=1` (htmx)
+//     → 303 + `Location: …/members/42?deleted=1` (no-JS)
 //   GET  /members/42  → "Member created" landing page (the
-//       post/redirect/get destination; echoes `?email=` back)
+//       post/redirect/get destination; echoes `?email=` back), or
+//       the "Member deleted" landing when `?deleted=1`
 //
-// The confirmed delete variant is not demoed here — the
-// confirm-action demo covers confirm-gated requests. Redirect URLs
-// carry DOCS_BASE because the browser resolves them against the
-// origin, where the docs Worker is mounted under the base.
+// Redirect URLs carry DOCS_BASE because the browser resolves them
+// against the origin, where the docs Worker is mounted under the base.
 
 import { DOCS_BASE, escapeHtml, isHtmx, page } from '../html.mjs';
 import { errorsFragment, validateMember } from './field-errors.mjs';
@@ -58,7 +62,35 @@ export async function handle({ method, path, url, request }) {
     });
   }
 
+  if (method === 'POST' && path === '/members/42/delete') {
+    // The confirmed destructive variant: the confirm dialog is a
+    // client-side gate, so the server contract is the same
+    // success-branch pair as the create form.
+    const location = `${MEMBER_URL}?deleted=1`;
+    if (isHtmx(request)) {
+      return new Response(null, {
+        status: 204,
+        headers: { 'HX-Redirect': location },
+      });
+    }
+    return new Response(null, {
+      status: 303,
+      headers: { Location: location },
+    });
+  }
+
   if (method === 'GET' && path === '/members/42') {
+    if (url.searchParams.has('deleted')) {
+      return page(
+        'Member deleted',
+        `<p>This is the demo's post/redirect/get landing page for the
+confirmed destructive variant — the URL the delete's success branch
+redirects to (<code>HX-Redirect</code> over htmx, a plain
+<code>303 Location</code> without JavaScript).</p>
+<p>Member <strong>#42</strong> was deleted.</p>
+<p><a href="${DOCS_BASE}/recipes/mutating-form/">Back to the mutating-form recipe</a></p>`,
+      );
+    }
     const email = url.searchParams.get('email') ?? '';
     return page(
       'Member created',

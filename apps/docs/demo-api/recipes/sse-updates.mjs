@@ -2,28 +2,33 @@
 //
 //   GET /events → text/event-stream of named events whose data is a
 //                 server-rendered fragment on ONE line. The demo plays
-//                 a single ~20 s scripted sequence and then terminates
-//                 itself (every demo stream must — Workers wall-clock
-//                 hygiene). Reload to replay.
+//                 a single ~23.5 s scripted sequence and then
+//                 terminates itself (every demo stream must — Workers
+//                 wall-clock hygiene). Reload to replay.
 //
 // The scripted sequence (times from connect):
 //
 //   ~1 s     activity:item  <li> Deploy #128 started
 //   ~3.5 s   activity:item  <li> Deploy #128 checks passed
 //   ~6 s     status:panel   "Deploy #128 rolling out…"
-//   ~8.5 s   activity:item  <li> Deploy #128 finished
-//   ~11 s    activity:item  <li> Deploy #129 started
-//   ~13.5 s  status:panel   "All systems normal" + the hx-swap-oob
+//   ~7.5 s   products:rows  3 <tr> rows — a full tbody page (the
+//                           datagrid composition: innerHTML on the
+//                           kept tbody, the datagrid-pager rule)
+//   ~10 s    activity:item  <li> Deploy #128 finished
+//   ~12.5 s  activity:item  <li> Deploy #129 started
+//   ~15 s    status:panel   "All systems normal" + the hx-swap-oob
 //                           alert-badge fragment (one event, two
 //                           targets — the contract's OOB composition)
-//   ~16 s    activity:item  <li> Cache warmed in 3 regions
-//   ~18.5 s  activity:item  <li> Deploy #129 finished
-//   ~20 s    status:panel   visible end marker ("Stream ended —
+//   ~17.5 s  activity:item  <li> Cache warmed in 3 regions
+//   ~19 s    products:rows  3 <tr> rows again, different ids/statuses
+//                           and fresh timestamps — the swap is visible
+//   ~21.5 s  activity:item  <li> Deploy #129 finished
+//   ~23 s    status:panel   visible end marker ("Stream ended —
 //                           reload to replay."). This must be a
 //                           regular status:panel push: the close
 //                           event's own payload is never swapped by
 //                           the SSE extension.
-//   ~20.5 s  stream:done    named in the demo markup's data-sse-close;
+//   ~23.5 s  stream:done    named in the demo markup's data-sse-close;
 //                           the client closes deliberately, then the
 //                           stream ends server-side too
 //
@@ -46,12 +51,27 @@ function item(text) {
   return `<li class="hc-item">${stamp()} — ${escapeHtml(text)}</li>`;
 }
 
+/** One compact datagrid row (id / status / updated-at). */
+function row([id, status]) {
+  return `<tr class="hc-datagrid__row"><th class="hc-datagrid__cell" scope="row">${id}</th><td class="hc-datagrid__cell">${escapeHtml(status)}</td><td class="hc-datagrid__cell">${stamp()}</td></tr>`;
+}
+
+/** A full page of rows — the tbody's innerHTML on ONE line. */
+function rowsPage(entries) {
+  return entries.map(row).join('');
+}
+
 // [delay-before-send (ms), SSE event name, payload thunk]. Thunks so
 // the timestamps are minted when the event is sent, not at connect.
 const SCRIPT = [
   [1000, 'activity:item', () => item('Deploy #128 started')],
   [2500, 'activity:item', () => item('Deploy #128 checks passed')],
   [2500, 'status:panel', () => '<p>Deploy #128 rolling out…</p>'],
+  [
+    1500,
+    'products:rows',
+    () => rowsPage([[101, 'Active'], [102, 'Syncing'], [103, 'Queued']]),
+  ],
   [2500, 'activity:item', () => item('Deploy #128 finished')],
   [2500, 'activity:item', () => item('Deploy #129 started')],
   [
@@ -61,6 +81,11 @@ const SCRIPT = [
       `<p>All systems normal</p><span class="hc-badge" id="${BADGE_ID}" hx-swap-oob="true">1</span>`,
   ],
   [2500, 'activity:item', () => item('Cache warmed in 3 regions')],
+  [
+    1500,
+    'products:rows',
+    () => rowsPage([[101, 'Active'], [102, 'Active'], [104, 'Deploying']]),
+  ],
   [2500, 'activity:item', () => item('Deploy #129 finished')],
   [
     1500,

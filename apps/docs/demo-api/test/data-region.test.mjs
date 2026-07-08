@@ -45,6 +45,35 @@ describe('data-region demo API', () => {
     );
   });
 
+  it('GET /items?poll=1 renders the polling region as a complete section', async () => {
+    const response = await call(dataRegion, 'GET', '/items?poll=1');
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    expect(body).toContain('id="data-region-demo-poll"');
+    expect(body).toContain('class="hc-data-region"');
+    expect(body).toContain(`data-hx-get="${API}/items?poll=1"`);
+    expect(body).toContain('data-hx-swap="outerHTML"');
+    expect(body).toContain('<h2>Polling region</h2>');
+    expect(body).toContain('<li>Anvil</li>');
+    expect(body).toMatch(
+      /<p class="hc-field__message">Rendered at \d{2}:\d{2}:\d{2} UTC<\/p>/,
+    );
+    // The id appears exactly once — the outerHTML swap stays idempotent.
+    expect(body.match(/id="data-region-demo-poll"/g)).toHaveLength(1);
+    expect(body).not.toContain('<!doctype');
+  });
+
+  it('GET /items?poll=1 carries an interval-only trigger (no `load` — no refetch loop)', async () => {
+    const response = await call(dataRegion, 'GET', '/items?poll=1');
+    const body = await response.text();
+    // htmx re-arms `every 10s` on the freshly swapped element — that IS
+    // the poll. Echoing `load` back (htmx fires it on every freshly
+    // processed element) would refetch forever, exactly like the event
+    // region. Only the page-side placeholder carries `load, every 10s`.
+    expect(body).toContain('data-hx-trigger="every 10s"');
+    expect(body).not.toContain('load');
+  });
+
   it('GET /items without HX-Request renders the full-page fallback', async () => {
     const response = await call(dataRegion, 'GET', '/items', { htmx: false });
     expect(response.status).toBe(200);
