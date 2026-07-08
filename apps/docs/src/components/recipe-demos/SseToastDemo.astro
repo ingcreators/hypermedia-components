@@ -1,0 +1,49 @@
+---
+/*
+ * Live demo for the sse-toast recipe. The scope connects to the demo
+ * API's scripted stream (apps/docs/demo-api/recipes/sse-toast.mjs);
+ * the hidden bridge (installSseDispatch, auto-init in the docs bundle)
+ * turns the allow-listed JSON events into DOM CustomEvents — hc:toast
+ * renders via installToast (which lazy-creates the toast region; no
+ * explicit region needed) and items:changed makes the data-region
+ * below refetch. Same markup as recipes/sse-toast/expanded.html plus
+ * data-sse-close: the stream's final `demo:done` event closes the
+ * EventSource deliberately. Note `demo:done` is NOT in the bridge's
+ * data-sse-swap allowlist — the SSE extension registers the close
+ * listener directly on the EventSource, independent of any swap
+ * wiring, and no page code consumes the event.
+ *
+ * Region trigger split (same as DataRegionDemo): the placeholder keeps
+ * `load` for the initial fetch; the server fragment re-renders with
+ * the event-only trigger so the outerHTML self-swap never loops.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/sse-toast`;
+---
+
+<DemoFrame class="hc-preview--col" label="SSE toast demo">
+  <div
+    data-hx-ext="sse"
+    data-sse-connect={`${api}/events`}
+    data-sse-close="demo:done">
+    <span
+      hidden
+      data-hc-sse-dispatch
+      data-sse-swap="hc:toast, items:changed"></span>
+
+    <section
+      id="sse-toast-demo-items"
+      class="hc-data-region"
+      data-hx-get={`${api}/items`}
+      data-hx-trigger="load, items:changed from:body"
+      data-hx-swap="outerHTML"
+      data-hx-indicator="closest .hc-data-region"
+      aria-busy="false">
+      <header class="hc-data-region__header">
+        <h2>Items</h2>
+        <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+      </header>
+    </section>
+  </div>
+</DemoFrame>

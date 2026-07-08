@@ -3,6 +3,8 @@ title: SSE live updates
 description: Server-pushed fragment updates over Server-Sent Events — named events, out-of-band pushes, the datagrid composition, and a complete-initial-render degradation story.
 ---
 
+import SseUpdatesDemo from '../../../components/recipe-demos/SseUpdatesDemo.astro';
+
 `sse-updates` is the blessed pattern for **server-pushed UI**: a feed,
 status panel, or datagrid that re-renders because the server said so,
 not because the user acted. The
@@ -24,6 +26,16 @@ server-pushed *notifications and domain events*, see the
 full contract lives in
 [`recipes/sse-updates/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-updates/contract.md).
 :::
+
+## Live demo
+
+The stream plays a ~20 s scripted sequence once, then ends itself
+deliberately with `stream:done`: timestamped activity items prepend
+into the feed, the status panel re-renders, and one push also updates
+the alert badge out-of-band in the same event. Reload the page to
+replay.
+
+<SseUpdatesDemo />
 
 ## The markup
 

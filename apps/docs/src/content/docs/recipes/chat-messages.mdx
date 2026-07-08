@@ -3,6 +3,8 @@ title: Chat messages
 description: Chat as a server round trip — one POST appends the user message and the aria-busy assistant placeholder, and resets the composer out of band.
 ---
 
+import ChatDemo from '../../../components/recipe-demos/ChatDemo.astro';
+
 A conversation is just a transcript the server renders and a form that
 appends to it. One POST returns **three fragments in one body**: the
 user's message, the assistant's `aria-busy` placeholder — the handle
@@ -14,6 +16,21 @@ bottom.
 :::tip[Scaffold]
 `npx @hypermedia-components/cli add chat-messages` copies this recipe's scaffold (`recipe.html`, `expanded.html`, `contract.md`, `checks.json`); `npx @hypermedia-components/cli validate` machine-checks your copy. The full contract lives in [`recipes/chat-messages/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chat-messages/contract.md).
 :::
+
+## Live demo
+
+Type a message and send it — the POST answers with the three-fragment
+body: your (escaped) user `<li>`, the `aria-busy` assistant placeholder,
+and the out-of-band composer reset. The placeholder then streams its
+reply — that half is the
+[streaming-response recipe](/hypermedia-components/recipes/streaming-response/).
+An empty send answers `422` into the composer only; a prompt containing
+“fail” demonstrates the error path, and Stop truncates the reply
+mid-stream. The endpoint implements the
+[server response contract](#server-response-contract) under
+`api/recipes/chat-messages/`.
+
+<ChatDemo />
 
 ## The blessed markup
 

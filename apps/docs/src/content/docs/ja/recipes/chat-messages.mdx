@@ -3,6 +3,8 @@ title: チャットメッセージ
 description: サーバー往復としてのチャット — 1 回の POST がユーザーメッセージと aria-busy のアシスタントプレースホルダーを追記し、コンポーザーを帯域外でリセットします。
 ---
 
+import ChatDemo from '../../../../components/recipe-demos/ChatDemo.astro';
+
 会話とは、サーバーが描画するトランスクリプトと、そこへ追記する
 フォームにすぎません。1 回の POST が **1 つのボディに 3 つの
 フラグメント**を返します: ユーザーのメッセージ、アシスタントの
@@ -14,6 +16,20 @@ SSE で埋めるハンドルです — そして帯域外でスワップされ�
 :::tip[スキャフォールド]
 `npx @hypermedia-components/cli add chat-messages` がこのレシピのスキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` がコピーを機械検証します。完全な契約は [`recipes/chat-messages/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/chat-messages/contract.md) にあります。
 :::
+
+## ライブデモ
+
+メッセージを入力して送信してみてください — POST が 3 フラグメントの
+ボディを返します: エスケープ済みのユーザー `<li>`、`aria-busy` の
+アシスタントプレースホルダー、そして帯域外のコンポーザーリセット。
+その後プレースホルダーが応答をストリームします — そちら側は
+[streaming-response レシピ](/hypermedia-components/ja/recipes/streaming-response/)です。
+空のまま送信すると `422` がコンポーザーだけに返り、「fail」を含む
+プロンプトはエラー経路を、Stop はストリーム途中の切り詰めを実演します。
+エンドポイントはサーバーレスポンス契約を実装した名前空間付きデモで、
+`api/recipes/chat-messages/` 配下にあります。
+
+<ChatDemo />
 
 ## blessed マークアップ
 

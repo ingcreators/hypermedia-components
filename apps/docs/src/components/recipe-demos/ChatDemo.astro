@@ -1,0 +1,56 @@
+---
+/*
+ * Live demo shared by the chat-messages AND streaming-response recipe
+ * pages — one composed exchange: the composer POST (chat-messages
+ * contract) appends the user <li> and the aria-busy assistant
+ * placeholder, and the placeholder then owns its own SSE connection
+ * (streaming-response contract) until `done`/`error`/stop swap it
+ * away. Both halves talk to the same demo namespace,
+ * `api/recipes/chat-messages/`.
+ *
+ * The composer below manually mirrors composerHtml() in
+ * apps/docs/demo-api/recipes/chat-messages.mjs (the OOB re-renders the
+ * server returns must replace THIS form) — keep id and attributes in
+ * sync. `installChatScroll()` (auto-init, loaded by Head.astro) pins
+ * the list to the bottom and wires the jump button.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/chat-messages`;
+---
+
+<DemoFrame class="hc-preview--col" label="Chat demo">
+  <div class="hc-chat" role="log" aria-label="Conversation" style="inline-size: 100%;">
+    <ol
+      class="hc-chat__list"
+      tabindex="0"
+      id="chat-messages-demo-list"
+      style="max-block-size: 20rem;">
+      <li class="hc-chat__message" data-role="assistant">
+        <div class="hc-chat__body">
+          Hi! Send a message and I will stream back a canned reply. Include
+          the word “fail” to watch the error path instead.
+        </div>
+      </li>
+    </ol>
+    <button class="hc-chat__jump hc-button" data-size="sm" type="button">↓ Latest</button>
+
+    <form
+      class="hc-field"
+      id="chat-messages-demo-composer"
+      method="post"
+      action={`${api}/chat/messages`}
+      data-hx-post={`${api}/chat/messages`}
+      data-hx-target="#chat-messages-demo-list"
+      data-hx-swap="beforeend"
+      data-hx-disabled-elt="find button[type=submit]">
+      <label class="hc-field__label" for="chat-messages-demo-prompt">Message</label>
+      <textarea
+        class="hc-input"
+        id="chat-messages-demo-prompt"
+        name="prompt"
+        rows="2"></textarea>
+      <button class="hc-button" data-variant="primary" type="submit">Send</button>
+    </form>
+  </div>
+</DemoFrame>

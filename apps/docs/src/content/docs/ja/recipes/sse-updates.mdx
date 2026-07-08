@@ -3,6 +3,8 @@ title: SSE ライブ更新
 description: Server-Sent Events によるサーバプッシュのフラグメント更新 — 名前付きイベント、out-of-band プッシュ、データグリッドとの合成、初期完全描画によるデグラデーション。
 ---
 
+import SseUpdatesDemo from '../../../../components/recipe-demos/SseUpdatesDemo.astro';
+
 `sse-updates` は**サーバプッシュ UI** のための公認パターンです:
 ユーザーが操作したからではなく、サーバがそう言ったから再描画される
 フィード、ステータスパネル、データグリッド。
@@ -26,6 +28,16 @@ description: Server-Sent Events によるサーバプッシュのフラグメン
 [`recipes/sse-updates/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sse-updates/contract.md)
 にあります。
 :::
+
+## ライブデモ
+
+ストリームは約 20 秒のスクリプト済みシーケンスを一度だけ再生し、
+`stream:done` で意図的に自ら終了します: タイムスタンプつきの
+アクティビティ項目がフィードの先頭に追加され、ステータスパネルが
+再描画され、1 つのプッシュが同じイベントの中でアラートバッジも
+out-of-band で更新します。ページをリロードすると再生し直せます。
+
+<SseUpdatesDemo />
 
 ## マークアップ
 
