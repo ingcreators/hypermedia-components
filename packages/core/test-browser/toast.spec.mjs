@@ -82,6 +82,19 @@ test.describe('toast behavior', () => {
     await expect(page.getByTestId('toast-undo-fired')).not.toHaveText('undone');
   });
 
+  test('the close button dismisses a sticky toast without firing its action', async ({ page }) => {
+    await page.getByTestId('toast-undo').click();
+    const toast = page.locator('.hc-toast');
+    await expect(toast).toHaveCount(1);
+
+    const close = toast.locator('.hc-toast__close');
+    await expect(close).toHaveAttribute('aria-label', 'Dismiss');
+    await close.click();
+    await expect(page.locator('.hc-toast')).toHaveCount(0);
+    // The action's event must NOT have fired (the undo fixture records it).
+    await expect(page.getByTestId('toast-undo-fired')).toHaveText('');
+  });
+
   test('a second toast with the same id updates in place (no duplicate)', async ({ page }) => {
     await page.getByTestId('toast-start').click();
     const toast = page.locator('.hc-toast');

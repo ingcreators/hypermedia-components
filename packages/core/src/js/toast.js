@@ -88,6 +88,19 @@ function applyContent(ownerDocument, toast, detail) {
   } else {
     toast._hcAction = null;
   }
+
+  // Visible dismiss affordance. Sticky toasts (duration: 0) are otherwise
+  // only dismissable via swipe or Escape-with-focus — neither of which a
+  // mouse user can discover. Re-created here so update-by-id keeps it.
+  const close = ownerDocument.createElement('button');
+  close.className = 'hc-toast__close';
+  close.type = 'button';
+  close.setAttribute('aria-label', t('toast.dismiss'));
+  const glyph = ownerDocument.createElement('span');
+  glyph.setAttribute('aria-hidden', 'true');
+  glyph.textContent = '×';
+  close.appendChild(glyph);
+  toast.appendChild(close);
 }
 
 function createToast(ownerDocument, detail) {
@@ -127,9 +140,9 @@ function wireSwipe(toast) {
 
   function onDown(event) {
     if (event.button != null && event.button !== 0) return; // primary only
-    // Don't start a swipe (or capture the pointer) on the action button — that
-    // would steal its click. Let the button handle its own activation.
-    if (event.target.closest?.('.hc-toast__action')) return;
+    // Don't start a swipe (or capture the pointer) on the action / close
+    // buttons — that would steal their clicks. Let them activate normally.
+    if (event.target.closest?.('.hc-toast__action, .hc-toast__close')) return;
     dragging = true;
     startX = event.clientX;
     dx = 0;
@@ -174,6 +187,12 @@ function wireSwipe(toast) {
 // listeners on any ancestor can react), then dismisses the toast.
 function wireActions(toast) {
   toast.addEventListener('click', (event) => {
+    // The close button dismisses without dispatching anything.
+    const close = event.target.closest?.('.hc-toast__close');
+    if (close && toast.contains(close)) {
+      removeToast(toast);
+      return;
+    }
     const btn = event.target.closest?.('.hc-toast__action');
     if (!btn || !toast.contains(btn) || !toast._hcAction) return;
     const { event: eventName, id, action } = toast._hcAction;

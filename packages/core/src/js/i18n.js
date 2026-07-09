@@ -45,6 +45,7 @@ export const DEFAULT_MESSAGES = Object.freeze({
   'splitter.resize': 'Resize panels',
   'themeToggle.label': 'Switch color theme',
   'toast.label': 'Notifications',
+  'toast.dismiss': 'Dismiss',
 });
 
 // The dist bundles (hc.min.js, hc.behaviors.min.js) each inline a copy of

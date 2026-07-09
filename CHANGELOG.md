@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Toast close button** (PR-1 of
+  `plans/hc-ux-improvements-plan-en.md`). Every toast rendered by
+  `installToast()` now carries a visible dismiss button
+  (`.hc-toast__close`, top inline-end corner) — previously a sticky
+  toast (`duration: 0`) was only dismissable via swipe or
+  Escape-with-focus, neither discoverable with a mouse. The button's
+  accessible name comes from the new `toast.dismiss` catalog message
+  (default `Dismiss`, translatable via `setMessages()`); clicking it
+  never fires the toast's `action` event; it survives update-by-id;
+  swipe capture skips it like the action button. Strictly additive
+  (new class, new message key); hand-authored static `.hc-toast`
+  markup lays out exactly as before.
+
 - **Recipe live demos — every documented variant demoed** (en + ja;
   audit follow-up). copy gains a `data-hc-copy-text` live preview;
   data-region adds a second region polling `every 10s` (interval-only

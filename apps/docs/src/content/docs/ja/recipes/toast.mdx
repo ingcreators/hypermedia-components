@@ -145,10 +145,10 @@ HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}, "items:refresh"
 - **アクション**(例: 元に戻す): `{ action: { label: 'Undo', event: 'hc:undo' } }`
   でボタンが描画され、htmx は `data-hx-trigger="hc:undo from:body"` で
   受け取れます — [undo-delete レシピ](/hypermedia-components/ja/recipes/undo-delete/)を
-  参照。スティッキートースト(`duration: 0`)には `action` を付けて
-  ください: そのボタンがあって初めてトーストにフォーカスが入り、
-  **フォーカスを含むトーストは Escape で解散**できます(アクションの
-  イベントは発火しません)。
+  参照。すべてのトーストには閉じるボタン(`.hc-toast__close`)も
+  描画されるため、スティッキートースト(`duration: 0`)は `action` が
+  なくてもポインタで解散できます。**フォーカスを含むトーストは
+  Escape で解散**できます(アクションのイベントは発火しません)。
 
 ## 例
 

@@ -297,3 +297,82 @@ describe('installToast — options', () => {
     expect(toast.isConnected).toBe(true);
   });
 });
+
+describe('installToast — close button', () => {
+  it('every toast renders a labeled close button', () => {
+    uninstall = installToast();
+    dispatch({ message: 'Saved' });
+
+    const close = document.querySelector('.hc-toast .hc-toast__close');
+    expect(close).not.toBeNull();
+    expect(close.getAttribute('type')).toBe('button');
+    expect(close.getAttribute('aria-label')).toBe('Dismiss');
+    // The glyph is decorative; the accessible name comes from aria-label.
+    expect(close.querySelector('[aria-hidden="true"]')).not.toBeNull();
+  });
+
+  it('clicking the close button dismisses a sticky toast and cancels nothing else', () => {
+    uninstall = installToast();
+    dispatch({ message: 'stuck', duration: 0 });
+    dispatch({ message: 'other', duration: 0 });
+
+    const toasts = document.querySelectorAll('.hc-toast');
+    expect(toasts.length).toBe(2);
+
+    toasts[0]
+      .querySelector('.hc-toast__close')
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    const remaining = document.querySelectorAll('.hc-toast');
+    expect(remaining.length).toBe(1);
+    expect(remaining[0].textContent).toContain('other');
+  });
+
+  it('close dismisses without firing the action event', () => {
+    uninstall = installToast();
+    const seen = vi.fn();
+    document.body.addEventListener('undo:it', seen);
+    dispatch({
+      message: 'deleted',
+      duration: 0,
+      action: { label: 'Undo', event: 'undo:it' },
+    });
+
+    const toast = document.querySelector('.hc-toast');
+    toast
+      .querySelector('.hc-toast__close')
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(seen).not.toHaveBeenCalled();
+    expect(document.querySelector('.hc-toast')).toBeNull();
+  });
+
+  it('the close button survives an update-by-id', () => {
+    uninstall = installToast();
+    dispatch({ id: 'job', message: 'Working…', duration: 0 });
+    dispatch({ id: 'job', message: 'Done', variant: 'success', duration: 0 });
+
+    const toast = document.querySelector('.hc-toast');
+    expect(document.querySelectorAll('.hc-toast').length).toBe(1);
+    expect(toast.querySelector('.hc-toast__close')).not.toBeNull();
+
+    toast
+      .querySelector('.hc-toast__close')
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(document.querySelector('.hc-toast')).toBeNull();
+  });
+
+  it('honors a setMessages override for the aria-label', async () => {
+    const { setMessages } = await import('../src/js/i18n.js');
+    setMessages({ 'toast.dismiss': '閉じる' });
+    try {
+      uninstall = installToast();
+      dispatch({ message: 'Saved' });
+      expect(
+        document.querySelector('.hc-toast__close').getAttribute('aria-label'),
+      ).toBe('閉じる');
+    } finally {
+      setMessages({ 'toast.dismiss': 'Dismiss' });
+    }
+  });
+});

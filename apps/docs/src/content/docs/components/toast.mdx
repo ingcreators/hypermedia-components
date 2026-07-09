@@ -32,13 +32,16 @@ The behavior renders this markup for you — you never write it by hand.
   <div class="hc-toast" role="status">
     <div class="hc-toast__title">Saved</div>
     <div class="hc-toast__body">Your changes were saved.</div>
+    <button class="hc-toast__close" type="button" aria-label="Dismiss"><span aria-hidden="true">×</span></button>
   </div>
   <div class="hc-toast" data-variant="success" role="status">
     <div class="hc-toast__body">Profile updated.</div>
+    <button class="hc-toast__close" type="button" aria-label="Dismiss"><span aria-hidden="true">×</span></button>
   </div>
   <div class="hc-toast" data-variant="error" role="alert">
     <div class="hc-toast__title">Upload failed</div>
     <div class="hc-toast__body">The server returned a 500.</div>
+    <button class="hc-toast__close" type="button" aria-label="Dismiss"><span aria-hidden="true">×</span></button>
   </div>
 
   <Fragment slot="code">
@@ -48,6 +51,9 @@ The behavior renders this markup for you — you never write it by hand.
   <div class="hc-toast" data-variant="success" role="status">
     <div class="hc-toast__title">Saved</div>
     <div class="hc-toast__body">Your changes were saved.</div>
+    <button class="hc-toast__close" type="button" aria-label="Dismiss">
+      <span aria-hidden="true">×</span>
+    </button>
   </div>
   ```
 
@@ -159,15 +165,18 @@ edge); bottom positions stack upward.
 `data-limit="N"` caps the number of visible toasts; when a new one arrives
 the **oldest** is evicted. Without it the stack is unbounded.
 
-### Swipe to dismiss
+### Dismissal
 
-Every toast can be **dragged horizontally** to dismiss it — past ~40% of its
-width it flies out, otherwise it snaps back. This is a pointer / touch
-affordance. The keyboard counterpart: **Escape dismisses the toast
-that contains the focus**, so a sticky toast (`duration: 0`) should
-carry an `action` — its button is what makes the toast focusable in
-the first place. Vertical drags still scroll
-the page. The motion is removed under `prefers-reduced-motion`.
+Every toast renders a **close button** (`.hc-toast__close`, labelled via
+the `toast.dismiss` catalog message) in its top corner — the visible,
+mouse-discoverable way to dismiss, which matters most for sticky toasts
+(`duration: 0`). Two more affordances layer on top:
+
+- **Swipe** — drag a toast horizontally past ~40% of its width and it
+  flies out; release earlier and it snaps back. Vertical drags still
+  scroll the page. The motion is removed under `prefers-reduced-motion`.
+- **Escape** — dismisses the toast that contains the focus (the close
+  or action button makes every toast keyboard-reachable).
 
 ## Accessibility
 
@@ -177,8 +186,10 @@ the page. The motion is removed under `prefers-reduced-motion`.
   `error`, `role="status"` / `aria-live="polite"` otherwise — so it is
   announced without moving focus.
 - Don't rely on color alone: include a `title` or clear `message`.
-- Keep `duration` long enough to read (or `0` for important messages), since
-  swipe-to-dismiss isn't available to keyboard users.
+- Keep `duration` long enough to read (or `0` for important messages).
+- The close button's accessible name comes from the `toast.dismiss`
+  catalog message (default "Dismiss") — translate it with
+  `setMessages()`.
 
 ## Theming tokens
 

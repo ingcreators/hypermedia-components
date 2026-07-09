@@ -40,6 +40,7 @@ const ja = Object.freeze({
   'shell.collapseNav': 'サイドバーを折りたたむ',
   'splitter.resize': 'パネルの幅を変更',
   'themeToggle.label': 'カラーテーマを切り替え',
+  'toast.dismiss': '閉じる',
   'toast.label': '通知',
 });
 
