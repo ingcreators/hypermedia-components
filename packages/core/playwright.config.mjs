@@ -8,7 +8,15 @@ export default defineConfig({
   testMatch: '**/*.spec.mjs',
   timeout: 15_000,
   fullyParallel: false,
-  retries: 0,
+  // One retry on CI only. The webkit leg intermittently hangs a single
+  // `page.goto('/')` in a beforeEach mid-suite (seen on PR #364's
+  // a11y.spec and PR #377's nested-theme.spec — 726/727 tests passing
+  // around it, always green on manual rerun): a runner-side navigation
+  // stall, not a product or test bug. A retried pass is reported as
+  // "flaky" in the Playwright report, so it stays visible instead of
+  // costing a 15-minute manual rerun. Locally retries stay off — a
+  // deterministic failure should fail fast while developing.
+  retries: process.env.CI ? 1 : 0,
   workers: 1,
   reporter: process.env.CI ? 'github' : 'list',
   expect: {
@@ -25,6 +33,11 @@ export default defineConfig({
     baseURL: BASE,
     trace: 'retain-on-failure',
     actionTimeout: 5_000,
+    // Fail a stalled navigation well inside the 15s test timeout so the
+    // retry (above) gets a full, fresh attempt instead of inheriting a
+    // nearly-exhausted budget. Normal gotos against the local static
+    // server complete in tens of milliseconds.
+    navigationTimeout: 10_000,
   },
   projects: [
     {
