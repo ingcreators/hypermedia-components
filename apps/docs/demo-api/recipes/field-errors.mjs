@@ -32,7 +32,7 @@ export function validateMember(email) {
 }
 
 /** The canonical field-errors fragment (contract.md, verbatim shape). */
-export function errorsFragment(errors, title = 'Unprocessable Entity') {
+export function errorsFragment(errors, title = 'Please fix the errors below.') {
   const items = errors
     .map((e) => {
       const key = e.messageKey ? `\n        data-message-key="${e.messageKey}"` : '';

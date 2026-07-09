@@ -1,0 +1,132 @@
+---
+title: Writing UI copy
+description: Voice and tone for the text your app renders into Hypermedia Components — error messages, toasts, confirm dialogs, empty states, and field hints.
+---
+
+In a hypermedia app the server renders the words: every alert title,
+toast message, and error line travels over the wire as HTML. That makes
+UI copy part of the contract — worth the same care as the markup around
+it. This page is the kit's voice & tone guide for the strings **your
+app** emits; the kit's own built-in strings are covered
+[at the end](#the-kits-own-strings).
+
+## Principles
+
+| Principle | In practice |
+| --- | --- |
+| **Write for the next action** | Every message should leave the reader knowing what to do now — fix a field, retry, undo, start over. |
+| **Plain language over protocol vocabulary** | HTTP status names, status codes, and exception classes belong in logs and machine attributes, never in visible text. |
+| **Consistent terms** | Call things what the UI calls them. If the label says "Display name", the error says "Display name", not "username" or `display_name`. |
+
+## Error messages
+
+An error message answers two questions — **what happened** and **how to
+fix it** — with one idea per message.
+
+- Never surface HTTP jargon or internal identifiers to end users.
+  Status text, error codes, and constraint names ride along in
+  machine-readable attributes (`data-code`, `data-field` in the
+  [field-errors fragment](/hypermedia-components/recipes/field-errors/));
+  the visible text is for people.
+- Field errors name the field by **its own label** — the text of its
+  `<label>` — so the reader can find it.
+- State the fix, not just the failure: "Enter a valid email address"
+  beats "Invalid email".
+
+| Don't | Do |
+| --- | --- |
+| Unprocessable Entity | Please fix the errors below. |
+| Error 422 | Your changes weren't saved. Fix the highlighted fields and try again. |
+| email: duplicate | This email is already registered. |
+| Constraint violation: members_email_key | This email is already registered. |
+| Invalid input | Enter a date like 2026-07-09. |
+
+The left column is fine *on the status line* — `422 Unprocessable
+Entity` is exactly right as an HTTP status. It stops being right the
+moment it becomes an `.hc-alert__title` a person has to read.
+
+## Toasts
+
+Toasts are glanced at, not read. See the
+[toast recipe](/hypermedia-components/recipes/toast/) for the wiring.
+
+- **Verb-first and short** — aim for six words or fewer.
+- **No "successfully"** — success is implied by the toast existing.
+  "Member saved", not "The member was successfully saved!".
+- **Error toasts say what to do next** — "Couldn't save. Check your
+  connection and retry.", not "An error occurred".
+- **Sticky only when the user must act.** `duration: 0` removes the
+  auto-dismiss; reserve it for toasts carrying a required decision
+  (an undo, a re-auth prompt), not for emphasis.
+- **Action labels are verbs** — "Undo", "Retry", never "Click here".
+
+| Don't | Do |
+| --- | --- |
+| The item was successfully deleted! | Item deleted |
+| An error occurred while saving | Couldn't save. Retry in a moment. |
+| Click here to undo | Undo |
+
+## Confirm dialogs
+
+The [confirm-action recipe](/hypermedia-components/recipes/confirm-action/)
+exposes each part of the dialog as an attribute — use them to name the
+action, not to ask a vague question:
+
+- The **title names the action**: "Delete invoice", not "Are you sure?".
+- The **body states the consequence**: what is lost, and whether it can
+  be undone.
+- The **confirming button repeats the verb**: "Delete", never
+  "OK" or "Yes" — the button label alone should say what pressing it
+  does.
+
+```html
+<button class="hc-button" data-variant="error"
+        data-hx-delete="/invoices/1024"
+        data-hc-confirm="This permanently deletes invoice #1024."
+        data-hc-confirm-title="Delete invoice"
+        data-hc-confirm-label="Delete">
+  Delete
+</button>
+```
+
+## Empty states
+
+An [`hc-empty`](/hypermedia-components/components/empty/) block states
+**what would be here** and offers **the next step** — an empty screen
+that only says "No data" is a dead end:
+
+```html
+<div class="hc-empty">
+  <p class="hc-empty__title">No members yet</p>
+  <p class="hc-empty__description">
+    People you invite will appear here.
+  </p>
+  <div class="hc-empty__actions">
+    <button class="hc-button" data-variant="primary">Invite a member</button>
+  </div>
+</div>
+```
+
+## Field hints vs. errors
+
+Two different jobs, two different slots:
+
+- A **hint** (`.hc-field__hint`) is guidance that is *always true* —
+  "We never share it." It stays muted even while the field is invalid.
+- An **error** (`.hc-field__message` as the validation result, or the
+  behavior-managed `.hc-field__error` slot) is *what to fix now* —
+  "Enter a valid email address." It reads in the error color and
+  disappears when the problem does.
+
+If a sentence would still be helpful after the user fixes the field,
+it's a hint. See
+[Field → Hint vs. error](/hypermedia-components/components/field/#hint-vs-error)
+for the markup and the recoloring rules.
+
+## The kit's own strings
+
+Everything a behavior injects on its own — "Dismiss", "Confirm",
+"Cancel", upload and pagination status lines — resolves through one
+message catalog, so your app can restate them in its own voice and
+language with a single `setMessages()` call. See
+[Internationalization (i18n)](/hypermedia-components/fundamentals/i18n/).

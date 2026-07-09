@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Writing guide + humanized error copy** (PR-4 of
+  `plans/hc-ux-improvements-plan-en.md`). New
+  `fundamentals/writing` page (en + ja): UI-copy principles — error
+  messages that say what happened and how to fix it (no HTTP jargon),
+  verb-first toasts, confirm dialogs whose button repeats the verb,
+  empty states with a next step, hint-vs-error usage, i18n pointers.
+  The canonical field-errors fragment examples stop using
+  "Unprocessable Entity" as a user-facing alert title ("Please fix
+  the errors below." across docs, demo API and the recipe scaffold);
+  status-line references to `422 Unprocessable Entity` are unchanged
+  (those name the protocol, not the user copy).
+
 - **Docs header — display-settings popover** (PR-3 of
   `plans/hc-ux-improvements-plan-en.md`). The four labeled preview
   pickers (Color / Neutral / Density / Dir) move from the header row
