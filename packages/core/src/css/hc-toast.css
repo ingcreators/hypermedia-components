@@ -127,6 +127,45 @@
     border-radius: 2px;
   }
 
+  /* Close button — the visible dismiss affordance installToast() renders
+   * into every toast (top inline-end corner). Scoping the extra padding to
+   * :has(.hc-toast__close) keeps hand-authored static toasts (docs previews,
+   * tests) laid out exactly as before. */
+  .hc-toast:has(.hc-toast__close) {
+    position: relative;
+    padding-inline-end: calc(var(--hc-toast-padding-x) + 1.75rem);
+  }
+
+  .hc-toast__close {
+    position: absolute;
+    inset-block-start: 0.375rem;
+    inset-inline-end: 0.375rem;
+    display: grid;
+    place-items: center;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: 1;
+    opacity: 0.7;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  .hc-toast__close:hover {
+    opacity: 1;
+  }
+
+  .hc-toast__close:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 2px;
+    opacity: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hc-toast {
       transition-duration: 0ms;
