@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Density × touch-target guidance** (PR-5 of
+  `plans/hc-ux-improvements-plan-en.md`). The density docs gain a
+  "Touch targets" section (en + ja) with the real numbers
+  (comfortable = 40 px controls, `data-size="lg"` = 48 px, dense =
+  28 px) and an honest reset recipe for coarse pointers (flip
+  `data-density` via `matchMedia('(pointer: coarse)')` — the tiers
+  are attribute-scoped overrides of the same custom properties, so
+  there are no per-tier variables to target from CSS alone); the
+  kitchen-sink intro cross-links it next to the density switcher.
+
 - **Writing guide + humanized error copy** (PR-4 of
   `plans/hc-ux-improvements-plan-en.md`). New
   `fundamentals/writing` page (en + ja): UI-copy principles — error

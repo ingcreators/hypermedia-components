@@ -279,6 +279,47 @@ controls so the form retains its visual rhythm.
   </div>
 </div>
 
+## Touch targets
+
+Density trades target size for information density — pick the tier by
+pointer, not by taste:
+
+- **`comfortable`** is the touch tier. Controls are 40 px tall
+  (48 px at `data-size="lg"`), clearing the WCAG 2.5.8 target-size
+  minimum (24 × 24 px) with room to spare; put `data-size="lg"` on
+  primary touch actions to reach the 44–48 px that platform HIGs
+  (Apple / Material) recommend. Checkbox and radio glyphs are 18 px,
+  but the wrapping `.hc-checkbox-label` / `.hc-radio-label` extends
+  the clickable area well beyond the glyph.
+- **`compact` and `dense`** are pointer-fine (mouse / trackpad)
+  presets for information-dense desktop surfaces — datagrids,
+  consoles, admin toolbars. At `dense`, buttons drop to 28 px and
+  checkbox / radio glyphs to 14 px, below every touch guideline.
+
+Don't ship `compact` or `dense` as the only density on a touch-first
+screen, and if your app offers a density picker, gate it on the
+pointer:
+
+```html
+<script type="module">
+  // Coarse pointers (touch) always get comfortable targets.
+  if (matchMedia('(pointer: coarse)').matches) {
+    document.documentElement.setAttribute('data-density', 'comfortable');
+  }
+</script>
+```
+
+Flipping the attribute is the recommended reset because each tier
+re-emits the **same** custom-property names under its own attribute
+selector (see [Why this works](#why-this-works)) — there are no
+per-tier `--hc-*-comfortable` variables a media query could reference.
+A CSS-only alternative therefore means duplicating values: copy the
+comfortable column of the tables above into an un-layered
+`@media (pointer: coarse) { [data-density] { … } }` block (un-layered
+author CSS beats the kit's `@layer hc.tokens`, so no specificity
+fight). That copy goes stale whenever the tokens change, which is why
+the one-line attribute reset above is preferred.
+
 ## Applying it to your page
 
 Set the attribute as high in the DOM as is useful. Most apps want it
