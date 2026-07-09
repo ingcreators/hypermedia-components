@@ -23,7 +23,7 @@ not swap non-2xx responses by default; see “htmx wiring” below).
 
 ```html
 <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
-  <p class="hc-alert__title">Unprocessable Entity</p>
+  <p class="hc-alert__title">Please fix the errors below.</p>
   <ul class="hc-alert__errors">
     <li class="hc-alert__error" data-field="email" data-code="duplicate"
         data-message-key="members.email.duplicate">email: duplicate</li>

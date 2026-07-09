@@ -56,7 +56,7 @@ installFieldErrors();
 
 ```html
 <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
-  <p class="hc-alert__title">Unprocessable Entity</p>
+  <p class="hc-alert__title">Please fix the errors below.</p>
   <ul class="hc-alert__errors">
     <li class="hc-alert__error" data-field="email" data-code="duplicate"
         data-message-key="members.email.duplicate">email: duplicate</li>
@@ -80,6 +80,10 @@ installFieldErrors();
   (後述)。項目のテキストがフォールバックです。**`data-code`** は
   スタイリングやテストのためにそのまま通されます。
 
+タイトルと項目のテキストはアプリが選ぶコピーです — 言い回しは
+[UI コピーの書き方](/hypermedia-components/ja/fundamentals/writing/)を
+参照してください。
+
 ## 試してみる
 
 **Simulate 422** をクリックすると、まさに上のフラグメントがフォームの
@@ -102,7 +106,7 @@ installFieldErrors();
     </div>
     <template id="fe-demo-template">
       <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
-        <p class="hc-alert__title">Unprocessable Entity</p>
+        <p class="hc-alert__title">Please fix the errors below.</p>
         <ul class="hc-alert__errors">
           <li class="hc-alert__error" data-field="email" data-code="duplicate" data-message-key="members.email.duplicate">email: duplicate</li>
           <li class="hc-alert__error" data-field="unknown-field">Something form-level went wrong</li>
