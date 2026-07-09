@@ -4,6 +4,30 @@ description: ハイパーメディアアプリケーションのためのセマ�
 template: splash
 hero:
   tagline: ハイパーメディアアプリケーションのためのセマンティックなコンポーネントとレシピ。
+  image:
+    html: |
+      <div class="hc-card not-content" style="min-inline-size: min(22rem, 100%); text-align: start;" aria-label="ライブコンポーネントサンプル">
+        <div class="hc-card__header"><strong>本物の HTML が、そのまま動く</strong></div>
+        <div class="hc-card__body" style="display: grid; gap: .75rem;">
+          <div class="hc-field">
+            <label class="hc-field__label" for="hero-email">Email</label>
+            <input class="hc-input" id="hero-email" name="email" type="email" placeholder="ada@example.com">
+            <p class="hc-field__hint">メールアドレスは共有されません。</p>
+          </div>
+          <div class="hc-cluster" style="--hc-cluster-gap: .5rem; align-items: center;">
+            <button class="hc-button" data-variant="primary" type="button"
+              data-toast-message="保存しました — このトーストも本物のコンポーネントです"
+              data-toast-variant="success">保存</button>
+            <button class="hc-button" type="button"
+              data-toast-message="トーストのアクションも本物です"
+              data-toast-variant="info">トーストを表示</button>
+            <span class="hc-badge" data-variant="success">Active</span>
+          </div>
+          <p class="hc-field__hint" style="margin: 0;">
+            上のコントロールはすべてこのキットの素のマークアップです — 保存を押してみてください。
+          </p>
+        </div>
+      </div>
   actions:
     - text: はじめる
       link: /hypermedia-components/ja/start/introduction/
@@ -14,6 +38,8 @@ hero:
       icon: external
 ---
 
+import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astro';
+
 {/* Intent row: route the four visitor intents (evaluate / install / see it
     live / integrate) right below the hero. */}
 
@@ -23,6 +49,19 @@ hero:
   <a class="hc-button" href="/hypermedia-components/ja/kitchen-sink/">すべてをライブで見る</a>
   <a class="hc-button" href="/hypermedia-components/ja/integrations/">スタックに組み込む</a>
 </div>
+
+{/* HTML over the wire, for real: the same live-search demo the recipe
+    page uses — a debounced htmx request against this site's demo API. */}
+
+<section class="not-content" style="max-inline-size: 34rem; margin-inline: auto; margin-block-end: 2.5rem; text-align: start;">
+  <p style="text-align: center; color: var(--sl-color-gray-2); margin-block-end: .75rem;">
+    …そしてワイヤ契約はただの HTML です。下に入力してみてください —
+    デバウンスされた htmx リクエストがこのサイトの
+    <a href="/hypermedia-components/ja/recipes/live-search/">デモ API</a>
+    に届き、フラグメントがスワップされて返ってきます:
+  </p>
+  <LiveSearchDemo />
+</section>
 
 {/* Dogfood: the landing cards are built with HC's own hc-grid + hc-card,
     not Starlight's CardGrid. `not-content` keeps Starlight prose styles off

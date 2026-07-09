@@ -4,6 +4,30 @@ description: Semantic components and recipes for hypermedia applications.
 template: splash
 hero:
   tagline: Semantic components and recipes for hypermedia applications.
+  image:
+    html: |
+      <div class="hc-card not-content" style="min-inline-size: min(22rem, 100%); text-align: start;" aria-label="Live component sample">
+        <div class="hc-card__header"><strong>Real HTML, running live</strong></div>
+        <div class="hc-card__body" style="display: grid; gap: .75rem;">
+          <div class="hc-field">
+            <label class="hc-field__label" for="hero-email">Email</label>
+            <input class="hc-input" id="hero-email" name="email" type="email" placeholder="ada@example.com">
+            <p class="hc-field__hint">We never share it.</p>
+          </div>
+          <div class="hc-cluster" style="--hc-cluster-gap: .5rem; align-items: center;">
+            <button class="hc-button" data-variant="primary" type="button"
+              data-toast-message="Saved — this toast is the real component"
+              data-toast-variant="success">Save</button>
+            <button class="hc-button" type="button"
+              data-toast-message="Undo is a real toast action too"
+              data-toast-variant="info">Fire a toast</button>
+            <span class="hc-badge" data-variant="success">Active</span>
+          </div>
+          <p class="hc-field__hint" style="margin: 0;">
+            Every control above is plain markup from this kit — click Save.
+          </p>
+        </div>
+      </div>
   actions:
     - text: Get started
       link: /hypermedia-components/start/introduction/
@@ -14,6 +38,8 @@ hero:
       icon: external
 ---
 
+import LiveSearchDemo from '../../components/recipe-demos/LiveSearchDemo.astro';
+
 {/* Intent row: route the four visitor intents (evaluate / install / see it
     live / integrate) right below the hero. */}
 
@@ -23,6 +49,17 @@ hero:
   <a class="hc-button" href="/hypermedia-components/kitchen-sink/">See everything live</a>
   <a class="hc-button" href="/hypermedia-components/integrations/">Wire into your stack</a>
 </div>
+
+{/* HTML over the wire, for real: the same live-search demo the recipe
+    page uses — a debounced htmx request against this site's demo API. */}
+
+<section class="not-content" style="max-inline-size: 34rem; margin-inline: auto; margin-block-end: 2.5rem; text-align: start;">
+  <p style="text-align: center; color: var(--sl-color-gray-2); margin-block-end: .75rem;">
+    …and the wire contract is just HTML. Type below — a debounced htmx
+    request hits this site's <a href="/hypermedia-components/recipes/live-search/">demo API</a> and swaps the fragment back:
+  </p>
+  <LiveSearchDemo />
+</section>
 
 {/* Dogfood: the landing cards are built with HC's own hc-grid + hc-card,
     not Starlight's CardGrid. `not-content` keeps Starlight prose styles off
