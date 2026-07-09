@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs header — display-settings popover** (PR-3 of
+  `plans/hc-ux-improvements-plan-en.md`). The four labeled preview
+  pickers (Color / Neutral / Density / Dir) move from the header row
+  into one `hc-popover` behind a compact sliders icon ("Display
+  settings" / 「表示設定」), so the site title no longer truncates —
+  it was clipped to "Hyperm…" even at 1280 px. Persistence
+  (localStorage + pre-paint head script) unchanged; dogfoods
+  `hc-popover` + `hc-select`.
+
 - **`.hc-field__hint` — persistent helper text** (PR-2 of
   `plans/hc-ux-improvements-plan-en.md`). `data-invalid` recolors every
   `.hc-field__message`, which collapsed the hint/error hierarchy when a
