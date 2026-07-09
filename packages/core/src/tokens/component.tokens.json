@@ -827,7 +827,7 @@
     },
     "duration": {
       "$type": "duration",
-      "$value": "200ms"
+      "$value": "{semantic.motion.duration.base}"
     }
   },
   "dropzone": {
@@ -1237,7 +1237,7 @@
     },
     "transition-duration": {
       "$type": "duration",
-      "$value": "120ms"
+      "$value": "{semantic.motion.duration.fast}"
     },
     "sm": {
       "size": {
@@ -1283,7 +1283,7 @@
     },
     "transition-duration": {
       "$type": "duration",
-      "$value": "200ms"
+      "$value": "{semantic.motion.duration.base}"
     },
     "indeterminate-duration": {
       "$type": "duration",
@@ -1746,6 +1746,10 @@
     "backdrop": {
       "$type": "color",
       "$value": "{semantic.color.overlay}"
+    },
+    "duration": {
+      "$type": "duration",
+      "$value": "{semantic.motion.duration.base}"
     }
   },
   "card": {
@@ -2890,6 +2894,10 @@
         "$type": "color",
         "$value": "{semantic.color.status.error.border}"
       }
+    },
+    "duration": {
+      "$type": "duration",
+      "$value": "{semantic.motion.duration.base}"
     }
   },
   "breadcrumb": {

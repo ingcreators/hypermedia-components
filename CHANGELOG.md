@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Motion tokens + guide** (PR-8 of
+  `plans/hc-ux-improvements-plan-en.md`). New semantic motion scale —
+  `--hc-motion-duration-{fast,base,slow}` (120/200/320 ms) and
+  `--hc-motion-easing-{standard,enter,exit}` — consumed by the
+  overlays: the dialog gains a tokenized fade + settle enter/exit
+  (`--hc-dialog-duration`, `@starting-style` +
+  `transition-behavior: allow-discrete`, zeroed under
+  `prefers-reduced-motion`), the drawer's easing and the toast's
+  swipe transitions move onto the scale (`--hc-toast-duration`;
+  160 → 200 ms), and rating/progress durations now reference it
+  (values unchanged). New `fundamentals/motion` guide (en + ja):
+  the scale, what consumes it, and when to animate at all.
+
 - **Templates — full-page compositions** (PR-7 of
   `plans/hc-ux-improvements-plan-en.md`). New docs section between
   Blocks and Recipes with two page-scale, live compositions assembled

@@ -1,0 +1,86 @@
+---
+title: Motion
+description: The motion scale — three durations, three easing curves, and the rules for when to animate at all.
+---
+
+The kit animates very little, on purpose: motion in a hypermedia app
+should explain a state change, not decorate it. What does animate reads
+from one small scale, so overlays and controls feel like one system.
+
+## The scale
+
+Durations and easings are semantic tokens (emitted as `--hc-motion-*`
+custom properties):
+
+| Token | Value | Use for |
+| --- | --- | --- |
+| `--hc-motion-duration-fast` | `120ms` | Hover/press feedback, small state flips (rating stars). |
+| `--hc-motion-duration-base` | `200ms` | Overlay enter/exit (dialog, drawer, toast), panel reveals, progress bar updates. |
+| `--hc-motion-duration-slow` | `320ms` | Large surfaces moving a long way (full-height sheets). Rarely needed. |
+| `--hc-motion-easing-standard` | `ease` | Property changes that stay on screen (color, translate-in-place). |
+| `--hc-motion-easing-enter` | `cubic-bezier(0, 0, 0.2, 1)` | Entering elements — start fast, settle gently (decelerate). |
+| `--hc-motion-easing-exit` | `cubic-bezier(0.4, 0, 1, 1)` | Leaving elements — accelerate away (the eye doesn't follow exits). |
+
+Loaders are **not** on this scale: the spinner, skeleton shimmer and
+indeterminate progress keep their own longer cycles — they communicate
+"still working", not a state change.
+
+## What consumes it
+
+- **Dialog** fades + settles in/out (`--hc-dialog-duration`, enter/exit
+  easings, `@starting-style` + `transition-behavior: allow-discrete`).
+- **Drawer** slides on `--hc-drawer-duration` with the standard easing.
+- **Toast** snap-back / fly-out uses `--hc-toast-duration`.
+- Rating and progress transitions reference the scale's fast/base steps.
+
+Component durations stay overridable per component
+(`--hc-dialog-duration: 150ms;`) — they default to the scale.
+
+## Rules of thumb
+
+1. **Animate state changes, not attention.** An element entering,
+   leaving, or moving may animate; nothing should pulse or bounce to
+   attract clicks.
+2. **One property set per pattern.** Overlays fade/settle; panels
+   slide; feedback recolors. Don't combine three effects on one
+   element.
+3. **Exits faster-feeling than entrances.** Use the exit easing —
+   users have already decided to leave; don't make them watch.
+4. **Respect `prefers-reduced-motion`.** Every kit transition collapses
+   to `0ms` under it. Do the same for app-level motion:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .my-panel {
+    transition-duration: 0ms;
+  }
+}
+```
+
+5. **Never gate function on motion.** htmx swaps must land whether or
+   not the transition plays — the kit's transitions are all
+   presentation-only, and yours should be too.
+
+## Using the scale in app CSS
+
+```css
+.my-panel {
+  transition:
+    opacity var(--hc-motion-duration-base) var(--hc-motion-easing-enter);
+}
+```
+
+Overriding the scale re-times every consumer at once:
+
+```css
+:root {
+  --hc-motion-duration-base: 160ms; /* a snappier app */
+}
+```
+
+## Related
+
+- [Tokens](/hypermedia-components/fundamentals/tokens/) — how the token
+  layers emit custom properties.
+- [Accessibility](/hypermedia-components/fundamentals/accessibility/) —
+  reduced-motion testing.

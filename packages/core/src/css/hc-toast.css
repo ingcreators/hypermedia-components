@@ -69,9 +69,12 @@
     box-shadow: var(--hc-shadow-md);
 
     /* Horizontal drag is the swipe-to-dismiss gesture; the behavior animates
-     * the snap-back / fly-out via these transitions. */
+     * the snap-back / fly-out via these transitions. Durations/easing come
+     * from the motion scale (fundamentals/motion). */
     touch-action: pan-y;
-    transition: translate 160ms ease, opacity 160ms ease;
+    transition:
+      translate var(--hc-toast-duration) var(--hc-motion-easing-standard),
+      opacity var(--hc-toast-duration) var(--hc-motion-easing-standard);
   }
 
   .hc-toast[data-variant="success"] {
