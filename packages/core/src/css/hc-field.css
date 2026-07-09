@@ -42,6 +42,19 @@
     color: var(--hc-field-invalid-message-color);
   }
 
+  /* Persistent helper text that keeps its muted color when the field
+   * turns invalid — unlike `__message`, which doubles as the
+   * state-coupled message (and is recolored above) in many recipes.
+   * Use `__hint` for always-true guidance ("We never share it.") and
+   * `__message` / `__error` for the validation result, so the two stay
+   * visually distinct inside an invalid field. */
+  .hc-field__hint {
+    margin: 0;
+    color: var(--hc-field-message-color);
+    font-size: var(--hc-field-message-font-size);
+    line-height: 1.4;
+  }
+
   /* When the field is marked invalid, force the contained input's
    * border to the error color too, even if aria-invalid is missing on
    * the input itself (defensive — the recommended pattern still sets

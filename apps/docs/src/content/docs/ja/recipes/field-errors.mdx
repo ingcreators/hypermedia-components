@@ -94,7 +94,7 @@ installFieldErrors();
     <div class="hc-field">
       <label class="hc-field__label" for="fe-demo-email">Email</label>
       <input class="hc-input" id="fe-demo-email" name="email" type="email" aria-describedby="fe-demo-email-help" />
-      <p class="hc-field__message" id="fe-demo-email-help">We never share it.</p>
+      <p class="hc-field__hint" id="fe-demo-email-help">We never share it.</p>
     </div>
     <div style="display:flex;gap:.5rem;">
       <button type="button" class="hc-button" data-variant="error" onclick="const c = document.getElementById('fe-demo-errors'); c.innerHTML = document.getElementById('fe-demo-template').innerHTML; c.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }))">Simulate 422</button>
