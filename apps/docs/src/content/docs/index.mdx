@@ -3,7 +3,7 @@ title: Hypermedia Components
 description: Semantic components and recipes for hypermedia applications.
 template: splash
 hero:
-  tagline: Semantic components and recipes for hypermedia applications.
+  tagline: Semantic HTML components and htmx recipes — the markup is the wire contract.
   image:
     html: |
       <div class="hc-card not-content" style="min-inline-size: min(22rem, 100%); text-align: start;" aria-label="Live component sample">
@@ -18,14 +18,8 @@ hero:
             <button class="hc-button" data-variant="primary" type="button"
               data-toast-message="Saved — this toast is the real component"
               data-toast-variant="success">Save</button>
-            <button class="hc-button" type="button"
-              data-toast-message="Undo is a real toast action too"
-              data-toast-variant="info">Fire a toast</button>
             <span class="hc-badge" data-variant="success">Active</span>
           </div>
-          <p class="hc-field__hint" style="margin: 0;">
-            Every control above is plain markup from this kit — click Save.
-          </p>
         </div>
       </div>
   actions:
@@ -38,12 +32,13 @@ hero:
       icon: external
 ---
 
+import Demo from '../../components/Demo.astro';
 import LiveSearchDemo from '../../components/recipe-demos/LiveSearchDemo.astro';
 
 {/* Intent row: route the four visitor intents (evaluate / install / see it
     live / integrate) right below the hero. */}
 
-<div class="hc-cluster not-content" style="--hc-cluster-gap: .75rem; justify-content: center; margin-block-end: 1.25rem;">
+<div class="hc-cluster not-content" style="--hc-cluster-gap: .75rem; justify-content: center; margin-block-end: .75rem;">
   <a class="hc-button" href="/hypermedia-components/components/">Browse components</a>
   <a class="hc-button" href="/hypermedia-components/start/installation/">Install</a>
   <a class="hc-button" href="/hypermedia-components/kitchen-sink/">See everything live</a>
@@ -52,11 +47,11 @@ import LiveSearchDemo from '../../components/recipe-demos/LiveSearchDemo.astro';
 
 {/* Live component showcase: breadth at a glance, above the fold. Every
     specimen is the real component (the behaviors bundle runs on the
-    docs), so this band shows quality AND quantity in one strip — a
-    name list would say less in more space. */}
+    docs). Counts and the browse links live in the numbers line and the
+    intent row — no caption needed. */}
 
-<section class="not-content" style="max-inline-size: 56rem; margin-inline: auto; margin-block-end: 2.5rem;">
-  <div class="hc-preview" style="display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; align-items: center; min-block-size: 0; padding: 1.25rem;">
+<section class="not-content" style="max-inline-size: 56rem; margin-inline: auto; margin-block-end: 0;">
+  <div class="hc-preview" style="display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; align-items: center; min-block-size: 0; padding: 1rem;">
     <button class="hc-button" data-variant="primary" data-size="sm" type="button"
       data-toast-message="Saved — a real toast, close button and all"
       data-toast-variant="success">Button</button>
@@ -81,41 +76,38 @@ import LiveSearchDemo from '../../components/recipe-demos/LiveSearchDemo.astro';
     <progress class="hc-progress" value="60" max="100" aria-label="Progress demo" style="inline-size: 7rem;"></progress>
     <span class="hc-spinner" aria-label="Loading"></span>
   </div>
-  <p style="text-align: center; color: var(--sl-color-gray-2); margin-block-start: .6rem;">
-    <a href="/hypermedia-components/components/">All 64 components →</a>
-    <span aria-hidden="true"> · </span>
-    <a href="/hypermedia-components/kitchen-sink/">everything live on one page</a>
-  </p>
 </section>
 
-{/* Dogfood: the landing cards are built with HC's own hc-grid + hc-card,
-    not Starlight's CardGrid. `not-content` keeps Starlight prose styles off
-    the HC surfaces. */}
+{/* The evaluator's scale-and-risk signals, in one scannable line. */}
+
+<div class="not-content" style="text-align: center; color: var(--sl-color-gray-2); margin-block: .75rem 2rem;">64 components · 25 recipes, every one with a live demo · 2 page templates · 0 runtime dependencies · MIT</div>
+
+{/* Principles — each card links to the page that explains it. */}
 
 <div class="hc-grid not-content" style="--hc-grid-min: 14rem;">
   <div class="hc-card">
-    <div class="hc-card__header"><strong>Standard HTML first</strong></div>
+    <div class="hc-card__header"><strong><a href="/hypermedia-components/start/philosophy/">Standard HTML first</a></strong></div>
     <div class="hc-card__body">
       Native elements like <code>button</code>, <code>dialog</code>, and
       <code>popover</code> are the primary building blocks.
     </div>
   </div>
   <div class="hc-card">
-    <div class="hc-card__header"><strong>Light DOM</strong></div>
+    <div class="hc-card__header"><strong><a href="/hypermedia-components/fundamentals/">Light DOM</a></strong></div>
     <div class="hc-card__body">
       No Shadow DOM. htmx attributes, form behavior, and progressive
       enhancement work as expected.
     </div>
   </div>
   <div class="hc-card">
-    <div class="hc-card__header"><strong>DTCG tokens</strong></div>
+    <div class="hc-card__header"><strong><a href="/hypermedia-components/fundamentals/tokens/">DTCG tokens</a></strong></div>
     <div class="hc-card__body">
       Themes, density, and component values come from token files exported
       as CSS custom properties.
     </div>
   </div>
   <div class="hc-card">
-    <div class="hc-card__header"><strong>htmx-friendly recipes</strong></div>
+    <div class="hc-card__header"><strong><a href="/hypermedia-components/recipes/">htmx-friendly recipes</a></strong></div>
     <div class="hc-card__body">
       Confirm action, live search, remote dialog, filter popover — with
       documented server contracts.
@@ -123,84 +115,65 @@ import LiveSearchDemo from '../../components/recipe-demos/LiveSearchDemo.astro';
   </div>
 </div>
 
-{/* HTML over the wire, for real: the same live-search demo the recipe
-    page uses — a debounced htmx request against this site's demo API. */}
+## The markup is the contract
 
-<section class="not-content" style="max-inline-size: 34rem; margin-inline: auto; margin-block: 2.5rem; text-align: start;">
-  <p style="text-align: center; color: var(--sl-color-gray-2); margin-block-end: .75rem;">
-    …and the wire contract is just HTML. Type below — a debounced htmx
-    request hits this site's <a href="/hypermedia-components/recipes/live-search/">demo API</a> and swaps the fragment back:
-  </p>
+What you write is what ships — a semantic class on a native element,
+state in attributes, no wrapper runtime. The Code tab below *is* the
+wire format a server (or template engine, or code generator) emits:
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:26rem;">
+  <div class="hc-field">
+    <label class="hc-field__label" for="contract-email">Email</label>
+    <input class="hc-input" id="contract-email" name="email" type="email" placeholder="ada@example.com" />
+    <p class="hc-field__hint">We never share it.</p>
+  </div>
+  <div class="hc-cluster" style="--hc-cluster-gap: .5rem;">
+    <button class="hc-button" data-variant="primary" type="button">Save</button>
+    <button class="hc-button" type="button">Cancel</button>
+    <span class="hc-badge" data-variant="info">Draft</span>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input class="hc-input" id="email" name="email" type="email">
+    <p class="hc-field__hint">We never share it.</p>
+  </div>
+
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button">Cancel</button>
+  <span class="hc-badge" data-variant="info">Draft</span>
+  ```
+
+  </Fragment>
+</Demo>
+
+Theming rides the same markup — try the color / density / dark
+switchers in the header and everything on this page follows.
+
+## HTML over the wire
+
+The server answers with fragments, htmx swaps them in, and the
+components just work — no JSON, no client state. Type below: a
+debounced request hits this site's
+<a href="/hypermedia-components/recipes/live-search/">demo API</a> and
+the results fragment swaps back.
+
+<section class="not-content" style="max-inline-size: 34rem; margin-block: 1.25rem;">
   <LiveSearchDemo />
 </section>
 
-## Standard HTML, composed
-
-Every component is a semantic class on a native element. Here are a few — live, themeable, and built from plain markup. Try the color / density / dark switchers in the header.
-
-{/* Dogfood: the showcase is composed from HC components inside hc-grid +
-    hc-card. `not-content` keeps Starlight prose styles off the surfaces. */}
-
-<div class="hc-grid not-content" style="--hc-grid-min: 18rem; margin-block-start: 1.5rem;">
-  <div class="hc-card">
-    <div class="hc-card__header"><strong>Actions</strong></div>
-    <div class="hc-card__body">
-      <div class="hc-cluster" style="--hc-cluster-gap: .5rem;">
-        <button class="hc-button" data-variant="primary" type="button">Save</button>
-        <button class="hc-button" type="button">Cancel</button>
-        <button class="hc-button" data-variant="ghost" type="button">More</button>
-      </div>
-      <div class="hc-cluster" style="--hc-cluster-gap: .5rem; margin-block-start: .85rem;">
-        <span class="hc-badge" data-variant="success">Active</span>
-        <span class="hc-badge" data-variant="info">Beta</span>
-        <span class="hc-cluster" style="--hc-cluster-gap: .2rem;">
-          <kbd class="hc-kbd">⌘</kbd><kbd class="hc-kbd">K</kbd>
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <div class="hc-card">
-    <div class="hc-card__header"><strong>Forms</strong></div>
-    <div class="hc-card__body">
-      <div class="hc-stack" style="--hc-stack-gap: .75rem;">
-        <div class="hc-field">
-          <label class="hc-field__label" for="home-email">Email</label>
-          <input class="hc-input" id="home-email" type="email" placeholder="you@example.com" />
-        </div>
-        <select class="hc-select" aria-label="Plan">
-          <option>Free</option>
-          <option>Pro</option>
-          <option>Team</option>
-        </select>
-        <label class="hc-switch-label">
-          <input class="hc-switch" type="checkbox" role="switch" checked />
-          Email notifications
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <div class="hc-card">
-    <div class="hc-card__header"><strong>Feedback</strong></div>
-    <div class="hc-card__body">
-      <div class="hc-stack" style="--hc-stack-gap: .75rem;">
-        <div class="hc-alert" data-variant="success" role="status">
-          <strong class="hc-alert__title">Saved</strong>
-          <p class="hc-alert__body">Your changes are saved.</p>
-        </div>
-        <div class="hc-item">
-          <span class="hc-item__media" aria-hidden="true">📂</span>
-          <div class="hc-item__content">
-            <span class="hc-item__title">Quarterly report</span>
-            <span class="hc-item__description">Updated 2 days ago</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+Every one of the <a href="/hypermedia-components/recipes/">25 recipes</a>
+works this way — each page documents the server contract and runs it
+live against this site's Worker. The
+<a href="/hypermedia-components/templates/">page templates</a> compose
+them into full screens.
 
 <div class="not-content" style="text-align: center; margin-block-start: 2.5rem;">
-  <a class="hc-button" data-variant="primary" href="/hypermedia-components/components/">Browse all components →</a>
+  <div class="hc-cluster" style="--hc-cluster-gap: .75rem; justify-content: center;">
+    <a class="hc-button" data-variant="primary" href="/hypermedia-components/components/">Browse all components →</a>
+    <a class="hc-button" href="/hypermedia-components/recipes/">Explore the recipes →</a>
+  </div>
 </div>

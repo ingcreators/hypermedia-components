@@ -84,3 +84,12 @@
 :root[data-theme='light'] {
   --sl-color-text-accent: var(--hc-color-action-primary-bg);
 }
+
+/* Splash hero: Starlight's default padding-block is
+ * clamp(2.5rem, 1rem + 10vmin, 10rem) — ~90px top and bottom on a
+ * 768px-tall viewport, which alone pushes the showcase band and the
+ * numbers line out of the first screen. Landing content earns that
+ * space better than air does. */
+[data-has-hero] .hero {
+  padding-block: clamp(1.5rem, 1rem + 4vmin, 4rem);
+}

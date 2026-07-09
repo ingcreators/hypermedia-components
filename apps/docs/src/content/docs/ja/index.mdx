@@ -3,7 +3,7 @@ title: Hypermedia Components
 description: ハイパーメディアアプリケーションのためのセマンティックなコンポーネントとレシピ。
 template: splash
 hero:
-  tagline: ハイパーメディアアプリケーションのためのセマンティックなコンポーネントとレシピ。
+  tagline: セマンティックな HTML コンポーネントと htmx レシピ — markup がそのままワイヤ契約。ビルド不要で、サーバ言語は問いません。
   image:
     html: |
       <div class="hc-card not-content" style="min-inline-size: min(22rem, 100%); text-align: start;" aria-label="ライブコンポーネントサンプル">
@@ -18,14 +18,8 @@ hero:
             <button class="hc-button" data-variant="primary" type="button"
               data-toast-message="保存しました — このトーストも本物のコンポーネントです"
               data-toast-variant="success">保存</button>
-            <button class="hc-button" type="button"
-              data-toast-message="トーストのアクションも本物です"
-              data-toast-variant="info">トーストを表示</button>
             <span class="hc-badge" data-variant="success">Active</span>
           </div>
-          <p class="hc-field__hint" style="margin: 0;">
-            上のコントロールはすべてこのキットの素のマークアップです — 保存を押してみてください。
-          </p>
         </div>
       </div>
   actions:
@@ -38,12 +32,13 @@ hero:
       icon: external
 ---
 
+import Demo from '../../../components/Demo.astro';
 import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astro';
 
 {/* Intent row: route the four visitor intents (evaluate / install / see it
     live / integrate) right below the hero. */}
 
-<div class="hc-cluster not-content" style="--hc-cluster-gap: .75rem; justify-content: center; margin-block-end: 1.25rem;">
+<div class="hc-cluster not-content" style="--hc-cluster-gap: .75rem; justify-content: center; margin-block-end: .75rem;">
   <a class="hc-button" href="/hypermedia-components/ja/components/">コンポーネントを見る</a>
   <a class="hc-button" href="/hypermedia-components/ja/start/installation/">インストール</a>
   <a class="hc-button" href="/hypermedia-components/ja/kitchen-sink/">すべてをライブで見る</a>
@@ -52,11 +47,11 @@ import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astr
 
 {/* Live component showcase: breadth at a glance, above the fold. Every
     specimen is the real component (the behaviors bundle runs on the
-    docs), so this band shows quality AND quantity in one strip — a
-    name list would say less in more space. */}
+    docs). Counts and the browse links live in the numbers line and the
+    intent row — no caption needed. */}
 
-<section class="not-content" style="max-inline-size: 56rem; margin-inline: auto; margin-block-end: 2.5rem;">
-  <div class="hc-preview" style="display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; align-items: center; min-block-size: 0; padding: 1.25rem;">
+<section class="not-content" style="max-inline-size: 56rem; margin-inline: auto; margin-block-end: 0;">
+  <div class="hc-preview" style="display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; align-items: center; min-block-size: 0; padding: 1rem;">
     <button class="hc-button" data-variant="primary" data-size="sm" type="button"
       data-toast-message="保存しました — 閉じるボタン付きの本物のトーストです"
       data-toast-variant="success">Button</button>
@@ -81,41 +76,38 @@ import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astr
     <progress class="hc-progress" value="60" max="100" aria-label="進捗のデモ" style="inline-size: 7rem;"></progress>
     <span class="hc-spinner" aria-label="読み込み中"></span>
   </div>
-  <p style="text-align: center; color: var(--sl-color-gray-2); margin-block-start: .6rem;">
-    <a href="/hypermedia-components/ja/components/">全 64 コンポーネント →</a>
-    <span aria-hidden="true"> · </span>
-    <a href="/hypermedia-components/ja/kitchen-sink/">すべてを 1 ページでライブ表示</a>
-  </p>
 </section>
 
-{/* Dogfood: the landing cards are built with HC's own hc-grid + hc-card,
-    not Starlight's CardGrid. `not-content` keeps Starlight prose styles off
-    the HC surfaces. */}
+{/* The evaluator's scale-and-risk signals, in one scannable line. */}
+
+<div class="not-content" style="text-align: center; color: var(--sl-color-gray-2); margin-block: .75rem 2rem;">64 コンポーネント · 25 レシピ(すべてライブデモ付き)· 2 ページテンプレート · ランタイム依存 0 · MIT</div>
+
+{/* Principles — each card links to the page that explains it. */}
 
 <div class="hc-grid not-content" style="--hc-grid-min: 14rem;">
   <div class="hc-card">
-    <div class="hc-card__header"><strong>標準 HTML ファースト</strong></div>
+    <div class="hc-card__header"><strong><a href="/hypermedia-components/ja/start/philosophy/">標準 HTML ファースト</a></strong></div>
     <div class="hc-card__body">
-      <code>button</code>・<code>dialog</code>・<code>popover</code> といった
+      <code>button</code>、<code>dialog</code>、<code>popover</code> といった
       ネイティブ要素が第一の構成部品です。
     </div>
   </div>
   <div class="hc-card">
-    <div class="hc-card__header"><strong>Light DOM</strong></div>
+    <div class="hc-card__header"><strong><a href="/hypermedia-components/ja/fundamentals/">Light DOM</a></strong></div>
     <div class="hc-card__body">
-      Shadow DOM は使いません。htmx 属性・フォームの挙動・プログレッシブ
+      Shadow DOM なし。htmx 属性・フォーム挙動・プログレッシブ
       エンハンスメントが期待どおりに機能します。
     </div>
   </div>
   <div class="hc-card">
-    <div class="hc-card__header"><strong>DTCG トークン</strong></div>
+    <div class="hc-card__header"><strong><a href="/hypermedia-components/ja/fundamentals/tokens/">DTCG トークン</a></strong></div>
     <div class="hc-card__body">
-      テーマ・密度・コンポーネントの値は、CSS カスタムプロパティとして
-      出力されるトークンファイルから供給されます。
+      テーマ・密度・コンポーネント値はトークンファイルから CSS カスタム
+      プロパティとして出力されます。
     </div>
   </div>
   <div class="hc-card">
-    <div class="hc-card__header"><strong>htmx フレンドリーなレシピ</strong></div>
+    <div class="hc-card__header"><strong><a href="/hypermedia-components/ja/recipes/">htmx フレンドリーなレシピ</a></strong></div>
     <div class="hc-card__body">
       確認アクション・ライブ検索・リモートダイアログ・フィルタポップオーバー
       — いずれもサーバ契約をドキュメント化しています。
@@ -123,86 +115,66 @@ import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astr
   </div>
 </div>
 
-{/* HTML over the wire, for real: the same live-search demo the recipe
-    page uses — a debounced htmx request against this site's demo API. */}
+## markup がそのまま契約
 
-<section class="not-content" style="max-inline-size: 34rem; margin-inline: auto; margin-block: 2.5rem; text-align: start;">
-  <p style="text-align: center; color: var(--sl-color-gray-2); margin-block-end: .75rem;">
-    …そしてワイヤ契約はただの HTML です。下に入力してみてください —
-    デバウンスされた htmx リクエストがこのサイトの
-    <a href="/hypermedia-components/ja/recipes/live-search/">デモ API</a>
-    に届き、フラグメントがスワップされて返ってきます:
-  </p>
+書いたものがそのまま出荷物です — ネイティブ要素にセマンティックな
+クラス、状態は属性、ラッパーランタイムなし。下の Code タブの中身が、
+サーバ(テンプレートエンジンやコードジェネレーター)が出力する
+**ワイヤ形式そのもの**です:
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:26rem;">
+  <div class="hc-field">
+    <label class="hc-field__label" for="contract-email">Email</label>
+    <input class="hc-input" id="contract-email" name="email" type="email" placeholder="ada@example.com" />
+    <p class="hc-field__hint">We never share it.</p>
+  </div>
+  <div class="hc-cluster" style="--hc-cluster-gap: .5rem;">
+    <button class="hc-button" data-variant="primary" type="button">Save</button>
+    <button class="hc-button" type="button">Cancel</button>
+    <span class="hc-badge" data-variant="info">Draft</span>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field">
+    <label class="hc-field__label" for="email">Email</label>
+    <input class="hc-input" id="email" name="email" type="email">
+    <p class="hc-field__hint">We never share it.</p>
+  </div>
+
+  <button class="hc-button" data-variant="primary">Save</button>
+  <button class="hc-button">Cancel</button>
+  <span class="hc-badge" data-variant="info">Draft</span>
+  ```
+
+  </Fragment>
+</Demo>
+
+テーマも同じマークアップに乗ります — ヘッダーのカラー / 密度 /
+ダーク切替を試すと、このページ全体が追従します。
+
+## ワイヤを流れるのは HTML
+
+サーバはフラグメントで応答し、htmx がスワップし、コンポーネントは
+そのまま動きます — JSON もクライアント状態もありません。下に入力して
+みてください: デバウンスされたリクエストがこのサイトの
+<a href="/hypermedia-components/ja/recipes/live-search/">デモ API</a>
+に届き、結果のフラグメントがスワップされて返ってきます。
+
+<section class="not-content" style="max-inline-size: 34rem; margin-block: 1.25rem;">
   <LiveSearchDemo />
 </section>
 
-## 標準 HTML を、組み合わせる
-
-すべてのコンポーネントは、ネイティブ要素に載せたセマンティックなクラスです。いくつかを実際に動く形で紹介します — テーマ対応で、素の HTML マークアップだけでできています。ヘッダーのカラー / 密度 / ダークモード切り替えを試してみてください。
-
-{/* Dogfood: the showcase is composed from HC components inside hc-grid +
-    hc-card. `not-content` keeps Starlight prose styles off the surfaces. */}
-
-<div class="hc-grid not-content" style="--hc-grid-min: 18rem; margin-block-start: 1.5rem;">
-  <div class="hc-card">
-    <div class="hc-card__header"><strong>アクション</strong></div>
-    <div class="hc-card__body">
-      <div class="hc-cluster" style="--hc-cluster-gap: .5rem;">
-        <button class="hc-button" data-variant="primary" type="button">保存</button>
-        <button class="hc-button" type="button">キャンセル</button>
-        <button class="hc-button" data-variant="ghost" type="button">その他</button>
-      </div>
-      <div class="hc-cluster" style="--hc-cluster-gap: .5rem; margin-block-start: .85rem;">
-        <span class="hc-badge" data-variant="success">有効</span>
-        <span class="hc-badge" data-variant="info">ベータ</span>
-        <span class="hc-cluster" style="--hc-cluster-gap: .2rem;">
-          <kbd class="hc-kbd">⌘</kbd><kbd class="hc-kbd">K</kbd>
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <div class="hc-card">
-    <div class="hc-card__header"><strong>フォーム</strong></div>
-    <div class="hc-card__body">
-      <div class="hc-stack" style="--hc-stack-gap: .75rem;">
-        <div class="hc-field">
-          <label class="hc-field__label" for="home-email">メールアドレス</label>
-          <input class="hc-input" id="home-email" type="email" placeholder="you@example.com" />
-        </div>
-        <select class="hc-select" aria-label="プラン">
-          <option>Free</option>
-          <option>Pro</option>
-          <option>Team</option>
-        </select>
-        <label class="hc-switch-label">
-          <input class="hc-switch" type="checkbox" role="switch" checked />
-          メール通知
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <div class="hc-card">
-    <div class="hc-card__header"><strong>フィードバック</strong></div>
-    <div class="hc-card__body">
-      <div class="hc-stack" style="--hc-stack-gap: .75rem;">
-        <div class="hc-alert" data-variant="success" role="status">
-          <strong class="hc-alert__title">保存しました</strong>
-          <p class="hc-alert__body">変更内容は保存されています。</p>
-        </div>
-        <div class="hc-item">
-          <span class="hc-item__media" aria-hidden="true">📂</span>
-          <div class="hc-item__content">
-            <span class="hc-item__title">四半期レポート</span>
-            <span class="hc-item__description">2 日前に更新</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<a href="/hypermedia-components/ja/recipes/">25 のレシピ</a>はすべて
+この方式で動きます — 各ページがサーバ契約をドキュメント化し、この
+サイトの Worker 上でライブ実行されます。
+<a href="/hypermedia-components/ja/templates/">ページテンプレート</a>は
+それらをフルスクリーンに合成したものです。
 
 <div class="not-content" style="text-align: center; margin-block-start: 2.5rem;">
-  <a class="hc-button" data-variant="primary" href="/hypermedia-components/ja/components/">すべてのコンポーネントを見る →</a>
+  <div class="hc-cluster" style="--hc-cluster-gap: .75rem; justify-content: center;">
+    <a class="hc-button" data-variant="primary" href="/hypermedia-components/ja/components/">全コンポーネントを見る →</a>
+    <a class="hc-button" href="/hypermedia-components/ja/recipes/">レシピを見る →</a>
+  </div>
 </div>
