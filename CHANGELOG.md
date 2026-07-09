@@ -22,6 +22,14 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Landing — live component showcase above the fold** (follow-up to
+  the UX PR-6 hero). The hero's live card had pushed the breadth
+  signals below the fold; a compact showcase band (ten real, live
+  components + "All 64 components →" / kitchen-sink links) now sits
+  under the intent row inside the first viewport, and the live-search
+  strip moves below the feature cards (en + ja). First-screen answers:
+  what it is, that it's real, and how much of it there is.
+
 - **Motion tokens + guide** (PR-8 of
   `plans/hc-ux-improvements-plan-en.md`). New semantic motion scale —
   `--hc-motion-duration-{fast,base,slow}` (120/200/320 ms) and
