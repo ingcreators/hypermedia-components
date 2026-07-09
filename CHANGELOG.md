@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Landing page — one story, told once** (follow-up to the fold
+  fixes; content consolidation). The splash was repeating itself: four
+  separate "it's live" demonstrations, three links to the components
+  index, two to the kitchen sink. Now each message appears once —
+  hero (sharper tagline: "the markup is the wire contract" + the one
+  interactive proof card), a numbers line (64 components · 25 live
+  recipes · 2 templates · 0 runtime deps · MIT), the showcase band,
+  principle cards that now link to their pages, a "The markup is the
+  contract" section (markup ⇄ render via the Demo widget — the code
+  tab is the wire format), and an "HTML over the wire" section
+  (live-search round trip + recipes/templates pointers). Splash hero
+  padding is compressed so the whole first story fits a 768px-tall
+  viewport (en + ja).
+
 - **Landing — live component showcase above the fold** (follow-up to
   the UX PR-6 hero). The hero's live card had pushed the breadth
   signals below the fold; a compact showcase band (ten real, live
