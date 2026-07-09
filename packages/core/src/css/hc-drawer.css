@@ -46,7 +46,7 @@
      * transition. */
     translate: 100% 0;
     transition:
-      translate var(--hc-drawer-duration) ease,
+      translate var(--hc-drawer-duration) var(--hc-motion-easing-standard),
       overlay var(--hc-drawer-duration) allow-discrete,
       display var(--hc-drawer-duration) allow-discrete;
   }
@@ -64,7 +64,7 @@
   .hc-drawer::backdrop {
     background: var(--hc-drawer-backdrop);
     transition:
-      background var(--hc-drawer-duration) ease,
+      background var(--hc-drawer-duration) var(--hc-motion-easing-standard),
       display var(--hc-drawer-duration) allow-discrete;
   }
 

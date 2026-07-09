@@ -15,10 +15,58 @@
     max-inline-size: var(--hc-dialog-max-width);
     inline-size: calc(100% - 2 * var(--hc-space-4));
     box-shadow: var(--hc-shadow-overlay);
+
+    /* Enter/exit: a short fade + settle on the motion scale
+     * (fundamentals/motion). The closed state below is the exit frame;
+     * `display`/`overlay` transition with allow-discrete so the exit is
+     * visible before the dialog leaves the top layer. */
+    opacity: 0;
+    scale: 0.97;
+    transition:
+      opacity var(--hc-dialog-duration) var(--hc-motion-easing-exit),
+      scale var(--hc-dialog-duration) var(--hc-motion-easing-exit),
+      overlay var(--hc-dialog-duration) allow-discrete,
+      display var(--hc-dialog-duration) allow-discrete;
+  }
+
+  .hc-dialog[open] {
+    opacity: 1;
+    scale: 1;
+    transition:
+      opacity var(--hc-dialog-duration) var(--hc-motion-easing-enter),
+      scale var(--hc-dialog-duration) var(--hc-motion-easing-enter),
+      overlay var(--hc-dialog-duration) allow-discrete,
+      display var(--hc-dialog-duration) allow-discrete;
+  }
+
+  @starting-style {
+    .hc-dialog[open] {
+      opacity: 0;
+      scale: 0.97;
+    }
   }
 
   .hc-dialog::backdrop {
     background: var(--hc-dialog-backdrop);
+    opacity: 0;
+    transition:
+      opacity var(--hc-dialog-duration) var(--hc-motion-easing-exit),
+      overlay var(--hc-dialog-duration) allow-discrete,
+      display var(--hc-dialog-duration) allow-discrete;
+  }
+
+  .hc-dialog[open]::backdrop {
+    opacity: 1;
+    transition:
+      opacity var(--hc-dialog-duration) var(--hc-motion-easing-enter),
+      overlay var(--hc-dialog-duration) allow-discrete,
+      display var(--hc-dialog-duration) allow-discrete;
+  }
+
+  @starting-style {
+    .hc-dialog[open]::backdrop {
+      opacity: 0;
+    }
   }
 
   .hc-dialog__header,
@@ -48,5 +96,12 @@
     justify-content: flex-end;
     gap: var(--hc-dialog-gap);
     border-block-start: 1px solid var(--hc-dialog-border);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hc-dialog,
+    .hc-dialog::backdrop {
+      transition-duration: 0ms;
+    }
   }
 }
