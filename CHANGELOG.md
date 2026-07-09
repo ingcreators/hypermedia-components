@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`.hc-field__hint` — persistent helper text** (PR-2 of
+  `plans/hc-ux-improvements-plan-en.md`). `data-invalid` recolors every
+  `.hc-field__message`, which collapsed the hint/error hierarchy when a
+  field carried both ("We never share it." turned error-red alongside
+  the actual problem). `__hint` shares the message typography but keeps
+  its muted color inside an invalid field. Additive; `__message` /
+  `__error` behavior unchanged. Field docs gain a "Hint vs. error"
+  section (en + ja); the field-errors demos use the new class.
+
 - **Toast close button** (PR-1 of
   `plans/hc-ux-improvements-plan-en.md`). Every toast rendered by
   `installToast()` now carries a visible dismiss button

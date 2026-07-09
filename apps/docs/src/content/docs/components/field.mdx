@@ -80,6 +80,52 @@ Two attributes work together:
 
 A server-rendered form should set both atomically when validation fails.
 
+### Hint vs. error
+
+`data-invalid` recolors every `.hc-field__message` — by design, since
+the message often *is* the validation result. Persistent guidance that
+stays true regardless of validity ("We never share it.") belongs in
+`.hc-field__hint`, which keeps its muted color inside an invalid field,
+so the reader can still tell the advice from the problem:
+
+<Demo previewStyle="max-width:24rem;">
+  <div class="hc-field" data-invalid="true">
+    <label class="hc-field__label" for="email-3">Email</label>
+    <input
+      id="email-3"
+      class="hc-input"
+      name="email"
+      type="email"
+      aria-invalid="true"
+      aria-describedby="email-3-hint email-3-error"
+      value="not-an-email"
+    />
+    <p id="email-3-hint" class="hc-field__hint">We never share it.</p>
+    <p id="email-3-error" class="hc-field__message">Enter a valid email address.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field" data-invalid="true">
+    <label class="hc-field__label" for="email">Email</label>
+    <input
+      id="email"
+      class="hc-input"
+      name="email"
+      type="email"
+      aria-invalid="true"
+      aria-describedby="email-hint email-error">
+    <p id="email-hint" class="hc-field__hint">We never share it.</p>
+    <p id="email-error" class="hc-field__message">
+      Enter a valid email address.
+    </p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
 ## Composing a form
 
 A complete form needs nothing beyond kit classes — no app CSS for
@@ -152,7 +198,9 @@ Everything in that form is default behavior:
 - **Controls fill the field** — `.hc-field` is a grid (items stretch)
   and `hc-input` / `hc-select` are `inline-size: 100%` by default, so
   `form .hc-input { width: 100% }`-style app CSS is unnecessary.
-- **Help text** is `.hc-field__message`; the error slot
+- **Help text** is `.hc-field__message` (state-coupled — turns red with
+  the field) or `.hc-field__hint` (persistent — stays muted; see
+  [Hint vs. error](#hint-vs-error)); the error slot
   (`.hc-field__error`) is filled by [client-side
   validation](#client-side-validation) or the
   server — author it only if you want to reserve the space.

@@ -80,6 +80,52 @@ import Demo from '../../../../components/Demo.astro';
 サーバレンダリングされるフォームでは、バリデーション失敗時にこの 2 つを
 アトミックに設定してください。
 
+### ヒントとエラーの区別
+
+`data-invalid` はすべての `.hc-field__message` の色を切り替えます —
+メッセージがバリデーション結果そのものであることが多いための設計です。
+妥当性に関係なく常に真である案内(「We never share it.」)は
+`.hc-field__hint` に置いてください。invalid なフィールドの中でも
+ミュート色を保つため、読者は「助言」と「問題」を見分けられます:
+
+<Demo previewStyle="max-width:24rem;">
+  <div class="hc-field" data-invalid="true">
+    <label class="hc-field__label" for="email-3">Email</label>
+    <input
+      id="email-3"
+      class="hc-input"
+      name="email"
+      type="email"
+      aria-invalid="true"
+      aria-describedby="email-3-hint email-3-error"
+      value="not-an-email"
+    />
+    <p id="email-3-hint" class="hc-field__hint">We never share it.</p>
+    <p id="email-3-error" class="hc-field__message">Enter a valid email address.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field" data-invalid="true">
+    <label class="hc-field__label" for="email">Email</label>
+    <input
+      id="email"
+      class="hc-input"
+      name="email"
+      type="email"
+      aria-invalid="true"
+      aria-describedby="email-hint email-error">
+    <p id="email-hint" class="hc-field__hint">We never share it.</p>
+    <p id="email-error" class="hc-field__message">
+      Enter a valid email address.
+    </p>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
 ## フォームを組み立てる
 
 完全なフォームに必要なのはキットのクラスだけです — ラベルのレイアウト、
@@ -153,7 +199,9 @@ import Demo from '../../../../components/Demo.astro';
   (アイテムは伸長)で、`hc-input` / `hc-select` はデフォルトで
   `inline-size: 100%` です。`form .hc-input { width: 100% }` のような
   アプリ CSS は不要です。
-- **ヘルプテキスト**は `.hc-field__message`。エラースロット
+- **ヘルプテキスト**は `.hc-field__message`(状態連動 — フィールドと
+  一緒に赤くなる)または `.hc-field__hint`(恒常 — ミュート色を保つ。
+  [ヒントとエラーの区別](#ヒントとエラーの区別)参照)。エラースロット
   (`.hc-field__error`)は[クライアントサイドバリデーション](#クライアントサイドバリデーション)
   またはサーバが埋めます — 領域を確保したい場合にだけ書いてください。
 - **ラジオ / チェックボックスのグループは `fieldset.hc-field`** — キットが
