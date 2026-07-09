@@ -1,0 +1,91 @@
+---
+/*
+ * Live preview for the Settings page template — an hc-shell app frame
+ * whose main region is an account-settings card: hc-fields (with
+ * hints), a mutating-form-style submit, field-error distribution on
+ * 422, and a success toast.
+ *
+ * The form posts to the field-errors demo namespace's /members
+ * endpoint (apps/docs/demo-api/recipes/field-errors.mjs): it returns
+ * the canonical field-errors fragment on 422 and an empty 200 +
+ * hc:toast on success, so the whole round trip stays on this page.
+ * (The mutating-form namespace's success branch is an HX-Redirect —
+ * a full window navigation — which the template page explains and
+ * links instead of triggering from inside the docs.)
+ */
+import DemoFrame from '../recipe-demos/DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/field-errors`;
+---
+
+<DemoFrame label="Settings page template">
+  <div class="hc-shell" style="block-size: 30rem; --hc-shell-sidebar-width: 10rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme Admin</strong></header>
+
+    <nav class="hc-shell__sidebar" aria-label="Template navigation">
+      <div>Dashboard</div>
+      <div>Members</div>
+      <div><strong>Settings</strong></div>
+    </nav>
+
+    <main class="hc-shell__main">
+      <form
+        class="hc-card"
+        style="max-inline-size: 34rem;"
+        method="post"
+        action={`${api}/members`}
+        data-hx-post={`${api}/members`}
+        data-hx-target="#template-settings-errors"
+        data-hx-swap="innerHTML"
+        data-hx-disabled-elt="find button[type=submit]"
+        data-hx-indicator="find .hc-spinner">
+        <div class="hc-card__header"><strong>Account settings</strong></div>
+
+        <div class="hc-card__body hc-stack" style="--hc-stack-gap: 1rem;">
+          <div id="template-settings-errors"></div>
+
+          <div class="hc-field">
+            <label class="hc-field__label" for="template-settings-email">Email</label>
+            <input
+              class="hc-input"
+              id="template-settings-email"
+              name="email"
+              type="email"
+              autocomplete="off"
+              aria-describedby="template-settings-email-hint" />
+            <p class="hc-field__hint" id="template-settings-email-hint">
+              Used for sign-in and notifications — we never share it.
+            </p>
+            <p class="hc-field__error" aria-live="polite"></p>
+          </div>
+
+          <div class="hc-field">
+            <label class="hc-field__label" for="template-settings-display-name">
+              Display name
+            </label>
+            <input
+              class="hc-input"
+              id="template-settings-display-name"
+              name="display_name"
+              type="text"
+              autocomplete="off"
+              aria-describedby="template-settings-display-name-hint" />
+            <p class="hc-field__hint" id="template-settings-display-name-hint">
+              Shown to the rest of your team.
+            </p>
+          </div>
+
+          <label class="hc-switch-label">
+            <input class="hc-switch" type="checkbox" role="switch" checked />
+            Email notifications
+          </label>
+        </div>
+
+        <div class="hc-card__footer hc-cluster" style="--hc-cluster-gap: 0.5rem; justify-content: flex-end;">
+          <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+          <button class="hc-button" data-variant="primary" type="submit">Save changes</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</DemoFrame>

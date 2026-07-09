@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Templates — full-page compositions** (PR-7 of
+  `plans/hc-ux-improvements-plan-en.md`). New docs section between
+  Blocks and Recipes with two page-scale, live compositions assembled
+  from existing components/blocks/recipes: a **Settings page** (shell
+  + account form + field-errors round trip + success toast) and a
+  **CRUD page** (shell + datagrid pager + bulk actions + remote-dialog
+  editing + undo-delete), each with a framed live preview, the
+  complete page skeleton, a wiring map (region → component → recipe →
+  contract) and an adapt-it list (en + ja).
+
 - **Landing hero shows the kit running** (PR-6 of
   `plans/hc-ux-improvements-plan-en.md`). The splash page's empty hero
   half now hosts a live component card (field + hint, buttons firing

@@ -1,0 +1,143 @@
+---
+title: 設定ページ
+description: 設定ページの完全形 — hc-shell のアプリフレームに、ヒントつき hc-field のアカウント設定カード、mutating-form のサブミット、422 でのフィールドエラー分配、成功トースト。
+---
+
+import SettingsTemplateDemo from '../../../../components/template-demos/SettingsTemplateDemo.astro';
+
+[`hc-shell`](/hypermedia-components/ja/components/shell/) のアプリフレーム
+— ヘッダー、サイドバーナビゲーション、スクロールする main — の main
+リージョンが、実際に配線された
+[アカウント設定ブロック](/hypermedia-components/ja/blocks/)になっています:
+[`hc-card`](/hypermedia-components/ja/components/card/) のフォームに、
+常設ヒントつきの [`hc-field`](/hypermedia-components/ja/components/field/)
+の行を並べ、
+[mutating-form](/hypermedia-components/ja/recipes/mutating-form/)
+流にサブミットします。422 はサーバの
+[フィールドエラーフラグメント](/hypermedia-components/ja/recipes/field-errors/)を
+名指しされたフィールドへ分配し、成功は
+[トースト](/hypermedia-components/ja/recipes/toast/)を上げます。
+
+## ライブテンプレート
+
+3 つの分岐をすべて試せます: **空のメール**でサブミット(`required`
+エラーが Email フィールドの下に着地)、**`taken@example.com`** で
+サブミット(`duplicate` エラー)、それ以外のメールでサブミット
+(**「Member saved」**トースト — 空の 200 ボディがエラーサマリーを
+消します)。
+
+デモのフォームは `api/recipes/field-errors/members` に POST します。
+その契約 — 失敗は 422 + フラグメント、成功は 200 + `hc:toast` — の
+おかげでラウンドトリップ全体がこのページ上で完結します。
+[mutating-form 契約](/hypermedia-components/ja/recipes/mutating-form/)
+自身の成功分岐は**リダイレクト**(`HX-Redirect`、ウィンドウ全体の
+ナビゲーション)で、そちらはレシピページがデモしています。保存後も
+その場に留まる設定ページには、まさにここで見せているトースト変種を
+使います。
+
+<SettingsTemplateDemo />
+
+## ページスケルトン
+
+実アプリ形の URL(`/settings/profile` — 自分のエンドポイントに差し
+替えてください)で書いた完全なページです。トーストのマークアップは
+不要です: `installToast()` が自分でリージョンを作ります。
+
+```html
+<body>
+  <div class="hc-shell">
+    <header class="hc-shell__header">
+      <button class="hc-button" data-variant="ghost"
+              data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+      <strong>Acme Admin</strong>
+    </header>
+
+    <nav class="hc-shell__sidebar" aria-label="Primary">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/members">Members</a>
+      <a href="/settings" aria-current="page">Settings</a>
+    </nav>
+
+    <main class="hc-shell__main">
+      <!-- method/action が非 JS のサブミットを生かします(post/redirect/get)。 -->
+      <form class="hc-card" style="max-inline-size: 34rem;"
+            method="post" action="/settings/profile"
+            data-hx-post="/settings/profile"
+            data-hx-target="#settings-errors"
+            data-hx-swap="innerHTML"
+            data-hx-disabled-elt="find button[type=submit]"
+            data-hx-indicator="find .hc-spinner">
+        <div class="hc-card__header"><strong>Account settings</strong></div>
+
+        <div class="hc-card__body hc-stack" style="--hc-stack-gap: 1rem;">
+          <!-- 422 のフィールドエラーフラグメントはここにスワップされ、
+               installFieldErrors が各項目を名指しされたフィールドへ分配します。 -->
+          <div id="settings-errors"></div>
+
+          <div class="hc-field">
+            <label class="hc-field__label" for="settings-email">Email</label>
+            <input class="hc-input" id="settings-email" name="email" type="email"
+                   aria-describedby="settings-email-hint" />
+            <!-- __hint はフィールドが invalid でもミュートのままです。 -->
+            <p class="hc-field__hint" id="settings-email-hint">
+              Used for sign-in and notifications — we never share it.
+            </p>
+            <p class="hc-field__error" aria-live="polite"></p>
+          </div>
+
+          <div class="hc-field">
+            <label class="hc-field__label" for="settings-display-name">Display name</label>
+            <input class="hc-input" id="settings-display-name" name="display_name" type="text"
+                   aria-describedby="settings-display-name-hint" />
+            <p class="hc-field__hint" id="settings-display-name-hint">
+              Shown to the rest of your team.
+            </p>
+          </div>
+
+          <label class="hc-switch-label">
+            <input class="hc-switch" name="notify" type="checkbox" role="switch" checked />
+            Email notifications
+          </label>
+        </div>
+
+        <div class="hc-card__footer hc-cluster"
+             style="--hc-cluster-gap: 0.5rem; justify-content: flex-end;">
+          <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+          <button class="hc-button" data-variant="primary" type="submit">Save changes</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+```
+
+## 配線マップ
+
+| リージョン | コンポーネント / ブロック | レシピ | 契約 |
+| --- | --- | --- | --- |
+| アプリフレーム | [`hc-shell`](/hypermedia-components/ja/components/shell/) | — | —(純 CSS。`installShell()` はモバイルナビ担当) |
+| 設定カード | [`hc-card`](/hypermedia-components/ja/components/card/) + [アカウント設定ブロック](/hypermedia-components/ja/blocks/) | [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) | [`mutating-form/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/mutating-form/contract.md) |
+| フィールド + ヒント | [`hc-field`](/hypermedia-components/ja/components/field/) + [`hc-input`](/hypermedia-components/ja/components/input/) | — | — |
+| エラーサマリー + 分配 | [`hc-alert`](/hypermedia-components/ja/components/alert/) | [field-errors](/hypermedia-components/ja/recipes/field-errors/) | [`field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md) |
+| 成功トースト | [`hc-toast`](/hypermedia-components/ja/components/toast/) | [toast](/hypermedia-components/ja/recipes/toast/) | [`toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/toast/contract.md) |
+
+## 適応させる
+
+- **エンドポイントを差し替える。** `/settings/profile` はプレース
+  ホルダーです — サーバは
+  [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) /
+  [field-errors](/hypermedia-components/ja/recipes/field-errors/)
+  の契約(422 + フラグメント、成功 + トーストまたは `HX-Redirect`)を
+  実装するだけです。
+- **本物の CSRF。** htmx パスには `<meta name="csrf-token">` と
+  `installCsrfHeader()` を、非 JS フォームにはフレームワークの隠し
+  フィールドを追加します —
+  [CSRF トークン](/hypermedia-components/ja/integrations/htmx/#csrf-トークン--公認の規約)
+  を参照。
+- **本物の認証。** デモ API は匿名です。エンドポイントはフレームワーク
+  のセッション認証で守ってください —
+  [サーバインテグレーションガイド](/hypermedia-components/ja/integrations/)
+  にスタックごとのイディオムがあります。
+- **エラー文言。** メッセージは人間らしく —
+  [ライティングガイド](/hypermedia-components/ja/fundamentals/writing/)
+  を参照。

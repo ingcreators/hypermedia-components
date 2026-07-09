@@ -1,0 +1,136 @@
+---
+title: Settings page
+description: A full settings page — hc-shell app frame around an account-settings card of hc-fields with hints, a mutating-form submit, field-error distribution on 422, and a success toast.
+---
+
+import SettingsTemplateDemo from '../../../components/template-demos/SettingsTemplateDemo.astro';
+
+An [`hc-shell`](/hypermedia-components/components/shell/) app frame —
+header, sidebar navigation, scrolling main — whose main region is the
+[account-settings block](/hypermedia-components/blocks/) wired up for
+real: an [`hc-card`](/hypermedia-components/components/card/) form of
+[`hc-field`](/hypermedia-components/components/field/) rows with
+persistent hints, submitting the
+[mutating-form](/hypermedia-components/recipes/mutating-form/) way. A
+422 distributes the server's
+[field-errors fragment](/hypermedia-components/recipes/field-errors/) to
+the fields it names; success raises a
+[toast](/hypermedia-components/recipes/toast/).
+
+## Live template
+
+Try all three branches: submit with a **blank email** (the `required`
+error lands under the Email field), with **`taken@example.com`** (the
+`duplicate` error), and with any other email (a **"Member saved"**
+toast — the empty 200 body clears the error summary).
+
+The demo form posts to `api/recipes/field-errors/members`, whose
+contract — 422 + fragment on failure, 200 + `hc:toast` on success —
+keeps the whole round trip on this page. The
+[mutating-form contract's](/hypermedia-components/recipes/mutating-form/)
+own success branch is a **redirect** (`HX-Redirect`, a full window
+navigation) — its recipe page demos that; a settings page that stays
+put on save uses exactly the toast variant shown here.
+
+<SettingsTemplateDemo />
+
+## Page skeleton
+
+The complete page, with real-app-shaped URLs (`/settings/profile` —
+swap in your own endpoint). No toast markup is needed:
+`installToast()` creates its own region.
+
+```html
+<body>
+  <div class="hc-shell">
+    <header class="hc-shell__header">
+      <button class="hc-button" data-variant="ghost"
+              data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+      <strong>Acme Admin</strong>
+    </header>
+
+    <nav class="hc-shell__sidebar" aria-label="Primary">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/members">Members</a>
+      <a href="/settings" aria-current="page">Settings</a>
+    </nav>
+
+    <main class="hc-shell__main">
+      <!-- method/action keep the no-JS submit working (post/redirect/get). -->
+      <form class="hc-card" style="max-inline-size: 34rem;"
+            method="post" action="/settings/profile"
+            data-hx-post="/settings/profile"
+            data-hx-target="#settings-errors"
+            data-hx-swap="innerHTML"
+            data-hx-disabled-elt="find button[type=submit]"
+            data-hx-indicator="find .hc-spinner">
+        <div class="hc-card__header"><strong>Account settings</strong></div>
+
+        <div class="hc-card__body hc-stack" style="--hc-stack-gap: 1rem;">
+          <!-- The 422 field-errors fragment swaps in here; installFieldErrors
+               distributes each item to the field it names. -->
+          <div id="settings-errors"></div>
+
+          <div class="hc-field">
+            <label class="hc-field__label" for="settings-email">Email</label>
+            <input class="hc-input" id="settings-email" name="email" type="email"
+                   aria-describedby="settings-email-hint" />
+            <!-- __hint stays muted even when the field is invalid. -->
+            <p class="hc-field__hint" id="settings-email-hint">
+              Used for sign-in and notifications — we never share it.
+            </p>
+            <p class="hc-field__error" aria-live="polite"></p>
+          </div>
+
+          <div class="hc-field">
+            <label class="hc-field__label" for="settings-display-name">Display name</label>
+            <input class="hc-input" id="settings-display-name" name="display_name" type="text"
+                   aria-describedby="settings-display-name-hint" />
+            <p class="hc-field__hint" id="settings-display-name-hint">
+              Shown to the rest of your team.
+            </p>
+          </div>
+
+          <label class="hc-switch-label">
+            <input class="hc-switch" name="notify" type="checkbox" role="switch" checked />
+            Email notifications
+          </label>
+        </div>
+
+        <div class="hc-card__footer hc-cluster"
+             style="--hc-cluster-gap: 0.5rem; justify-content: flex-end;">
+          <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+          <button class="hc-button" data-variant="primary" type="submit">Save changes</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+```
+
+## Wiring map
+
+| Region | Component / block | Recipe | Contract |
+| --- | --- | --- | --- |
+| App frame | [`hc-shell`](/hypermedia-components/components/shell/) | — | — (pure CSS; `installShell()` powers mobile nav) |
+| Settings card | [`hc-card`](/hypermedia-components/components/card/) + [account-settings block](/hypermedia-components/blocks/) | [mutating-form](/hypermedia-components/recipes/mutating-form/) | [`mutating-form/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/mutating-form/contract.md) |
+| Fields + hints | [`hc-field`](/hypermedia-components/components/field/) + [`hc-input`](/hypermedia-components/components/input/) | — | — |
+| Error summary + distribution | [`hc-alert`](/hypermedia-components/components/alert/) | [field-errors](/hypermedia-components/recipes/field-errors/) | [`field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md) |
+| Success toast | [`hc-toast`](/hypermedia-components/components/toast/) | [toast](/hypermedia-components/recipes/toast/) | [`toast/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/toast/contract.md) |
+
+## Adapt it
+
+- **Rename the endpoints.** `/settings/profile` is a placeholder — the
+  server just has to implement the
+  [mutating-form](/hypermedia-components/recipes/mutating-form/) /
+  [field-errors](/hypermedia-components/recipes/field-errors/)
+  contracts (422 + fragment, success + toast or `HX-Redirect`).
+- **Real CSRF.** Add `<meta name="csrf-token">` and `installCsrfHeader()`
+  for the htmx path, plus your framework's hidden field for the no-JS
+  form — see [CSRF tokens](/hypermedia-components/integrations/htmx/#csrf-tokens--the-blessed-convention).
+- **Real auth.** The demo API is anonymous; gate your endpoint with
+  your framework's session auth — the
+  [server integration guides](/hypermedia-components/integrations/)
+  show the idioms per stack.
+- **Error copy.** Keep messages human — see the
+  [writing guide](/hypermedia-components/fundamentals/writing/).
