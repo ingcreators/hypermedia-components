@@ -43,22 +43,49 @@ import LiveSearchDemo from '../../components/recipe-demos/LiveSearchDemo.astro';
 {/* Intent row: route the four visitor intents (evaluate / install / see it
     live / integrate) right below the hero. */}
 
-<div class="hc-cluster not-content" style="--hc-cluster-gap: .75rem; justify-content: center; margin-block-end: 2.5rem;">
+<div class="hc-cluster not-content" style="--hc-cluster-gap: .75rem; justify-content: center; margin-block-end: 1.25rem;">
   <a class="hc-button" href="/hypermedia-components/components/">Browse components</a>
   <a class="hc-button" href="/hypermedia-components/start/installation/">Install</a>
   <a class="hc-button" href="/hypermedia-components/kitchen-sink/">See everything live</a>
   <a class="hc-button" href="/hypermedia-components/integrations/">Wire into your stack</a>
 </div>
 
-{/* HTML over the wire, for real: the same live-search demo the recipe
-    page uses — a debounced htmx request against this site's demo API. */}
+{/* Live component showcase: breadth at a glance, above the fold. Every
+    specimen is the real component (the behaviors bundle runs on the
+    docs), so this band shows quality AND quantity in one strip — a
+    name list would say less in more space. */}
 
-<section class="not-content" style="max-inline-size: 34rem; margin-inline: auto; margin-block-end: 2.5rem; text-align: start;">
-  <p style="text-align: center; color: var(--sl-color-gray-2); margin-block-end: .75rem;">
-    …and the wire contract is just HTML. Type below — a debounced htmx
-    request hits this site's <a href="/hypermedia-components/recipes/live-search/">demo API</a> and swaps the fragment back:
+<section class="not-content" style="max-inline-size: 56rem; margin-inline: auto; margin-block-end: 2.5rem;">
+  <div class="hc-preview" style="display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; justify-content: center; align-items: center; min-block-size: 0; padding: 1.25rem;">
+    <button class="hc-button" data-variant="primary" data-size="sm" type="button"
+      data-toast-message="Saved — a real toast, close button and all"
+      data-toast-variant="success">Button</button>
+    <span class="hc-badge" data-variant="success">Badge</span>
+    <ul class="hc-chips" aria-label="Chips" style="margin: 0;">
+      <li class="hc-chip">Chip</li>
+    </ul>
+    <label class="hc-switch-label"><input class="hc-switch" type="checkbox" role="switch" checked /> Switch</label>
+    <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" checked /> Checkbox</label>
+    <span class="hc-rating" data-readonly role="img" aria-label="4 of 5 stars">
+      <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+      <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+      <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+      <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
+      <span class="hc-rating__star" aria-hidden="true">★</span>
+    </span>
+    <span class="hc-kbd-group" aria-label="Command K">
+      <kbd class="hc-kbd">⌘</kbd>
+      <kbd class="hc-kbd">K</kbd>
+    </span>
+    <span class="hc-avatar" role="img" aria-label="Ada Lovelace">A</span>
+    <progress class="hc-progress" value="60" max="100" aria-label="Progress demo" style="inline-size: 7rem;"></progress>
+    <span class="hc-spinner" aria-label="Loading"></span>
+  </div>
+  <p style="text-align: center; color: var(--sl-color-gray-2); margin-block-start: .6rem;">
+    <a href="/hypermedia-components/components/">All 64 components →</a>
+    <span aria-hidden="true"> · </span>
+    <a href="/hypermedia-components/kitchen-sink/">everything live on one page</a>
   </p>
-  <LiveSearchDemo />
 </section>
 
 {/* Dogfood: the landing cards are built with HC's own hc-grid + hc-card,
@@ -95,6 +122,17 @@ import LiveSearchDemo from '../../components/recipe-demos/LiveSearchDemo.astro';
     </div>
   </div>
 </div>
+
+{/* HTML over the wire, for real: the same live-search demo the recipe
+    page uses — a debounced htmx request against this site's demo API. */}
+
+<section class="not-content" style="max-inline-size: 34rem; margin-inline: auto; margin-block: 2.5rem; text-align: start;">
+  <p style="text-align: center; color: var(--sl-color-gray-2); margin-block-end: .75rem;">
+    …and the wire contract is just HTML. Type below — a debounced htmx
+    request hits this site's <a href="/hypermedia-components/recipes/live-search/">demo API</a> and swaps the fragment back:
+  </p>
+  <LiveSearchDemo />
+</section>
 
 ## Standard HTML, composed
 
