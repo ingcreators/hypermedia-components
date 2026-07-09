@@ -22,6 +22,13 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Landing hero shows the kit running** (PR-6 of
+  `plans/hc-ux-improvements-plan-en.md`). The splash page's empty hero
+  half now hosts a live component card (field + hint, buttons firing
+  real toasts, badge), and a live-search strip under the intent row
+  runs the actual htmx round trip against the demo API — the landing
+  *shows* HTML-over-the-wire instead of describing it (en + ja).
+
 - **Density × touch-target guidance** (PR-5 of
   `plans/hc-ux-improvements-plan-en.md`). The density docs gain a
   "Touch targets" section (en + ja) with the real numbers
