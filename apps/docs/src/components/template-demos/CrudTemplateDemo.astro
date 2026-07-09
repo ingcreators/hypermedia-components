@@ -1,0 +1,187 @@
+---
+/*
+ * Live preview for the CRUD list page template — an hc-shell app frame
+ * whose main region composes four honestly-separated regions, each
+ * powered by its own recipe namespace of the demo API:
+ *
+ *   - "New item…"      → remote-dialog   (items/123/edit — the demo
+ *                        namespace's canned edit dialog)
+ *   - catalog + pager  → datagrid-pager  (5,000 paged products)
+ *   - bulk actions     → datagrid-bulk-actions (6 products + toolbar)
+ *   - delete + undo    → undo-delete     (3 items + undo toast)
+ *
+ * Id policy: ids the demo API's fragments carry or target are reused
+ * verbatim (datagrid-pager-demo-rows / -pager / -status,
+ * datagrid-bulk-actions-demo-state / -rows-status, and the
+ * undo-delete-demo-item-<id> rows the server renders) — so only one
+ * instance of this template can render per page. Ids only referenced
+ * by this markup are prefixed template-crud-.
+ */
+import DemoFrame from '../recipe-demos/DemoFrame.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const pagerApi = `${base}/api/recipes/datagrid-pager`;
+const bulkApi = `${base}/api/recipes/datagrid-bulk-actions`;
+const dialogApi = `${base}/api/recipes/remote-dialog`;
+const undoApi = `${base}/api/recipes/undo-delete`;
+---
+
+<DemoFrame label="CRUD list page template">
+  <div class="hc-shell" style="block-size: 40rem; --hc-shell-sidebar-width: 10rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header"><strong>Acme Admin</strong></header>
+
+    <nav class="hc-shell__sidebar" aria-label="Template navigation">
+      <div>Dashboard</div>
+      <div><strong>Products</strong></div>
+      <div>Settings</div>
+    </nav>
+
+    <main class="hc-shell__main hc-stack" style="--hc-stack-gap: 1.5rem;">
+      <div class="hc-cluster" style="justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; font-size: 1.125rem;">Products</h2>
+        <button
+          class="hc-button"
+          data-variant="primary"
+          type="button"
+          data-hx-get={`${dialogApi}/items/123/edit`}
+          data-hx-target="#template-crud-dialog-root"
+          data-hx-swap="innerHTML"
+          data-hx-disabled-elt="this">
+          New item…
+        </button>
+      </div>
+      <div id="template-crud-dialog-root" data-hc-remote-dialog-root></div>
+
+      <section class="hc-stack" style="--hc-stack-gap: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1rem;">Catalog (paged)</h3>
+        <div class="hc-datagrid" style="--hc-datagrid-max-height: 16rem;">
+          <div class="hc-datagrid__scroll">
+            <table class="hc-datagrid__table">
+              <thead class="hc-datagrid__head">
+                <tr>
+                  <th class="hc-datagrid__headcell" data-frozen scope="col">
+                    <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+                  </th>
+                  <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+                  <th class="hc-datagrid__headcell" data-resizable data-col="name" scope="col">Name</th>
+                  <th class="hc-datagrid__headcell" scope="col">Unit price</th>
+                </tr>
+              </thead>
+              <tbody
+                class="hc-datagrid__body"
+                id="datagrid-pager-demo-rows"
+                data-hx-get={`${pagerApi}/products?page=1&size=10`}
+                data-hx-trigger="load"
+                data-hx-target="#datagrid-pager-demo-rows"
+                data-hx-swap="innerHTML">
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="hc-cluster" style="justify-content: space-between; inline-size: 100%;">
+          <p id="datagrid-pager-demo-status" aria-live="polite" style="margin: 0;">Loading…</p>
+          <nav class="hc-pagination" id="datagrid-pager-demo-pager" aria-label="Pagination"></nav>
+        </div>
+      </section>
+
+      <section class="hc-stack" style="--hc-stack-gap: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1rem;">Bulk actions</h3>
+        <form method="post" action={`${bulkApi}/products/bulk`}>
+          <div
+            class="hc-toolbar"
+            role="toolbar"
+            aria-label="Bulk actions"
+            data-hc-datagrid-actions="#template-crud-bulk-grid"
+            hidden>
+            <span data-hc-datagrid-count></span>
+            <button
+              class="hc-button"
+              type="submit"
+              name="action"
+              value="archive"
+              data-hx-post={`${bulkApi}/products/bulk`}
+              data-hx-target="#template-crud-bulk-rows"
+              data-hx-swap="innerHTML"
+              data-hx-disabled-elt="this">
+              Archive
+            </button>
+            <button
+              class="hc-button"
+              data-variant="error"
+              type="submit"
+              name="action"
+              value="delete"
+              data-hc-confirm="Delete the selected products? This cannot be undone."
+              data-hc-confirm-title="Delete products"
+              data-hx-trigger="hc:confirmed"
+              data-hx-post={`${bulkApi}/products/bulk`}
+              data-hx-target="#template-crud-bulk-rows"
+              data-hx-swap="innerHTML"
+              data-hx-disabled-elt="this">
+              Delete
+            </button>
+          </div>
+
+          <!-- The server re-renders this out-of-band on every POST (fixed
+               id from the bulk-actions namespace); the form serializes it
+               back, threading grid state through a stateless server. -->
+          <input type="hidden" id="datagrid-bulk-actions-demo-state" name="state" value="" />
+
+          <div class="hc-datagrid" id="template-crud-bulk-grid">
+            <div class="hc-datagrid__scroll">
+              <table class="hc-datagrid__table">
+                <thead class="hc-datagrid__head">
+                  <tr>
+                    <th class="hc-datagrid__headcell" data-frozen>
+                      <!-- Select-all: no name attribute — must never serialize. -->
+                      <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+                    </th>
+                    <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+                    <th class="hc-datagrid__headcell" scope="col">Product</th>
+                    <th class="hc-datagrid__headcell" scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody
+                  class="hc-datagrid__body"
+                  id="template-crud-bulk-rows"
+                  data-hx-get={`${bulkApi}/products/rows`}
+                  data-hx-trigger="load"
+                  data-hx-swap="innerHTML">
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <p id="datagrid-bulk-actions-demo-rows-status" aria-live="polite">6 products</p>
+        </form>
+      </section>
+
+      <section class="hc-stack" style="--hc-stack-gap: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1rem;">Delete with undo</h3>
+        <table class="hc-table">
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody
+            id="template-crud-undo-rows"
+            data-hx-get={`${undoApi}/items`}
+            data-hx-trigger="load"
+            data-hx-swap="innerHTML">
+          </tbody>
+        </table>
+        <button
+          class="hc-button"
+          data-size="sm"
+          type="button"
+          data-hx-get={`${undoApi}/items`}
+          data-hx-target="#template-crud-undo-rows"
+          data-hx-swap="innerHTML">
+          Reset rows
+        </button>
+      </section>
+    </main>
+  </div>
+</DemoFrame>

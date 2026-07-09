@@ -1,0 +1,191 @@
+---
+title: CRUD list page
+description: A full list page — hc-shell app frame around a paged datagrid, a bulk-actions toolbar, remote-dialog editing, and delete-with-undo rows, each region powered by its own recipe.
+---
+
+import CrudTemplateDemo from '../../../components/template-demos/CrudTemplateDemo.astro';
+
+An [`hc-shell`](/hypermedia-components/components/shell/) app frame whose
+main region composes the standard list-page tooling: a
+[paged datagrid](/hypermedia-components/recipes/datagrid-pager/), a
+selection [toolbar for bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/),
+a "New item…" button that opens a
+[remote dialog](/hypermedia-components/recipes/remote-dialog/), and rows
+you can [delete with undo](/hypermedia-components/recipes/undo-delete/).
+
+One honesty note up front: each region talks to **its own recipe
+namespace** of the demo API, so the preview composes them **side by
+side** instead of pretending one endpoint serves all four contracts. In
+your app one `/products` resource would typically implement the pager
+*and* bulk *and* undo contracts against the same grid — the contracts
+compose; the demo data sets don't.
+
+## Live template
+
+- **Catalog (paged)** — page through 5,000 fake products; each pager
+  link swaps just its rows into the `<tbody>` while the pager and
+  status line arrive out-of-band.
+- **New item…** — opens the remote-dialog namespace's canned *edit
+  item* dialog (`items/123/edit`; a real app would serve `GET
+  /items/new` with the same fragment shape). Saving with a blank name
+  gets the 422 error-state dialog back; a valid save closes it and
+  raises a toast.
+- **Bulk actions** — check some rows and the toolbar appears. Archive
+  or delete the selection; including **Anvil (101)** shows the
+  partial-failure warning toast (it is protected server-side).
+- **Delete with undo** — delete a row (no confirmation), then press
+  **Undo** in the toast within the grace period to restore it in
+  place.
+
+<CrudTemplateDemo />
+
+:::note[One instance per page]
+The pager, bulk-actions, and undo-delete fragments the demo API returns
+carry fixed element ids (`datagrid-pager-demo-*`,
+`datagrid-bulk-actions-demo-*`, `undo-delete-demo-item-*`), so this
+template reuses those ids verbatim and can only render **once per
+page**. Your server owns its own ids — pick per-resource ones.
+:::
+
+## Page skeleton
+
+The complete page, with real-app-shaped URLs — one `/products` resource
+implementing the pager + bulk contracts, `/items` for dialog editing
+and undo-delete. Render page 1's rows server-side so the grid is full
+before any JavaScript runs. No toast markup is needed:
+`installToast()` creates its own region.
+
+```html
+<body>
+  <div class="hc-shell">
+    <header class="hc-shell__header">
+      <button class="hc-button" data-variant="ghost"
+              data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+      <strong>Acme Admin</strong>
+    </header>
+
+    <nav class="hc-shell__sidebar" aria-label="Primary">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/products" aria-current="page">Products</a>
+      <a href="/settings">Settings</a>
+    </nav>
+
+    <main class="hc-shell__main hc-stack" style="--hc-stack-gap: 1.5rem;">
+      <!-- Page toolbar: title + remote-dialog trigger. -->
+      <div class="hc-cluster" style="justify-content: space-between; align-items: center;">
+        <h1>Products</h1>
+        <button class="hc-button" data-variant="primary" type="button"
+                data-hx-get="/items/new"
+                data-hx-target="#dialog-root"
+                data-hx-swap="innerHTML"
+                data-hx-disabled-elt="this">New item…</button>
+      </div>
+      <!-- The fetched <dialog class="hc-dialog"> fragment swaps in here;
+           installRemoteDialog showModal()s it. -->
+      <div id="dialog-root" data-hc-remote-dialog-root></div>
+
+      <!-- One form wraps the selection toolbar, the grid, and the status
+           line: checked row ids travel by native form serialization. -->
+      <form method="post" action="/products/bulk">
+        <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+             data-hc-datagrid-actions="#products-grid" hidden>
+          <span data-hc-datagrid-count></span>
+          <button class="hc-button" type="submit" name="action" value="archive"
+                  data-hx-post="/products/bulk"
+                  data-hx-target="#products-rows" data-hx-swap="innerHTML"
+                  data-hx-disabled-elt="this">Archive</button>
+          <button class="hc-button" data-variant="error" type="submit"
+                  name="action" value="delete"
+                  data-hc-confirm="Delete the selected products? This cannot be undone."
+                  data-hc-confirm-title="Delete products"
+                  data-hx-trigger="hc:confirmed"
+                  data-hx-post="/products/bulk"
+                  data-hx-target="#products-rows" data-hx-swap="innerHTML"
+                  data-hx-disabled-elt="this">Delete</button>
+        </div>
+
+        <div class="hc-datagrid" id="products-grid">
+          <div class="hc-datagrid__scroll">
+            <table class="hc-datagrid__table">
+              <thead class="hc-datagrid__head">
+                <tr>
+                  <th class="hc-datagrid__headcell" data-frozen scope="col">
+                    <!-- Select-all: no name attribute — must never serialize. -->
+                    <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+                  </th>
+                  <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+                  <th class="hc-datagrid__headcell" scope="col">Name</th>
+                  <th class="hc-datagrid__headcell" scope="col">Unit price</th>
+                </tr>
+              </thead>
+              <tbody class="hc-datagrid__body" id="products-rows">
+                <!-- Page 1's rows, rendered by the server. Per the undo-delete
+                     contract, each Delete button swaps its own row for the
+                     tombstone the server returns:
+                <tr id="item-101" class="hc-datagrid__row">
+                  <td class="hc-datagrid__cell" data-frozen>
+                    <input type="checkbox" class="hc-checkbox" name="ids" value="101"
+                           aria-label="Select Anvil" />
+                  </td>
+                  <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">101</th>
+                  <td class="hc-datagrid__cell">Anvil</td>
+                  <td class="hc-datagrid__cell">
+                    $1,200
+                    <button class="hc-button" data-size="sm" type="button"
+                            data-hx-delete="/items/101"
+                            data-hx-target="closest tr" data-hx-swap="outerHTML"
+                            data-hx-disabled-elt="this">Delete</button>
+                  </td>
+                </tr>
+                -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="hc-cluster" style="justify-content: space-between; inline-size: 100%;">
+          <p id="products-status" aria-live="polite">1–100 / 5,000</p>
+          <!-- The server re-renders the pager out-of-band with every page of
+               rows; links carry href="?page=N" as the no-JS path. -->
+          <nav class="hc-pagination" id="products-pager" aria-label="Pagination">
+            <a class="hc-pagination__item" aria-current="page" href="?page=1"
+               data-hx-get="/products?page=1" data-hx-target="#products-rows"
+               data-hx-swap="innerHTML">1</a>
+            <a class="hc-pagination__item" href="?page=2"
+               data-hx-get="/products?page=2" data-hx-target="#products-rows"
+               data-hx-swap="innerHTML">2</a>
+            <!-- … -->
+          </nav>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+```
+
+## Wiring map
+
+| Region | Component / block | Recipe | Contract |
+| --- | --- | --- | --- |
+| App frame | [`hc-shell`](/hypermedia-components/components/shell/) | — | — (pure CSS; `installShell()` powers mobile nav) |
+| "New item…" dialog | [`hc-dialog`](/hypermedia-components/components/dialog/) | [remote-dialog](/hypermedia-components/recipes/remote-dialog/) | [`remote-dialog/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/remote-dialog/contract.md) |
+| Rows + pager | [`hc-datagrid`](/hypermedia-components/components/datagrid/) + [`hc-pagination`](/hypermedia-components/components/pagination/) | [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) | [`datagrid-pager/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-pager/contract.md) |
+| Bulk-actions toolbar | [`hc-toolbar`](/hypermedia-components/components/toolbar/) | [datagrid-bulk-actions](/hypermedia-components/recipes/datagrid-bulk-actions/) | [`datagrid-bulk-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-actions/contract.md) |
+| Row delete + undo | [`hc-toast`](/hypermedia-components/components/toast/) | [undo-delete](/hypermedia-components/recipes/undo-delete/) | [`undo-delete/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/undo-delete/contract.md) |
+
+## Adapt it
+
+- **Rename the endpoints.** `/products` and `/items` are placeholders —
+  each region only needs its linked contract implemented; they compose
+  freely on one resource.
+- **Real CSRF.** The bulk POST, dialog save, and DELETEs all mutate —
+  add `<meta name="csrf-token">` + `installCsrfHeader()`, plus the
+  hidden field on the no-JS form — see
+  [CSRF tokens](/hypermedia-components/integrations/htmx/#csrf-tokens--the-blessed-convention).
+- **Real auth.** Gate the resource with your framework's session auth —
+  see the [server integration guides](/hypermedia-components/integrations/).
+- **Undo vs. confirm.** Per-row deletes use
+  [undo-delete](/hypermedia-components/recipes/undo-delete/) (no
+  dialog); the rarer bulk delete keeps a
+  [confirm-action](/hypermedia-components/recipes/confirm-action/) gate.
+  Never stack both on one action.

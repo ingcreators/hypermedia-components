@@ -1,0 +1,49 @@
+---
+title: Templates
+description: Full-page compositions — an app shell, blocks, and recipe contracts assembled into working pages you can copy, with live previews against the docs demo API.
+---
+
+[Components](/hypermedia-components/components/) document each part on its
+own and [blocks](/hypermedia-components/blocks/) compose them into
+sections; **templates** are the layer above blocks: whole pages. Each
+template assembles an [`hc-shell`](/hypermedia-components/components/shell/)
+app frame, block-scale compositions, and the
+[recipes'](/hypermedia-components/recipes/) server response contracts into
+one working page — they teach *how the pieces become a page*.
+
+Every template page has:
+
+- a **live framed preview** — real htmx round trips against the same demo
+  API the recipe pages use (`api/recipes/<name>/`);
+- the **complete page skeleton** as one HTML fence, written with
+  real-app-shaped URLs;
+- a **wiring map** — which component powers which region, and which
+  recipe contract its server endpoint must implement;
+- an **"Adapt it"** list for taking it to production.
+
+## The templates
+
+| Template | What it composes |
+| --- | --- |
+| [Settings page](/hypermedia-components/templates/settings/) | App shell + account-settings form: fields with hints, a mutating-form-style submit, field-error distribution on 422, a toast on success. |
+| [CRUD list page](/hypermedia-components/templates/crud/) | App shell + list tooling: paged datagrid, bulk-actions toolbar, remote-dialog editing, and delete-with-undo rows. |
+
+## How to use a template
+
+1. **Copy the page skeleton** from the HTML fence into your server's
+   page template.
+2. **Swap the URLs for your own endpoints.** The live previews run
+   against this site's demo API; the fences already use
+   real-app-shaped URLs (`/members`, `/products?page=1`, …) — point
+   them at endpoints implementing the linked contracts.
+3. **Install the behaviors bundle**
+   (`import '@hypermedia-components/core/behaviors';` — see
+   [Installation → Behaviors](/hypermedia-components/start/installation/#behaviors)).
+   Everything a template needs (toasts, field errors, datagrid
+   selection, remote dialogs, the shell's mobile nav) auto-installs
+   from it.
+4. Work through the page's **Adapt it** list — CSRF, auth, and copy.
+
+Templates re-document nothing: each region links to its component page
+and its recipe, where the markup, variants, and server contract live in
+full.

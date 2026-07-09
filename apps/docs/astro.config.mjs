@@ -228,6 +228,17 @@ export default defineConfig({
           ],
         },
         { label: 'Blocks', translations: { ja: 'ブロック' }, slug: 'blocks' },
+        {
+          // Page-scale compositions — the layer above blocks. Explicit
+          // order (overview → the two templates), Components-style
+          // `Overview` entry for the index.
+          label: 'Templates', translations: { ja: 'テンプレート' },
+          items: [
+            { label: 'Overview', translations: { ja: '概要' }, slug: 'templates' },
+            'templates/settings',
+            'templates/crud',
+          ],
+        },
         { label: 'Recipes', translations: { ja: 'レシピ' }, items: [{ autogenerate: { directory: 'recipes' } }] },
         { label: 'Tokens', translations: { ja: 'トークン' }, items: [{ autogenerate: { directory: 'tokens' } }] },
         { label: 'Integrations', translations: { ja: 'インテグレーション' }, items: [{ autogenerate: { directory: 'integrations' } }] },

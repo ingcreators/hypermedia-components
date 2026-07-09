@@ -1,0 +1,194 @@
+---
+title: CRUD リストページ
+description: リストページの完全形 — hc-shell のアプリフレームに、ページングされたデータグリッド、一括操作ツールバー、リモートダイアログ編集、Undo つき削除の行。各リージョンをそれぞれのレシピが動かします。
+---
+
+import CrudTemplateDemo from '../../../../components/template-demos/CrudTemplateDemo.astro';
+
+[`hc-shell`](/hypermedia-components/ja/components/shell/) のアプリフレーム
+の main リージョンに、リストページの標準的な道具立てを組み上げます:
+[ページングされたデータグリッド](/hypermedia-components/ja/recipes/datagrid-pager/)、
+選択行への[一括操作ツールバー](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)、
+[リモートダイアログ](/hypermedia-components/ja/recipes/remote-dialog/)を
+開く「New item…」ボタン、そして
+[Undo つきで削除](/hypermedia-components/ja/recipes/undo-delete/)できる行。
+
+先に正直な注記をひとつ: 各リージョンはデモ API の**それぞれ別の
+レシピ名前空間**と通信します。そのためプレビューは、1 つのエンド
+ポイントが 4 つの契約すべてを提供しているふりをせず、リージョンを
+**並置**しています。実アプリでは通常、1 つの `/products` リソースが
+同じグリッドに対して pager・bulk・undo の契約をまとめて実装します —
+契約は合成できます。デモのデータセットが別々なだけです。
+
+## ライブテンプレート
+
+- **Catalog (paged)** — 5,000 件のフェイク商品をページ送り。各ページャ
+  リンクは自分のページの行だけを `<tbody>` にスワップし、ページャと
+  ステータス行は同じレスポンスでアウトオブバンドに届きます。
+- **New item…** — remote-dialog 名前空間の定型*編集*ダイアログ
+  (`items/123/edit`。実アプリなら同じフラグメント形で `GET /items/new`
+  を提供します)を開きます。名前を空にして保存すると 422 のエラー状態
+  ダイアログが返り、有効な保存はダイアログを閉じてトーストを上げます。
+- **Bulk actions** — 行をチェックするとツールバーが現れます。選択を
+  Archive / Delete してみてください。**Anvil (101)** を含めると部分
+  失敗の warning トーストが見られます(サーバ側で保護されています)。
+- **Delete with undo** — 行を削除(確認なし)し、猶予期間内にトーストの
+  **Undo** を押すと行がその場に復元されます。
+
+<CrudTemplateDemo />
+
+:::note[ページにつき 1 インスタンス]
+デモ API が返す pager / bulk-actions / undo-delete のフラグメントは
+固定の要素 id(`datagrid-pager-demo-*`、`datagrid-bulk-actions-demo-*`、
+`undo-delete-demo-item-*`)を運ぶため、このテンプレートはそれらの id を
+そのまま再利用しており、**ページにつき 1 回**しかレンダリングできません。
+あなたのサーバは自分の id を所有します — リソースごとの id を
+選んでください。
+:::
+
+## ページスケルトン
+
+実アプリ形の URL で書いた完全なページです — pager + bulk の契約を
+実装する 1 つの `/products` リソースと、ダイアログ編集・undo-delete の
+ための `/items`。1 ページ目の行はサーバサイドでレンダリングし、
+JavaScript が動く前からグリッドが埋まっているようにします。トーストの
+マークアップは不要です: `installToast()` が自分でリージョンを作ります。
+
+```html
+<body>
+  <div class="hc-shell">
+    <header class="hc-shell__header">
+      <button class="hc-button" data-variant="ghost"
+              data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
+      <strong>Acme Admin</strong>
+    </header>
+
+    <nav class="hc-shell__sidebar" aria-label="Primary">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/products" aria-current="page">Products</a>
+      <a href="/settings">Settings</a>
+    </nav>
+
+    <main class="hc-shell__main hc-stack" style="--hc-stack-gap: 1.5rem;">
+      <!-- ページツールバー: タイトル + リモートダイアログのトリガー。 -->
+      <div class="hc-cluster" style="justify-content: space-between; align-items: center;">
+        <h1>Products</h1>
+        <button class="hc-button" data-variant="primary" type="button"
+                data-hx-get="/items/new"
+                data-hx-target="#dialog-root"
+                data-hx-swap="innerHTML"
+                data-hx-disabled-elt="this">New item…</button>
+      </div>
+      <!-- 取得した <dialog class="hc-dialog"> フラグメントはここにスワップされ、
+           installRemoteDialog が showModal() します。 -->
+      <div id="dialog-root" data-hc-remote-dialog-root></div>
+
+      <!-- 1 つのフォームが選択ツールバー・グリッド・ステータス行を包みます:
+           チェックされた行の id はネイティブのフォームシリアライズで運ばれます。 -->
+      <form method="post" action="/products/bulk">
+        <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+             data-hc-datagrid-actions="#products-grid" hidden>
+          <span data-hc-datagrid-count></span>
+          <button class="hc-button" type="submit" name="action" value="archive"
+                  data-hx-post="/products/bulk"
+                  data-hx-target="#products-rows" data-hx-swap="innerHTML"
+                  data-hx-disabled-elt="this">Archive</button>
+          <button class="hc-button" data-variant="error" type="submit"
+                  name="action" value="delete"
+                  data-hc-confirm="Delete the selected products? This cannot be undone."
+                  data-hc-confirm-title="Delete products"
+                  data-hx-trigger="hc:confirmed"
+                  data-hx-post="/products/bulk"
+                  data-hx-target="#products-rows" data-hx-swap="innerHTML"
+                  data-hx-disabled-elt="this">Delete</button>
+        </div>
+
+        <div class="hc-datagrid" id="products-grid">
+          <div class="hc-datagrid__scroll">
+            <table class="hc-datagrid__table">
+              <thead class="hc-datagrid__head">
+                <tr>
+                  <th class="hc-datagrid__headcell" data-frozen scope="col">
+                    <!-- 全選択: name 属性なし — 決してシリアライズさせない。 -->
+                    <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+                  </th>
+                  <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col">ID</th>
+                  <th class="hc-datagrid__headcell" scope="col">Name</th>
+                  <th class="hc-datagrid__headcell" scope="col">Unit price</th>
+                </tr>
+              </thead>
+              <tbody class="hc-datagrid__body" id="products-rows">
+                <!-- 1 ページ目の行はサーバがレンダリングします。undo-delete 契約に
+                     従い、各 Delete ボタンは自分の行をサーバが返すトゥームストーンに
+                     スワップします:
+                <tr id="item-101" class="hc-datagrid__row">
+                  <td class="hc-datagrid__cell" data-frozen>
+                    <input type="checkbox" class="hc-checkbox" name="ids" value="101"
+                           aria-label="Select Anvil" />
+                  </td>
+                  <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">101</th>
+                  <td class="hc-datagrid__cell">Anvil</td>
+                  <td class="hc-datagrid__cell">
+                    $1,200
+                    <button class="hc-button" data-size="sm" type="button"
+                            data-hx-delete="/items/101"
+                            data-hx-target="closest tr" data-hx-swap="outerHTML"
+                            data-hx-disabled-elt="this">Delete</button>
+                  </td>
+                </tr>
+                -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="hc-cluster" style="justify-content: space-between; inline-size: 100%;">
+          <p id="products-status" aria-live="polite">1–100 / 5,000</p>
+          <!-- サーバは行の各ページと一緒にページャをアウトオブバンドで
+               再レンダリングします。リンクは非 JS パスとして href="?page=N" を
+               持ちます。 -->
+          <nav class="hc-pagination" id="products-pager" aria-label="Pagination">
+            <a class="hc-pagination__item" aria-current="page" href="?page=1"
+               data-hx-get="/products?page=1" data-hx-target="#products-rows"
+               data-hx-swap="innerHTML">1</a>
+            <a class="hc-pagination__item" href="?page=2"
+               data-hx-get="/products?page=2" data-hx-target="#products-rows"
+               data-hx-swap="innerHTML">2</a>
+            <!-- … -->
+          </nav>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+```
+
+## 配線マップ
+
+| リージョン | コンポーネント / ブロック | レシピ | 契約 |
+| --- | --- | --- | --- |
+| アプリフレーム | [`hc-shell`](/hypermedia-components/ja/components/shell/) | — | —(純 CSS。`installShell()` はモバイルナビ担当) |
+| 「New item…」ダイアログ | [`hc-dialog`](/hypermedia-components/ja/components/dialog/) | [remote-dialog](/hypermedia-components/ja/recipes/remote-dialog/) | [`remote-dialog/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/remote-dialog/contract.md) |
+| 行 + ページャ | [`hc-datagrid`](/hypermedia-components/ja/components/datagrid/) + [`hc-pagination`](/hypermedia-components/ja/components/pagination/) | [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) | [`datagrid-pager/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-pager/contract.md) |
+| 一括操作ツールバー | [`hc-toolbar`](/hypermedia-components/ja/components/toolbar/) | [datagrid-bulk-actions](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) | [`datagrid-bulk-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-actions/contract.md) |
+| 行削除 + Undo | [`hc-toast`](/hypermedia-components/ja/components/toast/) | [undo-delete](/hypermedia-components/ja/recipes/undo-delete/) | [`undo-delete/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/undo-delete/contract.md) |
+
+## 適応させる
+
+- **エンドポイントを差し替える。** `/products` と `/items` はプレース
+  ホルダーです — 各リージョンはリンク先の契約さえ実装されていればよく、
+  1 つのリソース上で自由に合成できます。
+- **本物の CSRF。** bulk の POST、ダイアログの保存、DELETE はすべて
+  変更系です — `<meta name="csrf-token">` + `installCsrfHeader()` と、
+  非 JS フォームには隠しフィールドを追加します —
+  [CSRF トークン](/hypermedia-components/ja/integrations/htmx/#csrf-トークン--公認の規約)
+  を参照。
+- **本物の認証。** リソースはフレームワークのセッション認証で守って
+  ください —
+  [サーバインテグレーションガイド](/hypermedia-components/ja/integrations/)
+  を参照。
+- **Undo か確認か。** 行ごとの削除は
+  [undo-delete](/hypermedia-components/ja/recipes/undo-delete/)
+  (ダイアログなし)、より稀な一括削除には
+  [confirm-action](/hypermedia-components/ja/recipes/confirm-action/) の
+  ゲートを残します。1 つのアクションに両方を重ねてはいけません。
