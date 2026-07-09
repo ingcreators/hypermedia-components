@@ -20,6 +20,8 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-07-09
+
 ### Added
 
 - **Landing page — one story, told once** (follow-up to the fold
@@ -330,30 +332,6 @@ Security    — security-relevant changes
   fixed: accordion's htmx example still used the non-existent
   `<hc-spinner>` element.
 
-### Fixed
-
-- **Docs: every copy-paste-broken or self-contradictory page from the
-  full-site review** (docs-facing; batch 1 of
-  `plans/hc-docs-clarity-plan-en.md`, en + ja). Highlights: the
-  quick-start toast demo now actually fires (`document.body` dispatch
-  with `bubbles`); combobox gained the missing "Form participation"
-  section (plain submits carry the **label**, hidden-input pattern for
-  code values); hovercard's htmx example no longer waits on an event
-  the behavior never fires; `<hc-spinner>` and the non-existent
-  `hc-search` / `hc-list` / `hc-form` classes are gone from examples;
-  the toast recipe/contract documents the shipped `id` / `action`
-  fields and the "sticky toasts must carry an action" rule; slider
-  points at `hc-range` instead of its pre-range workaround; the
-  density page no longer contradicts itself about `data-size` ×
-  `data-density`; the Rails / Django / Razor CSRF sections use the
-  blessed `installCsrfHeader()` meta convention (and Razor leads with
-  the working `HX-Trigger` helper); pagination documents dropping the
-  boundary link's `href` (keyboard correctness) and its server
-  contract; plus a dozen dead links, stale notes, and cross-page size
-  numbers now deferred to Bundle size.
-
-### Added
-
 - **`/llms.txt` on the docs site** (docs-facing). The site now emits
   the [llms.txt](https://llmstxt.org/) convention via
   `starlight-llms-txt`: `/llms.txt` (index), `/llms-full.txt`
@@ -398,6 +376,26 @@ Security    — security-relevant changes
   `hc:copied` event detail instead.
 
 ### Fixed
+
+- **Docs: every copy-paste-broken or self-contradictory page from the
+  full-site review** (docs-facing; batch 1 of
+  `plans/hc-docs-clarity-plan-en.md`, en + ja). Highlights: the
+  quick-start toast demo now actually fires (`document.body` dispatch
+  with `bubbles`); combobox gained the missing "Form participation"
+  section (plain submits carry the **label**, hidden-input pattern for
+  code values); hovercard's htmx example no longer waits on an event
+  the behavior never fires; `<hc-spinner>` and the non-existent
+  `hc-search` / `hc-list` / `hc-form` classes are gone from examples;
+  the toast recipe/contract documents the shipped `id` / `action`
+  fields and the "sticky toasts must carry an action" rule; slider
+  points at `hc-range` instead of its pre-range workaround; the
+  density page no longer contradicts itself about `data-size` ×
+  `data-density`; the Rails / Django / Razor CSRF sections use the
+  blessed `installCsrfHeader()` meta convention (and Razor leads with
+  the working `HX-Trigger` helper); pagination documents dropping the
+  boundary link's `href` (keyboard correctness) and its server
+  contract; plus a dozen dead links, stale notes, and cross-page size
+  numbers now deferred to Bundle size.
 
 - **Docs: the component overview, sidebar, and kitchen sink caught up
   with the component set** (docs-facing). The `/components/` gallery
@@ -3885,7 +3883,8 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.5...v0.1.6
