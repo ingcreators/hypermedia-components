@@ -26,6 +26,17 @@ GitHub 風の `@user` メンションプレビュー、issue ID のプレビュ�
 - 表示 / 非表示の遅延は長め(500 ms / 200 ms)で、読み物カードの
   UX に合わせています。
 
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| HTML `popover` | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| CSS Anchor Positioning | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+アンカー未対応のブラウザは、デフォルトの下配置 + `flip-block` の
+CSS パスを鏡写しにした `getBoundingClientRect` 配置へフォールバック
+します。
+
 ## 基本の HTML
 
 <Demo>
@@ -135,17 +146,6 @@ htmx の `from:` 修飾子でリンク側をリッスンし、スワップ先は
 取得し、サーバーはカードの内側 HTML を返します。同じ遅延読み込み契約の
 全体は[レイジーパネルのレシピ](/hypermedia-components/ja/recipes/lazy-panel/)が
 文書化しています。
-
-## ブラウザのベースライン
-
-| プリミティブ | 必要バージョン |
-| --- | --- |
-| HTML `popover` | Chrome 114、Edge 114、Firefox 125、Safari 17 |
-| CSS Anchor Positioning | Chrome 125、Edge 125、Firefox 147、Safari 26 |
-
-アンカー未対応のブラウザは、デフォルトの下配置 + `flip-block` の
-CSS パスを鏡写しにした `getBoundingClientRect` 配置へフォールバック
-します。
 
 ## アクセシビリティ
 

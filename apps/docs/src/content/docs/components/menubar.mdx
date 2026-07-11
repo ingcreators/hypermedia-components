@@ -12,6 +12,18 @@ layer over the existing menu machinery — `installMenu()` owns the dropdown
 internals (ARIA, in-menu keyboard, submenus); `installMenubar()` adds the bar
 navigation.
 
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+The dropdowns are ordinary `hc-menu` popovers, so when Anchor Positioning
+is missing `installMenu()` falls back to `getBoundingClientRect`
+positioning — the menus still open, dismiss, and behave correctly
+everywhere `popover` is supported.
+
 ## Basic HTML
 
 <Demo>
@@ -84,18 +96,6 @@ submenus, checkbox/radio items, and the `hc:menuselect` event for free).
 
 A submenu parent still opens its submenu on `→` (the menubar defers to the
 submenu machinery), so nested menus keep working.
-
-## Browser baseline
-
-| Primitive | Required version |
-| --- | --- |
-| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
-| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
-
-The dropdowns are ordinary `hc-menu` popovers, so when Anchor Positioning
-is missing `installMenu()` falls back to `getBoundingClientRect`
-positioning — the menus still open, dismiss, and behave correctly
-everywhere `popover` is supported.
 
 ## Accessibility
 

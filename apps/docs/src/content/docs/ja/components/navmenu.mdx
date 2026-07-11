@@ -13,6 +13,17 @@ import Demo from '../../../../components/Demo.astro';
 `<a>` のままです — そのため素の MPA ナビゲーションでも htmx でも
 機能します。
 
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+Anchor Positioning のない環境では `installNavmenu()` が JS 配置に
+フォールバックします — `popover` がサポートされる環境ならどこでも、
+パネルは正しく開いて解散します。
+
 ## 基本の HTML
 
 <Demo previewStyle="min-block-size: 16rem;">
@@ -97,17 +108,6 @@ htmx でスワップされた内容も自動で拾います。
 [`hc-collapsible`](/hypermedia-components/ja/components/collapsible/)と
 して描画します。レイアウトの切り替えはメディアクエリで — リンクと構造は
 同一なので、重複するマークアップは不要です。
-
-## ブラウザのベースライン
-
-| プリミティブ | 必要バージョン |
-| --- | --- |
-| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
-| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
-
-Anchor Positioning のない環境では `installNavmenu()` が JS 配置に
-フォールバックします — `popover` がサポートされる環境ならどこでも、
-パネルは正しく開いて解散します。
 
 ## アクセシビリティ
 

@@ -9,6 +9,18 @@ import Demo from '../../../../components/Demo.astro';
 トップレイヤー描画、ライトディスミス、Escape で閉じるはブラウザが
 処理します — JavaScript は不要です。
 
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+Anchor Positioning のないエンジンでは `installPopover()` の JS
+フォールバックが `data-side` のポップオーバーを配置します。JavaScript
+なしではブラウザ中央のままです。`data-arrow` ポインタは素の CSS で、
+どこでも描画されます。
+
 ## 基本の HTML
 
 <Demo previewStyle="display:flex;gap:.5rem;align-items:flex-start;min-height:9rem;">
@@ -123,18 +135,6 @@ side と align つきで**トリガーにアンカーする**には、`data-side
 
 ビヘイビアは `htmx:afterRequest` を待ち受けて成功を確認し、
 `closest('[popover]').hidePopover()` を呼びます。
-
-## ブラウザのベースライン
-
-| プリミティブ | 必要バージョン |
-| --- | --- |
-| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
-| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
-
-Anchor Positioning のないエンジンでは `installPopover()` の JS
-フォールバックが `data-side` のポップオーバーを配置します。JavaScript
-なしではブラウザ中央のままです。`data-arrow` ポインタは素の CSS で、
-どこでも描画されます。
 
 ## アクセシビリティ
 

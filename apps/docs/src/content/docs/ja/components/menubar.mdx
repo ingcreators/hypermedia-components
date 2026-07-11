@@ -13,6 +13,18 @@ import Demo from '../../../../components/Demo.astro';
 サブメニュー)を所有し、`installMenubar()` がバーのナビゲーションを
 足します。
 
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+ドロップダウンは普通の `hc-menu` ポップオーバーなので、Anchor
+Positioning がない場合は `installMenu()` が `getBoundingClientRect`
+による配置にフォールバックします — `popover` がサポートされる環境なら
+どこでも、メニューは正しく開き、閉じ、振る舞います。
+
 ## 基本の HTML
 
 <Demo>
@@ -87,18 +99,6 @@ htmx でスワップされた内容も自動で拾います。
 
 サブメニューの親は引き続き `→` でサブメニューを開きます(メニューバーは
 サブメニュー機構に譲ります)。入れ子のメニューも機能し続けます。
-
-## ブラウザのベースライン
-
-| プリミティブ | 必要バージョン |
-| --- | --- |
-| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
-| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
-
-ドロップダウンは普通の `hc-menu` ポップオーバーなので、Anchor
-Positioning がない場合は `installMenu()` が `getBoundingClientRect`
-による配置にフォールバックします — `popover` がサポートされる環境なら
-どこでも、メニューは正しく開き、閉じ、振る舞います。
 
 ## アクセシビリティ
 

@@ -12,6 +12,16 @@ the `toggle` event are all provided by the browser. The
 expresses the single-open ("exclusive") variant declaratively, so no
 JS is needed to enforce the "only one item open at a time" rule.
 
+## Browser baseline
+
+| Feature | Required version |
+| --- | --- |
+| `<details>` / `<summary>` | every browser |
+| `<details name="...">` exclusive grouping | Chrome 120+, Firefox 130+, Safari 17.2+ |
+
+Browsers without the `name` attribute keep every item independently
+collapsible — nothing breaks; only the single-open rule is not enforced.
+
 ## Exclusive accordion (single-open)
 
 Give every `<details>` in the group the **same `name` value** and
@@ -157,16 +167,6 @@ the first time.
   </div>
 </details>
 ```
-
-## Browser baseline
-
-| Feature | Required version |
-| --- | --- |
-| `<details>` / `<summary>` | every browser |
-| `<details name="...">` exclusive grouping | Chrome 120+, Firefox 130+, Safari 17.2+ |
-
-Browsers without the `name` attribute keep every item independently
-collapsible — nothing breaks; only the single-open rule is not enforced.
 
 ## Accessibility
 
