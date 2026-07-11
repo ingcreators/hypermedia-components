@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Behaviors reference — Attributes & Events columns** (en + ja,
+  docs-review follow-up). Each of the 45 rows now shows the opt-in /
+  config attributes an author (or the server fragment) writes and the
+  `hc:*` events the behavior dispatches, verified against the manifest
+  and each behavior's source — the page is now an at-a-glance contract
+  instead of a name roster. Dispatch-vs-listen is spelled out
+  (`installToast()` *listens* for `hc:toast`; menubar's `hc:menuselect`
+  comes from its menus), long option sets truncate with "…" to the
+  component page, and a short legend defines both columns.
 - **Component pages — one name for the entry section** (en + ja,
   docs-review follow-up). The first markup section was variously
   titled "Basic example" (15 pages), "Basic usage" (6), or "Demo"

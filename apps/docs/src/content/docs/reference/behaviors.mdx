@@ -20,75 +20,83 @@ installTabs();
 installToast();
 ```
 
+Two columns need a definition. **Attributes** lists the markup you (or
+the server fragment) write to opt in to or configure the behavior — not
+the state attributes the behavior itself writes at runtime
+(`data-active`, `aria-invalid`, …). Where a component-bound behavior has
+many options, only the most important are shown ("…") and the page
+linked in *Powers* has the full list. **Events** lists the `hc:*` events
+the behavior dispatches; "—" means none.
+
 ## Actions & forms
 
-| Behavior | Powers | Auto-init |
-| --- | --- | --- |
-| `installValidation()` | Native-validation wiring for [fields](/hypermedia-components/components/field/) (blur/submit validation, message slots). | ✓ |
-| `installFieldErrors()` | Server-driven inline errors — the [field-errors recipe](/hypermedia-components/recipes/field-errors/)'s 422 fragment contract. | ✓ |
-| `installCombobox()` | [Combobox](/hypermedia-components/components/combobox/) keyboard, filtering, ARIA. | ✓ |
-| `installMulticombobox()` | [Multicombobox](/hypermedia-components/components/multicombobox/) tags, keyboard, ARIA. | ✓ |
-| `installInputOtp()` | [Input OTP](/hypermedia-components/components/inputotp/) per-slot editing. | ✓ |
-| `installPasswordToggle()` | The [input-group](/hypermedia-components/components/input-group/) password reveal. | ✓ |
-| `installSlider()` | [Slider](/hypermedia-components/components/slider/) fill + value output sync. | ✓ |
-| `installRange()` | [Range](/hypermedia-components/components/range/) dual-thumb clamping + fill. | ✓ |
-| `installCalendar()` | [Calendar](/hypermedia-components/components/calendar/) grid, keyboard, selection. | ✓ |
-| `installDropzone()` | [Dropzone](/hypermedia-components/components/dropzone/) drag-over state + file list. | ✓ |
-| `installUploadProgress()` | Driving a `<progress>` from htmx upload events — the [file-upload recipe](/hypermedia-components/recipes/file-upload/). | ✓ |
-| `installCodeEditor()` | The editable [code](/hypermedia-components/components/code/) field: gutter, live highlight (`data-lang`). | ✓ |
+| Behavior | Powers | Attributes | Events | Auto-init |
+| --- | --- | --- | --- | --- |
+| `installValidation()` | Native-validation wiring for [fields](/hypermedia-components/components/field/) (blur/submit validation, message slots). | native constraint attributes (`required`, `pattern`, …) | — | ✓ |
+| `installFieldErrors()` | Server-driven inline errors — the [field-errors recipe](/hypermedia-components/recipes/field-errors/)'s 422 fragment contract. | `data-hc-field-errors`, `data-field`, `data-message-key` (server-written) | — | ✓ |
+| `installCombobox()` | [Combobox](/hypermedia-components/components/combobox/) keyboard, filtering, ARIA. | `data-remote`, `data-allow-create`, `data-value`, … | `hc:comboboxselect` | ✓ |
+| `installMulticombobox()` | [Multicombobox](/hypermedia-components/components/multicombobox/) tags, keyboard, ARIA. | `data-name`, `data-allow-create`, `data-value`, … | `hc:multicomboboxchange` | ✓ |
+| `installInputOtp()` | [Input OTP](/hypermedia-components/components/inputotp/) per-slot editing. | `data-length`, `data-pattern`, `data-groups` | `hc:otpchange`, `hc:otpcomplete` | ✓ |
+| `installPasswordToggle()` | The [input-group](/hypermedia-components/components/input-group/) password reveal. | `data-hc-password-toggle`, `data-hc-label-show` / `data-hc-label-hide` | — | ✓ |
+| `installSlider()` | [Slider](/hypermedia-components/components/slider/) fill + value output sync. | — | — | ✓ |
+| `installRange()` | [Range](/hypermedia-components/components/range/) dual-thumb clamping + fill. | — | `hc:rangechange` | ✓ |
+| `installCalendar()` | [Calendar](/hypermedia-components/components/calendar/) grid, keyboard, selection. | `data-value`, `data-min` / `data-max`, `data-mode`, … | `hc:calendarchange`, `hc:calendarrangechange` | ✓ |
+| `installDropzone()` | [Dropzone](/hypermedia-components/components/dropzone/) drag-over state + file list. | — | — | ✓ |
+| `installUploadProgress()` | Driving a `<progress>` from htmx upload events — the [file-upload recipe](/hypermedia-components/recipes/file-upload/). | `data-hc-upload-progress` | — | ✓ |
+| `installCodeEditor()` | The editable [code](/hypermedia-components/components/code/) field: gutter, live highlight (`data-lang`). | `data-editable`, `data-gutter`, `data-lang` | — | ✓ |
 
 ## Navigation & command
 
-| Behavior | Powers | Auto-init |
-| --- | --- | --- |
-| `installTabs()` | [Tabs](/hypermedia-components/components/tabs/) roving focus + panel switching. | ✓ |
-| `installToggleGroup()` | [Toggle group](/hypermedia-components/components/toggle-group/) single/multiple selection + roving focus. | ✓ |
-| `installToolbar()` | [Toolbar](/hypermedia-components/components/toolbar/) single-Tab-stop arrow-key navigation (APG pattern). | ✓ |
-| `installMenu()` | [Menu](/hypermedia-components/components/menu/) keyboard pattern, anchoring, ARIA. | ✓ |
-| `installMenubar()` | [Menubar](/hypermedia-components/components/menubar/) across-menu arrow keys. | ✓ |
-| `installNavmenu()` | [Navigation menu](/hypermedia-components/components/navmenu/) panels. | ✓ |
-| `installContextMenu()` | [Context menu](/hypermedia-components/components/context-menu/) right-click opening. | ✓ |
-| `installCommand()` | [Command](/hypermedia-components/components/command/) filtering + ranking + keyboard. | ✓ |
-| `installTree()` | [Tree](/hypermedia-components/components/tree/) ARIA roles + expand/collapse. | ✓ |
-| `installSpy()` | [TOC](/hypermedia-components/components/toc/) scrollspy (`aria-current` tracking). | ✓ |
-| `installNavCurrent()` | Marking the current nav link after boosted navigations ([shell](/hypermedia-components/components/shell/)). | ✓ |
-| `installShell()` | [Shell](/hypermedia-components/components/shell/) sidebar collapse + persistence. | ✓ |
+| Behavior | Powers | Attributes | Events | Auto-init |
+| --- | --- | --- | --- | --- |
+| `installTabs()` | [Tabs](/hypermedia-components/components/tabs/) roving focus + panel switching. | `data-activation`, `data-orientation`, `data-overflow` | `hc:tabactivated` | ✓ |
+| `installToggleGroup()` | [Toggle group](/hypermedia-components/components/toggle-group/) single/multiple selection + roving focus. | `data-type`, `data-value`, `data-name` | `hc:togglegroupchange` | ✓ |
+| `installToolbar()` | [Toolbar](/hypermedia-components/components/toolbar/) single-Tab-stop arrow-key navigation (APG pattern). | `role="toolbar"`, `aria-orientation` | — | ✓ |
+| `installMenu()` | [Menu](/hypermedia-components/components/menu/) keyboard pattern, anchoring, ARIA. | `popover` + `popovertarget` (trigger) | `hc:menuselect` | ✓ |
+| `installMenubar()` | [Menubar](/hypermedia-components/components/menubar/) across-menu arrow keys. | `role="menubar"`, `popovertarget` | `hc:menuselect` (from its menus) | ✓ |
+| `installNavmenu()` | [Navigation menu](/hypermedia-components/components/navmenu/) panels. | `data-hc-navmenu-trigger`, `aria-controls` | — | ✓ |
+| `installContextMenu()` | [Context menu](/hypermedia-components/components/context-menu/) right-click opening. | `data-hc-context-menu` | `hc:menuselect` | ✓ |
+| `installCommand()` | [Command](/hypermedia-components/components/command/) filtering + ranking + keyboard. | `data-hotkey`, `data-filter`, `data-value` | `hc:commandselect` | ✓ |
+| `installTree()` | [Tree](/hypermedia-components/components/tree/) ARIA roles + expand/collapse. | `aria-expanded` (declares a branch), `data-hx-get` (lazy) | `hc:treeexpand` | ✓ |
+| `installSpy()` | [TOC](/hypermedia-components/components/toc/) scrollspy (`aria-current` tracking). | `data-hc-spy` | — | ✓ |
+| `installNavCurrent()` | Marking the current nav link after boosted navigations ([shell](/hypermedia-components/components/shell/)). | `data-hc-nav-current` | — | ✓ |
+| `installShell()` | [Shell](/hypermedia-components/components/shell/) sidebar collapse + persistence. | `data-hc-shell-toggle`, `data-collapsible`, `data-persist`, … | — | ✓ |
 
 ## Overlays & feedback
 
-| Behavior | Powers | Auto-init |
-| --- | --- | --- |
-| `installPopover()` | [Popover](/hypermedia-components/components/popover/) anchoring + placement fallback. | ✓ |
-| `installTooltip()` | [Tooltip](/hypermedia-components/components/tooltip/) show/hide + anchoring. | ✓ |
-| `installHovercard()` | [Hovercard](/hypermedia-components/components/hovercard/) intent delays + anchoring. | ✓ |
-| `installDrawer()` | [Drawer](/hypermedia-components/components/drawer/) drag-to-dismiss. | ✓ |
-| `installToast()` | [Toast](/hypermedia-components/components/toast/) region: `hc:toast` events, stacking, update-by-id, actions. | ✓ |
-| `installConfirm()` | The shared confirm dialog — [confirm-action recipe](/hypermedia-components/recipes/confirm-action/) (`data-hc-confirm`). | ✓ |
-| `installRemoteDialog()` | Server-rendered dialogs — the [remote-dialog recipe](/hypermedia-components/recipes/remote-dialog/). | ✓ |
-| `installCloseDialog()` | Closing a [dialog](/hypermedia-components/components/dialog/) after a successful htmx request (`data-hc-close-dialog-on-success`). | ✓ |
-| `installClosePopover()` | The popover equivalent (`data-hc-close-popover-on-success`) — see the [filter-popover recipe](/hypermedia-components/recipes/filter-popover/). | ✓ |
+| Behavior | Powers | Attributes | Events | Auto-init |
+| --- | --- | --- | --- | --- |
+| `installPopover()` | [Popover](/hypermedia-components/components/popover/) anchoring + placement fallback. | `data-side`, `data-align`, `data-arrow` | — | ✓ |
+| `installTooltip()` | [Tooltip](/hypermedia-components/components/tooltip/) show/hide + anchoring. | `aria-describedby` (trigger), `data-side`, `data-align` | — | ✓ |
+| `installHovercard()` | [Hovercard](/hypermedia-components/components/hovercard/) intent delays + anchoring. | `aria-describedby` (trigger), `data-side`, `data-align` | — | ✓ |
+| `installDrawer()` | [Drawer](/hypermedia-components/components/drawer/) drag-to-dismiss. | `data-side` | — | ✓ |
+| `installToast()` | [Toast](/hypermedia-components/components/toast/) region: `hc:toast` events, stacking, update-by-id, actions. | `data-hc-toast-region`, `data-position`, `data-limit` | `hc:toast` (listens) | ✓ |
+| `installConfirm()` | The shared confirm dialog — [confirm-action recipe](/hypermedia-components/recipes/confirm-action/) (`data-hc-confirm`). | `data-hc-confirm`, `data-hc-confirm-title`, `data-hc-confirm-variant`, … | `hc:confirmed` | ✓ |
+| `installRemoteDialog()` | Server-rendered dialogs — the [remote-dialog recipe](/hypermedia-components/recipes/remote-dialog/). | `data-hc-remote-dialog-root` | — | ✓ |
+| `installCloseDialog()` | Closing a [dialog](/hypermedia-components/components/dialog/) after a successful htmx request (`data-hc-close-dialog-on-success`). | `data-hc-close-dialog-on-success` | — | ✓ |
+| `installClosePopover()` | The popover equivalent (`data-hc-close-popover-on-success`) — see the [filter-popover recipe](/hypermedia-components/recipes/filter-popover/). | `data-hc-close-popover-on-success` | — | ✓ |
 
 ## Data display
 
-| Behavior | Powers | Auto-init |
-| --- | --- | --- |
-| `installDatagrid()` | [Datagrid](/hypermedia-components/components/datagrid/) keyboard grid, sort/resize/edit/detail events. | ✓ |
-| `installDatagridActions()` | The datagrid selection actions bar — [datagrid-bulk-actions recipe](/hypermedia-components/recipes/datagrid-bulk-actions/). | ✓ |
-| `installCarousel()` | [Carousel](/hypermedia-components/components/carousel/) active tracking, dots, keyboard. | ✓ |
-| `installSplitter()` | [Splitter](/hypermedia-components/components/splitter/) drag + keyboard resize + persistence. | ✓ |
-| `installAvatar()` | [Avatar](/hypermedia-components/components/avatar/) image-error → initials fallback. | ✓ |
-| `installSparkline()` | [Sparkline](/hypermedia-components/components/sparkline/) drawing from `data-values`. | ✓ |
-| `installChatScroll()` | [Chat](/hypermedia-components/components/chat/) transcript stick-to-bottom (stops following while the reader scrolls up). | ✓ |
-| `installChart()` | [Chart](/hypermedia-components/recipes/chart/) rendering via Observable Plot. | **Opt-in** — needs the `@observablehq/plot` peer; never bundled. |
+| Behavior | Powers | Attributes | Events | Auto-init |
+| --- | --- | --- | --- | --- |
+| `installDatagrid()` | [Datagrid](/hypermedia-components/components/datagrid/) keyboard grid, sort/resize/edit/detail events. | `data-sortable`, `data-editable`, `data-resizable`, `data-frozen`, … | `hc:datagridsort`, `hc:datagridselectionchange`, … (7 — see page) | ✓ |
+| `installDatagridActions()` | The datagrid selection actions bar — [datagrid-bulk-actions recipe](/hypermedia-components/recipes/datagrid-bulk-actions/). | `data-hc-datagrid-actions`, `data-hc-datagrid-count` | — | ✓ |
+| `installCarousel()` | [Carousel](/hypermedia-components/components/carousel/) active tracking, dots, keyboard. | `data-autoplay`, `data-hc-carousel-prev` / `-next` / `-dots` | `hc:carouselchange` | ✓ |
+| `installSplitter()` | [Splitter](/hypermedia-components/components/splitter/) drag + keyboard resize + persistence. | `data-orientation`, `data-value`, `data-persist`, … | `hc:splitterchange` | ✓ |
+| `installAvatar()` | [Avatar](/hypermedia-components/components/avatar/) image-error → initials fallback. | `data-delay` | `hc:avatarstatechange` | ✓ |
+| `installSparkline()` | [Sparkline](/hypermedia-components/components/sparkline/) drawing from `data-values`. | `data-values`, `data-area`, `data-min` / `data-max` | — | ✓ |
+| `installChatScroll()` | [Chat](/hypermedia-components/components/chat/) transcript stick-to-bottom (stops following while the reader scrolls up). | — | — | ✓ |
+| `installChart()` | [Chart](/hypermedia-components/recipes/chart/) rendering via Observable Plot. | `data-hc-chart`, `data-mark`, … | — | **Opt-in** — needs the `@observablehq/plot` peer; never bundled. |
 
 ## Platform glue
 
-| Behavior | Powers | Auto-init |
-| --- | --- | --- |
-| `installCopy()` | Clipboard buttons (`data-hc-copy`) — the [copy recipe](/hypermedia-components/recipes/copy/). | ✓ |
-| `installThemeToggle()` | The light/dark toggle button ([theming](/hypermedia-components/tokens/themes/)). | ✓ |
-| `installCsrfHeader()` | Adding the CSRF header from `meta[name="csrf-token"]` to every htmx request ([htmx guide](/hypermedia-components/integrations/htmx/)). | ✓ |
-| `installSseDispatch()` | Bridging SSE messages into DOM events — the [sse-updates](/hypermedia-components/recipes/sse-updates/) / [sse-toast](/hypermedia-components/recipes/sse-toast/) recipes. | ✓ |
+| Behavior | Powers | Attributes | Events | Auto-init |
+| --- | --- | --- | --- | --- |
+| `installCopy()` | Clipboard buttons (`data-hc-copy`) — the [copy recipe](/hypermedia-components/recipes/copy/). | `data-hc-copy`, `data-hc-copy-text`, `data-hc-copy-ok` | `hc:copied` | ✓ |
+| `installThemeToggle()` | The light/dark toggle button ([theming](/hypermedia-components/tokens/themes/)). | `data-hc-theme-toggle`, `data-persist` | `hc:themechange` | ✓ |
+| `installCsrfHeader()` | Adding the CSRF header from `meta[name="csrf-token"]` to every htmx request ([htmx guide](/hypermedia-components/integrations/htmx/)). | `meta[name="csrf-token"]` + `data-header` | — | ✓ |
+| `installSseDispatch()` | Bridging SSE messages into DOM events — the [sse-updates](/hypermedia-components/recipes/sse-updates/) / [sse-toast](/hypermedia-components/recipes/sse-toast/) recipes. | `data-hc-sse-dispatch`, `data-sse-swap` | the names listed in `data-sse-swap` | ✓ |
 
 ## Related
 

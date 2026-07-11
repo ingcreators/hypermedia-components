@@ -19,75 +19,83 @@ installTabs();
 installToast();
 ```
 
+2 つの列の意味を先に定義しておきます。**属性**列は、ビヘイビアへの
+オプトインや設定のためにページ作者(またはサーバーのフラグメント)が
+書くマークアップです — ビヘイビア自身が実行時に書き込む状態属性
+(`data-active`、`aria-invalid` など)ではありません。設定項目の多い
+コンポーネント連動ビヘイビアは重要なものだけを載せ(「…」)、完全な
+一覧は「担当」列でリンクするページにあります。**イベント**列は
+ビヘイビアが dispatch する `hc:*` イベントです(「—」はなし)。
+
 ## アクションとフォーム
 
-| ビヘイビア | 担当 | 自動 |
-| --- | --- | --- |
-| `installValidation()` | [フィールド](/hypermedia-components/ja/components/field/)のネイティブ検証の配線(blur/submit 検証、メッセージスロット)。 | ✓ |
-| `installFieldErrors()` | サーバー駆動のインラインエラー — [field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)の 422 フラグメント契約。 | ✓ |
-| `installCombobox()` | [コンボボックス](/hypermedia-components/ja/components/combobox/)のキーボード・フィルタ・ARIA。 | ✓ |
-| `installMulticombobox()` | [マルチコンボボックス](/hypermedia-components/ja/components/multicombobox/)のタグ・キーボード・ARIA。 | ✓ |
-| `installInputOtp()` | [Input OTP](/hypermedia-components/ja/components/inputotp/) のスロット単位編集。 | ✓ |
-| `installPasswordToggle()` | [インプットグループ](/hypermedia-components/ja/components/input-group/)のパスワード表示切替。 | ✓ |
-| `installSlider()` | [スライダー](/hypermedia-components/ja/components/slider/)の塗り + 値出力の同期。 | ✓ |
-| `installRange()` | [レンジ](/hypermedia-components/ja/components/range/)のデュアルサムのクランプ + 塗り。 | ✓ |
-| `installCalendar()` | [カレンダー](/hypermedia-components/ja/components/calendar/)のグリッド・キーボード・選択。 | ✓ |
-| `installDropzone()` | [ドロップゾーン](/hypermedia-components/ja/components/dropzone/)のドラッグオーバー状態 + ファイル一覧。 | ✓ |
-| `installUploadProgress()` | htmx のアップロードイベントで `<progress>` を駆動 — [file-upload レシピ](/hypermedia-components/ja/recipes/file-upload/)。 | ✓ |
-| `installCodeEditor()` | 編集可能な[コード](/hypermedia-components/ja/components/code/)フィールド: ガター、ライブハイライト(`data-lang`)。 | ✓ |
+| ビヘイビア | 担当 | 属性 | イベント | 自動 |
+| --- | --- | --- | --- | --- |
+| `installValidation()` | [フィールド](/hypermedia-components/ja/components/field/)のネイティブ検証の配線(blur/submit 検証、メッセージスロット)。 | ネイティブ制約属性(`required`、`pattern` など) | — | ✓ |
+| `installFieldErrors()` | サーバー駆動のインラインエラー — [field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)の 422 フラグメント契約。 | `data-hc-field-errors`、`data-field`、`data-message-key`(サーバーが書く) | — | ✓ |
+| `installCombobox()` | [コンボボックス](/hypermedia-components/ja/components/combobox/)のキーボード・フィルタ・ARIA。 | `data-remote`、`data-allow-create`、`data-value`、… | `hc:comboboxselect` | ✓ |
+| `installMulticombobox()` | [マルチコンボボックス](/hypermedia-components/ja/components/multicombobox/)のタグ・キーボード・ARIA。 | `data-name`、`data-allow-create`、`data-value`、… | `hc:multicomboboxchange` | ✓ |
+| `installInputOtp()` | [Input OTP](/hypermedia-components/ja/components/inputotp/) のスロット単位編集。 | `data-length`、`data-pattern`、`data-groups` | `hc:otpchange`、`hc:otpcomplete` | ✓ |
+| `installPasswordToggle()` | [インプットグループ](/hypermedia-components/ja/components/input-group/)のパスワード表示切替。 | `data-hc-password-toggle`、`data-hc-label-show` / `data-hc-label-hide` | — | ✓ |
+| `installSlider()` | [スライダー](/hypermedia-components/ja/components/slider/)の塗り + 値出力の同期。 | — | — | ✓ |
+| `installRange()` | [レンジ](/hypermedia-components/ja/components/range/)のデュアルサムのクランプ + 塗り。 | — | `hc:rangechange` | ✓ |
+| `installCalendar()` | [カレンダー](/hypermedia-components/ja/components/calendar/)のグリッド・キーボード・選択。 | `data-value`、`data-min` / `data-max`、`data-mode`、… | `hc:calendarchange`、`hc:calendarrangechange` | ✓ |
+| `installDropzone()` | [ドロップゾーン](/hypermedia-components/ja/components/dropzone/)のドラッグオーバー状態 + ファイル一覧。 | — | — | ✓ |
+| `installUploadProgress()` | htmx のアップロードイベントで `<progress>` を駆動 — [file-upload レシピ](/hypermedia-components/ja/recipes/file-upload/)。 | `data-hc-upload-progress` | — | ✓ |
+| `installCodeEditor()` | 編集可能な[コード](/hypermedia-components/ja/components/code/)フィールド: ガター、ライブハイライト(`data-lang`)。 | `data-editable`、`data-gutter`、`data-lang` | — | ✓ |
 
 ## ナビゲーションとコマンド
 
-| ビヘイビア | 担当 | 自動 |
-| --- | --- | --- |
-| `installTabs()` | [タブ](/hypermedia-components/ja/components/tabs/)のローミングフォーカス + パネル切替。 | ✓ |
-| `installToggleGroup()` | [トグルグループ](/hypermedia-components/ja/components/toggle-group/)の単一 / 複数選択 + ローミングフォーカス。 | ✓ |
-| `installToolbar()` | [ツールバー](/hypermedia-components/ja/components/toolbar/)の単一 Tab ストップ + 矢印キーナビゲーション(APG パターン)。 | ✓ |
-| `installMenu()` | [メニュー](/hypermedia-components/ja/components/menu/)のキーボードパターン・アンカー・ARIA。 | ✓ |
-| `installMenubar()` | [メニューバー](/hypermedia-components/ja/components/menubar/)のメニュー間矢印キー。 | ✓ |
-| `installNavmenu()` | [ナビゲーションメニュー](/hypermedia-components/ja/components/navmenu/)のパネル。 | ✓ |
-| `installContextMenu()` | [コンテキストメニュー](/hypermedia-components/ja/components/context-menu/)の右クリック起動。 | ✓ |
-| `installCommand()` | [コマンド](/hypermedia-components/ja/components/command/)のフィルタ・ランキング・キーボード。 | ✓ |
-| `installTree()` | [ツリー](/hypermedia-components/ja/components/tree/)の ARIA ロール + 開閉。 | ✓ |
-| `installSpy()` | [目次](/hypermedia-components/ja/components/toc/)のスクロールスパイ(`aria-current` 追跡)。 | ✓ |
-| `installNavCurrent()` | boost ナビゲーション後の現在リンクのマーキング([シェル](/hypermedia-components/ja/components/shell/))。 | ✓ |
-| `installShell()` | [シェル](/hypermedia-components/ja/components/shell/)のサイドバー折りたたみ + 永続化。 | ✓ |
+| ビヘイビア | 担当 | 属性 | イベント | 自動 |
+| --- | --- | --- | --- | --- |
+| `installTabs()` | [タブ](/hypermedia-components/ja/components/tabs/)のローミングフォーカス + パネル切替。 | `data-activation`、`data-orientation`、`data-overflow` | `hc:tabactivated` | ✓ |
+| `installToggleGroup()` | [トグルグループ](/hypermedia-components/ja/components/toggle-group/)の単一 / 複数選択 + ローミングフォーカス。 | `data-type`、`data-value`、`data-name` | `hc:togglegroupchange` | ✓ |
+| `installToolbar()` | [ツールバー](/hypermedia-components/ja/components/toolbar/)の単一 Tab ストップ + 矢印キーナビゲーション(APG パターン)。 | `role="toolbar"`、`aria-orientation` | — | ✓ |
+| `installMenu()` | [メニュー](/hypermedia-components/ja/components/menu/)のキーボードパターン・アンカー・ARIA。 | `popover` + `popovertarget`(トリガー) | `hc:menuselect` | ✓ |
+| `installMenubar()` | [メニューバー](/hypermedia-components/ja/components/menubar/)のメニュー間矢印キー。 | `role="menubar"`、`popovertarget` | `hc:menuselect`(配下のメニューから) | ✓ |
+| `installNavmenu()` | [ナビゲーションメニュー](/hypermedia-components/ja/components/navmenu/)のパネル。 | `data-hc-navmenu-trigger`、`aria-controls` | — | ✓ |
+| `installContextMenu()` | [コンテキストメニュー](/hypermedia-components/ja/components/context-menu/)の右クリック起動。 | `data-hc-context-menu` | `hc:menuselect` | ✓ |
+| `installCommand()` | [コマンド](/hypermedia-components/ja/components/command/)のフィルタ・ランキング・キーボード。 | `data-hotkey`、`data-filter`、`data-value` | `hc:commandselect` | ✓ |
+| `installTree()` | [ツリー](/hypermedia-components/ja/components/tree/)の ARIA ロール + 開閉。 | `aria-expanded`(ブランチ宣言)、`data-hx-get`(遅延読み込み) | `hc:treeexpand` | ✓ |
+| `installSpy()` | [目次](/hypermedia-components/ja/components/toc/)のスクロールスパイ(`aria-current` 追跡)。 | `data-hc-spy` | — | ✓ |
+| `installNavCurrent()` | boost ナビゲーション後の現在リンクのマーキング([シェル](/hypermedia-components/ja/components/shell/))。 | `data-hc-nav-current` | — | ✓ |
+| `installShell()` | [シェル](/hypermedia-components/ja/components/shell/)のサイドバー折りたたみ + 永続化。 | `data-hc-shell-toggle`、`data-collapsible`、`data-persist`、… | — | ✓ |
 
 ## オーバーレイとフィードバック
 
-| ビヘイビア | 担当 | 自動 |
-| --- | --- | --- |
-| `installPopover()` | [ポップオーバー](/hypermedia-components/ja/components/popover/)のアンカー + 配置フォールバック。 | ✓ |
-| `installTooltip()` | [ツールチップ](/hypermedia-components/ja/components/tooltip/)の表示制御 + アンカー。 | ✓ |
-| `installHovercard()` | [ホバーカード](/hypermedia-components/ja/components/hovercard/)の意図判定ディレイ + アンカー。 | ✓ |
-| `installDrawer()` | [ドロワー](/hypermedia-components/ja/components/drawer/)のドラッグ解散。 | ✓ |
-| `installToast()` | [トースト](/hypermedia-components/ja/components/toast/)リージョン: `hc:toast` イベント、スタッキング、id による更新、アクション。 | ✓ |
-| `installConfirm()` | 共有確認ダイアログ — [confirm-action レシピ](/hypermedia-components/ja/recipes/confirm-action/)(`data-hc-confirm`)。 | ✓ |
-| `installRemoteDialog()` | サーバーレンダリングのダイアログ — [remote-dialog レシピ](/hypermedia-components/ja/recipes/remote-dialog/)。 | ✓ |
-| `installCloseDialog()` | htmx リクエスト成功後の[ダイアログ](/hypermedia-components/ja/components/dialog/)クローズ(`data-hc-close-dialog-on-success`)。 | ✓ |
-| `installClosePopover()` | そのポップオーバー版(`data-hc-close-popover-on-success`)— [filter-popover レシピ](/hypermedia-components/ja/recipes/filter-popover/)を参照。 | ✓ |
+| ビヘイビア | 担当 | 属性 | イベント | 自動 |
+| --- | --- | --- | --- | --- |
+| `installPopover()` | [ポップオーバー](/hypermedia-components/ja/components/popover/)のアンカー + 配置フォールバック。 | `data-side`、`data-align`、`data-arrow` | — | ✓ |
+| `installTooltip()` | [ツールチップ](/hypermedia-components/ja/components/tooltip/)の表示制御 + アンカー。 | `aria-describedby`(トリガー)、`data-side`、`data-align` | — | ✓ |
+| `installHovercard()` | [ホバーカード](/hypermedia-components/ja/components/hovercard/)の意図判定ディレイ + アンカー。 | `aria-describedby`(トリガー)、`data-side`、`data-align` | — | ✓ |
+| `installDrawer()` | [ドロワー](/hypermedia-components/ja/components/drawer/)のドラッグ解散。 | `data-side` | — | ✓ |
+| `installToast()` | [トースト](/hypermedia-components/ja/components/toast/)リージョン: `hc:toast` イベント、スタッキング、id による更新、アクション。 | `data-hc-toast-region`、`data-position`、`data-limit` | `hc:toast`(待ち受け) | ✓ |
+| `installConfirm()` | 共有確認ダイアログ — [confirm-action レシピ](/hypermedia-components/ja/recipes/confirm-action/)(`data-hc-confirm`)。 | `data-hc-confirm`、`data-hc-confirm-title`、`data-hc-confirm-variant`、… | `hc:confirmed` | ✓ |
+| `installRemoteDialog()` | サーバーレンダリングのダイアログ — [remote-dialog レシピ](/hypermedia-components/ja/recipes/remote-dialog/)。 | `data-hc-remote-dialog-root` | — | ✓ |
+| `installCloseDialog()` | htmx リクエスト成功後の[ダイアログ](/hypermedia-components/ja/components/dialog/)クローズ(`data-hc-close-dialog-on-success`)。 | `data-hc-close-dialog-on-success` | — | ✓ |
+| `installClosePopover()` | そのポップオーバー版(`data-hc-close-popover-on-success`)— [filter-popover レシピ](/hypermedia-components/ja/recipes/filter-popover/)を参照。 | `data-hc-close-popover-on-success` | — | ✓ |
 
 ## データ表示
 
-| ビヘイビア | 担当 | 自動 |
-| --- | --- | --- |
-| `installDatagrid()` | [データグリッド](/hypermedia-components/ja/components/datagrid/)のキーボードグリッド、ソート / リサイズ / 編集 / 詳細のイベント。 | ✓ |
-| `installDatagridActions()` | データグリッドの選択アクションバー — [datagrid-bulk-actions レシピ](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)。 | ✓ |
-| `installCarousel()` | [カルーセル](/hypermedia-components/ja/components/carousel/)のアクティブ追跡・ドット・キーボード。 | ✓ |
-| `installSplitter()` | [スプリッター](/hypermedia-components/ja/components/splitter/)のドラッグ + キーボードリサイズ + 永続化。 | ✓ |
-| `installAvatar()` | [アバター](/hypermedia-components/ja/components/avatar/)の画像エラー → イニシャルフォールバック。 | ✓ |
-| `installSparkline()` | [スパークライン](/hypermedia-components/ja/components/sparkline/)の `data-values` からの描画。 | ✓ |
-| `installChatScroll()` | [チャット](/hypermedia-components/ja/components/chat/)トランスクリプトの最下部追従(読者が上へスクロールしている間は追従を停止)。 | ✓ |
-| `installChart()` | [チャート](/hypermedia-components/ja/recipes/chart/)の Observable Plot による描画。 | **オプトイン** — `@observablehq/plot` ピア依存が必要。バンドルには含まれません。 |
+| ビヘイビア | 担当 | 属性 | イベント | 自動 |
+| --- | --- | --- | --- | --- |
+| `installDatagrid()` | [データグリッド](/hypermedia-components/ja/components/datagrid/)のキーボードグリッド、ソート / リサイズ / 編集 / 詳細のイベント。 | `data-sortable`、`data-editable`、`data-resizable`、`data-frozen`、… | `hc:datagridsort`、`hc:datagridselectionchange`、…(全 7 個 — ページ参照) | ✓ |
+| `installDatagridActions()` | データグリッドの選択アクションバー — [datagrid-bulk-actions レシピ](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)。 | `data-hc-datagrid-actions`、`data-hc-datagrid-count` | — | ✓ |
+| `installCarousel()` | [カルーセル](/hypermedia-components/ja/components/carousel/)のアクティブ追跡・ドット・キーボード。 | `data-autoplay`、`data-hc-carousel-prev` / `-next` / `-dots` | `hc:carouselchange` | ✓ |
+| `installSplitter()` | [スプリッター](/hypermedia-components/ja/components/splitter/)のドラッグ + キーボードリサイズ + 永続化。 | `data-orientation`、`data-value`、`data-persist`、… | `hc:splitterchange` | ✓ |
+| `installAvatar()` | [アバター](/hypermedia-components/ja/components/avatar/)の画像エラー → イニシャルフォールバック。 | `data-delay` | `hc:avatarstatechange` | ✓ |
+| `installSparkline()` | [スパークライン](/hypermedia-components/ja/components/sparkline/)の `data-values` からの描画。 | `data-values`、`data-area`、`data-min` / `data-max` | — | ✓ |
+| `installChatScroll()` | [チャット](/hypermedia-components/ja/components/chat/)トランスクリプトの最下部追従(読者が上へスクロールしている間は追従を停止)。 | — | — | ✓ |
+| `installChart()` | [チャート](/hypermedia-components/ja/recipes/chart/)の Observable Plot による描画。 | `data-hc-chart`、`data-mark`、… | — | **オプトイン** — `@observablehq/plot` ピア依存が必要。バンドルには含まれません。 |
 
 ## プラットフォームの糊
 
-| ビヘイビア | 担当 | 自動 |
-| --- | --- | --- |
-| `installCopy()` | クリップボードボタン(`data-hc-copy`)— [copy レシピ](/hypermedia-components/ja/recipes/copy/)。 | ✓ |
-| `installThemeToggle()` | ライト / ダーク切替ボタン([テーマ](/hypermedia-components/ja/tokens/themes/))。 | ✓ |
-| `installCsrfHeader()` | `meta[name="csrf-token"]` から全 htmx リクエストへ CSRF ヘッダーを付与([htmx ガイド](/hypermedia-components/ja/integrations/htmx/))。 | ✓ |
-| `installSseDispatch()` | SSE メッセージを DOM イベントへ橋渡し — [sse-updates](/hypermedia-components/ja/recipes/sse-updates/) / [sse-toast](/hypermedia-components/ja/recipes/sse-toast/) レシピ。 | ✓ |
+| ビヘイビア | 担当 | 属性 | イベント | 自動 |
+| --- | --- | --- | --- | --- |
+| `installCopy()` | クリップボードボタン(`data-hc-copy`)— [copy レシピ](/hypermedia-components/ja/recipes/copy/)。 | `data-hc-copy`、`data-hc-copy-text`、`data-hc-copy-ok` | `hc:copied` | ✓ |
+| `installThemeToggle()` | ライト / ダーク切替ボタン([テーマ](/hypermedia-components/ja/tokens/themes/))。 | `data-hc-theme-toggle`、`data-persist` | `hc:themechange` | ✓ |
+| `installCsrfHeader()` | `meta[name="csrf-token"]` から全 htmx リクエストへ CSRF ヘッダーを付与([htmx ガイド](/hypermedia-components/ja/integrations/htmx/))。 | `meta[name="csrf-token"]` + `data-header` | — | ✓ |
+| `installSseDispatch()` | SSE メッセージを DOM イベントへ橋渡し — [sse-updates](/hypermedia-components/ja/recipes/sse-updates/) / [sse-toast](/hypermedia-components/ja/recipes/sse-toast/) レシピ。 | `data-hc-sse-dispatch`、`data-sse-swap` | `data-sse-swap` に列挙した名前 | ✓ |
 
 ## 関連
 
