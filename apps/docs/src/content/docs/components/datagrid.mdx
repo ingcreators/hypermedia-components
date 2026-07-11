@@ -238,7 +238,9 @@ content-based width.
 On each change the grid dispatches **`hc:datagridcolumnresize`**
 (`detail: { col, width }`) — persist the width with htmx or `localStorage`
 and write it back as the column's cell widths on the next render. The grip
-is a keyboard-operable `role="separator"` with `aria-valuenow`.
+is a keyboard-operable `role="separator"` with `aria-valuenow`; it is a
+JS-generated element with the class `hc-datagrid__resizer`, which you can
+restyle like any other part class.
 
 ## Sortable columns
 
@@ -537,8 +539,9 @@ The fixed width is what makes truncation work: it caps the column's
 watches these elements and, **only when the text is actually clipped**
 (`scrollWidth > clientWidth`), shows the full value in a single shared,
 styled tooltip on hover **and** keyboard focus — so it scales to a grid
-of hundreds of cells without a tooltip per cell. The tooltip reuses the
-`--hc-tooltip-*` tokens.
+of hundreds of cells without a tooltip per cell. The tooltip is a
+JS-generated element with the class `hc-datagrid__tooltip` and reuses
+the `--hc-tooltip-*` tokens.
 
 ## Inline editing
 

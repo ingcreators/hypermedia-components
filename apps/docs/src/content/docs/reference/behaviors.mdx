@@ -3,7 +3,7 @@ title: Behaviors
 description: Every installXxx() behavior — what it powers and whether the zero-config bundle auto-installs it.
 ---
 
-The kit ships 44 small behaviors. All of them are idempotent, return an
+The kit ships 45 small behaviors. All of them are idempotent, return an
 uninstaller, and — with the single exception of `installChart()` — are
 **auto-installed** by the zero-config
 `@hypermedia-components/core/behaviors` entry, which also picks up
@@ -42,6 +42,8 @@ installToast();
 | Behavior | Powers | Auto-init |
 | --- | --- | --- |
 | `installTabs()` | [Tabs](/hypermedia-components/components/tabs/) roving focus + panel switching. | ✓ |
+| `installToggleGroup()` | [Toggle group](/hypermedia-components/components/toggle-group/) single/multiple selection + roving focus. | ✓ |
+| `installToolbar()` | [Toolbar](/hypermedia-components/components/toolbar/) single-Tab-stop arrow-key navigation (APG pattern). | ✓ |
 | `installMenu()` | [Menu](/hypermedia-components/components/menu/) keyboard pattern, anchoring, ARIA. | ✓ |
 | `installMenubar()` | [Menubar](/hypermedia-components/components/menubar/) across-menu arrow keys. | ✓ |
 | `installNavmenu()` | [Navigation menu](/hypermedia-components/components/navmenu/) panels. | ✓ |
@@ -76,6 +78,7 @@ installToast();
 | `installSplitter()` | [Splitter](/hypermedia-components/components/splitter/) drag + keyboard resize + persistence. | ✓ |
 | `installAvatar()` | [Avatar](/hypermedia-components/components/avatar/) image-error → initials fallback. | ✓ |
 | `installSparkline()` | [Sparkline](/hypermedia-components/components/sparkline/) drawing from `data-values`. | ✓ |
+| `installChatScroll()` | [Chat](/hypermedia-components/components/chat/) transcript stick-to-bottom (stops following while the reader scrolls up). | ✓ |
 | `installChart()` | [Chart](/hypermedia-components/recipes/chart/) rendering via Observable Plot. | **Opt-in** — needs the `@observablehq/plot` peer; never bundled. |
 
 ## Platform glue

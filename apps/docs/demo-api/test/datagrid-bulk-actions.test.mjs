@@ -21,7 +21,7 @@ describe('datagrid-bulk-actions demo API', () => {
       '<th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">101</th>',
     );
     expect(body.match(/<td class="hc-datagrid__cell">Active<\/td>/g)).toHaveLength(6);
-    expect(body).not.toContain('hx-swap-oob');
+    expect(body).not.toContain('data-hx-swap-oob');
   });
 
   it('GET /products/rows reads the threaded state', async () => {
@@ -45,10 +45,10 @@ describe('datagrid-bulk-actions demo API', () => {
     expect(countRows(body)).toBe(6);
     expect(body.match(/<td class="hc-datagrid__cell">Archived<\/td>/g)).toHaveLength(2);
     expect(body).toContain(
-      '<input type="hidden" id="datagrid-bulk-actions-demo-state" name="state" hx-swap-oob="true" value="archived:102,104">',
+      '<input type="hidden" id="datagrid-bulk-actions-demo-state" name="state" data-hx-swap-oob="true" value="archived:102,104">',
     );
     expect(body).toContain(
-      '<p id="datagrid-bulk-actions-demo-rows-status" hx-swap-oob="true" aria-live="polite">6 products</p>',
+      '<p id="datagrid-bulk-actions-demo-rows-status" data-hx-swap-oob="true" aria-live="polite">6 products</p>',
     );
     expect(toast(response)).toEqual({ message: '2 archived', variant: 'success' });
   });

@@ -20,6 +20,34 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **Docs accuracy sweep** (en + ja, from a full-site documentation
+  review). Corrected actively wrong reference material: the Naming
+  page's event examples (`hc:confirm` / `hc:close-dialog` never
+  existed — now `hc:confirmed` and real events, with a pointer to the
+  manifest) and its phantom `<hc-remote-dialog>` macro; the Anchored
+  page's granular import (`css/hc-anchored` resolved to a nonexistent
+  file — now `css/anchored`); the behaviors reference (3 missing rows:
+  `installToggleGroup`, `installToolbar`, `installChatScroll`; count
+  44 → 45); stale pre-`installCsrfHeader()` CSRF prose in the Django /
+  Rails / Go guides and the integrations overview (Thymeleaf now
+  explains *why* it hand-rolls the listener); the plain-HTML guide
+  naming a stylesheet the page never loads; the runtime-axis table now
+  states each axis's default (and `data-theme`'s real default is the
+  OS preference, not `light`); `hasMessage()` added to the i18n API
+  list; smaller drifts (spinner snippet missing its `warning` variant,
+  card's "Variations" heading, a bare `hx-trigger` mention,
+  datagrid's JS-generated `__resizer` / `__tooltip` classes now
+  documented, datagrid-pager's response example notes the demo's
+  selection column, the recipes index no longer claims *every* demo
+  hits the API).
+- **`data-hx-swap-oob` everywhere** — the docs convention is the
+  `data-hx-*` form, but three recipe pages and four demo-API handlers
+  (datagrid-pager, datagrid-bulk-actions, file-upload, sse-updates)
+  still emitted bare `hx-swap-oob`; docs, handlers, and their tests
+  now use the `data-` form htmx equally understands.
+
 ## [0.1.9] - 2026-07-09
 
 ### Added

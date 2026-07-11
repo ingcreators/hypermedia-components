@@ -90,7 +90,7 @@ Two mechanisms, cleanly split:
 
 | Case | Response |
 | --- | --- |
-| Success | `200` — the new item fragment (lands `afterbegin` in `#files`) **plus the pristine form as an `hx-swap-oob` fragment** (file inputs can't be reset from markup — the server re-sends the form; htmx re-initializes it) + an `HX-Trigger` toast |
+| Success | `200` — the new item fragment (lands `afterbegin` in `#files`) **plus the pristine form as an `data-hx-swap-oob` fragment** (file inputs can't be reset from markup — the server re-sends the form; htmx re-initializes it) + an `HX-Trigger` toast |
 | Validation failure | `422` + `HX-Retarget: #upload-errors` + `HX-Reswap: innerHTML` with the [field-errors](/hypermedia-components/recipes/field-errors/) fragment — the primary path stays attribute-declared; only the exception steers via headers |
 | Proxy `413` | May arrive before the app sees the request; htmx swaps nothing. The contract has an optional `htmx:responseError` toast snippet — and keep your app limit below the proxy's so the friendly `422` wins |
 | No JS | `303` post/redirect/get (`HX-Request` branching, as in [mutating-form](/hypermedia-components/recipes/mutating-form/)) |

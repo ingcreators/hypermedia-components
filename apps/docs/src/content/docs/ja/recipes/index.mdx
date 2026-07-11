@@ -12,9 +12,12 @@ description: htmx フレンドリーなパターン集 — 確認アクション
 `npx @hypermedia-components/cli add <name>` で取得できます。コピーは
 `npx @hypermedia-components/cli validate` で契約に対して機械検証できます。
 
-各レシピページには**ライブデモ**もあります — このサイトの Worker が
-`api/recipes/<name>/` 配下で各レシピのサーバ応答契約を実装しており、
-デモは実際の htmx リクエストでそこと通信します。
+各レシピページには**ライブデモ**もあります。ほぼすべてのデモは、
+このサイトの Worker が `api/recipes/<name>/` 配下で実装する
+各レシピのサーバ応答契約に対して、実際の htmx リクエストを送ります
+(例外: [コピー](/hypermedia-components/ja/recipes/copy/)はクライアント
+のみ、[ストリーミング応答](/hypermedia-components/ja/recipes/streaming-response/)は
+chat-messages のエンドポイントを共有)。
 
 ## アクションとフォーム
 

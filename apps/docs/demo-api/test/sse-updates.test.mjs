@@ -100,7 +100,7 @@ describe('sse-updates demo API', () => {
     expect(panels[0].dataLines[0]).toBe('<p>Deploy #128 rolling out…</p>');
     // One event, two targets: the main fragment plus the OOB badge.
     expect(panels[1].dataLines[0]).toBe(
-      '<p>All systems normal</p><span class="hc-badge" id="sse-updates-demo-alert-badge" hx-swap-oob="true">1</span>',
+      '<p>All systems normal</p><span class="hc-badge" id="sse-updates-demo-alert-badge" data-hx-swap-oob="true">1</span>',
     );
   });
 

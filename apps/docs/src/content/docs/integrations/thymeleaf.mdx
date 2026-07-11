@@ -62,6 +62,10 @@ A `layout.html` that loads HC + htmx and reserves the toast region.
 
   <script>
     // Hand the CSRF token to htmx so every request carries it.
+    // Spring exposes the header NAME dynamically via _csrf_header, so
+    // this is the one stack where the kit's static
+    // meta[name="csrf-token"] + installCsrfHeader() convention doesn't
+    // fit — a small listener reads both metas instead.
     document.body.addEventListener('htmx:configRequest', (e) => {
       const token  = document.querySelector('meta[name="_csrf"]')?.content;
       const header = document.querySelector('meta[name="_csrf_header"]')?.content;

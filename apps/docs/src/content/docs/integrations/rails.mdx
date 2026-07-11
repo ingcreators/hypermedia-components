@@ -223,9 +223,9 @@ end
 
 ## CSRF tips
 
-- `csrf_meta_tags` in the layout plus the
-  `htmx:configRequest` listener (see the layout snippet above) covers
-  every htmx verb.
+- `csrf_meta_tags` in the layout plus the auto-init
+  `installCsrfHeader()` (see the layout snippet above) covers every
+  htmx verb — no hand-written listener needed.
 - For PUT / PATCH / DELETE from forms, Rails normally smuggles
   `_method` in a hidden input — but htmx requests use the real verb
   via `data-hx-{verb}`. The `X-CSRF-Token` header still validates

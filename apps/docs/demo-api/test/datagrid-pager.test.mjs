@@ -37,7 +37,7 @@ describe('datagrid-pager demo API', () => {
     const response = await call(datagridPager, 'GET', '/products?page=1&size=100');
     const body = await response.text();
     expect(body).toContain(
-      '<nav class="hc-pagination" id="datagrid-pager-demo-pager" hx-swap-oob="true" aria-label="Pagination">',
+      '<nav class="hc-pagination" id="datagrid-pager-demo-pager" data-hx-swap-oob="true" aria-label="Pagination">',
     );
     expect(body).toContain(`aria-current="page" href="?page=1&size=100" data-hx-get="${URL_FOR(1)}"`);
     // Disabled Prev: aria-disabled, data-hc-rel, and no htmx wiring.
@@ -57,7 +57,7 @@ describe('datagrid-pager demo API', () => {
     const response = await call(datagridPager, 'GET', '/products?page=3&size=100');
     const body = await response.text();
     expect(body).toContain(
-      '<p id="datagrid-pager-demo-status" hx-swap-oob="true" aria-live="polite">201–300 / 5,000</p>',
+      '<p id="datagrid-pager-demo-status" data-hx-swap-oob="true" aria-live="polite">201–300 / 5,000</p>',
     );
     expect(countRows(body)).toBe(100);
     expect(body).toContain('scope="row">301</th>'); // row 201 → id 301
@@ -116,7 +116,7 @@ describe('datagrid-pager demo API', () => {
     expect(countRows(body)).toBe(100);
     expect(body).toContain('scope="row">201</th>');
     // The full page carries the pager/status inline, not out-of-band.
-    expect(body).not.toContain('hx-swap-oob');
+    expect(body).not.toContain('data-hx-swap-oob');
   });
 
   it('returns null for unknown routes', async () => {

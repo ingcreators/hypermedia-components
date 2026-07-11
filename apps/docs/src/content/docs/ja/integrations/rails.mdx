@@ -226,9 +226,9 @@ end
 
 ## CSRF のヒント
 
-- レイアウトの `csrf_meta_tags` + auto-init の `installCsrfHeader()`
+- レイアウトの `csrf_meta_tags` と auto-init の `installCsrfHeader()`
   (上のレイアウトスニペット参照)で、htmx の全動詞をカバーできます —
-  手書きのリスナーは不要です。
+  手書きの `htmx:configRequest` リスナーは不要です。
 - フォームからの PUT / PATCH / DELETE では、Rails は通常 `_method` を
   隠し input に忍ばせます — しかし htmx リクエストは `data-hx-{verb}`
   で本物の動詞を使います。`X-CSRF-Token` ヘッダーは引き続き正しく

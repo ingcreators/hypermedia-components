@@ -220,14 +220,17 @@ def hx_trigger(response, events):
 ## CSRF tips
 
 - Django requires a CSRF token on POST / PUT / PATCH / DELETE. The
-  `data-hx-headers` attribute in `base.html` sends it on every htmx
-  request.
-- If your htmx setup uses cookies for state, the
-  `CSRF_COOKIE_HTTPONLY = False` setting lets a `getCsrfToken()` JS
-  helper read it directly — useful if you set `data-hx-headers` per
-  element rather than on `<body>`.
-- For DELETE and PATCH, Django needs the standard `X-CSRFToken`
-  header even though there is no form body. `data-hx-headers` covers this.
+  `<meta name="csrf-token" … data-header="X-CSRFToken">` tag in
+  `base.html` (see the layout above) is all you need —
+  `installCsrfHeader()` adds the header to every htmx request,
+  including DELETE and PATCH, which have no form body to carry the
+  token.
+- The meta tag reads `{{ csrf_token }}` server-side, so no JavaScript
+  ever needs to read the CSRF cookie — you can even set
+  `CSRF_COOKIE_HTTPONLY = True` for defense in depth.
+- Rotating tokens? Django rotates the CSRF token on login. Render the
+  meta tag from the template (as above) rather than caching the layout,
+  and the fresh token travels with the next full page load.
 
 ## Detecting htmx
 

@@ -13,7 +13,7 @@ CSS classes:           hc-button, hc-field, hc-card
 Custom elements:       hc-confirm-action, hc-live-search
 Data attributes:       data-hc-confirm, data-hc-close-dialog-on-success
 CSS custom properties: --hc-color-bg, --hc-button-height
-Events:                hc:toast, hc:confirm, hc:close-dialog
+Events:                hc:toast, hc:confirmed, hc:comboboxselect
 ```
 
 このプレフィックスは短く、曖昧さがなく、grep しやすいものです。
@@ -100,7 +100,6 @@ sm · md · lg
 ```text
 <hc-confirm-action>
 <hc-live-search>
-<hc-remote-dialog>
 ```
 
 すべてのマクロは[展開後の HTML](/hypermedia-components/ja/recipes/confirm-action/#展開後の-html)を
@@ -126,13 +125,15 @@ component.field.label-font-size     → --hc-field-label-font-size
 ビヘイビアが発火するカスタムイベントは、コロン区切りの名前空間を使います:
 
 ```text
-hc:toast        — 一時的なトーストを表示する
-hc:confirm      — 確認ダイアログ内部のライフサイクル
-hc:close-dialog — 最寄りのダイアログを閉じる
+hc:toast          — 一時的なトーストを要求する(トーストビヘイビアが document で待ち受け)
+hc:confirmed      — ユーザーが確認した後にトリガー要素上で発火する
+hc:comboboxselect — コンボボックスの選択肢が選ばれた
 ```
 
 カスタムイベントはデフォルトでバブリングするため、リスナーはツリーの
-高い位置(通常は `document.body`)に付けられます。
+高い位置(通常は `document.body`)に付けられます。イベントを発火する
+コンポーネントは各ページでそのイベントをドキュメント化しています。
+機械可読な全リストは[キットマニフェスト](/hypermedia-components/ja/reference/manifest/)にあります。
 
 ## 似ているが HC の一部ではないもの
 

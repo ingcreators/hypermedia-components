@@ -207,21 +207,20 @@ func listItems(w http.ResponseWriter, r *http.Request) {
 ## CSRF のヒント
 
 `html/template` に CSRF は同梱されていません。ミドルウェア(例:
-[`gorilla/csrf`](https://github.com/gorilla/csrf))を選び、レイアウトで
-トークンを htmx に渡します:
+[`gorilla/csrf`](https://github.com/gorilla/csrf))を選び、キット公認の
+meta タグをレイアウトに描画します — auto-init の `installCsrfHeader()`
+ビヘイビアがすべての htmx リクエストでトークンを転送するので、
+スクリプトは不要です:
 
 ```html
-<meta name="csrf-token" content="{{.CSRFToken}}">
-<script>
-  document.body.addEventListener("htmx:configRequest", (e) => {
-    const token = document.querySelector('meta[name="csrf-token"]')?.content;
-    if (token) e.detail.headers["X-CSRF-Token"] = token;
-  });
-</script>
+<meta name="csrf-token" content="{{.CSRFToken}}" data-header="X-CSRF-Token">
 ```
 
 トークンはミドルウェアからテンプレートデータへ渡してください
-(`gorilla/csrf` は `csrf.Token(r)` を公開しています)。
+(`gorilla/csrf` は `csrf.Token(r)` を公開しています)。規約の詳細
+(独自の `htmx:configRequest` リスナーで追加ヘッダーを重ねる方法を
+含む)は
+[htmx → CSRF トークン](/hypermedia-components/ja/integrations/htmx/#csrf-トークン--公認の規約)を参照してください。
 
 ## ヒント
 

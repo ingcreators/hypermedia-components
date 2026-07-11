@@ -70,11 +70,11 @@ event: activity:item
 data: <li class="hc-item">Deploy #42 started</li>
 
 event: status:panel
-data: <p>All systems normal</p><span id="alert-badge" hx-swap-oob="true">3</span>
+data: <p>All systems normal</p><span id="alert-badge" data-hx-swap-oob="true">3</span>
 ```
 
 Name events by domain (`activity:item`, `status:panel`) — the names are
-wire contract. A message's data may also carry `hx-swap-oob` fragments
+wire contract. A message's data may also carry `data-hx-swap-oob` fragments
 that update other targets by id in the same push (the second example
 updates both the panel and a badge), exactly like the
 [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) and

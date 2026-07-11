@@ -207,21 +207,20 @@ func listItems(w http.ResponseWriter, r *http.Request) {
 ## CSRF tips
 
 `html/template` does not ship CSRF; pick a middleware (e.g.
-[`gorilla/csrf`](https://github.com/gorilla/csrf)) and forward the
-token to htmx in the layout:
+[`gorilla/csrf`](https://github.com/gorilla/csrf)) and render the
+kit's blessed meta tag in the layout — the auto-init
+`installCsrfHeader()` behavior forwards it on every htmx request, no
+script needed:
 
 ```html
-<meta name="csrf-token" content="{{.CSRFToken}}">
-<script>
-  document.body.addEventListener("htmx:configRequest", (e) => {
-    const token = document.querySelector('meta[name="csrf-token"]')?.content;
-    if (token) e.detail.headers["X-CSRF-Token"] = token;
-  });
-</script>
+<meta name="csrf-token" content="{{.CSRFToken}}" data-header="X-CSRF-Token">
 ```
 
 Pass the token into the template data from your middleware
-(`gorilla/csrf` exposes `csrf.Token(r)`).
+(`gorilla/csrf` exposes `csrf.Token(r)`). See
+[htmx → CSRF tokens](/hypermedia-components/integrations/htmx/#csrf-tokens--the-blessed-convention)
+for the convention, including how to layer extra headers with your own
+`htmx:configRequest` listener if you need them.
 
 ## Tips
 

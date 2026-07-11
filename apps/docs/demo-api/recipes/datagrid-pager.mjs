@@ -110,7 +110,7 @@ function pagerHtml(page, size, { oob = false } = {}) {
       ? itemHtml(last, size, { label: 'Next', rel: 'next', disabled: true })
       : itemHtml(page + 1, size, { label: 'Next', rel: 'next' }),
   ];
-  const oobAttr = oob ? ' hx-swap-oob="true"' : '';
+  const oobAttr = oob ? ' data-hx-swap-oob="true"' : '';
   return `<nav class="hc-pagination" id="${PAGER_ID}"${oobAttr} aria-label="Pagination">
   ${items.join('\n  ')}
 </nav>`;
@@ -119,7 +119,7 @@ function pagerHtml(page, size, { oob = false } = {}) {
 function statusHtml(page, size, { oob = false } = {}) {
   const first = (page - 1) * size + 1;
   const last = Math.min(page * size, TOTAL);
-  const oobAttr = oob ? ' hx-swap-oob="true"' : '';
+  const oobAttr = oob ? ' data-hx-swap-oob="true"' : '';
   return `<p id="${STATUS_ID}"${oobAttr} aria-live="polite">${thousands(first)}–${thousands(last)} / ${thousands(TOTAL)}</p>`;
 }
 

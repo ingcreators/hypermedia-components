@@ -3,7 +3,7 @@ title: ビヘイビア
 description: すべての installXxx() ビヘイビア — 何を担い、ゼロ設定バンドルが自動インストールするかの一覧。
 ---
 
-キットは 44 個の小さなビヘイビアを出荷しています。すべて冪等で
+キットは 45 個の小さなビヘイビアを出荷しています。すべて冪等で
 アンインストーラを返し、`installChart()` ただ 1 つの例外を除いて、
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリが
 **自動インストール**します(htmx でスワップされた内容も拾います)。
@@ -41,6 +41,8 @@ installToast();
 | ビヘイビア | 担当 | 自動 |
 | --- | --- | --- |
 | `installTabs()` | [タブ](/hypermedia-components/ja/components/tabs/)のローミングフォーカス + パネル切替。 | ✓ |
+| `installToggleGroup()` | [トグルグループ](/hypermedia-components/ja/components/toggle-group/)の単一 / 複数選択 + ローミングフォーカス。 | ✓ |
+| `installToolbar()` | [ツールバー](/hypermedia-components/ja/components/toolbar/)の単一 Tab ストップ + 矢印キーナビゲーション(APG パターン)。 | ✓ |
 | `installMenu()` | [メニュー](/hypermedia-components/ja/components/menu/)のキーボードパターン・アンカー・ARIA。 | ✓ |
 | `installMenubar()` | [メニューバー](/hypermedia-components/ja/components/menubar/)のメニュー間矢印キー。 | ✓ |
 | `installNavmenu()` | [ナビゲーションメニュー](/hypermedia-components/ja/components/navmenu/)のパネル。 | ✓ |
@@ -75,6 +77,7 @@ installToast();
 | `installSplitter()` | [スプリッター](/hypermedia-components/ja/components/splitter/)のドラッグ + キーボードリサイズ + 永続化。 | ✓ |
 | `installAvatar()` | [アバター](/hypermedia-components/ja/components/avatar/)の画像エラー → イニシャルフォールバック。 | ✓ |
 | `installSparkline()` | [スパークライン](/hypermedia-components/ja/components/sparkline/)の `data-values` からの描画。 | ✓ |
+| `installChatScroll()` | [チャット](/hypermedia-components/ja/components/chat/)トランスクリプトの最下部追従(読者が上へスクロールしている間は追従を停止)。 | ✓ |
 | `installChart()` | [チャート](/hypermedia-components/ja/recipes/chart/)の Observable Plot による描画。 | **オプトイン** — `@observablehq/plot` ピア依存が必要。バンドルには含まれません。 |
 
 ## プラットフォームの糊

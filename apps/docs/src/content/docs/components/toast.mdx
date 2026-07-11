@@ -112,7 +112,7 @@ assertively (`role="alert"`); others use `role="status"`.
 **Action button.** Add `action: { label, event }` and the toast renders a
 button; clicking it dispatches a bubbling `CustomEvent` named `event` (then
 dismisses the toast). Catch it with a plain listener or htmx
-`hx-trigger="<event>"` on any ancestor — handy for **Undo**:
+`data-hx-trigger="<event>"` on any ancestor — handy for **Undo**:
 
 ```js
 document.body.dispatchEvent(new CustomEvent('hc:toast', {

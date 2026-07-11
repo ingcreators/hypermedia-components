@@ -13,9 +13,12 @@ Get any recipe's scaffold with `npx @hypermedia-components/cli add <name>`;
 machine-check your copy against its contract with
 `npx @hypermedia-components/cli validate`.
 
-Every recipe page also has a **Live demo** — real htmx requests
-against a demo API served by this site's Worker, implementing that
-recipe's server response contract under `api/recipes/<name>/`.
+Every recipe page also has a **Live demo**. Almost all of them make
+real htmx requests against a demo API served by this site's Worker,
+implementing that recipe's server response contract under
+`api/recipes/<name>/` (the exceptions: [copy](/hypermedia-components/recipes/copy/)
+is client-only, and [streaming response](/hypermedia-components/recipes/streaming-response/)
+shares the chat-messages endpoint).
 
 ## Actions &amp; forms
 

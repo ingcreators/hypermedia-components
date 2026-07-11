@@ -3,7 +3,7 @@
 //   POST /files  (multipart/form-data, file field: doc)
 //     → 200 + the new item's `<li>` (lands `afterbegin` in the files
 //       list, the form's declared target) + the pristine composer form
-//       as an `hx-swap-oob` fragment (the blessed file-input reset) +
+//       as an `data-hx-swap-oob` fragment (the blessed file-input reset) +
 //       `HX-Trigger: {"hc:toast": …}` naming the file       (htmx)
 //     → 422 + `HX-Retarget: #file-upload-demo-errors` +
 //       `HX-Reswap: innerHTML` + the canonical field-errors fragment
@@ -99,7 +99,7 @@ export function formVariant(data) {
  * FileUploadDemo.astro (apps/docs/src/components/recipe-demos/)
  * mirrors both attribute-for-attribute for the initial render, and
  * every successful upload re-sends the posting form here with
- * `hx-swap-oob="true"` — file inputs cannot be reset by value
+ * `data-hx-swap-oob="true"` — file inputs cannot be reset by value
  * assignment from markup, so the server returns a pristine copy and
  * htmx re-initializes it (the recipe's blessed reset). The `dropzone`
  * variant swaps the plain field for the hc-dropzone markup and carries
@@ -108,7 +108,7 @@ export function formVariant(data) {
  */
 export function composerFormHtml({ oob = false, variant = 'plain' } = {}) {
   const url = `${DOCS_BASE}/api/recipes/file-upload/files`;
-  const oobAttr = oob ? ' hx-swap-oob="true"' : '';
+  const oobAttr = oob ? ' data-hx-swap-oob="true"' : '';
   if (variant === 'dropzone') {
     return `<form id="file-upload-demo-dropzone-form"${oobAttr} method="post" action="${url}" enctype="multipart/form-data" data-hx-post="${url}" data-hx-encoding="multipart/form-data" data-hx-target="#file-upload-demo-files" data-hx-swap="afterbegin" data-hx-indicator="find progress" data-hx-disabled-elt="find button[type=submit]">
   <input type="hidden" name="form" value="dropzone">
