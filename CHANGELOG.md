@@ -20,6 +20,18 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Drift guard: behaviors reference ↔ manifest**
+  (`test/behaviors-docs.test.mjs`). The hand-maintained behaviors
+  reference has drifted from source before (three rows missing, count
+  stuck at 44 — fixed in #387); the new Vitest guard pins it to
+  `buildManifest()`: every behavior has exactly one row (en + ja, same
+  order), the intro's count and the auto-init column match the
+  manifest, every row carries the full column set, and every `hc:*`
+  event the page mentions is dispatched by some source module. Same
+  pattern as the existing `i18n-docs.test.mjs` docs-truth guard.
+
 ### Changed
 
 - **Component pages — "Browser baseline" always leads the page**
