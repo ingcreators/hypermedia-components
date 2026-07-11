@@ -178,6 +178,22 @@ the server re-render it with `data-hx-swap-oob="true"` alongside the pager
 fragment. Cross-page "select all N matching", undo, and server-tracked
 selection are deliberate non-goals of this recipe.
 
+## Accessibility
+
+- The bar is an `hc-toolbar` with `role="toolbar"` and an `aria-label`;
+  `installToolbar()` gives its buttons the arrow-key roving-tabindex
+  pattern.
+- The `[data-hc-datagrid-count]` element gets a default `role="status"`
+  from `installDatagridActions()`, so selection-count changes are
+  announced politely with no extra markup.
+- Give every row checkbox a per-row `aria-label` (`"Select Anvil"`) and
+  the select-all its own (`"Select all"`); the select-all's mixed state
+  is the native `:indeterminate`, re-synced after each swap.
+- While a request is in flight the action button is natively `disabled`
+  (`data-hx-disabled-elt="this"`), which assistive tech reports; the
+  result arrives as a [toast](/hypermedia-components/recipes/toast/)
+  (`role="status"`, or `role="alert"` for errors).
+
 ## Related
 
 - [Datagrid](/hypermedia-components/components/datagrid/) — row selection, the selection actions bar section.

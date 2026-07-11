@@ -29,7 +29,7 @@ Walk the wizard below — **Next** validates the step (natively via
 field-errors fragment), **Back** never validates even with a blank
 field, and the final step redirects to a plain confirmation page with a
 link back here. The endpoint is a namespaced demo implementation of the
-[server responses](#server-responses) under `api/recipes/multi-step-form/`.
+[server response contract](#server-response-contract) under `api/recipes/multi-step-form/`.
 
 <MultiStepFormDemo />
 
@@ -81,7 +81,7 @@ only "next" validates), and a back-then-next round-trip is lossless.
 `hc validate` errors on a back button without it.
 :::
 
-## Server responses
+## Server response contract
 
 | Case | Response |
 | --- | --- |
@@ -101,6 +101,25 @@ The stepper announces state structurally (`<ol>` +
 keyboard users un-trapped; the `422` path preserves field-errors' focus
 management; put the step heading first in each fragment so reading
 order restarts sensibly after a swap.
+
+## Progressive enhancement
+
+Real step URLs (`/signup/1`, `/signup/2`, …) + `method`/`action` +
+`formnovalidate` mean the wizard degrades to classic pages:
+
+- Without JavaScript each named submit (`nav=next` / `nav=back`) posts
+  the same body natively, and the server answers with the **full
+  page** at the next (or same, on errors) step — the htmx layer only
+  turns those page loads into region swaps.
+- Back still never validates: `formnovalidate` is native, not htmx.
+- Refresh and deep links land on the server's idea of the current step
+  either way, because the step lives in the URL and the draft lives on
+  the server.
+- CSRF: the
+  [meta convention](/hypermedia-components/integrations/htmx/#csrf-tokens--the-blessed-convention)
+  covers the htmx path; the native path needs your framework's hidden
+  field, as in
+  [mutating-form](/hypermedia-components/recipes/mutating-form/).
 
 ## Notes
 

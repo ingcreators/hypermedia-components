@@ -65,7 +65,7 @@ spent, so re-expanding it will not retry.
   attribute, and the behavior only dispatches `hc:treeexpand` on
   branches.
 
-## Server response
+## Server response contract
 
 Only the group's innerHTML — treeitem fragments:
 
@@ -92,6 +92,21 @@ retry. Surface failures with an
 server-side reliability; if a subtree fails often, render it eagerly
 instead. The recipe documents this limitation honestly rather than
 hiding it behind retry choreography.
+
+## Accessibility
+
+- Swapped-in children keep the APG tree pattern: `installTree()`
+  re-applies `role="treeitem"` / `role="group"` and folds new items
+  into the roving tabindex — they are keyboard-navigable as soon as
+  they arrive.
+- Laziness never changes the keyboard contract: <kbd>→</kbd> on a
+  closed lazy branch opens it (firing the fetch); once children
+  arrive, <kbd>→</kbd> descends into them.
+- While the request is in flight the empty group carries
+  `aria-busy="true"`, so the pending state is exposed; the CSS-only
+  spinner it renders is disabled under `prefers-reduced-motion`.
+- Branch-ness is declared by `aria-expanded` — the state screen
+  readers announce is the same attribute the behavior toggles.
 
 ## Progressive enhancement
 

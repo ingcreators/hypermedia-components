@@ -86,7 +86,7 @@ Two mechanisms, cleanly split:
   response-download phase, and the download's small `total` would
   otherwise rewind the bar just before it finishes.
 
-## Server responses
+## Server response contract
 
 | Case | Response |
 | --- | --- |
@@ -117,6 +117,23 @@ pristine dropzone markup.
 The claims here — live progress reaching 100, the out-of-band form
 reset, the retargeted `422` — are pinned by a real-multipart browser
 test (`test-browser/file-upload.spec.mjs`).
+
+## Accessibility
+
+- The progress bar is the native `<progress>` — it keeps its
+  `progressbar` role; give it an `aria-label` (the recipe markup ships
+  `aria-label="Upload progress"`). It is visible only while the
+  request is in flight.
+- The file input is a real `<input type="file">` paired with a real
+  `<label for>` — the native picker, keyboard behavior, and accessible
+  name come for free. The dropzone variant keeps that same input.
+- Validation errors arrive as the
+  [field-errors](/hypermedia-components/recipes/field-errors/)
+  fragment, with its standard `aria-invalid` / `aria-describedby`
+  wiring and focus on the first invalid control.
+- Success is announced by the toast (`role="status"`); the submit
+  button's in-flight `disabled` is the native attribute, reported by
+  assistive tech.
 
 ## Related
 

@@ -26,7 +26,7 @@ SSE で埋めるハンドルです — そして帯域外でスワップされ�
 [streaming-response レシピ](/hypermedia-components/ja/recipes/streaming-response/)です。
 空のまま送信すると `422` がコンポーザーだけに返り、「fail」を含む
 プロンプトはエラー経路を、Stop はストリーム途中の切り詰めを実演します。
-エンドポイントはサーバーレスポンス契約を実装した名前空間付きデモで、
+エンドポイントはサーバレスポンス契約を実装した名前空間付きデモで、
 `api/recipes/chat-messages/` 配下にあります。
 
 <ChatDemo />
@@ -63,7 +63,7 @@ SSE で埋めるハンドルです — そして帯域外でスワップされ�
 | `data-hx-target="#chat-list"` + `data-hx-swap="beforeend"` | POST はトランスクリプトへ追記します — 全体の再描画はしません。 |
 | `method="post"` + `action` | no-JS の経路: 素のフォーム送信で、`303` が返ります。 |
 
-## サーバーレスポンス契約
+## サーバレスポンス契約
 
 | ケース | ステータス | ボディ |
 | --- | --- | --- |

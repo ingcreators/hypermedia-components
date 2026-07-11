@@ -188,6 +188,26 @@ def delete_item(request, id):
     })
 ```
 
+## サーバ契約
+
+ワイヤ契約はボディのフラグメントではなく**レスポンスヘッダー**です:
+htmx が処理するどのレスポンスも `HX-Trigger: {"hc:toast":{…}}` を
+運ぶことができ、htmx が `<body>` 上で `hc:toast` イベントを発火
+します — ペイロードのスキーマは上の [detail の形](#detail-の形)です。
+
+| ケース | レスポンス |
+| --- | --- |
+| トーストのみ — ページ上は何も変わらない | `204 No Content` + `HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}`(ライブデモの形) |
+| スワップと一緒に | 任意の `2xx` フラグメントレスポンス + 同じヘッダー — トーストはスワップに同乗します |
+| 1 レスポンスに複数イベント | 1 つの JSON オブジェクト: `HX-Trigger: {"hc:toast":{…},"items:refresh":true}` |
+| 失敗の通知 | 非 2xx + `HX-Trigger` のエラートースト — htmx は何もスワップせず、トーストが失敗を報告します([live-search](/hypermedia-components/ja/recipes/live-search/) や [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) の失敗時の作法) |
+
+ヘッダーの値は latin-1 です — 非 ASCII のテキストは JSON の `\uXXXX` に
+エスケープしてください(htmx はネイティブにパースします。
+ワンライナーは
+[undo-delete の契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/undo-delete/contract.md)に
+あります)。
+
 ## アクセシビリティ
 
 - `info` / `success` / `warning` は `role="status"`(polite)を使う

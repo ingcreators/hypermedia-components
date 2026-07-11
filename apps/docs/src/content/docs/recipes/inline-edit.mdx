@@ -175,6 +175,22 @@ works, but requires htmx's response-targets extension.)
 All four responses share the same DOM id — that is what makes the
 swap reversible.
 
+## Progressive enhancement
+
+- The display state is server-rendered text — without JavaScript the
+  value stays readable; nothing on the page depends on a client
+  render.
+- The Edit affordance is a `type="button"` carrying only `data-hx-*`
+  attributes, so without htmx it is inert: activating it does nothing,
+  navigates nowhere, and breaks nothing. In-place editing is the
+  enhancement.
+- If the field must be *editable* without JavaScript, give the
+  affordance a real URL — render a link to a full-page edit form and
+  answer its POST with the
+  [mutating-form](/hypermedia-components/recipes/mutating-form/)
+  branching (`303` back to the page). The fragment endpoints above
+  stay as the enhanced path.
+
 ## Tips
 
 - **Optimistic UI?** Skip it for inline edits. The round trip is

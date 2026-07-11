@@ -80,6 +80,21 @@ updates both the panel and a badge), exactly like the
 [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) and
 bulk-actions responses.
 
+## Server response contract
+
+`GET /events` answers `Content-Type: text/event-stream`; each update
+is a **named** event whose `data:` is a finished, server-rendered
+fragment on one line. There is no `HX-Request` branch — `EventSource`
+requests carry no htmx headers, so the stream is the endpoint's only
+shape.
+
+| Request | Response |
+| --- | --- |
+| `GET /events` | `200` + `Content-Type: text/event-stream` — named events (`event: activity:item`), one finished fragment per `data:` line |
+| Reconnect after a drop | The same stream — `EventSource` retries natively (honouring the server's `retry:` hint); resend current state, or tolerate the gap |
+| Deliberate end | Send the event named by `data-sse-close` (here `stream:done`) — a closed stream stays closed, and the close event's own payload is never swapped |
+| Cross-origin stream | The extension connects `withCredentials: true`, so the server needs `Access-Control-Allow-Credentials` |
+
 ## Datagrid composition
 
 Push a page of rows by putting `data-sse-swap` +
@@ -105,13 +120,24 @@ on the scope for debugging. The extension connects with
 
 Render the **complete current state** into the initial HTML; the stream
 only freshens it. Without JS the page is simply as fresh as the last
-full render — no loading shells, nothing breaks. This is the recipe's
-accessibility stance too: pushed fragments replace content without
-moving focus, and regions that should announce updates opt in with
-`aria-live="polite"` on the landing element.
+full render — no loading shells, nothing breaks.
 
 The claims here are pinned by a real-EventSource browser test
 (`test-browser/sse.spec.mjs`).
+
+## Accessibility
+
+- Pushed fragments replace content **without moving focus** — never
+  wrap a live region around the element the user is currently focused
+  on.
+- Announcements are opt-in: put `aria-live="polite"` on the region the
+  fragments land in. A status line usually should announce; a feed
+  usually should not read out every item.
+- For server-pushed *notifications*, prefer the
+  [SSE toast recipe](/hypermedia-components/recipes/sse-toast/) —
+  toasts already carry the correct `role="status"` / `role="alert"`.
+- Pushed datagrid rows go through the grid's normal re-init, so roles
+  and the keyboard model survive every swap.
 
 ## Related
 

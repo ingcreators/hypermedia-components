@@ -110,6 +110,15 @@ POST し、サーバが元の行を返し、それが**同じスロットへ**�
 あります。これは `HX-Trigger` を送るすべてのレシピに当てはまります。
 :::
 
+## サーバレスポンス契約
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `DELETE /items/42` | `200` + 隠れたトゥームストーン(ボタンの `outerHTML` スワップで行を置き換え)+ `HX-Trigger` の取り消しトースト — `action.event` がペアリングキーを運びます |
+| `POST /items/42/restore`(猶予内) | `200` + 元の行 — 同じスロットへスワップバックします。トーストの `id` の再利用で取り消しトーストはその場で更新されます。復元は冪等です |
+| `POST /items/42/restore`(猶予切れ) | `200` + 再びトゥームストーン + エラートースト(「完全に削除されました」)— 200-with-truth、ステータスコードの振り付けなし |
+| 非 JS の削除 | フォームフォールバックを残してください: `method="post"` + `303`([mutating-form](/hypermedia-components/ja/recipes/mutating-form/) の分岐)。取り消し自体はトーストが運ぶため、正直に「利用不可」です |
+
 ## 取り消しか、確認か
 
 | | [confirm-action](/hypermedia-components/ja/recipes/confirm-action/) | undo-delete |
@@ -137,6 +146,22 @@ tbody のオブザーバーが削除と復元の両方で roles・オフセッ�
 ここでの主張 — 位置を保存する復元、2 つの取り消し待ちにまたがる
 ペアリングキーの分離、失効パス — は、実 htmx のブラウザテスト
 (`test-browser/undo-delete.spec.mjs`)で固定されています。
+
+## アクセシビリティ
+
+- 取り消しトーストは `variant: "info"` → `role="status"`(polite)、
+  猶予切れの失敗は `variant: "error"` → `role="alert"` です。標準の
+  [トースト](/hypermedia-components/ja/recipes/toast/)セマンティクスの
+  ままです。
+- Undo ボタンはトースト内の本物の `<button>` で、トーストが見えている
+  間はキーボードで到達できます。猶予窓はトーストより十分長く取って
+  ください — ボタンを逃したキーボードユーザーが失うものが、単に
+  遅かった場合に失うもの以上にならないように。
+- トゥームストーンは `hidden` で、決してフォーカスされません。復元は
+  フォーカスを奪わずに行をスワップバックします。
+- Delete ボタンのリクエスト中の `disabled`
+  (`data-hx-disabled-elt="this"`)はネイティブ属性で、支援技術が
+  報告します。
 
 ## 関連
 

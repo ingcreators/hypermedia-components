@@ -210,6 +210,19 @@ The keyboard, focus, redirect, and double-submit claims here are pinned
 by a browser test against this exact markup
 (`test-browser/mutating-form.spec.mjs`).
 
+## Accessibility
+
+- The error summary carries `role="alert"`, so the `422` swap itself
+  is announced; `installFieldErrors()` then sets `aria-invalid` and
+  `aria-describedby` on each named control and focuses the first
+  invalid one — the standard post-submit error pattern.
+- The double-submit guard is the native `disabled` attribute
+  (`data-hx-disabled-elt`), so assistive tech reports the busy state;
+  the spinner is `aria-hidden="true"` decoration.
+- Keep a real `<label class="hc-field__label" for="…">` per control —
+  the fragment's errors attach to controls by `name`, but the label is
+  what names the field to assistive tech.
+
 ## Related
 
 - [Field errors recipe](/hypermedia-components/recipes/field-errors/) — the 4xx fragment this builds on.

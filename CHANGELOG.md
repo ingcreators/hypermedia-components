@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Recipes — every page now meets the recipe DoD** (en + ja,
+  docs-review follow-up). Added the missing Accessibility sections
+  (datagrid-bulk-actions, file-upload, mutating-form, lazy-tree,
+  sse-updates, undo-delete; datagrid-pager's focus guidance promoted
+  out of Notes), the missing progressive-enhancement sections
+  (inline-edit, multi-step-form), and scannable server-contract
+  sections (sse-updates and undo-delete gain request/response tables;
+  toast documents its `HX-Trigger` header contract; copy states
+  explicitly that it has no server contract). Contract headings are
+  normalized to "Server response contract" (datagrid-pager, lazy-tree,
+  file-upload, multi-step-form) and confirm-action's "Accessibility
+  notes" to "Accessibility"; the ja mirror also normalizes サーバー →
+  サーバ in chat-messages.
 - **Docs onboarding & size truth** (en + ja, docs-review follow-up).
   Installation now teaches the kit's one external dependency — htmx —
   with a pinned script tag and a link to the htmx guide, gains a

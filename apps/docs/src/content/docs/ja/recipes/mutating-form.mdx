@@ -218,6 +218,21 @@ htmx がネイティブ送信ではなく確認イベントで発火するよう
 まさにこのマークアップに対するブラウザテスト
 (`test-browser/mutating-form.spec.mjs`)で固定されています。
 
+## アクセシビリティ
+
+- エラーサマリーは `role="alert"` を持つため、`422` のスワップ自体が
+  読み上げられます。続いて `installFieldErrors()` が名指しされた各
+  コントロールに `aria-invalid` と `aria-describedby` を設定し、最初の
+  無効なコントロールへフォーカスします — 送信後エラーの標準
+  パターンです。
+- 二重送信ガードはネイティブの `disabled` 属性
+  (`data-hx-disabled-elt`)なので、支援技術がビジー状態を報告
+  します。スピナーは `aria-hidden="true"` の装飾です。
+- コントロールごとに本物の `<label class="hc-field__label" for="…">` を
+  保ってください — フラグメントのエラーは `name` でコントロールに
+  取り付きますが、支援技術にフィールドの名前を伝えるのはラベル
+  です。
+
 ## 関連
 
 - [フィールドエラーレシピ](/hypermedia-components/ja/recipes/field-errors/) — この上に組む 4xx フラグメント。
