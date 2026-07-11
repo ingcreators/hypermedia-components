@@ -186,6 +186,25 @@ def delete_item(request, id):
     })
 ```
 
+## Server contract
+
+The wire contract is a **response header**, not a body fragment: any
+response htmx processes may carry `HX-Trigger: {"hc:toast":{…}}`, and
+htmx dispatches the `hc:toast` event on `<body>` — the
+[detail shape](#detail-shape) above is the payload schema.
+
+| Case | Response |
+| --- | --- |
+| Toast only — nothing on the page changes | `204 No Content` + `HX-Trigger: {"hc:toast":{"message":"Saved","variant":"success"}}` (the live demo's shape) |
+| Toast alongside a swap | Any `2xx` fragment response + the same header — the toast rides along with the swap |
+| Several events in one response | One JSON object: `HX-Trigger: {"hc:toast":{…},"items:refresh":true}` |
+| Error surfacing | Non-2xx + an `HX-Trigger` error toast — htmx swaps nothing, the toast still reports the failure (how [live-search](/hypermedia-components/recipes/live-search/) and [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) surface errors) |
+
+Header values are latin-1 — escape non-ASCII text as JSON `\uXXXX`
+(htmx parses it natively; the
+[undo-delete contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/undo-delete/contract.md)
+has the one-liner).
+
 ## Accessibility
 
 - `info` / `success` / `warning` use `role="status"` (polite) so they

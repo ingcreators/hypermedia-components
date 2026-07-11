@@ -37,7 +37,7 @@ Page through 5,000 fake products — each pager link swaps just its
 page's rows into the `<tbody>` (`innerHTML`), while the pager and the
 status line arrive out-of-band in the same response. The endpoint is a
 namespaced demo implementation of the
-[server response contract](#server-response) under
+[server response contract](#server-response-contract) under
 `api/recipes/datagrid-pager/`.
 
 <DatagridPagerDemo />
@@ -97,7 +97,7 @@ the **same column structure** as the header (`data-frozen` /
 columns) and the frozen `--hc-datagrid-left` offsets and resized widths are
 re-applied automatically.
 
-## Server response
+## Server response contract
 
 `GET /products?page=N&size=100` returns **only the page's rows**:
 
@@ -150,11 +150,20 @@ the current rows and pager in place. Surface the failure with an
   the rows fragment plus the OOB pager / status; without it, render the
   full page with that page's rows in the `<tbody>`.
 
-## Notes
+## Accessibility
 
+- The pager is a `<nav aria-label="Pagination">` of real links; mark
+  the current page with `aria-current="page"` and disable Prev / Next
+  at the ends with `aria-disabled="true"`.
+- The out-of-band status line (`101–200 / 5,000`) carries
+  `aria-live="polite"`, so each page change is announced without
+  interrupting the user.
 - **Focus.** Swapping rows removes the previously active cell; the grid keeps
   a tabbable cell but does not move focus. Restore focus from the server
   (e.g. an out-of-band focus target) if your flow needs it.
+
+## Notes
+
 - **Selection** is per page unless the server re-renders selected rows with
   `aria-selected="true"` — server-track the selection to keep it across
   pages.

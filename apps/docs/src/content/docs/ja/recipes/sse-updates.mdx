@@ -83,6 +83,21 @@ data: <p>All systems normal</p><span id="alert-badge" data-hx-swap-oob="true">3<
 [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) や
 一括操作のレスポンスとまったく同じです。
 
+## サーバレスポンス契約
+
+`GET /events` は `Content-Type: text/event-stream` で応答します。各更新は
+**名前付き**イベントで、その `data:` は 1 行に収めた完成済みの
+サーバレンダリングフラグメントです。`HX-Request` での分岐は
+ありません — `EventSource` のリクエストは htmx のヘッダーを運ばない
+ため、ストリームがこのエンドポイントの唯一の形です。
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `GET /events` | `200` + `Content-Type: text/event-stream` — 名前付きイベント(`event: activity:item`)、`data:` 行ごとに完成済みフラグメント 1 つ |
+| 切断後の再接続 | 同じストリーム — `EventSource` がネイティブにリトライします(サーバの `retry:` ヒントを尊重)。現在の状態を再送するか、欠落を許容してください |
+| 意図的な終了 | `data-sse-close` が名指しするイベント(ここでは `stream:done`)を送ります — 閉じられたストリームは閉じたままで、終了イベント自身のペイロードは決してスワップされません |
+| クロスオリジンのストリーム | 拡張は `withCredentials: true` で接続するため、サーバには `Access-Control-Allow-Credentials` が必要です |
+
 ## データグリッドとの合成
 
 `.hc-datagrid__body` の tbody に `data-sse-swap` +
@@ -109,13 +124,26 @@ data: <p>All systems normal</p><span id="alert-badge" data-hx-swap-oob="true">3<
 
 初期 HTML に**完全な現在の状態**を描画してください。ストリームはそれを
 新鮮にするだけです。JS なしでは、ページは単に最後のフル描画の時点の
-鮮度になります — ローディングシェルなし、何も壊れません。これがこの
-レシピのアクセシビリティの立場でもあります: プッシュされたフラグメントは
-フォーカスを動かさずにコンテンツを置き換え、更新を読み上げるべき領域は
-着地要素の `aria-live="polite"` でオプトインします。
+鮮度になります — ローディングシェルなし、何も壊れません。
 
 ここでの主張は実 EventSource のブラウザテスト
 (`test-browser/sse.spec.mjs`)で固定されています。
+
+## アクセシビリティ
+
+- プッシュされたフラグメントは**フォーカスを動かさずに**コンテンツを
+  置き換えます — ユーザーが現在フォーカスしている要素をライブ
+  リージョンで包まないでください。
+- 読み上げはオプトインです: フラグメントが着地する領域に
+  `aria-live="polite"` を置いてください。ステータス行はたいてい
+  読み上げるべきで、フィードは項目を逐一読み上げるべきでは
+  ありません。
+- サーバプッシュの*通知*には
+  [SSE トーストレシピ](/hypermedia-components/ja/recipes/sse-toast/)を
+  使ってください — トーストは正しい `role="status"` / `role="alert"` を
+  最初から備えています。
+- プッシュされたデータグリッドの行はグリッドの通常の再初期化を通る
+  ため、roles とキーボードモデルはスワップのたびに生き残ります。
 
 ## 関連
 

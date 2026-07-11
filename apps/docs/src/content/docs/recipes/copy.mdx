@@ -128,6 +128,16 @@ document.addEventListener('hc:copied', () => {
 });
 ```
 
+## No server contract
+
+Copy is the kit's one purely client-side recipe: `installCopy()` reads
+the named element (or the `data-hc-copy-text` literal) and writes it
+to the clipboard — no request is made, so there is no endpoint, no
+response shape, and no `api/recipes/copy/` namespace to implement. The
+only integration points are on the page: the
+[attributes](#attributes) above and the bubbling `hc:copied` event for
+chaining.
+
 ## Accessibility
 
 - The trigger is a real `<button>` — keyboard-activatable and touch-friendly

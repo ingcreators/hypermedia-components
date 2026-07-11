@@ -105,6 +105,15 @@ as JSON `\uXXXX` (htmx parses it natively); the
 has the one-liner. This applies to every recipe that sends `HX-Trigger`.
 :::
 
+## Server response contract
+
+| Request | Response |
+| --- | --- |
+| `DELETE /items/42` | `200` + the hidden tombstone (replaces the row via the button's `outerHTML` swap) + the `HX-Trigger` undo toast — `action.event` carries the pairing key |
+| `POST /items/42/restore` (within grace) | `200` + the original row — it swaps back into the same slot; reusing the toast `id` updates the undo toast in place. Restore is idempotent |
+| `POST /items/42/restore` (grace expired) | `200` + the tombstone again + an error toast ("permanently deleted") — 200-with-truth, no status-code choreography |
+| No-JS delete | Keep a form fallback: `method="post"` + `303` back (the [mutating-form](/hypermedia-components/recipes/mutating-form/) branching); undo itself is toast-borne and honestly unavailable |
+
 ## Undo or confirm?
 
 | | [confirm-action](/hypermedia-components/recipes/confirm-action/) | undo-delete |
@@ -130,6 +139,21 @@ no-JS deletes a server-side confirm page if they need protection.
 The claims here — position-preserving restore, pairing-key isolation
 across two pending undos, the expiry path — are pinned by a real-htmx
 browser test (`test-browser/undo-delete.spec.mjs`).
+
+## Accessibility
+
+- The undo toast is `variant: "info"` → `role="status"` (polite); the
+  expiry failure is `variant: "error"` → `role="alert"`. Standard
+  [toast](/hypermedia-components/recipes/toast/) semantics, unchanged.
+- The Undo button is a real `<button>` inside the toast — keyboard
+  reachable while the toast is visible. Size the grace window to be
+  comfortably longer than the toast, so a keyboard user who misses the
+  button loses nothing they could not also lose by being slow.
+- The tombstone is `hidden` and never focusable; restoring swaps the
+  row back without stealing focus.
+- The Delete button's in-flight `disabled`
+  (`data-hx-disabled-elt="this"`) is the native attribute, reported by
+  assistive tech.
 
 ## Related
 

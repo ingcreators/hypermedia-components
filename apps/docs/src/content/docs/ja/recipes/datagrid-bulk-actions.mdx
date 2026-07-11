@@ -185,6 +185,23 @@ htmx がクリックを処理する間、ネイティブ送信が抑止された
 全 N 件を選択」、取り消し、サーバ追跡の選択は、このレシピの意図的な
 非目標です。
 
+## アクセシビリティ
+
+- バーは `role="toolbar"` と `aria-label` を持つ `hc-toolbar` です。
+  `installToolbar()` がボタンに矢印キーの roving tabindex パターンを
+  与えます。
+- `[data-hc-datagrid-count]` 要素には `installDatagridActions()` が
+  デフォルトの `role="status"` を与えるため、選択数の変化は追加の
+  マークアップなしで丁寧に読み上げられます。
+- 行チェックボックスには行ごとの `aria-label`(`"Select Anvil"`)を、
+  全選択にはそれ自身のラベル(`"Select all"`)を与えてください。
+  全選択の中間状態はネイティブの `:indeterminate` で、スワップの
+  たびに再同期されます。
+- リクエスト中のアクションボタンはネイティブの `disabled`
+  (`data-hx-disabled-elt="this"`)になり、支援技術がそれを報告
+  します。結果は[トースト](/hypermedia-components/ja/recipes/toast/)
+  (`role="status"`、エラーは `role="alert"`)として届きます。
+
 ## 関連
 
 - [データグリッド](/hypermedia-components/ja/components/datagrid/) — 行選択、選択アクションバーのセクション。

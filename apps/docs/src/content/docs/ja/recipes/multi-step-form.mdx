@@ -84,7 +84,7 @@ import MultiStepFormDemo from '../../../../components/recipe-demos/MultiStepForm
 ない戻るボタンをエラーにします。
 :::
 
-## サーバレスポンス
+## サーバレスポンス契約
 
 | ケース | レスポンス |
 | --- | --- |
@@ -104,6 +104,27 @@ sr-only の `(completed)`)。`formnovalidate` がキーボードユーザーを
 閉じ込めから守ります。`422` パスは field-errors のフォーカス管理を
 保ちます。スワップ後に読み上げ順が自然に再開するよう、各フラグメントの
 先頭にステップ見出しを置いてください。
+
+## プログレッシブエンハンスメント
+
+本物のステップ URL(`/signup/1`、`/signup/2`、…)+ `method`/`action` +
+`formnovalidate` により、ウィザードはクラシックなページ群へ
+デグレードします:
+
+- JavaScript なしでは、各名前付き送信(`nav=next` / `nav=back`)が
+  同じボディをネイティブに POST し、サーバは次の(エラー時は同じ)
+  ステップの**フルページ**で応答します — htmx レイヤーはその
+  ページ読み込みを領域スワップに変えるだけです。
+- Back は依然としてバリデートしません: `formnovalidate` は htmx では
+  なくネイティブの仕組みです。
+- リフレッシュもディープリンクも、どちらの経路でもサーバが考える
+  現在ステップに着地します。ステップは URL に、ドラフトはサーバに
+  あるからです。
+- CSRF: htmx 側は
+  [meta 規約](/hypermedia-components/ja/integrations/htmx/#csrf-トークン--公認の規約)で、
+  ネイティブ側にはフレームワークの隠しフィールドが必要です —
+  [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) と
+  同様です。
 
 ## 補足
 
