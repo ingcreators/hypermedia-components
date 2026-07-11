@@ -29,6 +29,6 @@
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "linkedom": "^0.18.12"
+    "linkedom": "^0.18.13"
   }
 }
