@@ -24,6 +24,17 @@ behavioural differences from tooltip:
 - Show / hide delays are longer (500 ms / 200 ms) to suit the
   reading-card UX.
 
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| HTML `popover` | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| CSS Anchor Positioning | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+Browsers without anchor support fall back to a
+`getBoundingClientRect` placement that mirrors the default-below +
+`flip-block` CSS path.
+
 ## Basic HTML
 
 <Demo>
@@ -132,17 +143,6 @@ the card.
 the server returns the card's inner HTML. The
 [lazy-panel recipe](/hypermedia-components/recipes/lazy-panel/)
 documents the same load-on-demand contract in full.
-
-## Browser baseline
-
-| Primitive | Required version |
-| --- | --- |
-| HTML `popover` | Chrome 114, Edge 114, Firefox 125, Safari 17 |
-| CSS Anchor Positioning | Chrome 125, Edge 125, Firefox 147, Safari 26 |
-
-Browsers without anchor support fall back to a
-`getBoundingClientRect` placement that mirrors the default-below +
-`flip-block` CSS path.
 
 ## Accessibility
 

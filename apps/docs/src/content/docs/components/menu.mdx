@@ -10,6 +10,18 @@ trigger is a normal button; the `popovertarget` attribute connects
 the two without any JS, and `installMenu()` adds the
 keyboard pattern, ARIA wiring, and a `hc:menuselect` event.
 
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+When Anchor Positioning is missing, `installMenu()` falls back to
+positioning the menu via `getBoundingClientRect` on the popover's
+`beforetoggle` event. The menu still opens, dismisses, and behaves
+correctly everywhere `popover` is supported.
+
 ## Basic HTML
 
 <Demo>
@@ -278,18 +290,6 @@ work happens with focus restored to the trigger (popover's default).
 
 For a richer pattern (a confirm dialog before the actual request), pair
 each menu item with [`hc-confirm-action`](/hypermedia-components/recipes/confirm-action/).
-
-## Browser baseline
-
-| Primitive | Required version |
-| --- | --- |
-| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
-| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
-
-When Anchor Positioning is missing, `installMenu()` falls back to
-positioning the menu via `getBoundingClientRect` on the popover's
-`beforetoggle` event. The menu still opens, dismisses, and behaves
-correctly everywhere `popover` is supported.
 
 ## Accessibility
 

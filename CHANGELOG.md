@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Component pages — "Browser baseline" always leads the page**
+  (en + ja, docs-review follow-up). The support section floated
+  between the top (6 pages) and the tail (9 pages: accordion, aspect,
+  combobox, hovercard, menu, menubar, navmenu, popover, scroll-area) —
+  it now sits right after the intro on all 15 pages that have one,
+  matching the pages with the hardest requirements (datagrid, select,
+  drawer): whether you can use the component at all is the first thing
+  to read, before copying markup. Pure section move, no wording
+  changes; none of the moved sections referenced earlier page content.
 - **Behaviors reference — Attributes & Events columns** (en + ja,
   docs-review follow-up). Each of the 45 rows now shows the opt-in /
   config attributes an author (or the server fragment) writes and the

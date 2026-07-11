@@ -21,6 +21,16 @@ Same architectural primitives as `hc-menu` and `hc-tooltip`:
 - `installCombobox()` wires the filter, keyboard, selection, and
   ARIA bookkeeping.
 
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| HTML `popover` | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| CSS Anchor Positioning | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+Browsers without anchor support fall back to a `getBoundingClientRect`
+positioning hook.
+
 ## Basic HTML
 
 <Demo>
@@ -266,16 +276,6 @@ options a `display` (flex/grid) for the rich layout, **scope it to
 ```css
 .hc-combobox__option:not([hidden]) { display: grid; … }
 ```
-
-## Browser baseline
-
-| Primitive | Required version |
-| --- | --- |
-| HTML `popover` | Chrome 114, Edge 114, Firefox 125, Safari 17 |
-| CSS Anchor Positioning | Chrome 125, Edge 125, Firefox 147, Safari 26 |
-
-Browsers without anchor support fall back to a `getBoundingClientRect`
-positioning hook.
 
 ## Accessibility
 

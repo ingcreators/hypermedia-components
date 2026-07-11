@@ -10,6 +10,18 @@ import Demo from '../../../../components/Demo.astro';
 属性が JS なしで両者をつなぎ、`installMenu()` がキーボードパターン、
 ARIA 配線、`hc:menuselect` イベントを足します。
 
+## ブラウザのベースライン
+
+| プリミティブ | 必要バージョン |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
+
+Anchor Positioning がない場合、`installMenu()` は popover の
+`beforetoggle` イベントで `getBoundingClientRect` によるメニュー配置に
+フォールバックします。`popover` がサポートされる環境ならどこでも、
+メニューは正しく開き、閉じ、振る舞います。
+
 ## 基本の HTML
 
 <Demo>
@@ -286,18 +298,6 @@ RTL では開閉の矢印がミラーされます。親項目は後置のシェ�
 メニュー項目を
 [`hc-confirm-action`](/hypermedia-components/ja/recipes/confirm-action/)と
 組み合わせてください。
-
-## ブラウザのベースライン
-
-| プリミティブ | 必要バージョン |
-| --- | --- |
-| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114、Edge 114、Firefox 125、Safari 17 |
-| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125、Edge 125、Firefox 147、Safari 26 |
-
-Anchor Positioning がない場合、`installMenu()` は popover の
-`beforetoggle` イベントで `getBoundingClientRect` によるメニュー配置に
-フォールバックします。`popover` がサポートされる環境ならどこでも、
-メニューは正しく開き、閉じ、振る舞います。
 
 ## アクセシビリティ
 

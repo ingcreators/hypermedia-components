@@ -11,6 +11,21 @@ import Demo from '../../../../components/Demo.astro';
 プロパティの上に構築されています。直下のメディア子要素は
 `object-fit: cover` でボックスを満たします。
 
+## ブラウザのベースライン
+
+`aspect-ratio` と `object-fit` は **Baseline 2021**(現行ブラウザで
+広く利用可能)なので、`@supports` のゲートは使っていません。
+`aspect-ratio` のないレガシーエンジンではボックスはコンテンツの高さに
+潰れます。歴史的なフォールバックは padding-top ハックです:
+
+```css
+/* Only needed for engines predating Baseline 2021. */
+@supports not (aspect-ratio: 1 / 1) {
+  .hc-aspect { position: relative; padding-top: 56.25%; /* 16:9 */ }
+  .hc-aspect > * { position: absolute; inset: 0; }
+}
+```
+
 ## 基本の HTML
 
 <Demo previewClass="hc-preview--start">
@@ -120,21 +135,6 @@ import Demo from '../../../../components/Demo.astro';
   `title` を与えてください。
 - ボックスが画像の読み込み前にスペースを確保するため、UX と支援技術の
   読み上げ順の両方を損なうレイアウトシフト(CLS)を防ぎます。
-
-## ブラウザのベースライン
-
-`aspect-ratio` と `object-fit` は **Baseline 2021**(現行ブラウザで
-広く利用可能)なので、`@supports` のゲートは使っていません。
-`aspect-ratio` のないレガシーエンジンではボックスはコンテンツの高さに
-潰れます。歴史的なフォールバックは padding-top ハックです:
-
-```css
-/* Only needed for engines predating Baseline 2021. */
-@supports not (aspect-ratio: 1 / 1) {
-  .hc-aspect { position: relative; padding-top: 56.25%; /* 16:9 */ }
-  .hc-aspect > * { position: absolute; inset: 0; }
-}
-```
 
 ## テーマ用トークン
 

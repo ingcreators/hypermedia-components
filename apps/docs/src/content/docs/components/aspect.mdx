@@ -10,6 +10,21 @@ keep their shape as the column resizes — no layout shift while an image
 loads. It is pure CSS, built on the native `aspect-ratio` property; a
 direct media child fills the box with `object-fit: cover`.
 
+## Browser baseline
+
+`aspect-ratio` and `object-fit` are **Baseline 2021** (widely available
+across current browsers), so no `@supports` gate is used. On a legacy
+engine without `aspect-ratio`, the box collapses to its content height;
+the historic fallback is the padding-top hack:
+
+```css
+/* Only needed for engines predating Baseline 2021. */
+@supports not (aspect-ratio: 1 / 1) {
+  .hc-aspect { position: relative; padding-top: 56.25%; /* 16:9 */ }
+  .hc-aspect > * { position: absolute; inset: 0; }
+}
+```
+
 ## Basic HTML
 
 <Demo previewClass="hc-preview--start">
@@ -116,21 +131,6 @@ below, the same wide image is cropped on the left, letterboxed on the right:
   `alt=""` if purely decorative) and `<iframe>` a `title`.
 - Because the box reserves space before the image loads, it prevents the
   layout shift (CLS) that hurts both UX and assistive-tech reading order.
-
-## Browser baseline
-
-`aspect-ratio` and `object-fit` are **Baseline 2021** (widely available
-across current browsers), so no `@supports` gate is used. On a legacy
-engine without `aspect-ratio`, the box collapses to its content height;
-the historic fallback is the padding-top hack:
-
-```css
-/* Only needed for engines predating Baseline 2021. */
-@supports not (aspect-ratio: 1 / 1) {
-  .hc-aspect { position: relative; padding-top: 56.25%; /* 16:9 */ }
-  .hc-aspect > * { position: absolute; inset: 0; }
-}
-```
 
 ## Theming tokens
 

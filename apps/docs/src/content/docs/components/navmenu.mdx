@@ -12,6 +12,17 @@ CSS Anchor Positioning. Panels open on hover / focus, **one at a time**, and
 the links inside stay real `<a>` — so it works for plain MPA navigation and
 htmx alike.
 
+## Browser baseline
+
+| Primitive | Required version |
+| --- | --- |
+| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
+| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
+
+Where Anchor Positioning is missing, `installNavmenu()` falls back to JS
+positioning — the panel still opens and dismisses correctly everywhere
+`popover` is supported.
+
 ## Basic HTML
 
 <Demo previewStyle="min-block-size: 16rem;">
@@ -95,17 +106,6 @@ and let each section render as a stacked
 [`hc-collapsible`](/hypermedia-components/components/collapsible/). Switch
 layouts with a media query — the links and structure are identical, so no
 duplicate markup is required.
-
-## Browser baseline
-
-| Primitive | Required version |
-| --- | --- |
-| [HTML `popover`](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/popover) | Chrome 114, Edge 114, Firefox 125, Safari 17 |
-| [CSS Anchor Positioning](https://developer.mozilla.org/docs/Web/CSS/CSS_anchor_positioning) | Chrome 125, Edge 125, Firefox 147, Safari 26 |
-
-Where Anchor Positioning is missing, `installNavmenu()` falls back to JS
-positioning — the panel still opens and dismisses correctly everywhere
-`popover` is supported.
 
 ## Accessibility
 

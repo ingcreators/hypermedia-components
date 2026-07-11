@@ -12,6 +12,15 @@ import Demo from '../../../../components/Demo.astro';
 使います。JavaScript もオーバーレイ要素もありません — ブラウザ自身の
 (いまやスタイル可能な)スクロールバーが仕事をします。
 
+## ブラウザのベースライン
+
+| 機能 | 必要バージョン |
+| --- | --- |
+| `scrollbar-width` / `scrollbar-color` | Baseline 2025(Chrome 121、Edge 121、Firefox 64、Safari 18.2) |
+
+古いブラウザでは単にデフォルトのスクロールバーが表示されるだけです —
+何も壊れません。
+
 ## 基本の HTML
 
 領域のスクロール軸に最大サイズを与えます。キーボードユーザーが
@@ -98,15 +107,6 @@ import Demo from '../../../../components/Demo.astro';
 します。カバーレイヤーは不透明な背景を塗るため、領域が載っている面に
 合わせて `--hc-scroll-area-bg` を設定してください(デフォルト: surface
 の色)。
-
-## ブラウザのベースライン
-
-| 機能 | 必要バージョン |
-| --- | --- |
-| `scrollbar-width` / `scrollbar-color` | Baseline 2025(Chrome 121、Edge 121、Firefox 64、Safari 18.2) |
-
-古いブラウザでは単にデフォルトのスクロールバーが表示されるだけです —
-何も壊れません。
 
 ## アクセシビリティ
 
