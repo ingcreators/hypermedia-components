@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Component pages — one name for the entry section** (en + ja,
+  docs-review follow-up). The first markup section was variously
+  titled "Basic example" (15 pages), "Basic usage" (6), or "Demo"
+  (command) — all now use the majority convention "Basic HTML" /
+  「基本の HTML」. Component-specific first sections ("Image avatars",
+  "Determinate", …) are intentionally untouched. aspect's
+  "Baseline & fallback" joins the other 14 pages as "Browser
+  baseline" / 「ブラウザのベースライン」. No inbound anchors existed
+  for any renamed heading.
 - **Recipes — every page now meets the recipe DoD** (en + ja,
   docs-review follow-up). Added the missing Accessibility sections
   (datagrid-bulk-actions, file-upload, mutating-form, lazy-tree,
