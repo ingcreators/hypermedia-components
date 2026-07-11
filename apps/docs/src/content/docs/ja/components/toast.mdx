@@ -114,7 +114,7 @@ assertive に読み上げられ(`role="alert"`)、それ以外は
 **アクションボタン。** `action: { label, event }` を足すとトーストが
 ボタンを描画します。クリックすると `event` という名前のバブリングする
 `CustomEvent` を発火します(その後トーストを解散)。素のリスナーか、
-任意の祖先の htmx `hx-trigger="<event>"` で捕まえます — **Undo** に
+任意の祖先の htmx `data-hx-trigger="<event>"` で捕まえます — **Undo** に
 便利です:
 
 ```js

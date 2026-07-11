@@ -73,12 +73,12 @@ event: activity:item
 data: <li class="hc-item">Deploy #42 started</li>
 
 event: status:panel
-data: <p>All systems normal</p><span id="alert-badge" hx-swap-oob="true">3</span>
+data: <p>All systems normal</p><span id="alert-badge" data-hx-swap-oob="true">3</span>
 ```
 
 イベントはドメインで命名します(`activity:item`、`status:panel`)—
 名前はワイヤ契約です。メッセージのデータは、同じプッシュの中で id に
-よって他のターゲットを更新する `hx-swap-oob` フラグメントも運べます
+よって他のターゲットを更新する `data-hx-swap-oob` フラグメントも運べます
 (2 つ目の例はパネルとバッジの両方を更新します)。
 [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) や
 一括操作のレスポンスとまったく同じです。

@@ -220,15 +220,17 @@ def hx_trigger(response, events):
 ## CSRF のヒント
 
 - Django は POST / PUT / PATCH / DELETE に CSRF トークンを要求します。
-  `base.html` の `meta[name="csrf-token"]` を `installCsrfHeader()` が
-  読み取り、すべての htmx リクエストでそれを送ります。
-- htmx の構成が状態にクッキーを使う場合、`CSRF_COOKIE_HTTPONLY = False`
-  設定にすると `getCsrfToken()` JS ヘルパーが直接読めます —
-  `data-hx-headers` を `<body>` ではなく要素単位で設定する場合に
-  便利です。
-- DELETE と PATCH では、フォームボディがなくても Django は標準の
-  `X-CSRFToken` ヘッダーを必要とします。`data-hx-headers` がこれを
-  カバーします。
+  `base.html` の `<meta name="csrf-token" … data-header="X-CSRFToken">`
+  タグ(上記レイアウト参照)だけで十分です — `installCsrfHeader()` が
+  すべての htmx リクエストにヘッダーを付与します。フォームボディで
+  トークンを運べない DELETE / PATCH も含めてです。
+- meta タグはサーバ側で `{{ csrf_token }}` を読むため、JavaScript が
+  CSRF クッキーを読む必要は一切ありません — 多層防御として
+  `CSRF_COOKIE_HTTPONLY = True` を設定することもできます。
+- トークンのローテーション: Django はログイン時に CSRF トークンを
+  ローテートします。レイアウトをキャッシュせず(上記のように)
+  テンプレートから meta タグを描画すれば、次のフルページロードで
+  新しいトークンが届きます。
 
 ## htmx の検知
 

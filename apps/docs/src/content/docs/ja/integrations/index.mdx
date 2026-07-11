@@ -78,7 +78,11 @@ htmx は簡潔さを好むスタック向けに `hx-*` も受け付けます —
 
 ### CSRF はリクエストヘッダーで運ぶ
 
-レイアウトで一度だけ `htmx:configRequest` をフックするのが最もクリーンな
-パターンです。ハンドラはサーバが描画した `<meta>` タグを読み、
-フレームワークが期待する形式(`X-CSRFToken`、`X-CSRF-Token`、
-`RequestVerificationToken` など)でトークンを転送します。
+レイアウトに `<meta name="csrf-token">` タグを 1 つ描画すれば、
+auto-init の `installCsrfHeader()` ビヘイビアがすべての htmx
+リクエストでトークンを転送します — `data-header` で、フレームワークが
+期待するヘッダー名(`X-CSRFToken`、`X-CSRF-Token`、
+`RequestVerificationToken` など)に改名できます。
+[CSRF トークン — 公認の規約](/hypermedia-components/ja/integrations/htmx/#csrf-トークン--公認の規約)を参照してください。
+ヘッダー名が実行時にしか分からない場合は、手書きの
+`htmx:configRequest` リスナーがフォールバックとして残ります。

@@ -22,13 +22,13 @@ Hypermedia Components のすべての視覚的な決定は、4 つの層を流�
 
 ## 5 つのランタイム軸
 
-| 軸 | 値 | 設定先 | ドキュメント |
-| --- | --- | --- | --- |
-| `data-theme` | `light` / `dark` | `<html>` | [ライトとダーク](/hypermedia-components/ja/fundamentals/tokens/#ライトとダーク) |
-| `data-color` | アクセントテーマ — `default`、`indigo`、`emerald`、`rose`、`amber` | `<html>` | [カラーテーマ](/hypermedia-components/ja/tokens/themes/) |
-| `data-neutral` | グレーランプ — `gray`、`slate`、`zinc`、`neutral`、`stone` | `<html>` | [ニュートラルランプ](/hypermedia-components/ja/tokens/neutral/) |
-| `data-density` | `comfortable` / `compact` / `dense` | `<html>` | [密度](/hypermedia-components/ja/tokens/density/) |
-| `dir` | `ltr` / `rtl` | `<html>` | [右から左(RTL)](/hypermedia-components/ja/fundamentals/accessibility/#右から左rtl) |
+| 軸 | 値 | デフォルト(属性なし) | 設定先 | ドキュメント |
+| --- | --- | --- | --- | --- |
+| `data-theme` | `light` / `dark` | OS 設定(`prefers-color-scheme`) | `<html>` | [ライトとダーク](/hypermedia-components/ja/fundamentals/tokens/#ライトとダーク) |
+| `data-color` | アクセントテーマ — `default`、`indigo`、`emerald`、`rose`、`amber` | `default`(ブルー) | `<html>` | [カラーテーマ](/hypermedia-components/ja/tokens/themes/) |
+| `data-neutral` | グレーランプ — `gray`、`slate`、`zinc`、`neutral`、`stone` | `gray` | `<html>` | [ニュートラルランプ](/hypermedia-components/ja/tokens/neutral/) |
+| `data-density` | `comfortable` / `compact` / `dense` | `comfortable` | `<html>` | [密度](/hypermedia-components/ja/tokens/density/) |
+| `dir` | `ltr` / `rtl` | `ltr` | `<html>` | [右から左(RTL)](/hypermedia-components/ja/fundamentals/accessibility/#右から左rtl) |
 
 5 つの軸はすべて直交します — 任意の組み合わせで設定できます。また
 `<html>` に限らず任意のサブツリーでも機能するため、あるセクションだけを

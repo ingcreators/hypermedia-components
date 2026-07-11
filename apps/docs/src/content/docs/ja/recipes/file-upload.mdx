@@ -93,7 +93,7 @@ out-of-band リセットに対して再現されます。アップロードは�
 
 | ケース | レスポンス |
 | --- | --- |
-| 成功 | `200` — 新しいアイテムのフラグメント(`#files` の `afterbegin` に着地)**に加えて、`hx-swap-oob` フラグメントとしてのまっさらなフォーム**(file input はマークアップからリセットできません — サーバがフォームを再送し、htmx が再初期化します)+ `HX-Trigger` トースト |
+| 成功 | `200` — 新しいアイテムのフラグメント(`#files` の `afterbegin` に着地)**に加えて、`data-hx-swap-oob` フラグメントとしてのまっさらなフォーム**(file input はマークアップからリセットできません — サーバがフォームを再送し、htmx が再初期化します)+ `HX-Trigger` トースト |
 | バリデーション失敗 | `422` + `HX-Retarget: #upload-errors` + `HX-Reswap: innerHTML` に [field-errors](/hypermedia-components/ja/recipes/field-errors/) フラグメント — 主経路は属性宣言のまま、例外だけヘッダーで誘導 |
 | プロキシの `413` | アプリがリクエストを見る前に届くことがあり、htmx は何もスワップしません。契約には任意の `htmx:responseError` トーストスニペットがあります — また、親切な `422` が勝つよう、アプリ側の上限はプロキシの上限より低く保ってください |
 | JS なし | `303` の post/redirect/get([mutating-form](/hypermedia-components/ja/recipes/mutating-form/) と同じ `HX-Request` 分岐) |

@@ -241,7 +241,9 @@ import Demo from '../../../../components/Demo.astro';
 (`detail: { col, width }`)をディスパッチします — htmx か
 `localStorage` で幅を永続化し、次の描画でその列のセル幅として書き戻し
 てください。グリップはキーボード操作可能な `role="separator"` で、
-`aria-valuenow` を持ちます。
+`aria-valuenow` を持ちます。JS が生成する要素で、クラスは
+`hc-datagrid__resizer` — 他のパートクラス同様にスタイルを
+上書きできます。
 
 ## ソート可能な列
 
@@ -545,7 +547,8 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 されているときだけ**(`scrollWidth > clientWidth`)、ホバー**と**
 キーボードフォーカスで、単一の共有されたスタイル済みツールチップに全文
 を表示します — セルごとにツールチップを持たないので、数百セルの
-グリッドにもスケールします。ツールチップは `--hc-tooltip-*` トークンを
+グリッドにもスケールします。ツールチップは JS が生成する
+`hc-datagrid__tooltip` クラスの要素で、`--hc-tooltip-*` トークンを
 再利用します。
 
 ## インライン編集

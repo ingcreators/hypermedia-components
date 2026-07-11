@@ -13,7 +13,7 @@ CSS classes:           hc-button, hc-field, hc-card
 Custom elements:       hc-confirm-action, hc-live-search
 Data attributes:       data-hc-confirm, data-hc-close-dialog-on-success
 CSS custom properties: --hc-color-bg, --hc-button-height
-Events:                hc:toast, hc:confirm, hc:close-dialog
+Events:                hc:toast, hc:confirmed, hc:comboboxselect
 ```
 
 The prefix is short, unambiguous, and easy to grep.
@@ -99,7 +99,6 @@ Macros (optional) use the same `hc-` prefix and are kebab-case:
 ```text
 <hc-confirm-action>
 <hc-live-search>
-<hc-remote-dialog>
 ```
 
 Every macro must document its [expanded HTML](/hypermedia-components/recipes/confirm-action/#expanded-html)
@@ -124,13 +123,15 @@ strategy.
 Custom events dispatched by behaviors use a colon-separated namespace:
 
 ```text
-hc:toast        — display a transient toast
-hc:confirm      — internal confirm-dialog lifecycle
-hc:close-dialog — close the nearest dialog
+hc:toast          — request a transient toast (the toast behavior listens on document)
+hc:confirmed      — fired on the trigger element after the user confirms
+hc:comboboxselect — a combobox option was chosen
 ```
 
 Custom events bubble by default so listeners can be attached high in
-the tree (typically on `document.body`).
+the tree (typically on `document.body`). Every component that emits
+events documents them on its page; the complete machine-readable list
+is in the [kit manifest](/hypermedia-components/reference/manifest/).
 
 ## Things that look similar but are not part of HC
 

@@ -184,6 +184,8 @@ All exported from the main entry and the `i18n` submodule.
   function that restores the previous state.
 - `resetMessages()` — revert to the built-in English defaults.
 - `getMessages()` — a snapshot of the current catalog (defaults + overrides).
+- `hasMessage(key)` — whether the catalog can resolve a key (built-in
+  default or override), as opposed to falling back to the key itself.
 - `DEFAULT_MESSAGES` — the frozen English defaults.
 
 Missing translations degrade gracefully: an unknown key falls back to the

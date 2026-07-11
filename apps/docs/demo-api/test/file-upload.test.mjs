@@ -37,7 +37,7 @@ describe('file-upload demo API', () => {
     expect(body).toContain('<li class="hc-item" id="file-upload-demo-file-');
     expect(body).toContain('請求書.png — 123 kB');
     // The OOB pristine form — the blessed file-input reset.
-    expect(body).toContain('hx-swap-oob="true"');
+    expect(body).toContain('data-hx-swap-oob="true"');
     expect(body).toContain('id="file-upload-demo-form"');
     expect(body).toContain('enctype="multipart/form-data"');
     expect(body).toContain('data-hx-encoding="multipart/form-data"');
@@ -92,7 +92,7 @@ describe('file-upload demo API', () => {
     const body = await response.text();
     expect(body).toContain('scan.pdf — 4 kB');
     // The OOB reset re-sends the dropzone form, not the plain one.
-    expect(body).toContain('id="file-upload-demo-dropzone-form" hx-swap-oob="true"');
+    expect(body).toContain('id="file-upload-demo-dropzone-form" data-hx-swap-oob="true"');
     expect(body).not.toContain('id="file-upload-demo-form"');
     // Pristine dropzone markup + the discriminator ride along.
     expect(body).toContain('class="hc-dropzone"');

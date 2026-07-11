@@ -20,13 +20,13 @@ the layer model, the DTCG reference syntax, and variable naming in depth.
 
 ## The five runtime axes
 
-| Axis | Values | Set on | Docs |
-| --- | --- | --- | --- |
-| `data-theme` | `light` / `dark` | `<html>` | [Light and dark](/hypermedia-components/fundamentals/tokens/#light-and-dark) |
-| `data-color` | accent theme — `default`, `indigo`, `emerald`, `rose`, `amber` | `<html>` | [Color themes](/hypermedia-components/tokens/themes/) |
-| `data-neutral` | gray ramp — `gray`, `slate`, `zinc`, `neutral`, `stone` | `<html>` | [Neutral ramps](/hypermedia-components/tokens/neutral/) |
-| `data-density` | `comfortable` / `compact` / `dense` | `<html>` | [Density](/hypermedia-components/tokens/density/) |
-| `dir` | `ltr` / `rtl` | `<html>` | [Right-to-left](/hypermedia-components/fundamentals/accessibility/#right-to-left-rtl) |
+| Axis | Values | Default (no attribute) | Set on | Docs |
+| --- | --- | --- | --- | --- |
+| `data-theme` | `light` / `dark` | OS preference (`prefers-color-scheme`) | `<html>` | [Light and dark](/hypermedia-components/fundamentals/tokens/#light-and-dark) |
+| `data-color` | accent theme — `default`, `indigo`, `emerald`, `rose`, `amber` | `default` (blue) | `<html>` | [Color themes](/hypermedia-components/tokens/themes/) |
+| `data-neutral` | gray ramp — `gray`, `slate`, `zinc`, `neutral`, `stone` | `gray` | `<html>` | [Neutral ramps](/hypermedia-components/tokens/neutral/) |
+| `data-density` | `comfortable` / `compact` / `dense` | `comfortable` | `<html>` | [Density](/hypermedia-components/tokens/density/) |
+| `dir` | `ltr` / `rtl` | `ltr` | `<html>` | [Right-to-left](/hypermedia-components/fundamentals/accessibility/#right-to-left-rtl) |
 
 All five are orthogonal — set any combination. Each also works on any
 subtree, not just `<html>`, so a section can run dark or dense on its own.

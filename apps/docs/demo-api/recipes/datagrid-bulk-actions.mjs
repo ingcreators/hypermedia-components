@@ -79,11 +79,11 @@ function rowsHtml(state) {
 
 function statusHtml(state) {
   const n = remainingIds(state).length;
-  return `<p id="${STATUS_ID}" hx-swap-oob="true" aria-live="polite">${n} product${n === 1 ? '' : 's'}</p>`;
+  return `<p id="${STATUS_ID}" data-hx-swap-oob="true" aria-live="polite">${n} product${n === 1 ? '' : 's'}</p>`;
 }
 
 function stateInputHtml(state) {
-  return `<input type="hidden" id="${STATE_ID}" name="state" hx-swap-oob="true" value="${serializeState(state)}">`;
+  return `<input type="hidden" id="${STATE_ID}" name="state" data-hx-swap-oob="true" value="${serializeState(state)}">`;
 }
 
 export async function handle({ request, url, method, path }) {

@@ -79,7 +79,10 @@ is per-project, not per-component.
 
 ### CSRF travels in a request header
 
-Hooking `htmx:configRequest` once in the layout is the cleanest
-pattern. The handler reads a `<meta>` tag the server rendered and
-forwards the token as the framework expects (`X-CSRFToken`,
-`X-CSRF-Token`, `RequestVerificationToken`, …).
+Render one `<meta name="csrf-token">` tag in the layout and the
+auto-init `installCsrfHeader()` behavior forwards the token on every
+htmx request — renamed via `data-header` to whatever the framework
+expects (`X-CSRFToken`, `X-CSRF-Token`, `RequestVerificationToken`, …).
+See [CSRF tokens — the blessed convention](/hypermedia-components/integrations/htmx/#csrf-tokens--the-blessed-convention);
+a hand-rolled `htmx:configRequest` listener remains the fallback when
+the header name is only known at runtime.

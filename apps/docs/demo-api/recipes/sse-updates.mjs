@@ -16,7 +16,7 @@
 //                           kept tbody, the datagrid-pager rule)
 //   ~10 s    activity:item  <li> Deploy #128 finished
 //   ~12.5 s  activity:item  <li> Deploy #129 started
-//   ~15 s    status:panel   "All systems normal" + the hx-swap-oob
+//   ~15 s    status:panel   "All systems normal" + the data-hx-swap-oob
 //                           alert-badge fragment (one event, two
 //                           targets — the contract's OOB composition)
 //   ~17.5 s  activity:item  <li> Cache warmed in 3 regions
@@ -78,7 +78,7 @@ const SCRIPT = [
     2500,
     'status:panel',
     () =>
-      `<p>All systems normal</p><span class="hc-badge" id="${BADGE_ID}" hx-swap-oob="true">1</span>`,
+      `<p>All systems normal</p><span class="hc-badge" id="${BADGE_ID}" data-hx-swap-oob="true">1</span>`,
   ],
   [2500, 'activity:item', () => item('Cache warmed in 3 regions')],
   [

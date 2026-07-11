@@ -62,6 +62,10 @@ HC + htmx を読み込み、トースト領域を確保する `layout.html`。
 
   <script>
     // Hand the CSRF token to htmx so every request carries it.
+    // Spring はヘッダー「名」を _csrf_header で動的に公開するため、
+    // キットの静的な meta[name="csrf-token"] + installCsrfHeader()
+    // 規約が合わない唯一のスタックです — 代わりに小さなリスナーで
+    // 両方の meta を読みます。
     document.body.addEventListener('htmx:configRequest', (e) => {
       const token  = document.querySelector('meta[name="_csrf"]')?.content;
       const header = document.querySelector('meta[name="_csrf_header"]')?.content;

@@ -174,7 +174,7 @@ native path needs your framework's hidden field.
 Selection is **per page** — the same stance as the pager. When the two
 recipes compose, keep the current page in the form as
 `<input type="hidden" id="bulk-page" name="page" value="3">` and have
-the server re-render it with `hx-swap-oob="true"` alongside the pager
+the server re-render it with `data-hx-swap-oob="true"` alongside the pager
 fragment. Cross-page "select all N matching", undo, and server-tracked
 selection are deliberate non-goals of this recipe.
 
