@@ -20,6 +20,24 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Changed
+
+- **Docs onboarding & size truth** (en + ja, docs-review follow-up).
+  Installation now teaches the kit's one external dependency — htmx —
+  with a pinned script tag and a link to the htmx guide, gains a
+  Troubleshooting section for the three first-hour dead ends (behaviors
+  bundle missing / un-minified bundle from a script tag, htmx missing,
+  swapped-in fragments with hand-picked installers), links Versioning &
+  stability from the version-pinning advice, and uses `hc.min.css` in
+  the production-facing static-files snippet. The bundle-size reference
+  was re-measured against the published core 0.1.9 dist (the old table
+  predated the kit's growth: "everything minified" is ≈ 74 KB gzip
+  now, not 26 KB) and is stamped with version + date; the CDN
+  paragraph on Installation quotes the honest total. Introduction's
+  token link now points at the concept guide, and its opaque
+  "copyable expanded HTML" bullet is folded into the macros bullet.
+  Blocks and Kitchen sink link up to Templates.
+
 ### Fixed
 
 - **Docs accuracy sweep** (en + ja, from a full-site documentation

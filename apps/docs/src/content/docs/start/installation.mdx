@@ -17,11 +17,13 @@ tags straight off jsDelivr:
 <script type="module" src="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.behaviors.min.js"></script>
 ```
 
-That's every component and every behavior, ~26 KB gzip total. In
-production, pin a version
-(`…/npm/@hypermedia-components/core@<version>/dist/…`) so a release can't
-change your page underneath you. Exact sizes, granular per-component
-loading, and an import-map variant live on
+That's every component and every behavior, ~74 KB gzip total (CSS +
+JS; Brotli, which CDNs usually serve, is smaller). In production, pin
+a version (`…/npm/@hypermedia-components/core@<version>/dist/…`) so a
+release can't change your page underneath you — and see
+[Versioning & stability](/hypermedia-components/reference/versioning/)
+for what counts as public API before you bump a pin. Exact sizes,
+granular per-component loading, and an import-map variant live on
 [Bundle size & imports](/hypermedia-components/reference/size/).
 
 ## With a bundler (npm)
@@ -46,7 +48,7 @@ No build step? Copy the prebuilt files out of
 into a static folder and reference them directly:
 
 ```html
-<link rel="stylesheet" href="/assets/hc/hc.css">
+<link rel="stylesheet" href="/assets/hc/hc.min.css">
 <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
 ```
 
@@ -77,6 +79,37 @@ options:
 Every `installX()` is **idempotent** (safe to call again — e.g. after an
 htmx swap) and **returns an uninstaller**. Each component and recipe page
 names the behavior it needs.
+
+## htmx (for recipes)
+
+Components and behaviors work without htmx. The
+[recipes](/hypermedia-components/recipes/) — and every `data-hx-*`
+attribute in these docs — additionally need **htmx, which you load
+yourself**; HC never bundles it:
+
+```html
+<script defer src="https://unpkg.com/htmx.org@2"></script>
+```
+
+Pin the exact version in production (see
+[htmx's install docs](https://htmx.org/docs/#installing)). HC's docs
+write htmx attributes in the `data-hx-*` form (htmx accepts both) —
+the [htmx integration guide](/hypermedia-components/integrations/htmx/)
+covers loading, CSRF, and the response-header conventions.
+
+## Troubleshooting
+
+- **Interactive components render but don't respond** (menus don't
+  open, toasts don't stack) — the behaviors bundle isn't loaded, or
+  you loaded the un-minified `hc.behaviors.js` from a `<script>` tag
+  (see [the note above](#without-a-bundler-static-files) — use
+  `.min.js` there).
+- **`data-hx-*` attributes do nothing** — htmx itself isn't on the
+  page; it is a separate script (see [htmx](#htmx-for-recipes)).
+- **Components inside htmx-swapped fragments stop working** — the
+  auto-init `/behaviors` bundle re-scans after swaps, so this only
+  happens with hand-picked installers; call the relevant `installX()`
+  again after the swap (it's idempotent).
 
 ## Next steps
 

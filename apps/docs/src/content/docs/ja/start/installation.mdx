@@ -17,10 +17,14 @@ jsDelivr から読み込む 2 つのタグです:
 <script type="module" src="https://cdn.jsdelivr.net/npm/@hypermedia-components/core/dist/hc.behaviors.min.js"></script>
 ```
 
-これで全コンポーネントと全ビヘイビアが使えます(合計 gzip 約 26 KB)。
+これで全コンポーネントと全ビヘイビアが使えます(CSS + JS 合計 gzip
+約 74 KB。CDN が通常配信する Brotli ではより小さくなります)。
 本番ではバージョンを固定してください
 (`…/npm/@hypermedia-components/core@<version>/dist/…`)— リリースが
-ページの表示を勝手に変えてしまうのを防げます。正確なサイズ、
+ページの表示を勝手に変えてしまうのを防げます。固定バージョンを上げる
+前に、何が公開 API かは
+[バージョニングと安定性](/hypermedia-components/ja/reference/versioning/)を
+確認してください。正確なサイズ、
 コンポーネント単位の細粒度ロード、import map 方式は
 [バンドルサイズとインポート](/hypermedia-components/ja/reference/size/)を
 参照してください。
@@ -48,7 +52,7 @@ import '@hypermedia-components/core/behaviors';  // auto-installs every behavior
 ダウンロード)からビルド済みファイルを静的フォルダにコピーし、直接参照します:
 
 ```html
-<link rel="stylesheet" href="/assets/hc/hc.css">
+<link rel="stylesheet" href="/assets/hc/hc.min.css">
 <script type="module" src="/assets/hc/hc.behaviors.min.js"></script>
 ```
 
@@ -79,6 +83,38 @@ CSS コンポーネントは単体で描画されます。インタラクティ�
 すべての `installX()` は**冪等**で(再呼び出しが安全 — 例: htmx スワップ後)、
 **アンインストーラを返します**。各コンポーネント / レシピのページに、
 必要なビヘイビアが明記されています。
+
+## htmx(レシピ用)
+
+コンポーネントとビヘイビアは htmx なしで動きます。
+[レシピ](/hypermedia-components/ja/recipes/) — およびこのドキュメントの
+すべての `data-hx-*` 属性 — には、それに加えて **htmx が必要で、
+読み込みは利用者の責任**です。HC が htmx をバンドルすることはありません:
+
+```html
+<script defer src="https://unpkg.com/htmx.org@2"></script>
+```
+
+本番では正確なバージョンを固定してください
+([htmx のインストールドキュメント](https://htmx.org/docs/#installing)参照)。
+HC のドキュメントは htmx 属性を `data-hx-*` 形式で書きます
+(htmx は両形式を受け付けます)—
+[htmx インテグレーションガイド](/hypermedia-components/ja/integrations/htmx/)が
+読み込み・CSRF・レスポンスヘッダーの規約をカバーしています。
+
+## トラブルシューティング
+
+- **インタラクティブなコンポーネントが描画されるのに反応しない**
+  (メニューが開かない、トーストがスタックしない)— ビヘイビアバンドルが
+  読み込まれていないか、未圧縮の `hc.behaviors.js` を `<script>` タグから
+  読み込んでいます([上記の注意](#バンドラーを使わない場合静的ファイル)
+  参照 — そこでは `.min.js` を使ってください)。
+- **`data-hx-*` 属性が何もしない** — htmx 自体がページにありません。
+  別のスクリプトです([htmx](#htmxレシピ用)参照)。
+- **htmx でスワップしたフラグメント内のコンポーネントが動かなくなる** —
+  auto-init の `/behaviors` バンドルはスワップ後に再スキャンするため、
+  これは個別インストーラ方式でのみ起きます。スワップ後に該当の
+  `installX()` をもう一度呼んでください(冪等です)。
 
 ## 次のステップ
 
