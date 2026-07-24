@@ -66,7 +66,9 @@ function resolveValue(raw, table, stack = []) {
     return resolveValue(target, table, [...stack, ref]);
   }
   // Allow embedded refs like `0 0 0 2px {semantic.color.focus-ring}`.
-  return raw.replace(/\{([^}]+)\}/g, (_, ref) => {
+  // `[^{}]` (not `[^}]`) keeps the scan linear on `{`-heavy inputs — the
+  // transformer also runs in the browser on user-supplied theme JSON.
+  return raw.replace(/\{([^{}]+)\}/g, (_, ref) => {
     const target = table.get(ref);
     if (target == null) throw new Error(`Unknown token reference: {${ref}}`);
     return resolveValue(target, table, [...stack, ref]);
@@ -88,7 +90,7 @@ function collectDeps(raw, table, stack = [], deps = new Set()) {
     if (target != null) collectDeps(target, table, [...stack, ref], deps);
     return deps;
   }
-  for (const m of raw.matchAll(/\{([^}]+)\}/g)) {
+  for (const m of raw.matchAll(/\{([^{}]+)\}/g)) {
     const ref = m[1];
     deps.add(ref);
     if (stack.includes(ref)) continue;
@@ -246,8 +248,13 @@ export function buildTokensCss({ sources, trees }) {
     blocks.map((b) => b.replace(/^/gm, '  ').replace(/^ {2}$/gm, '')).join('\n') +
     '}\n';
 
-  // Count declarations only — `--hc-foo:` lines. Skip `--hc-` inside var().
-  const varCount = blocks.reduce((n, b) => n + (b.match(/--hc-[a-z0-9-]+:/g)?.length ?? 0), 0);
+  // Count declarations only — `--hc-foo:` lines. Skip `--hc-` inside var()
+  // by testing line starts (emitBlock indents every declaration two spaces);
+  // the anchored per-line test also avoids the quadratic unanchored scan.
+  const varCount = blocks.reduce(
+    (n, b) => n + b.split('\n').filter((l) => /^ {2}--hc-[a-z0-9-]+:/.test(l)).length,
+    0
+  );
   return { css, varCount, blockCount: blocks.length };
 }
 

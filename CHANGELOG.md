@@ -20,6 +20,17 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Security
+
+- **Token transformer: linear-time reference scanning**
+  (`scripts/token-transform.mjs`). The `{ref}` substitution regexes and
+  the `--hc-*` declaration counter were quadratic on adversarial inputs
+  (many `{`s with no closer; repeated `--hc-` runs) — flagged by CodeQL
+  as `js/polynomial-redos`. The transformer also runs in the browser
+  (docs theme builder) on user-supplied token JSON, so the scans are now
+  linear: `[^{}]` char classes and an anchored per-line declaration
+  count. Output is byte-identical for valid inputs.
+
 ### Added
 
 - **Drift guard: behaviors reference ↔ manifest**
