@@ -30,6 +30,10 @@ Security    — security-relevant changes
   (docs theme builder) on user-supplied token JSON, so the scans are now
   linear: `[^{}]` char classes and an anchored per-line declaration
   count. Output is byte-identical for valid inputs.
+- **Lockfile: `brace-expansion` 5.0.7 → 5.0.9** (dev/docs tooling;
+  Dependabot alert 17, GHSA-mh99-v99m-4gvg — DoS via unbounded
+  expansion length). Transitive under `minimatch`; nothing in the
+  published core package depends on it (core has zero runtime deps).
 
 ### Added
 
