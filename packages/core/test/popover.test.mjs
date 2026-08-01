@@ -85,10 +85,13 @@ describe('installPopover', () => {
 
   it('positions via the JS fallback on open when Anchor Positioning is unsupported', () => {
     document.body.innerHTML = ANCHORED;
+    const orig = CSS.supports;
+    CSS.supports = () => false;
     uninstall = installPopover();
     const pop = $('pop');
     fireToggle(pop, 'open');
     expect(pop.style.position).toBe('fixed');
+    CSS.supports = orig;
   });
 
   it('injects anchor-name + position-anchor when CSS supports it', () => {

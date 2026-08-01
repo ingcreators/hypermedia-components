@@ -40,9 +40,32 @@ function mount({ anchor = {}, floating = {} } = {}) {
 
 const px = (n) => `${n}px`;
 
+// jsdom < 30 has no CSS interface at all; jsdom 30's CSS.supports parses
+// anchor-name for real. Pin the detection contract against explicit stubs
+// instead of whatever the current jsdom answers.
+if (typeof globalThis.CSS === 'undefined') {
+  globalThis.CSS = { supports: () => false, escape: (s) => String(s) };
+}
+
 describe('supportsAnchorPositioning', () => {
-  it('is false under jsdom, routing tests through the fallback', () => {
+  it('mirrors CSS.supports("anchor-name", …)', () => {
+    const orig = CSS.supports;
+    CSS.supports = () => false;
     expect(supportsAnchorPositioning()).toBe(false);
+    CSS.supports = (prop) => prop === 'anchor-name';
+    expect(supportsAnchorPositioning()).toBe(true);
+    CSS.supports = orig;
+  });
+
+  it('is false when CSS.supports is missing or throws', () => {
+    const orig = CSS.supports;
+    CSS.supports = undefined;
+    expect(supportsAnchorPositioning()).toBe(false);
+    CSS.supports = () => {
+      throw new Error('boom');
+    };
+    expect(supportsAnchorPositioning()).toBe(false);
+    CSS.supports = orig;
   });
 });
 
