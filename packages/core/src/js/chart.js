@@ -134,11 +134,21 @@ function readTable(figure, table) {
   return { xName, xType, series, rows, hasR: !!rColumn };
 }
 
+// The tip channels for the tidy "category × series" row shape. The series
+// name is surfaced as an extra display channel only when it disambiguates.
+function seriesTipChannels(data) {
+  return {
+    x: 'x',
+    y: 'value',
+    ...(data.series.length > 1 ? { channels: { series: 'series' } } : {}),
+  };
+}
+
 // Build the Plot marks for the tidy rows, layering area → bar → line so a
 // combo (bar + line, area + line, …) renders in a sensible z-order.
-function buildMarks(plot, rows) {
+function buildMarks(plot, rows, ctx) {
   const pick = (mark) => rows.filter((d) => d.mark === mark && d.value != null);
-  const marks = [plot.ruleY([0])];
+  const marks = [...ctx.rule0];
 
   const area = pick('area');
   if (area.length) {
@@ -163,6 +173,10 @@ function buildMarks(plot, rows) {
     marks.push(plot.dot(line, { x: 'x', y: 'value', z: 'series', fill: 'series', r: 2.5 }));
   }
 
+  if (ctx.tip) {
+    marks.push(tipMark(plot, rows.filter((d) => d.value != null), ctx.tip, ctx.tipChannels));
+  }
+
   return marks;
 }
 
@@ -180,19 +194,30 @@ function figure_y_label(figure) {
 const TYPE_PRESETS = {
   // Plot's barY stacks same-x series implicitly — this type states the
   // intent explicitly (and stays correct with a single series).
-  'bar-stacked': (plot, data) => ({
+  'bar-stacked': (plot, data, base, ctx) => ({
     marks: [
-      plot.ruleY([0]),
+      ...ctx.rule0,
       plot.barY(validRows(data.rows), { x: 'x', y: 'value', fill: 'series' }),
+      ...(ctx.tip
+        ? [tipMark(plot, validRows(data.rows), ctx.tip, seriesTipChannels(data))]
+        : []),
     ],
   }),
 
   // Facet by the category; series become the inner x. The facet axis
   // carries the category labels, so the inner axis is hidden.
-  'bar-grouped': (plot, data, base) => ({
+  'bar-grouped': (plot, data, base, ctx) => ({
     marks: [
-      plot.ruleY([0]),
+      ...ctx.rule0,
       plot.barY(validRows(data.rows), { fx: 'x', x: 'series', y: 'value', fill: 'series' }),
+      ...(ctx.tip
+        ? [tipMark(plot, validRows(data.rows), ctx.tip, {
+          fx: 'x',
+          x: 'series',
+          y: 'value',
+          channels: { [data.xName || 'group']: 'x' },
+        })]
+        : []),
     ],
     options: {
       x: { axis: null },
@@ -202,7 +227,7 @@ const TYPE_PRESETS = {
 
   // Two numeric axes; each series column is one dot set. An optional
   // `<th data-role="r">` column drives the radius channel.
-  scatter: (plot, data) => ({
+  scatter: (plot, data, base, ctx) => ({
     marks: [
       plot.dot(validRows(data.rows), {
         x: 'x',
@@ -212,6 +237,12 @@ const TYPE_PRESETS = {
         fillOpacity: 0.4,
         ...(data.hasR ? { r: 'r' } : { r: 4 }),
       }),
+      ...(ctx.tip
+        ? [tipMark(plot, validRows(data.rows), ctx.tip, {
+          ...seriesTipChannels(data),
+          ...(data.hasR ? { r: 'r' } : {}),
+        })]
+        : []),
     ],
   }),
 
@@ -221,10 +252,16 @@ const TYPE_PRESETS = {
     const bins = Number.parseInt(ctx.figure.getAttribute('data-bins') || '', 10);
     return {
       marks: [
-        plot.ruleY([0]),
+        ...ctx.rule0,
         plot.rectY(data.rows, plot.binX(
           { y: 'count' },
-          { x: 'x', ...(Number.isFinite(bins) ? { thresholds: bins } : {}) },
+          {
+            x: 'x',
+            ...(Number.isFinite(bins) ? { thresholds: bins } : {}),
+            // Binned marks carry their own tip (bin extent + count) — a
+            // standalone tip would show raw samples instead.
+            ...(ctx.tip ? { tip: true } : {}),
+          },
         )),
       ],
       options: {
@@ -239,7 +276,13 @@ const TYPE_PRESETS = {
   // apply). `data-scheme` picks a Plot color scheme.
   heatmap: (plot, data, base, ctx) => ({
     marks: [
-      plot.cell(validRows(data.rows), { x: 'series', y: 'x', fill: 'value' }),
+      plot.cell(validRows(data.rows), {
+        x: 'series',
+        y: 'x',
+        fill: 'value',
+        // A single cell mark → its own tip is unambiguous (row, column, value).
+        ...(ctx.tip ? { tip: true } : {}),
+      }),
     ],
     options: {
       x: { label: null, domain: data.series.map((s) => s.name) },
@@ -262,6 +305,9 @@ const TYPE_PRESETS = {
       plot.lineY(validRows(data.rows), {
         x: 'x', y: 'value', z: 'series', stroke: 'series', curve: 'monotone-x',
       }),
+      ...(ctx.tip
+        ? [tipMark(plot, validRows(data.rows), ctx.tip, seriesTipChannels(data))]
+        : []),
     ],
     options: {
       height: ctx.explicitHeight != null ? ctx.explicitHeight : 48,
@@ -297,6 +343,39 @@ function xScaleType(xType) {
   if (xType === 'date') return 'utc';
   if (xType === 'number') return 'linear';
   return undefined; // category → Plot infers band / point
+}
+
+// Resolve `data-tip` into a pointer mode: null (off), 'x', 'y' or 'xy'.
+// A bare / empty attribute means "pick per chart type" (resolved by the
+// caller); any unknown value falls back to that same auto mode.
+function tipModeOf(figure, autoMode) {
+  const raw = figure.getAttribute('data-tip');
+  if (raw == null || raw.toLowerCase() === 'false') return null;
+  const v = raw.toLowerCase();
+  return v === 'x' || v === 'y' || v === 'xy' ? v : autoMode;
+}
+
+// One tip mark per figure, driven by a pointer transform. A single
+// standalone tip (instead of per-mark `tip: true`) guarantees at most one
+// tooltip at a time even on combo charts.
+function tipMark(plot, rows, mode, channels) {
+  const ptr = mode === 'y' ? plot.pointerY : mode === 'xy' ? plot.pointer : plot.pointerX;
+  return plot.tip(rows, ptr(channels));
+}
+
+// The explicit y domain from `data-y-min` / `data-y-max`, or null when
+// neither is set. A missing bound falls back to the data extent (min is
+// floored at 0, matching Plot's default for bars). With stacked bars set
+// both bounds explicitly — the raw-value extent ignores stacking.
+function yDomainOf(figure, rows) {
+  const min = Number.parseFloat(figure.getAttribute('data-y-min') ?? '');
+  const max = Number.parseFloat(figure.getAttribute('data-y-max') ?? '');
+  if (!Number.isFinite(min) && !Number.isFinite(max)) return null;
+  const values = rows.map((d) => d.value).filter((v) => v != null);
+  return [
+    Number.isFinite(min) ? min : Math.min(0, ...values),
+    Number.isFinite(max) ? max : Math.max(...values),
+  ];
 }
 
 // Render one figure. No-op if already rendered, if Plot is unavailable, or
@@ -339,6 +418,18 @@ function renderFigure(figure, rendered, options) {
     ? [...new Set(data.rows.map((d) => d.x))]
     : undefined;
 
+  const type = (figure.getAttribute('data-hc-chart') || 'bar').toLowerCase();
+
+  const yDomain = yDomainOf(figure, data.rows);
+  const yFormat = figure.getAttribute('data-y-format') || null;
+  // Scatter wants the nearest point in both dimensions; everything else
+  // reads better snapping along x (columns / time).
+  const tip = tipModeOf(figure, type === 'scatter' ? 'xy' : 'x');
+  // The zero baseline only makes sense when 0 is inside the y domain.
+  const rule0 = !yDomain || (yDomain[0] <= 0 && yDomain[1] >= 0)
+    ? [plot.ruleY([0])]
+    : [];
+
   const base = {
     width,
     height,
@@ -346,11 +437,15 @@ function renderFigure(figure, rendered, options) {
     style: { background: 'transparent', color: 'inherit', fontFamily: 'inherit' },
     title: title || undefined,
     x: { label: data.xName || undefined, type: xScaleType(data.xType), domain: xDomain },
-    y: { label: figure.getAttribute('data-y-label') || undefined, grid: true },
+    y: {
+      label: figure.getAttribute('data-y-label') || undefined,
+      grid: true,
+      ...(yDomain ? { domain: yDomain } : {}),
+      ...(yFormat ? { tickFormat: yFormat } : {}),
+    },
     color: range ? { range, legend } : { legend },
   };
 
-  const type = (figure.getAttribute('data-hc-chart') || 'bar').toLowerCase();
   const preset = TYPE_PRESETS[type];
   let marks;
   let overrides = null;
@@ -359,12 +454,21 @@ function renderFigure(figure, rendered, options) {
     // --hc-chart-height custom property has a global token default
     // (20rem), which must not defeat a preset's own compact default.
     const explicitHeight = parseDim(figure.getAttribute('data-height'));
-    ({ marks, options: overrides = null } = preset(plot, data, base, { figure, explicitHeight }));
+    ({ marks, options: overrides = null } = preset(plot, data, base, {
+      figure, explicitHeight, rule0, tip,
+    }));
   } else {
-    marks = buildMarks(plot, data.rows);
+    marks = buildMarks(plot, data.rows, { rule0, tip, tipChannels: seriesTipChannels(data) });
   }
 
-  const node = plot.plot({ ...base, ...(overrides || {}), marks });
+  let spec = { ...base, ...(overrides || {}), marks };
+  // The last-resort escape hatch: hand the final spec to the caller before
+  // it reaches Plot. High-frequency needs stay declarative (attributes);
+  // everything else composes here without new API surface.
+  if (typeof options.buildOptions === 'function') {
+    spec = options.buildOptions(spec, figure) || spec;
+  }
+  const node = plot.plot(spec);
 
   node.classList.add('hc-chart__plot');
   // The accessible data lives in the table (kept for assistive tech); hide
@@ -396,8 +500,11 @@ function renderFigure(figure, rendered, options) {
  *
  * @param {Document|Element} [root=document]
  *   The scope to scan. Defaults to the global document when available.
- * @param {{ plot?: object }} [options]
+ * @param {{ plot?: object, buildOptions?: (spec: object, figure: Element) => object }} [options]
  *   `plot` — the Observable Plot namespace to render with.
+ *   `buildOptions` — an escape hatch called with the final Plot spec and
+ *   the figure just before rendering; return a (new or mutated) spec to
+ *   customize anything the declarative attributes don't cover.
  * @returns {() => void}
  *   An uninstaller that removes the `htmx:load` listener. It leaves already
  *   rendered SVGs in place. A no-op when the behavior is not installed.

@@ -13,11 +13,12 @@ afterEach(() => {
 // returns a real <svg> from plot(), so we can assert what installChart
 // reads from the table without depending on Plot itself.
 function fakePlot() {
-  const calls = { barY: [], lineY: [], areaY: [], dot: [], ruleY: [], rectY: [], cell: [], binX: [], plot: [] };
+  const calls = { barY: [], lineY: [], areaY: [], dot: [], ruleY: [], rectY: [], cell: [], binX: [], tip: [], plot: [] };
   const mark = (name) => (data, opts) => {
     calls[name].push({ data, opts });
     return { mark: name };
   };
+  const pointer = (mode) => (opts) => ({ pointer: mode, ...opts });
   const plot = {
     barY: mark('barY'),
     lineY: mark('lineY'),
@@ -26,6 +27,10 @@ function fakePlot() {
     ruleY: mark('ruleY'),
     rectY: mark('rectY'),
     cell: mark('cell'),
+    tip: mark('tip'),
+    pointer: pointer('xy'),
+    pointerX: pointer('x'),
+    pointerY: pointer('y'),
     binX: (outputs, opts) => {
       calls.binX.push({ outputs, opts });
       return { transform: 'binX', outputs, opts };
@@ -317,3 +322,158 @@ describe('Tier 3 presets', () => {
     expect(calls.plot).toHaveLength(0); // untouched
   });
 });
+
+
+describe('options: data-tip', () => {
+  const TWO_SERIES = `
+    <thead><tr><th>Month</th><th>Tokyo</th><th>Osaka</th></tr></thead>
+    <tbody><tr><td>Jan</td><td>10</td><td>20</td></tr></tbody>`;
+
+  it('is off by default (no tip mark)', () => {
+    document.body.innerHTML = fig('bar', TWO_SERIES);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip).toHaveLength(0);
+  });
+
+  it('a bare data-tip adds one standalone tip mark snapping along x', () => {
+    document.body.innerHTML = fig('bar', TWO_SERIES, 'data-tip');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip).toHaveLength(1);
+    const { data, opts } = calls.tip[0];
+    expect(data).toHaveLength(2); // all valid rows, both series
+    expect(opts).toMatchObject({ pointer: 'x', x: 'x', y: 'value' });
+    expect(opts.channels).toEqual({ series: 'series' }); // multi-series → named
+  });
+
+  it('a single series omits the redundant series channel', () => {
+    document.body.innerHTML = fig('line', `
+      <thead><tr><th>Month</th><th>Sales</th></tr></thead>
+      <tbody><tr><td>Jan</td><td>10</td></tr></tbody>`, 'data-tip');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip[0].opts.channels).toBeUndefined();
+  });
+
+  it('data-tip="xy" and data-tip="false" are honoured', () => {
+    document.body.innerHTML = fig('bar', TWO_SERIES, 'data-tip="xy"')
+      + fig('bar', TWO_SERIES, 'data-tip="false"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip).toHaveLength(1);
+    expect(calls.tip[0].opts.pointer).toBe('xy');
+  });
+
+  it('scatter defaults to xy pointing and carries the r channel', () => {
+    document.body.innerHTML = fig('scatter', `
+      <thead><tr><th>X</th><th>Y</th><th data-role="r">N</th></tr></thead>
+      <tbody><tr><td>1</td><td>2</td><td>3</td></tr></tbody>`, 'data-tip');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip[0].opts).toMatchObject({ pointer: 'xy', r: 'r' });
+  });
+
+  it('bar-grouped tips point within the facet and surface the category', () => {
+    document.body.innerHTML = fig('bar-grouped', TWO_SERIES, 'data-tip');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip[0].opts).toMatchObject({ fx: 'x', x: 'series', y: 'value' });
+    expect(calls.tip[0].opts.channels).toEqual({ Month: 'x' });
+  });
+
+  it('histogram and heatmap use the mark-level tip instead', () => {
+    document.body.innerHTML = fig('histogram', `
+      <thead><tr><th>ms</th></tr></thead>
+      <tbody><tr><td>1</td></tr><tr><td>2</td></tr></tbody>`, 'data-tip')
+      + fig('heatmap', TWO_SERIES, 'data-tip');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip).toHaveLength(0); // no standalone tip mark
+    expect(calls.binX[0].opts.tip).toBe(true);
+    expect(calls.cell[0].opts.tip).toBe(true);
+  });
+});
+
+
+describe('options: y domain and format', () => {
+  const ONE_SERIES = `
+    <thead><tr><th>Month</th><th>Sales</th></tr></thead>
+    <tbody><tr><td>Jan</td><td>40</td></tr><tr><td>Feb</td><td>80</td></tr></tbody>`;
+
+  it('data-y-min + data-y-max pin the y domain', () => {
+    document.body.innerHTML = fig('line', ONE_SERIES, 'data-y-min="20" data-y-max="100"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.plot[0].y.domain).toEqual([20, 100]);
+  });
+
+  it('a one-sided bound falls back to the data extent (0-floored min)', () => {
+    document.body.innerHTML = fig('line', ONE_SERIES, 'data-y-max="100"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.plot[0].y.domain).toEqual([0, 100]);
+  });
+
+  it('drops the zero baseline rule when 0 is outside the domain', () => {
+    document.body.innerHTML = fig('line', ONE_SERIES, 'data-y-min="20" data-y-max="100"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.ruleY).toHaveLength(0);
+  });
+
+  it('keeps the zero baseline when the domain includes 0', () => {
+    document.body.innerHTML = fig('bar', ONE_SERIES, 'data-y-min="0" data-y-max="100"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.ruleY).toHaveLength(1);
+  });
+
+  it('no domain is set without the attributes', () => {
+    document.body.innerHTML = fig('bar', ONE_SERIES);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.plot[0].y.domain).toBeUndefined();
+  });
+
+  it('data-y-format flows into y.tickFormat', () => {
+    document.body.innerHTML = fig('bar', ONE_SERIES, 'data-y-format="s"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.plot[0].y.tickFormat).toBe('s');
+  });
+});
+
+
+describe('options: buildOptions hook', () => {
+  it('receives the final spec + figure and its return value wins', () => {
+    document.body.innerHTML = fig('bar', `
+      <thead><tr><th>M</th><th>V</th></tr></thead>
+      <tbody><tr><td>Jan</td><td>1</td></tr></tbody>`);
+    const { plot, calls } = fakePlot();
+    const seen = [];
+    uninstall = installChart(document, {
+      plot,
+      buildOptions: (spec, figure) => {
+        seen.push({ spec, figure });
+        return { ...spec, marginLeft: 99 };
+      },
+    });
+    expect(seen).toHaveLength(1);
+    expect(seen[0].figure.matches('.hc-chart')).toBe(true);
+    expect(seen[0].spec.marks.length).toBeGreaterThan(0);
+    expect(calls.plot[0].marginLeft).toBe(99);
+  });
+
+  it('a hook returning nothing keeps the built spec', () => {
+    document.body.innerHTML = fig('bar', `
+      <thead><tr><th>M</th><th>V</th></tr></thead>
+      <tbody><tr><td>Jan</td><td>1</td></tr></tbody>`);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot, buildOptions: () => {} });
+    expect(calls.plot).toHaveLength(1);
+    expect(calls.plot[0].width).toBeGreaterThan(0);
+  });
+});
+
+

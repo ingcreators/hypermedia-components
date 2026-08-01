@@ -545,6 +545,115 @@ Row/column order is preserved as authored.
   </Fragment>
 </Demo>
 
+## Tooltips (`data-tip`)
+
+Add `data-tip` to show a hover tooltip — the x value, the y value, and
+(with multiple series) the series name. Exactly **one** tooltip shows at
+a time, even on combo charts. A bare `data-tip` snaps along x (best for
+bars, lines and time series); `scatter` defaults to nearest-point
+(`xy`). Set `data-tip="x"`, `"y"` or `"xy"` to pick explicitly.
+`histogram` tips show the bin range and count; `heatmap` tips show
+row × column + value. Hover the demo:
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="line" data-tip data-y-label="Sessions (k)">
+    <table class="hc-table">
+      <caption>Weekly sessions</caption>
+      <thead>
+        <tr><th>Week</th><th>Web</th><th>Mobile</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>W1</td><td>42</td><td>18</td></tr>
+        <tr><td>W2</td><td>48</td><td>24</td></tr>
+        <tr><td>W3</td><td>39</td><td>31</td></tr>
+        <tr><td>W4</td><td>55</td><td>36</td></tr>
+        <tr><td>W5</td><td>61</td><td>33</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="line" data-tip data-y-label="Sessions (k)">
+    <table class="hc-table">
+      <caption>Weekly sessions</caption>
+      <thead>
+        <tr><th>Week</th><th>Web</th><th>Mobile</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>W1</td><td>42</td><td>18</td></tr>
+        <tr><td>W2</td><td>48</td><td>24</td></tr>
+        <tr><td>W3</td><td>39</td><td>31</td></tr>
+        <tr><td>W4</td><td>55</td><td>36</td></tr>
+        <tr><td>W5</td><td>61</td><td>33</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+Tooltips are client-side interactivity — they do not apply to the
+[server-rendered](#server-side-rendering) path.
+
+## Y axis: domain and format
+
+`data-y-min` / `data-y-max` pin the y domain — fix percentages to
+0–100, align axes across dashboard charts, or start a line chart above
+zero (the zero baseline rule is dropped automatically when 0 leaves the
+domain). `data-y-format` formats the ticks with a
+[d3-format](https://d3js.org/d3-format) string (`"s"` → `1.2k`,
+`".0%"`, `",.0f"`).
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="line" data-tip
+          data-y-min="3000" data-y-max="6000" data-y-format="s"
+          data-y-label="Revenue (¥)">
+    <table class="hc-table">
+      <caption>Monthly revenue</caption>
+      <thead>
+        <tr><th>Month</th><th>Revenue</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>4,200</td></tr>
+        <tr><td>Feb</td><td>4,650</td></tr>
+        <tr><td>Mar</td><td>4,400</td></tr>
+        <tr><td>Apr</td><td>5,100</td></tr>
+        <tr><td>May</td><td>5,600</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="line" data-tip
+          data-y-min="3000" data-y-max="6000" data-y-format="s"
+          data-y-label="Revenue (¥)">
+    <table class="hc-table">
+      <caption>Monthly revenue</caption>
+      <thead>
+        <tr><th>Month</th><th>Revenue</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>4,200</td></tr>
+        <tr><td>Feb</td><td>4,650</td></tr>
+        <tr><td>Mar</td><td>4,400</td></tr>
+        <tr><td>Apr</td><td>5,100</td></tr>
+        <tr><td>May</td><td>5,600</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+With **stacked** bars set both bounds explicitly — the fallback extent
+reads raw cell values and ignores stacking.
+
 ## Options
 
 | Attribute       | Default                      | Effect                                  |
@@ -555,8 +664,31 @@ Row/column order is preserved as authored.
 | `data-width`    | container width              | Plot width (px).                        |
 | `data-height`   | `--hc-chart-height` (320px)  | Plot height (px).                       |
 | `data-legend`   | auto (on for ≥2 series)      | `false` hides the colour legend.        |
+| `data-tip`      | off                          | Hover tooltip; bare, or `x` \| `y` \| `xy`. |
+| `data-y-min` / `data-y-max` | data extent      | Pin the y domain.                       |
+| `data-y-format` | Plot default                 | y tick format (d3-format string).       |
 
 Bars expect a `category` x; `number` / `date` x suit `line` / `area`.
+
+## Everything else: the `buildOptions` hook
+
+The attributes cover the high-frequency needs; for anything else pass
+`buildOptions` to `installChart` — it receives the final Plot spec and
+the figure just before rendering, and whatever it returns is what Plot
+draws:
+
+```js
+installChart(document, {
+  plot: window.Plot,
+  buildOptions: (spec, figure) => ({
+    ...spec,
+    marginLeft: 60,
+    y: { ...spec.y, ticks: 4 },
+  }),
+});
+```
+
+Returning nothing keeps the built spec, so a hook can also just observe.
 
 ## Theming
 

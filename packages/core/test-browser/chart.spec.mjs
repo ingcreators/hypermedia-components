@@ -99,6 +99,30 @@ test.describe('hc-chart (installChart)', () => {
     await expect(page.getByTestId('ssr-svg')).toBeAttached();
   });
 
+  test('options: data-tip adds one tip mark; y domain/format + buildOptions apply', async ({ page }) => {
+    const tipped = await page.evaluate(() => {
+      const o = window.__plotOpts.find((x) => x.marginLeft === 77); // buildOptions marker
+      return o && {
+        markNames: o.marks.map((m) => m && m.name),
+        tip: o.marks.find((m) => m && m.name === 'tip'),
+        yDomain: o.y.domain,
+        yFormat: o.y.tickFormat,
+      };
+    });
+    expect(tipped).toBeTruthy();
+    expect(tipped.markNames.filter((n) => n === 'tip')).toHaveLength(1);
+    expect(tipped.tip.opts).toMatchObject({ pointer: 'x', x: 'x', y: 'value' });
+    expect(tipped.yDomain).toEqual([10, 90]);
+    expect(tipped.yFormat).toBe('s');
+    // 0 is outside [10, 90] → the zero baseline rule is dropped.
+    expect(tipped.markNames).not.toContain('ruleY');
+
+    // The hook ran for every rendered figure on the page.
+    const seen = await page.evaluate(() => window.__buildOptionsSeen.length);
+    const rendered = await page.evaluate(() => window.__plotOpts.length);
+    expect(seen).toBe(rendered);
+  });
+
   test('axe finds no violations in the chart section', async ({ page }) => {
     const results = await new AxeBuilder({ page })
       .include('#section-chart')
