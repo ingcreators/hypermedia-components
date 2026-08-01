@@ -260,9 +260,9 @@ Plot は線を棒のバンドスケールに自動で載せるため、点は棒
 ます。系列が y の範囲を共有していれば追加の設定は不要です。本物の
 第 2 y 軸はこのレシピのスコープ外です。
 
-## 積み上げ、グループ、散布図、スパークライン
+## 積み上げ、グループ、横棒、散布図、スパークライン
 
-同じテーブル契約を、figure 全体の 4 つのプリセットが拡張します
+同じテーブル契約を、figure 全体の 6 つのプリセットが拡張します
 (列ごとの `data-mark` コンボはこれらには適用されません)。
 
 ### 積み上げ棒(`bar-stacked`)
@@ -346,6 +346,99 @@ Plot は線を棒のバンドスケールに自動で載せるため、点は棒
 
   </Fragment>
 </Demo>
+
+### 横棒(`bar-x`)
+
+ランキングの形です: カテゴリが **y** に載るため長いラベルが読みやすく、
+値は **x** に載ります。複数系列は積み上がります。`data-y-label`、
+`data-y-min` / `data-y-max`、`data-y-format` は**値軸**(ここでは x)を
+設定し、値なしの `data-tip` はカテゴリ軸に沿ってスナップします。
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="bar-x" data-tip data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Top products</caption>
+      <thead>
+        <tr><th>Product</th><th>Sales</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Wireless headphones</td><td>320</td></tr>
+        <tr><td>Mechanical keyboard</td><td>260</td></tr>
+        <tr><td>USB-C dock</td><td>210</td></tr>
+        <tr><td>Laptop stand</td><td>150</td></tr>
+        <tr><td>Webcam</td><td>90</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="bar-x" data-tip data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Top products</caption>
+      <thead>
+        <tr><th>Product</th><th>Sales</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Wireless headphones</td><td>320</td></tr>
+        <tr><td>Mechanical keyboard</td><td>260</td></tr>
+        <tr><td>USB-C dock</td><td>210</td></tr>
+        <tr><td>Laptop stand</td><td>150</td></tr>
+        <tr><td>Webcam</td><td>90</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+### 横棒グループ(`bar-x-grouped`)
+
+各カテゴリの中で系列が横方向に並びます(行軸でファセット)。
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="bar-x-grouped" data-y-label="Orders">
+    <table class="hc-table">
+      <caption>Orders by channel</caption>
+      <thead>
+        <tr><th>Quarter</th><th>Store</th><th>Online</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Q1</td><td>80</td><td>45</td></tr>
+        <tr><td>Q2</td><td>95</td><td>70</td></tr>
+        <tr><td>Q3</td><td>60</td><td>98</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="bar-x-grouped" data-y-label="Orders">
+    <table class="hc-table">
+      <caption>Orders by channel</caption>
+      <thead>
+        <tr><th>Quarter</th><th>Store</th><th>Online</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Q1</td><td>80</td><td>45</td></tr>
+        <tr><td>Q2</td><td>95</td><td>70</td></tr>
+        <tr><td>Q3</td><td>60</td><td>98</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+:::note[構成比(円グラフの代替)]
+Observable Plot に円/ドーナツのマークはありません。全体に対する構成比
+には積み上げ横棒が推奨の代替です — 期間ごとに 1 行の `bar-x` は
+「直線状の円グラフ」として読め、期間どうしの比較もはるかに容易です。
+:::
 
 ### 散布図(`scatter`)
 

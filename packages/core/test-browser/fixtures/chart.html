@@ -16,6 +16,8 @@
     const mark = (name) => (data, opts) => ({ name, data, opts });
     window.Plot = {
       barY: mark('barY'),
+      barX: mark('barX'),
+      ruleX: mark('ruleX'),
       lineY: mark('lineY'),
       areaY: mark('areaY'),
       dot: mark('dot'),
@@ -133,6 +135,29 @@
           <tr><td>Mon</td><td>1</td></tr>
           <tr><td>Tue</td><td>3</td></tr>
           <tr><td>Wed</td><td>2</td></tr>
+        </tbody>
+      </table>
+    </figure>
+  </section>
+
+  <section id="section-horizontal" data-testid="section-horizontal">
+    <figure class="hc-chart" data-hc-chart="bar-x" data-tip data-y-label="Sales ($k)" data-testid="chart-barx">
+      <table class="hc-table">
+        <caption>Sales by product</caption>
+        <thead><tr><th>Product</th><th>Sales</th></tr></thead>
+        <tbody>
+          <tr><td>Alpha</td><td>320</td></tr>
+          <tr><td>Beta</td><td>180</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <figure class="hc-chart" data-hc-chart="bar-x-grouped" data-y-label="Orders" data-testid="chart-barx-grouped">
+      <table class="hc-table">
+        <caption>Orders by channel</caption>
+        <thead><tr><th>Quarter</th><th>Store</th><th>Online</th></tr></thead>
+        <tbody>
+          <tr><td>Q1</td><td>80</td><td>45</td></tr>
+          <tr><td>Q2</td><td>95</td><td>70</td></tr>
         </tbody>
       </table>
     </figure>

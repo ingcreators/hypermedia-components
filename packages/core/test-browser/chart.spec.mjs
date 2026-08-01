@@ -123,6 +123,47 @@ test.describe('hc-chart (installChart)', () => {
     expect(seen).toBe(rendered);
   });
 
+  test('horizontal: bar-x swaps the axes, bar-x-grouped facets on fy', async ({ page }) => {
+    const info = await page.evaluate(() => {
+      const barx = window.__plotOpts.find((o) =>
+        o.marks.some((m) => m && m.name === 'barX' && !m.opts.fy));
+      const grouped = window.__plotOpts.find((o) => o.fy);
+      return {
+        barx: barx && {
+          markNames: barx.marks.map((m) => m && m.name),
+          yDomain: barx.y.domain,
+          yLabel: barx.y.label,
+          xLabel: barx.x.label,
+          xGrid: !!barx.x.grid,
+          tip: barx.marks.find((m) => m && m.name === 'tip'),
+        },
+        grouped: grouped && {
+          fyLabel: grouped.fy.label,
+          fyDomain: grouped.fy.domain,
+          yAxis: grouped.y.axis,
+          xLabel: grouped.x.label,
+        },
+      };
+    });
+
+    expect(info.barx.markNames).toContain('ruleX');
+    expect(info.barx.yDomain).toEqual(['Alpha', 'Beta']);
+    expect(info.barx.yLabel).toBe('Product');
+    expect(info.barx.xLabel).toBe('Sales ($k)');
+    expect(info.barx.xGrid).toBe(true);
+    expect(info.barx.tip.opts.pointer).toBe('y'); // snaps along the category axis
+
+    expect(info.grouped.fyLabel).toBe('Quarter');
+    expect(info.grouped.fyDomain).toEqual(['Q1', 'Q2']);
+    expect(info.grouped.yAxis).toBeNull();
+    expect(info.grouped.xLabel).toBe('Orders');
+
+    for (const id of ['chart-barx', 'chart-barx-grouped']) {
+      await expect(page.locator(`[data-testid="${id}"] svg`)).toHaveCount(1);
+      await expect(page.locator(`[data-testid="${id}"] table`)).toHaveClass(/hc-sr-only/);
+    }
+  });
+
   test('axe finds no violations in the chart section', async ({ page }) => {
     const results = await new AxeBuilder({ page })
       .include('#section-chart')

@@ -6,8 +6,8 @@
 // accessible fallback.
 //
 //   <figure class="hc-chart" data-hc-chart="bar|line|area|combo
-//                                 |bar-stacked|bar-grouped|scatter|sparkline
-//                                 |histogram|heatmap">
+//                                 |bar-stacked|bar-grouped|bar-x|bar-x-grouped
+//                                 |scatter|sparkline|histogram|heatmap">
 //     <table class="hc-table">
 //       <thead><tr><th>Month</th><th data-mark="bar">Sales</th><th data-mark="line">Target</th></tr></thead>
 //       <tbody><tr><td>Jan</td><td>120</td><td>150</td></tr>…</tbody>
@@ -148,7 +148,7 @@ function seriesTipChannels(data) {
 // combo (bar + line, area + line, …) renders in a sensible z-order.
 function buildMarks(plot, rows, ctx) {
   const pick = (mark) => rows.filter((d) => d.mark === mark && d.value != null);
-  const marks = [...ctx.rule0];
+  const marks = ctx.zeroOk ? [plot.ruleY([0])] : [];
 
   const area = pick('area');
   if (area.length) {
@@ -196,7 +196,7 @@ const TYPE_PRESETS = {
   // intent explicitly (and stays correct with a single series).
   'bar-stacked': (plot, data, base, ctx) => ({
     marks: [
-      ...ctx.rule0,
+      ...(ctx.zeroOk ? [plot.ruleY([0])] : []),
       plot.barY(validRows(data.rows), { x: 'x', y: 'value', fill: 'series' }),
       ...(ctx.tip
         ? [tipMark(plot, validRows(data.rows), ctx.tip, seriesTipChannels(data))]
@@ -208,7 +208,7 @@ const TYPE_PRESETS = {
   // carries the category labels, so the inner axis is hidden.
   'bar-grouped': (plot, data, base, ctx) => ({
     marks: [
-      ...ctx.rule0,
+      ...(ctx.zeroOk ? [plot.ruleY([0])] : []),
       plot.barY(validRows(data.rows), { fx: 'x', x: 'series', y: 'value', fill: 'series' }),
       ...(ctx.tip
         ? [tipMark(plot, validRows(data.rows), ctx.tip, {
@@ -222,6 +222,51 @@ const TYPE_PRESETS = {
     options: {
       x: { axis: null },
       fx: { label: base.x.label, domain: base.x.domain },
+    },
+  }),
+
+  // Horizontal bars — the ranking shape. Categories go on y (long labels
+  // stay readable), values on x; multiple series stack. The base y config
+  // (value label, grid, pinned domain, tick format) describes the VALUE
+  // axis, so it moves to x wholesale.
+  'bar-x': (plot, data, base, ctx) => ({
+    marks: [
+      ...(ctx.zeroOk ? [plot.ruleX([0])] : []),
+      plot.barX(validRows(data.rows), { y: 'x', x: 'value', fill: 'series' }),
+      ...(ctx.tip
+        ? [tipMark(plot, validRows(data.rows), ctx.tip, {
+          y: 'x',
+          x: 'value',
+          ...(data.series.length > 1 ? { channels: { series: 'series' } } : {}),
+        })]
+        : []),
+    ],
+    options: {
+      x: { ...base.y },
+      y: { label: base.x.label, domain: base.x.domain },
+    },
+  }),
+
+  // Horizontal grouped bars: facet by the category on fy; series become
+  // the inner y. The facet axis carries the category labels, so the
+  // inner axis is hidden.
+  'bar-x-grouped': (plot, data, base, ctx) => ({
+    marks: [
+      ...(ctx.zeroOk ? [plot.ruleX([0])] : []),
+      plot.barX(validRows(data.rows), { fy: 'x', y: 'series', x: 'value', fill: 'series' }),
+      ...(ctx.tip
+        ? [tipMark(plot, validRows(data.rows), ctx.tip, {
+          fy: 'x',
+          y: 'series',
+          x: 'value',
+          channels: { [data.xName || 'group']: 'x' },
+        })]
+        : []),
+    ],
+    options: {
+      x: { ...base.y },
+      y: { axis: null },
+      fy: { label: base.x.label, domain: base.x.domain },
     },
   }),
 
@@ -252,7 +297,7 @@ const TYPE_PRESETS = {
     const bins = Number.parseInt(ctx.figure.getAttribute('data-bins') || '', 10);
     return {
       marks: [
-        ...ctx.rule0,
+        ...(ctx.zeroOk ? [plot.ruleY([0])] : []),
         plot.rectY(data.rows, plot.binX(
           { y: 'count' },
           {
@@ -424,11 +469,12 @@ function renderFigure(figure, rendered, options) {
   const yFormat = figure.getAttribute('data-y-format') || null;
   // Scatter wants the nearest point in both dimensions; everything else
   // reads better snapping along x (columns / time).
-  const tip = tipModeOf(figure, type === 'scatter' ? 'xy' : 'x');
-  // The zero baseline only makes sense when 0 is inside the y domain.
-  const rule0 = !yDomain || (yDomain[0] <= 0 && yDomain[1] >= 0)
-    ? [plot.ruleY([0])]
-    : [];
+  const tip = tipModeOf(
+    figure,
+    type === 'scatter' ? 'xy' : type === 'bar-x' || type === 'bar-x-grouped' ? 'y' : 'x',
+  );
+  // The zero baseline only makes sense when 0 is inside the value domain.
+  const zeroOk = !yDomain || (yDomain[0] <= 0 && yDomain[1] >= 0);
 
   const base = {
     width,
@@ -455,10 +501,10 @@ function renderFigure(figure, rendered, options) {
     // (20rem), which must not defeat a preset's own compact default.
     const explicitHeight = parseDim(figure.getAttribute('data-height'));
     ({ marks, options: overrides = null } = preset(plot, data, base, {
-      figure, explicitHeight, rule0, tip,
+      figure, explicitHeight, zeroOk, tip,
     }));
   } else {
-    marks = buildMarks(plot, data.rows, { rule0, tip, tipChannels: seriesTipChannels(data) });
+    marks = buildMarks(plot, data.rows, { zeroOk, tip, tipChannels: seriesTipChannels(data) });
   }
 
   let spec = { ...base, ...(overrides || {}), marks };
