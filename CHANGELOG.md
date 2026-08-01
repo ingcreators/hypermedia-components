@@ -30,6 +30,10 @@ Security    — security-relevant changes
   (docs theme builder) on user-supplied token JSON, so the scans are now
   linear: `[^{}]` char classes and an anchored per-line declaration
   count. Output is byte-identical for valid inputs.
+- **Lockfile: `brace-expansion` 5.0.7 → 5.0.9** (dev/docs tooling;
+  Dependabot alert 17, GHSA-mh99-v99m-4gvg — DoS via unbounded
+  expansion length). Transitive under `minimatch`; nothing in the
+  published core package depends on it (core has zero runtime deps).
 
 ### Added
 
@@ -128,6 +132,16 @@ Security    — security-relevant changes
   (datagrid-pager, datagrid-bulk-actions, file-upload, sse-updates)
   still emitted bare `hx-swap-oob`; docs, handlers, and their tests
   now use the `data-` form htmx equally understands.
+- **Weekly Lighthouse run: retry noisy measurements, close the
+  tracking issue on recovery** (dev-facing, #394). All three budget
+  failures to date (2026-06-15, 07-13, 07-20) were the same false
+  alarm: the first-measured page picked up runner cold-start noise
+  (TBT inflated ~5×) while the identical deploy scored 97 the week
+  after. `perf.yml` now re-measures a page that misses the budget (up
+  to 3 attempts — real regressions fail all of them), and a green run
+  closes the open "Weekly Lighthouse run failed" issue instead of
+  leaving it stale (the 07-13 issue outlived its 07-27 recovery by two
+  weeks).
 
 ## [0.1.9] - 2026-07-09
 

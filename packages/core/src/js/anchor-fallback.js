@@ -12,8 +12,10 @@
 
 /**
  * Feature-detect CSS Anchor Positioning. Returns false where `CSS.supports`
- * is missing (e.g. jsdom), which routes those environments through the
- * fallback too.
+ * is missing (e.g. jsdom < 30), which routes those environments through the
+ * fallback too. Note jsdom 30+ *parses* anchor-name and answers true here
+ * without doing any layout — tests that exercise the fallback stub
+ * `CSS.supports` to false explicitly.
  *
  * @returns {boolean}
  */
