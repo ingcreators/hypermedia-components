@@ -4,6 +4,8 @@ Status: **shipped in full — PR 1 (Tier 1), PR 2 (Tier 2, #308), PR 3 (Tier 3 +
 not mentioned in the v0.4 or v0.5 plans. Tier 1 (bar/line/area/combo) ships
 the `chart` recipe, `installChart`, `hc-chart.css`, and `--hc-chart-*`
 tokens. All three tiers shipped; the linkedom SSR path is documented in the contract.
+A 2026-08 extension (§13, user-approved follow-up scope) adds the
+interaction/axis options + escape hatch, horizontal bars, and waterfall.
 
 ## 1. Goal
 
@@ -205,3 +207,27 @@ risk on fast merges).
 - [ ] Accessibility notes (visually-hidden data table, `role="img"`, label).
 - [ ] Tests for the behavior (Vitest + Playwright + axe).
 - [ ] Uses token references (`--hc-chart-*`); docs site builds.
+
+## 13. 2026-08 extension (user-approved follow-up scope)
+
+Additions beyond the original three tiers, driven by business-app usage.
+All strictly additive (patch per VERSIONING.md); one concern per PR:
+
+- **PR A — interaction & axis options:** `data-tip` (one standalone
+  Plot `tip` mark per figure via a pointer transform — never two
+  tooltips at once; `histogram`/`heatmap` tip their own mark),
+  `data-y-min` / `data-y-max` (pin the y domain; the zero-baseline rule
+  drops out when 0 leaves the domain), `data-y-format` (d3-format tick
+  string), and the `buildOptions(spec, figure)` install-time escape
+  hatch so the attribute surface stays small.
+- **PR B — horizontal bars:** `bar-x` (stacked; ranking shape — long
+  category labels on y, values on x) and `bar-x-grouped` (fy facet).
+  `data-y-label` labels the **value** axis (x) there.
+- **PR C — waterfall:** running-total bridge bars from one signed-delta
+  column; `<tr data-total>` rows are absolute anchors (value kept in
+  the cell so the no-JS table stays truthful); increase / decrease /
+  total colours from dedicated tokens.
+
+Pie/donut stays out of scope (Plot has no arc mark — documented; the
+`bar-x` + `data-stack-offset`-style normalized composition or a waffle
+are the recommended substitutes).

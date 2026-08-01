@@ -550,6 +550,116 @@ Plot は線を棒のバンドスケールに自動で載せるため、点は棒
   </Fragment>
 </Demo>
 
+## ツールチップ(`data-tip`)
+
+`data-tip` を付けると、ホバーでツールチップが表示されます — x 値、
+y 値、そして(複数系列なら)系列名。コンボチャートでも同時に表示される
+ツールチップは常に **1 つ**だけです。値なしの `data-tip` は x 方向に
+スナップします(棒・折れ線・時系列に最適)。`scatter` は最近傍点
+(`xy`)がデフォルトです。`data-tip="x"` / `"y"` / `"xy"` で明示指定
+できます。`histogram` のツールチップはビンの範囲と件数を、`heatmap` は
+行 × 列 + 値を表示します。デモをホバーしてみてください:
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="line" data-tip data-y-label="Sessions (k)">
+    <table class="hc-table">
+      <caption>Weekly sessions</caption>
+      <thead>
+        <tr><th>Week</th><th>Web</th><th>Mobile</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>W1</td><td>42</td><td>18</td></tr>
+        <tr><td>W2</td><td>48</td><td>24</td></tr>
+        <tr><td>W3</td><td>39</td><td>31</td></tr>
+        <tr><td>W4</td><td>55</td><td>36</td></tr>
+        <tr><td>W5</td><td>61</td><td>33</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="line" data-tip data-y-label="Sessions (k)">
+    <table class="hc-table">
+      <caption>Weekly sessions</caption>
+      <thead>
+        <tr><th>Week</th><th>Web</th><th>Mobile</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>W1</td><td>42</td><td>18</td></tr>
+        <tr><td>W2</td><td>48</td><td>24</td></tr>
+        <tr><td>W3</td><td>39</td><td>31</td></tr>
+        <tr><td>W4</td><td>55</td><td>36</td></tr>
+        <tr><td>W5</td><td>61</td><td>33</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+ツールチップはクライアント側のインタラクションです —
+[サーバサイドレンダリング](#サーバサイドレンダリング)のパスには
+適用されません。
+
+## y 軸: 範囲と表示形式
+
+`data-y-min` / `data-y-max` は y のドメインを固定します —
+パーセントを 0–100 に固定する、ダッシュボード内の複数チャートで軸を
+揃える、折れ線をゼロ始まり以外にする、といった用途です(0 がドメイン外
+になるとゼロ基準線は自動で省かれます)。`data-y-format` は
+[d3-format](https://d3js.org/d3-format) 文字列で目盛りを整形します
+(`"s"` → `1.2k`、`".0%"`、`",.0f"`)。
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="line" data-tip
+          data-y-min="3000" data-y-max="6000" data-y-format="s"
+          data-y-label="Revenue (¥)">
+    <table class="hc-table">
+      <caption>Monthly revenue</caption>
+      <thead>
+        <tr><th>Month</th><th>Revenue</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>4,200</td></tr>
+        <tr><td>Feb</td><td>4,650</td></tr>
+        <tr><td>Mar</td><td>4,400</td></tr>
+        <tr><td>Apr</td><td>5,100</td></tr>
+        <tr><td>May</td><td>5,600</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="line" data-tip
+          data-y-min="3000" data-y-max="6000" data-y-format="s"
+          data-y-label="Revenue (¥)">
+    <table class="hc-table">
+      <caption>Monthly revenue</caption>
+      <thead>
+        <tr><th>Month</th><th>Revenue</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jan</td><td>4,200</td></tr>
+        <tr><td>Feb</td><td>4,650</td></tr>
+        <tr><td>Mar</td><td>4,400</td></tr>
+        <tr><td>Apr</td><td>5,100</td></tr>
+        <tr><td>May</td><td>5,600</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+**積み上げ**棒では両端を明示的に指定してください — フォールバックの
+データ範囲は生のセル値を読むため、積み上げを考慮しません。
+
 ## オプション
 
 | 属性            | デフォルト                   | 効果                                    |
@@ -560,9 +670,32 @@ Plot は線を棒のバンドスケールに自動で載せるため、点は棒
 | `data-width`    | コンテナ幅                   | Plot の幅(px)。                       |
 | `data-height`   | `--hc-chart-height`(320px) | Plot の高さ(px)。                     |
 | `data-legend`   | 自動(系列 ≥2 でオン)       | `false` でカラー凡例を非表示。          |
+| `data-tip`      | オフ                         | ホバーツールチップ。値なし、または `x` \| `y` \| `xy`。 |
+| `data-y-min` / `data-y-max` | データ範囲       | y ドメインを固定。                      |
+| `data-y-format` | Plot 既定                    | y 目盛りの表示形式(d3-format 文字列)。 |
 
 棒は `category` の x を期待します。`number` / `date` の x は
 `line` / `area` に向きます。
+
+## それ以外はすべて: `buildOptions` フック
+
+属性は高頻度のニーズをカバーします。それ以外は `installChart` に
+`buildOptions` を渡してください — 描画直前に最終的な Plot スペックと
+figure を受け取り、返したものがそのまま Plot に描画されます:
+
+```js
+installChart(document, {
+  plot: window.Plot,
+  buildOptions: (spec, figure) => ({
+    ...spec,
+    marginLeft: 60,
+    y: { ...spec.y, ticks: 4 },
+  }),
+});
+```
+
+何も返さなければ構築済みのスペックが使われるため、フックは観察だけに
+使うこともできます。
 
 ## テーマ
 

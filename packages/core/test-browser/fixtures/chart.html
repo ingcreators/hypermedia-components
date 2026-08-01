@@ -22,6 +22,10 @@
       ruleY: mark('ruleY'),
       rectY: mark('rectY'),
       cell: mark('cell'),
+      tip: mark('tip'),
+      pointer: (opts) => ({ pointer: 'xy', ...opts }),
+      pointerX: (opts) => ({ pointer: 'x', ...opts }),
+      pointerY: (opts) => ({ pointer: 'y', ...opts }),
       binX: (outputs, opts) => ({ transform: 'binX', outputs, opts }),
       plot(opts) {
         window.__plotOpts.push(opts);
@@ -75,7 +79,16 @@
 
   <script type="module">
     import { installChart } from '/chart.js';
-    installChart(document, { plot: window.Plot });
+    window.__buildOptionsSeen = [];
+    installChart(document, {
+      plot: window.Plot,
+      buildOptions: (spec, figure) => {
+        window.__buildOptionsSeen.push(figure.dataset.testid || '');
+        return figure.dataset.testid === 'chart-tip'
+          ? { ...spec, marginLeft: 77 }
+          : spec;
+      },
+    });
 
     // Simulate an htmx swap: inject a fresh chart figure and fire htmx:load.
     document.getElementById('swap-btn').addEventListener('click', () => {
@@ -142,6 +155,17 @@
         <tbody>
           <tr><td>Morning</td><td>3</td><td>7</td><td>5</td></tr>
           <tr><td>Evening</td><td>9</td><td>2</td><td>6</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <figure class="hc-chart" data-hc-chart="bar" data-tip data-y-min="10" data-y-max="90"
+            data-y-format="s" data-y-label="Sales" data-testid="chart-tip">
+      <table class="hc-table">
+        <caption>Tipped sales</caption>
+        <thead><tr><th>Month</th><th>Tokyo</th><th>Osaka</th></tr></thead>
+        <tbody>
+          <tr><td>Jan</td><td>30</td><td>40</td></tr>
+          <tr><td>Feb</td><td>50</td><td>20</td></tr>
         </tbody>
       </table>
     </figure>

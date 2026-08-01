@@ -77,10 +77,42 @@ them.
 | `data-width`           | container    | Plot width in px.                                 |
 | `data-height`          | `--hc-chart-height` (320px) | Plot height in px.                 |
 | `data-legend`          | auto         | `false` hides the colour legend.                  |
+| `data-tip`             | off          | Hover tooltip. Bare/`true` picks per type (`x` snap; scatter `xy`); or `x` \| `y` \| `xy` explicitly; `false` off. |
+| `data-y-min` / `data-y-max` | data extent | Pin the y domain (e.g. `data-y-max="100"` for percentages). A missing bound falls back to the data extent (min floored at 0). With **stacked** bars set both — the raw-value extent ignores stacking. The zero baseline rule is dropped when 0 leaves the domain. |
+| `data-y-format`        | Plot default | y-axis tick format, a [d3-format](https://d3js.org/d3-format) string (`"s"` → `1.2k`, `".0%"`, `",.0f"`). |
 
 Cell values are coerced to numbers; thousands separators, currency
 symbols, and `%` signs are stripped (`"1,200"` → `1200`). Bars expect a
 `category` x; `number` / `date` x suit `line` / `area`.
+
+## Tooltips (`data-tip`)
+
+`data-tip` renders **one** hover tooltip per figure (a single Plot `tip`
+mark driven by a pointer transform, so combo charts never show two
+tooltips at once). It shows the x value, the y value, and — with multiple
+series — the series name; `scatter` includes the `r` column when present.
+`histogram` and `heatmap` tip their own mark instead (bin extent + count;
+row × column + value). Tooltips are client-side interactivity: they do
+**not** apply to the server-rendered (linkedom SSR) path.
+
+```html
+<figure class="hc-chart" data-hc-chart="line" data-tip data-y-label="Sales ($k)">
+```
+
+## Escape hatch (`buildOptions`)
+
+High-frequency needs stay declarative (the attributes above). Everything
+else goes through the install-time hook, called with the final Plot spec
+and the figure just before rendering:
+
+```js
+installChart(document, {
+  plot: Plot,
+  buildOptions: (spec, figure) => ({ ...spec, marginLeft: 60 }),
+});
+```
+
+Return the (new or mutated) spec; returning nothing keeps the built one.
 
 ## Server response
 

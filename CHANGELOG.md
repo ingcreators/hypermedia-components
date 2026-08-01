@@ -37,7 +37,19 @@ Security    — security-relevant changes
 
 ### Added
 
-- **Drift guard: behaviors reference ↔ manifest**
+- **Chart: hover tooltips, y-axis control, and an escape hatch**
+  (recipe `chart` / `installChart`). `data-tip` shows a hover tooltip —
+  one standalone Plot `tip` mark per figure driven by a pointer
+  transform, so even combo charts never show two tooltips at once (bare
+  `data-tip` snaps along x; `scatter` defaults to nearest-point `xy`;
+  `x` / `y` / `xy` pick explicitly; `histogram` and `heatmap` tip their
+  own mark — bin extent + count, row × column + value). `data-y-min` /
+  `data-y-max` pin the y domain (the zero-baseline rule drops out when
+  0 leaves the domain) and `data-y-format` formats the y ticks with a
+  d3-format string. For everything the attributes don't cover,
+  `installChart(root, { plot, buildOptions })` hands the final Plot
+  spec + figure to the caller just before rendering. Client-side only —
+  tooltips don't apply to the linkedom SSR path (documented).
   (`test/behaviors-docs.test.mjs`). The hand-maintained behaviors
   reference has drifted from source before (three rows missing, count
   stuck at 44 — fixed in #387); the new Vitest guard pins it to
