@@ -37,11 +37,21 @@ jobs:
             "theme-builder|/tokens/theme-builder/"; do
             name="${entry%%|*}"; path="${entry##*|}"
             echo "::group::$name ($BASE$path)"
-            npx --yes lighthouse@12 "$BASE$path" \
-              --chrome-flags="--headless=new --no-sandbox" \
-              --only-categories=performance,accessibility,best-practices,seo \
-              --skip-audits=full-page-screenshot \
-              --output=json --output-path="reports/$name.json" --quiet
+            # Re-measure a page that misses the budget before believing it.
+            # Every observed failure (2026-06-15, 07-13, 07-20) was the
+            # first-measured page picking up runner cold-start noise — the
+            # identical deploy re-scored 97 a week later. A real regression
+            # fails all three attempts; noise clears on a retry.
+            for attempt in 1 2 3; do
+              npx --yes lighthouse@12 "$BASE$path" \
+                --chrome-flags="--headless=new --no-sandbox" \
+                --only-categories=performance,accessibility,best-practices,seo \
+                --skip-audits=full-page-screenshot \
+                --output=json --output-path="reports/$name.json" --quiet
+              lowest=$(node -p 'Math.min(...Object.values(require(`./reports/${process.argv[1]}.json`).categories).map((c) => Math.round((c.score ?? 0) * 100)))' "$name")
+              if [ "$lowest" -ge "$BUDGET" ]; then break; fi
+              echo "attempt $attempt: lowest category score $lowest is below $BUDGET"
+            done
             echo "::endgroup::"
           done
 
@@ -89,6 +99,22 @@ jobs:
           name: lighthouse-reports
           path: reports/
           retention-days: 30
+
+      # Mirror of the failure step below: once a run is green again, an open
+      # tracking issue is stale (the 2026-07-13 issue outlived its 07-27
+      # recovery by two weeks because nothing closed it).
+      - name: Close the tracking issue on success
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Weekly Lighthouse run failed"
+          number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+            --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue close "$number" --repo "$GITHUB_REPOSITORY" \
+              --comment "Recovered: this run passed the budget on every page: $RUN_URL"
+          fi
 
       # Scheduled runs have no PR to go red on — without this, a missed
       # budget (or a crashed run) is only visible to someone reading the
