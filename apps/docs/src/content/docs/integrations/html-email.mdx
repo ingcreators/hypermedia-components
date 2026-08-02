@@ -48,6 +48,24 @@ Two flavors: **Thymeleaf** (fragments carry `th:fragment` signatures
 and `th:text`/`th:href` slots) and **plain HTML** (same markup with the
 Thymeleaf attributes stripped — re-add your own engine's slot syntax).
 
+### Or generate from the CLI
+
+The same three files come out of
+[`@hypermedia-components/cli`](https://www.npmjs.com/package/@hypermedia-components/cli),
+for scripted or CI regeneration:
+
+```bash
+npx @hypermedia-components/cli email eject --color indigo --neutral slate
+npx @hypermedia-components/cli email eject --tokens my-theme.json --flavor plain
+npx @hypermedia-components/cli email list   # fragment inventory
+```
+
+`--tokens` accepts the theme builder's **DTCG export** (accent tree or
+full-theme patch), which closes the loop: build the theme visually
+once, then regenerate the email templates reproducibly whenever tokens
+change. Files land in `<dir>/email/`; existing files are never
+overwritten without `--force`.
+
 ## Using from Thymeleaf (Spring Boot)
 
 Drop the two files into `src/main/resources/templates/email/`. Each

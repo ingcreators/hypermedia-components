@@ -46,6 +46,24 @@ description: アプリのテーマに揃った HTML メールを送る — 同�
 から Thymeleaf 属性を剥がしたもの — お使いのエンジンのスロット構文を
 追記してください)。
 
+### CLI からの生成
+
+同じ 3 ファイルは
+[`@hypermedia-components/cli`](https://www.npmjs.com/package/@hypermedia-components/cli)
+からも生成でき、スクリプトや CI での再生成に向いています:
+
+```bash
+npx @hypermedia-components/cli email eject --color indigo --neutral slate
+npx @hypermedia-components/cli email eject --tokens my-theme.json --flavor plain
+npx @hypermedia-components/cli email list   # 断片の一覧
+```
+
+`--tokens` はテーマビルダーの **DTCG エクスポート**(アクセントツリー
+またはフルテーマパッチ)を受け取ります。これでループが閉じます:
+テーマは一度ビジュアルに作り、トークンが変わるたびにメールテンプレートを
+再現可能に再生成できます。ファイルは `<dir>/email/` に書き込まれ、
+`--force` なしで既存ファイルを上書きすることはありません。
+
 ## Thymeleaf(Spring Boot)からの利用
 
 2 ファイルを `src/main/resources/templates/email/` に置きます。各断片は
