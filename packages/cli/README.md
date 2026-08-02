@@ -49,8 +49,37 @@ Two things to know:
   template sources (JSX/ERB/Jinja) are out of scope.
 
 `validate` is powered by [linkedom](https://github.com/WebReflection/linkedom)
-(this package's only runtime dependency — loaded only by `validate`;
-`add` and `list` don't need it).
+(loaded only by `validate`; `add` and `list` don't need it).
 
-The styles and behaviors the recipes reference come from
+## `email` — theme-baked HTML email templates
+
+```bash
+npx @hypermedia-components/cli email list
+npx @hypermedia-components/cli email eject [--color indigo] [--neutral slate] \
+  [--tokens my-theme.json] [--flavor thymeleaf|plain] [--dir <target>] [--force]
+```
+
+`email eject` generates HTML email templates with your theme **baked
+into inline styles** (email clients strip `var()`, so tokens are
+resolved to literals; rem → px). It writes three files into
+`<target>/email/`:
+
+| File | What it is |
+| --- | --- |
+| `hc-email.html` | All fragments — bulletproof button, headings, text, badges, alerts, panel, key-value table, footer. |
+| `hc-email-layout.html` | The document shell (preheader, 600px card) with the dark-mode/mobile `<style>` partial baked in. |
+| `email-tokens.json` | The resolved light/dark token values, for runtime (per-tenant) theming. |
+
+The **thymeleaf** flavor (default) ships parameterized `th:fragment`s
+for Thymeleaf / Spring Boot; **plain** strips the Thymeleaf attributes
+for any other engine. `--tokens` accepts a DTCG export from the
+[theme builder](https://hypermedia-components.ichimura-12c.workers.dev/hypermedia-components/tokens/theme-builder/)
+(accent or full-theme), so a visually-built custom theme regenerates
+reproducibly in CI. Each generated file starts with a manifest comment
+recording the exact settings and regenerate command. See the
+[HTML email guide](https://hypermedia-components.ichimura-12c.workers.dev/hypermedia-components/integrations/html-email/)
+for usage from your mail templates.
+
+The styles and behaviors the recipes reference — and the token/email
+transforms `email eject` runs — come from
 [`@hypermedia-components/core`](https://www.npmjs.com/package/@hypermedia-components/core).
