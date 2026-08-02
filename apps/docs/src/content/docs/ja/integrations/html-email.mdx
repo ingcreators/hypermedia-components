@@ -1,0 +1,108 @@
+---
+title: HTML メール
+description: アプリのテーマに揃った HTML メールを送る — 同じ DTCG トークンから焼き込み生成されるテーブル+インラインスタイルの断片(Thymeleaf natural template / プレーン HTML)。テーマビルダーからダウンロードできます。
+---
+
+トランザクションメールを、Hypermedia Components のテーマ —
+[テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)で作った
+カスタムテーマを含む — に揃えられます。ランタイム依存はありません。
+キットが生成するのは**テーマ焼き込み済みのテンプレート断片**です:
+トークン参照をリテラル値に解決(rem は px に変換)し、インライン
+`style` 属性に書き込みます。メールクライアントは外部 CSS を読まず、
+`var()` / カスタムプロパティも落とすためです。
+
+## 仕組み
+
+- **インラインスタイルが基盤。** 色・背景・パディング・タイポグラフィは
+  要素ごとにインライン化され、転送や、`<head>` のスタイルを丸ごと落とす
+  「Gmail アプリで Google 以外(IMAP/POP)のアカウントを読む」ケースでも
+  生き残ります。
+- **埋め込み `<style>` パーシャルは強化専用**: モバイル幅と
+  `hc-em-*` クラス経由の `prefers-color-scheme: dark` オーバーライド。
+  Apple Mail / Outlook macOS は尊重し、Gmail は無視して独自の自動反転を
+  適用します。どのルールも失われて構いません。
+- **テーブルレイアウト、600px コンテナ**、`role="presentation"` の骨格、
+  bulletproof ボタン。VML は不使用: Outlook(Word エンジン)では
+  `border-radius` が角丸にならず直角になります — 許容された劣化です。
+- 生成ファイルの先頭には**マニフェストコメント**が付き、core の
+  バージョン・軸設定・生成時の設定を記録するので、テーマ変更後の
+  再生成が確実に行えます。
+
+## テンプレートの入手
+
+[テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)で
+テーマ(ビルトインのアクセントでもフルカスタムテーマでも)を設定し、
+**Email templates** タブに切り替えます:
+
+- `hc-email.html` — 全断片(ボタン、見出し、本文、リンク、区切り線、
+  バッジ、アラート、パネル、キー・バリューテーブル、フッター)。
+- `hc-email-layout.html` — ドキュメントシェル(プリヘッダー、中央寄せ
+  600px カード)。強化用 `<style>` パーシャルは `<head>` に焼き込み済み。
+- `email-tokens.json` — 解決済みのライト/ダークトークン値。後述の
+  ランタイムテーマ切替の逃げ道用。
+
+フレーバーは 2 種類: **Thymeleaf**(`th:fragment` シグネチャと
+`th:text` / `th:href` スロット付き)と**プレーン HTML**(同じマークアップ
+から Thymeleaf 属性を剥がしたもの — お使いのエンジンのスロット構文を
+追記してください)。
+
+## Thymeleaf(Spring Boot)からの利用
+
+2 ファイルを `src/main/resources/templates/email/` に置きます。各断片は
+パラメータ付き `th:fragment` で、エスケープは `th:text` が行います。
+メールテンプレートはこれらを組み合わせます:
+
+```html
+<!-- templates/email/order-confirmed.html -->
+<div th:fragment="content">
+  <div th:replace="~{email/hc-email :: hcHeading('ご注文ありがとうございます')}"></div>
+  <div th:replace="~{email/hc-email :: hcText(${customerName} + ' 様、ご注文が確定しました。')}"></div>
+  <div th:replace="~{email/hc-email :: hcKvTable(${orderSummary})}"></div>
+  <div th:replace="~{email/hc-email :: hcButton(${orderUrl}, '注文を確認する')}"></div>
+  <div th:replace="~{email/hc-email :: hcFooter('このメールに心当たりがない場合は破棄してください。')}"></div>
+</div>
+```
+
+レイアウトで包み、処理済み HTML を
+`MimeMessageHelper#setText(html, true)` で送信します:
+
+```html
+<div th:replace="~{email/hc-email-layout :: hcLayout(
+    '注文確認', 'ご注文が確定しました',
+    ~{email/order-confirmed :: content})}"></div>
+```
+
+利用できる断片とパラメータはパッケージ内の断片ごとの契約文書
+(`@hypermedia-components/core/email/<name>/contract.md`)に
+記載されています。全体のパターンは
+[Thymeleaf ガイド](/hypermedia-components/ja/integrations/thymeleaf/)と
+共通です。
+
+## その他のテンプレートエンジン
+
+**プレーン HTML** フレーバーをダウンロードしてください: スロット位置に
+プレースホルダの文言が入った、同じ焼き込み済みマークアップです。断片を
+お使いのエンジン(Freemarker、ERB、Razor など)にコピーし、
+プレースホルダのテキストや URL をエンジンの補間に置き換えます —
+その際の**エスケープは自前で行ってください**。Thymeleaf なしでは誰も
+代わりにやってくれません。
+
+## ランタイム(テナント別)テーマ
+
+焼き込み値は「生成時にテーマが確定している」前提です。リクエスト時に
+テナントごとのテーマが変わる場合は、テナントごとに
+`email-tokens.json` を読み込み、そこからインラインスタイルを書きます:
+
+```html
+<td th:style="'background-color:' + ${t['button-primary-bg']} + ';border-radius:6px;'">
+```
+
+意図的に冗長な書き方です — テナントで変わる部分(通常はボタンの
+アクセント)だけに使い、残りは焼き込みのままにしてください。
+
+## 再生成
+
+テンプレートは生成物です: テーマを変えたら再ダウンロードしてください
+(各ファイル先頭のマニフェストコメントが、何から生成されたかをあなた —
+またはチームメイト — に正確に伝えます)。`hc.tokens.css` と同じ扱いで、
+コミットはしても手編集はしないでください。

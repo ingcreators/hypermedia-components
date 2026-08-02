@@ -1,0 +1,108 @@
+---
+title: HTML email
+description: Send HTML email that matches your app's theme — generated table/inline-style fragments (Thymeleaf natural templates or plain HTML) baked from the same DTCG tokens, downloadable from the theme builder.
+---
+
+Your transactional email can match your app's Hypermedia Components
+theme — including a custom theme built in the
+[theme builder](/hypermedia-components/tokens/theme-builder/) — without
+any runtime dependency. The kit generates **theme-baked template
+fragments**: token references are resolved to literal values (rem
+converted to px) and written into inline `style` attributes, because
+email clients don't load external CSS and strip
+`var()` / custom properties.
+
+## How it works
+
+- **Inline styles are the baseline.** Colors, backgrounds, padding and
+  typography are inlined per element — they survive every client,
+  including forwards and the Gmail app reading non-Google (IMAP/POP)
+  accounts, which drops `<head>` styles entirely.
+- **One embedded `<style>` partial is enhancement-only**: mobile
+  container width and `prefers-color-scheme: dark` overrides via
+  `hc-em-*` classes. Apple Mail and Outlook macOS honor it; Gmail
+  ignores it and applies its own auto-invert. Every rule is safe to
+  lose.
+- **Table layouts, 600px container**, `role="presentation"` skeletons,
+  bulletproof buttons. No VML: Outlook's Word engine renders square
+  corners instead of `border-radius` — accepted degradation.
+- Generated files start with a **manifest comment** recording the core
+  version, axis settings and the command/settings that produced them,
+  so they can be regenerated after a theme change.
+
+## Getting the templates
+
+Open the [theme builder](/hypermedia-components/tokens/theme-builder/),
+set up your theme (a built-in accent, a full custom theme — anything),
+and switch to the **Email templates** tab:
+
+- `hc-email.html` — all fragments (buttons, headings, text, link,
+  separator, badges, alerts, panel, key-value table, footer).
+- `hc-email-layout.html` — the document shell (preheader, centered
+  600px card) with the enhancement `<style>` partial baked into
+  `<head>`.
+- `email-tokens.json` — the resolved light/dark token values, for the
+  runtime-theming escape hatch below.
+
+Two flavors: **Thymeleaf** (fragments carry `th:fragment` signatures
+and `th:text`/`th:href` slots) and **plain HTML** (same markup with the
+Thymeleaf attributes stripped — re-add your own engine's slot syntax).
+
+## Using from Thymeleaf (Spring Boot)
+
+Drop the two files into `src/main/resources/templates/email/`. Each
+fragment is a parameterized `th:fragment`; escaping is handled by
+`th:text`. A mail template composes them:
+
+```html
+<!-- templates/email/order-confirmed.html -->
+<div th:fragment="content">
+  <div th:replace="~{email/hc-email :: hcHeading('ご注文ありがとうございます')}"></div>
+  <div th:replace="~{email/hc-email :: hcText(${customerName} + ' 様、ご注文が確定しました。')}"></div>
+  <div th:replace="~{email/hc-email :: hcKvTable(${orderSummary})}"></div>
+  <div th:replace="~{email/hc-email :: hcButton(${orderUrl}, '注文を確認する')}"></div>
+  <div th:replace="~{email/hc-email :: hcFooter('このメールに心当たりがない場合は破棄してください。')}"></div>
+</div>
+```
+
+Wrap it in the layout and send the processed HTML with
+`MimeMessageHelper#setText(html, true)`:
+
+```html
+<div th:replace="~{email/hc-email-layout :: hcLayout(
+    '注文確認', 'ご注文が確定しました',
+    ~{email/order-confirmed :: content})}"></div>
+```
+
+The available fragments and their parameters are documented per
+fragment in the package sources
+(`@hypermedia-components/core/email/<name>/contract.md`); the general
+patterns match the [Thymeleaf guide](/hypermedia-components/integrations/thymeleaf/).
+
+## Other template engines
+
+Download the **plain HTML** flavor: the same baked markup with visible
+placeholder copy where the slots are. Copy a fragment into your engine
+(Freemarker, ERB, Razor, …), replace the placeholder text/URLs with
+your engine's interpolation — and **escape those interpolations
+yourself**; without Thymeleaf, nothing does it for you.
+
+## Runtime (per-tenant) theming
+
+Baked values assume the theme is fixed at generation time. If tenants
+have different themes at request time, load `email-tokens.json` per
+tenant and write the inline styles from it:
+
+```html
+<td th:style="'background-color:' + ${t['button-primary-bg']} + ';border-radius:6px;'">
+```
+
+This is verbose by design — use it only for the tenant-variable subset
+(usually the accent on the button) and keep the rest baked.
+
+## Regenerating
+
+The templates are generated artifacts: after changing your theme,
+download them again (the manifest comment at the top of each file tells
+you — or a teammate — exactly what produced it). Treat them like
+`hc.tokens.css`: commit them, don't hand-edit them.
