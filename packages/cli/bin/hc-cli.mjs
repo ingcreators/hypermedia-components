@@ -2,6 +2,9 @@
 // npx @hypermedia-components/cli add <recipe> [--dir <target>] [--force]
 // npx @hypermedia-components/cli list
 // npx @hypermedia-components/cli validate <paths…> [--recipe <name>] [--strict]
+// npx @hypermedia-components/cli email list
+// npx @hypermedia-components/cli email eject [--color …] [--neutral …]
+//   [--tokens <dtcg.json>] [--flavor thymeleaf|plain] [--dir <target>] [--force]
 import { parseArgs } from 'node:util';
 import { listRecipes, copyRecipe, RECIPE_FILES } from '../lib/recipes.mjs';
 
@@ -9,6 +12,9 @@ const USAGE = `Usage:
   hypermedia-components add <recipe> [--dir <target>] [--force]
   hypermedia-components list
   hypermedia-components validate <file|dir>… [--recipe <name>] [--strict]
+  hypermedia-components email list
+  hypermedia-components email eject [--color <name>] [--neutral <name>]
+    [--tokens <dtcg.json>] [--flavor thymeleaf|plain] [--dir <target>] [--force]
 
 Commands:
   add       Copy a recipe's source files (${RECIPE_FILES.join(' / ')})
@@ -17,12 +23,19 @@ Commands:
   validate  Check local HTML against the recipes' machine-readable
             contracts (recipes/<name>/checks.json). Detects recipe
             instances automatically; exits 1 on contract errors.
+  email     list: show the email fragments. eject: generate theme-baked
+            HTML email templates (hc-email.html / hc-email-layout.html /
+            email-tokens.json) into <target>/email/.
 
 Options:
-  -d, --dir <target>   add: directory to copy into (default: ".")
-  -f, --force          add: overwrite existing files
+  -d, --dir <target>   add/email eject: directory to write into (default: ".")
+  -f, --force          add/email eject: overwrite existing files
   -r, --recipe <name>  validate: check one recipe (must be detected)
   -s, --strict         validate: treat warnings as errors
+      --color <name>   email eject: accent axis (default | indigo | emerald | rose | amber)
+      --neutral <name> email eject: neutral ramp (gray | slate | zinc | neutral | stone)
+      --tokens <file>  email eject: theme-builder DTCG export (custom theme)
+      --flavor <name>  email eject: thymeleaf (default) | plain
   -h, --help           Show this help
 `;
 
@@ -35,6 +48,10 @@ async function main(argv) {
       force: { type: 'boolean', short: 'f', default: false },
       recipe: { type: 'string', short: 'r' },
       strict: { type: 'boolean', short: 's', default: false },
+      color: { type: 'string', default: 'default' },
+      neutral: { type: 'string', default: 'gray' },
+      tokens: { type: 'string' },
+      flavor: { type: 'string', default: 'thymeleaf' },
       help: { type: 'boolean', short: 'h', default: false },
     },
   });
@@ -64,6 +81,36 @@ async function main(argv) {
         `contract.md documents the server responses it expects.\n`,
     );
     return 0;
+  }
+
+  if (command === 'email') {
+    // Core (token + email transforms) loads only on this path.
+    const { listEmailFragments, ejectEmail } = await import('../lib/email.mjs');
+    if (name === 'list') {
+      for (const frag of await listEmailFragments()) {
+        process.stdout.write(`${frag.name.padEnd(12)} ${frag.purpose}\n`);
+      }
+      return 0;
+    }
+    if (name === 'eject') {
+      const written = await ejectEmail({
+        color: values.color,
+        neutral: values.neutral,
+        tokensFile: values.tokens,
+        flavor: values.flavor,
+        dir: values.dir,
+        force: values.force,
+      });
+      for (const file of written) process.stdout.write(`${file}\n`);
+      process.stdout.write(
+        `\nWrote ${written.length} files. Import the fragments from your mail ` +
+          `templates; regenerate after changing the theme (see the manifest ` +
+          `comment at the top of each file).\n`,
+      );
+      return 0;
+    }
+    process.stderr.write(`Unknown email subcommand ${JSON.stringify(name)}.\n\n${USAGE}`);
+    return 1;
   }
 
   if (command === 'validate') {

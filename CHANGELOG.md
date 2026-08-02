@@ -33,6 +33,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **CLI: `email list` / `email eject`** — generate theme-baked HTML
+  email templates (`hc-email.html` / `hc-email-layout.html` /
+  `email-tokens.json` into `<target>/email/`) from the command line:
+  built-in axes via `--color` / `--neutral`, theme-builder DTCG exports
+  (accent or full-theme patch) via `--tokens`, `--flavor
+  thymeleaf|plain`, and the `add`-style overwrite refusal. Runs the
+  same `resolveTokens` + email-transform engine as the theme builder's
+  Email tab (new CLI dependency on `@hypermedia-components/core`), so
+  the two can't drift. Closes the
+  [email templates plan](plans/hc-email-templates-plan-en.md) (§6);
+  ships in the next `@hypermedia-components/cli` minor.
+
+### Added
+
 - **Email fragment sources + transformer** for the HTML-email render
   target ([plan](plans/hc-email-templates-plan-en.md) §4): ten
   table/inline-style fragments plus the layout and dark-mode `<style>`

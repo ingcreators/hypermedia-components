@@ -44,6 +44,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@hypermedia-components/core':
+        specifier: workspace:^
+        version: link:../core
       linkedom:
         specifier: ^0.18.13
         version: 0.18.13
