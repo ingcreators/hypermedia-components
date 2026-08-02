@@ -13,7 +13,7 @@ afterEach(() => {
 // returns a real <svg> from plot(), so we can assert what installChart
 // reads from the table without depending on Plot itself.
 function fakePlot() {
-  const calls = { barY: [], lineY: [], areaY: [], dot: [], ruleY: [], rectY: [], cell: [], binX: [], tip: [], plot: [] };
+  const calls = { barY: [], barX: [], lineY: [], areaY: [], dot: [], ruleY: [], ruleX: [], rectY: [], cell: [], binX: [], tip: [], plot: [] };
   const mark = (name) => (data, opts) => {
     calls[name].push({ data, opts });
     return { mark: name };
@@ -21,6 +21,8 @@ function fakePlot() {
   const pointer = (mode) => (opts) => ({ pointer: mode, ...opts });
   const plot = {
     barY: mark('barY'),
+    barX: mark('barX'),
+    ruleX: mark('ruleX'),
     lineY: mark('lineY'),
     areaY: mark('areaY'),
     dot: mark('dot'),
@@ -320,6 +322,69 @@ describe('Tier 3 presets', () => {
     const { plot, calls } = fakePlot();
     uninstall = installChart(document, { plot });
     expect(calls.plot).toHaveLength(0); // untouched
+  });
+});
+
+
+describe('Horizontal presets', () => {
+  const RANKING = `
+    <thead><tr><th>Product</th><th>Sales</th></tr></thead>
+    <tbody>
+      <tr><td>Long product name A</td><td>320</td></tr>
+      <tr><td>Long product name B</td><td>180</td></tr>
+    </tbody>`;
+  const TWO_SERIES = `
+    <thead><tr><th>Quarter</th><th>Store</th><th>Online</th></tr></thead>
+    <tbody><tr><td>Q1</td><td>80</td><td>45</td></tr><tr><td>Q2</td><td>95</td><td>70</td></tr></tbody>`;
+
+  it('bar-x puts categories on y (row order) and values on x with a zero ruleX', () => {
+    document.body.innerHTML = fig('bar-x', RANKING, 'data-y-label="Sales ($k)"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+
+    expect(calls.barX).toHaveLength(1);
+    expect(calls.barX[0].opts).toMatchObject({ y: 'x', x: 'value', fill: 'series' });
+    expect(calls.ruleX).toHaveLength(1);
+    expect(calls.ruleY).toHaveLength(0);
+
+    const plotOpts = calls.plot[0];
+    expect(plotOpts.y.domain).toEqual(['Long product name A', 'Long product name B']);
+    expect(plotOpts.y.label).toBe('Product');
+    // The value-axis config (label, grid) moved from y to x wholesale.
+    expect(plotOpts.x.label).toBe('Sales ($k)');
+    expect(plotOpts.x.grid).toBe(true);
+  });
+
+  it('bar-x honours the value-axis pins: data-y-min/max land on x and gate the zero rule', () => {
+    document.body.innerHTML = fig('bar-x', RANKING, 'data-y-min="100" data-y-max="400"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.plot[0].x.domain).toEqual([100, 400]);
+    expect(calls.ruleX).toHaveLength(0); // 0 outside [100, 400]
+  });
+
+  it('bar-x data-tip defaults to snapping along y (the category axis)', () => {
+    document.body.innerHTML = fig('bar-x', TWO_SERIES, 'data-tip');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip).toHaveLength(1);
+    expect(calls.tip[0].opts).toMatchObject({ pointer: 'y', y: 'x', x: 'value' });
+    expect(calls.tip[0].opts.channels).toEqual({ series: 'series' });
+  });
+
+  it('bar-x-grouped facets on fy, hides the inner y axis, keeps first-appearance order', () => {
+    document.body.innerHTML = fig('bar-x-grouped', TWO_SERIES, 'data-y-label="Orders" data-tip');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+
+    expect(calls.barX[0].opts).toMatchObject({ fy: 'x', y: 'series', x: 'value' });
+    const plotOpts = calls.plot[0];
+    expect(plotOpts.y).toEqual({ axis: null });
+    expect(plotOpts.fy.label).toBe('Quarter');
+    expect(plotOpts.fy.domain).toEqual(['Q1', 'Q2']);
+    expect(plotOpts.x.label).toBe('Orders');
+    expect(calls.tip[0].opts).toMatchObject({ fy: 'x', y: 'series', x: 'value' });
+    expect(calls.tip[0].opts.channels).toEqual({ Quarter: 'x' });
   });
 });
 

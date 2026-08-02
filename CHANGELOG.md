@@ -37,6 +37,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Chart: horizontal bars — `bar-x` and `bar-x-grouped`** (recipe
+  `chart` / `installChart`). The ranking shape: categories on y (long
+  labels stay readable), values on x; `bar-x` stacks multiple series,
+  `bar-x-grouped` facets them side-by-side per category on the row
+  axis. The value-axis options move with the orientation —
+  `data-y-label` / `data-y-min` / `data-y-max` / `data-y-format`
+  configure the x axis there, the zero baseline becomes a vertical
+  `ruleX` (still dropped when 0 leaves the pinned domain), and a bare
+  `data-tip` snaps along the category axis. Docs note the stacked
+  horizontal bar as the recommended pie/donut substitute (Plot has no
+  arc mark).
 - **Chart: hover tooltips, y-axis control, and an escape hatch**
   (recipe `chart` / `installChart`). `data-tip` shows a hover tooltip —
   one standalone Plot `tip` mark per figure driven by a pointer
