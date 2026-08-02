@@ -258,6 +258,50 @@ export function buildTokensCss({ sources, trees }) {
   return { css, varCount, blockCount: blocks.length };
 }
 
+/**
+ * Resolve every token to its literal value for ONE concrete axis
+ * combination — no CSS, no `var()` indirection. This is the export for
+ * render targets that cannot use custom properties (HTML email bakes
+ * these literals into inline styles).
+ *
+ * Unlike `buildTokensCss`, the source list here is not "all axes with
+ * selectors" but the ordered layer stack of a single combination, e.g.
+ * light indigo/slate:
+ *   [primitive, semantic, component, color.indigo, neutral.slate]
+ * and its dark counterpart appends `theme.dark` before the `*.dark`
+ * neutral. Every source except primitive/semantic/component acts as a
+ * semantic overlay; later sources win. Passing DEFAULT_SOURCES wholesale
+ * is a misuse (it would stack every axis).
+ *
+ * @param {Object} opts
+ * @param {Array<{namespace: string}>} opts.sources ordered layer stack
+ * @param {Record<string, unknown>} opts.trees parsed trees by namespace
+ * @returns {Map<string, string>} flat names (the `--hc-*` names minus
+ *   the prefix, e.g. `button-primary-bg`) -> resolved literal values
+ */
+export function resolveTokens({ sources, trees }) {
+  const table = indexTokens(sources, trees);
+  const BASE = new Set(['primitive', 'semantic', 'component']);
+  const overlayNs = sources.map((s) => s.namespace).filter((ns) => !BASE.has(ns));
+  const overlay = tableWithThemeOverlay(table, overlayNs, trees);
+  const out = new Map();
+  const putSemantic = (path) => {
+    const name = path.join('-');
+    if (out.has(name)) return;
+    out.set(name, resolveValue(overlay.get(['semantic', ...path].join('.')), overlay));
+  };
+  if (trees.semantic) walkLeaves(trees.semantic, [], putSemantic);
+  // Overlay-only keys (defined by an axis layer but absent from the base
+  // semantic tree) still get a flat name, like their CSS-block twins.
+  for (const ns of overlayNs) walkLeaves(trees[ns], [], putSemantic);
+  if (trees.component) {
+    walkLeaves(trees.component, [], (path, leaf) => {
+      out.set(path.join('-'), resolveValue(String(leaf.$value), overlay));
+    });
+  }
+  return out;
+}
+
 // File list and output selectors. `emit: false` means values are loaded
 // into the resolution table but never written to CSS.
 export const DEFAULT_SOURCES = [

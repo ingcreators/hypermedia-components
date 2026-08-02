@@ -13,6 +13,7 @@ import { dirname, join, resolve } from 'node:path';
 
 import {
   buildTokensCss,
+  resolveTokens,
   DEFAULT_SOURCES,
   CORE_NAMESPACES,
   AXIS_NAMESPACES,
@@ -21,7 +22,7 @@ import {
 } from './token-transform.mjs';
 
 // Re-export so existing importers (tests, tooling) keep working unchanged.
-export { buildTokensCss, DEFAULT_SOURCES, CORE_NAMESPACES, AXIS_NAMESPACES, NEUTRAL_RAMPS, emitOnly };
+export { buildTokensCss, resolveTokens, DEFAULT_SOURCES, CORE_NAMESPACES, AXIS_NAMESPACES, NEUTRAL_RAMPS, emitOnly };
 
 async function main() {
   const here = dirname(fileURLToPath(import.meta.url));

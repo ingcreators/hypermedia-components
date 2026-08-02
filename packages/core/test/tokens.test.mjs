@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { describe, it, expect } from 'vitest';
-import { buildTokensCss, DEFAULT_SOURCES } from '../scripts/build-tokens.mjs';
+import { buildTokensCss, resolveTokens, DEFAULT_SOURCES } from '../scripts/build-tokens.mjs';
 
 const tokensDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'tokens');
 
@@ -525,5 +525,86 @@ describe('buildTokensCss', () => {
       expect(dark).toMatch(/--hc-shadow-overlay:\s*0 10px 30px rgb\(0, 0, 0, 0\.6\);/);
       expect(dark).toMatch(/--hc-shadow-edge:\s*rgb\(0, 0, 0, 0\.5\);/);
     });
+  });
+});
+
+describe('resolveTokens', () => {
+  const LAYERS = [
+    { namespace: 'primitive' },
+    { namespace: 'semantic' },
+    { namespace: 'component' },
+  ];
+
+  it('returns flat literal values with the --hc- names minus the prefix', () => {
+    const map = resolveTokens({ sources: LAYERS, trees: TREES });
+    expect(map.get('color-bg')).toBe('#f9fafb');
+    expect(map.get('button-padding-x')).toBe('1rem');
+    expect(map.get('button-primary-bg')).toBe('#2563eb');
+    // Primitives feed resolution but are never emitted.
+    expect(map.has('color-gray-50')).toBe(false);
+    // Every value is a resolved literal — no {ref} survives.
+    for (const [name, value] of map) {
+      expect(value, name).not.toContain('{');
+    }
+  });
+
+  it('applies overlay layers to semantic keys AND dependent component leaves', () => {
+    const sources = [...LAYERS, { namespace: 'theme.dark' }];
+    const map = resolveTokens({ sources, trees: TREES });
+    expect(map.get('color-bg')).toBe('#111827'); // dark override
+    expect(map.get('color-text')).toBe('#111827'); // untouched base key still present
+  });
+
+  it('re-resolves component leaves through the overlay, later layers winning', () => {
+    const trees = {
+      ...TREES,
+      'color.test': {
+        color: { action: { primary: { bg: { $type: 'color', $value: '{primitive.color.gray.900}' } } } },
+      },
+      'color.later': {
+        color: { action: { primary: { bg: { $type: 'color', $value: '{primitive.color.gray.50}' } } } },
+      },
+    };
+    const sources = [...LAYERS, { namespace: 'color.test' }, { namespace: 'color.later' }];
+    const map = resolveTokens({ sources, trees });
+    expect(map.get('color-action-primary-bg')).toBe('#f9fafb');
+    expect(map.get('button-primary-bg')).toBe('#f9fafb');
+  });
+
+  it('emits overlay-only keys absent from the base semantic tree', () => {
+    const trees = {
+      ...TREES,
+      'color.extra': {
+        color: { accent: { $type: 'color', $value: '{primitive.color.blue.600}' } },
+      },
+    };
+    const map = resolveTokens({ sources: [...LAYERS, { namespace: 'color.extra' }], trees });
+    expect(map.get('color-accent')).toBe('#2563eb');
+  });
+
+  it('resolves the real DTCG sources for a light and a dark combination', () => {
+    const trees = {};
+    for (const src of DEFAULT_SOURCES) {
+      trees[src.namespace] = JSON.parse(readFileSync(join(tokensDir, src.file), 'utf8'));
+    }
+    const base = ['primitive', 'semantic', 'component', 'density.comfortable', 'color.default'];
+    const light = resolveTokens({
+      sources: [...base, 'color.indigo', 'neutral.slate'].map((namespace) => ({ namespace })),
+      trees,
+    });
+    const dark = resolveTokens({
+      sources: [...base, 'color.indigo', 'neutral.slate', 'theme.dark', 'neutral.slate.dark']
+        .map((namespace) => ({ namespace })),
+      trees,
+    });
+    for (const map of [light, dark]) {
+      expect(map.get('button-primary-bg')).toBeTruthy();
+      for (const [name, value] of map) {
+        expect(value, name).not.toContain('{');
+        expect(value, name).not.toContain('var(');
+      }
+    }
+    // The combination actually themes: dark surfaces differ from light.
+    expect(dark.get('color-bg')).not.toBe(light.get('color-bg'));
   });
 });

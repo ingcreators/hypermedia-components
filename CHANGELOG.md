@@ -20,6 +20,16 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`resolveTokens()`** in the token transformer
+  (`@hypermedia-components/core/token-transform`): resolves one concrete
+  axis combination (ordered layer stack, later layers win) to a flat
+  `Map` of literal values — the `--hc-*` names minus the prefix, e.g.
+  `button-primary-bg` → `#4f46e5`. For render targets that cannot use
+  CSS custom properties; first consumer is the HTML-email workstream
+  ([plan](plans/hc-email-templates-plan-en.md)).
+
 ## [0.1.10] - 2026-08-02
 
 ### Security
