@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="hcLayout(title, preheader, content)">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title th:text="${title}">Subject</title>
+  <!--hc:styles-->
+</head>
+<body class="hc-em-bg" bgcolor="{color-bg}" style="margin:0;padding:0;background-color:{color-bg};">
+  <div th:text="${preheader}" style="display:none;max-height:0;overflow:hidden;mso-hide:all;">Preview text shown next to the subject line.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="hc-em-bg" bgcolor="{color-bg}" style="background-color:{color-bg};">
+    <tr>
+      <td align="center" style="padding:{space-6} {space-3};">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" class="hc-em-container" bgcolor="{color-surface}" style="width:600px;max-width:600px;background-color:{color-surface};border:1px solid {color-border};border-radius:{card-radius};">
+          <tr>
+            <td class="hc-em-pad" style="padding:{space-8};">
+              <div th:replace="${content}">Email body — replaced by the content fragment.</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

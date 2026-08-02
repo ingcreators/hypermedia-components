@@ -56,13 +56,17 @@
     "./behaviors/min": "./dist/hc.behaviors.min.js",
     "./tokens/*": "./src/tokens/*",
     "./token-transform": "./scripts/token-transform.mjs",
+    "./email/*": "./src/email/*",
+    "./email-transform": "./scripts/email-transform.mjs",
     "./manifest.json": "./dist/manifest.json",
     "./custom-elements.json": "./custom-elements.json"
   },
   "files": [
     "dist",
     "src/tokens",
+    "src/email",
     "scripts/token-transform.mjs",
+    "scripts/email-transform.mjs",
     "custom-elements.json"
   ],
   "scripts": {

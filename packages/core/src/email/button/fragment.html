@@ -1,0 +1,14 @@
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" th:fragment="hcButton(href, label)">
+  <tr>
+    <td bgcolor="{button-primary-bg}" style="background-color:{button-primary-bg};border:1px solid {button-primary-border};border-radius:{button-radius};">
+      <a th:href="${href}" th:text="${label}" target="_blank" style="display:inline-block;padding:{space-3} {button-padding-x};font-family:{font-family-sans};font-size:{button-font-size};font-weight:{button-font-weight};line-height:1;color:{button-primary-fg};text-decoration:none;">Primary action</a>
+    </td>
+  </tr>
+</table>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" th:fragment="hcButtonSecondary(href, label)">
+  <tr>
+    <td bgcolor="{button-secondary-bg}" style="background-color:{button-secondary-bg};border:1px solid {button-secondary-border};border-radius:{button-radius};">
+      <a th:href="${href}" th:text="${label}" target="_blank" style="display:inline-block;padding:{space-3} {button-padding-x};font-family:{font-family-sans};font-size:{button-font-size};font-weight:{button-font-weight};line-height:1;color:{button-secondary-fg};text-decoration:none;">Secondary action</a>
+    </td>
+  </tr>
+</table>

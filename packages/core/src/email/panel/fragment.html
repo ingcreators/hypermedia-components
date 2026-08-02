@@ -1,0 +1,7 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" th:fragment="hcPanel(content)">
+  <tr>
+    <td bgcolor="{card-bg}" style="background-color:{card-bg};border:1px solid {card-border};border-radius:{card-radius};padding:{card-padding};">
+      <div th:replace="${content}">Panel content — replaced by the content fragment.</div>
+    </td>
+  </tr>
+</table>
