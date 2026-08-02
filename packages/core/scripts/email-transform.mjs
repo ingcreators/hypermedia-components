@@ -46,11 +46,14 @@ export function expandEmailHtml(source, { tokens, darkTokens }) {
 /**
  * Strip `th:*` / `xmlns:th` attributes for the engine-neutral plain
  * flavor. Sources are hc-authored under the guard test's rules
- * (attribute values never contain `"` or `>`), so the attribute-shaped
- * scan is exact for them.
+ * (attribute values never contain `"` or `>`, attributes are separated
+ * by exactly one space), so the attribute-shaped scan is exact for
+ * them. Single `\s` (not `\s+`) keeps the scan linear on
+ * whitespace-heavy inputs — the transformer also runs in the browser
+ * (CodeQL js/polynomial-redos).
  */
 export function stripThymeleaf(html) {
-  return html.replace(/\s+(?:th|xmlns):[a-z-]+="[^"]*"/g, '');
+  return html.replace(/\s(?:th|xmlns):[a-z-]+="[^"]*"/g, '');
 }
 
 // User-facing fragments, in the order they appear in hc-email.html.

@@ -20,6 +20,17 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Security
+
+- **Email transformer: linear-time `th:*` stripping**
+  (`scripts/email-transform.mjs`). `stripThymeleaf()`'s `\s+` prefix
+  was polynomial on whitespace-heavy inputs (CodeQL
+  `js/polynomial-redos`); the transformer also runs in the browser
+  (theme-builder Email tab). Now a single `\s` — output is identical
+  for the hc-authored fragment sources, whose attributes are
+  single-space separated by convention (documented in the function
+  contract).
+
 ### Added
 
 - **Email fragment sources + transformer** for the HTML-email render
