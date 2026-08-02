@@ -164,6 +164,37 @@ test.describe('hc-chart (installChart)', () => {
     }
   });
 
+  test('waterfall: running-total segments, token palette, tip on the total', async ({ page }) => {
+    const info = await page.evaluate(() => {
+      const o = window.__plotOpts.find((x) =>
+        x.color && Array.isArray(x.color.domain) && x.color.domain[0] === 'increase');
+      const bar = o.marks.find((m) => m && m.name === 'barY');
+      const tip = o.marks.find((m) => m && m.name === 'tip');
+      return {
+        segments: bar.data,
+        colorDomain: o.color.domain,
+        rangeLen: (o.color.range || []).length,
+        legend: o.color.legend,
+        tipOpts: tip && tip.opts,
+      };
+    });
+
+    expect(info.segments).toEqual([
+      { x: 'Opening', value: 100, y1: 0, y2: 100, kind: 'total' },
+      { x: 'Sales', value: 80, y1: 100, y2: 180, kind: 'increase' },
+      { x: 'Costs', value: -30, y1: 180, y2: 150, kind: 'decrease' },
+      { x: 'Closing', value: 150, y1: 0, y2: 150, kind: 'total' },
+    ]);
+    expect(info.colorDomain).toEqual(['increase', 'decrease', 'total']);
+    // The --hc-chart-waterfall-* tokens resolved into a 3-colour range.
+    expect(info.rangeLen).toBe(3);
+    expect(info.legend).toBe(true);
+    expect(info.tipOpts).toMatchObject({ pointer: 'x', x: 'x', y: 'y2' });
+
+    await expect(page.locator('[data-testid="chart-waterfall"] svg')).toHaveCount(1);
+    await expect(page.locator('[data-testid="chart-waterfall"] table')).toHaveClass(/hc-sr-only/);
+  });
+
   test('axe finds no violations in the chart section', async ({ page }) => {
     const results = await new AxeBuilder({ page })
       .include('#section-chart')

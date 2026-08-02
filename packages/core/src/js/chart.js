@@ -7,7 +7,8 @@
 //
 //   <figure class="hc-chart" data-hc-chart="bar|line|area|combo
 //                                 |bar-stacked|bar-grouped|bar-x|bar-x-grouped
-//                                 |scatter|sparkline|histogram|heatmap">
+//                                 |scatter|sparkline|histogram|heatmap
+//                                 |waterfall">
 //     <table class="hc-table">
 //       <thead><tr><th>Month</th><th data-mark="bar">Sales</th><th data-mark="line">Target</th></tr></thead>
 //       <tbody><tr><td>Jan</td><td>120</td><td>150</td></tr>…</tbody>
@@ -121,11 +122,13 @@ function readTable(figure, table) {
     const r = rColumn && cells[rColumn.index]
       ? toNumber(cells[rColumn.index].textContent)
       : undefined;
+    const isTotal = tr.hasAttribute('data-total');
     for (const s of series) {
       const cell = cells[s.index];
       if (!cell) continue;
       const row = { x, series: s.name, mark: s.mark, value: toNumber(cell.textContent) };
       if (r != null) row.r = r;
+      if (isTotal) row.total = true;
       rows.push(row);
     }
   }
@@ -342,6 +345,53 @@ const TYPE_PRESETS = {
     },
   }),
 
+  // The financial bridge: bars float from the running total before each
+  // signed delta to the total after it. Reads ONE delta column (the first
+  // series; extras are ignored, documented). A `<tr data-total>` row is an
+  // absolute anchor — its cell holds the real total (the no-JS table stays
+  // truthful), the bar runs 0 → value, and the running total resets to it.
+  waterfall: (plot, data, base, ctx) => {
+    const first = data.series[0].name;
+    let running = 0;
+    const segments = data.rows
+      .filter((d) => d.series === first && d.value != null)
+      .map((d) => {
+        const y1 = d.total ? 0 : running;
+        const y2 = d.total ? d.value : running + d.value;
+        running = y2;
+        return {
+          x: d.x,
+          value: d.value,
+          y1,
+          y2,
+          kind: d.total ? 'total' : d.value < 0 ? 'decrease' : 'increase',
+        };
+      });
+    const range = resolveWaterfallRange(ctx.figure);
+    return {
+      marks: [
+        ...(ctx.zeroOk ? [plot.ruleY([0])] : []),
+        plot.barY(segments, { x: 'x', y1: 'y1', y2: 'y2', fill: 'kind' }),
+        ...(ctx.tip
+          ? [tipMark(plot, segments, ctx.tip, {
+            x: 'x',
+            y: 'y2',
+            channels: { delta: 'value' },
+          })]
+          : []),
+      ],
+      options: {
+        color: {
+          domain: ['increase', 'decrease', 'total'],
+          ...(range ? { range } : {}),
+          // Three kinds, one data column: the base auto-legend (which
+          // keys off the series count) would stay off — decide here.
+          legend: ctx.figure.getAttribute('data-legend') !== 'false',
+        },
+      },
+    };
+  },
+
   // A Plot-styled inline trend: no axes, no grid, no legend, compact
   // height. (For a dependency-free inline trend, hc-sparkline is usually
   // the better fit — this preset exists for Plot-consistent dashboards.)
@@ -382,6 +432,16 @@ function resolveSeriesRange(figure) {
     if (v) range.push(v);
   }
   return range.length ? range : null;
+}
+
+// Resolve the --hc-chart-waterfall-{increase,decrease,total} colours, or
+// null when the tokens are unavailable (Plot's default palette applies).
+function resolveWaterfallRange(figure) {
+  if (typeof getComputedStyle !== 'function') return null;
+  const cs = getComputedStyle(figure);
+  const range = ['increase', 'decrease', 'total']
+    .map((k) => cs.getPropertyValue(`--hc-chart-waterfall-${k}`).trim());
+  return range.every(Boolean) ? range : null;
 }
 
 function xScaleType(xType) {

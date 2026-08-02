@@ -1902,6 +1902,18 @@
     "series-6": {
       "$type": "color",
       "$value": "{primitive.color.indigo.600}"
+    },
+    "waterfall-increase": {
+      "$type": "color",
+      "$value": "{semantic.color.success}"
+    },
+    "waterfall-decrease": {
+      "$type": "color",
+      "$value": "{semantic.color.error}"
+    },
+    "waterfall-total": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
     }
   },
   "code": {

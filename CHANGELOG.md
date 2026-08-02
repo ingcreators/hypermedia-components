@@ -37,6 +37,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Chart: `waterfall` — the financial bridge** (recipe `chart` /
+  `installChart`). One signed-delta column becomes floating bars from
+  the running total before each delta to the total after it. Rows
+  marked `<tr data-total>` are absolute anchors: the cell holds the
+  real total (the no-JS table stays truthful), the bar runs 0 → value,
+  and the running total resets to it. Increase / decrease / total bars
+  are coloured by the new `--hc-chart-waterfall-increase` /
+  `-decrease` / `-total` tokens (success / error / muted); the legend
+  is on unless `data-legend="false"`; `data-tip` shows step, running
+  total and delta.
 - **Chart: horizontal bars — `bar-x` and `bar-x-grouped`** (recipe
   `chart` / `installChart`). The ranking shape: categories on y (long
   labels stay readable), values on x; `bar-x` stacks multiple series,

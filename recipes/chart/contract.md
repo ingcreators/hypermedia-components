@@ -49,6 +49,7 @@ entry, because Plot is not bundled.
 | `sparkline` | A compact Plot-styled trend: no axes, no grid, no legend, 48 px tall unless `data-height` says otherwise. For a dependency-free inline trend, prefer the standalone `hc-sparkline` component. |
 | `histogram` | Bins **one numeric column** (extra columns are ignored) into count bars; `data-bins` caps the bin count. |
 | `heatmap` | The matrix shape: row categories on y, column headers on x, cell values drive a **continuous** fill (`data-scheme` picks the Plot color scheme; the categorical series palette does not apply). |
+| `waterfall` | The financial bridge: **one signed-delta column** (extra columns are ignored); bars float from the running total before each delta to the total after it. `<tr data-total>` rows are absolute anchors (see below). Colours come from `--hc-chart-waterfall-increase` / `-decrease` / `-total`; the legend is on unless `data-legend="false"`. |
 
 `data-hc-chart` is the **default mark** for any column without its own
 `data-mark`. For `combo` the default is `bar`. So `bar`/`line`/`area` are
@@ -56,6 +57,33 @@ just the special case where every column shares one mark. The Tier 2
 types (`bar-stacked`, `bar-grouped`, `bar-x`, `bar-x-grouped`, `scatter`,
 `sparkline`) are **whole-figure presets** — per-column `data-mark`
 combos don't apply to them.
+
+## Waterfall rows (`data-total`)
+
+The waterfall table is step label + **signed delta** (`+80`, `-30`; the
+usual coercion applies). A row marked `<tr data-total>` is an **absolute
+anchor**: its cell holds the real total — so the no-JavaScript table
+stays truthful — the bar runs from 0 to that value, and the running
+total resets to it. Use anchors for opening / closing balances and
+audited subtotals.
+
+```html
+<figure class="hc-chart" data-hc-chart="waterfall" data-y-label="Cash ($k)">
+  <table class="hc-table">
+    <caption>Cash bridge</caption>
+    <thead><tr><th>Step</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr data-total><td>Opening</td><td>100</td></tr>
+      <tr><td>Sales</td><td>+80</td></tr>
+      <tr><td>Costs</td><td>-30</td></tr>
+      <tr data-total><td>Closing</td><td>150</td></tr>
+    </tbody>
+  </table>
+</figure>
+```
+
+With `data-tip` the tooltip shows the step, the running total (y) and
+the delta. Connector lines between steps are a possible future addition.
 
 ## Per-column mark (combo)
 

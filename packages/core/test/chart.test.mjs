@@ -326,6 +326,85 @@ describe('Tier 3 presets', () => {
 });
 
 
+describe('waterfall preset', () => {
+  const BRIDGE = `
+    <thead><tr><th>Step</th><th>Amount</th></tr></thead>
+    <tbody>
+      <tr data-total><td>Opening</td><td>100</td></tr>
+      <tr><td>Sales</td><td>+80</td></tr>
+      <tr><td>Costs</td><td>-30</td></tr>
+      <tr data-total><td>Closing</td><td>150</td></tr>
+    </tbody>`;
+
+  it('computes floating segments from signed deltas with data-total anchors', () => {
+    document.body.innerHTML = fig('waterfall', BRIDGE);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+
+    expect(calls.barY).toHaveLength(1);
+    expect(calls.barY[0].opts).toMatchObject({ x: 'x', y1: 'y1', y2: 'y2', fill: 'kind' });
+    expect(calls.barY[0].data).toEqual([
+      { x: 'Opening', value: 100, y1: 0, y2: 100, kind: 'total' },
+      { x: 'Sales', value: 80, y1: 100, y2: 180, kind: 'increase' },
+      { x: 'Costs', value: -30, y1: 180, y2: 150, kind: 'decrease' },
+      { x: 'Closing', value: 150, y1: 0, y2: 150, kind: 'total' },
+    ]);
+    expect(calls.ruleY).toHaveLength(1); // zero baseline
+  });
+
+  it('a data-total anchor resets the running total to the cell value (server truth)', () => {
+    document.body.innerHTML = fig('waterfall', `
+      <thead><tr><th>Step</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td>Growth</td><td>50</td></tr>
+        <tr data-total><td>Audited</td><td>60</td></tr>
+        <tr><td>More</td><td>10</td></tr>
+      </tbody>`);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    // The anchor said 60 (not the computed 50) and the next delta builds on it.
+    expect(calls.barY[0].data[2]).toMatchObject({ y1: 60, y2: 70 });
+  });
+
+  it('sets the three-kind colour domain and shows the legend by default', () => {
+    document.body.innerHTML = fig('waterfall', BRIDGE);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.plot[0].color.domain).toEqual(['increase', 'decrease', 'total']);
+    expect(calls.plot[0].color.legend).toBe(true);
+  });
+
+  it('data-legend="false" hides the legend', () => {
+    document.body.innerHTML = fig('waterfall', BRIDGE, 'data-legend="false"');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.plot[0].color.legend).toBe(false);
+  });
+
+  it('reads only the first series column and keeps the step order', () => {
+    document.body.innerHTML = fig('waterfall', `
+      <thead><tr><th>Step</th><th>Amount</th><th>Ignored</th></tr></thead>
+      <tbody>
+        <tr><td>B step</td><td>10</td><td>999</td></tr>
+        <tr><td>A step</td><td>20</td><td>999</td></tr>
+      </tbody>`);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.barY[0].data.map((d) => d.value)).toEqual([10, 20]);
+    expect(calls.plot[0].x.domain).toEqual(['B step', 'A step']);
+  });
+
+  it('data-tip adds a tip on the running total with the delta as a channel', () => {
+    document.body.innerHTML = fig('waterfall', BRIDGE, 'data-tip');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip).toHaveLength(1);
+    expect(calls.tip[0].opts).toMatchObject({ pointer: 'x', x: 'x', y: 'y2' });
+    expect(calls.tip[0].opts.channels).toEqual({ delta: 'value' });
+  });
+});
+
+
 describe('Horizontal presets', () => {
   const RANKING = `
     <thead><tr><th>Product</th><th>Sales</th></tr></thead>
