@@ -195,6 +195,61 @@ test.describe('hc-chart (installChart)', () => {
     await expect(page.locator('[data-testid="chart-waterfall"] table')).toHaveClass(/hc-sr-only/);
   });
 
+  test('data-link: probe mark present, click forwards to the table anchor', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const svg = document.querySelector('[data-testid="chart-linked"] svg');
+      const opts = window.__plotOpts.find((o) =>
+        o.marks.some((m) => m && m.name === 'dot' && m.opts && m.opts.r === 0));
+      const probe = opts && opts.marks.find((m) => m.name === 'dot');
+      const row = opts && opts.marks.find((m) => m.name === 'barY').data[0];
+
+      // Simulate what Plot's pointer does on hover, then click the chart.
+      svg.value = row;
+      svg.dispatchEvent(new Event('input'));
+      const cursorFocused = svg.style.cursor;
+      svg.dispatchEvent(new Event('click'));
+
+      svg.value = null; // empty space → no navigation
+      svg.dispatchEvent(new Event('input'));
+      const cursorBlurred = svg.style.cursor;
+      svg.dispatchEvent(new Event('click'));
+
+      return {
+        probeOpts: probe && probe.opts,
+        rowHasLink: !!(row && row.link),
+        cursorFocused,
+        cursorBlurred,
+        clicks: window.__linkClicks,
+      };
+    });
+
+    expect(result.probeOpts).toMatchObject({ pointer: 'x', r: 0, opacity: 0 });
+    expect(result.rowHasLink).toBe(true);
+    expect(result.cursorFocused).toBe('pointer');
+    expect(result.cursorBlurred).toBe('');
+    expect(result.clicks).toEqual(['/products/alpha']); // exactly one navigation
+  });
+
+  test('data-link form mode: fills x + series from the datum and submits', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const svg = document.querySelector('[data-testid="chart-link-form"] svg');
+      const opts = window.__plotOpts.find((o) =>
+        o.fy === undefined && o.fx && o.marks.some((m) => m && m.name === 'dot' && m.opts && m.opts.r === 0));
+      const row = opts.marks.find((m) => m.name === 'barY').data
+        .find((d) => d.x === 'Feb' && d.series === 'Osaka');
+
+      svg.value = row;
+      svg.dispatchEvent(new Event('input'));
+      const cursor = svg.style.cursor;
+      svg.dispatchEvent(new Event('click'));
+
+      return { cursor, submits: window.__formSubmits };
+    });
+
+    expect(result.cursor).toBe('pointer'); // form mode: every datum is clickable
+    expect(result.submits).toEqual([{ x: 'Feb', series: 'Osaka' }]);
+  });
+
   test('axe finds no violations in the chart section', async ({ page }) => {
     const results = await new AxeBuilder({ page })
       .include('#section-chart')

@@ -748,6 +748,87 @@ row × column + value. Hover the demo:
 Tooltips are client-side interactivity — they do not apply to the
 [server-rendered](#server-side-rendering) path.
 
+## Click-through (`data-link`)
+
+Make the **first-column cell a real link** and add `data-link` —
+clicking a bar, dot or cell forwards the click to that row's anchor.
+The chart never owns a URL or a request: a plain `href` navigates, and
+htmx attributes on the anchor (`data-hx-get`, `data-hx-target`,
+`data-hx-push-url`, …) swap exactly as authored. The same link is the
+no-JavaScript, keyboard, and screen-reader path, since the table stays
+the accessible surface.
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="bar" data-link data-tip data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Sales by product (click a bar)</caption>
+      <thead>
+        <tr><th>Product</th><th>Sales</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="#click-through-data-link">Alpha</a></td><td>320</td></tr>
+        <tr><td><a href="#click-through-data-link">Beta</a></td><td>180</td></tr>
+        <tr><td><a href="#click-through-data-link">Gamma</a></td><td>240</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="bar" data-link data-tip data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Sales by product</caption>
+      <thead>
+        <tr><th>Product</th><th>Sales</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="/products/alpha"
+                   data-hx-get="/products/alpha/panel"
+                   data-hx-target="#detail">Alpha</a></td><td>320</td></tr>
+        <tr><td><a href="/products/beta"
+                   data-hx-get="/products/beta/panel"
+                   data-hx-target="#detail">Beta</a></td><td>180</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+Rows without an anchor simply don't navigate. Focus tracking reuses the
+tooltip's pointer (or an invisible probe without `data-tip`); clicks in
+empty space — beyond the pointer's 40 px radius — do nothing, and the
+cursor becomes a pointer only while a clickable datum is focused.
+Client-side only, and not supported for `histogram` (bins aggregate
+many rows).
+
+### Figure-wide form mode (category × series)
+
+Row anchors carry **row** granularity. To let the **server** decide
+what a click means — and to know **which series** was clicked in a
+multi-series chart — put a `<form>` in the figure instead. On click,
+named fields matching the datum keys (`x`, `series`, `value`, …) are
+filled from the focused datum and the form is submitted, so htmx on
+the form owns the request:
+
+```html
+<figure class="hc-chart" data-hc-chart="bar-grouped" data-link data-tip>
+  <form data-hx-get="/reports/drill" data-hx-target="#detail">
+    <input type="hidden" name="x">
+    <input type="hidden" name="series">
+  </form>
+  <table class="hc-table">…</table>
+</figure>
+<!-- click Feb × Osaka → GET /reports/drill?x=Feb&series=Osaka -->
+```
+
+A `<form>` takes precedence over row anchors and makes every datum
+clickable. For a no-JavaScript drill-down path, use visible fields (a
+`<select name="x">` + submit button) instead of hidden ones — the same
+endpoint serves both.
+
 ## Y axis: domain and format
 
 `data-y-min` / `data-y-max` pin the y domain — fix percentages to
@@ -817,6 +898,7 @@ reads raw cell values and ignores stacking.
 | `data-tip`      | off                          | Hover tooltip; bare, or `x` \| `y` \| `xy`. |
 | `data-y-min` / `data-y-max` | data extent      | Pin the y domain.                       |
 | `data-y-format` | Plot default                 | y tick format (d3-format string).       |
+| `data-link`     | off                          | Clicks forward to the row's first-column anchor. |
 
 Bars expect a `category` x; `number` / `date` x suit `line` / `area`.
 

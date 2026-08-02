@@ -540,6 +540,181 @@ describe('options: data-tip', () => {
 });
 
 
+describe('options: data-link', () => {
+  const LINKED = `
+    <thead><tr><th>Product</th><th>Sales</th></tr></thead>
+    <tbody>
+      <tr><td><a href="/products/alpha" data-hx-get="/products/alpha/panel">Alpha</a></td><td>320</td></tr>
+      <tr><td>Beta</td><td>180</td></tr>
+    </tbody>`;
+
+  it('captures the first-column anchor on the row (only where present)', () => {
+    document.body.innerHTML = fig('bar', LINKED, 'data-link');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    const rows = calls.barY[0].data;
+    expect(rows[0].link).toBeInstanceOf(HTMLAnchorElement);
+    expect(rows[0].link.getAttribute('href')).toBe('/products/alpha');
+    expect(rows[1].link).toBeUndefined();
+  });
+
+  it('data-link without data-tip adds an invisible pointer probe', () => {
+    document.body.innerHTML = fig('bar', LINKED, 'data-link');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip).toHaveLength(0);
+    expect(calls.dot).toHaveLength(1); // the probe (bar charts have no dots)
+    expect(calls.dot[0].opts).toMatchObject({
+      pointer: 'x', x: 'x', y: 'value', r: 0, opacity: 0,
+    });
+  });
+
+  it('with data-tip the tip mark doubles as the pointer — no probe', () => {
+    document.body.innerHTML = fig('bar', LINKED, 'data-link data-tip');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.tip).toHaveLength(1);
+    expect(calls.dot).toHaveLength(0);
+  });
+
+  it('forwards a chart click to the focused row\'s real anchor', () => {
+    document.body.innerHTML = fig('bar', LINKED, 'data-link');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+
+    const anchor = document.querySelector('a');
+    let clicked = 0;
+    anchor.addEventListener('click', (e) => { e.preventDefault(); clicked += 1; });
+
+    const svg = document.querySelector('.hc-chart svg');
+    svg.value = calls.barY[0].data[0]; // what Plot's pointer publishes on hover
+    svg.dispatchEvent(new Event('click'));
+    expect(clicked).toBe(1);
+
+    svg.value = calls.barY[0].data[1]; // Beta has no link
+    svg.dispatchEvent(new Event('click'));
+    expect(clicked).toBe(1);
+
+    svg.value = null; // empty space (outside the pointer maxRadius)
+    svg.dispatchEvent(new Event('click'));
+    expect(clicked).toBe(1);
+  });
+
+  it('shows a pointer cursor only while a linked row is focused', () => {
+    document.body.innerHTML = fig('bar', LINKED, 'data-link');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+
+    const svg = document.querySelector('.hc-chart svg');
+    svg.value = calls.barY[0].data[0];
+    svg.dispatchEvent(new Event('input'));
+    expect(svg.style.cursor).toBe('pointer');
+
+    svg.value = null;
+    svg.dispatchEvent(new Event('input'));
+    expect(svg.style.cursor).toBe('');
+  });
+
+  it('without data-link, clicks are not forwarded and no probe is added', () => {
+    document.body.innerHTML = fig('bar', LINKED);
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.dot).toHaveLength(0);
+
+    const anchor = document.querySelector('a');
+    let clicked = 0;
+    anchor.addEventListener('click', (e) => { e.preventDefault(); clicked += 1; });
+    const svg = document.querySelector('.hc-chart svg');
+    svg.value = calls.barY[0].data[0];
+    svg.dispatchEvent(new Event('click'));
+    expect(clicked).toBe(0);
+  });
+
+  it('form mode: fills matching named fields from the datum and submits', () => {
+    document.body.innerHTML = `
+      <figure class="hc-chart" data-hc-chart="bar-grouped" data-link>
+        <form action="/reports/drill">
+          <input type="hidden" name="x">
+          <input type="hidden" name="series">
+        </form>
+        <table class="hc-table">
+          <thead><tr><th>Month</th><th>Tokyo</th><th>Osaka</th></tr></thead>
+          <tbody><tr><td>Feb</td><td>200</td><td>140</td></tr></tbody>
+        </table>
+      </figure>`;
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+
+    const form = document.querySelector('form');
+    let submits = 0;
+    form.addEventListener('submit', (e) => { e.preventDefault(); submits += 1; });
+
+    const svg = document.querySelector('.hc-chart svg');
+    svg.value = calls.barY[0].data[1]; // Feb × Osaka
+    svg.dispatchEvent(new Event('click'));
+
+    expect(submits).toBe(1);
+    expect(form.elements.x.value).toBe('Feb');
+    expect(form.elements.series.value).toBe('Osaka'); // series granularity
+  });
+
+  it('form mode wins over row anchors and makes every datum clickable', () => {
+    document.body.innerHTML = `
+      <figure class="hc-chart" data-hc-chart="bar" data-link>
+        <form action="/drill"><input type="hidden" name="x"></form>
+        <table class="hc-table">
+          <thead><tr><th>Product</th><th>Sales</th></tr></thead>
+          <tbody><tr><td><a href="/products/alpha">Alpha</a></td><td>320</td></tr></tbody>
+        </table>
+      </figure>`;
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+
+    const anchor = document.querySelector('a');
+    let anchorClicks = 0;
+    anchor.addEventListener('click', (e) => { e.preventDefault(); anchorClicks += 1; });
+    const form = document.querySelector('form');
+    let submits = 0;
+    form.addEventListener('submit', (e) => { e.preventDefault(); submits += 1; });
+
+    const svg = document.querySelector('.hc-chart svg');
+    svg.value = calls.barY[0].data[0];
+    svg.dispatchEvent(new Event('input'));
+    expect(svg.style.cursor).toBe('pointer');
+    svg.dispatchEvent(new Event('click'));
+
+    expect(submits).toBe(1);
+    expect(anchorClicks).toBe(0);
+  });
+
+  it('waterfall segments inherit the row anchor', () => {
+    document.body.innerHTML = fig('waterfall', `
+      <thead><tr><th>Step</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td><a href="/steps/sales">Sales</a></td><td>80</td></tr>
+        <tr><td>Costs</td><td>-30</td></tr>
+      </tbody>`, 'data-link');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.barY[0].data[0].link).toBeInstanceOf(HTMLAnchorElement);
+    expect(calls.barY[0].data[1].link).toBeUndefined();
+  });
+
+  it('heatmap link-only gets a 2D probe on the matrix channels', () => {
+    document.body.innerHTML = fig('heatmap', `
+      <thead><tr><th>Slot</th><th>Mon</th><th>Tue</th></tr></thead>
+      <tbody><tr><td><a href="/slots/morning">Morning</a></td><td>3</td><td>7</td></tr></tbody>`,
+      'data-link');
+    const { plot, calls } = fakePlot();
+    uninstall = installChart(document, { plot });
+    expect(calls.dot).toHaveLength(1);
+    expect(calls.dot[0].opts).toMatchObject({
+      pointer: 'xy', x: 'series', y: 'x', r: 0, opacity: 0,
+    });
+  });
+});
+
+
 describe('options: y domain and format', () => {
   const ONE_SERIES = `
     <thead><tr><th>Month</th><th>Sales</th></tr></thead>

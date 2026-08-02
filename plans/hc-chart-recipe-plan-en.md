@@ -228,6 +228,13 @@ All strictly additive (patch per VERSIONING.md); one concern per PR:
   the cell so the no-JS table stays truthful); increase / decrease /
   total colours from dedicated tokens.
 
+- **PR D — click-through (`data-link`):** clicks forward to
+  server-authored markup via pointer-focus delegation — a first-column
+  anchor (row granularity, real no-JS path) or a figure-wide form
+  (category × series granularity, fields filled from the focused datum,
+  htmx on the form owns the request). The chart stays URL- and
+  network-free.
+
 Pie/donut stays out of scope (Plot has no arc mark — documented; the
 `bar-x` + `data-stack-offset`-style normalized composition or a waffle
 are the recommended substitutes).

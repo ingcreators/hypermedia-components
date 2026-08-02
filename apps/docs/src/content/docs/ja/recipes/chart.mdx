@@ -751,6 +751,87 @@ y 値、そして(複数系列なら)系列名。コンボチャートでも同�
 [サーバサイドレンダリング](#サーバサイドレンダリング)のパスには
 適用されません。
 
+## クリックで遷移(`data-link`)
+
+**1列目のセルを本物のリンク**にして figure に `data-link` を付けると、
+棒・点・セルのクリックがその行のアンカーへ転送されます。チャートは
+URL もリクエストも一切持ちません: 素の `href` ならページ遷移、
+アンカーに htmx 属性(`data-hx-get`、`data-hx-target`、
+`data-hx-push-url` など)があれば書いたとおりに swap されます。同じ
+リンクが非 JavaScript・キーボード・スクリーンリーダーの操作経路にも
+なります(テーブルがアクセシブルな操作面であり続けます)。
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="bar" data-link data-tip data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Sales by product (click a bar)</caption>
+      <thead>
+        <tr><th>Product</th><th>Sales</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="#クリックで遷移data-link">Alpha</a></td><td>320</td></tr>
+        <tr><td><a href="#クリックで遷移data-link">Beta</a></td><td>180</td></tr>
+        <tr><td><a href="#クリックで遷移data-link">Gamma</a></td><td>240</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="bar" data-link data-tip data-y-label="Sales ($k)">
+    <table class="hc-table">
+      <caption>Sales by product</caption>
+      <thead>
+        <tr><th>Product</th><th>Sales</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="/products/alpha"
+                   data-hx-get="/products/alpha/panel"
+                   data-hx-target="#detail">Alpha</a></td><td>320</td></tr>
+        <tr><td><a href="/products/beta"
+                   data-hx-get="/products/beta/panel"
+                   data-hx-target="#detail">Beta</a></td><td>180</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+アンカーのない行は単に遷移しません。フォーカス追跡はツールチップの
+pointer を再利用します(`data-tip` なしの場合は不可視のプローブ)。
+pointer の半径 40px を超えた余白のクリックは何もせず、カーソルは
+クリック可能なデータにフォーカスしている間だけポインターになります。
+クライアント側限定で、`histogram` は対象外です(ビンが複数行を集約
+するため)。
+
+### figure 共通のフォームモード(カテゴリ × 系列)
+
+行アンカーの粒度は**行**単位です。「クリックの意味はサーバが決める」
+形にしたい場合や、複数系列チャートで**どの系列**がクリックされたかまで
+必要な場合は、figure の中に `<form>` を置きます。クリック時に、データの
+キー(`x`、`series`、`value` など)と一致する name を持つフィールドが
+フォーカス中のデータで埋められ、フォームが送信されます — リクエストは
+フォーム上の htmx が所有します:
+
+```html
+<figure class="hc-chart" data-hc-chart="bar-grouped" data-link data-tip>
+  <form data-hx-get="/reports/drill" data-hx-target="#detail">
+    <input type="hidden" name="x">
+    <input type="hidden" name="series">
+  </form>
+  <table class="hc-table">…</table>
+</figure>
+<!-- Feb × Osaka をクリック → GET /reports/drill?x=Feb&series=Osaka -->
+```
+
+`<form>` は行アンカーより優先され、すべてのデータがクリック可能に
+なります。非 JavaScript でもドリルダウンできる経路が必要なら、hidden の
+代わりに可視のフィールド(`<select name="x">` + 送信ボタン)にして
+ください — 同じエンドポイントが両方に応えます。
+
 ## y 軸: 範囲と表示形式
 
 `data-y-min` / `data-y-max` は y のドメインを固定します —
@@ -820,6 +901,7 @@ y 値、そして(複数系列なら)系列名。コンボチャートでも同�
 | `data-tip`      | オフ                         | ホバーツールチップ。値なし、または `x` \| `y` \| `xy`。 |
 | `data-y-min` / `data-y-max` | データ範囲       | y ドメインを固定。                      |
 | `data-y-format` | Plot 既定                    | y 目盛りの表示形式(d3-format 文字列)。 |
+| `data-link`     | オフ                         | クリックを行の1列目アンカーへ転送。     |
 
 棒は `category` の x を期待します。`number` / `date` の x は
 `line` / `area` に向きます。
