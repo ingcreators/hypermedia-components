@@ -641,6 +641,60 @@ Row/column order is preserved as authored.
   </Fragment>
 </Demo>
 
+## Waterfall (`waterfall`)
+
+The financial bridge: one **signed-delta** column, and bars float from
+the running total before each delta to the total after it. Rows marked
+`<tr data-total>` are **absolute anchors** — the cell holds the real
+total (the no-JavaScript table stays truthful), the bar runs from 0 to
+that value, and the running total resets to it. Increase / decrease /
+total bars are coloured by `--hc-chart-waterfall-increase` /
+`-decrease` / `-total` (success / error / muted by default).
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="waterfall" data-tip data-y-label="Cash ($k)">
+    <table class="hc-table">
+      <caption>Cash bridge</caption>
+      <thead>
+        <tr><th>Step</th><th>Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr data-total><td>Opening</td><td>100</td></tr>
+        <tr><td>Sales</td><td>+80</td></tr>
+        <tr><td>Refunds</td><td>-15</td></tr>
+        <tr><td>Costs</td><td>-30</td></tr>
+        <tr data-total><td>Closing</td><td>135</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="waterfall" data-tip data-y-label="Cash ($k)">
+    <table class="hc-table">
+      <caption>Cash bridge</caption>
+      <thead>
+        <tr><th>Step</th><th>Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr data-total><td>Opening</td><td>100</td></tr>
+        <tr><td>Sales</td><td>+80</td></tr>
+        <tr><td>Refunds</td><td>-15</td></tr>
+        <tr><td>Costs</td><td>-30</td></tr>
+        <tr data-total><td>Closing</td><td>135</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+With `data-tip` the tooltip shows the step, the running total and the
+delta. The legend (increase / decrease / total) is on by default;
+`data-legend="false"` hides it.
+
 ## Tooltips (`data-tip`)
 
 Add `data-tip` to show a hover tooltip — the x value, the y value, and

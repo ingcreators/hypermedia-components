@@ -643,6 +643,60 @@ Observable Plot に円/ドーナツのマークはありません。全体に対
   </Fragment>
 </Demo>
 
+## ウォーターフォール(`waterfall`)
+
+財務ブリッジ図です: **符号付きの増減**を 1 列だけ読み、直前までの
+累計から増減後の累計まで棒が浮いて描かれます。`<tr data-total>` を
+付けた行は**絶対値のアンカー**です — セルには実際の合計値を入れます
+(非 JavaScript のテーブルが正しいままになります)。その棒は 0 から
+その値まで描かれ、累計はその値にリセットされます。増加 / 減少 / 合計の
+棒はそれぞれ `--hc-chart-waterfall-increase` / `-decrease` / `-total`
+で着色されます(デフォルトは success / error / muted)。
+
+<Demo previewStyle="max-inline-size:38rem;">
+  <figure class="hc-chart" data-hc-chart="waterfall" data-tip data-y-label="Cash ($k)">
+    <table class="hc-table">
+      <caption>Cash bridge</caption>
+      <thead>
+        <tr><th>Step</th><th>Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr data-total><td>Opening</td><td>100</td></tr>
+        <tr><td>Sales</td><td>+80</td></tr>
+        <tr><td>Refunds</td><td>-15</td></tr>
+        <tr><td>Costs</td><td>-30</td></tr>
+        <tr data-total><td>Closing</td><td>135</td></tr>
+      </tbody>
+    </table>
+  </figure>
+
+  <Fragment slot="code">
+
+  ```html
+  <figure class="hc-chart" data-hc-chart="waterfall" data-tip data-y-label="Cash ($k)">
+    <table class="hc-table">
+      <caption>Cash bridge</caption>
+      <thead>
+        <tr><th>Step</th><th>Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr data-total><td>Opening</td><td>100</td></tr>
+        <tr><td>Sales</td><td>+80</td></tr>
+        <tr><td>Refunds</td><td>-15</td></tr>
+        <tr><td>Costs</td><td>-30</td></tr>
+        <tr data-total><td>Closing</td><td>135</td></tr>
+      </tbody>
+    </table>
+  </figure>
+  ```
+
+  </Fragment>
+</Demo>
+
+`data-tip` を付けると、ツールチップにステップ・累計・増減が表示され
+ます。凡例(increase / decrease / total)はデフォルトで表示され、
+`data-legend="false"` で非表示にできます。
+
 ## ツールチップ(`data-tip`)
 
 `data-tip` を付けると、ホバーでツールチップが表示されます — x 値、
