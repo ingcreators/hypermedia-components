@@ -37,6 +37,23 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Chart: `data-link` — click-through to server-authored markup**
+  (recipe `chart` / `installChart`). Clicking a mark forwards the
+  click to real markup the server sent — the chart never owns a URL
+  or a request. Two contracts, resolved by what the figure contains:
+  a first-column **anchor** (row granularity; a plain `href`
+  navigates, htmx attributes swap as authored; the same link is the
+  no-JS / keyboard / screen-reader path), or a figure-wide **form**
+  (category × series granularity; named fields matching datum keys —
+  `x`, `series`, `value`, … — are filled from the focused datum and
+  the form is submitted, so htmx on the form owns the request and the
+  server decides what the parameters mean; visible fields give the
+  same drill-down a no-JS path). Focus tracking reuses the `data-tip`
+  pointer or an invisible probe; the pointer's 40px radius guards
+  empty-space clicks; the cursor turns into a pointer only while a
+  clickable datum is focused. Client-side only; `histogram` excluded
+  (bins aggregate rows).
+
 - **Chart: `waterfall` — the financial bridge** (recipe `chart` /
   `installChart`). One signed-delta column becomes floating bars from
   the running total before each delta to the total after it. Rows

@@ -110,6 +110,7 @@ the delta. Connector lines between steps are a possible future addition.
 | `data-tip`             | off          | Hover tooltip. Bare/`true` picks per type (`x` snap; scatter `xy`); or `x` \| `y` \| `xy` explicitly; `false` off. |
 | `data-y-min` / `data-y-max` | data extent | Pin the y domain (e.g. `data-y-max="100"` for percentages). A missing bound falls back to the data extent (min floored at 0). With **stacked** bars set both — the raw-value extent ignores stacking. The zero baseline rule is dropped when 0 leaves the domain. |
 | `data-y-format`        | Plot default | y-axis tick format, a [d3-format](https://d3js.org/d3-format) string (`"s"` → `1.2k`, `".0%"`, `",.0f"`). |
+| `data-link`            | off          | Click-through: clicking a mark clicks the row's **first-column anchor** (plain `href` or htmx attributes — see below). |
 
 Cell values are coerced to numbers; thousands separators, currency
 symbols, and `%` signs are stripped (`"1,200"` → `1200`). Bars expect a
@@ -128,6 +129,62 @@ row × column + value). Tooltips are client-side interactivity: they do
 ```html
 <figure class="hc-chart" data-hc-chart="line" data-tip data-y-label="Sales ($k)">
 ```
+
+## Click-through (`data-link`)
+
+Make the **first-column cell a real link** and add `data-link` to the
+figure — clicking a mark forwards the click to that row's anchor. The
+chart never owns a URL or a request: whatever the anchor says happens —
+a plain `href` navigates, htmx attributes (`data-hx-get`,
+`data-hx-target`, `data-hx-push-url`, …) swap exactly as authored. The
+same link is the no-JavaScript, keyboard, and screen-reader path (the
+SVG stays `aria-hidden`; the table remains the accessible surface).
+
+```html
+<figure class="hc-chart" data-hc-chart="bar" data-link data-tip>
+  <table class="hc-table">
+    <thead><tr><th>Product</th><th>Sales</th></tr></thead>
+    <tbody>
+      <tr><td><a href="/products/alpha"
+                 data-hx-get="/products/alpha/panel"
+                 data-hx-target="#detail">Alpha</a></td><td>320</td></tr>
+    </tbody>
+  </table>
+</figure>
+```
+
+Rows without an anchor simply don't navigate. Focus tracking reuses the
+tooltip's pointer (with `data-tip`), or an invisible pointer probe
+without it; the pointer's 40 px radius doubles as the empty-space click
+guard, and the cursor becomes a pointer only while a clickable datum is
+focused. Client-side only (like tooltips, not the SSR path); not
+supported for `histogram`, whose bins aggregate many rows.
+
+### Figure-wide form mode (category × series)
+
+Row anchors carry **row** granularity. For "the server decides what the
+click means" — and to know **which series** was clicked in a
+multi-series chart — put a `<form>` in the figure instead. Named fields
+matching datum keys (`x`, `series`, `value`, …) are filled from the
+focused datum and the form is submitted; htmx on the form owns the
+request:
+
+```html
+<figure class="hc-chart" data-hc-chart="bar-grouped" data-link data-tip>
+  <form data-hx-get="/reports/drill" data-hx-target="#detail">
+    <input type="hidden" name="x">
+    <input type="hidden" name="series">
+  </form>
+  <table class="hc-table">…</table>
+</figure>
+<!-- click Feb × Osaka → GET /reports/drill?x=Feb&series=Osaka -->
+```
+
+A `<form>` in the figure takes precedence over row anchors, and every
+datum becomes clickable. For a no-JavaScript drill-down path, make the
+fields visible (a `<select name="x">` + submit) instead of hidden — the
+same endpoint serves both. Waterfall datums expose `x`, `value`, `y2`
+(running total) and `kind`.
 
 ## Escape hatch (`buildOptions`)
 

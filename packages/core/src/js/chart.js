@@ -123,12 +123,17 @@ function readTable(figure, table) {
       ? toNumber(cells[rColumn.index].textContent)
       : undefined;
     const isTotal = tr.hasAttribute('data-total');
+    // A first-column anchor is the row's navigation target (`data-link`
+    // click-through). Kept as the ELEMENT so a synthesized click hits the
+    // real link — htmx attributes on it behave exactly as authored.
+    const link = cells[0].querySelector('a');
     for (const s of series) {
       const cell = cells[s.index];
       if (!cell) continue;
       const row = { x, series: s.name, mark: s.mark, value: toNumber(cell.textContent) };
       if (r != null) row.r = r;
       if (isTotal) row.total = true;
+      if (link) row.link = link;
       rows.push(row);
     }
   }
@@ -176,9 +181,7 @@ function buildMarks(plot, rows, ctx) {
     marks.push(plot.dot(line, { x: 'x', y: 'value', z: 'series', fill: 'series', r: 2.5 }));
   }
 
-  if (ctx.tip) {
-    marks.push(tipMark(plot, rows.filter((d) => d.value != null), ctx.tip, ctx.tipChannels));
-  }
+  marks.push(...ctx.interact(rows.filter((d) => d.value != null), ctx.tipChannels));
 
   return marks;
 }
@@ -201,9 +204,7 @@ const TYPE_PRESETS = {
     marks: [
       ...(ctx.zeroOk ? [plot.ruleY([0])] : []),
       plot.barY(validRows(data.rows), { x: 'x', y: 'value', fill: 'series' }),
-      ...(ctx.tip
-        ? [tipMark(plot, validRows(data.rows), ctx.tip, seriesTipChannels(data))]
-        : []),
+      ...ctx.interact(validRows(data.rows), seriesTipChannels(data)),
     ],
   }),
 
@@ -213,14 +214,12 @@ const TYPE_PRESETS = {
     marks: [
       ...(ctx.zeroOk ? [plot.ruleY([0])] : []),
       plot.barY(validRows(data.rows), { fx: 'x', x: 'series', y: 'value', fill: 'series' }),
-      ...(ctx.tip
-        ? [tipMark(plot, validRows(data.rows), ctx.tip, {
-          fx: 'x',
-          x: 'series',
-          y: 'value',
-          channels: { [data.xName || 'group']: 'x' },
-        })]
-        : []),
+      ...ctx.interact(validRows(data.rows), {
+        fx: 'x',
+        x: 'series',
+        y: 'value',
+        channels: { [data.xName || 'group']: 'x' },
+      }),
     ],
     options: {
       x: { axis: null },
@@ -236,13 +235,11 @@ const TYPE_PRESETS = {
     marks: [
       ...(ctx.zeroOk ? [plot.ruleX([0])] : []),
       plot.barX(validRows(data.rows), { y: 'x', x: 'value', fill: 'series' }),
-      ...(ctx.tip
-        ? [tipMark(plot, validRows(data.rows), ctx.tip, {
-          y: 'x',
-          x: 'value',
-          ...(data.series.length > 1 ? { channels: { series: 'series' } } : {}),
-        })]
-        : []),
+      ...ctx.interact(validRows(data.rows), {
+        y: 'x',
+        x: 'value',
+        ...(data.series.length > 1 ? { channels: { series: 'series' } } : {}),
+      }),
     ],
     options: {
       x: { ...base.y },
@@ -257,14 +254,12 @@ const TYPE_PRESETS = {
     marks: [
       ...(ctx.zeroOk ? [plot.ruleX([0])] : []),
       plot.barX(validRows(data.rows), { fy: 'x', y: 'series', x: 'value', fill: 'series' }),
-      ...(ctx.tip
-        ? [tipMark(plot, validRows(data.rows), ctx.tip, {
-          fy: 'x',
-          y: 'series',
-          x: 'value',
-          channels: { [data.xName || 'group']: 'x' },
-        })]
-        : []),
+      ...ctx.interact(validRows(data.rows), {
+        fy: 'x',
+        y: 'series',
+        x: 'value',
+        channels: { [data.xName || 'group']: 'x' },
+      }),
     ],
     options: {
       x: { ...base.y },
@@ -285,12 +280,10 @@ const TYPE_PRESETS = {
         fillOpacity: 0.4,
         ...(data.hasR ? { r: 'r' } : { r: 4 }),
       }),
-      ...(ctx.tip
-        ? [tipMark(plot, validRows(data.rows), ctx.tip, {
-          ...seriesTipChannels(data),
-          ...(data.hasR ? { r: 'r' } : {}),
-        })]
-        : []),
+      ...ctx.interact(validRows(data.rows), {
+        ...seriesTipChannels(data),
+        ...(data.hasR ? { r: 'r' } : {}),
+      }),
     ],
   }),
 
@@ -331,6 +324,9 @@ const TYPE_PRESETS = {
         // A single cell mark → its own tip is unambiguous (row, column, value).
         ...(ctx.tip ? { tip: true } : {}),
       }),
+      // The cell tip's pointer already publishes the focused row for
+      // data-link; only the tip-less case needs the probe.
+      ...(ctx.tip ? [] : ctx.interact(validRows(data.rows), { x: 'series', y: 'x' }, 'xy')),
     ],
     options: {
       x: { label: null, domain: data.series.map((s) => s.name) },
@@ -365,6 +361,7 @@ const TYPE_PRESETS = {
           y1,
           y2,
           kind: d.total ? 'total' : d.value < 0 ? 'decrease' : 'increase',
+          ...(d.link ? { link: d.link } : {}),
         };
       });
     const range = resolveWaterfallRange(ctx.figure);
@@ -372,13 +369,11 @@ const TYPE_PRESETS = {
       marks: [
         ...(ctx.zeroOk ? [plot.ruleY([0])] : []),
         plot.barY(segments, { x: 'x', y1: 'y1', y2: 'y2', fill: 'kind' }),
-        ...(ctx.tip
-          ? [tipMark(plot, segments, ctx.tip, {
-            x: 'x',
-            y: 'y2',
-            channels: { delta: 'value' },
-          })]
-          : []),
+        ...ctx.interact(segments, {
+          x: 'x',
+          y: 'y2',
+          channels: { delta: 'value' },
+        }),
       ],
       options: {
         color: {
@@ -400,9 +395,7 @@ const TYPE_PRESETS = {
       plot.lineY(validRows(data.rows), {
         x: 'x', y: 'value', z: 'series', stroke: 'series', curve: 'monotone-x',
       }),
-      ...(ctx.tip
-        ? [tipMark(plot, validRows(data.rows), ctx.tip, seriesTipChannels(data))]
-        : []),
+      ...ctx.interact(validRows(data.rows), seriesTipChannels(data)),
     ],
     options: {
       height: ctx.explicitHeight != null ? ctx.explicitHeight : 48,
@@ -468,6 +461,15 @@ function tipMark(plot, rows, mode, channels) {
   return plot.tip(rows, ptr(channels));
 }
 
+// An invisible pointer-tracking mark: `data-link` without `data-tip` still
+// needs Plot's pointer to publish the focused row (node.value + `input`
+// events) so clicks know which datum they hit. The pointer's own maxRadius
+// (40px) doubles as the empty-space click guard.
+function probeMark(plot, rows, mode, channels) {
+  const ptr = mode === 'y' ? plot.pointerY : mode === 'xy' ? plot.pointer : plot.pointerX;
+  return plot.dot(rows, ptr({ ...channels, r: 0, opacity: 0 }));
+}
+
 // The explicit y domain from `data-y-min` / `data-y-max`, or null when
 // neither is set. A missing bound falls back to the data extent (min is
 // floored at 0, matching Plot's default for bars). With stacked bars set
@@ -528,10 +530,18 @@ function renderFigure(figure, rendered, options) {
   const yDomain = yDomainOf(figure, data.rows);
   const yFormat = figure.getAttribute('data-y-format') || null;
   // Scatter wants the nearest point in both dimensions; everything else
-  // reads better snapping along x (columns / time).
-  const tip = tipModeOf(
-    figure,
-    type === 'scatter' ? 'xy' : type === 'bar-x' || type === 'bar-x-grouped' ? 'y' : 'x',
+  // reads better snapping along x (columns / time; category axis for the
+  // horizontal presets).
+  const autoPtr = type === 'scatter' ? 'xy' : type === 'bar-x' || type === 'bar-x-grouped' ? 'y' : 'x';
+  const tip = tipModeOf(figure, autoPtr);
+  const link = figure.hasAttribute('data-link');
+  // The one pointer-driven mark a figure gets: the visible tip when
+  // `data-tip` is on, else an invisible probe when only `data-link` needs
+  // the focused row, else nothing.
+  const interact = (rows, channels, mode) => (
+    tip ? [tipMark(plot, rows, tip, channels)]
+      : link ? [probeMark(plot, rows, mode || autoPtr, channels)]
+        : []
   );
   // The zero baseline only makes sense when 0 is inside the value domain.
   const zeroOk = !yDomain || (yDomain[0] <= 0 && yDomain[1] >= 0);
@@ -561,10 +571,10 @@ function renderFigure(figure, rendered, options) {
     // (20rem), which must not defeat a preset's own compact default.
     const explicitHeight = parseDim(figure.getAttribute('data-height'));
     ({ marks, options: overrides = null } = preset(plot, data, base, {
-      figure, explicitHeight, zeroOk, tip,
+      figure, explicitHeight, zeroOk, tip, interact,
     }));
   } else {
-    marks = buildMarks(plot, data.rows, { zeroOk, tip, tipChannels: seriesTipChannels(data) });
+    marks = buildMarks(plot, data.rows, { zeroOk, interact, tipChannels: seriesTipChannels(data) });
   }
 
   let spec = { ...base, ...(overrides || {}), marks };
@@ -580,6 +590,36 @@ function renderFigure(figure, rendered, options) {
   // The accessible data lives in the table (kept for assistive tech); hide
   // the decorative SVG from the accessibility tree to avoid duplication.
   node.setAttribute('aria-hidden', 'true');
+
+  // data-link: forward clicks to real, server-authored markup. The chart
+  // never owns a URL or a request — htmx attributes (or the plain href)
+  // do exactly what they say. Two contracts, resolved by what the figure
+  // contains:
+  //   - a <form> (figure-wide): named fields matching datum keys (x,
+  //     series, value, …) are filled from the focused row and the form is
+  //     submitted — htmx on the form handles the request, the server
+  //     decides what the parameters mean. Category × SERIES granularity.
+  //   - else the row's first-column <a>: the click is forwarded to it.
+  //     Row granularity; the same link is the no-JS / keyboard / AT path.
+  if (link) {
+    const form = figure.querySelector('form');
+    const targetOf = (d) => (d ? (form || d.link || null) : null);
+    node.addEventListener('input', () => {
+      node.style.cursor = targetOf(node.value) ? 'pointer' : '';
+    });
+    node.addEventListener('click', () => {
+      const d = node.value;
+      if (!d) return;
+      if (form) {
+        for (const field of form.elements) {
+          if (field.name && Object.hasOwn(d, field.name)) field.value = d[field.name];
+        }
+        form.requestSubmit();
+      } else if (d.link) {
+        d.link.click();
+      }
+    });
+  }
 
   table.classList.add('hc-sr-only');
   figure.appendChild(node);

@@ -163,6 +163,55 @@
     </figure>
   </section>
 
+  <section id="section-link" data-testid="section-link">
+    <figure class="hc-chart" data-hc-chart="bar" data-link data-y-label="Sales" data-testid="chart-linked">
+      <table class="hc-table">
+        <caption>Sales by product</caption>
+        <thead><tr><th>Product</th><th>Sales</th></tr></thead>
+        <tbody>
+          <tr><td><a href="/products/alpha" data-testid="link-alpha">Alpha</a></td><td>320</td></tr>
+          <tr><td>Beta</td><td>180</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <script>
+      // Stand-in for htmx: intercept the table link like data-hx-get would.
+      window.__linkClicks = [];
+      document.currentScript.previousElementSibling
+        .querySelector('a').addEventListener('click', (e) => {
+          e.preventDefault();
+          window.__linkClicks.push(e.target.getAttribute('href'));
+        });
+    </script>
+
+    <figure class="hc-chart" data-hc-chart="bar-grouped" data-link data-testid="chart-link-form">
+      <form action="/reports/drill" data-testid="drill-form">
+        <input type="hidden" name="x">
+        <input type="hidden" name="series">
+      </form>
+      <table class="hc-table">
+        <caption>Orders by channel</caption>
+        <thead><tr><th>Month</th><th>Tokyo</th><th>Osaka</th></tr></thead>
+        <tbody>
+          <tr><td>Jan</td><td>120</td><td>80</td></tr>
+          <tr><td>Feb</td><td>200</td><td>140</td></tr>
+        </tbody>
+      </table>
+    </figure>
+    <script>
+      // Stand-in for htmx: intercept the drill form like data-hx-get would.
+      window.__formSubmits = [];
+      document.currentScript.previousElementSibling
+        .querySelector('form').addEventListener('submit', (e) => {
+          e.preventDefault();
+          window.__formSubmits.push({
+            x: e.target.elements.x.value,
+            series: e.target.elements.series.value,
+          });
+        });
+    </script>
+  </section>
+
   <section id="section-waterfall" data-testid="section-waterfall">
     <figure class="hc-chart" data-hc-chart="waterfall" data-tip data-y-label="Cash ($k)" data-testid="chart-waterfall">
       <table class="hc-table">
