@@ -1,6 +1,7 @@
 # email templates — token-themed email fragments, theme-builder export, CLI eject plan
 
-Status: **draft — awaiting user approval.**
+Status: **approved 2026-08-02** — §9 questions resolved: full ten-fragment
+inventory; docs page under integrations/; dark-mode partial default-on.
 Goal: let an application built on Hypermedia Components send HTML email
 whose visual theme matches the app — including custom themes built in
 the theme builder — without adding Node to the application's runtime.
@@ -170,12 +171,9 @@ Verbose by design — recommended only for the tenant-variable subset.
 Each PR lands on main before the next starts (fast-merge rule — no
 stacked branches). CHANGELOG under Unreleased in PRs 1, 2, 4.
 
-## 9. Open questions for review
+## 9. Resolved review questions (2026-08-02)
 
-1. Fragment inventory v1: the ten in §4, or trim further (e.g. defer
-   `table`, `badge`)?
-2. Docs IA: "HTML email" page under integrations/ (guide-shaped) or
-   tokens/ (next to the theme builder)? Leaning integrations/.
-3. Dark-mode overlay: ship the `prefers-color-scheme` block in the
-   style partial by default, or behind a builder/CLI flag? Leaning
-   default-on (it degrades safely).
+1. Fragment inventory v1: **all ten** in §4.
+2. Docs IA: "HTML email" page under **integrations/** (guide-shaped).
+3. Dark-mode overlay: **default-on** in the style partial (degrades
+   safely where `prefers-color-scheme` is unsupported).
