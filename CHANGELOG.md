@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Email fragment sources + transformer** for the HTML-email render
+  target ([plan](plans/hc-email-templates-plan-en.md) §4): ten
+  table/inline-style fragments plus the layout and dark-mode `<style>`
+  partials under `src/email/<name>/` (`fragment.html` + `contract.md`),
+  authored as Thymeleaf natural templates with flat-token placeholders;
+  and the pure, browser-safe
+  `@hypermedia-components/core/email-transform` module
+  (`buildEmailFiles` / `expandEmailHtml` / `stripThymeleaf` /
+  `emailLayerStacks` / `emailManifestComment` / `emailTokensJson`).
+  Generation resolves tokens to literals (rem → px) — consumed by the
+  docs theme builder's Email tab and the CLI's `email eject`. A guard
+  test enforces an email-safe CSS property allowlist over everything
+  generated. New package exports: `./email/*`, `./email-transform`.
+
+### Added
+
 - **`resolveTokens()`** in the token transformer
   (`@hypermedia-components/core/token-transform`): resolves one concrete
   axis combination (ordered layer stack, later layers win) to a flat

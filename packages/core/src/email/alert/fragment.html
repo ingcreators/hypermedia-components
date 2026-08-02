@@ -1,0 +1,32 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" th:fragment="hcAlertInfo(title, text)">
+  <tr>
+    <td bgcolor="{alert-info-bg}" style="background-color:{alert-info-bg};border:{alert-border-width} solid {alert-info-border};border-radius:{alert-radius};padding:{alert-padding-block} {alert-padding-inline};">
+      <p style="margin:0;font-family:{font-family-sans};font-size:{font-size-md};font-weight:{alert-title-weight};line-height:1.4;color:{alert-info-fg};" th:text="${title}">Info title</p>
+      <p style="margin:{space-1} 0 0 0;font-family:{font-family-sans};font-size:{font-size-sm};line-height:1.6;color:{alert-info-fg};" th:text="${text}">Info body copy.</p>
+    </td>
+  </tr>
+</table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" th:fragment="hcAlertSuccess(title, text)">
+  <tr>
+    <td bgcolor="{alert-success-bg}" style="background-color:{alert-success-bg};border:{alert-border-width} solid {alert-success-border};border-radius:{alert-radius};padding:{alert-padding-block} {alert-padding-inline};">
+      <p style="margin:0;font-family:{font-family-sans};font-size:{font-size-md};font-weight:{alert-title-weight};line-height:1.4;color:{alert-success-fg};" th:text="${title}">Success title</p>
+      <p style="margin:{space-1} 0 0 0;font-family:{font-family-sans};font-size:{font-size-sm};line-height:1.6;color:{alert-success-fg};" th:text="${text}">Success body copy.</p>
+    </td>
+  </tr>
+</table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" th:fragment="hcAlertWarning(title, text)">
+  <tr>
+    <td bgcolor="{alert-warning-bg}" style="background-color:{alert-warning-bg};border:{alert-border-width} solid {alert-warning-border};border-radius:{alert-radius};padding:{alert-padding-block} {alert-padding-inline};">
+      <p style="margin:0;font-family:{font-family-sans};font-size:{font-size-md};font-weight:{alert-title-weight};line-height:1.4;color:{alert-warning-fg};" th:text="${title}">Warning title</p>
+      <p style="margin:{space-1} 0 0 0;font-family:{font-family-sans};font-size:{font-size-sm};line-height:1.6;color:{alert-warning-fg};" th:text="${text}">Warning body copy.</p>
+    </td>
+  </tr>
+</table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" th:fragment="hcAlertError(title, text)">
+  <tr>
+    <td bgcolor="{alert-error-bg}" style="background-color:{alert-error-bg};border:{alert-border-width} solid {alert-error-border};border-radius:{alert-radius};padding:{alert-padding-block} {alert-padding-inline};">
+      <p style="margin:0;font-family:{font-family-sans};font-size:{font-size-md};font-weight:{alert-title-weight};line-height:1.4;color:{alert-error-fg};" th:text="${title}">Error title</p>
+      <p style="margin:{space-1} 0 0 0;font-family:{font-family-sans};font-size:{font-size-sm};line-height:1.6;color:{alert-error-fg};" th:text="${text}">Error body copy.</p>
+    </td>
+  </tr>
+</table>

@@ -1,0 +1,6 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" th:fragment="hcKvTable(rows)" style="border:1px solid {table-border};">
+  <tr th:each="row : ${rows}">
+    <td width="35%" bgcolor="{table-header-bg}" style="background-color:{table-header-bg};padding:{table-cell-padding-y} {table-cell-padding-x};font-family:{font-family-sans};font-size:{table-font-size};font-weight:{table-header-weight};line-height:1.5;color:{table-header-fg};border-bottom:1px solid {table-border};" th:text="${row.key}">Key</td>
+    <td style="padding:{table-cell-padding-y} {table-cell-padding-x};font-family:{font-family-sans};font-size:{table-font-size};line-height:1.5;color:{table-fg};border-bottom:1px solid {table-border};" th:text="${row.value}">Value</td>
+  </tr>
+</table>
