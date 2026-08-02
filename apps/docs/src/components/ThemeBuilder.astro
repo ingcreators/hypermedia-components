@@ -15,7 +15,10 @@
 //     of (themed full build) vs (stock full build), so it captures exactly
 //     the changed variables in every block.
 //
-// Exports: DTCG source(s), an additive CSS block, and a full token CSS.
+// Exports: DTCG source(s), an additive CSS block, a full token CSS, and
+// theme-baked HTML email templates (Thymeleaf natural-template or plain
+// flavor) generated from the same resolved tokens via
+// `@hypermedia-components/core/email-transform`.
 //
 // Full theme also offers typography (body / heading / mono font-family). The
 // first option in each list is the stock stack, so "System" is a no-op (no
@@ -61,9 +64,12 @@ const PRESETS = [
 ];
 // Flatten for stable indexed lookup from the <select>.
 const PRESET_FLAT = PRESETS.flatMap((g) => g.items);
+
+// Core version for the email manifest comment (reproducibility header).
+import corePkg from '../../../../packages/core/package.json';
 ---
 
-<div class="tb not-content" data-theme-builder data-presets={JSON.stringify(PRESET_FLAT)}>
+<div class="tb not-content" data-theme-builder data-presets={JSON.stringify(PRESET_FLAT)} data-core-version={corePkg.version}>
   <div class="tb__grid">
     <form class="tb__controls" autocomplete="off">
       <label class="hc-field">
@@ -213,6 +219,7 @@ const PRESET_FLAT = PRESETS.flatMap((g) => g.items);
       <button type="button" class="tb__tab" role="tab" aria-selected="true" data-tab="block">Theme CSS block</button>
       <button type="button" class="tb__tab" role="tab" aria-selected="false" data-tab="dtcg">DTCG token file</button>
       <button type="button" class="tb__tab" role="tab" aria-selected="false" data-tab="full">Full token CSS</button>
+      <button type="button" class="tb__tab" role="tab" aria-selected="false" data-tab="email">Email templates</button>
     </div>
 
     <div class="tb__panel" data-panel="block">
@@ -241,11 +248,58 @@ const PRESET_FLAT = PRESETS.flatMap((g) => g.items);
       </div>
       <pre><code id="tb-full"></code></pre>
     </div>
+
+    <div class="tb__panel" data-panel="email" hidden>
+      <p class="tb__paneldesc">
+        HTML email templates with this theme baked into inline styles — table
+        layouts, 600px container, dark-mode <code>&lt;style&gt;</code> partial.
+        See the <a href="/hypermedia-components/integrations/html-email/">HTML email guide</a>
+        for usage. Regenerate after changing the theme (each file carries a
+        manifest comment with its settings).
+      </p>
+      <div class="tb__panelactions">
+        <label class="tb__emflavor">
+          <span>Flavor</span>
+          <select class="hc-select" data-size="sm" id="tb-em-flavor">
+            <option value="thymeleaf">Thymeleaf (th:fragment)</option>
+            <option value="plain">Plain HTML</option>
+          </select>
+        </label>
+        <button type="button" class="hc-button" data-variant="secondary" data-size="sm" data-emdl="hc-email.html">Download hc-email.html</button>
+        <button type="button" class="hc-button" data-variant="secondary" data-size="sm" data-emdl="hc-email-layout.html">Download hc-email-layout.html</button>
+        <button type="button" class="hc-button" data-variant="secondary" data-size="sm" data-emdl="email-tokens.json">Download email-tokens.json</button>
+      </div>
+      <iframe class="tb__emframe" id="tb-em-preview" title="Themed email preview (sample content)"></iframe>
+      <p class="tb__hint">
+        Preview shows the plain flavor with sample copy. Dark-mode overrides
+        follow your OS/browser <code>prefers-color-scheme</code>, not the
+        site's theme toggle.
+      </p>
+    </div>
   </div>
 </div>
 
 <script>
-  import { buildTokensCss, DEFAULT_SOURCES } from '@hypermedia-components/core/token-transform';
+  import { buildTokensCss, resolveTokens, DEFAULT_SOURCES } from '@hypermedia-components/core/token-transform';
+  import {
+    buildEmailFiles,
+    emailManifestComment,
+    emailTokensJson,
+    EMAIL_FRAGMENTS,
+    EMAIL_PARTIALS,
+  } from '@hypermedia-components/core/email-transform';
+  import emLayout from '@hypermedia-components/core/email/layout/fragment.html?raw';
+  import emStyles from '@hypermedia-components/core/email/styles/fragment.html?raw';
+  import emButton from '@hypermedia-components/core/email/button/fragment.html?raw';
+  import emHeading from '@hypermedia-components/core/email/heading/fragment.html?raw';
+  import emText from '@hypermedia-components/core/email/text/fragment.html?raw';
+  import emLink from '@hypermedia-components/core/email/link/fragment.html?raw';
+  import emSeparator from '@hypermedia-components/core/email/separator/fragment.html?raw';
+  import emBadge from '@hypermedia-components/core/email/badge/fragment.html?raw';
+  import emAlert from '@hypermedia-components/core/email/alert/fragment.html?raw';
+  import emPanel from '@hypermedia-components/core/email/panel/fragment.html?raw';
+  import emTable from '@hypermedia-components/core/email/table/fragment.html?raw';
+  import emFooter from '@hypermedia-components/core/email/footer/fragment.html?raw';
   import primitive from '@hypermedia-components/core/tokens/primitive.tokens.json';
   import semantic from '@hypermedia-components/core/tokens/semantic.tokens.json';
   import component from '@hypermedia-components/core/tokens/component.tokens.json';
@@ -394,6 +448,20 @@ const PRESET_FLAT = PRESETS.flatMap((g) => g.items);
     return out;
   }
 
+  const EMAIL_SOURCES = {
+    layout: emLayout, styles: emStyles,
+    button: emButton, heading: emHeading, text: emText, link: emLink,
+    separator: emSeparator, badge: emBadge, alert: emAlert, panel: emPanel,
+    table: emTable, footer: emFooter,
+  };
+  // Fail fast in dev if the source inventory and the transform drift apart.
+  for (const n of [...EMAIL_FRAGMENTS, ...EMAIL_PARTIALS]) {
+    if (!EMAIL_SOURCES[n]) console.warn(`ThemeBuilder: missing email fragment source "${n}"`);
+  }
+  // The plain-flavor layout slot (th:replace stripped) — replaced with the
+  // fragment kitchen sink to build the preview document.
+  const EMAIL_SLOT = '<div>Email body — replaced by the content fragment.</div>';
+
   const root = document.querySelector('[data-theme-builder]');
   if (root) {
     const el = (id) => /** @type {any} */ (root.querySelector('#' + id));
@@ -501,6 +569,50 @@ const PRESET_FLAT = PRESETS.flatMap((g) => g.items);
     function fullThemedCss(m){ return buildTokensCss({ sources: DEFAULT_SOURCES, trees: fullThemedTrees(m) }).css; }
     function fullDiff(m){ return diffCss(stockFullCss(), fullThemedCss(m)); }
 
+    // ---- Email templates (see the HTML email integration guide) ----
+    // Full mode bakes the neutral ramp into the semantic/dark patches, so
+    // the layer stack stays the base one; accent mode overlays the custom
+    // accent tree the same way a built-in color axis would.
+    function emailMaps(m){
+      const full = m.mode === 'full';
+      const trees = full ? fullThemedTrees(m) : { ...BASE_TREES, 'color.custom': accentTree(m) };
+      const light = ['primitive', 'semantic', 'component', 'density.comfortable', 'color.default'];
+      if (!full) light.push('color.custom');
+      const dark = [...light, 'theme.dark'];
+      const toSources = (list) => list.map((namespace) => ({ namespace }));
+      return {
+        tokens: resolveTokens({ sources: toSources(light), trees }),
+        darkTokens: resolveTokens({ sources: toSources(dark), trees }),
+      };
+    }
+    const $emFlavor = el('tb-em-flavor'), $emPreview = el('tb-em-preview');
+    let emFiles = {};
+    function renderEmail(){
+      const m = model();
+      const { tokens, darkTokens } = emailMaps(m);
+      const flavor = $emFlavor.value === 'plain' ? 'plain' : 'thymeleaf';
+      const manifest = emailManifestComment({
+        version: root.getAttribute('data-core-version') || 'unknown',
+        color: m.mode === 'full' ? m.name : m.name + ' (accent)',
+        neutral: m.mode === 'full' ? m.neutral : 'gray',
+        flavor,
+        custom: true,
+        command:
+          'npx @hypermedia-components/cli email eject --tokens <your-dtcg-export>.json --flavor ' + flavor,
+      });
+      emFiles = {
+        ...buildEmailFiles({ fragmentSources: EMAIL_SOURCES, tokens, darkTokens, flavor, manifest }),
+        'email-tokens.json': emailTokensJson(tokens, darkTokens),
+      };
+      // Preview always renders the plain flavor with the sample copy, all
+      // fragments injected into the layout's content slot.
+      const preview = buildEmailFiles({ fragmentSources: EMAIL_SOURCES, tokens, darkTokens, flavor: 'plain' });
+      $emPreview.srcdoc = preview['hc-email-layout.html'].replace(
+        EMAIL_SLOT,
+        preview['hc-email.html']
+      );
+    }
+
     let previewStyle = document.getElementById('hc-builder-preview-style')
       || document.head.appendChild(Object.assign(document.createElement('style'), { id: 'hc-builder-preview-style' }));
     let appliedStyle = null;
@@ -545,6 +657,8 @@ const PRESET_FLAT = PRESETS.flatMap((g) => g.items);
 
       const activeFull = root.querySelector('.tb__tab[data-tab="full"][aria-selected="true"]');
       if (activeFull) $full.textContent = (full ? fullThemedCss(m) : accentFull(m)).trimEnd();
+      const activeEmail = root.querySelector('.tb__tab[data-tab="email"][aria-selected="true"]');
+      if (activeEmail) renderEmail();
     }
 
     for (const ev of ['input', 'change']) {
@@ -602,6 +716,22 @@ const PRESET_FLAT = PRESETS.flatMap((g) => g.items);
         for (const t of root.querySelectorAll('.tb__tab')) t.setAttribute('aria-selected', String(t === tab));
         for (const p of root.querySelectorAll('.tb__panel')) p.hidden = p.getAttribute('data-panel') !== which;
         if (which === 'full') { const m = model(); $full.textContent = (m.mode === 'full' ? fullThemedCss(m) : accentFull(m)).trimEnd(); }
+        if (which === 'email') renderEmail();
+      });
+    }
+    $emFlavor.addEventListener('change', renderEmail);
+
+    for (const btn of root.querySelectorAll('[data-emdl]')) {
+      btn.addEventListener('click', () => {
+        const name = btn.getAttribute('data-emdl');
+        if (!emFiles[name]) renderEmail();
+        const blob = new Blob([emFiles[name] || ''], {
+          type: name.endsWith('.json') ? 'application/json' : 'text/html',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; a.click();
+        URL.revokeObjectURL(url);
       });
     }
 
@@ -683,4 +813,9 @@ const PRESET_FLAT = PRESETS.flatMap((g) => g.items);
   .tb__paneldesc { margin-block: 0.75rem 0.5rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
   .tb__panelactions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-block-end: 0.5rem; }
   .tb__panel pre { overflow: auto; max-block-size: 28rem; }
+  .tb__emflavor { display: inline-flex; gap: 0.5rem; align-items: center; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
+  .tb__emframe {
+    inline-size: 100%; block-size: 30rem; border: 1px solid var(--hc-color-border, #e5e7eb);
+    border-radius: var(--hc-radius-md, 0.375rem); background: #fff;
+  }
 </style>
