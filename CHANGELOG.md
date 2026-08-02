@@ -45,8 +45,6 @@ Security    — security-relevant changes
   [email templates plan](plans/hc-email-templates-plan-en.md) (§6);
   ships in the next `@hypermedia-components/cli` minor.
 
-### Added
-
 - **Email fragment sources + transformer** for the HTML-email render
   target ([plan](plans/hc-email-templates-plan-en.md) §4): ten
   table/inline-style fragments plus the layout and dark-mode `<style>`
@@ -60,8 +58,6 @@ Security    — security-relevant changes
   docs theme builder's Email tab and the CLI's `email eject`. A guard
   test enforces an email-safe CSS property allowlist over everything
   generated. New package exports: `./email/*`, `./email-transform`.
-
-### Added
 
 - **`resolveTokens()`** in the token transformer
   (`@hypermedia-components/core/token-transform`): resolves one concrete
