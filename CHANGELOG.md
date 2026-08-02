@@ -20,6 +20,13 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-08-02
+
+- **CLI `@hypermedia-components/cli@0.3.0`** — the `email` release: the
+  new `email list` / `email eject` commands (below) and the CLI's new
+  dependency on `@hypermedia-components/core` for the shared
+  token/email transforms. (Independent `cli-v0.3.0` tag.)
+
 ### Security
 
 - **Email transformer: linear-time `th:*` stripping**
@@ -42,8 +49,7 @@ Security    — security-relevant changes
   same `resolveTokens` + email-transform engine as the theme builder's
   Email tab (new CLI dependency on `@hypermedia-components/core`), so
   the two can't drift. Closes the
-  [email templates plan](plans/hc-email-templates-plan-en.md) (§6);
-  ships in the next `@hypermedia-components/cli` minor.
+  [email templates plan](plans/hc-email-templates-plan-en.md) (§6).
 
 - **Email fragment sources + transformer** for the HTML-email render
   target ([plan](plans/hc-email-templates-plan-en.md) §4): ten
@@ -4105,7 +4111,8 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.11...HEAD
+[0.1.11]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.7...v0.1.8
