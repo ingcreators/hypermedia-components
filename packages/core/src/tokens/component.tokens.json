@@ -78,7 +78,7 @@
       },
       "border": {
         "$type": "color",
-        "$value": "{semantic.color.border}"
+        "$value": "{semantic.color.border-strong}"
       }
     },
     "default-hover": {
@@ -2307,7 +2307,7 @@
     },
     "control-border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "control-offset": {
       "$type": "dimension",
@@ -2323,7 +2323,7 @@
     },
     "dot-color": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "dot-active-color": {
       "$type": "color",
