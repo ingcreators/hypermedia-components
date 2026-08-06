@@ -23,7 +23,7 @@ function readableOn(hex) {
   return L > 0.4 ? '#000' : '#fff';
 }
 
-const SHADES = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
+const SHADES = ['50', '100', '200', '300', '350', '400', '500', '600', '700', '800', '900', '950'];
 
 function ramp(name) {
   const node = color[name];
@@ -61,7 +61,7 @@ const groups = [
       {g.ramps.map((r) => (
         <div class="pal__ramp">
           <div class="pal__rampname"><code>color.{r.name}</code></div>
-          <div class="pal__stops">
+          <div class="pal__stops" style={`--pal-cols:${r.stops.length}`}>
             {r.stops.map((s) => (
               <div class="pal__stop" style={`background:${s.value};color:${readableOn(s.value)}`}
                    title={`{primitive.color.${r.name}.${s.shade}} = ${s.value}`}>
@@ -90,7 +90,7 @@ const groups = [
   .pal__ramp { display: grid; gap: 0.3rem; }
   .pal__rampname { font-size: var(--sl-text-sm); }
   .pal__rampname code { background: transparent; padding: 0; }
-  .pal__stops { display: grid; grid-template-columns: repeat(11, 1fr); gap: 2px; }
+  .pal__stops { display: grid; grid-template-columns: repeat(var(--pal-cols, 11), 1fr); gap: 2px; }
   @media (max-width: 50rem) { .pal__stops { grid-template-columns: repeat(6, 1fr); } }
   .pal__stop {
     display: flex; flex-direction: column; gap: 0.1rem; justify-content: flex-end;
