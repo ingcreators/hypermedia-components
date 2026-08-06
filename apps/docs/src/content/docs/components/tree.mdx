@@ -89,6 +89,14 @@ the roles whenever a subtree is swapped in.
 
 ← and → mirror in RTL.
 
+### Pointer
+
+Clicking a row focuses its item; on a branch it also toggles the
+branch — unless the click lands on an interactive control inside the
+row (`a[href]`, `button`, `input`, `select`, `textarea`). Those own
+their activation: a per-row action button fires without collapsing the
+folder it acts on. The chevron toggle always toggles.
+
 ## States
 
 | State | Selector | Effect |
