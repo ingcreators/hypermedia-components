@@ -1,0 +1,52 @@
+<!doctype html>
+<!-- Fixture for the numeric-column contract (#430) — tabular figures by
+     default on table/datagrid cells, and the data-numeric end-align
+     modifier (logical, so RTL flips). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>numeric cells fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+</head>
+<body>
+  <main style="padding:1rem">
+    <h1>Numeric columns</h1>
+
+    <table class="hc-table" data-testid="table">
+      <thead>
+        <tr>
+          <th scope="col">Item</th>
+          <th scope="col" data-numeric data-testid="table-num-head">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-testid="table-text-cell">Widget</td>
+          <td data-numeric data-testid="table-num-cell">1,234.50</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="hc-datagrid" data-testid="grid-viewport">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <!-- The grid table is inline-size: max-content, so give the
+                 columns room for the alignment to be observable. -->
+            <th class="hc-datagrid__headcell" scope="col" style="min-inline-size: 10rem">Name</th>
+            <th class="hc-datagrid__headcell" scope="col" style="min-inline-size: 10rem" data-numeric data-testid="grid-num-head">Amount</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-testid="grid-text-cell">Alice</td>
+            <td class="hc-datagrid__cell" data-numeric data-testid="grid-num-cell">9,110.25</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

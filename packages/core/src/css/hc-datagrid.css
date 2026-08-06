@@ -73,6 +73,17 @@
     vertical-align: top;
     white-space: nowrap; /* Excel-like: cells don't wrap; the viewport scrolls */
     background-color: var(--hc-datagrid-bg); /* opaque so sticky cells cover scrolled content */
+
+    /* Digits align vertically down a column (affects digit glyphs only,
+     * so text cells render unchanged). */
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Numeric-column modifier: per-column semantics the server renders.
+   * Logical `end` flips free in RTL. */
+  .hc-datagrid__cell[data-numeric],
+  .hc-datagrid__headcell[data-numeric] {
+    text-align: end;
   }
 
   /* ---- Sticky multi-level header ---- */
