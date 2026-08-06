@@ -103,6 +103,9 @@
   .hc-timeline__time {
     color: var(--hc-timeline-time-fg);
     font-size: var(--hc-timeline-time-font-size);
+
+    /* Timestamps stack down the rail — tabular figures align them. */
+    font-variant-numeric: tabular-nums;
   }
 
   .hc-timeline__title {

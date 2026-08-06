@@ -40,6 +40,9 @@
       background-color 120ms ease,
       color 120ms ease,
       border-color 120ms ease;
+
+    /* Page numbers change per page — tabular figures stop the width jitter. */
+    font-variant-numeric: tabular-nums;
   }
 
   .hc-pagination__item:hover:not([aria-current="page"], [aria-disabled="true"]) {

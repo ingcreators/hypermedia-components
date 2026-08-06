@@ -58,6 +58,27 @@ test.describe('numeric columns', () => {
     }
   });
 
+  test('form controls and the .hc-numeric utility render tabular figures (#433)', async ({ page }) => {
+    for (const id of ['numeric-input', 'text-input', 'grid-editor', 'numeric-span']) {
+      expect(await styleOf(page, id, 'fontVariantNumeric'), id).toBe('tabular-nums');
+    }
+  });
+
+  test('data-numeric on an hc-input end-aligns its value, RTL included (#433)', async ({ page }) => {
+    expect(await styleOf(page, 'numeric-input', 'textAlign')).toBe('end');
+    expect(await styleOf(page, 'text-input', 'textAlign')).toBe('start');
+
+    await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
+    // Logical end resolves to the left edge in RTL — pin via the caret
+    // position of typed content: focus and check the input's computed
+    // direction-aware alignment still reports the logical keyword.
+    expect(await styleOf(page, 'numeric-input', 'textAlign')).toBe('end');
+  });
+
+  test('an editor in a data-numeric cell keeps the end alignment (no jump) (#433)', async ({ page }) => {
+    expect(await styleOf(page, 'grid-editor', 'textAlign')).toBe('end');
+  });
+
   test('no axe violations', async ({ page }) => {
     const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
     expect(results.violations).toEqual([]);

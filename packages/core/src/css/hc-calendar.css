@@ -128,6 +128,9 @@
     vertical-align: middle;
     cursor: pointer;
     user-select: none;
+
+    /* A grid of digits — tabular figures keep the day numbers aligned. */
+    font-variant-numeric: tabular-nums;
   }
 
   .hc-calendar__day:hover:not([aria-disabled="true"], [aria-selected="true"]) {

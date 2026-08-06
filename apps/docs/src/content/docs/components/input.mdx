@@ -111,6 +111,22 @@ tech. `success` / `warning` have no native attribute, so the variant is
 the only way to express them. See the cross-component
 [Variants matrix](/hypermedia-components/tokens/variants/).
 
+## Numeric fields
+
+Inputs render digits as **tabular figures** by default
+(`font-variant-numeric: tabular-nums`) — a steady rhythm while typing
+digits, and width parity with table cells; text content is unaffected.
+For amount-style fields, `data-numeric` end-aligns the value — the same
+attribute and semantics as [table](/hypermedia-components/components/table/#numeric-columns)
+cells, logical so RTL flips free:
+
+```html
+<label class="hc-field">
+  <span class="hc-field__label">Amount</span>
+  <input class="hc-input" name="amount" data-numeric inputmode="decimal">
+</label>
+```
+
 ## htmx usage
 
 `hc-input` works with htmx like any other input. The [live-search](/hypermedia-components/recipes/live-search/)

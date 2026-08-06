@@ -195,6 +195,22 @@ display にも勝ちます。サーバから(クラスを出し入れして)、�
 <div class="hc-hidden">Removed from layout entirely</div>
 ```
 
+## `.hc-numeric` — 等幅数字
+
+`font-variant-numeric: tabular-nums` を、アプリ所有の数値表示面 —
+stat タイル、KPI 値、カウンタ — に与えるユーティリティです。キットの
+コンポーネントでデフォルト化済みの場所(テーブル / データグリッドの
+セル、フォームコントロール、カレンダーの日付、ページネーション、
+バッジ、タイムラインのタイムスタンプ)の外側で使います。数字の幅が
+均一になるので値が揃い、更新時にガタつきません。テキストには影響
+しません。グリフのみ — 揃えは文脈の仕事です。
+
+```html
+<p class="hc-stat">
+  <span class="hc-numeric">42,195</span> rows scanned
+</p>
+```
+
 ## 関連
 
 - [レスポンシブデザイン](/hypermedia-components/ja/fundamentals/responsive/) —
