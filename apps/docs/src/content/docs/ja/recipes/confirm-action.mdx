@@ -6,10 +6,13 @@ description: 破壊的な htmx リクエストを送る前に確認ダイアロ�
 import Demo from '../../../../components/Demo.astro';
 import ConfirmActionDemo from '../../../../components/recipe-demos/ConfirmActionDemo.astro';
 
-`confirm-action` は、破壊的な htmx リクエストの前段にモーダルの確認
-ステップを追加します。ボタンは普通の `<button>` のまま、ネットワーク
-リクエストの所有者は htmx のまま — 小さなビヘイビアがダイアログを開き、
-ユーザーが承認したときに `hc:confirmed` イベントを発火し直すだけです。
+`confirm-action` は、破壊的なアクション — htmx リクエスト、または
+素のフォーム送信 — の前段にモーダルの確認ステップを追加します。
+ボタンは普通の `<button>` のまま、ネットワークリクエストの所有者は
+htmx のまま — 小さなビヘイビアがダイアログを開き、ユーザーが承認した
+ときに `hc:confirmed` イベントを発火し直すだけです。htmx を使わない
+素のフォームの submit ボタンでは、遮断した送信を `form.requestSubmit()`
+で完了させます。
 
 :::note[セットアップ]
 このレシピには `installConfirm()` ビヘイビアが必要です — ない場合、
@@ -109,6 +112,34 @@ htmx リクエストを発行する要素に `data-hc-confirm` を追加し、ht
    返します。
 
 ユーザーがキャンセルした場合、イベントは発火されず、何も起きません。
+
+## 素のフォーム(htmx なし)
+
+`data-hc-confirm` は、普通の `<form>` 内の submit ボタンでもそのまま
+使えます — htmx 属性は不要です:
+
+```html
+<form method="post" action="/items/123/delete">
+  <button class="hc-button" data-variant="error"
+    data-hc-confirm="この項目を削除しますか?">
+    削除
+  </button>
+</form>
+```
+
+承認すると、ビヘイビアは `form.requestSubmit(button)` を呼び、遮断した
+送信を本来のクリックと同じ形で完了させます: ボタンが submitter になる
+(`formaction` / `formmethod` が尊重される)ほか、制約バリデーションが
+先に実行されます。キャンセルの場合は何も送信されません。
+
+このパスが適用されるのは、ボタンにもフォームにも htmx の verb 属性
+(`hx-get/post/put/patch/delete` および `data-hx-*` 変種)がない場合
+のみです。どちらかにある時点で `hc:confirmed` の発火だけになり、
+リクエストの所有者は htmx のままです — フォームが二重送信されることは
+ありません。
+
+JavaScript がない環境でも同じマークアップが優雅に劣化します: フォームは
+ネイティブに送信され、確認ステップだけがなくなります。
 
 ## ダイアログのカスタマイズ
 
@@ -219,7 +250,13 @@ htmx リクエストを発行する要素に `data-hc-confirm` を追加し、ht
   開始できるのは、ユーザーが承認したときにトリガー要素上で発火される
   `hc:confirmed` イベントだけです。`data-hc-confirm` があるのにトリガーが
   デフォルトのクリックのままの要素は、htmx リクエストを一切発火しません。
-- **キャンセルは何も発火しません。** リクエストもイベントもなしです。
+- **キャンセルは何も発火しません。** リクエストもイベントも送信もなしです。
+- **素のフォーム**の submit ボタン(ボタンにもフォームにも htmx の
+  verb 属性がない場合)は、`hc:confirmed` の後に
+  `form.requestSubmit(button)` で送信されます —
+  [素のフォーム](#素のフォームhtmx-なし)を参照。どちらかに htmx verb が
+  あればこの分岐は抑止されるため、htmx 配線済みのフォームが二重発火する
+  ことはありません。
 - htmx 自身の `hx-confirm` と**組み合わせないでください** — htmx は
   アクティベーションを観測しないため `hx-confirm` は決して実行されず、
   死んだ属性を書くことになります。1 要素につき 1 つの機構に絞ってください。
@@ -315,10 +352,11 @@ vanilla 側に留まるべきケース:
 
 ビヘイビアが読み込まれていなくても、ボタンは壊れません:
 
-- htmx なしでは、ボタンは何のアクションも実行しません — マークアップの
-  記述どおりです。より安全な非 JS フォールバックは、ボタンを
-  `<form method="post" action="/items/123/delete">` の中に置くことです。
-  送信は確認ステップなしで通ります。
+- htmx なしでは、ボタンを
+  `<form method="post" action="/items/123/delete">` の中に置いて
+  ください — [素のフォームのパス](#素のフォームhtmx-なし)が確認の上で
+  送信します。htmx 属性つきのボタンは htmx が読み込まれていなければ
+  何のアクションも実行しません — マークアップの記述どおりです。
 - `hc.behaviors.js` なしでは、クリックは普通にバブリングします。htmx は
   `hc:confirmed` イベントを観測せず、何もしません。`<noscript>` の告知を
   足すか、完全にサーバサイドの確認ページを描画するのが推奨の

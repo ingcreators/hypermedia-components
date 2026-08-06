@@ -82,4 +82,24 @@ test.describe('confirm-action behavior', () => {
     const dialogs = page.locator('.hc-confirm-dialog');
     await expect(dialogs).toHaveCount(1);
   });
+
+  test('a confirmed submit button in a plain form submits it, with the button as submitter (#421)', async ({ page }) => {
+    await page.getByTestId('trigger-confirm-form').click();
+    await expect(page.locator('.hc-confirm-dialog')).toBeVisible();
+
+    await page.locator('[data-hc-confirm-ok]').click();
+
+    // The GET submission navigates; the button's own name/value pair is
+    // present only when it was passed to requestSubmit() as submitter.
+    await page.waitForURL(/deleted=42/);
+    expect(page.url()).toContain('via=submitter');
+  });
+
+  test('cancelling submits nothing in a plain form', async ({ page }) => {
+    await page.getByTestId('trigger-confirm-form').click();
+    await page.locator('[data-hc-confirm-cancel]').click();
+
+    await expect(page.locator('.hc-confirm-dialog')).toBeHidden();
+    expect(new URL(page.url()).search).toBe('');
+  });
 });

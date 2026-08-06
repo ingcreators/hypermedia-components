@@ -359,6 +359,14 @@ The exact semantics (browser-tested):
    activation, so `hx-confirm` simply never runs. Pick one mechanism.
 6. The interception is delegated (document-level), so buttons swapped
    in by htmx are confirmed with no re-initialization.
+7. A submit button of a **plain form** — no `hx-*`/`data-hx-*` verb
+   attribute on the button or its form — is also gated: on confirm the
+   behavior calls `form.requestSubmit(button)`, so the native
+   submission completes with the button as submitter (its
+   `formaction`/`formmethod` honored, constraint validation run). If
+   either the button or the form carries an htmx verb, only
+   `hc:confirmed` is dispatched — htmx stays the sole owner of the
+   request, with no double fire.
 
 ## Validation errors and non-2xx responses
 

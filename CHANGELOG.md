@@ -20,6 +20,20 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **`installConfirm()` completes plain-form submissions** (#421) — a
+  confirmed submit button inside (or `form=""`-associated with) an
+  ordinary non-htmx `<form>` previously dispatched only `hc:confirmed`,
+  which nothing listened for: the user confirmed and the action never
+  happened. On confirm the behavior now also calls
+  `form.requestSubmit(button)` — the button stays the submitter
+  (`formaction`/`formmethod` honored) and constraint validation runs —
+  when neither the button nor its form carries an htmx verb attribute
+  (`hx-get/post/put/patch/delete` or `data-hx-*` variants). htmx-wired
+  elements keep the event-only contract, so nothing double-fires;
+  cancel still submits nothing.
+
 ### Added
 
 - **`350` primitive step on the five neutral ramps** (`gray.350`

@@ -169,6 +169,148 @@ describe('installConfirm', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
+  describe('plain-form submission on confirm (#421)', () => {
+    function placeForm({ formAttrs = {}, buttonAttrs = {}, buttonTag = 'button' } = {}) {
+      const form = document.createElement('form');
+      form.setAttribute('method', 'post');
+      form.setAttribute('action', '/delete');
+      for (const [k, v] of Object.entries(formAttrs)) form.setAttribute(k, v);
+
+      const btn = document.createElement(buttonTag);
+      if (buttonTag === 'input') btn.setAttribute('type', 'submit');
+      btn.setAttribute('data-hc-confirm', 'Really?');
+      for (const [k, v] of Object.entries(buttonAttrs)) btn.setAttribute(k, v);
+
+      form.appendChild(btn);
+      document.body.appendChild(form);
+      return { form, btn };
+    }
+
+    it('submits the form with the source as submitter after confirm', () => {
+      uninstall = installConfirm();
+      const { form, btn } = placeForm({ buttonAttrs: { formaction: '/archive' } });
+
+      const requestSubmit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {});
+      const confirmed = vi.fn();
+      btn.addEventListener('hc:confirmed', confirmed);
+
+      dispatchClick(btn);
+      document.querySelector('[data-hc-confirm-ok]').click();
+
+      expect(confirmed).toHaveBeenCalledTimes(1);
+      expect(requestSubmit).toHaveBeenCalledTimes(1);
+      expect(requestSubmit).toHaveBeenCalledWith(btn);
+    });
+
+    it('treats a type-less <button> in a form as a submit button', () => {
+      uninstall = installConfirm();
+      const { form, btn } = placeForm();
+      expect(btn.hasAttribute('type')).toBe(false);
+
+      const requestSubmit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {});
+      dispatchClick(btn);
+      document.querySelector('[data-hc-confirm-ok]').click();
+
+      expect(requestSubmit).toHaveBeenCalledWith(btn);
+    });
+
+    it('submits for an <input type="submit"> source', () => {
+      uninstall = installConfirm();
+      const { form, btn } = placeForm({ buttonTag: 'input' });
+
+      const requestSubmit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {});
+      dispatchClick(btn);
+      document.querySelector('[data-hc-confirm-ok]').click();
+
+      expect(requestSubmit).toHaveBeenCalledWith(btn);
+    });
+
+    it('does not submit when the dialog is cancelled', () => {
+      uninstall = installConfirm();
+      const { form, btn } = placeForm();
+
+      const requestSubmit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {});
+      dispatchClick(btn);
+      document.querySelector('[data-hc-confirm-cancel]').click();
+
+      expect(requestSubmit).not.toHaveBeenCalled();
+    });
+
+    it('does not submit when the button carries an htmx verb attribute', () => {
+      uninstall = installConfirm();
+      for (const attr of ['hx-delete', 'data-hx-delete', 'hx-post', 'data-hx-post']) {
+        const { form, btn } = placeForm({ buttonAttrs: { [attr]: '/x' } });
+        const requestSubmit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {});
+
+        dispatchClick(btn);
+        document.querySelector('[data-hc-confirm-ok]').click();
+
+        expect(requestSubmit, attr).not.toHaveBeenCalled();
+        form.remove();
+      }
+    });
+
+    it('does not submit when the form carries an htmx verb attribute', () => {
+      uninstall = installConfirm();
+      const { form, btn } = placeForm({ formAttrs: { 'data-hx-post': '/x' } });
+
+      const requestSubmit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {});
+      const confirmed = vi.fn();
+      btn.addEventListener('hc:confirmed', confirmed);
+
+      dispatchClick(btn);
+      document.querySelector('[data-hc-confirm-ok]').click();
+
+      // hc:confirmed still fires — htmx owns the request.
+      expect(confirmed).toHaveBeenCalledTimes(1);
+      expect(requestSubmit).not.toHaveBeenCalled();
+    });
+
+    it('does not submit for a type="button" source inside a form', () => {
+      uninstall = installConfirm();
+      const { form, btn } = placeForm({ buttonAttrs: { type: 'button' } });
+
+      const requestSubmit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {});
+      dispatchClick(btn);
+      document.querySelector('[data-hc-confirm-ok]').click();
+
+      expect(requestSubmit).not.toHaveBeenCalled();
+    });
+
+    it('does not attempt submission for a form-less element', () => {
+      uninstall = installConfirm();
+      const btn = placeButton();
+
+      const confirmed = vi.fn();
+      btn.addEventListener('hc:confirmed', confirmed);
+
+      dispatchClick(btn);
+      expect(() => {
+        document.querySelector('[data-hc-confirm-ok]').click();
+      }).not.toThrow();
+      expect(confirmed).toHaveBeenCalledTimes(1);
+    });
+
+    it('resolves the form through the button\'s form="" attribute', () => {
+      uninstall = installConfirm();
+      const form = document.createElement('form');
+      form.id = 'detached-form';
+      form.setAttribute('method', 'post');
+      document.body.appendChild(form);
+
+      const btn = document.createElement('button');
+      btn.setAttribute('form', 'detached-form');
+      btn.setAttribute('data-hc-confirm', 'Really?');
+      document.body.appendChild(btn);
+
+      const requestSubmit = vi.spyOn(form, 'requestSubmit').mockImplementation(() => {});
+      dispatchClick(btn);
+      document.querySelector('[data-hc-confirm-ok]').click();
+
+      expect(requestSubmit).toHaveBeenCalledWith(btn);
+    });
+  });
+
   it('uninstall removes the listener and the shared dialog', () => {
     const off = installConfirm();
     const btn = placeButton();

@@ -7,6 +7,10 @@
 //      the original element.
 //   4. htmx — listening for `data-hx-trigger="hc:confirmed"` — fires the
 //      request. The behavior does not wrap fetch().
+//   5. If the source is a submit button of a plain (non-htmx) form, the
+//      behavior additionally calls `form.requestSubmit(source)` so the
+//      intercepted submission completes — with the source as submitter
+//      (its formaction/formmethod honored) and constraint validation run.
 //
 // installConfirm() returns an `uninstall` function that removes the
 // click listener and detaches the shared dialog. Repeated calls on the
@@ -24,6 +28,30 @@
 import { t } from './i18n.js';
 
 const INSTALL_KEY = '__hcConfirmUninstall';
+
+const HX_VERBS = ['get', 'post', 'put', 'patch', 'delete'];
+
+function hasHxVerb(el) {
+  return HX_VERBS.some(
+    (verb) => el.hasAttribute(`hx-${verb}`) || el.hasAttribute(`data-hx-${verb}`),
+  );
+}
+
+// The form to submit on confirm when the source is a plain submit button:
+// a <button>/<input> whose resolved type is "submit" (a type-less <button>
+// counts), form-associated, with no htmx verb on itself or its form —
+// htmx-wired elements keep the hc:confirmed contract and must not
+// double-fire. Returns null when the intercepted click would not have
+// submitted a plain form.
+function plainSubmitForm(source) {
+  const tag = source.tagName;
+  if (tag !== 'BUTTON' && tag !== 'INPUT') return null;
+  if (source.type !== 'submit') return null;
+  const form = source.form;
+  if (!form) return null;
+  if (hasHxVerb(source) || hasHxVerb(form)) return null;
+  return form;
+}
 
 function buildDialog(ownerDocument) {
   const dialog = ownerDocument.createElement('dialog');
@@ -50,7 +78,11 @@ function buildDialog(ownerDocument) {
  * shows a shared `<dialog class="hc-confirm-dialog">`. If the user
  * confirms, the original element receives a bubbling `hc:confirmed`
  * event so htmx (listening via `data-hx-trigger="hc:confirmed"`) fires
- * the request.
+ * the request. When the element is a submit button of a plain form —
+ * no htmx verb attribute on the button or the form — the form is also
+ * submitted via `form.requestSubmit(source)`, preserving the submitter
+ * and running constraint validation, so the confirmed action completes
+ * without htmx.
  *
  * The shared dialog is created lazily on first use, reused between
  * triggers, and recreated if it gets detached from the DOM. Multiple
@@ -93,6 +125,8 @@ export function installConfirm(root = (typeof document !== 'undefined' ? documen
         if (!source) return;
         if (result === 'confirm') {
           source.dispatchEvent(new CustomEvent('hc:confirmed', { bubbles: true }));
+          const form = plainSubmitForm(source);
+          if (form) form.requestSubmit(source);
         }
       });
 
