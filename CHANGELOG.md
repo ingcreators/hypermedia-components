@@ -20,6 +20,26 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`--hc-color-border-strong` semantic token** — dedicated boundary
+  color for form controls, meeting WCAG 1.4.11 non-text contrast
+  (≥ 3:1 against both `bg` and `surface` in light *and* dark, all five
+  neutral ramps; the shared `500` ramp step). Defined in
+  `semantic.tokens.json` and overridden per ramp in
+  `neutral.<ramp>.tokens.json`; like `focus-ring`, the same value
+  serves both themes so the dark files need no override.
+
+### Changed
+
+- **Form-control boundaries now use `border-strong`** — the default
+  `border` of `input`, `select`, `datepicker`, `checkbox`, `radio`,
+  `switch`, `toggle`, `inputotp`, `dropzone`, and `input-group` moved
+  from `--hc-color-border` (1.4–1.7:1 against dark surfaces, ~1.5:1 in
+  light) to `--hc-color-border-strong`. Decorative borders (cards,
+  separators, tables, popovers…) keep `--hc-color-border` unchanged.
+  Chromium VRT baselines regenerated.
+
 ## [0.1.11] - 2026-08-02
 
 - **CLI `@hypermedia-components/cli@0.3.0`** — the `email` release: the

@@ -28,8 +28,8 @@ test.describe('hc-input variants', () => {
   });
 
   test('default input keeps the neutral border', async ({ page }) => {
-    // semantic.color.border → gray.300 = rgb(208, 213, 221)
-    expect(await border(page, 'in-default')).toMatch(/rgba?\(\s*208,\s*213,\s*221/);
+    // semantic.color.border-strong → gray.500 = rgb(107, 114, 128)
+    expect(await border(page, 'in-default')).toMatch(/rgba?\(\s*107,\s*114,\s*128/);
   });
 
   test('axe finds no violations in the input section', async ({ page }) => {

@@ -297,7 +297,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "hover-bg": {
       "$type": "color",
@@ -383,7 +383,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "placeholder": {
       "$type": "color",
@@ -531,7 +531,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "focus-border": {
       "$type": "color",
@@ -613,7 +613,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "focus-border": {
       "$type": "color",
@@ -679,7 +679,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "radius": {
       "$type": "dimension",
@@ -837,7 +837,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "fg": {
       "$type": "color",
@@ -1493,7 +1493,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "bg": {
       "$type": "color",
@@ -1571,7 +1571,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "bg": {
       "$type": "color",
@@ -2345,7 +2345,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "focus-border": {
       "$type": "color",
@@ -3191,7 +3191,7 @@
     },
     "border": {
       "$type": "color",
-      "$value": "{semantic.color.border}"
+      "$value": "{semantic.color.border-strong}"
     },
     "bg": {
       "$type": "color",

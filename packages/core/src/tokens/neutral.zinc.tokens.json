@@ -17,6 +17,10 @@
       "$type": "color",
       "$value": "{primitive.color.zinc.300}"
     },
+    "border-strong": {
+      "$type": "color",
+      "$value": "{primitive.color.zinc.500}"
+    },
     "muted-bg": {
       "$type": "color",
       "$value": "{primitive.color.zinc.100}"
