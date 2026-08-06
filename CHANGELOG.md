@@ -20,6 +20,14 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Changed
+
+- **Button-shaped boundaries moved to `border-strong`** — follow-up to
+  the form-control pass: `button` `default` variant border,
+  `carousel` prev/next `control-border`, and the inactive
+  `carousel` `dot-color` now use `--hc-color-border-strong` (WCAG
+  1.4.11). Chromium VRT baselines regenerated.
+
 ### Added
 
 - **`--hc-color-border-strong` semantic token** — dedicated boundary
