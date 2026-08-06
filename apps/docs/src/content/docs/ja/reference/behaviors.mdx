@@ -3,7 +3,7 @@ title: ビヘイビア
 description: すべての installXxx() ビヘイビア — 何を担い、ゼロ設定バンドルが自動インストールするかの一覧。
 ---
 
-キットは 45 個の小さなビヘイビアを出荷しています。すべて冪等で
+キットは 46 個の小さなビヘイビアを出荷しています。すべて冪等で
 アンインストーラを返し、`installChart()` ただ 1 つの例外を除いて、
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリが
 **自動インストール**します(htmx でスワップされた内容も拾います)。
@@ -33,6 +33,7 @@ installToast();
 | --- | --- | --- | --- | --- |
 | `installValidation()` | [フィールド](/hypermedia-components/ja/components/field/)のネイティブ検証の配線(blur/submit 検証、メッセージスロット)。 | ネイティブ制約属性(`required`、`pattern` など) | — | ✓ |
 | `installFieldErrors()` | サーバー駆動のインラインエラー — [field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)の 422 フラグメント契約。 | `data-hc-field-errors`、`data-field`、`data-message-key`(サーバーが書く) | — | ✓ |
+| `installShowWhen()` | 条件付きフィールド表示 — [conditional-fields レシピ](/hypermedia-components/ja/recipes/conditional-fields/)。 | `data-hc-show-when`、`data-hc-show-switch`、`data-hc-show-src` | — | ✓ |
 | `installCombobox()` | [コンボボックス](/hypermedia-components/ja/components/combobox/)のキーボード・フィルタ・ARIA。 | `data-remote`、`data-allow-create`、`data-value`、… | `hc:comboboxselect` | ✓ |
 | `installMulticombobox()` | [マルチコンボボックス](/hypermedia-components/ja/components/multicombobox/)のタグ・キーボード・ARIA。 | `data-name`、`data-allow-create`、`data-value`、… | `hc:multicomboboxchange` | ✓ |
 | `installInputOtp()` | [Input OTP](/hypermedia-components/ja/components/inputotp/) のスロット単位編集。 | `data-length`、`data-pattern`、`data-groups` | `hc:otpchange`、`hc:otpcomplete` | ✓ |

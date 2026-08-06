@@ -1,0 +1,22 @@
+<!-- Short recommended usage. -->
+<form method="post" action="/rules">
+  <label class="hc-field">
+    <span class="hc-field__label">Rule</span>
+    <select class="hc-select" name="rule" data-hc-show-switch>
+      <option value="exact" selected>exact</option>
+      <option value="range">range</option>
+    </select>
+  </label>
+
+  <label class="hc-field" data-hc-show-when="exact range">
+    <span class="hc-field__label">Bound</span>
+    <input class="hc-input" name="bound" type="number">
+  </label>
+
+  <label class="hc-field" data-hc-show-when="range">
+    <span class="hc-field__label">Upper bound</span>
+    <input class="hc-input" name="upper" type="number">
+  </label>
+
+  <button class="hc-button" data-variant="primary">Save</button>
+</form>

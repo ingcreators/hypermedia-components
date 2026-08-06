@@ -1,0 +1,182 @@
+---
+title: Conditional fields
+description: Declarative conditional field visibility — data-hc-show-when hides the fields the chosen mode does not read, with no round-trip and no inline JS.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+A form whose fields depend on a mode selector — "operation: insert"
+needs no filter column, "rule: range" needs a second bound — reads as
+more complex than the task when every field stays visible, and
+re-rendering it server-side on every selector change costs a round-trip
+that loses focus and half-typed values. The `installShowWhen` behavior
+owns that wiring declaratively: `data-hc-show-when` names the switch
+values under which an element is visible, all from markup, so it works
+under a strict `Content-Security-Policy: default-src 'self'` (no inline
+JS).
+
+:::note[Setup]
+This recipe needs the `installShowWhen()` behavior. Install every
+behavior at once with `import '@hypermedia-components/core/behaviors';`,
+or just this one:
+
+```js
+import { installShowWhen } from '@hypermedia-components/core';
+installShowWhen();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add conditional-fields` copies this
+recipe's scaffold (`recipe.html`, `expanded.html`, `contract.md`,
+`checks.json`); `npx @hypermedia-components/cli validate` machine-checks
+your copy. The full contract lives in
+[`recipes/conditional-fields/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/conditional-fields/contract.md).
+:::
+
+## Live demo
+
+The preview below is already live — conditional visibility is purely
+client-side (`installShowWhen` toggles the `hidden` attribute from
+values already on the page), so there is no server contract and no
+`api/recipes/conditional-fields/` namespace. Switch **Rule** between
+*exact* and *range* and watch **Upper bound** appear without any
+request.
+
+## Markup
+
+Mark the controlling form control with `data-hc-show-switch`, and give
+each dependent element `data-hc-show-when="<value> [<value> …]"` — a
+whitespace-separated list of the switch values under which it is
+visible:
+
+<Demo previewClass="hc-preview--start">
+  <form class="hc-stack">
+    <label class="hc-field">
+      <span class="hc-field__label">Rule</span>
+      <select class="hc-select" name="rule" data-hc-show-switch>
+        <option value="exact" selected>exact</option>
+        <option value="range">range</option>
+      </select>
+    </label>
+    <label class="hc-field" data-hc-show-when="exact range">
+      <span class="hc-field__label">Bound</span>
+      <input class="hc-input" name="bound" type="number" />
+    </label>
+    <label class="hc-field" data-hc-show-when="range" hidden>
+      <span class="hc-field__label">Upper bound</span>
+      <input class="hc-input" name="upper" type="number" />
+    </label>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form method="post" action="/rules">
+    <label class="hc-field">
+      <span class="hc-field__label">Rule</span>
+      <select class="hc-select" name="rule" data-hc-show-switch>
+        <option value="exact" selected>exact</option>
+        <option value="range">range</option>
+      </select>
+    </label>
+
+    <label class="hc-field" data-hc-show-when="exact range">
+      <span class="hc-field__label">Bound</span>
+      <input class="hc-input" name="bound" type="number">
+    </label>
+
+    <label class="hc-field" data-hc-show-when="range" hidden>
+      <span class="hc-field__label">Upper bound</span>
+      <input class="hc-input" name="upper" type="number">
+    </label>
+
+    <button class="hc-button" data-variant="primary">Save</button>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+What happens:
+
+1. At install, every `[data-hc-show-when]` is evaluated once, so
+   server-rendered state is correct before any interaction.
+2. On every `change` of the switch, visibility is re-evaluated — no
+   request, focus stays where it is, half-typed values survive.
+3. Visibility is the `hidden` attribute — never inline `display`
+   styles — so your CSS keeps working. Kit containers re-assert
+   `[hidden]` where their own `display` would outweigh the UA rule
+   (`.hc-field` does); give a custom `display`-setting container the
+   same one-liner (`.my-container[hidden] { display: none; }`).
+
+## Resolving the switch
+
+For each conditional element, the controlling input is the **closest
+form's** `[data-hc-show-switch]` control. Any form control works: a
+`select`, a radio group (mark each radio; the checked one's value
+counts), a checkbox (`value` — default `"on"` — when checked, the empty
+string otherwise), or a text input.
+
+For cross-form cases, `data-hc-show-src="<css-selector>"` on the
+conditional element overrides the lookup (resolved against the
+document):
+
+```html
+<select id="global-mode" data-hc-show-switch>…</select>
+
+<form>
+  <div data-hc-show-when="sql" data-hc-show-src="#global-mode">…</div>
+</form>
+```
+
+An element whose switch cannot be resolved is left untouched — a
+server-rendered `hidden` attribute stays as rendered.
+
+## Hidden fields keep submitting
+
+The behavior never disables controls or strips names — a hidden field's
+value still posts. Filtering out the values the chosen mode does not
+read is the **server's** job; visibility is presentation. If a stale
+hidden value must not reach the server, clear it server-side or on the
+server's re-render, not by fighting the visibility layer.
+
+## htmx
+
+Fields swapped in by htmx are evaluated when they arrive (a
+`MutationObserver` plus the `htmx:afterSwap` / `htmx:oobAfterSwap`
+events) — no re-initialization. This composes with the
+[cascading select recipe](/hypermedia-components/recipes/cascading-select/):
+cascading selects load the next level from the server; conditional
+fields show and hide what is already on the page.
+
+## Progressive enhancement
+
+Without the behavior every field is simply visible — the form reads as
+busier but stays fully usable, and the server contract is unchanged.
+Render the initial `hidden` attributes server-side to match the default
+switch value (as the demo above does), so the first paint is correct
+before the bundle loads.
+
+## Accessibility
+
+- `hidden` removes hidden fields from the accessibility tree and the
+  tab order — screen-reader and keyboard users see exactly what sighted
+  users see.
+- Keep each conditional block a complete labeled field (`.hc-field`
+  with its label inside), so showing it never reveals an unlabeled
+  control.
+- Revealed fields appear in DOM order right after the switch; the
+  behavior never moves focus — users continue tabbing naturally.
+
+## Related
+
+- [Cascading select recipe](/hypermedia-components/recipes/cascading-select/) —
+  when the next field's *options* come from the server, not just its
+  visibility.
+- [Mutating form recipe](/hypermedia-components/recipes/mutating-form/) —
+  the post / validate / redirect cycle these fields live in.
+- [Field](/hypermedia-components/components/field/) — the labeled-field
+  wrapper used for each conditional block.

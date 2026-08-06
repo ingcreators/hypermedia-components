@@ -1,0 +1,184 @@
+---
+title: 条件付きフィールド
+description: 宣言的な条件付きフィールド表示 — data-hc-show-when が、選択中のモードが読まないフィールドを、往復もインライン JS もなしで隠します。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+モードセレクタに依存するフォーム — 「operation: insert」にフィルタ列は
+不要、「rule: range」には 2 つ目の境界値が必要 — は、全フィールドを
+見せたままだとタスク以上に複雑に見えます。かといってセレクタが変わる
+たびにサーバサイドで再レンダリングすれば、フォーカスと入力途中の値を
+失う往復が発生します。`installShowWhen` ビヘイビアはこの配線を宣言的に
+引き受けます: `data-hc-show-when` が「この要素が見えるスイッチ値」を
+マークアップだけで指定するので、厳格な
+`Content-Security-Policy: default-src 'self'`(インライン JS なし)でも
+動作します。
+
+:::note[セットアップ]
+このレシピには `installShowWhen()` ビヘイビアが必要です。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを
+まとめてインストールするか、これだけを:
+
+```js
+import { installShowWhen } from '@hypermedia-components/core';
+installShowWhen();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add conditional-fields` でこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)を取得できます。コピーは
+`npx @hypermedia-components/cli validate` で機械検証できます。完全な
+契約は
+[`recipes/conditional-fields/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/conditional-fields/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+下のプレビューはそのままライブです — 条件付き表示は純粋にクライアント
+サイド(`installShowWhen` はページ上にすでにある値から `hidden` 属性を
+トグルするだけ)なので、サーバ契約も
+`api/recipes/conditional-fields/` 名前空間もありません。**Rule** を
+*exact* と *range* で切り替えると、リクエストなしで **Upper bound** が
+現れるのを確認できます。
+
+## マークアップ
+
+制御するフォームコントロールに `data-hc-show-switch` を付け、依存する
+各要素に `data-hc-show-when="<value> [<value> …]"` — その要素が見える
+スイッチ値の空白区切りリスト — を付けます:
+
+<Demo previewClass="hc-preview--start">
+  <form class="hc-stack">
+    <label class="hc-field">
+      <span class="hc-field__label">Rule</span>
+      <select class="hc-select" name="rule" data-hc-show-switch>
+        <option value="exact" selected>exact</option>
+        <option value="range">range</option>
+      </select>
+    </label>
+    <label class="hc-field" data-hc-show-when="exact range">
+      <span class="hc-field__label">Bound</span>
+      <input class="hc-input" name="bound" type="number" />
+    </label>
+    <label class="hc-field" data-hc-show-when="range" hidden>
+      <span class="hc-field__label">Upper bound</span>
+      <input class="hc-input" name="upper" type="number" />
+    </label>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form method="post" action="/rules">
+    <label class="hc-field">
+      <span class="hc-field__label">Rule</span>
+      <select class="hc-select" name="rule" data-hc-show-switch>
+        <option value="exact" selected>exact</option>
+        <option value="range">range</option>
+      </select>
+    </label>
+
+    <label class="hc-field" data-hc-show-when="exact range">
+      <span class="hc-field__label">Bound</span>
+      <input class="hc-input" name="bound" type="number">
+    </label>
+
+    <label class="hc-field" data-hc-show-when="range" hidden>
+      <span class="hc-field__label">Upper bound</span>
+      <input class="hc-input" name="upper" type="number">
+    </label>
+
+    <button class="hc-button" data-variant="primary">Save</button>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+流れは次のとおり:
+
+1. インストール時にすべての `[data-hc-show-when]` を一度評価するので、
+   サーバレンダリングされた状態は操作前から正しくなります。
+2. スイッチの `change` のたびに表示を再評価します — リクエストなし、
+   フォーカスはそのまま、入力途中の値も生き残ります。
+3. 表示の実体は `hidden` 属性です — インラインの `display` スタイルは
+   決して使わないので、CSS はそのまま機能します。自身の `display` が
+   UA の `[hidden]` ルールに勝つキットのコンテナは `[hidden]` を再表明
+   しています(`.hc-field` がそうです)。`display` を設定する独自の
+   コンテナには同じ 1 行(`.my-container[hidden] { display: none; }`)を
+   与えてください。
+
+## スイッチの解決
+
+条件付き要素ごとに、制御する入力は**最も近い form** の
+`[data-hc-show-switch]` コントロールです。任意のフォームコントロールが
+使えます: `select`、ラジオグループ(各ラジオにマークを付け、checked の
+ものの値が採用されます)、チェックボックス(checked なら `value` —
+デフォルト `"on"` — 、そうでなければ空文字列)、テキスト入力。
+
+フォームをまたぐ場合は、条件付き要素の
+`data-hc-show-src="<css-selector>"` が解決を上書きします(document に
+対して解決):
+
+```html
+<select id="global-mode" data-hc-show-switch>…</select>
+
+<form>
+  <div data-hc-show-when="sql" data-hc-show-src="#global-mode">…</div>
+</form>
+```
+
+スイッチを解決できない要素には触れません — サーバレンダリングされた
+`hidden` 属性はそのまま残ります。
+
+## 隠れたフィールドも送信される
+
+このビヘイビアはコントロールを disabled にしたり name を外したりは
+しません — 隠れたフィールドの値もそのまま POST されます。選択中の
+モードが読まない値を除外するのは**サーバ**の仕事で、表示は
+プレゼンテーションです。古い隠れ値をサーバに届かせたくない場合は、
+表示レイヤと戦うのではなく、サーバ側(またはサーバの再レンダリング)で
+クリアしてください。
+
+## htmx
+
+htmx でスワップインされたフィールドは到着時に評価されます
+(`MutationObserver` に加えて `htmx:afterSwap` /
+`htmx:oobAfterSwap` イベント)— 再初期化は不要です。
+[カスケードセレクトレシピ](/hypermedia-components/ja/recipes/cascading-select/)
+と組み合わせられます: カスケードセレクトは次のレベルをサーバから
+読み込み、条件付きフィールドはすでにページ上にあるものを見せ隠しします。
+
+## プログレッシブエンハンスメント
+
+ビヘイビアなしでは、すべてのフィールドが単に見えるだけです — フォームは
+賑やかに見えますが完全に使用可能なままで、サーバ契約も変わりません。
+初期の `hidden` 属性はデフォルトのスイッチ値に合わせてサーバサイドで
+レンダリングしてください(上のデモがそうしているように)。バンドルの
+読み込み前から初回描画が正しくなります。
+
+## アクセシビリティ
+
+- `hidden` は、隠れている間そのフィールドをアクセシビリティツリーと
+  タブ順序から取り除きます — スクリーンリーダーとキーボードのユーザーは
+  目の見えるユーザーとまったく同じものを見ます。
+- 各条件付きブロックはラベルつきの完結したフィールド(ラベルを内包する
+  `.hc-field`)に保ってください。表示された瞬間にラベルのない
+  コントロールが現れることがなくなります。
+- 表示されるフィールドはスイッチの直後に DOM 順で現れます。ビヘイビアは
+  フォーカスを決して動かしません — ユーザーは自然にタブ移動を続けられます。
+
+## 関連
+
+- [カスケードセレクトレシピ](/hypermedia-components/ja/recipes/cascading-select/) —
+  次のフィールドの表示ではなく*選択肢*がサーバから来る場合。
+- [ミューテーションフォームレシピ](/hypermedia-components/ja/recipes/mutating-form/) —
+  これらのフィールドが属する送信 / 検証 / リダイレクトのサイクル。
+- [フィールド](/hypermedia-components/ja/components/field/) — 各条件付き
+  ブロックに使うラベルつきフィールドのラッパー。

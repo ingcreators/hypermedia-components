@@ -1,0 +1,35 @@
+<!-- Fully expanded HTML. -->
+<form method="post" action="/rules">
+  <!-- The switch: the closest form's [data-hc-show-switch] control. Any
+       form control works (select, radio group, checkbox). -->
+  <label class="hc-field">
+    <span class="hc-field__label">Rule</span>
+    <select class="hc-select" name="rule" data-hc-show-switch>
+      <option value="exact" selected>exact</option>
+      <option value="range">range</option>
+    </select>
+  </label>
+
+  <!-- Visible while the switch value is in the whitespace-separated
+       list. The behavior toggles the `hidden` attribute only — never
+       inline styles — and evaluates once at install, so rendering the
+       matching `hidden` state server-side avoids any flash. -->
+  <label class="hc-field" data-hc-show-when="exact range">
+    <span class="hc-field__label">Bound</span>
+    <input class="hc-input" name="bound" type="number">
+  </label>
+
+  <label class="hc-field" data-hc-show-when="range" hidden>
+    <span class="hc-field__label">Upper bound</span>
+    <input class="hc-input" name="upper" type="number">
+  </label>
+
+  <!-- Cross-form / out-of-form control: point at any control with
+       data-hc-show-src="<selector>" (document-scoped) instead of the
+       closest form's switch. -->
+
+  <button class="hc-button" data-variant="primary">Save</button>
+</form>
+
+<!-- Hidden fields keep submitting — the server reads only the fields the
+     chosen mode uses; visibility is presentation, not validation. -->

@@ -1,0 +1,58 @@
+<!doctype html>
+<!-- Fixture for installShowWhen (#428) — declarative conditional field
+     visibility. Pins: install-time evaluation of server-rendered state,
+     change-driven re-evaluation without focus loss, the radio-group
+     switch, and the data-hc-show-src cross-form override. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>show-when fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Conditional fields</h1>
+
+    <form class="hc-stack" data-testid="rule-form">
+      <label class="hc-field">
+        <span class="hc-field__label">Rule</span>
+        <select class="hc-select" name="rule" data-hc-show-switch data-testid="rule-switch">
+          <option value="exact" selected>exact</option>
+          <option value="range">range</option>
+        </select>
+      </label>
+
+      <label class="hc-field" data-hc-show-when="exact range" data-testid="bound-field">
+        <span class="hc-field__label">Bound</span>
+        <input class="hc-input" name="bound" type="number">
+      </label>
+
+      <label class="hc-field" data-hc-show-when="range" hidden data-testid="upper-field">
+        <span class="hc-field__label">Upper bound</span>
+        <input class="hc-input" name="upper" type="number">
+      </label>
+    </form>
+
+    <form class="hc-stack" data-testid="radio-form">
+      <fieldset class="hc-field">
+        <legend class="hc-field__label">Mode</legend>
+        <label><input type="radio" name="mode" value="simple" data-hc-show-switch checked data-testid="mode-simple"> simple</label>
+        <label><input type="radio" name="mode" value="advanced" data-hc-show-switch data-testid="mode-advanced"> advanced</label>
+      </fieldset>
+      <div data-hc-show-when="advanced" hidden data-testid="advanced-panel">advanced options</div>
+    </form>
+
+    <select id="global-mode" data-testid="global-mode" aria-label="Global mode">
+      <option value="sql" selected>sql</option>
+      <option value="js">js</option>
+    </select>
+    <form>
+      <input data-hc-show-switch value="unrelated" aria-label="Unrelated switch">
+      <div data-hc-show-when="sql" data-hc-show-src="#global-mode" data-testid="sql-panel">sql panel</div>
+    </form>
+  </main>
+</body>
+</html>
