@@ -206,8 +206,12 @@ function attach(tree, detachers) {
     }
     const row = event.target.closest('.hc-tree__row');
     if (row && row.parentElement === item) {
-      // A row click focuses the item; on a linkless branch it toggles.
-      if (!event.target.closest('a[href]') && isBranch(item)) {
+      // A row click focuses the item and, on a branch, toggles it — unless
+      // the click originated inside an interactive control (link, button,
+      // form widget): those own their activation, and toggling too would
+      // collapse the branch the user is acting on. Same control set the
+      // keydown handler exempts.
+      if (!event.target.closest('a[href], input, button, select, textarea') && isBranch(item)) {
         setExpanded(item, !isExpanded(item));
       }
       setRoving(item);

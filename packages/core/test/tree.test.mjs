@@ -121,6 +121,53 @@ describe('installTree', () => {
     expect($('docs').getAttribute('aria-expanded')).toBe('true');
   });
 
+  it('a row click toggles a linkless branch and focuses the item', () => {
+    uninstall = installTree();
+    expect($('docs').getAttribute('aria-expanded')).toBe('false');
+
+    click($('docs').querySelector('.hc-tree__label'));
+
+    expect($('docs').getAttribute('aria-expanded')).toBe('true');
+    expect(document.activeElement).toBe($('docs'));
+  });
+
+  it('clicking an interactive control inside a branch row does not toggle it (#427)', () => {
+    uninstall = installTree();
+
+    // A per-row action button and a form control, the shapes the row's
+    // flex layout invites.
+    const row = $('docs').querySelector(':scope > .hc-tree__row');
+    row.insertAdjacentHTML(
+      'beforeend',
+      '<button type="button" id="docs-action">rename</button>' +
+      '<input type="checkbox" id="docs-check">',
+    );
+
+    const action = vi.fn();
+    $('docs-action').addEventListener('click', action);
+
+    click($('docs-action'));
+    expect(action).toHaveBeenCalledTimes(1);
+    expect($('docs').getAttribute('aria-expanded')).toBe('false');
+
+    click($('docs-check'));
+    expect($('docs').getAttribute('aria-expanded')).toBe('false');
+
+    // Row text/whitespace still toggles (unchanged).
+    click($('docs').querySelector('.hc-tree__label'));
+    expect($('docs').getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('clicking a label link in a branch row does not toggle it (unchanged)', () => {
+    uninstall = installTree();
+    const label = $('docs').querySelector(':scope > .hc-tree__row .hc-tree__label');
+    label.innerHTML = '<a href="/docs" id="docs-link">docs</a>';
+
+    click($('docs-link'));
+
+    expect($('docs').getAttribute('aria-expanded')).toBe('false');
+  });
+
   it('type-ahead jumps to the next visible item starting with the character', () => {
     uninstall = installTree();
     $('src').focus();
