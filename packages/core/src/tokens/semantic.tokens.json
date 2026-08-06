@@ -21,6 +21,11 @@
       "$type": "color",
       "$value": "{primitive.color.gray.300}"
     },
+    "border-strong": {
+      "$description": "Boundary for form controls (WCAG 1.4.11 non-text contrast: >=3:1 against bg and surface in both themes). Decorative borders keep `border`.",
+      "$type": "color",
+      "$value": "{primitive.color.gray.500}"
+    },
     "focus-ring": {
       "$type": "color",
       "$value": "{primitive.color.blue.500}"

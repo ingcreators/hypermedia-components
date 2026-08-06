@@ -17,6 +17,10 @@
       "$type": "color",
       "$value": "{primitive.color.slate.300}"
     },
+    "border-strong": {
+      "$type": "color",
+      "$value": "{primitive.color.slate.500}"
+    },
     "muted-bg": {
       "$type": "color",
       "$value": "{primitive.color.slate.100}"
