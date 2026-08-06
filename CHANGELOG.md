@@ -20,6 +20,26 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`350` primitive step on the five neutral ramps** (`gray.350`
+  `#a7aeb9`, `zinc.350` `#acacb4`, `slate.350` `#a1aec1`, `stone.350`
+  `#b2ada9`, `neutral.350` `#adadad`) — a tuned dark-muted-text shade
+  sitting between `300` and `400`, chosen per ramp for ≥ 4.5:1 on the
+  ramp's `700`.
+
+### Changed
+
+- **Dark `text-muted` raised from the `400` to the `350` step** —
+  muted text on `muted-bg` surfaces (input-group addons, stepper
+  markers, multicombobox tag remove buttons, hovered menu / tab /
+  command items…) sat at 4.04–4.11:1 in dark, under the WCAG AA
+  4.5:1 minimum. Now 4.61–4.63:1 on `muted-bg` and ~8:1 on the page
+  background (was ~7:1), so the muted-vs-body hierarchy is preserved.
+  Light theme unchanged (6.9–7.2:1 already). Theme builder dark
+  output and the palette docs follow. Chromium VRT baselines
+  regenerated.
+
 ### Changed
 
 - **Button-shaped boundaries moved to `border-strong`** — follow-up to

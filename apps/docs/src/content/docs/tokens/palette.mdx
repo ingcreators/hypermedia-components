@@ -22,7 +22,10 @@ CSS variables. To consume a color at runtime, use the
 *are* emitted.
 :::
 
-Each ramp runs the standard Tailwind 50–950 scale. The `gray` ramp is
+Each ramp runs the standard Tailwind 50–950 scale. The five neutral
+ramps add a tuned `350` step — the dark-theme `text-muted` shade,
+chosen so muted text keeps ≥ 4.5:1 contrast even on `muted-bg`
+(the ramp's `700`) surfaces. The `gray` ramp is
 the project's default neutral; `slate` / `zinc` / `neutral` / `stone`
 are the alternative neutrals offered by the
 [Theme builder](/hypermedia-components/tokens/theme-builder/). The
