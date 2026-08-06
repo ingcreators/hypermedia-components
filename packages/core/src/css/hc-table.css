@@ -14,6 +14,17 @@
     border-block-end: 1px solid var(--hc-table-border);
     text-align: start;
     vertical-align: top;
+
+    /* Digits align vertically down a column (affects digit glyphs only,
+     * so text cells render unchanged). */
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Numeric-column modifier: per-column semantics the server renders.
+   * Logical `end` flips free in RTL. */
+  .hc-table th[data-numeric],
+  .hc-table td[data-numeric] {
+    text-align: end;
   }
 
   .hc-table thead th {

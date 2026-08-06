@@ -8,14 +8,14 @@
  *     <legend class="hc-sr-only">Rate this article</legend>
  *     <input class="hc-rating__input" type="radio" name="rate" value="1" id="r1">
  *     <label class="hc-rating__star" for="r1" aria-label="1 of 5">★</label>
- *     <!-- … one input+label pair per star, in ascending DOM order -->
+ *     \3c !-- … one input+label pair per star, in ascending DOM order -->
  *   </fieldset>
  *
  * Read-only display (no form control):
  *
  *   <span class="hc-rating" data-readonly role="img" aria-label="4 of 5 stars">
  *     <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
- *     <!-- … -->
+ *     \3c !-- … -->
  *   </span>
  *
  * The glyph is the label's text content (★ here) and inherits

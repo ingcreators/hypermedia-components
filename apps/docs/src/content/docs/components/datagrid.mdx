@@ -269,6 +269,23 @@ on the `<tbody>` (see the
 [Datagrid pager recipe](/hypermedia-components/recipes/datagrid-pager/)). Render
 each header with the current `aria-sort` so the indicator survives the swap.
 
+## Numeric columns
+
+Cells render digits as **tabular figures**
+(`font-variant-numeric: tabular-nums`) by default, so runs of digits
+align vertically down a column; the property affects digit glyphs only,
+so text cells are unchanged. Right-alignment stays per-column
+*semantics*: `data-numeric` on a cell / header cell end-aligns it
+(`text-align: end`, logical — RTL flips free). It composes with
+`data-sortable` — numeric columns are the ones most often sorted; the
+sort indicator simply follows the end-aligned label.
+
+```html
+<th class="hc-datagrid__headcell" data-numeric data-sortable data-col="amount">Amount</th>
+…
+<td class="hc-datagrid__cell" data-numeric>1,234.50</td>
+```
+
 ## Behavior — `installDatagrid()`
 
 ```js
@@ -628,6 +645,7 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Frozen columns | `data-frozen`, `data-frozen-edge` (head/body cells) | CSS — the behavior only automates the `--hc-datagrid-left` / header-height offsets. |
 | Vertical headers | `data-orientation` — `vertical` / `sideways` (header cell) | CSS |
 | Column / cell highlight | `data-highlight` (cell) | CSS |
+| Numeric columns | `data-numeric` (head/body cells) | CSS |
 | Column resize | `data-resizable` + `data-col` (header) · matching `data-col` (body cells) | `installDatagrid()` |
 | Sortable columns | `data-sortable` + `data-col` (header) | `installDatagrid()` |
 | Expandable row detail | `data-hc-datagrid-toggle` (button) · `data-expanded` (record `<tbody>`, start open) · `data-lazy` (detail cell) | `installDatagrid()` |

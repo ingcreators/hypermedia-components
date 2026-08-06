@@ -109,6 +109,51 @@ table is announceable to assistive tech.
   </Fragment>
 </Demo>
 
+## Numeric columns
+
+Cells render digits as **tabular figures**
+(`font-variant-numeric: tabular-nums`) by default, so runs of digits —
+counts, amounts, timestamps — align vertically down a column. The
+property affects digit glyphs only; text cells are unchanged.
+
+Right-alignment is per-column *semantics*, so it is a declarative
+opt-in: `data-numeric` on a cell or header cell end-aligns it
+(`text-align: end` — logical, so RTL flips free).
+
+<Demo previewClass="hc-preview--col">
+  <table class="hc-table">
+    <thead>
+      <tr><th scope="col">Item</th><th scope="col" data-numeric>Qty</th><th scope="col" data-numeric>Amount</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Widget</td><td data-numeric>1,114</td><td data-numeric>9,110.25</td></tr>
+      <tr><td>Gadget</td><td data-numeric>98</td><td data-numeric>101.09</td></tr>
+      <tr><td>Gizmo</td><td data-numeric>7</td><td data-numeric>1,987.50</td></tr>
+    </tbody>
+  </table>
+
+  <Fragment slot="code">
+
+  ```html
+  <table class="hc-table">
+    <thead>
+      <tr>
+        <th scope="col">Item</th>
+        <th scope="col" data-numeric>Qty</th>
+        <th scope="col" data-numeric>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Widget</td><td data-numeric>1,114</td><td data-numeric>9,110.25</td></tr>
+      <tr><td>Gadget</td><td data-numeric>98</td><td data-numeric>101.09</td></tr>
+      <tr><td>Gizmo</td><td data-numeric>7</td><td data-numeric>1,987.50</td></tr>
+    </tbody>
+  </table>
+  ```
+
+  </Fragment>
+</Demo>
+
 ## Key-value variant
 
 `data-variant="kv"` turns the table into a two-column definition list

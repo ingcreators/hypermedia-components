@@ -110,6 +110,51 @@ import Demo from '../../../../components/Demo.astro';
   </Fragment>
 </Demo>
 
+## 数値列
+
+セルはデフォルトで数字を**等幅数字**
+(`font-variant-numeric: tabular-nums`)でレンダリングするため、
+桁の並び — 件数・金額・タイムスタンプ — は列方向に垂直に揃います。
+このプロパティは数字グリフにしか影響せず、テキストセルは不変です。
+
+右揃えは列ごとの*意味論*なので、宣言的な opt-in です: セルまたは
+ヘッダーセルの `data-numeric` が末尾揃えにします(`text-align: end` —
+論理値なので RTL では自動で反転)。
+
+<Demo previewClass="hc-preview--col">
+  <table class="hc-table">
+    <thead>
+      <tr><th scope="col">Item</th><th scope="col" data-numeric>Qty</th><th scope="col" data-numeric>Amount</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Widget</td><td data-numeric>1,114</td><td data-numeric>9,110.25</td></tr>
+      <tr><td>Gadget</td><td data-numeric>98</td><td data-numeric>101.09</td></tr>
+      <tr><td>Gizmo</td><td data-numeric>7</td><td data-numeric>1,987.50</td></tr>
+    </tbody>
+  </table>
+
+  <Fragment slot="code">
+
+  ```html
+  <table class="hc-table">
+    <thead>
+      <tr>
+        <th scope="col">Item</th>
+        <th scope="col" data-numeric>Qty</th>
+        <th scope="col" data-numeric>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Widget</td><td data-numeric>1,114</td><td data-numeric>9,110.25</td></tr>
+      <tr><td>Gadget</td><td data-numeric>98</td><td data-numeric>101.09</td></tr>
+      <tr><td>Gizmo</td><td data-numeric>7</td><td data-numeric>1,987.50</td></tr>
+    </tbody>
+  </table>
+  ```
+
+  </Fragment>
+</Demo>
+
 ## キー・バリュー変種
 
 `data-variant="kv"` はテーブルを詳細ビュー向けの 2 列の定義リストに

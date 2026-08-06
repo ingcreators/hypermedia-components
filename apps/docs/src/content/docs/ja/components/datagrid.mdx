@@ -274,6 +274,23 @@ htmx とつなぐには、ソートパラメータつきで行を再読み込み
 参照)。インジケーターがスワップ後も残るよう、各ヘッダーは現在の
 `aria-sort` つきで描画してください。
 
+## 数値列
+
+セルはデフォルトで数字を**等幅数字**
+(`font-variant-numeric: tabular-nums`)でレンダリングするため、桁の
+並びは列方向に垂直に揃います。このプロパティは数字グリフにしか影響せず、
+テキストセルは不変です。右揃えは列ごとの*意味論*のままです:
+セル / ヘッダーセルの `data-numeric` が末尾揃えにします
+(`text-align: end` の論理値 — RTL では自動で反転)。`data-sortable`
+とも合成できます — 数値列は最もソートされる列であり、ソート
+インジケータは末尾揃えのラベルに追従するだけです。
+
+```html
+<th class="hc-datagrid__headcell" data-numeric data-sortable data-col="amount">Amount</th>
+…
+<td class="hc-datagrid__cell" data-numeric>1,234.50</td>
+```
+
 ## ビヘイビア — `installDatagrid()`
 
 ```js
@@ -640,6 +657,7 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | 固定列 | `data-frozen`、`data-frozen-edge`(ヘッダー / ボディのセル) | CSS — ビヘイビアは `--hc-datagrid-left` / ヘッダー高さのオフセットを自動化するだけです。 |
 | 縦書きヘッダー | `data-orientation` — `vertical` / `sideways`(ヘッダーセル) | CSS |
 | 列 / セルのハイライト | `data-highlight`(セル) | CSS |
+| 数値列 | `data-numeric`(ヘッダー / ボディのセル) | CSS |
 | 列のリサイズ | `data-resizable` + `data-col`(ヘッダー)· 同じ `data-col`(ボディセル) | `installDatagrid()` |
 | ソート可能な列 | `data-sortable` + `data-col`(ヘッダー) | `installDatagrid()` |
 | 展開可能な行詳細 | `data-hc-datagrid-toggle`(ボタン)· `data-expanded`(レコード `<tbody>`、開いた状態で開始)· `data-lazy`(詳細セル) | `installDatagrid()` |
