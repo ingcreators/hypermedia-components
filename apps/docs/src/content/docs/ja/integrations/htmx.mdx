@@ -363,6 +363,14 @@ HX-Trigger: {"hc:toast":{"message":"Deleted.","variant":"success"}}
    観測しないため、`hx-confirm` は決して実行されません。機構は 1 つに。
 6. インターセプトは委譲(document レベル)なので、htmx でスワップイン
    されたボタンも再初期化なしで確認ゲートを通ります。
+7. **素のフォーム**の submit ボタン — ボタンにもフォームにも
+   `hx-*`/`data-hx-*` の verb 属性がない場合 — もゲートされます:
+   承認するとビヘイビアが `form.requestSubmit(button)` を呼び、
+   ボタンを submitter とするネイティブ送信が完了します
+   (`formaction`/`formmethod` が尊重され、制約バリデーションが
+   実行されます)。ボタンかフォームのどちらかに htmx verb があれば
+   `hc:confirmed` の発火だけになります — リクエストの所有者は htmx の
+   ままで、二重発火はありません。
 
 ## バリデーションエラーと非 2xx レスポンス
 

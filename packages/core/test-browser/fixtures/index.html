@@ -146,6 +146,19 @@
         out.setAttribute('data-confirmed', 'true');
       });
     </script>
+    <h3>Plain form (no htmx)</h3>
+    <form class="row" method="get" action="/">
+      <input type="hidden" name="deleted" value="42">
+      <button
+        class="hc-button"
+        data-variant="error"
+        name="via"
+        value="submitter"
+        data-hc-confirm="Delete item 42?"
+        data-testid="trigger-confirm-form">
+        Delete (plain form)
+      </button>
+    </form>
   </section>
 
   <section id="section-toast" data-testid="section-toast">

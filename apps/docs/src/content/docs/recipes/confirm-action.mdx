@@ -7,9 +7,12 @@ import Demo from '../../../components/Demo.astro';
 import ConfirmActionDemo from '../../../components/recipe-demos/ConfirmActionDemo.astro';
 
 `confirm-action` adds a modal confirmation step in front of a
-destructive htmx request. The button stays a normal `<button>`; htmx
-remains the sole owner of the network request; a small behavior shim
-opens the dialog and re-emits a `hc:confirmed` event when the user accepts.
+destructive action — an htmx request or a plain form submission. The
+button stays a normal `<button>`; htmx remains the sole owner of the
+network request; a small behavior shim opens the dialog and re-emits a
+`hc:confirmed` event when the user accepts. For a submit button in a
+plain (non-htmx) form, the behavior also completes the intercepted
+submission via `form.requestSubmit()`.
 
 :::note[Setup]
 This recipe needs the `installConfirm()` behavior — without it the button
@@ -107,6 +110,33 @@ What happens:
    `HX-Trigger` events).
 
 If the user cancels, no event is dispatched and nothing happens.
+
+## Plain forms (no htmx)
+
+`data-hc-confirm` also works on a submit button in an ordinary
+`<form>` — no htmx attributes required:
+
+```html
+<form method="post" action="/items/123/delete">
+  <button class="hc-button" data-variant="error"
+    data-hc-confirm="Delete this item?">
+    Delete
+  </button>
+</form>
+```
+
+On confirm, the behavior calls `form.requestSubmit(button)`, so the
+intercepted submission completes exactly as the click would have: the
+button is the submitter (its `formaction`/`formmethod` are honored)
+and constraint validation runs first. On cancel, nothing is submitted.
+
+This path applies only when neither the button nor its form carries an
+htmx verb attribute (`hx-get/post/put/patch/delete` or the `data-hx-*`
+variants). As soon as either does, only `hc:confirmed` is dispatched
+and htmx owns the request — the form is never double-submitted.
+
+Without JavaScript the same markup degrades gracefully: the form
+submits natively, just without the confirmation step.
 
 ## Customizing the dialog
 
@@ -219,7 +249,12 @@ browser-tested guarantees, not implementation details):
   `hc:confirmed` event — dispatched on the trigger element when the
   user confirms — starts the request. An element with `data-hc-confirm`
   but a default click trigger never fires its htmx request.
-- **Cancel dispatches nothing.** No request, no event.
+- **Cancel dispatches nothing.** No request, no event, no submission.
+- A submit button of a **plain form** (no htmx verb attribute on the
+  button or its form) is submitted via `form.requestSubmit(button)`
+  after `hc:confirmed` — see [Plain forms](#plain-forms-no-htmx). An
+  htmx verb on either element suppresses this branch, so htmx-wired
+  forms are never double-fired.
 - Do **not** combine with htmx's own `hx-confirm` — htmx never sees
   the activation, so `hx-confirm` never runs; you'd be writing dead
   attributes. Use one mechanism per element.
@@ -314,10 +349,11 @@ For a row-level delete:
 
 Without the behavior loaded, the button still works:
 
-- Without htmx, the button performs no action — exactly as the markup
-  describes. A safer non-JS fallback is to put the button inside a
-  `<form method="post" action="/items/123/delete">`; submission will
-  still go through, just without the confirmation step.
+- Without htmx, put the button inside a
+  `<form method="post" action="/items/123/delete">` — the
+  [plain-form path](#plain-forms-no-htmx) confirms and then submits
+  it. An htmx-attributed button with no htmx loaded performs no
+  action, exactly as the markup describes.
 - Without `hc.behaviors.js`, the click bubbles normally. htmx sees no
   `hc:confirmed` event and does nothing. Adding a `<noscript>` notice or
   rendering a fully server-side confirmation page is the recommended
