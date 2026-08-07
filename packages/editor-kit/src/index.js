@@ -15,6 +15,8 @@ export {
   CommandStack,
 } from './commands.js';
 export { Selection } from './selection.js';
+export { createDragController, CONTAINER_ATTR } from './dnd.js';
+export { Overlay } from './overlay.js';
 export {
   serialize,
   toJson,

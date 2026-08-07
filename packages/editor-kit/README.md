@@ -82,13 +82,47 @@ const html = editor.serialize();
 const json = editor.toJson();
 ```
 
+## Drag & drop and the overlay
+
+`createDragController` is a pointer-events drag engine (not HTML5
+DnD): it hit-tests against regions marked `data-hc-editor-container`
+(scaffolding — stripped by the serializers), walks up past containers
+your `canAccept(container, payload)` hook vetoes, and reports
+`{ container, index }` where `index` is a `childNodes` position
+measured with the dragged node absent — directly consumable by
+`insertNode`/`moveNode`, so every drop stays undoable. `startMove` has
+a movement threshold so plain clicks still reach the selection;
+Escape cancels.
+
+`Overlay` draws selection outlines and the drop indicator in a mount
+element *outside* the canvas (pass `frame` for an iframe-hosted
+canvas). Its `showDropIndicator` accepts exactly what the
+controller's `onPreview` emits:
+
+```js
+import { createDragController, Overlay } from '@hypermedia-components/editor-kit';
+
+const overlay = new Overlay({ mount: hostLayer, frame: canvasIframe });
+const dnd = createDragController({
+  root: canvasBody,
+  canAccept: (container, payload) => allowedIn(container, payload),
+  onPreview: (t) => overlay.showDropIndicator(t),
+  onDrop: ({ container, index, payload }) => {
+    if (payload.type === 'move') {
+      editor.stack.apply(moveNode(payload.node, container, index));
+    } else {
+      editor.stack.apply(insertNode(container, instantiate(payload.data), index));
+    }
+  },
+});
+editor.selection.addEventListener('change', (e) => overlay.showSelection(e.detail.items));
+```
+
 ## Scope and roadmap
 
 Shipped here: commands + undo/redo stack, selection model, serializers
-(HTML and the JSON projection). Planned next (in-repo plan: the UI
-Builder groundwork discussion): the pointer-events drag-and-drop
-controller and the selection/drop-indicator overlay layer for an
-iframe-hosted canvas.
+(HTML and the JSON projection), the drag-and-drop controller, and the
+overlay layer.
 
 Export targets beyond plain HTML (e.g. Thymeleaf) are downstream
 consumers of `serialize()`/`toJson()` — they transform neutral

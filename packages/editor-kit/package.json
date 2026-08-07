@@ -15,7 +15,9 @@
     ".": "./src/index.js",
     "./commands": "./src/commands.js",
     "./selection": "./src/selection.js",
-    "./serializer": "./src/serializer.js"
+    "./serializer": "./src/serializer.js",
+    "./dnd": "./src/dnd.js",
+    "./overlay": "./src/overlay.js"
   },
   "files": [
     "src",
