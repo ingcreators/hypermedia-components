@@ -22,6 +22,30 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`@hypermedia-components/editor-kit` `0.0.1` (experimental, not yet
+  published)** — the editor engine for visual builders over the kit:
+  the six undoable edit primitives (`setAttribute` / `removeAttribute` /
+  `setText` / `insertNode` / `removeNode` / `moveNode`) with a
+  `CommandStack` (undo/redo, `transact()` grouping, coalescing for
+  inspector typing), a `Selection` model, and serializers — artifact
+  HTML (strips the reserved `data-hc-editor-*` / `data-hc-editor-only`
+  scaffolding namespace) and a bijective JSON projection
+  (`toJson()` / `fromJson()`, `component` annotation driven by the
+  injected core manifest). Zero runtime dependencies; the canvas DOM
+  is the document model (no parallel IR). CI lints and tests the new
+  package in the existing lint/unit jobs.
+- **editor-kit: drag & drop + overlay** — `createDragController()`, a
+  pointer-events drag engine (palette inserts via `startInsert`,
+  canvas moves via `startMove` with a click-preserving threshold,
+  Escape cancel). Droppable regions are marked with the scaffolding
+  attribute `data-hc-editor-container`; a `canAccept` hook lets a
+  manifest-driven builder veto containers. Reported drop indices are
+  childNodes positions with the dragged node absent — directly
+  consumable by `insertNode`/`moveNode`, so drops stay undoable. Plus
+  `Overlay`, the host-side layer that draws selection outlines and the
+  row/column-aware drop indicator over an inline or iframe-hosted
+  canvas.
+
 - **`manifest.json`: enumerated attribute values + themable var surface**
   — each `components[]` entry gains `attributeValues{}` (every
   value-carrying `data-*` attribute in the block's stylesheet → its
