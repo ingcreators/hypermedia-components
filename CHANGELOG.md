@@ -22,6 +22,10 @@ Security    — security-relevant changes
 
 ## [0.1.13] - 2026-08-07
 
+- **CLI `@hypermedia-components/cli@0.3.1`** — re-bundles the recipe
+  set so `add conditional-fields` works offline from the published
+  tarball. No code changes. (Independent `cli-v0.3.1` tag.)
+
 ### Added
 
 - **`installShowWhen()` — declarative conditional field visibility**
