@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`@hypermedia-components/editor-kit` `0.0.1` (experimental, not yet
+  published)** — the editor engine for visual builders over the kit:
+  the six undoable edit primitives (`setAttribute` / `removeAttribute` /
+  `setText` / `insertNode` / `removeNode` / `moveNode`) with a
+  `CommandStack` (undo/redo, `transact()` grouping, coalescing for
+  inspector typing), a `Selection` model, and serializers — artifact
+  HTML (strips the reserved `data-hc-editor-*` / `data-hc-editor-only`
+  scaffolding namespace) and a bijective JSON projection
+  (`toJson()` / `fromJson()`, `component` annotation driven by the
+  injected core manifest). Zero runtime dependencies; the canvas DOM
+  is the document model (no parallel IR). CI lints and tests the new
+  package in the existing lint/unit jobs.
+
 - **`manifest.json`: enumerated attribute values + themable var surface**
   — each `components[]` entry gains `attributeValues{}` (every
   value-carrying `data-*` attribute in the block's stylesheet → its

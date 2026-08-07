@@ -34,6 +34,9 @@ jobs:
       - name: Lint JS + CSS
         run: pnpm --filter @hypermedia-components/core lint
 
+      - name: Lint editor-kit
+        run: pnpm --filter @hypermedia-components/editor-kit lint
+
   unit:
     name: Unit tests (Vitest)
     runs-on: ubuntu-latest
@@ -65,8 +68,8 @@ jobs:
       - name: Run CLI Vitest
         run: pnpm --filter @hypermedia-components/cli test
 
-      - name: Run CLI tests
-        run: pnpm --filter @hypermedia-components/cli test
+      - name: Run editor-kit Vitest
+        run: pnpm --filter @hypermedia-components/editor-kit test
 
   docs:
     name: Docs build (Astro)
