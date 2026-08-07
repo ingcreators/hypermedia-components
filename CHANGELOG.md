@@ -20,6 +20,12 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-08-07
+
+- **`@hypermedia-components/editor-kit@0.1.0`** — the editor-kit
+  additions below ship as their own release (independent
+  `editor-kit-v0.1.0` tag).
+
 ### Added
 
 - **Scriptless static rendering** (#450) — the resting state of every
@@ -4357,7 +4363,8 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.14...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.15...HEAD
+[0.1.15]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.11...v0.1.12

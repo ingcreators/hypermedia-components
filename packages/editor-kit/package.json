@@ -1,6 +1,6 @@
 {
   "name": "@hypermedia-components/editor-kit",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Editor engine for visual builders on top of Hypermedia Components: selection model, undoable command primitives, and HTML ⇄ JSON serialization.",
   "license": "MIT",
   "repository": {
