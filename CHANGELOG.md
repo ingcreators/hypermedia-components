@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Scriptless static rendering** (#450) — the resting state of every
+  behavior component is now a documented contract
+  (`reference/static-rendering`, en + ja): native
+  popover/`<dialog>`/`<details>` primitives and attribute-driven CSS
+  carry it without JavaScript. New opt-in `data-hc-static` (on any
+  ancestor) forces the canonical resting presentation where CSS can
+  express it — tabs show the first panel only, an empty calendar
+  shell keeps its framed footprint. The manifest gains a per-component
+  `staticSafe` flag (exactly four are `false`: calendar, carousel,
+  chart, code) so sandboxed canvases, screenshot/PDF renderers, and
+  print can badge approximate previews honestly.
+
+### Added
+
 - **Baked email artifacts + machine contract** (#448) — the core
   package now ships the transformed email templates for the built-in
   axes under `./email-artifacts/*`: `default-<neutral>` themes (all

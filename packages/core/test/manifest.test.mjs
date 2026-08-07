@@ -146,6 +146,20 @@ describe('manifest.json', () => {
     expect(droppable).toEqual(['hc-cluster', 'hc-container', 'hc-grid', 'hc-sidebar', 'hc-stack']);
   });
 
+  it('flags scriptless-rendering fidelity per component', () => {
+    for (const c of manifest.components) {
+      expect(typeof c.staticSafe, c.block).toBe('boolean');
+    }
+    // The audited exceptions — everything else rests correctly from
+    // markup + CSS (native popover/<dialog>/<details>, aria-driven CSS).
+    expect(manifest.components.filter((c) => !c.staticSafe).map((c) => c.block)).toEqual([
+      'hc-calendar',
+      'hc-carousel',
+      'hc-chart',
+      'hc-code',
+    ]);
+  });
+
   it('is deterministic (two builds byte-identical) and sorted', async () => {
     const again = await buildManifest();
     expect(JSON.stringify(again)).toBe(JSON.stringify(manifest));
