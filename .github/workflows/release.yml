@@ -3,8 +3,9 @@ name: Release
 on:
   push:
     # v* releases @hypermedia-components/core; cli-v* releases
-    # @hypermedia-components/cli. Versions are independent.
-    tags: ['v*', 'cli-v*']
+    # @hypermedia-components/cli; editor-kit-v* releases
+    # @hypermedia-components/editor-kit. Versions are independent.
+    tags: ['v*', 'cli-v*', 'editor-kit-v*']
 
 jobs:
   release:
@@ -37,16 +38,29 @@ jobs:
       # pre-releases never move `latest`: 0.0.1-alpha.0 -> alpha,
       # 0.0.1-beta.2 -> beta, 0.0.1-rc.0 -> rc, plain 0.0.1 -> latest.
       - name: Publish to npm
+        env:
+          # First publishes of a NEW package cannot use OIDC trusted
+          # publishing (npm only lets you register a trusted publisher on
+          # an existing package), so editor-kit publishes authenticate
+          # with this granular token until its trusted publisher is
+          # registered — then drop the secret and the export below.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           if [[ "$GITHUB_REF_NAME" == cli-v* ]]; then
             FILTER="@hypermedia-components/cli"
             DIR="packages/cli"
+          elif [[ "$GITHUB_REF_NAME" == editor-kit-v* ]]; then
+            FILTER="@hypermedia-components/editor-kit"
+            DIR="packages/editor-kit"
+            # Token auth for the new package only; core/cli stay on OIDC.
+            export NODE_AUTH_TOKEN="$NPM_TOKEN"
           else
             FILTER="@hypermedia-components/core"
             DIR="packages/core"
           fi
           VERSION=$(node -p "require('./$DIR/package.json').version")
           EXPECTED="${GITHUB_REF_NAME#cli-}"
+          EXPECTED="${EXPECTED#editor-kit-}"
           EXPECTED="${EXPECTED#v}"
           if [[ "$VERSION" != "$EXPECTED" ]]; then
             echo "Tag $GITHUB_REF_NAME does not match $DIR version $VERSION" >&2
@@ -84,19 +98,20 @@ jobs:
             exit 0
           fi
           VERSION="${TAG#cli-}"
+          VERSION="${VERSION#editor-kit-}"
           VERSION="${VERSION#v}"
 
           FLAGS=()
           if [[ "$VERSION" == *-* ]]; then
             FLAGS+=(--prerelease --latest=false)   # pre-release: never Latest
-          elif [[ "$TAG" == cli-v* ]]; then
-            FLAGS+=(--latest=false)                 # CLI: don't usurp core's Latest
+          elif [[ "$TAG" == cli-v* || "$TAG" == editor-kit-v* ]]; then
+            FLAGS+=(--latest=false)                 # satellites: don't usurp core's Latest
           else
             FLAGS+=(--latest)                        # stable core release
           fi
 
           NOTES=(--generate-notes)
-          if [[ "$TAG" != cli-v* ]]; then
+          if [[ "$TAG" != cli-v* && "$TAG" != editor-kit-v* ]]; then
             # Core: lift the matching CHANGELOG section verbatim. index()==1
             # anchors on the heading start so the version's dots are literal,
             # and the next "## [" ends the section.
@@ -116,6 +131,8 @@ jobs:
 
           if [[ "$TAG" == cli-v* ]]; then
             TITLE="@hypermedia-components/cli $VERSION"
+          elif [[ "$TAG" == editor-kit-v* ]]; then
+            TITLE="@hypermedia-components/editor-kit $VERSION"
           else
             TITLE="v$VERSION"
           fi

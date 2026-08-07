@@ -1,7 +1,8 @@
 # @hypermedia-components/editor-kit
 
-**Experimental** (`private: true` — not yet published; publishing is a
-release-process decision). The editor engine for building visual
+**Experimental** — published to npm on the `0.x` line via
+`editor-kit-v*` tags; the API may change between minor versions until
+it stabilizes. The editor engine for building visual
 builders on top of
 [Hypermedia Components](../core/README.md): a selection model,
 undoable command primitives, and HTML ⇄ JSON serialization.

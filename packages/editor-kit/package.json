@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Editor engine for visual builders on top of Hypermedia Components: selection model, undoable command primitives, and HTML ⇄ JSON serialization.",
   "license": "MIT",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/ingcreators/hypermedia-components.git",
