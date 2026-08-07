@@ -241,6 +241,17 @@ export default defineConfig({
           ],
         },
         { label: 'Recipes', translations: { ja: 'レシピ' }, items: [{ autogenerate: { directory: 'recipes' } }] },
+        {
+          // The editor engine for visual builders — a separate npm
+          // package, so its docs sit outside the core Reference group.
+          // Explicit reading order: overview → API → inspector demo.
+          label: 'Editor kit', translations: { ja: 'エディタキット' },
+          items: [
+            { label: 'Overview', translations: { ja: '概要' }, slug: 'editor-kit' },
+            'editor-kit/api',
+            'editor-kit/inspector',
+          ],
+        },
         { label: 'Tokens', translations: { ja: 'トークン' }, items: [{ autogenerate: { directory: 'tokens' } }] },
         { label: 'Integrations', translations: { ja: 'インテグレーション' }, items: [{ autogenerate: { directory: 'integrations' } }] },
         { label: 'Reference', translations: { ja: 'リファレンス' }, items: [{ autogenerate: { directory: 'reference' } }] },

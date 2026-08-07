@@ -16,6 +16,9 @@ importers:
       '@hypermedia-components/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@hypermedia-components/editor-kit':
+        specifier: workspace:*
+        version: link:../../packages/editor-kit
       '@observablehq/plot':
         specifier: ^0.6.17
         version: 0.6.17

@@ -1,0 +1,200 @@
+---
+// EditorKitDemo.astro — a miniature builder running the real
+// @hypermedia-components/editor-kit in the page: click a component to
+// select it, edit its enumerated attributes in a manifest-driven
+// inspector, undo/redo, and watch the serialized artifact update.
+//
+// The selection marker is the editor-scaffolding attribute
+// `data-hc-editor-selected`, so the output pane doubles as proof that
+// `serialize()` strips the `data-hc-editor-*` namespace.
+//
+// UI strings arrive as props (the ja page passes translations); the
+// client script reads them from data attributes so one bundle serves
+// both locales.
+const {
+  empty = 'Click a component on the canvas.',
+  defaultOption = '(default)',
+  undo = 'Undo',
+  redo = 'Redo',
+  output = 'serialize() — scaffolding stripped',
+} = Astro.props;
+---
+
+<div class="ekd hc-card" data-ekd data-msg-empty={empty} data-msg-default={defaultOption}>
+  <div class="ekd__work">
+    <div class="ekd__canvas" data-ekd-canvas>
+      <div class="hc-alert" data-variant="info">
+        <div class="hc-alert__title">Release ready</div>
+        <div class="hc-alert__description">Three checks passed.</div>
+      </div>
+      <div class="ekd__row">
+        <button type="button" class="hc-button" data-variant="primary">Publish</button>
+        <button type="button" class="hc-button" data-variant="ghost">Preview</button>
+        <span class="hc-badge" data-variant="success">stable</span>
+      </div>
+    </div>
+    <aside class="ekd__inspector" data-ekd-inspector></aside>
+  </div>
+  <div class="ekd__bar">
+    <button type="button" class="hc-button" data-size="sm" data-ekd-undo disabled>{undo}</button>
+    <button type="button" class="hc-button" data-size="sm" data-ekd-redo disabled>{redo}</button>
+    <span class="ekd__bar-label">{output}</span>
+  </div>
+  <pre class="ekd__output" data-ekd-output></pre>
+</div>
+
+<style is:global>
+  .ekd { margin-block: 1rem; }
+  .ekd__work {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 13rem;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  @media (max-width: 40rem) {
+    .ekd__work { grid-template-columns: minmax(0, 1fr); }
+  }
+  .ekd__canvas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px dashed var(--hc-border, #ccc);
+    border-radius: var(--hc-radius-md, 6px);
+  }
+  .ekd__row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+  .ekd__canvas [data-hc-editor-selected] {
+    outline: 2px solid var(--hc-editor-selection-color, #4c8dff);
+    outline-offset: 2px;
+  }
+  .ekd__inspector { display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem; }
+  .ekd__inspector .hc-field__label code { font-size: 0.75rem; }
+  .ekd__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-block-start: 1px solid var(--hc-border, #ccc);
+  }
+  .ekd__bar-label { margin-inline-start: auto; font-size: 0.75rem; opacity: 0.7; }
+  .ekd__output {
+    margin: 0;
+    padding: 1rem;
+    border-block-start: 1px solid var(--hc-border, #ccc);
+    font-size: 0.75rem;
+    overflow-x: auto;
+  }
+</style>
+
+<script>
+  import {
+    createEditor,
+    setAttribute,
+    removeAttribute,
+    serialize,
+  } from '@hypermedia-components/editor-kit';
+  import manifest from '@hypermedia-components/core/manifest.json';
+
+  const SELECTED = 'data-hc-editor-selected';
+  const byBlock = new Map(manifest.components.map((c) => [c.block, c]));
+
+  for (const rootEl of document.querySelectorAll('[data-ekd]')) {
+    const canvas = rootEl.querySelector('[data-ekd-canvas]');
+    const inspector = rootEl.querySelector('[data-ekd-inspector]');
+    const output = rootEl.querySelector('[data-ekd-output]');
+    const undoBtn = rootEl.querySelector('[data-ekd-undo]');
+    const redoBtn = rootEl.querySelector('[data-ekd-redo]');
+    const MSG_EMPTY = rootEl.getAttribute('data-msg-empty');
+    const MSG_DEFAULT = rootEl.getAttribute('data-msg-default');
+
+    const editor = createEditor({ root: canvas, manifest });
+
+    const componentOf = (el) =>
+      [...el.classList].find((c) => byBlock.has(c)) ?? null;
+
+    function refresh() {
+      output.textContent = serialize(canvas)
+        .replaceAll('><', '>\n<')
+        .trim();
+      undoBtn.disabled = !editor.stack.canUndo;
+      redoBtn.disabled = !editor.stack.canRedo;
+    }
+
+    function renderInspector() {
+      inspector.textContent = '';
+      const node = editor.selection.primary;
+      const block = node && componentOf(node);
+      if (!node || !block) {
+        const p = document.createElement('p');
+        p.textContent = MSG_EMPTY;
+        inspector.appendChild(p);
+        return;
+      }
+      const title = document.createElement('strong');
+      title.textContent = block;
+      inspector.appendChild(title);
+
+      const values = byBlock.get(block).attributeValues;
+      for (const [attr, options] of Object.entries(values)) {
+        const field = document.createElement('label');
+        field.className = 'hc-field';
+        const label = document.createElement('span');
+        label.className = 'hc-field__label';
+        const code = document.createElement('code');
+        code.textContent = attr;
+        label.appendChild(code);
+        const select = document.createElement('select');
+        select.className = 'hc-select';
+        for (const value of ['', ...options]) {
+          const opt = document.createElement('option');
+          opt.value = value;
+          opt.textContent = value === '' ? MSG_DEFAULT : value;
+          opt.selected = (node.getAttribute(attr) ?? '') === value;
+          select.appendChild(opt);
+        }
+        select.addEventListener('change', () => {
+          editor.stack.apply(
+            select.value === ''
+              ? removeAttribute(node, attr)
+              : setAttribute(node, attr, select.value),
+          );
+        });
+        field.append(label, select);
+        inspector.appendChild(field);
+      }
+    }
+
+    canvas.addEventListener('click', (e) => {
+      const hit = e.target.closest?.('[class*="hc-"]');
+      let node = hit && canvas.contains(hit) ? hit : null;
+      while (node && !componentOf(node)) {
+        node = node.parentElement === canvas ? null : node.parentElement;
+      }
+      if (node && node !== canvas) {
+        e.preventDefault();
+        editor.selection.select(node);
+      } else {
+        editor.selection.clear();
+      }
+    });
+
+    editor.selection.addEventListener('change', (e) => {
+      for (const el of canvas.querySelectorAll(`[${SELECTED}]`)) {
+        el.removeAttribute(SELECTED);
+      }
+      for (const el of e.detail.items) el.setAttribute(SELECTED, 'true');
+      renderInspector();
+    });
+
+    editor.stack.addEventListener('change', () => {
+      refresh();
+      renderInspector(); // undo/redo can change the selected node's attrs
+    });
+
+    undoBtn.addEventListener('click', () => editor.stack.undo());
+    redoBtn.addEventListener('click', () => editor.stack.redo());
+
+    refresh();
+    renderInspector();
+  }
+</script>

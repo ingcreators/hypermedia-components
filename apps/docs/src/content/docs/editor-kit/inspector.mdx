@@ -1,0 +1,87 @@
+---
+title: Manifest-driven inspector
+description: Build a property panel from the core manifest's attributeValues — enumerated variants and sizes drive selects, edits flow through the command stack, and serialize() proves the artifact stays clean.
+---
+
+import EditorKitDemo from '../../../components/EditorKitDemo.astro';
+
+A builder's property inspector needs to know, for each component,
+*which attributes take which values*. That is exactly what the
+[core manifest](/hypermedia-components/reference/manifest/) publishes:
+every `components[]` entry carries `attributeValues{}` (each
+value-carrying `data-*` attribute → its enumerated values) and
+`cssVars[]` (the themable custom-property surface). No CSS parsing, no
+hand-maintained tables — the manifest is generated from the
+stylesheets and CI-enforced against reality.
+
+## Live demo
+
+This page runs the real editor-kit. Click a component on the canvas —
+the inspector enumerates its `attributeValues` as selects; every edit
+goes through the `CommandStack`, so Undo/Redo just work. The selection
+marker is the scaffolding attribute `data-hc-editor-selected`: watch
+the serialized output below — **it never appears there**, because
+`serialize()` strips the `data-hc-editor-*` namespace.
+
+<EditorKitDemo />
+
+## How it works
+
+The whole inspector is a loop over the manifest entry:
+
+```js
+import { createEditor, setAttribute, removeAttribute } from '@hypermedia-components/editor-kit';
+import manifest from '@hypermedia-components/core/manifest.json' with { type: 'json' };
+
+const byBlock = new Map(manifest.components.map((c) => [c.block, c]));
+const editor = createEditor({ root: canvas, manifest });
+
+function renderInspector(node) {
+  const block = [...node.classList].find((c) => byBlock.has(c));
+  const { attributeValues } = byBlock.get(block);
+
+  for (const [attr, values] of Object.entries(attributeValues)) {
+    const select = buildSelect(attr, values, node.getAttribute(attr));
+    select.addEventListener('change', () => {
+      editor.stack.apply(
+        select.value === ''
+          ? removeAttribute(node, attr)   // back to the default
+          : setAttribute(node, attr, select.value),
+      );
+    });
+  }
+}
+```
+
+Three properties of the stack matter here:
+
+- **Coalescing** — for free-text inputs (an `aria-label` field), pass
+  `{ coalesce: true }` so typing collapses into one undo step.
+- **`transact()`** — when one inspector action implies several
+  attribute writes, group them so a single Undo reverts the action.
+- **`change` events** — re-render the inspector on stack changes:
+  undo/redo mutates the selected node's attributes underneath you.
+
+## Theming knobs
+
+`cssVars[]` lists every `--hc-*` custom property the component's
+stylesheet reads — the manifest side of the
+[token system](/hypermedia-components/fundamentals/tokens/). An
+inspector can surface these as a "design" tab: write instance-level
+overrides as inline `style` custom properties, or app-level ones into
+a stylesheet — both are ordinary attribute/DOM edits, so they flow
+through the same command stack.
+
+## Beyond the demo
+
+The same manifest data drives the rest of a builder:
+
+- **Palette** — `components[]` + `docsPath` is a ready-made catalog;
+  `recipes[]` (with machine-checked contracts) covers the
+  htmx-connected patterns.
+- **Drop rules** — a `canAccept(container, payload)` hook for the
+  [drag-and-drop controller](/hypermedia-components/editor-kit/api/)
+  can consult `parts[]` and your own composition rules.
+- **Structured generation** — the manifest is JSON; schema-constrained
+  generation (LLM structured output → `fromJson()`) stays inside the
+  documented vocabulary.

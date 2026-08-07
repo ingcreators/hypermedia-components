@@ -1,0 +1,113 @@
+---
+title: Editor kit
+description: The editor engine for visual builders over Hypermedia Components — a selection model, undoable command primitives, HTML ⇄ JSON serialization, drag & drop, and an overlay layer.
+---
+
+`@hypermedia-components/editor-kit` is the **editor engine** for
+building visual builders on top of Hypermedia Components: a selection
+model, undoable command primitives, serializers, a pointer-events
+drag-and-drop controller, and an overlay layer.
+
+The kit deliberately contains **no domain logic** — no palettes, no
+data binding, no persistence. Those belong to your builder
+application. What it owns is *editing hc markup safely*.
+
+:::caution[Experimental]
+Published on the `0.x` line (independent `editor-kit-v*` releases);
+the API may change between minor versions until it stabilizes. The
+core kit's [versioning guarantees](/hypermedia-components/reference/versioning/)
+do not extend to editor-kit yet.
+:::
+
+## Install
+
+```bash
+npm install @hypermedia-components/editor-kit
+```
+
+Zero runtime dependencies. The core manifest is **injected, never
+bundled** — pass it in where you want `component` annotations and
+manifest-driven behavior:
+
+```js
+import { createEditor } from '@hypermedia-components/editor-kit';
+import manifest from '@hypermedia-components/core/manifest.json' with { type: 'json' };
+
+const editor = createEditor({
+  root: document.querySelector('#canvas'),
+  manifest,
+});
+```
+
+## Design
+
+Four decisions shape the whole API:
+
+1. **The canvas DOM is the document model.** There is no parallel IR.
+   Hypermedia Components keep all state in HTML attributes, so the
+   markup being edited *is* the artifact being produced — no compile
+   step, no second source of truth.
+2. **Six primitives close the edit vocabulary**: `setAttribute`,
+   `removeAttribute`, `setText`, `insertNode`, `removeNode`,
+   `moveNode`. Every canvas mutation is one of these, and each
+   captures its own inverse — undo/redo needs no snapshots.
+3. **Editor scaffolding is namespaced.** Attributes prefixed
+   `data-hc-editor-` and elements marked `data-hc-editor-only` are
+   editor-internal; the serializers strip them, so they can never leak
+   into the artifact.
+4. **The JSON projection is an encoding, not a second model.**
+   `fromJson(toJson(el))` reproduces the element, modulo documented
+   normalizations (whitespace-only text nodes and comments dropped,
+   attribute order sorted). Store either form; they are the same
+   document.
+
+## Quick example
+
+```js
+import {
+  createEditor,
+  setAttribute,
+  insertNode,
+  fromJson,
+} from '@hypermedia-components/editor-kit';
+
+const editor = createEditor({ root: canvas, manifest });
+
+// Every mutation goes through the stack…
+const button = editor.root.querySelector('.hc-button');
+editor.stack.apply(setAttribute(button, 'data-variant', 'primary'));
+
+// …so undo/redo just works.
+editor.stack.undo();
+editor.stack.redo();
+
+// Group multi-step edits into one undo entry:
+editor.stack.transact(() => {
+  const card = fromJson({ tag: 'div', attrs: { class: 'hc-card' }, children: [] });
+  editor.stack.apply(insertNode(editor.root, card, 0));
+  editor.stack.apply(setAttribute(card, 'data-variant', 'muted'));
+});
+
+// Artifact HTML (scaffolding stripped) and the JSON projection:
+const html = editor.serialize();
+const json = editor.toJson();
+```
+
+## What lives where
+
+| Concern | Owner |
+| --- | --- |
+| Selection, undo/redo, serialization, drag & drop, overlay | **editor-kit** |
+| Which components exist, their variants/sizes, themable vars | the [core manifest](/hypermedia-components/reference/manifest/) (injected) |
+| Palettes, data binding, persistence, export targets (e.g. Thymeleaf) | **your builder** |
+
+Export targets beyond plain HTML consume `serialize()` / `toJson()`
+downstream — they transform neutral `data-*` binding annotations into
+template-language attributes and do not live in this package.
+
+## Next
+
+- [API](/hypermedia-components/editor-kit/api/) — commands, selection,
+  serializers, drag & drop, overlay.
+- [Manifest-driven inspector](/hypermedia-components/editor-kit/inspector/)
+  — build a property panel from `attributeValues` (live demo).

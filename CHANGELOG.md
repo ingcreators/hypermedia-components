@@ -20,6 +20,17 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **Docs: Editor kit section** (en + ja) — a new sidebar group for
+  `@hypermedia-components/editor-kit`: overview + design decisions,
+  the full API reference (commands/stack, selection, serializers,
+  drag & drop, overlay), and a manifest-driven inspector guide with a
+  **live demo** running the real editor-kit in the page (click to
+  select, `attributeValues`-driven property panel, undo/redo, and a
+  `serialize()` output pane proving the `data-hc-editor-*` scaffolding
+  namespace never reaches the artifact).
+
 ## [0.1.14] - 2026-08-07
 
 - **CLI `@hypermedia-components/cli@0.3.2`** — re-bundles the recipe

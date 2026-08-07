@@ -1,0 +1,96 @@
+---
+title: マニフェスト駆動インスペクタ
+description: コアマニフェストの attributeValues からプロパティパネルを作る — 列挙された variant/size がセレクトになり、編集はコマンドスタックを通り、serialize() が生成物のクリーンさを証明します。
+---
+
+import EditorKitDemo from '../../../../components/EditorKitDemo.astro';
+
+ビルダーのプロパティインスペクタには「各コンポーネントのどの属性が
+どの値を取るか」の知識が必要です。それはまさに
+[コアのマニフェスト](/hypermedia-components/ja/reference/manifest/)が
+公開しているものです: すべての `components[]` エントリが
+`attributeValues{}`(値を取る各 `data-*` 属性 → 列挙値)と
+`cssVars[]`(テーマ可能なカスタムプロパティ面)を持ちます。CSS の
+パースも手書きの表も不要 — マニフェストはスタイルシートから生成され、
+CI が実装との一致を強制します。
+
+## ライブデモ
+
+このページでは実物の editor-kit が動いています。キャンバス上の
+コンポーネントをクリックすると、インスペクタがその
+`attributeValues` をセレクトとして列挙します。すべての編集は
+`CommandStack` を通るので、Undo/Redo はそのまま動きます。選択
+マーカーは足場属性 `data-hc-editor-selected` です — 下部の
+シリアライズ出力に注目してください。`serialize()` が
+`data-hc-editor-*` 名前空間を剥がすため、**そこには決して現れません**。
+
+<EditorKitDemo
+  empty="キャンバス上のコンポーネントをクリックしてください。"
+  defaultOption="(デフォルト)"
+  undo="元に戻す"
+  redo="やり直す"
+  output="serialize() — 足場は除去済み"
+/>
+
+## 仕組み
+
+インスペクタ全体は、マニフェストエントリを巡るループです:
+
+```js
+import { createEditor, setAttribute, removeAttribute } from '@hypermedia-components/editor-kit';
+import manifest from '@hypermedia-components/core/manifest.json' with { type: 'json' };
+
+const byBlock = new Map(manifest.components.map((c) => [c.block, c]));
+const editor = createEditor({ root: canvas, manifest });
+
+function renderInspector(node) {
+  const block = [...node.classList].find((c) => byBlock.has(c));
+  const { attributeValues } = byBlock.get(block);
+
+  for (const [attr, values] of Object.entries(attributeValues)) {
+    const select = buildSelect(attr, values, node.getAttribute(attr));
+    select.addEventListener('change', () => {
+      editor.stack.apply(
+        select.value === ''
+          ? removeAttribute(node, attr)   // デフォルトに戻す
+          : setAttribute(node, attr, select.value),
+      );
+    });
+  }
+}
+```
+
+ここで効くスタックの性質は 3 つ:
+
+- **Coalescing** — 自由入力(`aria-label` フィールドなど)には
+  `{ coalesce: true }` を渡すと、タイピングが undo 1 ステップに
+  まとまります。
+- **`transact()`** — インスペクタの 1 操作が複数の属性書き込みを
+  伴うときはグループ化し、Undo 1 回で操作全体が戻るようにします。
+- **`change` イベント** — スタック変更時にインスペクタを再描画して
+  ください。undo/redo は選択中ノードの属性を裏で書き換えます。
+
+## テーマのつまみ
+
+`cssVars[]` は、そのコンポーネントのスタイルシートが読むすべての
+`--hc-*` カスタムプロパティ —
+[トークンシステム](/hypermedia-components/ja/fundamentals/tokens/)の
+マニフェスト側 — を列挙します。インスペクタはこれを「デザイン」
+タブとして出せます: インスタンス単位の上書きはインライン `style` の
+カスタムプロパティへ、アプリ単位の上書きはスタイルシートへ。どちらも
+普通の属性/DOM 編集なので、同じコマンドスタックを流れます。
+
+## デモの先へ
+
+同じマニフェストデータがビルダーの残りも駆動します:
+
+- **パレット** — `components[]` + `docsPath` はそのままカタログに
+  なります。htmx 連携パターンは `recipes[]`(機械検証つき契約)が
+  カバーします。
+- **ドロップ規則** —
+  [ドラッグ&ドロップコントローラ](/hypermedia-components/ja/editor-kit/api/)の
+  `canAccept(container, payload)` フックから `parts[]` と独自の
+  合成規則を参照できます。
+- **構造化生成** — マニフェストは JSON なので、スキーマ制約つき生成
+  (LLM の structured output → `fromJson()`)を文書化された語彙の
+  内側に保てます。
