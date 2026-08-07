@@ -1,0 +1,159 @@
+---
+title: エディタキット API
+description: コマンドと undo/redo スタック、選択モデル、HTML/JSON シリアライザ、ドラッグ&ドロップコントローラ、オーバーレイ層。
+---
+
+すべてパッケージルートからエクスポートされています。粒度の細かい
+インポート用にモジュール別エントリ(`/commands`、`/selection`、
+`/serializer`、`/dnd`、`/overlay`)もあります。
+
+## コマンド
+
+各ファクトリはコマンドオブジェクトを返し、`CommandStack` が適用する
+まで何も起きません。挿入インデックスは `parent.childNodes` 上の
+位置で、**移動/挿入対象のノードを除いて数えます** — そのため
+`moveNode` は同一親内でも親をまたいでも同じ意味論で動きます。
+
+| ファクトリ | 動作 |
+| --- | --- |
+| `setAttribute(node, name, value)` | 属性を設定(`value: null` で削除) |
+| `removeAttribute(node, name)` | `setAttribute(node, name, null)` の別名 |
+| `setText(node, text)` | `textContent` を置換 |
+| `insertNode(parent, node, index)` | childNodes インデックスに挿入 |
+| `removeNode(node)` | 削除。undo で元の位置に復元 |
+| `moveNode(node, parent, index)` | 削除 + 挿入。undo で元の位置に復元 |
+
+### CommandStack
+
+```js
+const stack = new CommandStack();
+stack.apply(command);                    // 実行 + 記録
+stack.apply(command, { coalesce: true }); // 同一対象への連続編集をマージ
+stack.transact(() => { …複数の apply() 呼び出し… }); // undo 1 単位に
+stack.undo();  stack.redo();             // → boolean(空なら false)
+stack.canUndo; stack.canRedo;            // ゲッター
+stack.clear();
+```
+
+- **Coalescing** は同じノード + 属性への連続する
+  `setAttribute`/`setText` をマージします — インスペクタでの
+  タイピングが undo 1 ステップになります。
+- `transact()` は任意のコマンド群(挿入 + その初期属性など)を
+  グループ化し、逆順に revert します。入れ子は不可。
+- すべての変更後に `change` CustomEvent を発火します
+  (`detail.action`: `apply` | `undo` | `redo` | `clear`)— UI の
+  再描画と `Selection.prune()` をここに配線してください。
+
+## Selection
+
+primary(最初に選択されたノード)を持つ、順序付きの要素集合です。
+実際に選択が変わったときだけ `change` を発火します。
+
+```js
+const sel = new Selection();
+sel.select(node);                    // 置き換え
+sel.select(node, { additive: true }); // 追加(shift クリック)
+sel.toggle(node); sel.deselect(node); sel.clear();
+sel.items; sel.primary; sel.size; sel.isSelected(node);
+sel.prune();                          // 切断されたノードを除去(undo/redo 後)
+```
+
+## シリアライザ
+
+予約済みの足場名前空間 — `data-hc-editor-` 接頭辞の属性と
+`data-hc-editor-only` 付き要素 — は**両方の**シリアライザが
+剥がします。エディタのクロームが生成物に漏れることはありません。
+
+```js
+serialize(root)        // → 生成物 HTML(root の子、クリーン済み)
+toJson(el, { manifest }) // → JSON 射影(マニフェストで component 注釈)
+fromJson(json, doc?)   // → DOM ノード
+```
+
+JSON 射影は、文書化された正規化(空白のみのテキストノードと
+コメントの除去、属性順のソート)を除いて双方向です。`component`
+フィールドは派生メタデータ(マニフェストのブロックに一致する最初の
+クラス)で、デコード時には無視されます。
+
+```json
+{
+  "tag": "button",
+  "component": "hc-button",
+  "attrs": { "class": "hc-button", "data-variant": "primary" },
+  "children": [{ "text": "Save" }]
+}
+```
+
+## ドラッグ&ドロップ
+
+`createDragController` は pointer-events ベースのエンジンです
+(HTML5 DnD ではありません)。ドロップ可能領域は
+`data-hc-editor-container` でマークします — 足場属性なので
+serialize 時に剥がれます。
+
+```js
+const dnd = createDragController({
+  root: canvas,                      // 必須
+  canAccept(container, payload) {},  // 拒否 → 上位のコンテナを探索
+  onPreview(target) {},              // { container, index } | null
+  onDrop({ container, index, payload }) {},
+  onCancel() {},
+  threshold: 4,                      // move がドラッグになるまでの px
+  hitTest, rectOf,                   // ジオメトリ注入(テスト、iframe)
+});
+
+dnd.startInsert(data, pointerEvent); // パレットから(即アクティブ)
+dnd.startMove(node, pointerEvent);   // キャンバス上のノード(しきい値あり)
+dnd.dragging;                        // boolean
+dnd.dispose();
+```
+
+- 報告される `index` は**ドラッグ中のノードを除いた** childNodes
+  位置です — `insertNode`/`moveNode` にそのまま渡せるので、すべての
+  ドロップが undo 可能なまま保たれます。
+- `payload` は `{ type: 'insert', data, node: null }` または
+  `{ type: 'move', node }`。
+- Escape でキャンセル。しきい値未満のクリックはドラッグに
+  ならないので、通常のクリックは選択に届きます。
+
+## Overlay
+
+選択枠とドロップインジケータを、キャンバスの**外**のマウント要素に
+描画します — 生成物の DOM はクリーンなまま。キャンバスが iframe 内に
+ある場合は `frame` を渡してください。
+
+```js
+const overlay = new Overlay({ mount, frame? , rectOf? });
+overlay.showSelection(nodes);   // Selection の 'change' に配線
+overlay.showDropIndicator(t);   // onPreview の出力をそのまま受ける(null で非表示)
+overlay.refresh();              // scroll/resize/undo/redo で再計算
+overlay.dispose();
+```
+
+外観のフック: `.hc-editor-overlay__selection`、
+`.hc-editor-overlay__indicator`(+ `data-orientation`、`data-empty`)、
+フォールバックとして `--hc-editor-selection-color` /
+`--hc-editor-indicator-color`。インラインで設定されるのはジオメトリ
+だけです。
+
+## 全体の配線
+
+```js
+const editor = createEditor({ root: canvasBody, manifest });
+const overlay = new Overlay({ mount: hostLayer, frame: canvasIframe });
+
+editor.selection.addEventListener('change', (e) => overlay.showSelection(e.detail.items));
+editor.stack.addEventListener('change', () => overlay.refresh());
+
+const dnd = createDragController({
+  root: canvasBody,
+  onPreview: (t) => overlay.showDropIndicator(t),
+  onDrop: ({ container, index, payload }) => {
+    editor.stack.apply(
+      payload.type === 'move'
+        ? moveNode(payload.node, container, index)
+        : insertNode(container, instantiate(payload.data), index),
+    );
+  },
+});
+```

@@ -1,0 +1,112 @@
+---
+title: エディタキット
+description: Hypermedia Components 上にビジュアルビルダーを作るためのエディタエンジン — 選択モデル、undo 可能なコマンドプリミティブ、HTML ⇄ JSON シリアライズ、ドラッグ&ドロップ、オーバーレイ層。
+---
+
+`@hypermedia-components/editor-kit` は、Hypermedia Components の上に
+ビジュアルビルダーを構築するための**エディタエンジン**です: 選択
+モデル、undo 可能なコマンドプリミティブ、シリアライザ、pointer-events
+ベースのドラッグ&ドロップコントローラ、オーバーレイ層を提供します。
+
+このキットは意図的に**ドメインロジックを含みません** — パレットも、
+データバインディングも、永続化もありません。それらはビルダー
+アプリケーションの持ち分です。キットが所有するのは *hc マークアップを
+安全に編集すること*だけです。
+
+:::caution[実験的]
+`0.x` 系で公開されています(独立した `editor-kit-v*` リリース)。
+安定するまで、マイナーバージョン間で API が変わる可能性があります。
+コアの[バージョニング保証](/hypermedia-components/ja/reference/versioning/)は
+まだ editor-kit には及びません。
+:::
+
+## インストール
+
+```bash
+npm install @hypermedia-components/editor-kit
+```
+
+ランタイム依存はゼロです。コアのマニフェストは**注入するもので、
+バンドルされません** — `component` 注釈やマニフェスト駆動の動作が
+欲しい場所で渡します:
+
+```js
+import { createEditor } from '@hypermedia-components/editor-kit';
+import manifest from '@hypermedia-components/core/manifest.json' with { type: 'json' };
+
+const editor = createEditor({
+  root: document.querySelector('#canvas'),
+  manifest,
+});
+```
+
+## 設計
+
+4 つの決定が API 全体を形作っています:
+
+1. **キャンバスの DOM がドキュメントモデル。** 並行 IR はありません。
+   Hypermedia Components は状態をすべて HTML 属性に持つため、編集中の
+   マークアップが生成物*そのもの*です — コンパイル工程も、第二の
+   source of truth もありません。
+2. **6 つのプリミティブで編集語彙が閉じる**: `setAttribute`、
+   `removeAttribute`、`setText`、`insertNode`、`removeNode`、
+   `moveNode`。キャンバスの変更はすべてこのいずれかで、各コマンドが
+   自分の逆操作を捕捉します — undo/redo にスナップショットは不要です。
+3. **エディタ用の足場は名前空間で分離。** `data-hc-editor-` 接頭辞の
+   属性と `data-hc-editor-only` 付き要素はエディタ内部のものとして、
+   シリアライザが剥がします — 生成物に漏れることはありません。
+4. **JSON 射影は別エンコーディングであって第二のモデルではない。**
+   `fromJson(toJson(el))` は要素を再現します(文書化された正規化 —
+   空白のみのテキストノードとコメントの除去、属性順のソート — を
+   除く)。どちらの形で保存しても、同じドキュメントです。
+
+## クイック例
+
+```js
+import {
+  createEditor,
+  setAttribute,
+  insertNode,
+  fromJson,
+} from '@hypermedia-components/editor-kit';
+
+const editor = createEditor({ root: canvas, manifest });
+
+// すべての変更はスタックを通す…
+const button = editor.root.querySelector('.hc-button');
+editor.stack.apply(setAttribute(button, 'data-variant', 'primary'));
+
+// …ので undo/redo はそのまま動きます。
+editor.stack.undo();
+editor.stack.redo();
+
+// 複数ステップの編集を 1 つの undo 単位に:
+editor.stack.transact(() => {
+  const card = fromJson({ tag: 'div', attrs: { class: 'hc-card' }, children: [] });
+  editor.stack.apply(insertNode(editor.root, card, 0));
+  editor.stack.apply(setAttribute(card, 'data-variant', 'muted'));
+});
+
+// 生成物 HTML(足場は除去済み)と JSON 射影:
+const html = editor.serialize();
+const json = editor.toJson();
+```
+
+## 責務の分担
+
+| 関心事 | 所有者 |
+| --- | --- |
+| 選択、undo/redo、シリアライズ、ドラッグ&ドロップ、オーバーレイ | **editor-kit** |
+| どのコンポーネントがあるか、variant/size、テーマ可能な変数 | [コアのマニフェスト](/hypermedia-components/ja/reference/manifest/)(注入) |
+| パレット、データバインディング、永続化、エクスポートターゲット(Thymeleaf 等) | **あなたのビルダー** |
+
+プレーン HTML 以外へのエクスポートは `serialize()` / `toJson()` の
+下流で行います — 中立の `data-*` バインディング注釈をテンプレート
+言語の属性へ変換する処理は、このパッケージには含まれません。
+
+## 次へ
+
+- [API](/hypermedia-components/ja/editor-kit/api/) — コマンド、選択、
+  シリアライザ、ドラッグ&ドロップ、オーバーレイ。
+- [マニフェスト駆動インスペクタ](/hypermedia-components/ja/editor-kit/inspector/)
+  — `attributeValues` からプロパティパネルを作る(ライブデモ)。

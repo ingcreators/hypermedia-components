@@ -1,0 +1,159 @@
+---
+title: Editor kit API
+description: Commands and the undo/redo stack, the selection model, the HTML and JSON serializers, the drag-and-drop controller, and the overlay layer.
+---
+
+Everything is exported from the package root; per-module entries
+(`/commands`, `/selection`, `/serializer`, `/dnd`, `/overlay`) exist
+for granular imports.
+
+## Commands
+
+Each factory returns a command object; nothing happens until a
+`CommandStack` applies it. Insertion indices are positions in
+`parent.childNodes` **measured with the moved/inserted node absent**,
+so `moveNode` behaves identically for same-parent and cross-parent
+moves.
+
+| Factory | Does |
+| --- | --- |
+| `setAttribute(node, name, value)` | Set an attribute (`value: null` removes) |
+| `removeAttribute(node, name)` | Sugar for `setAttribute(node, name, null)` |
+| `setText(node, text)` | Replace `textContent` |
+| `insertNode(parent, node, index)` | Insert at a childNodes index |
+| `removeNode(node)` | Remove; undo restores the exact position |
+| `moveNode(node, parent, index)` | Remove + insert; undo restores the origin |
+
+### CommandStack
+
+```js
+const stack = new CommandStack();
+stack.apply(command);                    // execute + record
+stack.apply(command, { coalesce: true }); // merge consecutive same-target edits
+stack.transact(() => { …several apply() calls… }); // ONE undo entry
+stack.undo();  stack.redo();             // → boolean (false on empty)
+stack.canUndo; stack.canRedo;            // getters
+stack.clear();
+```
+
+- **Coalescing** merges consecutive `setAttribute`/`setText` commands
+  on the same node + attribute — inspector typing becomes one undo
+  step.
+- `transact()` groups arbitrary commands (an insert plus its default
+  attributes); reverted in reverse order. Cannot nest.
+- Emits a `change` CustomEvent after every mutation
+  (`detail.action`: `apply` | `undo` | `redo` | `clear`) — wire UI
+  refresh and `Selection.prune()` to it.
+
+## Selection
+
+An ordered set of elements with a primary (first-selected) node.
+Emits `change` only when the selection actually changes.
+
+```js
+const sel = new Selection();
+sel.select(node);                    // replace
+sel.select(node, { additive: true }); // append (shift-click)
+sel.toggle(node); sel.deselect(node); sel.clear();
+sel.items; sel.primary; sel.size; sel.isSelected(node);
+sel.prune();                          // drop disconnected nodes (after undo/redo)
+```
+
+## Serializers
+
+The reserved scaffolding namespace — attributes prefixed
+`data-hc-editor-` and elements marked `data-hc-editor-only` — is
+stripped by **both** serializers, so editor chrome can never leak into
+the artifact.
+
+```js
+serialize(root)        // → artifact HTML (root's children, cleaned)
+toJson(el, { manifest }) // → JSON projection (component annotation with manifest)
+fromJson(json, doc?)   // → DOM node
+```
+
+The JSON projection is bijective modulo documented normalizations:
+whitespace-only text nodes and comments are dropped, attribute order
+is sorted. The `component` field is derived metadata (the first class
+matching a manifest block) and is ignored on decode.
+
+```json
+{
+  "tag": "button",
+  "component": "hc-button",
+  "attrs": { "class": "hc-button", "data-variant": "primary" },
+  "children": [{ "text": "Save" }]
+}
+```
+
+## Drag & drop
+
+`createDragController` is a pointer-events engine (not HTML5 DnD).
+Droppable regions are marked `data-hc-editor-container` — scaffolding,
+stripped on serialize.
+
+```js
+const dnd = createDragController({
+  root: canvas,                      // required
+  canAccept(container, payload) {},  // veto → search walks up
+  onPreview(target) {},              // { container, index } | null
+  onDrop({ container, index, payload }) {},
+  onCancel() {},
+  threshold: 4,                      // px before a move becomes a drag
+  hitTest, rectOf,                   // injectable geometry (tests, iframes)
+});
+
+dnd.startInsert(data, pointerEvent); // from a palette (active immediately)
+dnd.startMove(node, pointerEvent);   // canvas node (threshold-gated)
+dnd.dragging;                        // boolean
+dnd.dispose();
+```
+
+- Reported `index` is a childNodes position **with the dragged node
+  absent** — pass it straight to `insertNode`/`moveNode`, so every
+  drop stays undoable.
+- `payload` is `{ type: 'insert', data, node: null }` or
+  `{ type: 'move', node }`.
+- Escape cancels; a below-threshold click never becomes a drag, so
+  plain clicks still reach the selection.
+
+## Overlay
+
+Draws selection outlines and the drop indicator in a mount element
+**outside** the canvas — the artifact DOM stays clean. Pass `frame`
+when the canvas lives in an iframe.
+
+```js
+const overlay = new Overlay({ mount, frame? , rectOf? });
+overlay.showSelection(nodes);   // wire to Selection 'change'
+overlay.showDropIndicator(t);   // accepts exactly what onPreview emits (null hides)
+overlay.refresh();              // recompute on scroll/resize/undo/redo
+overlay.dispose();
+```
+
+Appearance hooks: `.hc-editor-overlay__selection`,
+`.hc-editor-overlay__indicator` (+ `data-orientation`, `data-empty`),
+with `--hc-editor-selection-color` / `--hc-editor-indicator-color`
+fallbacks. Only geometry is set inline.
+
+## Wiring it together
+
+```js
+const editor = createEditor({ root: canvasBody, manifest });
+const overlay = new Overlay({ mount: hostLayer, frame: canvasIframe });
+
+editor.selection.addEventListener('change', (e) => overlay.showSelection(e.detail.items));
+editor.stack.addEventListener('change', () => overlay.refresh());
+
+const dnd = createDragController({
+  root: canvasBody,
+  onPreview: (t) => overlay.showDropIndicator(t),
+  onDrop: ({ container, index, payload }) => {
+    editor.stack.apply(
+      payload.type === 'move'
+        ? moveNode(payload.node, container, index)
+        : insertNode(container, instantiate(payload.data), index),
+    );
+  },
+});
+```
