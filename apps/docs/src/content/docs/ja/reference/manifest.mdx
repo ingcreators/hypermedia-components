@@ -22,7 +22,8 @@ LLM の*コンテキスト*用(構造ではなく散文)には
 | キー | 形 | 真実の源 |
 | --- | --- | --- |
 | `version` | core パッケージのバージョン。 | `package.json` |
-| `components[]` | `block`、`parts[]`、`dataAttributes[]`(そのブロックのスタイルシートに現れる属性面)、`attributeValues{}`(値を取る各属性 → 列挙値。例: `data-variant` → `["primary", …]`)、`cssVars[]`(スタイルシートが読み取るすべての `--hc-*` カスタムプロパティ — テーマ可能な面)、`tokensGroup`(または `null`)、`behavior`(または `null`)、`docsPath`。 | `src/css/hc-*.css`、`component.tokens.json` |
+| `components[]` | `block`、`parts[]`、`dataAttributes[]`(そのブロックのスタイルシートに現れる属性面)、`attributeValues{}`(値を取る各属性 → 列挙値。例: `data-variant` → `["primary", …]`)、`cssVars[]`(スタイルシートが読み取るすべての `--hc-*` カスタムプロパティ — テーマ可能な面)、`containers[]`(エディタで任意のフロー子要素を受け入れるパート。`""` はブロックルート — 構造化コンポーネントは空)、`tokensGroup`(または `null`)、`behavior`(または `null`)、`docsPath`。 | `src/css/hc-*.css`、`component.tokens.json` |
+| `utilities[]` | すべての `hc-*` ユーティリティクラスと `container`(ルートが任意のフロー子要素を受け入れるか — レイアウト系: stack、cluster、grid、container、sidebar)。 | `src/css/hc.utilities.css` |
 | `behaviors[]` | `name`、`autoInit`(オプトインは `installChart` の 1 つだけ)。 | `src/js/index.js`、`src/js/behaviors.js` |
 | `events[]` | `name` + 発生元 `modules[]`。detail の形は各コンポーネントページが持ちます。 | `src/js/*.js` |
 | `recipes[]` | `name`、`purpose`、`needsBehavior`(または `null`)、`files[]`、`docsPath`、`contractPath`。 | `recipes/*/`(+ 各レシピの機械検証 `checks.json`) |

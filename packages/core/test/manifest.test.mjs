@@ -118,6 +118,34 @@ describe('manifest.json', () => {
     expect(button.cssVars).toContain('--hc-button-primary-bg');
   });
 
+  it('marks editor containers against real parts, and utilities against the stylesheet', async () => {
+    for (const c of manifest.components) {
+      expect(c.containers, c.block).toEqual([...c.containers].sort());
+      for (const part of c.containers) {
+        if (part !== '') expect(c.parts, `${c.block} container "${part}"`).toContain(part);
+      }
+    }
+    // Composition spot-checks: composites mark content parts, layout
+    // roots mark themselves, structured components mark nothing.
+    const card = manifest.components.find((c) => c.block === 'hc-card');
+    expect(card.containers).toEqual(['body', 'footer']);
+    const popover = manifest.components.find((c) => c.block === 'hc-popover');
+    expect(popover.containers).toEqual(['']);
+    for (const structured of ['hc-tabs', 'hc-datagrid', 'hc-menu']) {
+      expect(
+        manifest.components.find((c) => c.block === structured).containers,
+        structured,
+      ).toEqual([]);
+    }
+    // Utilities mirror hc.utilities.css; the layout set is droppable.
+    const utilCss = await readFile(join(CORE, 'src/css/hc.utilities.css'), 'utf8');
+    for (const u of manifest.utilities) {
+      expect(utilCss, u.class).toContain(`.${u.class}`);
+    }
+    const droppable = manifest.utilities.filter((u) => u.container).map((u) => u.class);
+    expect(droppable).toEqual(['hc-cluster', 'hc-container', 'hc-grid', 'hc-sidebar', 'hc-stack']);
+  });
+
   it('is deterministic (two builds byte-identical) and sorted', async () => {
     const again = await buildManifest();
     expect(JSON.stringify(again)).toBe(JSON.stringify(manifest));

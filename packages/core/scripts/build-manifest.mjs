@@ -48,6 +48,32 @@ const EXPLICIT_CLAIMS = {
   installNavCurrent: 'platform', // boosted-nav re-marking (shell docs)
 };
 
+/** Editor-canvas composition metadata (#447): per block, the parts
+ * whose DOM element accepts arbitrary flow children in an editor
+ * ('' marks the block root itself). Structured components (datagrid,
+ * tabs, menu, …) deliberately list nothing — their internals need
+ * component-aware editing. Hand-curated (not derivable from CSS) but
+ * validated against the extracted parts below, so a typo cannot ship. */
+const CONTAINER_PARTS = {
+  card: ['body', 'footer'],
+  dialog: ['body', 'footer'],
+  drawer: ['body', 'footer'],
+  hovercard: ['body'],
+  popover: [''],
+  collapsible: ['content'],
+  shell: ['main'],
+};
+
+/** Layout utilities whose root element is an editor container. The
+ * remaining utilities (icon, spacer, sr-only, …) are leaves. */
+const CONTAINER_UTILITIES = new Set([
+  'hc-cluster',
+  'hc-container',
+  'hc-grid',
+  'hc-sidebar',
+  'hc-stack',
+]);
+
 const uniqueSorted = (arr) => [...new Set(arr)].sort();
 
 async function read(rel) {
@@ -77,6 +103,7 @@ export async function buildManifest() {
       dataAttributes: ['data-hc-context-menu'],
       attributeValues: {},
       cssVars: [],
+      containers: [],
       tokensGroup: null,
       behavior: 'installContextMenu',
       docsPath: 'components/context-menu',
@@ -120,6 +147,14 @@ export async function buildManifest() {
     const cssVars = uniqueSorted(
       [...css.matchAll(/var\(\s*(--hc-[a-z0-9-]+)/g)].map((m) => m[1]),
     );
+    const containers = [...(CONTAINER_PARTS[block] ?? [])].sort();
+    for (const part of containers) {
+      if (part !== '' && !parts.includes(part)) {
+        throw new Error(
+          `manifest: CONTAINER_PARTS lists unknown part "${part}" for hc-${block}.`,
+        );
+      }
+    }
     const behavior =
       EXPLICIT_BEHAVIOR[block] ?? byNormalized.get(block.replaceAll('-', '')) ?? null;
     components.push({
@@ -128,6 +163,7 @@ export async function buildManifest() {
       dataAttributes,
       attributeValues,
       cssVars,
+      containers,
       tokensGroup: tokenGroups.has(block) ? block : null,
       behavior,
       docsPath: `components/${block}`,
@@ -135,6 +171,32 @@ export async function buildManifest() {
   }
   components.push(...VIRTUAL_COMPONENTS);
   components.sort((a, b) => a.block.localeCompare(b.block));
+
+  const knownBlocks = new Set(cssFiles.map((f) => f.slice(3, -4)));
+  const unknownContainerBlocks = Object.keys(CONTAINER_PARTS).filter((b) => !knownBlocks.has(b));
+  if (unknownContainerBlocks.length > 0) {
+    throw new Error(
+      `manifest: CONTAINER_PARTS lists unknown block(s): ${unknownContainerBlocks.join(', ')}.`,
+    );
+  }
+
+  // --- utilities -------------------------------------------------------
+  // The layout/helper utility classes (hc.utilities.css) are not blocks,
+  // but editors need to know which of them are containers (#447).
+  const utilitiesCss = await read('src/css/hc.utilities.css');
+  const utilityClasses = uniqueSorted(
+    [...utilitiesCss.matchAll(/\.(hc-[a-z0-9-]+)/g)].map((m) => m[1]),
+  );
+  const unknownUtilities = [...CONTAINER_UTILITIES].filter((u) => !utilityClasses.includes(u));
+  if (unknownUtilities.length > 0) {
+    throw new Error(
+      `manifest: CONTAINER_UTILITIES lists unknown class(es): ${unknownUtilities.join(', ')}.`,
+    );
+  }
+  const utilities = utilityClasses.map((cls) => ({
+    class: cls,
+    container: CONTAINER_UTILITIES.has(cls),
+  }));
 
   // --- events ----------------------------------------------------------
   const jsDir = join(CORE, 'src/js');
@@ -228,6 +290,7 @@ export async function buildManifest() {
     version: pkg.version,
     docsBase: 'https://ingcreators.com/hypermedia-components/',
     components,
+    utilities,
     behaviors,
     events,
     recipes,
