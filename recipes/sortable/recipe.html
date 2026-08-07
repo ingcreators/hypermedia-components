@@ -1,0 +1,25 @@
+<!-- Short recommended usage. -->
+<ul class="hc-stack" data-hc-sortable
+    data-hx-post="/items/order"
+    data-hx-trigger="hc:sortchange"
+    data-hx-include="this"
+    data-hx-swap="none">
+  <li class="hc-item" data-hc-sortable-id="a">
+    <button type="button" class="hc-button" data-variant="ghost" data-size="sm"
+            data-hc-sortable-handle>⠿</button>
+    <span class="hc-item__label">First item</span>
+    <input type="hidden" name="order[]" value="a">
+  </li>
+  <li class="hc-item" data-hc-sortable-id="b">
+    <button type="button" class="hc-button" data-variant="ghost" data-size="sm"
+            data-hc-sortable-handle>⠿</button>
+    <span class="hc-item__label">Second item</span>
+    <input type="hidden" name="order[]" value="b">
+  </li>
+  <li class="hc-item" data-hc-sortable-id="c">
+    <button type="button" class="hc-button" data-variant="ghost" data-size="sm"
+            data-hc-sortable-handle>⠿</button>
+    <span class="hc-item__label">Third item</span>
+    <input type="hidden" name="order[]" value="c">
+  </li>
+</ul>

@@ -1,0 +1,184 @@
+---
+title: 並べ替えリスト
+description: サーバが順序を所有するリストをポインタ/キーボードで並べ替え — data-hc-sortable が DOM を動かし、hidden input が新しい順序をシリアライズ、htmx リクエスト 1 本で永続化します。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+サーバが順序を所有するリスト — カンバン列、優先順リスト、ピン留め
+ダッシュボード — には、「誰が決めるか」に忠実なクライアントサイド
+並べ替えが必要です。`installSortable` ビヘイビアは DOM ノードを動かして
+確定した順序を報告するだけで、**ネットワークは htmx が所有**します。
+各アイテムが自分の hidden input を持つため、アイテムを動かせば input も
+動き、新しい順序は追加の管理コードゼロでリクエスト 1 本に
+シリアライズされます — すべてマークアップから、インライン JS なしで。
+
+:::note[セットアップ]
+このレシピには `installSortable()` ビヘイビアが必要です。
+`import '@hypermedia-components/core/behaviors';` で全ビヘイビアを
+まとめてインストールするか、これだけを:
+
+```js
+import { installSortable } from '@hypermedia-components/core';
+installSortable();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add sortable` でこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)を取得できます。コピーは
+`npx @hypermedia-components/cli validate` で機械検証できます。完全な
+契約は
+[`recipes/sortable/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sortable/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+下のプレビューはそのままライブです — 並べ替えはクライアントサイド
+なので、ハンドルをドラッグする(またはフォーカスして
+<kbd>Space</kbd>、続けて矢印キー)とリストが並び替わります。結果の
+永続化は htmx 属性ひとそろい([下記](#順序の永続化))で完了します。
+
+<Demo previewClass="hc-preview--start">
+  <ul class="hc-stack" data-hc-sortable style="list-style:none;padding:0;margin:0;inline-size:100%;max-inline-size:24rem;">
+    <li class="hc-item">
+      <button type="button" class="hc-button" data-variant="ghost" data-size="sm" data-hc-sortable-handle>⠿</button>
+      <span class="hc-item__label">リリースノートを公開</span>
+      <input type="hidden" name="order[]" value="notes" />
+    </li>
+    <li class="hc-item">
+      <button type="button" class="hc-button" data-variant="ghost" data-size="sm" data-hc-sortable-handle>⠿</button>
+      <span class="hc-item__label">オープン PR をレビュー</span>
+      <input type="hidden" name="order[]" value="prs" />
+    </li>
+    <li class="hc-item">
+      <button type="button" class="hc-button" data-variant="ghost" data-size="sm" data-hc-sortable-handle>⠿</button>
+      <span class="hc-item__label">ロードマップを更新</span>
+      <input type="hidden" name="order[]" value="roadmap" />
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-stack" data-hc-sortable>
+    <li class="hc-item" data-hc-sortable-id="notes">
+      <button type="button" class="hc-button" data-variant="ghost" data-size="sm"
+              data-hc-sortable-handle>⠿</button>
+      <span class="hc-item__label">リリースノートを公開</span>
+      <input type="hidden" name="order[]" value="notes">
+    </li>
+    <!-- … 他のアイテム … -->
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
+動作:
+
+1. `data-hc-sortable` がコンテナをマークし、その要素子が並べ替え対象の
+   アイテムになります。
+2. すべての `data-hc-sortable-handle` はインストール時(および htmx で
+   スワップインされたとき)に準備されます: `touch-action: none`、
+   `aria-pressed="false"`、そして `⠿` のような記号だけのハンドルには
+   既定の `aria-label`(i18n キー `sortable.handle`)。
+3. ポインタドラッグは 4px のしきい値を超えてから始まるので、普通の
+   クリックは素通りします。アイテムはポインタ位置に追従してライブに
+   並び替わり、行/列レイアウトはジオメトリから自動判定されます。
+4. 確定した並べ替えは共有の `role="status"` ライブリージョンで
+   アナウンスされ、バブリングする **`hc:sortchange`** イベントを
+   ディスパッチします — 順序が実際に変わったときだけ。
+
+## 順序の永続化
+
+htmx をイベントに向けるだけです。シリアライズは hidden input が
+担います:
+
+```html
+<ul class="hc-stack" data-hc-sortable
+    data-hx-post="/items/order"
+    data-hx-trigger="hc:sortchange"
+    data-hx-include="this"
+    data-hx-swap="none">
+  …
+</ul>
+```
+
+リクエストボディは新しい DOM 順で id を列挙します —
+`order[]=b&order[]=a&order[]=c` — `<li>` を動かせばその hidden input も
+動くからです。応答は `204 No Content`(確認用に
+[`HX-Trigger` トースト](/hypermedia-components/ja/recipes/toast/)を
+添えても)か、順序が計算済みラベルに影響する場合は再レンダリングした
+コンテナを返してスワップします。リストを `<form>` で包んで送信ボタンを
+置けば、htmx なしでも同じように動きます。
+
+hidden input の代わりにイベントを読む構成も可能です:
+
+```js
+list.addEventListener('hc:sortchange', ({ detail }) => {
+  // detail = { item, from, to, order: ['b', 'a', 'c'] }
+});
+```
+
+`order` は各アイテムの `data-hc-sortable-id`(なければ `id`、それも
+なければ `null`)を列挙します。
+
+## キーボード
+
+ハンドルは本物の `<button>` — それ自体がキーボードインターフェース
+です:
+
+| キー | 状態 | 動作 |
+| --- | --- | --- |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | — | アイテムをつかむ(`data-grabbed="true"`、`aria-pressed="true"`、アナウンス) |
+| <kbd>↑</kbd> / <kbd>←</kbd> | つかみ中 | アイテムを上/前へ移動(アナウンス) |
+| <kbd>↓</kbd> / <kbd>→</kbd> | つかみ中 | アイテムを下/後ろへ移動(アナウンス) |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | つかみ中 | ドロップ — 確定して `hc:sortchange` を発火 |
+| <kbd>Escape</kbd> | つかみ中/ドラッグ中 | キャンセルして元の位置に復元 |
+
+ハンドルのフォーカスが外れると現在位置で確定します。つかむ・移動・
+ドロップ・キャンセルはすべて視覚的に隠された `role="status"`
+リージョンでアナウンスされます — `sortable.*` キーは
+[`setMessages()`](/hypermedia-components/ja/fundamentals/i18n/) で翻訳
+できます(ja は `locales/ja` に同梱)。
+
+## 状態
+
+状態は属性にあるので、スタイルフックはセレクタです — トグルする
+クラスはありません:
+
+```css
+[data-dragging='true'],
+[data-grabbed='true'] {
+  opacity: 0.6;
+}
+```
+
+| 属性 | 対象 | 意味 |
+| --- | --- | --- |
+| `data-dragging="true"` | アイテム | ポインタドラッグが進行中 |
+| `data-grabbed="true"` | アイテム | キーボードのつかみがアクティブ |
+| `aria-pressed` | ハンドル | 支援技術へつかみ状態を伝える |
+
+## プログレッシブエンハンスメント
+
+ビヘイビアなしではリストはサーバ順で描画され、ハンドルは何もしない
+ボタンになります — 内容は読める・完全なまま。並べ替えは
+エンハンスメントであり、依存ではありません。JS なしの並べ替え
+フォールバックが必要なら、サーバが処理するアイテムごとの
+「上へ/下へ」送信ボタンを追加してください — このレシピとそのまま
+共存します。
+
+## アクセシビリティ
+
+- 視覚上の順序は常に DOM の順序**そのもの** — スクリーンリーダーの
+  読み上げ順が見た目とずれることはありません。
+- ハンドルはフォーカス可能な要素であること。機械契約(`checks.json`)は
+  ハンドルが `<button>` でない場合に警告します。
+- `touch-action: none` はハンドルだけに適用 — リストの他の場所からは
+  ページが普通にスクロールします。

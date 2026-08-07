@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installSortable()` — pointer + keyboard list reordering**, shipped
+  as the **`sortable` recipe**. `data-hc-sortable` makes a container's
+  children reorderable through their `data-hc-sortable-handle` buttons:
+  pointer drags (4px threshold, live reorder, Escape cancel) and a
+  fully announced keyboard interface (Space/Enter grab · arrows move ·
+  Space/Enter drop · Escape restore; new `sortable.*` i18n keys, ja
+  shipped). The behavior only moves DOM nodes and dispatches
+  `hc:sortchange` `{ item, from, to, order }` — htmx owns persistence:
+  each item's hidden input serializes the new order in one request.
+  State is attributes (`data-dragging`, `data-grabbed`,
+  `aria-pressed`). Auto-installed by `./behaviors`.
+
+
 - **`@hypermedia-components/editor-kit` `0.0.1` (experimental, not yet
   published)** — the editor engine for visual builders over the kit:
   the six undoable edit primitives (`setAttribute` / `removeAttribute` /

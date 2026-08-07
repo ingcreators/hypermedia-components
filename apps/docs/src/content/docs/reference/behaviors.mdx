@@ -3,7 +3,7 @@ title: Behaviors
 description: Every installXxx() behavior — what it powers and whether the zero-config bundle auto-installs it.
 ---
 
-The kit ships 46 small behaviors. All of them are idempotent, return an
+The kit ships 47 small behaviors. All of them are idempotent, return an
 uninstaller, and — with the single exception of `installChart()` — are
 **auto-installed** by the zero-config
 `@hypermedia-components/core/behaviors` entry, which also picks up
@@ -35,6 +35,7 @@ the behavior dispatches; "—" means none.
 | `installValidation()` | Native-validation wiring for [fields](/hypermedia-components/components/field/) (blur/submit validation, message slots). | native constraint attributes (`required`, `pattern`, …) | — | ✓ |
 | `installFieldErrors()` | Server-driven inline errors — the [field-errors recipe](/hypermedia-components/recipes/field-errors/)'s 422 fragment contract. | `data-hc-field-errors`, `data-field`, `data-message-key` (server-written) | — | ✓ |
 | `installShowWhen()` | Conditional field visibility — the [conditional-fields recipe](/hypermedia-components/recipes/conditional-fields/). | `data-hc-show-when`, `data-hc-show-switch`, `data-hc-show-src` | — | ✓ |
+| `installSortable()` | Pointer + keyboard list reordering — the [sortable recipe](/hypermedia-components/recipes/sortable/). | `data-hc-sortable`, `data-hc-sortable-handle`, `data-hc-sortable-id` | `hc:sortchange` | ✓ |
 | `installCombobox()` | [Combobox](/hypermedia-components/components/combobox/) keyboard, filtering, ARIA. | `data-remote`, `data-allow-create`, `data-value`, … | `hc:comboboxselect` | ✓ |
 | `installMulticombobox()` | [Multicombobox](/hypermedia-components/components/multicombobox/) tags, keyboard, ARIA. | `data-name`, `data-allow-create`, `data-value`, … | `hc:multicomboboxchange` | ✓ |
 | `installInputOtp()` | [Input OTP](/hypermedia-components/components/inputotp/) per-slot editing. | `data-length`, `data-pattern`, `data-groups` | `hc:otpchange`, `hc:otpcomplete` | ✓ |

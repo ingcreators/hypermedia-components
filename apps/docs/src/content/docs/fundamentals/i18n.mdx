@@ -100,6 +100,11 @@ the `i18n` submodule, which has no side effects.
 | `datagrid.selected` | `{selected} selected` | selection actions bar count (`{selected}` / `{total}` params) |
 | `fieldErrors.unknown` | `Invalid value` | field-errors item with no resolvable key and no text |
 | `copy.ok` | `Copied` | copy-button success announced via `role="status"` (override with `data-hc-copy-ok`) |
+| `sortable.handle` | `Reorder` | glyph-only sortable handle `aria-label` (fallback) |
+| `sortable.grabbed` | `Grabbed. Position {index} of {count}.` | keyboard grab announced via `role="status"` |
+| `sortable.moved` | `Position {index} of {count}` | keyboard move announcement |
+| `sortable.dropped` | `Dropped. Position {index} of {count}.` | committed reorder announcement |
+| `sortable.cancel` | `Reorder cancelled` | cancelled reorder announcement |
 | `shell.toggleNav` | `Toggle navigation` | shell nav-toggle `aria-label` (fallback) |
 | `shell.collapseNav` | `Collapse sidebar` | shell collapse-button `aria-label` (fallback) |
 | `splitter.resize` | `Resize panels` | splitter handle `aria-label` (fallback) |

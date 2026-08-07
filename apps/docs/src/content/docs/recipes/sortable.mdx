@@ -1,0 +1,180 @@
+---
+title: Sortable list
+description: Reorder a server-owned list with pointer or keyboard — data-hc-sortable moves the DOM, hidden inputs serialize the new order, one htmx request persists it.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+A list whose order the server owns — kanban columns, priority lists,
+pinned dashboards — needs client-side reordering that stays honest
+about who decides: the `installSortable` behavior moves DOM nodes and
+reports the committed order; **htmx owns the network**. Because each
+item carries its own hidden input, moving the item moves the input,
+and the new order serializes into one request with zero bookkeeping —
+all from markup, no inline JS.
+
+:::note[Setup]
+This recipe needs the `installSortable()` behavior. Install every
+behavior at once with `import '@hypermedia-components/core/behaviors';`,
+or just this one:
+
+```js
+import { installSortable } from '@hypermedia-components/core';
+installSortable();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add sortable` copies this recipe's
+scaffold (`recipe.html`, `expanded.html`, `contract.md`,
+`checks.json`); `npx @hypermedia-components/cli validate` machine-checks
+your copy. The full contract lives in
+[`recipes/sortable/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/sortable/contract.md).
+:::
+
+## Live demo
+
+The preview below is already live — reordering is client-side, so drag
+a handle (or focus it and press <kbd>Space</kbd>, then the arrow keys)
+and watch the list reorder. Persisting the result is one htmx
+attribute set away ([below](#persisting-the-order)).
+
+<Demo previewClass="hc-preview--start">
+  <ul class="hc-stack" data-hc-sortable style="list-style:none;padding:0;margin:0;inline-size:100%;max-inline-size:24rem;">
+    <li class="hc-item">
+      <button type="button" class="hc-button" data-variant="ghost" data-size="sm" data-hc-sortable-handle>⠿</button>
+      <span class="hc-item__label">Ship the release notes</span>
+      <input type="hidden" name="order[]" value="notes" />
+    </li>
+    <li class="hc-item">
+      <button type="button" class="hc-button" data-variant="ghost" data-size="sm" data-hc-sortable-handle>⠿</button>
+      <span class="hc-item__label">Review open PRs</span>
+      <input type="hidden" name="order[]" value="prs" />
+    </li>
+    <li class="hc-item">
+      <button type="button" class="hc-button" data-variant="ghost" data-size="sm" data-hc-sortable-handle>⠿</button>
+      <span class="hc-item__label">Update the roadmap</span>
+      <input type="hidden" name="order[]" value="roadmap" />
+    </li>
+  </ul>
+
+  <Fragment slot="code">
+
+  ```html
+  <ul class="hc-stack" data-hc-sortable>
+    <li class="hc-item" data-hc-sortable-id="notes">
+      <button type="button" class="hc-button" data-variant="ghost" data-size="sm"
+              data-hc-sortable-handle>⠿</button>
+      <span class="hc-item__label">Ship the release notes</span>
+      <input type="hidden" name="order[]" value="notes">
+    </li>
+    <!-- … more items … -->
+  </ul>
+  ```
+
+  </Fragment>
+</Demo>
+
+What happens:
+
+1. `data-hc-sortable` marks the container; its element children are the
+   sortable items.
+2. Every `data-hc-sortable-handle` is prepared at install (and for
+   htmx-swapped content): `touch-action: none`, `aria-pressed="false"`,
+   and — when the handle is a bare glyph like `⠿` — a default
+   `aria-label` (i18n key `sortable.handle`).
+3. Pointer drags start on the handle after a 4px threshold, so plain
+   clicks pass through. The item reorders live under the pointer; row
+   and column layouts are detected from geometry.
+4. A committed reorder is announced through the shared `role="status"`
+   live region and dispatches a bubbling **`hc:sortchange`** event —
+   only when the order actually changed.
+
+## Persisting the order
+
+Point htmx at the event; the hidden inputs do the serialization:
+
+```html
+<ul class="hc-stack" data-hc-sortable
+    data-hx-post="/items/order"
+    data-hx-trigger="hc:sortchange"
+    data-hx-include="this"
+    data-hx-swap="none">
+  …
+</ul>
+```
+
+The request body lists ids in the new DOM order —
+`order[]=b&order[]=a&order[]=c` — because moving an `<li>` moves its
+hidden input. Respond `204 No Content` (optionally with an
+[`HX-Trigger` toast](/hypermedia-components/recipes/toast/) to
+confirm), or return the re-rendered container and swap it when the
+order affects computed labels. A `<form>` around the list plus a
+submit button works identically without htmx.
+
+Apps that prefer the event can skip the hidden inputs and read the
+detail instead:
+
+```js
+list.addEventListener('hc:sortchange', ({ detail }) => {
+  // detail = { item, from, to, order: ['b', 'a', 'c'] }
+});
+```
+
+`order` lists each item's `data-hc-sortable-id` (falling back to `id`,
+else `null`).
+
+## Keyboard
+
+The handle is a real `<button>` — it *is* the keyboard interface:
+
+| Key | While | Does |
+| --- | --- | --- |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | — | Grab the item (`data-grabbed="true"`, `aria-pressed="true"`, announced) |
+| <kbd>↑</kbd> / <kbd>←</kbd> | grabbed | Move the item up / back (announced) |
+| <kbd>↓</kbd> / <kbd>→</kbd> | grabbed | Move the item down / forward (announced) |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | grabbed | Drop — commit and fire `hc:sortchange` |
+| <kbd>Escape</kbd> | grabbed or dragging | Cancel and restore the original position |
+
+Blurring the handle commits the current position. Every grab, move,
+drop, and cancel is announced via the visually-hidden `role="status"`
+region — translate the `sortable.*` keys with
+[`setMessages()`](/hypermedia-components/fundamentals/i18n/) (ja ships
+in `locales/ja`).
+
+## State
+
+State lives in attributes, so styling hooks are selectors — no classes
+to toggle:
+
+```css
+[data-dragging='true'],
+[data-grabbed='true'] {
+  opacity: 0.6;
+}
+```
+
+| Attribute | On | Meaning |
+| --- | --- | --- |
+| `data-dragging="true"` | the item | a pointer drag is in flight |
+| `data-grabbed="true"` | the item | keyboard grab is active |
+| `aria-pressed` | the handle | reflects the grab for assistive tech |
+
+## Progressive enhancement
+
+Without the behavior the list renders in server order and the handles
+are inert buttons — content stays readable and complete; reordering is
+an enhancement, not a dependency. For a no-JS ordering fallback, add
+per-item "move up / move down" submit buttons the server handles —
+they compose with this recipe untouched.
+
+## Accessibility
+
+- The visual order **is** the DOM order at all times — screen-reader
+  order never drifts from what sighted users see.
+- Handles must be focusable elements; the machine contract
+  (`checks.json`) warns when a handle is not a `<button>`.
+- `touch-action: none` applies to handles only — the page still
+  scrolls from anywhere else in the list.

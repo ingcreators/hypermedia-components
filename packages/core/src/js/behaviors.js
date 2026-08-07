@@ -52,6 +52,7 @@ import { installNavCurrent } from './nav-current.js';
 import { installSparkline } from './sparkline.js';
 import { installCodeEditor } from './code-editor.js';
 import { installShowWhen } from './show-when.js';
+import { installSortable } from './sortable.js';
 
 function init() {
   installConfirm();
@@ -99,6 +100,7 @@ function init() {
   installSparkline();
   installCodeEditor();
   installShowWhen();
+  installSortable();
 }
 
 if (typeof document !== 'undefined') {
@@ -155,6 +157,7 @@ export {
   installSparkline,
   installCodeEditor,
   installShowWhen,
+  installSortable,
 };
 
 // registerCodeLanguage — plug a tokenizer into the editable-code highlight
