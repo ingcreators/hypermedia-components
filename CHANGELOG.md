@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`manifest.json`: editor composition metadata** (#447) — each
+  `components[]` entry gains `containers[]` (the parts whose element
+  accepts arbitrary flow children in an editor canvas; `""` marks the
+  block root; structured components like datagrid/tabs/menu list
+  nothing), and a new top-level `utilities[]` section lists every
+  `hc-*` utility class with a `container` flag (the layout set:
+  stack, cluster, grid, container, sidebar). Editors can now derive
+  droppable marking and `canAccept` rules from the injected manifest
+  instead of hardcoding a container list.
+
 - **Docs: Editor kit section** (en + ja) — a new sidebar group for
   `@hypermedia-components/editor-kit`: overview + design decisions,
   the full API reference (commands/stack, selection, serializers,
