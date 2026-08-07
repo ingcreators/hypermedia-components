@@ -62,14 +62,36 @@ export function setText(node, text) {
   };
 }
 
-/** Insert `node` into `parent.childNodes` at `index` (append when
- * `index` is at or past the end). */
+/** The childNodes index meaning "before `ref`" (`ref: null` appends),
+ * counted with `exclude` absent — the coordinate system every
+ * insertion index in this kit uses. Exported so element-based UI code
+ * (Alt+Arrow reorder, "append to container") does not reimplement the
+ * whitespace-text-node-aware counting (#449). */
+export function indexBefore(parent, ref, exclude = null) {
+  let i = 0;
+  for (const n of parent.childNodes) {
+    if (n === ref) break;
+    if (n !== exclude) i++;
+  }
+  return i;
+}
+
+/** An insertion point is a childNodes index (measured with the
+ * moved/inserted node absent) or `{ before: Node|null }` — the element
+ * to insert before, `null` to append. Resolved at apply time. */
+function insertionRef(parent, index) {
+  if (typeof index === 'object' && index !== null) return index.before ?? null;
+  return parent.childNodes[index] ?? null;
+}
+
+/** Insert `node` into `parent` at an insertion point — a childNodes
+ * index (append when at or past the end) or `{ before: Node|null }`. */
 export function insertNode(parent, node, index) {
   return {
     type: 'insertNode',
     node,
     apply() {
-      parent.insertBefore(node, parent.childNodes[index] ?? null);
+      parent.insertBefore(node, insertionRef(parent, index));
     },
     revert() {
       node.remove();
@@ -97,8 +119,9 @@ export function removeNode(node) {
   };
 }
 
-/** Move a node to `parent.childNodes[index]` (index measured with the
- * node absent). Undo restores the original position. */
+/** Move a node to an insertion point in `parent` — a childNodes index
+ * (measured with the node absent) or `{ before: Node|null }`. Undo
+ * restores the original position. */
 export function moveNode(node, parent, index) {
   return {
     type: 'moveNode',
@@ -111,7 +134,7 @@ export function moveNode(node, parent, index) {
         this.prevIndex = [...this.prevParent.childNodes].indexOf(node);
       }
       node.remove();
-      parent.insertBefore(node, parent.childNodes[index] ?? null);
+      parent.insertBefore(node, insertionRef(parent, index));
     },
     revert() {
       node.remove();

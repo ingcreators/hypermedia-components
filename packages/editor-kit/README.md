@@ -95,6 +95,19 @@ measured with the dragged node absent — directly consumable by
 a movement threshold so plain clicks still reach the selection;
 Escape cancels.
 
+For an iframe-hosted canvas, pass the iframe as `frame` to BOTH
+pieces: the controller then listens on the host document too and
+translates coordinates through the frame rect (palette drags from the
+host complete normally), and `Overlay` offsets its geometry the same
+way.
+
+Ergonomic helpers (#449): insertion points accept
+`{ before: Element|null }` alongside numeric childNodes indices,
+`indexBefore(parent, ref, exclude?)` converts element positions into
+the numeric form, and `pickBlock(target, { root, manifest })` resolves
+a click to the nearest manifest-block ancestor (the selection UX every
+canvas otherwise reimplements).
+
 `Overlay` draws selection outlines and the drop indicator in a mount
 element *outside* the canvas (pass `frame` for an iframe-hosted
 canvas). Its `showDropIndicator` accepts exactly what the

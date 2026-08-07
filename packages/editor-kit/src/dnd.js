@@ -15,6 +15,7 @@
 // consume — no off-by-one adjustment needed downstream.
 
 import { EDITOR_ONLY_ATTR } from './serializer.js';
+import { indexBefore } from './commands.js';
 
 export const CONTAINER_ATTR = 'data-hc-editor-container';
 
@@ -43,17 +44,6 @@ function elementIndex(children, x, y, rectOf) {
   return children.length;
 }
 
-/** Convert "before element `ref`" into a childNodes index counted with
- * `exclude` (the dragged node) absent. `ref === null` appends. */
-function childNodesIndex(container, ref, exclude) {
-  let i = 0;
-  for (const n of container.childNodes) {
-    if (n === ref) break;
-    if (n !== exclude) i++;
-  }
-  return i;
-}
-
 function droppableChildren(container, exclude) {
   return [...container.children].filter(
     (c) => c !== exclude && !c.hasAttribute(EDITOR_ONLY_ATTR),
@@ -80,6 +70,7 @@ function droppableChildren(container, exclude) {
  */
 export function createDragController({
   root,
+  frame = null,
   canAccept = () => true,
   onPreview = () => {},
   onDrop = () => {},
@@ -91,6 +82,24 @@ export function createDragController({
   if (!root) throw new Error('createDragController: a root element is required');
   const doc = root.ownerDocument;
   hitTest ??= (x, y) => doc.elementFromPoint(x, y);
+
+  // Cross-document dragging (#449): with the canvas in an iframe, a
+  // palette drag starts in the HOST document and pointer events never
+  // cross into the frame. Pass the iframe as `frame` and the
+  // controller listens on both documents, translating host-viewport
+  // coordinates into canvas coordinates through the frame's rect. All
+  // internal geometry (threshold, hit-testing, previews) runs in
+  // canvas coordinates.
+  const hostDoc = frame ? frame.ownerDocument : null;
+  const docs = hostDoc && hostDoc !== doc ? [doc, hostDoc] : [doc];
+
+  function toCanvasPoint(event) {
+    const target = event.target;
+    const eventDoc = target ? (target.nodeType === 9 ? target : target.ownerDocument) : doc;
+    if (!frame || eventDoc !== hostDoc) return { x: event.clientX, y: event.clientY };
+    const r = rectOf(frame);
+    return { x: event.clientX - r.left, y: event.clientY - r.top };
+  }
 
   let drag = null; // { payload, active, startX, startY, target }
 
@@ -110,7 +119,7 @@ export function createDragController({
     const children = droppableChildren(container, node);
     const i = elementIndex(children, x, y, rectOf);
     const ref = children[i] ?? null;
-    return { container, index: childNodesIndex(container, ref, node) };
+    return { container, index: indexBefore(container, ref, node) };
   }
 
   function preview(target) {
@@ -123,16 +132,14 @@ export function createDragController({
   }
 
   function onPointerMove(e) {
+    const { x, y } = toCanvasPoint(e);
     if (!drag.active) {
-      if (
-        Math.abs(e.clientX - drag.startX) < threshold &&
-        Math.abs(e.clientY - drag.startY) < threshold
-      ) {
+      if (Math.abs(x - drag.startX) < threshold && Math.abs(y - drag.startY) < threshold) {
         return;
       }
       drag.active = true;
     }
-    preview(findTarget(e.clientX, e.clientY));
+    preview(findTarget(x, y));
   }
 
   function onPointerUp() {
@@ -153,19 +160,24 @@ export function createDragController({
   }
 
   function teardown() {
-    doc.removeEventListener('pointermove', onPointerMove);
-    doc.removeEventListener('pointerup', onPointerUp);
-    doc.removeEventListener('keydown', onKeyDown, true);
+    for (const d of docs) {
+      d.removeEventListener('pointermove', onPointerMove);
+      d.removeEventListener('pointerup', onPointerUp);
+      d.removeEventListener('keydown', onKeyDown, true);
+    }
     drag = null;
     onPreview(null);
   }
 
   function begin(payload, e, active) {
     if (drag) teardown();
-    drag = { payload, active, startX: e.clientX, startY: e.clientY, target: null };
-    doc.addEventListener('pointermove', onPointerMove);
-    doc.addEventListener('pointerup', onPointerUp);
-    doc.addEventListener('keydown', onKeyDown, true);
+    const { x, y } = toCanvasPoint(e);
+    drag = { payload, active, startX: x, startY: y, target: null };
+    for (const d of docs) {
+      d.addEventListener('pointermove', onPointerMove);
+      d.addEventListener('pointerup', onPointerUp);
+      d.addEventListener('keydown', onKeyDown, true);
+    }
   }
 
   return {

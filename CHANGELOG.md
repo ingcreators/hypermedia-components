@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **editor-kit: canvas ergonomics from the first consumer** (#449) —
+  `insertNode`/`moveNode` accept `{ before: Element|null }` insertion
+  points alongside numeric childNodes indices; the whitespace-aware
+  `indexBefore(parent, ref, exclude?)` counter is exported;
+  `pickBlock(target, { root, manifest })` resolves a click target to
+  the nearest manifest-block ancestor (never the mount, cross-document
+  safe); and `createDragController` accepts a `frame` option — with an
+  iframe-hosted canvas it listens on both documents and translates
+  host coordinates through the frame rect, so palette drags from the
+  parent document complete instead of falling back to click-to-insert.
 - **`manifest.json`: editor composition metadata** (#447) — each
   `components[]` entry gains `containers[]` (the parts whose element
   accepts arbitrary flow children in an editor canvas; `""` marks the
