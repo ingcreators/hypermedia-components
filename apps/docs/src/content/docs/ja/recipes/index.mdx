@@ -15,8 +15,9 @@ description: htmx フレンドリーなパターン集 — 確認アクション
 各レシピページには**ライブデモ**もあります。ほぼすべてのデモは、
 このサイトの Worker が `api/recipes/<name>/` 配下で実装する
 各レシピのサーバ応答契約に対して、実際の htmx リクエストを送ります
-(例外: [コピー](/hypermedia-components/ja/recipes/copy/)はクライアント
-のみ、[ストリーミング応答](/hypermedia-components/ja/recipes/streaming-response/)は
+(例外: [コピー](/hypermedia-components/ja/recipes/copy/)と
+[条件付きフィールド](/hypermedia-components/ja/recipes/conditional-fields/)は
+クライアントのみ、[ストリーミング応答](/hypermedia-components/ja/recipes/streaming-response/)は
 chat-messages のエンドポイントを共有)。
 
 ## アクションとフォーム
@@ -35,6 +36,7 @@ chat-messages のエンドポイントを共有)。
 | [トランスファー](/hypermedia-components/ja/recipes/transfer/) | デュアルリストボックスの割り当て / 解除をサーバ往復で行う — フォーム全体のスワップ、カスタム JS ゼロ | — |
 | [カスケードセレクト](/hypermedia-components/ja/recipes/cascading-select/) | 階層選択を連鎖する(依存)select で行う — change のたびに次のレベルを読み込み | — |
 | [クリップボードにコピー](/hypermedia-components/ja/recipes/copy/) | 読み取り専用の値(URL、トークン、スニペット)をクリップボードへコピーする | `installCopy()` |
+| [条件付きフィールド](/hypermedia-components/ja/recipes/conditional-fields/) | 選択中のモードが読まないフィールドを、往復なしで宣言的に隠す | `installShowWhen()` |
 
 ## 検索とフィルタ
 

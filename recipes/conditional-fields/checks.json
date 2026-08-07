@@ -1,0 +1,24 @@
+{
+  "detect": "[data-hc-show-when]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "has-switch",
+      "level": "warn",
+      "message": "data-hc-show-when needs a [data-hc-show-switch] control in its closest form (or a data-hc-show-src override). (warn: fragments may rely on a switch elsewhere on the page)",
+      "closest": {
+        "on": "[data-hc-show-when]:not([data-hc-show-src])",
+        "selector": "form:has([data-hc-show-switch])"
+      }
+    },
+    {
+      "id": "src-resolves",
+      "level": "warn",
+      "message": "data-hc-show-src is a CSS selector — it must point at a form control in the document. (warn: fragments may target controls elsewhere on the page)",
+      "resolves": {
+        "on": "[data-hc-show-src]",
+        "name": "data-hc-show-src"
+      }
+    }
+  ]
+}

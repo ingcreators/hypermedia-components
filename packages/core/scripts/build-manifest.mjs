@@ -40,6 +40,7 @@ const EXPLICIT_CLAIMS = {
   installSseDispatch: 'sse-updates',
   installChart: 'chart',
   installCopy: 'copy',
+  installShowWhen: 'conditional-fields',
   installValidation: 'platform', // native-validation wiring (field docs)
   installCsrfHeader: 'platform',
   installThemeToggle: 'platform',

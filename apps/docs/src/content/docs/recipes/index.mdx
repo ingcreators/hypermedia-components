@@ -17,7 +17,8 @@ Every recipe page also has a **Live demo**. Almost all of them make
 real htmx requests against a demo API served by this site's Worker,
 implementing that recipe's server response contract under
 `api/recipes/<name>/` (the exceptions: [copy](/hypermedia-components/recipes/copy/)
-is client-only, and [streaming response](/hypermedia-components/recipes/streaming-response/)
+and [conditional fields](/hypermedia-components/recipes/conditional-fields/)
+are client-only, and [streaming response](/hypermedia-components/recipes/streaming-response/)
 shares the chat-messages endpoint).
 
 ## Actions &amp; forms
@@ -36,6 +37,7 @@ shares the chat-messages endpoint).
 | [Transfer](/hypermedia-components/recipes/transfer/) | assign / unassign across a dual listbox as a server round trip — whole-form swaps, zero custom JS | — |
 | [Cascading select](/hypermedia-components/recipes/cascading-select/) | chain dependent selects for hierarchical selection; each change loads the next level | — |
 | [Copy to clipboard](/hypermedia-components/recipes/copy/) | copy a read-only value (URL, token, snippet) to the clipboard | `installCopy()` |
+| [Conditional fields](/hypermedia-components/recipes/conditional-fields/) | hide the fields the chosen mode does not read — declaratively, without a round-trip | `installShowWhen()` |
 
 ## Search &amp; filter
 

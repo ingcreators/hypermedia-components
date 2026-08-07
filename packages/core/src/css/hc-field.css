@@ -13,6 +13,13 @@
     gap: var(--hc-field-gap);
   }
 
+  /* `display: grid` above outweighs the UA `[hidden]` rule, so re-assert
+   * it — conditional visibility (installShowWhen, or any server-rendered
+   * `hidden`) must actually hide the field. */
+  .hc-field[hidden] {
+    display: none;
+  }
+
   /* When `hc-field` is applied to a native `<fieldset>` (the semantic
    * grouping primitive for related radios/checkboxes), strip the default
    * fieldset chrome so it lays out like the `<div>` form of the field.

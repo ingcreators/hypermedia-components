@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installShowWhen()` — declarative conditional field visibility**
+  (#428), shipped as the **`conditional-fields` recipe**.
+  `data-hc-show-when="<value> [<value> …]"` marks any element visible
+  only while the controlling switch — the closest form's
+  `[data-hc-show-switch]` control, or the `data-hc-show-src` selector
+  override — has one of the listed values. Visibility is the `hidden`
+  attribute (never inline styles), evaluated at install (server-rendered
+  state honored), on every `change` (no request, no focus loss), and for
+  htmx-swapped content. Hidden controls keep submitting — filtering
+  values is the server's job. Auto-installed by `./behaviors`.
 - **`data-numeric` numeric-column modifier on `hc-table` and
   `hc-datagrid`** (#430) — on a `th`/`td` (or
   `.hc-datagrid__headcell` / `.hc-datagrid__cell`) it end-aligns the
@@ -46,6 +56,10 @@ Security    — security-relevant changes
   click guard now matches the keydown handler's control set
   (`a[href], input, button, select, textarea`); row text/whitespace
   clicks and the chevron toggle are unchanged.
+- **`.hc-field` now re-asserts `[hidden]`** (#428) — its `display: grid`
+  outweighed the UA hidden rule, so a server-rendered (or
+  behavior-toggled) `hidden` attribute on a field silently failed to
+  hide it.
 
 ## [0.1.12] - 2026-08-06
 
