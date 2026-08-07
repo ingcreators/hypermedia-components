@@ -1,0 +1,53 @@
+<!-- Fully expanded HTML. -->
+
+<!-- The container: data-hc-sortable makes its element children
+     reorderable. The htmx attributes are the persistence wiring — the
+     behavior itself never touches the network: it reorders DOM nodes
+     and dispatches `hc:sortchange`, htmx does the rest.
+
+       data-hx-trigger="hc:sortchange"  fire on a committed reorder
+       data-hx-include="this"           serialize the hidden inputs below,
+                                        in (new) DOM order
+       data-hx-swap="none"              order is already right client-side;
+                                        the response only confirms -->
+<ul class="hc-stack" data-hc-sortable
+    data-hx-post="/items/order"
+    data-hx-trigger="hc:sortchange"
+    data-hx-include="this"
+    data-hx-swap="none">
+
+  <!-- Each item:
+       - data-hc-sortable-id feeds the `order` array in the
+         hc:sortchange event detail (falls back to id, else null).
+       - The handle is a real <button>: it is the keyboard interface
+         (Space/Enter grab · arrows move · Space/Enter drop · Escape
+         cancel) and gets aria-pressed + a default aria-label
+         (i18n key `sortable.handle`) from the behavior. Pointer drags
+         start here too (4px threshold, so clicks pass through).
+       - The hidden input is what persists the order: moving the <li>
+         moves the input, so `data-hx-include="this"` serializes
+         `order[]=…` in the new order with zero bookkeeping. -->
+  <li class="hc-item" data-hc-sortable-id="a">
+    <button type="button" class="hc-button" data-variant="ghost" data-size="sm"
+            data-hc-sortable-handle>⠿</button>
+    <span class="hc-item__label">First item</span>
+    <input type="hidden" name="order[]" value="a">
+  </li>
+  <li class="hc-item" data-hc-sortable-id="b">
+    <button type="button" class="hc-button" data-variant="ghost" data-size="sm"
+            data-hc-sortable-handle>⠿</button>
+    <span class="hc-item__label">Second item</span>
+    <input type="hidden" name="order[]" value="b">
+  </li>
+  <li class="hc-item" data-hc-sortable-id="c">
+    <button type="button" class="hc-button" data-variant="ghost" data-size="sm"
+            data-hc-sortable-handle>⠿</button>
+    <span class="hc-item__label">Third item</span>
+    <input type="hidden" name="order[]" value="c">
+  </li>
+</ul>
+
+<!-- While dragging, the moving item carries data-dragging="true"; a
+     keyboard-grabbed item carries data-grabbed="true" — style either
+     from your app CSS, e.g.
+       [data-dragging="true"], [data-grabbed="true"] { opacity: 0.6; } -->

@@ -74,6 +74,7 @@ const FILES = [
   ['src/js/code-editor.js',   'code-editor.js'],
   ['src/js/code-syntax.js',   'code-syntax.js'],
   ['src/js/show-when.js',     'show-when.js'],
+  ['src/js/sortable.js',      'sortable.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
 
   // Macros — kept under dist/macros/ so the entry module's relative

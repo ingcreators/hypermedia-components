@@ -41,6 +41,7 @@ const EXPLICIT_CLAIMS = {
   installChart: 'chart',
   installCopy: 'copy',
   installShowWhen: 'conditional-fields',
+  installSortable: 'sortable',
   installValidation: 'platform', // native-validation wiring (field docs)
   installCsrfHeader: 'platform',
   installThemeToggle: 'platform',

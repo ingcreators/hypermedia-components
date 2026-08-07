@@ -1,0 +1,44 @@
+{
+  "detect": "[data-hc-sortable]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "has-handles",
+      "level": "error",
+      "message": "a data-hc-sortable container needs at least one [data-hc-sortable-handle] — the handle is both the pointer target and the keyboard interface.",
+      "exists": {
+        "selector": "[data-hc-sortable-handle]",
+        "min": 1
+      }
+    },
+    {
+      "id": "handles-are-buttons",
+      "level": "warn",
+      "message": "handles should be real <button type=\"button\"> elements — anything else is not focusable, so keyboard users cannot reorder. (warn: a focusable custom element may be intentional)",
+      "exists": {
+        "selector": "[data-hc-sortable-handle]:not(button)",
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": "post-needs-trigger",
+      "level": "warn",
+      "message": "a container that posts the order needs data-hx-trigger=\"hc:sortchange\" — without it htmx never fires the persistence request. (warn: the trigger may live on a wrapping form instead)",
+      "attr": {
+        "on": "[data-hc-sortable][data-hx-post]",
+        "name": "data-hx-trigger",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "persisting-needs-inputs",
+      "level": "warn",
+      "message": "persisting the order needs a hidden input per item (name=\"order[]\") so the new DOM order serializes into the request. (warn: apps reading the hc:sortchange event detail instead may omit them)",
+      "exists": {
+        "selector": "input[type=\"hidden\"]",
+        "min": 1
+      }
+    }
+  ]
+}
