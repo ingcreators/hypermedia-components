@@ -21,7 +21,7 @@ For LLM *context* (prose, not structure) use
 | Key | Shape | Source of truth |
 | --- | --- | --- |
 | `version` | The core package version. | `package.json` |
-| `components[]` | `block`, `parts[]`, `dataAttributes[]` (the attribute surface appearing in the block's stylesheet), `tokensGroup` (or `null`), `behavior` (or `null`), `docsPath`. | `src/css/hc-*.css`, `component.tokens.json` |
+| `components[]` | `block`, `parts[]`, `dataAttributes[]` (the attribute surface appearing in the block's stylesheet), `attributeValues{}` (each value-carrying attribute → its enumerated values, e.g. `data-variant` → `["primary", …]`), `cssVars[]` (every `--hc-*` custom property the stylesheet reads — the themable surface), `tokensGroup` (or `null`), `behavior` (or `null`), `docsPath`. | `src/css/hc-*.css`, `component.tokens.json` |
 | `behaviors[]` | `name`, `autoInit` (`installChart` is the single opt-in). | `src/js/index.js`, `src/js/behaviors.js` |
 | `events[]` | `name` + the source `modules[]`. Detail shapes live on the component pages. | `src/js/*.js` |
 | `recipes[]` | `name`, `purpose`, `needsBehavior` (or `null`), `files[]`, `docsPath`, `contractPath`. | `recipes/*/` (+ each recipe's machine-checked `checks.json`) |
@@ -57,6 +57,10 @@ curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
 # The data-attribute surface of one component:
 curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
   | jq '.components[] | select(.block == "hc-datagrid") | .dataAttributes'
+
+# Enumerated variants/sizes — ready for a property inspector or generator:
+curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
+  | jq '.components[] | select(.block == "hc-button") | .attributeValues'
 ```
 
 ## Related
