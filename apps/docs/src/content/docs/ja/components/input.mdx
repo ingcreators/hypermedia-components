@@ -113,6 +113,23 @@ import Demo from '../../../../components/Demo.astro';
 [バリアントマトリクス](/hypermedia-components/ja/tokens/variants/)を
 参照。
 
+## 数値フィールド
+
+入力はデフォルトで数字を**等幅数字**
+(`font-variant-numeric: tabular-nums`)でレンダリングします — 数字を
+タイプする間のリズムが安定し、テーブルセルとの幅の一致も得られます。
+テキスト内容には影響しません。金額系のフィールドには `data-numeric` が
+値を末尾揃えにします —
+[テーブル](/hypermedia-components/ja/components/table/#数値列)のセルと
+同じ属性・同じ意味論で、論理値なので RTL では自動反転します:
+
+```html
+<label class="hc-field">
+  <span class="hc-field__label">Amount</span>
+  <input class="hc-input" name="amount" data-numeric inputmode="decimal">
+</label>
+```
+
 ## htmx での利用
 
 `hc-input` は他の入力と同様に htmx と組み合います。[live-search](/hypermedia-components/ja/recipes/live-search/)

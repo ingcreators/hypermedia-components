@@ -17,6 +17,9 @@
     font-weight: var(--hc-badge-font-weight);
     line-height: 1;
     white-space: nowrap;
+
+    /* Counts update in place — tabular figures keep the width steady. */
+    font-variant-numeric: tabular-nums;
   }
 
   .hc-badge[data-variant="info"] {

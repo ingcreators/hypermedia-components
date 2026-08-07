@@ -337,6 +337,13 @@
     border-radius: 0;
   }
 
+  /* In a numeric column the UA sheet's `text-align: start` on inputs
+   * would beat inheritance and jump the value to the start edge on
+   * entering edit mode — re-inherit the cell's end alignment. */
+  .hc-datagrid__cell[data-numeric][data-editing] > :first-child {
+    text-align: inherit;
+  }
+
   /* ---- Truncation ---- */
 
   /* Wrap a cell's value in this block to clip overflow to one ellipsised

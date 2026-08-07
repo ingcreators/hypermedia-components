@@ -286,6 +286,10 @@ sort indicator simply follows the end-aligned label.
 <td class="hc-datagrid__cell" data-numeric>1,234.50</td>
 ```
 
+[Inline editing](#inline-editing) a numeric cell keeps the end
+alignment — the mounted editor re-inherits the cell's `text-align`, so
+the value doesn't jump when entering edit mode.
+
 ## Behavior — `installDatagrid()`
 
 ```js

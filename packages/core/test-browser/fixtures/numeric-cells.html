@@ -44,9 +44,27 @@
             <td class="hc-datagrid__cell" data-testid="grid-text-cell">Alice</td>
             <td class="hc-datagrid__cell" data-numeric data-testid="grid-num-cell">9,110.25</td>
           </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">Bob</td>
+            <td class="hc-datagrid__cell" data-numeric data-editing data-testid="grid-edit-cell">
+              <input class="hc-input" value="101.09" aria-label="Amount" data-testid="grid-editor">
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
+    <form>
+      <label class="hc-field">
+        <span class="hc-field__label">Amount</span>
+        <input class="hc-input" data-numeric value="1,234.50" data-testid="numeric-input">
+      </label>
+      <label class="hc-field">
+        <span class="hc-field__label">Name</span>
+        <input class="hc-input" value="Widget" data-testid="text-input">
+      </label>
+    </form>
+
+    <p><span class="hc-numeric" data-testid="numeric-span">42,195</span></p>
   </main>
 </body>
 </html>

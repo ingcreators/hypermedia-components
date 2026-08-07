@@ -127,6 +127,14 @@
      holds in both themes. On a <tr> inside hc-table the fill tints the
      row (this layer comes after components, so the tint also wins over
      the table's row-hover background). */
+
+  /* Tabular figures for app-owned numeric surfaces (stat tiles, KPI
+   * values) outside the kit components that default to them. Glyphs
+   * only — alignment stays the context's job. */
+  .hc-numeric {
+    font-variant-numeric: tabular-nums;
+  }
+
   .hc-status {
     --hc-status-fg: var(--hc-color-status-neutral-fg);
     --hc-status-bg: var(--hc-color-status-neutral-bg);

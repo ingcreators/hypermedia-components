@@ -58,6 +58,9 @@
       border-color 120ms ease,
       box-shadow 120ms ease,
       background-color 120ms ease;
+
+    /* Date/time values are digit runs — tabular figures keep them steady. */
+    font-variant-numeric: tabular-nums;
   }
 
   /* Time inputs get a clock icon instead of a calendar. */

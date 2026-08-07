@@ -23,10 +23,20 @@
     font-family: inherit;
     font-size: var(--hc-input-font-size);
     line-height: 1.5;
+
+    /* Steady caret rhythm while typing digits, and parity with table
+     * cells (digit glyphs only — text content unchanged). */
+    font-variant-numeric: tabular-nums;
     transition:
       border-color 120ms ease,
       box-shadow 120ms ease,
       background-color 120ms ease;
+  }
+
+  /* Numeric-field modifier — same attribute + semantics as table cells.
+   * Logical `end` flips free in RTL. */
+  .hc-input[data-numeric] {
+    text-align: end;
   }
 
   textarea.hc-input {
