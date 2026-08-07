@@ -74,6 +74,8 @@ export async function buildManifest() {
       block: 'hc-context-menu',
       parts: [],
       dataAttributes: ['data-hc-context-menu'],
+      attributeValues: {},
+      cssVars: [],
       tokensGroup: null,
       behavior: 'installContextMenu',
       docsPath: 'components/context-menu',
@@ -97,12 +99,34 @@ export async function buildManifest() {
     const dataAttributes = uniqueSorted(
       [...css.matchAll(/\[data-([a-z0-9-]+)/g)].map((m) => `data-${m[1]}`),
     );
+    // Enumerated attribute values ([data-variant="primary"] → the
+    // inspector-facing value set). Only value-carrying selectors
+    // contribute; bare presence attributes stay out of the map.
+    const valueSets = new Map();
+    for (const m of css.matchAll(
+      /\[data-([a-z0-9-]+)[~^|$*]?=(?:"([^"]*)"|'([^']*)'|([a-z0-9-]+))/g,
+    )) {
+      const attr = `data-${m[1]}`;
+      if (!valueSets.has(attr)) valueSets.set(attr, new Set());
+      valueSets.get(attr).add(m[2] ?? m[3] ?? m[4]);
+    }
+    const attributeValues = Object.fromEntries(
+      [...valueSets.keys()].sort().map((attr) => [attr, [...valueSets.get(attr)].sort()]),
+    );
+    // The themable surface: every --hc-* custom property the sheet
+    // reads. Includes per-instance knobs (vars consumed with a
+    // fallback and defined nowhere in the tokens).
+    const cssVars = uniqueSorted(
+      [...css.matchAll(/var\(\s*(--hc-[a-z0-9-]+)/g)].map((m) => m[1]),
+    );
     const behavior =
       EXPLICIT_BEHAVIOR[block] ?? byNormalized.get(block.replaceAll('-', '')) ?? null;
     components.push({
       block: `hc-${block}`,
       parts,
       dataAttributes,
+      attributeValues,
+      cssVars,
       tokensGroup: tokenGroups.has(block) ? block : null,
       behavior,
       docsPath: `components/${block}`,

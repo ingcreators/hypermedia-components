@@ -92,6 +92,32 @@ describe('manifest.json', () => {
     expect(cem.modules.length).toBe(manifest.macros.length);
   });
 
+  it('enumerates attribute values and the themable var surface per component', () => {
+    for (const c of manifest.components) {
+      // Every value-carrying attribute is also in the flat attribute list,
+      // and both value arrays and the key order are sorted.
+      const keys = Object.keys(c.attributeValues);
+      expect(keys, c.block).toEqual([...keys].sort());
+      for (const [attr, values] of Object.entries(c.attributeValues)) {
+        expect(c.dataAttributes, `${c.block} ${attr}`).toContain(attr);
+        expect(values.length, `${c.block} ${attr}`).toBeGreaterThan(0);
+        expect(values, `${c.block} ${attr}`).toEqual([...values].sort());
+      }
+      expect(c.cssVars, c.block).toEqual([...c.cssVars].sort());
+      for (const v of c.cssVars) expect(v, c.block).toMatch(/^--hc-[a-z0-9-]+$/);
+    }
+    // Spot-check the extraction against a stable component.
+    const button = manifest.components.find((c) => c.block === 'hc-button');
+    expect(button.attributeValues['data-variant']).toEqual([
+      'error',
+      'ghost',
+      'primary',
+      'secondary',
+    ]);
+    expect(button.attributeValues['data-size']).toEqual(['lg', 'sm']);
+    expect(button.cssVars).toContain('--hc-button-primary-bg');
+  });
+
   it('is deterministic (two builds byte-identical) and sorted', async () => {
     const again = await buildManifest();
     expect(JSON.stringify(again)).toBe(JSON.stringify(manifest));

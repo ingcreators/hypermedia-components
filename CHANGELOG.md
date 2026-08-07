@@ -20,6 +20,18 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`manifest.json`: enumerated attribute values + themable var surface**
+  — each `components[]` entry gains `attributeValues{}` (every
+  value-carrying `data-*` attribute in the block's stylesheet → its
+  sorted enumerated values, e.g. `data-variant` →
+  `["error","ghost","primary","secondary"]` on `hc-button`) and
+  `cssVars[]` (every `--hc-*` custom property the stylesheet reads).
+  Additive manifest fields — consumers that generate UI (property
+  inspectors, builders, structured-output agents) can now enumerate
+  variants/sizes and the themable surface without parsing CSS.
+
 ## [0.1.13] - 2026-08-07
 
 - **CLI `@hypermedia-components/cli@0.3.1`** — re-bundles the recipe
