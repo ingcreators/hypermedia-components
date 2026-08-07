@@ -1,6 +1,6 @@
 {
   "name": "@hypermedia-components/cli",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Copy Hypermedia Components recipe scaffolds (recipe.html / expanded.html / contract.md) into your project.",
   "license": "MIT",
   "repository": {
