@@ -18,7 +18,7 @@
     "@hypermedia-components/core": "workspace:*",
     "@hypermedia-components/editor-kit": "workspace:*",
     "@observablehq/plot": "^0.6.17",
-    "astro": "^7.1.4",
+    "astro": "^7.1.6",
     "sharp": "^0.35.3",
     "starlight-llms-txt": "^0.11.0"
   },
