@@ -20,9 +20,16 @@ moves.
 | `setAttribute(node, name, value)` | Set an attribute (`value: null` removes) |
 | `removeAttribute(node, name)` | Sugar for `setAttribute(node, name, null)` |
 | `setText(node, text)` | Replace `textContent` |
-| `insertNode(parent, node, index)` | Insert at a childNodes index |
+| `insertNode(parent, node, at)` | Insert at an insertion point |
 | `removeNode(node)` | Remove; undo restores the exact position |
-| `moveNode(node, parent, index)` | Remove + insert; undo restores the origin |
+| `moveNode(node, parent, at)` | Remove + insert; undo restores the origin |
+
+An **insertion point** is a childNodes index *or* `{ before: Element |
+null }` (`null` appends) — element-based UI code (Alt+Arrow reorder,
+"append to container") never has to count whitespace text nodes.
+When you do need the numeric form, `indexBefore(parent, ref, exclude?)`
+converts "before this element" into the index every API here uses
+(the same helper the drag controller reports drops with).
 
 ### CommandStack
 
@@ -57,6 +64,19 @@ sel.select(node, { additive: true }); // append (shift-click)
 sel.toggle(node); sel.deselect(node); sel.clear();
 sel.items; sel.primary; sel.size; sel.isSelected(node);
 sel.prune();                          // drop disconnected nodes (after undo/redo)
+```
+
+`pickBlock(target, { root, manifest })` resolves a click target to
+what a canvas should select: the nearest ancestor whose class names a
+manifest block, else the element itself — never `root` or anything
+outside it (those return `null`). Cross-document safe (no
+`instanceof`), so it works for iframe canvases:
+
+```js
+canvas.addEventListener('click', (e) => {
+  const node = pickBlock(e.target, { root: canvas, manifest });
+  node ? editor.selection.select(node) : editor.selection.clear();
+});
 ```
 
 ## Serializers
@@ -95,6 +115,7 @@ stripped on serialize.
 ```js
 const dnd = createDragController({
   root: canvas,                      // required
+  frame: canvasIframe,               // iframe hosting the canvas (see below)
   canAccept(container, payload) {},  // veto → search walks up
   onPreview(target) {},              // { container, index } | null
   onDrop({ container, index, payload }) {},
@@ -116,6 +137,12 @@ dnd.dispose();
   `{ type: 'move', node }`.
 - Escape cancels; a below-threshold click never becomes a drag, so
   plain clicks still reach the selection.
+- **Cross-document drags**: with the canvas in an iframe, a palette
+  drag starts in the host document and pointer events never cross the
+  frame boundary. Pass the iframe as `frame` and the controller
+  listens on both documents, translating host-viewport coordinates
+  into canvas coordinates through the frame's rect — `startInsert`
+  from a parent-document palette then completes normally.
 
 ## Overlay
 

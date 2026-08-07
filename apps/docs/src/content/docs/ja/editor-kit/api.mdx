@@ -19,9 +19,17 @@ description: コマンドと undo/redo スタック、選択モデル、HTML/JSO
 | `setAttribute(node, name, value)` | 属性を設定(`value: null` で削除) |
 | `removeAttribute(node, name)` | `setAttribute(node, name, null)` の別名 |
 | `setText(node, text)` | `textContent` を置換 |
-| `insertNode(parent, node, index)` | childNodes インデックスに挿入 |
+| `insertNode(parent, node, at)` | 挿入点に挿入 |
 | `removeNode(node)` | 削除。undo で元の位置に復元 |
-| `moveNode(node, parent, index)` | 削除 + 挿入。undo で元の位置に復元 |
+| `moveNode(node, parent, at)` | 削除 + 挿入。undo で元の位置に復元 |
+
+**挿入点**は childNodes インデックス*または* `{ before: Element |
+null }`(`null` で末尾追加)です — 要素ベースの UI コード
+(Alt+矢印での並べ替え、「コンテナに追加」)が空白テキストノードを
+数える必要はもうありません。数値形式が必要な場面では
+`indexBefore(parent, ref, exclude?)` が「この要素の前」を本キットの
+全 API が使うインデックスへ変換します(ドラッグコントローラが
+ドロップ報告に使うのと同じヘルパです)。
 
 ### CommandStack
 
@@ -56,6 +64,19 @@ sel.select(node, { additive: true }); // 追加(shift クリック)
 sel.toggle(node); sel.deselect(node); sel.clear();
 sel.items; sel.primary; sel.size; sel.isSelected(node);
 sel.prune();                          // 切断されたノードを除去(undo/redo 後)
+```
+
+`pickBlock(target, { root, manifest })` は、クリックターゲットを
+キャンバスが選択すべきものへ解決します: マニフェストのブロックを
+クラスに持つ最も近い祖先、なければ要素自身 — `root` 自体や外側は
+決して返しません(`null` = 選択解除)。`instanceof` を使わないため
+document をまたいでも安全で、iframe キャンバスでも動きます:
+
+```js
+canvas.addEventListener('click', (e) => {
+  const node = pickBlock(e.target, { root: canvas, manifest });
+  node ? editor.selection.select(node) : editor.selection.clear();
+});
 ```
 
 ## シリアライザ
@@ -94,6 +115,7 @@ serialize 時に剥がれます。
 ```js
 const dnd = createDragController({
   root: canvas,                      // 必須
+  frame: canvasIframe,               // キャンバスを収める iframe(下記参照)
   canAccept(container, payload) {},  // 拒否 → 上位のコンテナを探索
   onPreview(target) {},              // { container, index } | null
   onDrop({ container, index, payload }) {},
@@ -115,6 +137,12 @@ dnd.dispose();
   `{ type: 'move', node }`。
 - Escape でキャンセル。しきい値未満のクリックはドラッグに
   ならないので、通常のクリックは選択に届きます。
+- **document をまたぐドラッグ**: キャンバスが iframe 内にある場合、
+  パレットのドラッグはホスト document で始まり、pointer イベントは
+  フレーム境界を越えません。iframe を `frame` に渡すと、コントローラは
+  両方の document をリッスンし、ホストビューポート座標をフレームの
+  rect を通じてキャンバス座標へ変換します — 親 document のパレットからの
+  `startInsert` がそのまま完了します。
 
 ## Overlay
 

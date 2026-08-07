@@ -5,6 +5,30 @@
 // changes. `prune()` drops nodes that undo/redo disconnected from the
 // document — the editor wires it to CommandStack `change`.
 
+/**
+ * Nearest-block selection picking — the one piece of selection UX
+ * every canvas writes (#449). Walks from `target` up to `root`
+ * (exclusive) and returns the first element whose classList names a
+ * manifest block; when none matches, `target` itself (as long as it
+ * sits inside `root`); never `root` or anything outside it — those
+ * return `null` (clear the selection).
+ *
+ * Works across documents (iframe canvases): matching is by nodeType
+ * and classList, never instanceof.
+ */
+export function pickBlock(target, { root, manifest = null } = {}) {
+  if (!root || !target) return null;
+  const blocks = new Set((manifest?.components ?? []).map((c) => c.block));
+  const el = target.nodeType === 1 ? target : target.parentElement;
+  if (!el || el === root || !root.contains(el)) return null;
+  for (let cur = el; cur && cur !== root; cur = cur.parentElement) {
+    for (const cls of cur.classList) {
+      if (blocks.has(cls)) return cur;
+    }
+  }
+  return el;
+}
+
 export class Selection extends EventTarget {
   #items = [];
 
