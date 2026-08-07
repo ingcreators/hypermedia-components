@@ -1,31 +1,33 @@
 # OKLCH — perceptual color primitives plan
 
-Status: **proposed.** The primitive ramps are Tailwind's sRGB palette,
-where the step number does not mean a lightness. Across the seven
-chromatic ramps the spread at step `500` is **18.3 L points** (indigo
-58.5 vs amber 76.9), which is why `color.amber` is the one accent axis
-that needs a hand-written exception — dark foreground instead of white,
-and an 18% soft tint instead of 12%. Moving the primitives to `oklch()`
-and regularizing lightness makes that exception **derivable** instead of
-hand-tuned, so a new accent axis becomes a hue angle rather than a
-design session. Baseline: core `0.1.15` (#456), 139 hex values in one
-file, zero `oklch()` anywhere in the repo.
+Status: **approved; implementation pending (five PRs, §9).** The
+primitive ramps are Tailwind's sRGB palette, where the step number does
+not mean a lightness. Across the seven chromatic ramps the spread at
+step `500` is **18.3 L points** (indigo 58.5 vs amber 76.9), which is
+why `color.amber` is the one accent axis carrying a hand-written
+exception — dark foreground instead of white, and an 18% soft tint
+instead of 12%. Moving the primitives to `oklch()` and regularizing
+lightness replaces that exception with a threshold, and makes the docs
+theme builder a **consumer of the same ladder** rather than a parallel
+sRGB implementation. Preserving today's exact appearance is explicitly
+not a goal. Baseline: core `0.1.15` (#456), 139 hex values in one file,
+zero `oklch()` anywhere in the repo.
 
 ## 1. Goal
 
 ```json
-"blue":  { "600": { "$type": "color", "$value": "oklch(0.540 0.243 264.4)" } },
-"amber": { "600": { "$type": "color", "$value": "oklch(0.540 0.104  70.1)" } }
+"blue":  { "600": { "$type": "color", "$value": "oklch(0.540 0.232 264.4)" } },
+"amber": { "600": { "$type": "color", "$value": "oklch(0.540 0.106  70.1)" } }
 ```
 
 Every chromatic ramp shares one lightness ladder, so `600` means the
-same darkness on every hue, and `white` on `600` clears 4.5:1 on all
-seven ramps (measured: 4.79–5.79:1). Adding a `data-color` axis becomes
-"pick H, reuse the ladder"; the foreground choice follows a threshold
-rule (§5) instead of a per-axis note in the token file.
+same darkness on every hue. Adding a `data-color` axis becomes "pick a
+hue angle" — and the theme builder can do it in the browser, because
+the ladder ships as a shared module (§6) instead of being re-derived
+from hex arithmetic.
 
 Non-goals (v1): no change to the **neutral** ramps (already uniform,
-§2), no P3 / out-of-gamut values, no relative color syntax
+§2.3), no P3 / out-of-gamut values, no relative color syntax
 (`oklch(from …)`), no Style Dictionary migration, no new tokens, no
 renames. Names and paths are untouched — this is a **values-only**
 change.
@@ -35,47 +37,51 @@ change.
 Measured on `origin/main` @ `270cf31`, not assumed:
 
 1. **One file holds every literal color.**
-   `packages/core/src/tokens/primitive.tokens.json` — 139 hex values.
-   Every other token file (`semantic`, `component`, `theme.dark`, the 5
-   `color.*` axes, the 8 `neutral.*` files) is 100% `{ref}` indirection
-   with zero literal hex. The migration is a single-file edit.
+   `packages/core/src/tokens/primitive.tokens.json` — 139 hex values
+   (7 chromatic ramps × 11 steps = 77; 5 neutral ramps × 12 = 60;
+   white + black). Every other token file (`semantic`, `component`,
+   `theme.dark`, the 5 `color.*` axes, the 8 `neutral.*` files) is 100%
+   `{ref}` indirection with zero literal hex.
 2. **The build pipeline never parses colors.** `$value` is coerced with
    `String()` (`scripts/token-transform.mjs:48`), reference-substituted
-   textually (`:69-73`), and interpolated into a declaration
-   (`:212`, `:222`, `:228`, `:233`). `$type` is never read —
+   textually (`:69-73`), and interpolated into a declaration (`:212`,
+   `:222`, `:228`, `:233`). `$type` is never read —
    `grep '\$type' scripts/` returns 0 hits. `oklch(…)` passes through
-   verbatim; **zero build-script changes are needed.**
+   verbatim; **zero changes to `token-transform.mjs` are needed.**
 3. **The neutral ramps are already perceptually uniform.** Lightness
    spread across gray/slate/zinc/neutral/stone is ≤ 1.8 L points at
    every step (vs up to 18.3 for the chromatic ramps). They were built
    as a coherent set — 12 steps each, including the extra `350` the
-   chromatic ramps do not have — and need no redesign. Dark mode,
-   which is entirely neutral-driven, therefore barely moves.
+   chromatic ramps lack — and need no redesign. Dark mode, which is
+   entirely neutral-driven, therefore barely moves.
 4. **Browser support is already assumed.** `color-mix()` (Baseline
    2023) is used in 11 token values and ~17 authored declarations;
-   `oklch()` is the same Baseline year. The support floor does not
-   move.
-5. **The amber exception is documented in the source.**
-   `color.amber.tokens.json` `$description` records "uses gray.900 text
-   (not white) … ≈ 9.4:1" and its soft tint is 18% where the other four
-   axes use 12%.
+   `oklch()` is the same Baseline year. The support floor does not move.
+5. **The theme builder already imports a core `.mjs` module into its
+   client bundle.** `ThemeBuilder.astro:283` does
+   `import { buildTokensCss, resolveTokens, DEFAULT_SOURCES } from
+   '@hypermedia-components/core/token-transform'`, backed by the
+   `"./token-transform": "./scripts/token-transform.mjs"` exports entry
+   and a matching `files` entry. **The mechanism §6 needs is already
+   proven in the exact file that needs it.**
 
 ## 3. Why this shape (alignment with HC principles)
 
 | HC principle | How OKLCH primitives honour it |
 | --- | --- |
-| DTCG tokens are the visual source of truth | The ladder *is* the truth; ramps stop being 139 independent opinions. |
+| DTCG tokens are the visual source of truth | The ladder *is* the truth; ramps stop being 77 independent opinions. |
 | State in HTML attributes | Unchanged — `data-color` / `data-neutral` / `data-theme` keep their selectors and names. |
-| Behaviors stay small | No JS involved; `src/js/` has zero color math today and gains none. |
+| Behaviors stay small | No JS involved at runtime; `src/js/` has zero color math today and gains none. |
 | Light DOM, no build step for consumers | Output is still plain custom properties in `dist/hc.tokens.css`. |
 | Accessibility is not optional | Contrast becomes a *constructed* property of the ladder (§5), not something axe discovers afterwards. |
+| Macros are optional, never the only way | The builder generates the same token JSON a human could hand-write. |
 
 ## 4. The ladder
 
 Each chromatic ramp is `oklch(L C H)` with **H constant down the ramp**,
-anchored on the hue of its most-saturated existing step (so identity is
-preserved: blue 264.4, red 27.3, green 163.2, amber 70.1, indigo 277.0,
-rose 17.6, violet 293.0).
+anchored on the hue of its most-saturated existing step, so each ramp
+keeps its identity: blue 264.4, red 27.3, green 163.2, amber 70.1,
+indigo 277.0, rose 17.6, violet 293.0.
 
 | step | L | rel. C | step | L | rel. C |
 | --- | --- | --- | --- | --- | --- |
@@ -86,16 +92,19 @@ rose 17.6, violet 293.0).
 | 400 | 0.72 | 0.94 | 950 | 0.24 | 0.85 |
 | 500 | 0.62 | 0.92 | | | |
 
-`C = rel. C × max_in_gamut_chroma(L, H)`, so every value stays inside
-sRGB by construction and each hue is as saturated as that lightness
-allows. **The `rel. C` column is not invented** — it is the median of
-the relative chroma the current ramps already use at that step, which
-is why the light steps keep their tint (`blue.50` `#eff6ff` → `#f0f6ff`,
-ΔE 0.14) instead of collapsing to gray.
+`C = rel. C × max_in_gamut_chroma(L, H)`.
 
-`L(600) = 0.54` is the load-bearing number: the measured crossover where
-white text stops clearing 4.5:1 is L 55.4 (green, the strictest hue), so
-0.54 has margin on **every** hue.
+**Chroma is relative, not absolute, and that is forced — not a
+preference.** A shared *absolute* chroma has to fit the worst hue in
+sRGB, and at L 0.54 the worst hue (≈200°, cyan) holds only **C 0.092**,
+where blue/indigo/violet currently sit at 0.215–0.247. An absolute
+ladder would flatten every ramp to pastel. Relative-to-gamut keeps each
+hue as saturated as its lightness allows and stays inside sRGB by
+construction.
+
+The `rel. C` column is the median relative chroma today's ramps already
+use at each step, so light steps keep their tint (`blue.50` `#eff6ff` →
+`#f0f6ff`, ΔE 0.14) rather than collapsing toward gray.
 
 Resulting drift, in Oklab ΔE ×100 (≈2 is just-noticeable):
 
@@ -106,18 +115,32 @@ Resulting drift, in Oklab ΔE ×100 (≈2 is just-noticeable):
 | rose | 3.3 | 9.0 | **amber** | **8.9** | **15.4** |
 | indigo | 3.5 | 5.5 | | | |
 
-Six of seven ramps move modestly. **Amber moves a lot and that is the
-point** — it is the ramp that was off the ladder. See §10 for the
-identity trade-off it forces.
+Amber moves the most because it is the ramp that was off the ladder;
+green gets punchier at `200`–`300` (it ran unusually soft at 0.59–0.73
+relative chroma). Both are accepted — matching today's appearance is a
+stated non-goal.
 
-## 5. The foreground rule
+## 5. The contrast invariant
 
-Today: a sentence in `color.amber.tokens.json`. After: a threshold.
+The finding that makes the whole design work:
+
+> **At fixed L, contrast is very nearly independent of hue and chroma.**
+
+Measured at L 0.54 over **all 360 hues** at the §4 envelope, white text
+scores **4.73 … 5.86 : 1** — every hue passes 4.5:1. Holding hue at 264
+and sweeping chroma from 0.00 to 0.25 moves the ratio only 5.06 → 5.43.
+Lightness is the sole lever.
+
+`L(600) = 0.54` is therefore the load-bearing number: the crossover
+where white stops clearing 4.5:1 is L 55.4 (green, the strictest hue),
+so 0.54 has margin on **every** hue, present and future.
+
+This collapses the amber exception into a threshold:
 
 > `action.primary.fg` = `white` when `L(bg) ≤ 0.55`, else
 > `{primitive.color.gray.900}`.
 
-Verified across all seven hues at the proposed ladder:
+Verified across all seven ramps at the proposed ladder:
 
 - white on `600` — **4.79 … 5.79 : 1** (PASS)
 - white on `700` — 6.50 … 7.81 : 1 (PASS)
@@ -125,63 +148,113 @@ Verified across all seven hues at the proposed ladder:
 - gray.900 on `400` — 6.63 … 7.63 : 1 (PASS)
 - gray.900 on `300` — 9.77 … 10.88 : 1 (PASS)
 
-So a bright-accent axis like amber stays bright by choosing a **lighter
-step** (`400`, L 0.72) with dark text, and a deep-accent axis uses `600`
-with white text. Both answers come from the same rule; neither is a
-per-axis exception. The 18%-vs-12% soft-tint divergence dissolves the
-same way — at equal L, equal mix percentage reads as equal emphasis.
+A bright accent like amber stays bright by taking a **lighter step**
+(`400`, L 0.72) with dark text; a deep accent takes `600` with white
+text. Both answers come from one rule. The 18%-vs-12% soft-tint
+divergence dissolves the same way — at equal L, equal mix percentage
+reads as equal emphasis.
 
-## 6. What does NOT change
+## 6. The theme builder
+
+Today `ThemeBuilder.astro` carries a private sRGB implementation:
+`hexToRgb` / `rgbToHex` / `darken` / `luminance` / `contrast` /
+`hslToHex` (`:338-342`, `:501`), an "auto" foreground that runs a WCAG
+comparison at `:525`, and `darken()`-by-percentage for the hover state.
+It is a second, independent theory of color that can disagree with the
+tokens.
+
+After this plan it becomes a consumer:
+
+```js
+// apps/docs/src/components/ThemeBuilder.astro (client script)
+import { LADDER, rampStep, autoForeground }
+  from '@hypermedia-components/core/oklch';
+
+const bg    = rampStep(hue, '600');   // oklch(0.540 C 264.4)
+const hover = rampStep(hue, '700');
+const ring  = rampStep(hue, '500');
+const fg    = autoForeground(bg);      // §5 threshold, not a WCAG search
+```
+
+New shared module `packages/core/scripts/oklch.mjs`, exported as
+`"./oklch": "./scripts/oklch.mjs"` with a matching `files` entry —
+**the same shape as the existing `./token-transform` export the builder
+already imports** (§2.5). It holds the §4 ladder constants, an
+OKLCH↔sRGB pair, a chroma-gamut bisection (~20 lines), and
+`autoForeground()`. The token generator (§9 PR 4) and the builder read
+the identical constants, so they cannot drift.
+
+What this buys the builder concretely:
+
+- **`darken()` becomes a ladder step.** Hover is `700`, not "the brand
+  color times 0.85" — so a generated axis derives its hover exactly the
+  way the five built-in axes do.
+- **The contrast readout stops being a search.** §5 makes the answer a
+  constant comparison; the live "Text on primary: N : 1" panel
+  (`:626-630`) keeps working but can now *promise* a pass rather than
+  report one.
+- **Any hue works.** Spot-checked: teal 195, cyan 225, lime 130,
+  fuchsia 330, orange 55 — white on `600` scores 4.86 / 4.93 / 4.85 /
+  5.75 / 5.28 : 1 respectively. No hue needs review.
+- **`<input type="color">` stays.** It is hex-only by spec, so the
+  picker converts hex → OKLCH on read and keeps the hue; an added
+  L/C/H triple exposes the ladder directly. This is also why P3 is a
+  non-goal (§1) — the native picker cannot express it.
+
+## 7. What does NOT change
 
 Stated explicitly because the blast radius looks larger than it is:
 
 - **No token names, paths, or selectors.** `--hc-*` names, DTCG paths,
   `[data-color="…"]`, `[data-neutral="…"]`, `[data-theme="dark"]` all
   identical. Nothing in VERSIONING.md §1–3 is renamed or removed.
-- **No neutral ramp values** (§2.3) — so dark mode, surfaces, borders,
-  and text colors are byte-identical.
-- **No build scripts** (§2.2).
+- **No neutral ramp values** (§2.3) — dark mode, surfaces, borders and
+  text colors stay byte-identical.
+- **No `token-transform.mjs`** (§2.2).
 - **No `src/js/`** — the package has zero color math; the only runtime
   color read is `chart.js:424` passing `--hc-chart-series-*` strings
-  straight to Observable Plot (see §10 risk 3).
+  straight to Observable Plot (§11 risk 2).
 
-## 7. Blast radius
+## 8. Blast radius
 
 | Surface | Count | Action |
 | --- | --- | --- |
-| `src/tokens/primitive.tokens.json` | 77 chromatic values | rewrite as `oklch()` |
-| … its neutral + black/white values | 62 | convert format only, ΔE 0 |
-| Build scripts | 0 | none |
+| `primitive.tokens.json` chromatic values | 77 | generated from the ladder |
+| … neutral + black/white values | 62 | format conversion only, ΔE 0 |
+| `scripts/oklch.mjs` + exports map + `files` | new | §6 |
+| `token-transform.mjs` | 0 | none |
 | VRT baseline PNGs | 14 | regenerate |
 | Playwright specs asserting literal colors | 16 files | update values |
 | Vitest real-token assertions (`test/tokens.test.mjs`) | 8 lines | update |
 | Axe specs running `color-contrast` | 66 files | no edit; must stay green |
-| Docs pages printing hex | 6 EN (+6 ja) | update; 35 of 40 literals are in `tokens/themes.mdx` + `tokens/neutral.mdx` |
-| `PrimitivePalette.astro` | `readableOn()` `:14-23` | hex regex → OKLCH-aware, else labels silently go black |
-| `ColorThemeSwatches.astro` | ref-resolving regex | verify against `oklch()` values |
-| `ThemeBuilder.astro` | `:338-342`, `:501`, `:524-531` | **the real work** — `hexToRgb` / `luminance` / `contrast` / `darken` / `hslToHex` + `<input type="color">` (hex-only by spec) |
+| Docs pages printing hex | 6 EN (+6 ja) | 35 of 40 literals are in `tokens/themes.mdx` + `tokens/neutral.mdx` |
+| `PrimitivePalette.astro` | `readableOn()` `:14-23` | hex regex → shared `autoForeground()`, else labels silently go black |
+| `ColorThemeSwatches.astro` | ref resolver | verify format-agnostic |
+| `ThemeBuilder.astro` | `:338-342`, `:501`, `:524-531`, `:626` | §6 |
 
 Every EN docs page edited needs its `ja/` twin in the **same** PR —
 `.github/workflows/ci.yml:91` runs
 `apps/docs/scripts/check-i18n-drift.mjs` on PRs and fails otherwise.
 
-## 8. PR split (sequential, each off fresh `origin/main`; no stacking)
+## 9. PR split (sequential, each off fresh `origin/main`; no stacking)
 
 ### PR 1 — this plan (`chore(plans)`)
 
-### PR 2 — `refactor(tokens): express primitives in oklch (no visual change)`
+### PR 2 — `refactor(tokens): express primitives in oklch`
 
-- [ ] `primitive.tokens.json`: all 139 values → `oklch()`, chosen to
-      round-trip to the same 8-bit sRGB hex. Target ΔE 0.
+No visual change; every value round-trips to the same 8-bit sRGB hex.
+
+- [ ] `primitive.tokens.json`: all 139 values → `oklch()`, target ΔE 0.
 - [ ] `test/tokens.test.mjs`: 8 real-token assertions → `oklch(` forms.
-- [ ] `PrimitivePalette.astro` `readableOn()` → parse `oklch()` (or
-      switch the label to `color-contrast()`-free luminance math).
+- [ ] `nested-theme.spec.mjs`: it compares **raw custom-property text**
+      against hex, so it breaks at ΔE 0 — fix here, not in PR 4.
+- [ ] `PrimitivePalette.astro` `readableOn()`: parse `oklch()`.
 - [ ] `ColorThemeSwatches.astro`: confirm the `{primitive.color.X.N}`
       resolver is format-agnostic.
-- [ ] VRT: expect **no** regeneration; if any of the 14 baselines
+- [ ] VRT: expect **no** regeneration. If any of the 14 baselines
       exceeds `maxDiffPixels: 2400`, the conversion is wrong — fix the
       values, do not update the snapshots.
-- [ ] CHANGELOG (*Changed*, "no visual change"); plan Status update.
+- [ ] CHANGELOG (*Changed*, "no visual change"); plan Status.
 
 ### PR 3 — `feat(tokens): oklab interpolation for color-mix` (after PR 2)
 
@@ -191,92 +264,91 @@ Every EN docs page edited needs its `ja/` twin in the **same** PR —
 - [ ] Regenerate all 14 VRT baselines — **delete the PNGs first**, then
       `--update-snapshots`; diffs under 2400 px are otherwise silently
       kept as stale.
-- [ ] CHANGELOG (*Changed*); plan Status update.
+- [ ] CHANGELOG (*Changed*); plan Status.
 
 ### PR 4 — `feat(tokens): regularize chromatic ramps` (after PR 3)
 
-- [ ] The 77 chromatic values → the §4 ladder.
-- [ ] `color.amber.tokens.json`: drop the `fg` and 18%-tint exceptions;
-      re-point the axis at the step the §5 rule selects.
-- [ ] Apply the §5 rule to all five `color.*` axes; record it in the
-      files' `$description`.
+- [ ] `scripts/oklch.mjs` (§6) + `"./oklch"` exports entry + `files`.
+- [ ] `scripts/build-ramp.mjs`: generate the 77 chromatic values from
+      the ladder into `primitive.tokens.json`, so the ramps are
+      reproducible rather than hand-maintained.
+- [ ] `color.amber.tokens.json`: drop the `fg` and 18%-tint
+      exceptions; re-point the axis at the step §5 selects.
+- [ ] Apply the §5 rule to all five `color.*` axes; record it in each
+      `$description`.
 - [ ] Update the 16 Playwright specs' literal color assertions.
 - [ ] Regenerate all 14 VRT baselines (delete-then-update).
-- [ ] Docs: `tokens/themes.mdx`, `tokens/neutral.mdx`,
+- [ ] Docs + `ja/` twins: `tokens/themes.mdx`, `tokens/neutral.mdx`,
       `tokens/palette.mdx`, `tokens/theme-builder.mdx`,
       `fundamentals/tokens.mdx`, `recipes/chart.mdx`,
-      `components/button.mdx` — **each with its `ja/` twin**.
+      `components/button.mdx`.
 - [ ] CHANGELOG (*Changed*, flagged as a visual change); plan Status.
 
 ### PR 5 — `refactor(docs): OKLCH theme builder` (after PR 4)
 
-- [ ] `ThemeBuilder.astro`: replace the sRGB pipeline with OKLCH math;
-      `darken()` becomes an L step, "auto" foreground becomes the §5
-      threshold, the generated `color.<name>.tokens.json` export emits
-      `oklch()`.
-- [ ] Keep `<input type="color">` as the picker (hex-only by spec) and
-      convert on read; add an L/C/H triple of number inputs.
+- [ ] `ThemeBuilder.astro`: delete `hexToRgb` / `rgbToHex` / `darken` /
+      `luminance` / `contrast` / `hslToHex`; import `scripts/oklch.mjs`
+      (§6). Hover becomes a ladder step; "auto" foreground becomes the
+      §5 threshold.
+- [ ] Generated exports (CSS block, `color.<name>.tokens.json`, full
+      token CSS) emit `oklch()`.
+- [ ] Keep `<input type="color">`, convert hex → OKLCH on read; add an
+      L/C/H triple.
 - [ ] `ja/tokens/theme-builder.mdx` twin.
 - [ ] CHANGELOG; plan Status → shipped.
 
-## 9. Test plan
+## 10. Test plan
 
-- **Unit** — extend `test/tokens.test.mjs` with a ladder invariant: for
-  each chromatic ramp, parse the emitted `--hc-*` values and assert
-  L matches the §4 table within ±0.005 and H is constant down the ramp.
-  This is the regression guard that keeps the ladder true.
-- **Contrast** — a new unit test asserting the §5 rule holds for all
-  five `color.*` axes (white/gray.900 vs the resolved
-  `action.primary.bg`), so a bad axis fails in Vitest rather than in a
-  66-file axe sweep.
+- **Unit — ladder invariant.** For each chromatic ramp, parse the
+  emitted `--hc-*` values and assert L matches the §4 table within
+  ±0.005 and H is constant down the ramp. This is the regression guard
+  that keeps the ladder true.
+- **Unit — contrast rule.** Assert §5 holds for all five `color.*` axes
+  (white / gray.900 vs the resolved `action.primary.bg`), so a bad axis
+  fails in Vitest rather than in a 66-file axe sweep.
+- **Unit — builder parity.** Assert `rampStep()` reproduces the
+  committed `primitive.tokens.json` values for the seven built-in hues.
+  This is what stops §6's shared module from drifting from the ramps it
+  generated.
 - **Browser** — the 66 axe specs must stay green with no edits; that is
   the acceptance signal for PR 4.
 - **VRT** — 14 baselines. PR 2 must **not** move them; PRs 3 and 4 must
   regenerate them from scratch.
 
-## 10. Risks / notes
+## 11. Risks / notes
 
-1. **Amber loses brightness if forced to `600`.** At L 0.54, h 70 is an
-   ochre-brown, not an amber. The §5 rule is what saves it — the axis
-   points at `400` (L 0.72) and takes dark text. If the user prefers
-   amber's current exact appearance over ladder membership, PR 4 can
-   ship a **variant 4a**: regularize L only and preserve each ramp's
-   existing per-step relative chroma. That keeps mean drift ≈ 2–3 ΔE on
-   every ramp including amber, and still fixes the contrast problem —
-   it just leaves the chroma envelope non-uniform. Decide before PR 4.
-2. **Green's chroma envelope.** The median `rel. C` (0.97) over-saturates
-   green at `200`–`300` (ΔE 8.7); green currently runs 0.59–0.73 there.
-   Either accept the punchier green or give green its own envelope —
-   a one-column override, not a redesign.
-3. **Observable Plot / d3-color.** `chart.js:424` hands
+1. **Amber changes visibly** (mean ΔE 8.9, max 15.4) and green gets
+   more saturated at `200`–`300`. Accepted per §1 non-goals; called out
+   here so the CHANGELOG entry for PR 4 says so plainly.
+2. **Observable Plot / d3-color.** `chart.js:424` hands
    `--hc-chart-series-*` strings to Plot. Ordinal ranges pass through
    to SVG `fill` and are fine, but Plot's legend swatches and any
    continuous scale route through `d3-color`, which **cannot parse
    `oklch()`** and returns `null`. Must be checked in PR 2; if it
    breaks, keep the six `--hc-chart-series-*` tokens in a
    `d3`-parseable form and note why in the token file.
+3. **Client-bundle size.** `scripts/oklch.mjs` enters the docs client
+   bundle. It is math-only (no dependencies) and replaces a comparable
+   amount of inline code, so the net should be ≈ zero — but the builder
+   page is the only place it ships, and `token-transform.mjs` is
+   already bundled there (§2.5), so the precedent is set.
 4. **Stylelint.** `.stylelintrc.json` pins `color-function-notation:
    "legacy"` (rgb/hsl only — inert for `oklch()`) and bans literal
    colors in `box-shadow`. Neither blocks this, but the shadow rule
-   fires if any shadow token ever resolves to an `oklch()`-bearing
-   string inside an authored `box-shadow`.
+   fires if a shadow token ever resolves to an `oklch()`-bearing string
+   inside an authored `box-shadow`.
 5. **Serialization in tests.** Chromium serializes in-gamut `oklch()`
    back to `rgb()` for *used* values, so `toHaveCSS('color', 'rgb(…)')`
-   specs keep working — but `nested-theme.spec.mjs` compares the **raw
-   custom-property text** and breaks the moment `$value` becomes
-   `oklch()`, even at ΔE 0. That is a PR 2 edit, not a PR 4 one.
-6. **`<input type="color">` is hex-only** by spec, so the theme builder
-   cannot express out-of-gamut colors through the native picker. This
-   is why P3 is a non-goal in v1.
+   specs keep working. Only raw custom-property comparisons break — see
+   PR 2.
 
-## 11. Sequencing against 1.0.0
+## 12. Sequencing against 1.0.0
 
 [`hc-road-to-1.0-en.md`](./hc-road-to-1.0-en.md) freezes the public
-surface and **skips `0.2.0`**. Per
-[`VERSIONING.md`](../VERSIONING.md), a patch may contain "no
-behavior-default changes", so PR 2 is patch-safe (ΔE 0) but PRs 3–4 are
-not — a visible palette change needs a minor, and the only minor left
-before the freeze is `1.0.0` itself.
+surface and **skips `0.2.0`**. Per [`VERSIONING.md`](../VERSIONING.md),
+a patch may contain "no behavior-default changes", so PR 2 is
+patch-safe (ΔE 0) but PRs 3–5 are not — a visible palette change needs
+a minor, and the only minor left before the freeze is `1.0.0` itself.
 
 **Recommendation: land PRs 2–5 before `1.0.0`**, as the last
 value-level change, and let the freeze cover the regularized palette.
