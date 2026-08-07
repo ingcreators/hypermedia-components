@@ -198,4 +198,16 @@
     color: var(--hc-calendar-day-disabled-fg);
     cursor: not-allowed;
   }
+
+  /* Scriptless static rendering (#450): the grid is behavior-built
+   * from an empty shell, so a scriptless render collapses to nothing.
+   * Under data-hc-static the empty shell keeps the component's frame
+   * (an honest placeholder for canvases/screenshots); the manifest
+   * marks hc-calendar staticSafe: false so consumers can badge it. */
+  [data-hc-static] .hc-calendar:empty {
+    display: block;
+    min-block-size: 16rem;
+    border: 1px dashed var(--hc-calendar-border);
+    border-radius: var(--hc-calendar-radius);
+  }
 }

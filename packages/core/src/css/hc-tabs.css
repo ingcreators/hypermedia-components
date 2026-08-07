@@ -255,4 +255,14 @@
   .hc-tabs__scroll[hidden] {
     display: none;
   }
+
+  /* Scriptless static rendering (#450): the documented markup hides
+   * inactive panels server-side (hidden / hidden="until-found"), so a
+   * scriptless render is already correct. data-hc-static on any
+   * ancestor additionally forces the canonical resting state — first
+   * panel only — for templates that rely on the behavior to reconcile
+   * panel visibility (sandboxed canvases, static previews, print). */
+  [data-hc-static] .hc-tabs__panel ~ .hc-tabs__panel {
+    display: none;
+  }
 }

@@ -74,6 +74,18 @@ const CONTAINER_UTILITIES = new Set([
   'hc-stack',
 ]);
 
+/** Blocks whose scriptless render does NOT look like the initialized
+ * component at rest (#450) — everything else achieves its resting
+ * state from markup + CSS alone (native popover/<dialog>/<details>,
+ * aria-driven CSS, hidden attributes). The four here: calendar (the
+ * grid is JS-built from an empty shell — datepicker's popover shell
+ * included), carousel (pagination dots are JS-built; slides render),
+ * chart (the table fallback is the DESIGNED scriptless state), and
+ * code (the editable field degrades to an unhighlighted textarea).
+ * Scriptless consumers (sandboxed canvases, screenshots, print) can
+ * badge these as approximate instead of guessing. */
+const STATIC_UNSAFE = new Set(['calendar', 'carousel', 'chart', 'code']);
+
 const uniqueSorted = (arr) => [...new Set(arr)].sort();
 
 async function read(rel) {
@@ -104,6 +116,7 @@ export async function buildManifest() {
       attributeValues: {},
       cssVars: [],
       containers: [],
+      staticSafe: true,
       tokensGroup: null,
       behavior: 'installContextMenu',
       docsPath: 'components/context-menu',
@@ -164,6 +177,7 @@ export async function buildManifest() {
       attributeValues,
       cssVars,
       containers,
+      staticSafe: !STATIC_UNSAFE.has(block),
       tokensGroup: tokenGroups.has(block) ? block : null,
       behavior,
       docsPath: `components/${block}`,
@@ -197,6 +211,14 @@ export async function buildManifest() {
     class: cls,
     container: CONTAINER_UTILITIES.has(cls),
   }));
+
+  const blockSet = new Set(cssFiles.map((f) => f.slice(3, -4)));
+  const unknownStatic = [...STATIC_UNSAFE].filter((b) => !blockSet.has(b));
+  if (unknownStatic.length > 0) {
+    throw new Error(
+      `manifest: STATIC_UNSAFE lists unknown block(s): ${unknownStatic.join(', ')}.`,
+    );
+  }
 
   // --- events ----------------------------------------------------------
   const jsDir = join(CORE, 'src/js');

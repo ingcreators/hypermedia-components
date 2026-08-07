@@ -1,0 +1,69 @@
+---
+title: Scriptless static rendering
+description: How the kit renders without JavaScript — native primitives carry the resting state, data-hc-static forces it for canvases, and the manifest's staticSafe flag says which components preview approximately.
+---
+
+Some consumers render the kit's markup with **no JavaScript at all**:
+sandboxed editor canvases (an iframe without `allow-scripts`, kept
+deliberately inert), static HTML previews, server-side
+screenshot/PDF rendering, and print. This page is the contract for
+that consumer class.
+
+## The resting state comes from markup + CSS
+
+By design, almost every behavior component reaches its initialized
+resting appearance without its behavior, because state lives in the
+markup and the styling leans on native primitives:
+
+- **Native hidden-by-default primitives** — menus, popovers,
+  tooltips, hovercards, comboboxes, and nav menus use the `popover`
+  attribute; dialogs, drawers, and the command palette use `<dialog>`;
+  collapsibles and accordions use `<details>`. All of them rest closed
+  with zero script.
+- **State attributes drive CSS** — tree branches collapse from
+  `aria-expanded="false"`, tab styling keys off `aria-selected`,
+  conditional fields ship their initial `hidden` server-side (as the
+  [conditional-fields recipe](/hypermedia-components/recipes/conditional-fields/)
+  instructs), and the documented tabs markup hides inactive panels
+  with `hidden` / `hidden="until-found"`.
+
+Render the documented resting markup and a scriptless page looks like
+the initialized page at rest.
+
+## `data-hc-static` — force the canonical resting state
+
+Templates that *rely on the behavior* to reconcile state (panels
+without server-rendered `hidden`, behavior-built chrome) can opt into
+a forced resting presentation: put `data-hc-static` on any ancestor
+(the canvas root, `<body>`, …). The stylesheets then apply the
+canonical rest where CSS can express it:
+
+- **Tabs** — only the first `.hc-tabs__panel` shows, matching the
+  default-selected first tab.
+- **Calendar** — the empty `.hc-calendar` shell keeps the component's
+  framed footprint instead of collapsing to nothing (the grid itself
+  is behavior-built and cannot be expressed in CSS).
+
+`data-hc-static` is presentation-only: it adds no behavior, and
+removing it (or initializing the behaviors) restores normal operation.
+
+## `staticSafe` — the honesty flag
+
+Each `components[]` entry in the
+[machine manifest](/hypermedia-components/reference/manifest/) carries
+`staticSafe`: `true` when a scriptless render of the documented
+resting markup looks like the initialized component at rest. Exactly
+four components are `false` — canvases can badge them as
+"previews approximately" instead of guessing:
+
+| Component | Why |
+| --- | --- |
+| `hc-calendar` | The grid is behavior-built from an empty shell (`data-hc-static` keeps the footprint). |
+| `hc-carousel` | Slides render and scroll, but the pagination dots are behavior-built. |
+| `hc-chart` | The table fallback **is** the designed scriptless state — data stays readable, but it is not the chart. |
+| `hc-code` | The read-only surfaces are pure CSS, but the *editable* field degrades to an unhighlighted textarea. |
+
+```bash
+curl -s https://ingcreators.com/hypermedia-components/api/manifest.json \
+  | jq -r '.components[] | select(.staticSafe | not) | .block'
+```
