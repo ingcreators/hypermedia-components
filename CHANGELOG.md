@@ -20,6 +20,8 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-08-07
+
 ### Added
 
 - **`installShowWhen()` — declarative conditional field visibility**
@@ -4232,7 +4234,8 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.12...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.13...HEAD
+[0.1.13]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.9...v0.1.10
