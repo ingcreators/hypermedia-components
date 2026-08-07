@@ -14,7 +14,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.41.4",
+    "@astrojs/starlight": "^0.41.6",
     "@hypermedia-components/core": "workspace:*",
     "@hypermedia-components/editor-kit": "workspace:*",
     "@observablehq/plot": "^0.6.17",
