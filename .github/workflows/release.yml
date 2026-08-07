@@ -38,13 +38,6 @@ jobs:
       # pre-releases never move `latest`: 0.0.1-alpha.0 -> alpha,
       # 0.0.1-beta.2 -> beta, 0.0.1-rc.0 -> rc, plain 0.0.1 -> latest.
       - name: Publish to npm
-        env:
-          # First publishes of a NEW package cannot use OIDC trusted
-          # publishing (npm only lets you register a trusted publisher on
-          # an existing package), so editor-kit publishes authenticate
-          # with this granular token until its trusted publisher is
-          # registered — then drop the secret and the export below.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           if [[ "$GITHUB_REF_NAME" == cli-v* ]]; then
             FILTER="@hypermedia-components/cli"
@@ -52,8 +45,6 @@ jobs:
           elif [[ "$GITHUB_REF_NAME" == editor-kit-v* ]]; then
             FILTER="@hypermedia-components/editor-kit"
             DIR="packages/editor-kit"
-            # Token auth for the new package only; core/cli stay on OIDC.
-            export NODE_AUTH_TOKEN="$NPM_TOKEN"
           else
             FILTER="@hypermedia-components/core"
             DIR="packages/core"
@@ -77,9 +68,11 @@ jobs:
         # No NODE_AUTH_TOKEN: pnpm exchanges the workflow's OIDC token with
         # npm (trusted publishing). Renaming this file breaks the trust —
         # update the publisher config on npmjs.com if it ever moves.
-        # The CLI package needs its own trusted-publisher registration on
-        # npmjs.com (same repo, same workflow file) before its first
-        # cli-v* tag is pushed.
+        # All three packages (core, cli, editor-kit) have their trusted
+        # publisher registered on npmjs.com (same repo, same workflow
+        # file). editor-kit's first publish (0.0.1) used a temporary
+        # granular token — new packages can't pre-register a publisher —
+        # which has since been removed.
 
       # Mirror the npm publish with a GitHub Release so the Releases page
       # stays the human-readable record of what shipped (the convention
