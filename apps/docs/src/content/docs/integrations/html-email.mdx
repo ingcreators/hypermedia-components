@@ -32,6 +32,37 @@ email clients don't load external CSS and strip
 
 ## Getting the templates
 
+### Baked into the package (default themes)
+
+For the built-in axes there is **nothing to generate**: the core
+package ships baked artifacts under
+`@hypermedia-components/core/email-artifacts/…` — one theme per
+neutral ramp (default accent), both flavors:
+
+```text
+email-artifacts/contract.json                      machine-readable contract
+email-artifacts/default-<neutral>/email-tokens.json
+email-artifacts/default-<neutral>/<flavor>/hc-email.html
+email-artifacts/default-<neutral>/<flavor>/hc-email-layout.html
+```
+
+(`<neutral>`: gray, slate, zinc, neutral, stone; `<flavor>`:
+thymeleaf, plain.) Resolve them straight from the package (or a
+WebJar) instead of checking generated files into your repo — no regen
+ritual, and the artifacts always match the core version you depend
+on. `contract.json` lists every fragment's `th:fragment` name and
+parameter list, so a downstream guard can validate against data
+instead of regexing the HTML:
+
+```bash
+node -e "console.log(require('@hypermedia-components/core/email-artifacts/contract.json').fragments.map(f => f.name + '(' + f.params + ')').join('\n'))"
+```
+
+Custom accents, custom tokens, or theme-builder exports still go
+through the flows below.
+
+### From the theme builder
+
 Open the [theme builder](/hypermedia-components/tokens/theme-builder/),
 set up your theme (a built-in accent, a full custom theme — anything),
 and switch to the **Email templates** tab:

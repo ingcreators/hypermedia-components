@@ -58,6 +58,7 @@
     "./token-transform": "./scripts/token-transform.mjs",
     "./email/*": "./src/email/*",
     "./email-transform": "./scripts/email-transform.mjs",
+    "./email-artifacts/*": "./dist/email/*",
     "./manifest.json": "./dist/manifest.json",
     "./custom-elements.json": "./custom-elements.json"
   },
@@ -70,7 +71,7 @@
     "custom-elements.json"
   ],
   "scripts": {
-    "build": "pnpm run build:tokens && pnpm run build:css && pnpm run build:types && pnpm run build:js && pnpm run build:min && pnpm run build:manifest",
+    "build": "pnpm run build:tokens && pnpm run build:css && pnpm run build:types && pnpm run build:js && pnpm run build:min && pnpm run build:manifest && pnpm run build:email",
     "build:tokens": "node scripts/build-tokens.mjs",
     "build:css": "node scripts/bundle-css.mjs",
     "build:types": "tsc -p tsconfig.json",
@@ -83,7 +84,8 @@
     "lint:js": "eslint .",
     "lint:css": "stylelint \"src/css/**/*.css\"",
     "lint:fix": "eslint . --fix && stylelint \"src/css/**/*.css\" --fix",
-    "build:manifest": "node scripts/build-manifest.mjs"
+    "build:manifest": "node scripts/build-manifest.mjs",
+    "build:email": "node scripts/build-email.mjs"
   },
   "keywords": [
     "hypermedia",

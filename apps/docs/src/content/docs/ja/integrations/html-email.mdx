@@ -30,6 +30,37 @@ description: アプリのテーマに揃った HTML メールを送る — 同�
 
 ## テンプレートの入手
 
+### パッケージ同梱(デフォルトテーマ)
+
+ビルトインの軸については**生成作業は不要**です: core パッケージが
+`@hypermedia-components/core/email-artifacts/…` 配下に焼成済み
+アーティファクトを同梱しています — ニュートラルランプごとに 1 テーマ
+(アクセントは default)、両フレーバーです:
+
+```text
+email-artifacts/contract.json                      機械可読の契約
+email-artifacts/default-<neutral>/email-tokens.json
+email-artifacts/default-<neutral>/<flavor>/hc-email.html
+email-artifacts/default-<neutral>/<flavor>/hc-email-layout.html
+```
+
+(`<neutral>`: gray、slate、zinc、neutral、stone。`<flavor>`:
+thymeleaf、plain。)生成物をリポジトリにチェックインする代わりに、
+パッケージ(または WebJar)から直接解決してください — 再生成の儀式は
+不要になり、アーティファクトは依存している core のバージョンと常に
+一致します。`contract.json` は各フラグメントの `th:fragment` 名と
+パラメータ一覧を持つので、ダウンストリームのガードは HTML への
+正規表現ではなくデータに対して検証できます:
+
+```bash
+node -e "console.log(require('@hypermedia-components/core/email-artifacts/contract.json').fragments.map(f => f.name + '(' + f.params + ')').join('\n'))"
+```
+
+カスタムアクセント・カスタムトークン・テーマビルダーのエクスポートは
+引き続き以下のフローを使います。
+
+### テーマビルダーから
+
 [テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)で
 テーマ(ビルトインのアクセントでもフルカスタムテーマでも)を設定し、
 **Email templates** タブに切り替えます:
