@@ -35,8 +35,11 @@ Security    — security-relevant changes
   `aria-pressed`). Auto-installed by `./behaviors`.
 
 
-- **`@hypermedia-components/editor-kit` `0.0.1` (experimental, not yet
-  published)** — the editor engine for visual builders over the kit:
+- **`@hypermedia-components/editor-kit` `0.0.1` (experimental)** —
+  released via independent `editor-kit-v*` tags (first publish
+  authenticates with a granular npm token; trusted publishing takes
+  over once the package exists). The editor engine for visual builders
+  over the kit:
   the six undoable edit primitives (`setAttribute` / `removeAttribute` /
   `setText` / `insertNode` / `removeNode` / `moveNode`) with a
   `CommandStack` (undo/redo, `transact()` grouping, coalescing for
