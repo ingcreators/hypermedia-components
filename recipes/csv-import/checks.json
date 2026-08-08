@@ -1,0 +1,24 @@
+{
+  "detect": "form[data-hx-post*=\"/commit\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "has-token",
+      "level": "error",
+      "message": "The confirm form must carry the hidden token referencing the validated batch: <input type=\"hidden\" name=\"token\">.",
+      "exists": { "selector": "input[type=\"hidden\"][name=\"token\"]" }
+    },
+    {
+      "id": "nojs-post",
+      "level": "warn",
+      "message": "Keep method=\"post\" + action on the confirm form so committing works without JavaScript.",
+      "attr": { "on": "form", "name": "action", "assert": "present" }
+    },
+    {
+      "id": "targets-report",
+      "level": "warn",
+      "message": "Target the report slot (data-hx-target) so the result summary replaces the whole report — summary, error table, and confirm form together.",
+      "attr": { "on": "form", "name": "data-hx-target", "assert": "present" }
+    }
+  ]
+}

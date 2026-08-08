@@ -22,6 +22,25 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`csv-import` recipe — upload, validate, confirm** (PR 4 of
+  [`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md);
+  the 35th recipe, zero new JS). The missing bulk-in wire contract, in
+  two honest phases: the [file-upload](recipes/file-upload/) form posts
+  the CSV and the server **validates without importing** — the response
+  is a report fragment (summary line + a real `row`/`field`/`message`
+  error `<table>`) plus, when importable rows exist, a confirm form
+  whose hidden `token` references the validated batch;
+  `POST /imports/<token>/commit` executes exactly what was validated
+  (`HX-Trigger` toast + a `items:changed` event for data-region
+  pairing), tokens are single-shot (`409` + re-upload hint when
+  expired/consumed — riding the consolidated allowance), re-uploading
+  replaces the batch, and no-JS is a full-page PRG report. The demo
+  parses a real tiny CSV (comma, quoted fields, `\r\n?`) and threads
+  the batch statelessly through the token (base64url — documented as
+  the demo trick; real apps hold server-side batches). API tests, docs
+  en/ja, cross-engine Playwright suite incl. the stale-token 409
+  branch.
+
 - **`saved-views` recipe — named filter sets as plain links** (PR 3 of
   [`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md);
   the 34th recipe, zero new JS). The current search's querystring,

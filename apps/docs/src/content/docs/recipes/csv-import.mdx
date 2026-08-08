@@ -1,0 +1,119 @@
+---
+title: CSV import
+description: Bulk CSV in, two phases with no surprises — upload validates without importing, the response is a report with a real error table and a tokened confirm form, and committing executes exactly what was validated.
+---
+
+import CsvImportDemo from '../../../components/recipe-demos/CsvImportDemo.astro';
+
+The missing wire contract for bulk-in. Phase 1: the
+[file-upload](/hypermedia-components/recipes/file-upload/) form posts
+the CSV and the server parses and validates **without importing** —
+the response is a validation report: a summary line, a real error
+table, and (when importable rows exist) a confirm form whose hidden
+`token` references the server-held batch. Phase 2: confirming
+`POST /imports/<token>/commit` executes exactly what was validated;
+re-uploading replaces the batch. Zero new JavaScript. Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add csv-import
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/csv-import/contract.md).
+:::
+
+## Live demo
+
+Save this as `items.csv` (the last two rows are deliberately broken)
+and upload it — the report offers to import the valid rows and lists
+the rest in the error table; committing shows the result and raises a
+toast:
+
+```csv
+name,qty
+Anvil,3
+"Widget, small",12
+Sprocket,zero
+,4
+```
+
+<CsvImportDemo />
+
+## The markup
+
+```html
+<form id="csv-upload" method="post" action="/imports"
+      enctype="multipart/form-data"
+      data-hx-post="/imports"
+      data-hx-encoding="multipart/form-data"
+      data-hx-target="#import-report"
+      data-hx-indicator="find progress"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div class="hc-field">
+    <label class="hc-field__label" for="csv">CSV file</label>
+    <input class="hc-input" id="csv" name="csv" type="file" required
+           accept=".csv,text/csv">
+  </div>
+
+  <progress class="hc-progress htmx-indicator" data-hc-upload-progress
+            value="0" max="100" aria-label="Upload progress"></progress>
+
+  <button class="hc-button" data-variant="primary" type="submit">Upload</button>
+</form>
+
+<div id="import-report" aria-live="polite"></div>
+```
+
+The upload form is the file-upload shape (both of that recipe's
+encodings: `data-hx-encoding` for htmx, `enctype` for the native
+submit) pointed at one report slot. The confirm form is
+**server-rendered** inside the report — it posts
+`/imports/<token>/commit` with the token in the path and mirrored in a
+hidden input, and targets the same slot so the result replaces the
+whole report.
+
+## Server response contract
+
+`POST /imports` (multipart, file field `csv`), then
+`POST /imports/<token>/commit`:
+
+| Case | Response |
+| --- | --- |
+| upload, all rows valid | `200` + report: "N rows ready" + the confirm form (hidden `token`) |
+| upload, some rows invalid | `200` + report: summary with the skipped count, the error table (`Row` / `Field` / `Message` — a real `<table>`), and the "import the valid N" confirm form |
+| upload, nothing valid / unreadable file | `422` + the error report (or the file-level error line) — **no confirm form** |
+| commit, live token | `200` + the result summary + `HX-Trigger` with an `hc:toast` **and** a domain event (e.g. `items:changed`) so [data-region](/hypermedia-components/recipes/data-region/) listeners refresh the grid |
+| commit, expired/consumed token | `409` + the re-upload hint — tokens are **single-shot**; the fix is a fresh upload, never a retry (the `409` rides the consolidated `[401, 409, 422]` `htmx:beforeSwap` allowance) |
+
+The token references the server-held parsed batch: the commit executes
+exactly the rows that were validated, even if the file on disk changed
+since. CSV parsing belongs to the server — bring your own parser; the
+wire contract does not change.
+
+## Progressive enhancement
+
+The native multipart post works because `enctype` is on the form; the
+server answers a full report page whose confirm form posts natively
+too (classic post/redirect/get — real apps `303` to `/imports/<token>`
+since they hold the batch server-side). Without JavaScript the flow is
+identical, one page at a time.
+
+## Accessibility
+
+- The report slot is `aria-live="polite"` — the summary, the error
+  report, and the commit result are announced without stealing focus.
+- The error table is a real `<table>` with a `<caption>`,
+  `scope="col"` headers, and the row number as a `scope="row"` header.
+- The progress bar carries an `aria-label`, and the upload and confirm
+  buttons disable while their requests run.
+
+## Related
+
+- [file-upload](/hypermedia-components/recipes/file-upload/) — the
+  upload form shape (and checks) phase 1 reuses.
+- [toast](/hypermedia-components/recipes/toast/) — the `HX-Trigger`
+  notification the commit raises.
+- [data-region](/hypermedia-components/recipes/data-region/) — the
+  domain-event pairing that refreshes the grid the rows land in.
