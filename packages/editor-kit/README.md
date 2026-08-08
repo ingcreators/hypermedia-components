@@ -97,11 +97,56 @@ editor.stack.markClean();
 // The dirty regions as clean HTML — the minimal dirty subtrees, one
 // patch per dirty node with no dirty ancestor. Good for partial
 // re-render, smaller save payloads, or a "review before apply" list.
-// (Format-stable TEXT splicing is Stage 3 of the #452 plan.)
 const { clean, patches } = editor.serializePatch();
 // patches: [{ node, kinds, html }] — html is the element's cleaned
 // outerHTML (or serialize(root)'s innerHTML when node === root).
 ```
+
+## Format-stable serialization
+
+Pass the original template text as `source` and `serializeStable()`
+splices edits into it instead of re-serializing the whole canvas —
+hand-written quotes, entities, and whitespace survive everywhere the
+`CommandStack` didn't touch, so "review before apply" diffs show only
+what actually changed (#452):
+
+```js
+const source = await fetch('/templates/mail.html').then((r) => r.text());
+const editor = createEditor({ root, manifest, source }); // parses source into root
+
+// ... edits via editor.stack ...
+
+const { text, stable, regions } = editor.serializeStable();
+// text    — the artifact: original bytes outside the dirty regions.
+//           A MOVED node travels as its verbatim source slice (only
+//           its old and new parents are dirty); a changed attribute
+//           splices inside the start tag without renormalizing its
+//           neighbors; inserted nodes serialize fresh.
+// stable  — false means the source couldn't be aligned (exotic
+//           markup) and text is the plain serialize() output instead;
+//           a normalized full document beats a corrupt splice.
+// regions — the minimal dirty cover, [{ node, kinds }].
+
+// Saving? Commit rebaselines the map to the returned text without
+// re-parsing (newly inserted nodes become spliceable), then reset
+// the dirt:
+const saved = editor.serializeStable({ commit: true });
+await save(saved.text);
+editor.stack.markClean();
+```
+
+How it works (and its edges): the browser parses `source` (via
+`<template>`, so scripts stay inert) while an offset tokenizer walks
+the same text; aligning the two yields each node's source span —
+implied end tags close where the browser says they do, and
+browser-synthesized elements (`<tbody>`) get zero-width spans. The
+contract that every canvas mutation flows through the stack is what
+makes the splice sound; out-of-stack DOM changes are invisible to it
+(editor scaffolding under `data-hc-editor-*` is the sanctioned
+exception and never reaches any output). Cosmetic limits: whitespace
+around a removed/moved node stays behind (a blank line may linger),
+moved nodes are not re-indented, and fresh nodes are
+serializer-normalized.
 
 ## Drag & drop and the overlay
 
