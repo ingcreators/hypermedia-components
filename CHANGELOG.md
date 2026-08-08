@@ -22,6 +22,24 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Theme builder derives in OKLCH.** The docs theme builder no longer
+  carries its own sRGB colour theory — `hexToRgb` / `rgbToHex` /
+  `darken` / `luminance` / `hslToHex` are gone, replaced by the shared
+  `@hypermedia-components/core/oklch` ladder. **Hover darkness** is now
+  a lightness step holding hue and chroma (default `7`, the gap the
+  built-in ramps use between `600` and `700`) instead of an sRGB
+  channel multiply, which dimmed warm hues faster than cool ones. The
+  **Auto** foreground is the lightness threshold rather than a contrast
+  search. Exports emit `oklch()` and `color-mix(in oklab, …)`.
+
+  New **In OKLCH** read-out plus a **Snap to ladder** button that
+  replaces the brand colour with step `600` for its hue — the exact
+  colour a built-in axis would use, AA-safe by construction. **Shuffle**
+  now rolls a hue through the ladder, so a shuffled theme always clears
+  AA. The `<input type="color">` picker stays (it is hex-only by spec)
+  and converts on read. Built-in accent presets updated to the new
+  ramp values; amber loses its dark-foreground override.
+
 - **Chromatic ramps regularized on a shared lightness ladder.** The
   seven chromatic ramps (blue / red / green / amber / indigo / rose /
   violet) are now generated from one hue angle per ramp plus a shared

@@ -1,7 +1,7 @@
 # OKLCH — perceptual color primitives plan
 
-Status: **PRs 2 and 4 implemented; PR 3 dropped as a measured no-op
-(§9); PR 5 pending.** The
+Status: **shipped** — PRs 2, 4 and 5 implemented; PR 3 dropped as a
+measured no-op (§9). The
 primitive ramps are Tailwind's sRGB palette, where the step number does
 not mean a lightness. Across the seven chromatic ramps the spread at
 step `500` is **18.3 L points** (indigo 58.5 vs amber 76.9), which is
@@ -348,18 +348,29 @@ the 139 committed values land within half an ulp of an 8-bit boundary
 and differ by 1/255 from what Chromium paints. Fine for swatch labels;
 assert browser output in tests.
 
-### PR 5 — `refactor(docs): OKLCH theme builder` (after PR 4)
+### PR 5 — `refactor(docs): OKLCH theme builder` — **done**
 
-- [ ] `ThemeBuilder.astro`: delete `hexToRgb` / `rgbToHex` / `darken` /
-      `luminance` / `contrast` / `hslToHex`; import `scripts/oklch.mjs`
-      (§6). Hover becomes a ladder step; "auto" foreground becomes the
-      §5 threshold.
-- [ ] Generated exports (CSS block, `color.<name>.tokens.json`, full
-      token CSS) emit `oklch()`.
-- [ ] Keep `<input type="color">`, convert hex → OKLCH on read; add an
-      L/C/H triple.
-- [ ] `ja/tokens/theme-builder.mdx` twin.
-- [ ] CHANGELOG; plan Status → shipped.
+- [x] `hexToRgb` / `rgbToHex` / `darken` / `luminance` / `hslToHex`
+      deleted; the builder imports the shared ladder. `contrast()`
+      stays but now takes OKLCH and is used only for the read-out.
+- [x] Hover is a lightness step holding hue and chroma; "auto"
+      foreground is the §5 threshold.
+- [x] Exports emit `oklch()` and `color-mix(in oklab, …)`.
+- [x] `<input type="color">` kept, converts on read. Instead of a raw
+      L/C/H triple the panel shows an **In OKLCH** read-out plus a
+      **Snap to ladder** button — more useful, since the question a
+      user actually has is "how far is my brand colour from how you
+      build yours". Shuffle rolls a hue through the ladder, so it can
+      no longer produce a theme that fails AA.
+- [x] Built-in presets re-seeded from the new `600` values; amber's
+      dark-foreground override dropped.
+- [x] Docs + `ja/tokens/theme-builder.mdx` twin.
+- [x] CHANGELOG; plan Status → shipped.
+
+Verified by driving the built page in Chromium: the read-out, snap,
+pale-colour foreground flip, six shuffles (all AA, 4.81–5.73:1), and
+the exports. The builder has **no automated coverage** — that gap
+predates this work and is worth closing separately.
 
 ## 10. Test plan
 
