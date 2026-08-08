@@ -1,0 +1,58 @@
+---
+title: Print
+description: The opt-in print stylesheet — paper shows the record, data survives the page, ink stays honest.
+---
+
+Business pages get printed: the order detail for the courier, the
+search result for the meeting, the ticket for the audit binder.
+`hc.print.css` is an **opt-in** stylesheet that makes the default
+print output respectable without any per-page work.
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/@hypermedia-components/core/dist/hc.print.css">
+```
+
+or, bundling:
+
+```css
+@import '@hypermedia-components/core/css/print';
+```
+
+Everything lives inside `@media print` in the last cascade layer —
+nothing changes on screen, and on paper the rules win over component
+styling by layer order alone.
+
+## The doctrine
+
+- **Paper shows the record, not the app.** Interactive chrome hides:
+  shell navigation and header, toolbars, menubars, buttons and button
+  groups, pagination, toasts, drawers, tooltips, hovercards, the
+  command palette, skeletons, spinners, htmx indicators, and closed
+  dialogs.
+- **Data survives intact.** Scroll areas un-clip, sticky datagrid
+  headers go static, truncated cells un-ellipsize and wrap, `<thead>`
+  repeats across pages, and rows, cards, fields, alerts, accordion
+  items, and timeline items refuse to split across a page break.
+- **Ink is honest.** Shadows drop, the page prints light regardless of
+  the active `data-theme`, tables get black hairlines, and status
+  containers (cards, alerts, badges, chips) keep a thin border so
+  meaning survives grayscale.
+
+## What it deliberately does not do
+
+- **State attributes stay authoritative**: `[hidden]` content, closed
+  `<details>`, closed dialogs, and inactive tab panels do not print —
+  print shows what the user saw, not what the server knows. Render a
+  dedicated print view server-side when the paper needs more than the
+  screen showed.
+- **No URL expansion** after links — business documents read better
+  without inline hrefs.
+- **No page headers/footers** — those belong to `@page` margin boxes
+  and the app's own print view.
+
+## Related
+
+- [Themes](/hypermedia-components/tokens/themes/) — the screen-side
+  `data-theme` axis this file overrides on paper.
+- [Datagrid](/hypermedia-components/components/datagrid/) — the
+  component that benefits most.

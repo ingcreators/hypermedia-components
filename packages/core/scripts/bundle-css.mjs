@@ -23,6 +23,7 @@ const BASE_CSS   = join(srcCssDir, 'hc.base.css');
 const HTMX_CSS   = join(srcCssDir, 'hc.htmx.css');
 const A11Y_CSS   = join(srcCssDir, 'hc.a11y.css');
 const UTILITIES_CSS = join(srcCssDir, 'hc.utilities.css');
+const PRINT_CSS = join(srcCssDir, 'hc.print.css');
 
 const COMPONENTS = [
   'hc-button.css',
@@ -132,6 +133,9 @@ async function main() {
   await copyFile(HTMX_CSS, join(distDir, 'hc.htmx.css'));
   await copyFile(A11Y_CSS, join(distDir, 'hc.a11y.css'));
   await copyFile(UTILITIES_CSS, join(distDir, 'hc.utilities.css'));
+  // Opt-in print stylesheet — copied standalone, never concatenated into
+  // hc.css (printing a screen layout is a product decision).
+  await copyFile(PRINT_CSS, join(distDir, 'hc.print.css'));
   for (const c of COMPONENTS) {
     await copyFile(join(srcCssDir, c), join(distDir, c));
   }

@@ -1,0 +1,137 @@
+/* hc.print — opt-in print stylesheet for business pages.
+ *
+ * Not part of the hc.css bundle: printing a screen layout is a product
+ * decision, so the file ships standalone (`@hypermedia-components/core/hc.print.css`)
+ * and consumers add one <link>/@import after hc.css. Everything lives in
+ * `@media print` inside the `hc.utilities` layer (the last layer), so on
+ * paper these rules win over component styling by layer order alone — no
+ * specificity games, nothing changes on screen.
+ *
+ * Doctrine:
+ *   - paper shows the record, not the app: interactive chrome (shell
+ *     navigation, toolbars, action buttons, pagination, overlays) hides;
+ *   - data survives intact: scroll areas un-clip, truncated datagrid
+ *     cells un-ellipsize, table headers repeat across pages, and rows,
+ *     cards, and field blocks refuse to split across page breaks;
+ *   - ink is honest: shadows drop, the page prints light regardless of
+ *     the active `data-theme`, and status containers keep a thin border
+ *     so meaning survives grayscale.
+ *
+ * State attributes stay authoritative: `[hidden]`, closed dialogs, and
+ * inactive tab panels do not print — print shows what the user saw.
+ */
+@layer hc.utilities {
+  @media print {
+    @page {
+      margin: 12mm;
+    }
+
+    /* ---- Ground: print light, drop elevation --------------------------- */
+
+    :root,
+    :root[data-theme] {
+      color-scheme: light;
+    }
+
+    body {
+      background: white;
+      color: black;
+    }
+
+    * {
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+
+    /* ---- Interactive chrome does not print ----------------------------- */
+
+    .hc-shell__sidebar,
+    .hc-shell__aside,
+    .hc-shell__header,
+    .hc-shell__toggle,
+    .hc-navmenu,
+    .hc-menubar,
+    .hc-toolbar,
+    .hc-pagination,
+    .hc-button,
+    .hc-button-group,
+    .hc-toast-region,
+    .hc-drawer,
+    .hc-tooltip,
+    .hc-hovercard,
+    .hc-command,
+    .hc-skeleton,
+    .hc-spinner,
+    .htmx-indicator {
+      display: none !important;
+    }
+
+    dialog:not([open]) {
+      display: none !important;
+    }
+
+    /* The shell collapses to its content column. */
+    .hc-shell {
+      display: block;
+    }
+
+    .hc-shell__main {
+      padding: 0;
+    }
+
+    /* ---- Data survives the page ---------------------------------------- */
+
+    .hc-scroll-area,
+    .hc-datagrid,
+    .hc-table {
+      max-height: none;
+      overflow: visible;
+    }
+
+    .hc-datagrid__head {
+      position: static;
+    }
+
+    .hc-datagrid thead,
+    .hc-table thead {
+      display: table-header-group;
+    }
+
+    .hc-datagrid tr,
+    .hc-table tr {
+      break-inside: avoid;
+    }
+
+    .hc-datagrid__cell,
+    .hc-datagrid__headcell {
+      overflow: visible;
+      white-space: normal;
+      text-overflow: clip;
+    }
+
+    .hc-datagrid,
+    .hc-datagrid__cell,
+    .hc-datagrid__headcell,
+    .hc-table th,
+    .hc-table td {
+      border-color: black;
+    }
+
+    /* ---- Blocks keep their shape --------------------------------------- */
+
+    .hc-card,
+    .hc-field,
+    .hc-alert,
+    .hc-accordion__item,
+    .hc-timeline__item {
+      break-inside: avoid;
+    }
+
+    .hc-card,
+    .hc-alert,
+    .hc-badge,
+    .hc-chip {
+      border: 1px solid black;
+    }
+  }
+}
