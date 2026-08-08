@@ -41,6 +41,8 @@ import {
   installCopy,
   installSpy,
   installNavCurrent,
+  installFormat,
+  installNormalize,
   version,
 } from '@hypermedia-components/core';
 
@@ -76,6 +78,8 @@ import {
   installCopy as installCopyFromBehaviors,
   installSpy as installSpyFromBehaviors,
   installNavCurrent as installNavCurrentFromBehaviors,
+  installFormat as installFormatFromBehaviors,
+  installNormalize as installNormalizeFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -120,6 +124,8 @@ const uninstallers: Array<() => void> = [
   installCopy(document),
   installSpy(document),
   installNavCurrent(document),
+  installFormat(document),
+  installNormalize(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -151,6 +157,8 @@ const uninstallers: Array<() => void> = [
   installCopyFromBehaviors(),
   installSpyFromBehaviors(),
   installNavCurrentFromBehaviors(),
+  installFormatFromBehaviors(),
+  installNormalizeFromBehaviors(),
 ];
 
 // `version` is a string literal export.

@@ -50,6 +50,7 @@ export { installSparkline } from './sparkline.js';
 export { installCodeEditor } from './code-editor.js';
 export { installShowWhen } from './show-when.js';
 export { installSortable } from './sortable.js';
+export { installFormat, installNormalize } from './format.js';
 
 // registerCodeLanguage — plug a tokenizer into installCodeEditor()'s live
 // highlight overlay (built-in grammars: sql, json, yaml, html).

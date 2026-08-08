@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- Fixture for installFormat / installNormalize — grouped numeric display
+     with a raw wire value, and IME normalization. Pins the load-bearing
+     assumption that constructing `new FormData(form)` fires the `formdata`
+     event our wire rewrite hooks (real engines only — jsdom lacks it). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>format fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Formatted input</h1>
+
+    <form class="hc-stack" data-testid="money-form">
+      <label class="hc-field">
+        <span class="hc-field__label">Amount</span>
+        <div class="hc-input-group">
+          <span class="hc-input-group__addon">¥</span>
+          <input class="hc-input" name="amount" type="text" inputmode="numeric"
+                 data-hc-format="number" data-testid="amount">
+        </div>
+      </label>
+
+      <label class="hc-field">
+        <span class="hc-field__label">SKU</span>
+        <input class="hc-input" name="sku" data-hc-normalize="ascii"
+               data-testid="sku">
+      </label>
+
+      <button class="hc-button" type="button" data-testid="snapshot">
+        Snapshot wire values
+      </button>
+      <output data-testid="wire" aria-label="Wire values"></output>
+    </form>
+  </main>
+
+  <script type="module">
+    // The snapshot button builds `new FormData(form)` exactly the way htmx
+    // does and prints the entries — asserting the formdata rewrite without
+    // any network.
+    const form = document.querySelector('[data-testid="money-form"]');
+    const wire = document.querySelector('[data-testid="wire"]');
+    document.querySelector('[data-testid="snapshot"]').addEventListener('click', () => {
+      const entries = [...new FormData(form).entries()]
+        .map(([k, v]) => `${k}=${v}`)
+        .join('&');
+      wire.textContent = entries;
+    });
+  </script>
+</body>
+</html>

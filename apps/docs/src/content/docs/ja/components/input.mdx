@@ -130,6 +130,65 @@ import Demo from '../../../../components/Demo.astro';
 </label>
 ```
 
+### 金額のグループ表示
+
+金額フィールドには `data-hc-format="number"` を付けます — 自動
+インストールされる `installFormat()` ビヘイビアが、**表示はグループ化、
+ワイヤ上は生値**のまま保ちます:
+
+```html
+<label class="hc-field">
+  <span class="hc-field__label">Amount</span>
+  <div class="hc-input-group">
+    <span class="hc-input-group__addon">¥</span>
+    <input class="hc-input" name="amount" type="text" inputmode="numeric"
+           data-numeric data-hc-format="number" value="1,234,567">
+  </div>
+</label>
+```
+
+- **blur** で全角数字を正規化(`１２３４` → `1,234`、NFKC)して
+  ロケールに応じてグループ化し、**focus** で生値に戻します — 編集中に
+  区切り文字と戦うことがなく、ビヘイビアはキャレット管理を一切
+  必要としません。
+- **サーバーは常に生値を受け取ります**(`amount=1234567`): ビヘイビアは
+  `formdata` イベントでエントリリストを書き換えます。このイベントは
+  htmx のリクエスト(`new FormData(form)`)でもネイティブ送信でも
+  発火します。
+- `data-decimals="2"` は小数部の最小桁数までパディングします
+  (表示のみ — 丸めは決して行いません)。`data-locale` はグループ化
+  ロケールを上書きします(既定は最も近い `[lang]`)。
+- 初期表示からグループ化して見せたい場合は、サーバー側でグループ化
+  した値をレンダリングしてください — どちらでもワイヤ上は生値です。
+
+`type="number"` ではなく `type="text"` + `inputmode="numeric"` を
+使ってください。`type="number"` はグループ化された値を拒否し、先頭の
+ゼロを落とし、スクロールで値が変わります — いずれも金額には不適切
+です。解析できない入力は入力されたまま残ります。検証者はあくまで
+サーバーです([field-errors](/hypermedia-components/ja/recipes/field-errors/))。
+
+## IME 正規化
+
+`data-hc-normalize`(自動インストールされる `installNormalize()`)は
+確定時にコントロールの値を書き換えます。IME 入力で残った全角文字が、
+入力し直しなしで自己修正されます:
+
+```html
+<input class="hc-input" name="sku" data-hc-normalize="ascii">
+<input class="hc-input" name="furigana" data-hc-normalize="kana">
+```
+
+- `ascii` — 全角 ASCII を半角へ(`ＡＢ１２` → `AB12`、NFKC)、全角
+  スペースを半角スペースへ。ワイヤ形式が ASCII のフィールド(コード、
+  識別子、電話番号の数字)にだけ付けてください。
+- `kana` — 半角カナを全角へ(`ﾀﾛｳ` → `タロウ`)、ひらがなをカタカナへ
+  (`やまだ` → `ヤマダ`)。フリガナ欄向けです。
+
+書き換えはキャプチャ段階の `change` リスナーで走るため、
+`target.value` を読む htmx トリガーは正規化後の値を見ます —
+`change` が発火しなかった値には `formdata` のセーフティネットが
+あります。
+
 ## htmx での利用
 
 `hc-input` は他の入力と同様に htmx と組み合います。[live-search](/hypermedia-components/ja/recipes/live-search/)
