@@ -45,6 +45,24 @@ Security    — security-relevant changes
   `createEditor()` as `editor.serializePatch()`. No text splicing yet
   — that is Stage 3.
 
+- **editor-kit: format-stable serialization** (#452 Stage 3, closing
+  the issue) — `createEditor({ source })` parses the original template
+  text into the canvas (browser-parsed via `<template>`, offsets from
+  a flat tokenizer, spans from aligning the two), and
+  `editor.serializeStable()` splices edits into that text instead of
+  re-serializing the whole canvas: moved nodes travel as verbatim
+  source slices, attribute edits splice inside the start tag without
+  renormalizing neighboring attributes, inserted nodes serialize
+  fresh, and everything untouched keeps its original bytes — quotes,
+  entities, whitespace. Returns `{ text, stable, regions }`;
+  `stable: false` means alignment degraded (exotic markup) and `text`
+  fell back to the plain `serialize()`. `{ commit: true }` rebaselines
+  the SourceMap to the returned text without re-parsing, so
+  edit → save → edit → save cycles stay spliceable. New module export
+  `@hypermedia-components/editor-kit/source` (`attachSource`,
+  `SourceMap`, `serializeStable`, `tokenize`), all re-exported from
+  the package root.
+
 ## [0.2.0] - 2026-08-08
 
 The OKLCH color release (#457). **Contains breaking changes** — the
