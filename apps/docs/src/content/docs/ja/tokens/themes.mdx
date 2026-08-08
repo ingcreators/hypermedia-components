@@ -18,8 +18,8 @@ sidebar:
 [`data-neutral`](/hypermedia-components/ja/tokens/neutral/)(面 / テキスト /
 枠線のランプ)、`data-theme`(ライト / ダーク)、`data-density`
 (comfortable / compact / dense)とは直交します。同じ祖先に設定すれば
-すべて一緒にカスケードします — 例えば `data-color="indigo"
-data-neutral="slate"` は、冷たい slate の UI に indigo のアクセントです。
+すべて一緒にカスケードします — 例えば `data-color="teal"
+data-neutral="slate"` は、冷たい slate の UI に teal のアクセントです。
 グレーを変えたければ `data-neutral` へ。このページはアクセントだけを
 扱います。
 
@@ -34,24 +34,38 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
 <ColorThemeSwatches />
 
 
-| `data-color` の値 | Primary bg          | Hover bg          | Primary 上のテキスト | 典型的な用途 |
-| ------------------ | ------------------- | ----------------- | --------------- | --------------- |
-| _(なし)_ / `default` | `#2563eb`(blue.600) | `#1d4ed8`(blue.700) | 白         | デフォルトの中立系 SaaS — Linear、AWS 系 |
-| `indigo`           | `#4f46e5`(indigo.600) | `#4338ca`(indigo.700) | 白      | モダン SaaS — Tailwind、Cal.com |
-| `emerald`          | `#047857`(green.700) | `#065f46`(green.800) | 白         | フィンテック / サステナビリティ — Stripe Atlas |
-| `rose`             | `#be123c`(rose.700) | `#9f1239`(rose.800) | 白           | マーケティング / CRM / ヘルスケア |
-| `amber`            | `#f59e0b`(amber.500) | `#d97706`(amber.600) | gray.900       | エネルギッシュ / 生産性 — Notion イエロー |
+| `data-color` の値 | Primary bg | Hover bg | Primary 上のテキスト | 色相 | 典型的な用途 |
+| ------------------ | ---------- | -------- | --------------- | --- | --------------- |
+| _(なし)_ / `default` | blue.600 | blue.700 | 白 | 264° | デフォルトの中立系 SaaS — Linear、AWS 系 |
+| `teal`             | teal.600 | teal.700 | 白 | 192° | 落ち着いたプロダクト UI、ダッシュボード、開発ツール |
+| `lime`             | lime.600 | lime.700 | 白 | 120° | サステナビリティ、アグリテック、アウトドア |
+| `orange`           | orange.600 | orange.700 | 白 | 48° | エネルギッシュ / 生産性、コマース |
+| `fuchsia`          | fuchsia.600 | fuchsia.700 | 白 | 336° | マーケティング、クリエイターツール、コンシューマ向け |
 
 上の値はすべて[primitive ランプ](/hypermedia-components/ja/tokens/palette/)の
 シェードに解決されます — これらのテーマは新しい色を導入せず、アクセントを
 別のランプに向け直しているだけです。
 
-2 つのシェードはカラースケールの深いところに置かれています
-(green.700、rose.700 — `emerald` / `rose` テーマの背後にあるランプ)。
-より明るい 600 シェードでは満たせなかった
-4.5:1 のコントラスト基準を、ボタン上の白文字が満たすためです。amber は
-その逆 — 500 シェードは十分に明るいため、暗い文字がコントラスト的に
-正しい選択になり、ダークモードでも一貫します。
+この表が 5 通りではなく 1 つの形をしている点に注目してください。どのテーマも
+静止面に `600`、hover に `700`、フォーカスリングに `500`、そして白文字を
+使います。これは偶然ではなくランプの性質です — ステップ `600` は OKLCH の
+明度 `0.54` に位置し、明度 `0.554` 未満なら**どの色相でも**白文字が AA を
+満たします。アクセントを選ぶとは色相角を選ぶことであり、残りは自動的に
+決まります。
+
+5 つの色相も恣意的ではありません。**アクセント五角形** — blue を起点に
+色相環を 72° 間隔で分割した頂点です。この間隔は 2 つの性質を同時に
+もたらします。どの 2 アクセントも互いの濃淡違いには見えません(旧セットは
+indigo が blue から 12.6° でした)。そしてどのアクセントもステータス色と
+衝突しません — 旧 `rose` は error の赤から 9.7° しか離れておらず、rose
+テーマのアプリでは主要アクションとエラー表示が視覚的に同一の色になって
+いました。五角形の各頂点は error / warning / success の色相から 21° 以上
+離れています。
+
+6 色目が欲しい場合は
+[テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)の出番です —
+任意の色相を同じラダーに通せば、この 5 つとまったく同じ構成の軸が
+生成されます。
 
 ## ライブプレビュー
 
@@ -83,9 +97,9 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
   <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
-### Indigo
+### Teal
 
-<div class="hc-preview not-content" data-color="indigo" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" data-color="teal" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="ghost">Edit</button>
   <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
@@ -94,15 +108,15 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
     Notify me
   </label>
   <label class="hc-radio-label">
-    <input class="hc-radio" type="radio" name="t-indigo" checked />
+    <input class="hc-radio" type="radio" name="t-teal" checked />
     Free
   </label>
   <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
-### Emerald
+### Lime
 
-<div class="hc-preview not-content" data-color="emerald" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" data-color="lime" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="ghost">Edit</button>
   <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
@@ -111,15 +125,15 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
     Notify me
   </label>
   <label class="hc-radio-label">
-    <input class="hc-radio" type="radio" name="t-emerald" checked />
+    <input class="hc-radio" type="radio" name="t-lime" checked />
     Free
   </label>
   <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
-### Rose
+### Orange
 
-<div class="hc-preview not-content" data-color="rose" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" data-color="orange" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="ghost">Edit</button>
   <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
@@ -128,15 +142,15 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
     Notify me
   </label>
   <label class="hc-radio-label">
-    <input class="hc-radio" type="radio" name="t-rose" checked />
+    <input class="hc-radio" type="radio" name="t-orange" checked />
     Free
   </label>
   <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
-### Amber
+### Fuchsia
 
-<div class="hc-preview not-content" data-color="amber" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" data-color="fuchsia" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="ghost">Edit</button>
   <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
@@ -145,7 +159,7 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
     Notify me
   </label>
   <label class="hc-radio-label">
-    <input class="hc-radio" type="radio" name="t-amber" checked />
+    <input class="hc-radio" type="radio" name="t-fuchsia" checked />
     Free
   </label>
   <span class="hc-field__message">Select this text to preview ::selection.</span>
@@ -156,7 +170,7 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
 サイト全体のテーマなら、`<html>` に属性を設定します:
 
 ```html
-<html data-color="emerald">
+<html data-color="lime">
   ...
 </html>
 ```
@@ -165,7 +179,7 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
 ランディング面)にはローカルに付けます:
 
 ```html
-<section data-color="rose">
+<section data-color="orange">
   <button class="hc-button" data-variant="primary">Subscribe</button>
 </section>
 ```
@@ -229,7 +243,7 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
 ```
 
 `primary-soft-bg` は、テーマの primary カラーを `color-mix()` と
-`transparent` で 12 %(amber は 18 %)ティントにしたものです。同じ値が
+`transparent` で 12 % ティントにしたものです(混色は `in oklab`、割合は 5 テーマ共通)。同じ値が
 ライトとダークどちらの面でも正しくブレンドされるため、モード別の
 バリアントは不要です。
 
@@ -380,17 +394,31 @@ primary / hover / ソフトティント / text-on-primary / focus-ring のセッ
 ## アクセシビリティ
 
 各テーマは、ボタンの text-on-primary の組み合わせで WCAG AA
-コントラストを満たします:
+コントラストを満たします。検査した結果ではなく、構成上の帰結です:
 
-| テーマ   | テキスト色  | Primary bg | コントラスト比 |
-| -------- | ----------- | ---------- | -------------- |
-| default  | 白          | #2563eb    | 4.9 : 1        |
-| indigo   | 白          | #4f46e5    | 6.9 : 1        |
-| emerald  | 白          | #047857    | 5.0 : 1        |
-| rose     | 白          | #be123c    | 5.7 : 1        |
-| amber    | #111827     | #f59e0b    | 9.4 : 1        |
+| テーマ   | テキスト色  | Primary bg  | コントラスト比 |
+| -------- | ----------- | ----------- | -------------- |
+| default  | 白          | blue.600    | 5.31 : 1       |
+| teal     | 白          | teal.600    | 4.83 : 1       |
+| lime     | 白          | lime.600    | 4.89 : 1       |
+| orange   | 白          | orange.600  | 5.36 : 1       |
+| fuchsia  | 白          | fuchsia.600 | 5.70 : 1       |
 
-[WebAIM のコントラストチェッカー](https://webaim.org/resources/contrastchecker/)で検証済み。
+5 つが狭い帯に収まるのは、個別に調整したからではなく明度を共有している
+からです。OKLCH の明度を固定すると、コントラストは色相にも彩度にもほとんど
+依存しません — ステップ `600` で 360 色相すべてを掃引しても 4.73〜5.86 : 1、
+ある色相で彩度を 0 から 0.25 まで振っても 5.06 → 5.43 しか動きません。明度
+だけで保証が成立するため、新しいアクセント色相にコントラスト検討は不要です。
+
+teal が 5 つの中で最も厳しく、下限の 4.83 : 1 を決めています。
+`packages/core/test/ramp.test.mjs` はこの表全体に加えて五角形の間隔自体も
+検証しているので、AA を下回るアクセントやステータス色相へ寄ったアクセントは
+ページに届く前にユニットテストで落ちます。
+
+1 つ知っておくべき帰結として、ステップ `500` は**テキスト面ではありません**。
+明度 `0.62` では彩度の高い色相が白文字(3.4〜4.0 : 1)にも暗い文字
+(4.4〜5.2 : 1)にも届かないため、`500` はフォーカスリングとアクセント専用で、
+ラベルを載せる面はすべて `600` が担います。
 
 [テーマビルダー](/hypermedia-components/ja/tokens/theme-builder/)は色を
 選ぶそばから同じコントラスト検査をライブで実行するため、カスタムテーマの

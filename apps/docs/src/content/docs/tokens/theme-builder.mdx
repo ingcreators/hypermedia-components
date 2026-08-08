@@ -36,17 +36,44 @@ one (every affected component variable, subtree-safe), and the
 
 ## How the derivation works
 
+Everything is derived in **OKLCH**, using the same ladder the library's
+own ramps are generated from — so a theme built here is put together
+exactly the way the five built-in accents are.
+
 | Output | Derivation |
 | --- | --- |
-| `action-primary-bg` / `border` | Your chosen brand color, as-is. |
-| `action-primary-hover-bg` / `border` | Brand color darkened toward black by the **Hover darkness** percentage. |
-| `action-primary-fg` | **Auto** picks white or `gray.900` (`#111827`) — whichever has the higher contrast against the brand color. Override it manually if you prefer. |
-| `action-primary-soft-bg` | `color-mix(in srgb, <brand> N%, transparent)` — one value that blends correctly on light and dark surfaces. |
+| `action-primary-bg` / `border` | Your chosen brand color, as-is, re-expressed as `oklch()`. |
+| `action-primary-hover-bg` / `border` | The brand color stepped **down in lightness** by the **Hover darkness** amount, holding hue and chroma. The default `7` is the gap the built-in ramps use between `600` and `700`. |
+| `action-primary-fg` | **Auto** applies the lightness threshold: white at or below `0.55`, otherwise `gray.900`. Override it manually if you prefer. |
+| `action-primary-soft-bg` | `color-mix(in oklab, <brand> N%, transparent)` — one value that blends correctly on light and dark surfaces. |
 | `focus-ring` | Defaults to the brand color. |
+
+The old builder multiplied sRGB channels to darken and ran a contrast
+search to pick the foreground. Both are gone. Darkening in sRGB dims
+warm hues faster than cool ones, so the same "12%" produced a different
+perceived step per brand; a lightness delta does not. And the
+foreground no longer needs a search, because at a fixed OKLCH lightness
+the contrast ratio barely moves with hue or chroma — the crossover is a
+constant, so it is a comparison.
+
+### Snap to ladder
+
+The **In OKLCH** read-out shows where your brand color sits, and how
+far it is from step `600` of the ladder for its hue. **Snap to ladder**
+replaces it with that exact step — the color a built-in axis would use
+for the same hue, AA-safe on white text by construction.
+
+Snapping is optional. Brand fidelity usually wins, and any color that
+clears the contrast read-out is fine. It is there for when you are
+picking a color rather than matching one — and **Shuffle** now rolls a
+random hue through the ladder, so a shuffled theme always clears AA.
 
 The **contrast read-out** is the WCAG 2.x ratio between the brand
 color and the resolved text color. Aim for **4.5 : 1** (AA) or
-better; the badge turns red below that.
+better; the badge turns red below that. If it fails, the brand color's
+lightness is in the band around `0.62` where neither white nor dark
+text clears AA — snapping, or moving the lightness away from that band,
+fixes it.
 
 ## The three exports
 

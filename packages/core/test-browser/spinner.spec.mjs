@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -31,11 +32,11 @@ test.describe('hc-spinner', () => {
 
   test('data-variant swaps the indicator colour', async ({ page }) => {
     const topColor = (testId) =>
-      page.getByTestId(testId).evaluate((el) => getComputedStyle(el).borderTopColor);
+      cssColor(page.getByTestId(testId), 'borderTopColor');
     const def = await topColor('spinner-default');
     const primary = await topColor('spinner-primary');
     // Primary resolves to the default accent (blue.600).
-    expect(primary).toBe('rgb(37, 99, 235)');
+    expect(primary).toBeColor('rgb(44, 96, 233)');
     expect(primary).not.toBe(def);
   });
 

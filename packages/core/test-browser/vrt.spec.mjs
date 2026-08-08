@@ -24,7 +24,7 @@ const AXES = {
 // Extra slices on the densest sheet only (§3 of the plan).
 const EXTRA = [
   ['vrt-core', 'compact', { density: 'compact' }],
-  ['vrt-core', 'accent', { color: 'indigo' }],
+  ['vrt-core', 'accent', { color: 'teal' }],
 ];
 
 async function prepare(page, sheet, axis) {

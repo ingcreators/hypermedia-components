@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { cssColor, expect } from './helpers/color.mjs';
 
 // The neutral axis swaps the surface-family ramp. It must work on a nested
 // wrapper (orthogonal to data-color / data-theme / data-density) and in both
@@ -30,16 +31,16 @@ test.describe('nested data-neutral wrappers re-tint the surface ramp', () => {
 
   test('light slate: card surface stays white, border becomes slate.300', async ({ page }) => {
     const card = page.getByTestId('nn-card-light');
-    const bg = await card.evaluate((el) => getComputedStyle(el).backgroundColor);
-    const border = await card.evaluate((el) => getComputedStyle(el).borderTopColor);
-    expect(bg).toMatch(/rgb\(\s*255,\s*255,\s*255/); // white surface in light
-    expect(border).toMatch(/rgb\(\s*203,\s*213,\s*225/); // slate.300 #cbd5e1
+    const bg = await cssColor(card, 'backgroundColor');
+    const border = await cssColor(card, 'borderTopColor');
+    expect(bg).toBeColor('rgb(255, 255, 255)'); // white surface in light
+    expect(border).toBeColor('rgb(203, 213, 225)'); // slate.300 #cbd5e1
   });
 
   test('dark slate (both attrs on one element): card surface becomes slate.800', async ({ page }) => {
     const card = page.getByTestId('nn-card-dark');
-    const bg = await card.evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(bg).toMatch(/rgb\(\s*30,\s*41,\s*59/); // slate.800 #1e293b
+    const bg = await cssColor(card, 'backgroundColor');
+    expect(bg).toBeColor('rgb(30, 41, 59)'); // slate.800 #1e293b
   });
 
   // The realistic case: data-theme="dark" on an ancestor (e.g. <html>),
@@ -47,7 +48,7 @@ test.describe('nested data-neutral wrappers re-tint the surface ramp', () => {
   // light one. (Regression: the compound selector alone missed this.)
   test('dark slate (theme on ancestor, neutral on descendant): card surface becomes slate.800', async ({ page }) => {
     const card = page.getByTestId('nn-card-dark-descendant');
-    const bg = await card.evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(bg).toMatch(/rgb\(\s*30,\s*41,\s*59/); // slate.800 #1e293b, not light
+    const bg = await cssColor(card, 'backgroundColor');
+    expect(bg).toBeColor('rgb(30, 41, 59)'); // slate.800 #1e293b, not light
   });
 });

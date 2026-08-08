@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -29,7 +30,7 @@ test.describe('hc-item', () => {
     const bg = await page
       .getByTestId('item-selected')
       .evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(bg).not.toBe('rgba(0, 0, 0, 0)');
+    expect(bg).not.toBeColor('rgba(0, 0, 0, 0)');
     expect(bg).not.toBe('transparent');
   });
 
@@ -40,12 +41,12 @@ test.describe('hc-item', () => {
     const other = await page
       .getByTestId('item-nav-other')
       .evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(current).not.toBe('rgba(0, 0, 0, 0)');
-    expect(other).toBe('rgba(0, 0, 0, 0)');
+    expect(current).not.toBeColor('rgba(0, 0, 0, 0)');
+    expect(other).toBeColor('rgba(0, 0, 0, 0)');
   });
 
   test('data-variant="error" tints the title', async ({ page }) => {
-    await expect(page.getByTestId('item-error-title')).toHaveCSS('color', 'rgb(220, 38, 38)');
+    expect(await cssColor(page.getByTestId('item-error-title'), 'color')).toBeColor('rgb(206, 14, 24)');
   });
 
   test('axe finds no violations across the item examples', async ({ page }) => {

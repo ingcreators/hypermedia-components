@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -85,9 +86,9 @@ test.describe('hc-tabs — app-state', () => {
 test.describe('hc-tabs — pill variant', () => {
   test('active pill tab swaps background colour, not the underline', async ({ page }) => {
     const day = page.getByTestId('tab-pill-day');
-    const bg = await day.evaluate((el) => getComputedStyle(el).backgroundColor);
-    // action.primary.bg defaults to blue.600 — rgb(37, 99, 235).
-    expect(bg).toMatch(/rgba?\(\s*37,\s*99,\s*235/);
+    const bg = await cssColor(day, 'backgroundColor');
+    // action.primary.bg defaults to blue.600 — rgb(44, 96, 233).
+    expect(bg).toBeColor('rgb(44, 96, 233)');
     const shadow = await day.evaluate((el) => getComputedStyle(el).boxShadow);
     expect(shadow).toBe('none');
   });

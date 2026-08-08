@@ -70,7 +70,7 @@ describe('ejectEmail', () => {
   it('axes theme the output', async () => {
     await ejectEmail({ dir });
     const stock = JSON.parse(await readFile(join(dir, 'email', 'email-tokens.json'), 'utf8'));
-    await ejectEmail({ dir: join(dir, 'themed'), color: 'indigo', neutral: 'slate' });
+    await ejectEmail({ dir: join(dir, 'themed'), color: 'teal', neutral: 'slate' });
     const themed = JSON.parse(
       await readFile(join(dir, 'themed', 'email', 'email-tokens.json'), 'utf8'),
     );
@@ -115,7 +115,7 @@ describe('ejectEmail', () => {
   });
 
   it('rejects unknown axes and flavors', async () => {
-    await expect(ejectEmail({ dir, color: 'teal' })).rejects.toThrow(/Unknown color/);
+    await expect(ejectEmail({ dir, color: 'indigo' })).rejects.toThrow(/Unknown color/);
     await expect(ejectEmail({ dir, neutral: 'sand' })).rejects.toThrow(/Unknown neutral/);
     await expect(ejectEmail({ dir, flavor: 'mjml' })).rejects.toThrow(/Unknown flavor/);
   });

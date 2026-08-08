@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { cssColor, expect } from './helpers/color.mjs';
 
 // Regression: nested data-color wrappers must recolour every
 // theme-dependent component primitive (button, checkbox, tabs
@@ -6,12 +7,17 @@ import { test, expect } from '@playwright/test';
 // resolved its var() chain on :root and was inherited as a frozen
 // blue; this spec proves the shadcn-style leaf emission cured it.
 
+// Every axis resolves its action surface from step 600 of its own
+// ramp — the ladder puts 600 at L 0.54, which is white-text-safe on
+// every hue, so no axis needs a different step or a different
+// foreground. The five hues are the accent pentagon (72° apart,
+// anchored at blue).
 const CASES = [
-  { color: 'default', match: /rgba?\(\s*37,\s*99,\s*235/  },  // blue.600
-  { color: 'indigo',  match: /rgba?\(\s*79,\s*70,\s*229/  },  // indigo.600
-  { color: 'emerald', match: /rgba?\(\s*4,\s*120,\s*87/   },  // green.700
-  { color: 'rose',    match: /rgba?\(\s*190,\s*18,\s*60/  },  // rose.700
-  { color: 'amber',   match: /rgba?\(\s*245,\s*158,\s*11/ },  // amber.500
+  { color: 'default', rgb: 'rgb(44, 96, 233)'  },  // blue.600
+  { color: 'teal',    rgb: 'rgb(9, 127, 125)' },  // teal.600
+  { color: 'lime',    rgb: 'rgb(101, 121, 7)'  },  // lime.600
+  { color: 'orange',  rgb: 'rgb(174, 79, 7)'   },  // orange.600
+  { color: 'fuchsia', rgb: 'rgb(181, 35, 156)' },  // fuchsia.600
 ];
 
 test.describe('nested data-color wrappers recolour component primitives', () => {
@@ -47,36 +53,21 @@ test.describe('nested data-color wrappers recolour component primitives', () => 
     }, CASES.map((c) => c.color));
   });
 
-  for (const { color, match } of CASES) {
+  for (const { color, rgb } of CASES) {
     test(`data-color="${color}" → button primary bg`, async ({ page }) => {
-      const btn = page.getByTestId(`btn-${color}`);
-      const bg = await btn.evaluate((el) => getComputedStyle(el).backgroundColor);
-      expect(bg).toMatch(match);
+      expect(await cssColor(page.getByTestId(`btn-${color}`), 'backgroundColor')).toBeColor(rgb);
     });
 
     test(`data-color="${color}" → checkbox checked bg`, async ({ page }) => {
-      const cb = page.getByTestId(`nt-cb-${color}`);
-      const bg = await cb.evaluate((el) => getComputedStyle(el).backgroundColor);
-      expect(bg).toMatch(match);
+      expect(await cssColor(page.getByTestId(`nt-cb-${color}`), 'backgroundColor')).toBeColor(rgb);
     });
 
     test(`data-color="${color}" → tabs active indicator`, async ({ page }) => {
-      const tab = page.getByTestId(`tab-${color}`);
       // The indicator is rendered as an inset box-shadow whose colour
       // is --hc-tabs-tab-indicator. Verify the resolved var is set
       // correctly on the tab element.
-      const indicator = await tab.evaluate((el) =>
-        getComputedStyle(el).getPropertyValue('--hc-tabs-tab-indicator').trim(),
-      );
-      // Match by hex prefix per theme.
-      const expectedHex = {
-        default: '#2563eb',
-        indigo:  '#4f46e5',
-        emerald: '#047857',
-        rose:    '#be123c',
-        amber:   '#f59e0b',
-      }[color];
-      expect(indicator.toLowerCase()).toBe(expectedHex);
+      const tab = page.getByTestId(`tab-${color}`);
+      expect(await cssColor(tab, '--hc-tabs-tab-indicator')).toBeColor(rgb);
     });
   }
 });
@@ -121,13 +112,8 @@ test.describe('dark mode recolours neutral hover / surface backgrounds', () => {
 
   for (const name of VARS) {
     test(`${name} is dark under [data-theme="dark"]`, async ({ page }) => {
-      const probe = page.getByTestId('dark-probe');
-      const value = await probe.evaluate(
-        (el, prop) => getComputedStyle(el).getPropertyValue(prop).trim().toLowerCase(),
-        name,
-      );
-      // gray.700 under dark — not the shipped-light gray.100 (#f3f4f6) / gray.50.
-      expect(value).toBe('#374151');
+      // gray.700 under dark — not the shipped-light gray.100 / gray.50.
+      expect(await cssColor(page.getByTestId('dark-probe'), name)).toBeColor('rgb(55, 65, 81)');
     });
   }
 });
@@ -147,26 +133,21 @@ test.describe('dark mode tints status surfaces (alert / toast / badge)', () => {
     });
   });
 
-  // [var, dark hex] — bg is a colour.950 tint, fg is the colour.200 light text.
+  // [var, dark sRGB] — bg is a colour.950 tint, fg is the colour.200 light text.
   const STATUS = [
-    ['--hc-badge-info-bg', '#172554'],
-    ['--hc-badge-info-fg', '#bfdbfe'],
-    ['--hc-alert-success-bg', '#022c22'],
-    ['--hc-alert-error-bg', '#450a0a'],
-    ['--hc-toast-warning-bg', '#451a03'],
-    ['--hc-badge-default-bg', '#1f2937'],
+    ['--hc-badge-info-bg',    'rgb(9, 27, 72)',    'blue.950'],
+    ['--hc-badge-info-fg',    'rgb(202, 219, 254)', 'blue.200'],
+    ['--hc-alert-success-bg', 'rgb(1, 39, 24)',     'green.950'],
+    ['--hc-alert-error-bg',   'rgb(63, 6, 5)',    'red.950'],
+    ['--hc-toast-warning-bg', 'rgb(46, 26, 0)',     'amber.950'],
+    ['--hc-badge-default-bg', 'rgb(31, 41, 55)',    'gray.800'],
     // Avatar initials flip to the light text colour on the dark fallback.
-    ['--hc-avatar-fg', '#f3f4f6'],
+    ['--hc-avatar-fg',        'rgb(243, 244, 246)', 'gray.100'],
   ];
 
-  for (const [name, hex] of STATUS) {
-    test(`${name} is the dark tint (${hex})`, async ({ page }) => {
-      const probe = page.getByTestId('dark-probe');
-      const value = await probe.evaluate(
-        (el, prop) => getComputedStyle(el).getPropertyValue(prop).trim().toLowerCase(),
-        name,
-      );
-      expect(value).toBe(hex);
+  for (const [name, rgb, label] of STATUS) {
+    test(`${name} is the dark tint (${label})`, async ({ page }) => {
+      expect(await cssColor(page.getByTestId('dark-probe'), name)).toBeColor(rgb);
     });
   }
 });

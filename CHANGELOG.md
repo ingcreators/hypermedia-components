@@ -20,6 +20,126 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Changed
+
+- **The accent axes are now the accent pentagon** — `data-color`
+  values are `default` (blue) / `teal` / `lime` / `orange` / `fuchsia`,
+  replacing `indigo` / `emerald` / `rose` / `amber`. **Breaking** for
+  markup using the old values (flagged per VERSIONING.md; pre-adoption
+  window). The five hues sit exactly 72° apart around the hue wheel,
+  anchored at blue (264° / 336° / 48° / 120° / 192°), which fixes two
+  real defects in the old set: `rose` sat 9.7° from the error red, so a
+  rose-themed app rendered primary actions and error states in visually
+  identical colors, and `indigo` sat 12.6° from the default blue —
+  two of five choices were nearly the same color. Every pentagon vertex
+  stays ≥ 21° from the error / warning / success hues, and
+  `test/ramp.test.mjs` asserts the spacing. Four new primitive ramps
+  (`fuchsia` / `orange` / `lime` / `teal`) back the axes; all existing
+  ramps are unchanged and remain available as primitives. A hexagon was
+  considered and rejected: anchored at blue, one vertex lands 2.9° from
+  the error red. For a sixth accent, the theme builder generates any
+  hue through the same ladder.
+
+### Fixed
+
+- **Email templates baked `oklch()` — unreadable by email clients.**
+  The OKLCH primitive conversion leaked into the email render target:
+  `expandEmailHtml()` substituted resolved token values verbatim, so
+  the baked artifacts (`./email-artifacts/*`, the builder's Email tab,
+  and `hc email eject` output) carried `oklch()` colors that Outlook's
+  Word engine and several webmail clients cannot parse. The
+  transformer now converts every substituted color to its sRGB hex —
+  the same treatment `rem→px` already got, for the same reason — and
+  `email-tokens.json` carries the same email-safe values. New export
+  `emailSafeValue()`; a regression test asserts no `oklch()` or custom
+  property survives in any generated file.
+
+- **`semantic.color.warning` was bronze.** It resolved to `amber.600`
+  (`#986107`) — the ladder's white-text-safe step, but visibly brown as
+  a warning color. Every consumer is a border, fill, or checked-state
+  surface (never a text background — text-bearing warning chips use
+  `status.warning`'s own pair), so the requirement is the 3:1
+  graphical-object contrast, not 4.5:1. It now resolves to `amber.500`
+  (`#b8760b`, 3.73:1 against white), which reads as amber. Note the
+  physics: a *bright* amber like the old `#f59e0b` is 2.1:1 against
+  white and cannot coexist with white glyphs at all.
+
+### Changed
+
+- **Theme builder derives in OKLCH.** The docs theme builder no longer
+  carries its own sRGB colour theory — `hexToRgb` / `rgbToHex` /
+  `darken` / `luminance` / `hslToHex` are gone, replaced by the shared
+  `@hypermedia-components/core/oklch` ladder. **Hover darkness** is now
+  a lightness step holding hue and chroma (default `7`, the gap the
+  built-in ramps use between `600` and `700`) instead of an sRGB
+  channel multiply, which dimmed warm hues faster than cool ones. The
+  **Auto** foreground is the lightness threshold rather than a contrast
+  search. Exports emit `oklch()` and `color-mix(in oklab, …)`.
+
+  New **In OKLCH** read-out plus a **Snap to ladder** button that
+  replaces the brand colour with step `600` for its hue — the exact
+  colour a built-in axis would use, AA-safe by construction. **Shuffle**
+  now rolls a hue through the ladder, so a shuffled theme always clears
+  AA. The `<input type="color">` picker stays (it is hex-only by spec)
+  and converts on read. Built-in accent presets updated to the new
+  ramp values; amber loses its dark-foreground override.
+
+- **Chromatic ramps regularized on a shared lightness ladder.** The
+  seven chromatic ramps (blue / red / green / amber / indigo / rose /
+  violet) are now generated from one hue angle per ramp plus a shared
+  ladder: `L` fixed per step, `C` an absolute per-step target clamped
+  to the hue's sRGB gamut, `H` constant down the ramp. **Colors change
+  visibly** — mean Oklab ΔE ≈ 3.7, largest on `amber`, which was the
+  ramp furthest off the ladder. The five **neutral** ramps are
+  untouched (they were already even), so surfaces, borders, text and
+  dark mode do not move.
+
+  The payoff is that the step number now means a lightness, so the
+  `data-color` axes collapse to one shape: **every** axis takes `600`
+  for the action surface, `700` for hover, `500` for the focus ring,
+  and **white** text. `amber` no longer needs dark text or an 18% soft
+  tint, and `emerald` / `rose` no longer reach down to `700` / `800`.
+  Contrast is now a property of the construction — white on `600`
+  scores 4.73–5.86:1 across all 360 hues — so a new accent hue needs no
+  contrast review. Measured margins narrow relative to before
+  (`emerald` 5.48 → 4.76:1, `indigo` 6.29 → 5.44:1); all clear AA, and
+  `test/ramp.test.mjs` now asserts the whole table.
+
+  Note that step `500` is not a text surface: at L 0.62 the saturated
+  hues clear neither white nor dark text, which is why it is the
+  focus-ring step. Regenerate with `node scripts/build-ramp.mjs`;
+  `--check` reports drift.
+
+- **`color-mix()` interpolates in `oklab`** at all 31 sites. This is
+  intent and future-proofing, not a visual change: 26 of the sites mix
+  with `transparent`, which is interpolation-space-independent because
+  `color-mix()` is premultiplied, and the other 5 mix into a
+  near-neutral surface where the two paths differ by at most 2/255.
+
+### Changed
+
+- **Primitives expressed in OKLCH** — all 139 literal colors in
+  `src/tokens/primitive.tokens.json` are now `oklch()` instead of hex.
+  **No visual change:** every value was chosen to round-trip to the
+  identical 8-bit sRGB triple, verified two ways — a conversion check
+  on all 139 values, and all 14 Playwright VRT baselines staying
+  byte-identical (light/dark × LTR/RTL, plus compact and accent).
+  Generated `--hc-*` custom properties now carry `oklch(…)`, so code
+  that compares the *text* of a resolved token against a hex string
+  needs updating; what the browser paints is unchanged. This is
+  groundwork for regularizing the ramps on a shared lightness ladder —
+  see [`plans/hc-oklch-color-plan-en.md`](plans/hc-oklch-color-plan-en.md).
+
+### Added
+
+- **`@hypermedia-components/core/oklch`** — a dependency-free OKLCH ↔
+  sRGB module (`parseOklch`, `oklchToRgb`, `oklchToHex`, `rgbToOklch`,
+  `hexToOklch`, `inSrgbGamut`, `toHex`) plus the ramp ladder itself
+  (`LADDER`, `maxChroma`, `rampStep`, `formatOklch`, `autoForeground`,
+  `FG_LIGHTNESS_PIVOT`). The token generator and the docs read the same
+  constants, so a generated accent is built exactly like a built-in
+  one. Exported the same way as `./token-transform`.
+
 ## [0.1.15] - 2026-08-07
 
 - **`@hypermedia-components/editor-kit@0.1.0`** — the editor-kit

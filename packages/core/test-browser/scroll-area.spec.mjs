@@ -16,12 +16,21 @@ test.describe('hc-scroll-area', () => {
     test.skip(browserName === 'firefox', 'overlay scrollbars on headless Linux Firefox: computed scrollbar-width is "none"');
     const styles = await page.getByTestId('sa-vertical').evaluate((el) => {
       const cs = getComputedStyle(el);
-      return { width: cs.scrollbarWidth, color: cs.scrollbarColor };
+      // scrollbar-color resolves to "<thumb> <track>". The thumb is an
+      // oklch() token now, so paint it and read the pixel back to get
+      // the sRGB triple that actually renders.
+      const thumb = cs.scrollbarColor.split(/\s+(?=rgb|oklch|color\(|#|[a-z]+$)/)[0];
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 1;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.fillStyle = thumb;
+      ctx.fillRect(0, 0, 1, 1);
+      const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+      return { width: cs.scrollbarWidth, thumb: `rgb(${r}, ${g}, ${b})` };
     });
     expect(styles.width).toBe('thin');
-    // scrollbar-color resolves to "<thumb> <track>"; thumb defaults to
-    // semantic.color.border = gray.300 = rgb(208, 213, 221).
-    expect(styles.color).toMatch(/rgba?\(\s*208,\s*213,\s*221/);
+    // thumb defaults to semantic.color.border = gray.300.
+    expect(styles.thumb).toBe('rgb(208, 213, 221)');
   });
 
   test('vertical region scrolls on the block axis only', async ({ page }) => {

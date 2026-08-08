@@ -22,7 +22,7 @@ CSS variables. To consume a color at runtime, use the
 *are* emitted.
 :::
 
-Each ramp runs the standard Tailwind 50–950 scale. The five neutral
+Each ramp runs the standard 50–950 scale. The five neutral
 ramps add a tuned `350` step — the dark-theme `text-muted` shade,
 chosen so muted text keeps ≥ 4.5:1 contrast even on `muted-bg`
 (the ramp's `700`) surfaces. The `gray` ramp is
@@ -31,6 +31,34 @@ are the alternative neutrals offered by the
 [Theme builder](/hypermedia-components/tokens/theme-builder/). The
 accent / status hues back the built-in `data-color` themes and the
 fixed semantic `info` / `success` / `warning` / `error` colors.
+
+## The step number is a lightness
+
+The seven chromatic ramps are generated, not hand-picked. Each is one
+hue angle run through a shared ladder, written as `oklch(L C H)`:
+
+- **`L` comes from the step** and is identical across hues, so `600`
+  means the same darkness whether the hue is blue or amber.
+- **`C` is an absolute target per step**, clamped to whatever that hue
+  can actually hold in sRGB at that lightness. Chroma as a *fraction*
+  of the gamut maximum would trace the gamut boundary instead, whose
+  shape swings by hue — green's is widest at high lightness, so a fixed
+  fraction makes `green.200` more colorful than `green.500` and the
+  light tints come out neon.
+- **`H` is constant down the ramp**, so a ramp never drifts in hue.
+
+That is what lets [the accent themes](/hypermedia-components/tokens/themes/#accessibility)
+share one shape and one foreground rule. `scripts/build-ramp.mjs`
+regenerates the values and `test/ramp.test.mjs` asserts the committed
+tokens still match the ladder.
+
+The five **neutral** ramps are *not* generated. They were already
+perceptually even — lightness spread of at most 1.8 points at any step,
+against 18.3 for the chromatic ramps before this change — and dark mode
+is built entirely from them, so they were left alone.
+
+Swatches are labelled with their sRGB hex for pasting into other tools;
+hover a swatch to see the token path and its authored `oklch()` value.
 
 <PrimitivePalette />
 

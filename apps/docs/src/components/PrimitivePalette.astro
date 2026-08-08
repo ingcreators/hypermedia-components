@@ -7,20 +7,22 @@
 // against. This page is the reference for authoring those refs (e.g. a
 // custom `color.*.tokens.json` theme, or the builder's DTCG export).
 import primitive from '@hypermedia-components/core/tokens/primitive.tokens.json';
+import { parseOklch, toHex } from '@hypermedia-components/core/oklch';
 
 const color = primitive.color ?? {};
 
-/** Relative luminance → pick black/white label text for legibility. */
-function readableOn(hex) {
-  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex));
-  if (!m) return '#000';
-  const n = parseInt(m[1], 16);
-  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
-    const s = c / 255;
-    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
-  });
-  const L = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return L > 0.4 ? '#000' : '#fff';
+/**
+ * Pick black/white label text for legibility.
+ *
+ * OKLCH lightness *is* perceptual lightness, so the choice is a single
+ * threshold rather than a luminance calculation. 0.55 is the measured
+ * crossover where white text stops clearing 4.5:1 on the most demanding
+ * hue, and black text starts clearing it — the same pivot the token
+ * layer uses to pick `action.primary.fg`.
+ */
+function readableOn(value) {
+  const parsed = parseOklch(value);
+  return (parsed?.L ?? 1) > 0.55 ? '#000' : '#fff';
 }
 
 const SHADES = ['50', '100', '200', '300', '350', '400', '500', '600', '700', '800', '900', '950'];
@@ -33,7 +35,10 @@ function ramp(name) {
 }
 
 const NEUTRALS = ['gray', 'slate', 'zinc', 'neutral', 'stone'].map(ramp).filter(Boolean);
-const ACCENTS = ['blue', 'indigo', 'violet', 'rose', 'red', 'amber', 'green'].map(ramp).filter(Boolean);
+// Ordered by hue angle around the wheel.
+const ACCENTS = ['blue', 'indigo', 'violet', 'fuchsia', 'rose', 'red', 'orange', 'amber', 'lime', 'green', 'teal']
+  .map(ramp)
+  .filter(Boolean);
 const BASE = ['white', 'black']
   .filter((n) => color[n]?.$value)
   .map((n) => ({ name: n, value: color[n].$value }));
@@ -66,7 +71,7 @@ const groups = [
               <div class="pal__stop" style={`background:${s.value};color:${readableOn(s.value)}`}
                    title={`{primitive.color.${r.name}.${s.shade}} = ${s.value}`}>
                 <span class="pal__shade">{s.shade}</span>
-                <span class="pal__hex">{s.value}</span>
+                <span class="pal__hex">{toHex(s.value)}</span>
               </div>
             ))}
           </div>

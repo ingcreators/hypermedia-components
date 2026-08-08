@@ -1,35 +1,35 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
-const border = (page, id) =>
-  page.getByTestId(id).evaluate((el) => getComputedStyle(el).borderTopColor);
+const border = (page, id) => cssColor(page.getByTestId(id), 'borderTopColor');
 
 test.describe('hc-input variants', () => {
   test('data-variant recolours the border (success / warning / error)', async ({ page }) => {
-    // success → green.600 = rgb(5, 150, 105)
-    expect(await border(page, 'in-success')).toMatch(/rgba?\(\s*5,\s*150,\s*105/);
-    // warning → amber.600 = rgb(217, 119, 6)
-    expect(await border(page, 'in-warning')).toMatch(/rgba?\(\s*217,\s*119,\s*6/);
-    // error → red.600 = rgb(220, 38, 38)
-    expect(await border(page, 'in-error')).toMatch(/rgba?\(\s*220,\s*38,\s*38/);
+    // success → green.600
+    expect(await border(page, 'in-success')).toBeColor('rgb(9, 131, 91)');
+    // warning → amber.500 (semantic.color.warning)
+    expect(await border(page, 'in-warning')).toBeColor('rgb(184, 118, 11)');
+    // error → red.600
+    expect(await border(page, 'in-error')).toBeColor('rgb(206, 14, 24)');
   });
 
   test('aria-invalid uses the same error border (the accessible hook)', async ({ page }) => {
-    expect(await border(page, 'in-invalid')).toMatch(/rgba?\(\s*220,\s*38,\s*38/);
+    expect(await border(page, 'in-invalid')).toBeColor('rgb(206, 14, 24)');
   });
 
   test('the variant vocabulary also applies to <textarea>', async ({ page }) => {
     await expect(page.getByTestId('in-textarea')).toHaveJSProperty('tagName', 'TEXTAREA');
-    expect(await border(page, 'in-textarea')).toMatch(/rgba?\(\s*5,\s*150,\s*105/);
+    expect(await border(page, 'in-textarea')).toBeColor('rgb(9, 131, 91)');
   });
 
   test('default input keeps the neutral border', async ({ page }) => {
-    // semantic.color.border-strong → gray.500 = rgb(107, 114, 128)
-    expect(await border(page, 'in-default')).toMatch(/rgba?\(\s*107,\s*114,\s*128/);
+    // semantic.color.border-strong → gray.500
+    expect(await border(page, 'in-default')).toBeColor('rgb(107, 114, 128)');
   });
 
   test('axe finds no violations in the input section', async ({ page }) => {

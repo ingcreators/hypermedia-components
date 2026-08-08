@@ -117,11 +117,11 @@
   }
 
   .hc-range__input:focus-visible::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-focus-ring) 35%, transparent);
   }
 
   .hc-range__input:focus-visible::-moz-range-thumb {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-focus-ring) 35%, transparent);
   }
 
   .hc-range__input:disabled::-webkit-slider-thumb {

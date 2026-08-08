@@ -33,7 +33,7 @@
   /* One shared focus ring for the whole control. */
   .hc-input-group:focus-within {
     border-color: var(--hc-input-group-focus-border);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-focus-ring) 35%, transparent);
   }
 
   /* Mirror the field's invalid cue at the group level. */

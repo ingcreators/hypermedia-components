@@ -16,8 +16,8 @@ attribute works regardless of the active `data-theme`.
 focus ring. It is orthogonal to [`data-neutral`](/hypermedia-components/tokens/neutral/)
 (the surface / text / border ramp), `data-theme` (light / dark), and
 `data-density` (comfortable / compact / dense). Set them on the same
-ancestor and they all cascade together — e.g. `data-color="indigo"
-data-neutral="slate"` is an indigo accent on a cool slate UI. To change
+ancestor and they all cascade together — e.g. `data-color="teal"
+data-neutral="slate"` is a teal accent on a cool slate UI. To change
 the greys, reach for `data-neutral`; this page is just the accent.
 
 import ColorThemeSwatches from '../../../components/ColorThemeSwatches.astro';
@@ -31,24 +31,38 @@ semi-transparent, shown over a checkerboard):
 <ColorThemeSwatches />
 
 
-| `data-color` value | Primary bg          | Hover bg          | Text on primary | Common use case |
-| ------------------ | ------------------- | ----------------- | --------------- | --------------- |
-| _(none)_ / `default` | `#2563eb` (blue.600) | `#1d4ed8` (blue.700) | white         | Default neutral SaaS — Linear, AWS-style |
-| `indigo`           | `#4f46e5` (indigo.600) | `#4338ca` (indigo.700) | white      | Modern SaaS — Tailwind, Cal.com |
-| `emerald`          | `#047857` (green.700) | `#065f46` (green.800) | white         | Fintech / sustainability — Stripe Atlas |
-| `rose`             | `#be123c` (rose.700) | `#9f1239` (rose.800) | white           | Marketing / CRM / healthcare |
-| `amber`            | `#f59e0b` (amber.500) | `#d97706` (amber.600) | gray.900       | Energetic / productivity — Notion-yellow |
+| `data-color` value | Primary bg | Hover bg | Text on primary | Hue | Common use case |
+| ------------------ | ---------- | -------- | --------------- | --- | --------------- |
+| _(none)_ / `default` | blue.600 | blue.700 | white | 264° | Default neutral SaaS — Linear, AWS-style |
+| `teal`             | teal.600 | teal.700 | white | 192° | Calm product UI, dashboards, dev tools |
+| `lime`             | lime.600 | lime.700 | white | 120° | Sustainability, agritech, outdoors |
+| `orange`           | orange.600 | orange.700 | white | 48° | Energetic / productivity, commerce |
+| `fuchsia`          | fuchsia.600 | fuchsia.700 | white | 336° | Marketing, creator tools, consumer apps |
 
 Every value above resolves to a [primitive ramp](/hypermedia-components/tokens/palette/)
 shade — these themes don't introduce new colors, they re-point the accent
 at a different ramp.
 
-Two shades land deeper on the color scale (green.700, rose.700 — the
-ramps behind the `emerald` and `rose` themes) so
-white text on the button clears the 4.5:1 contrast bar that the
-brighter 600 shades would have missed. Amber is the inverse — the
-500 shade is bright enough that dark text becomes the contrast-clean
-choice, and it stays consistent in dark mode too.
+Notice that the table has one shape, not five. Every theme takes `600`
+for the resting surface, `700` for hover, `500` for the focus ring, and
+white text. That is a property of the ramps rather than a coincidence:
+step `600` sits at OKLCH lightness `0.54`, and white text clears AA on
+**any** hue below lightness `0.554`. Picking the accent is picking a hue
+angle; the rest follows.
+
+The five hues are not arbitrary either: they form the **accent
+pentagon** — 72° apart around the hue wheel, anchored at blue. That
+spacing buys two properties at once. No two accents read as shades of
+each other (the previous set had indigo 12.6° from blue). And no accent
+collides with a status color — the old `rose` sat 9.7° from the error
+red, so a rose-themed app rendered its primary actions and its error
+states in visually identical colors. Every pentagon vertex stays ≥ 21°
+from the error / warning / success hues.
+
+Want a sixth accent? That is what the
+[Theme builder](/hypermedia-components/tokens/theme-builder/) is for —
+any hue run through the same ladder produces an axis built exactly like
+these five.
 
 ## Live preview
 
@@ -80,9 +94,9 @@ themed `::selection` highlight.
   <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
-### Indigo
+### Teal
 
-<div class="hc-preview not-content" data-color="indigo" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" data-color="teal" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="ghost">Edit</button>
   <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
@@ -91,15 +105,15 @@ themed `::selection` highlight.
     Notify me
   </label>
   <label class="hc-radio-label">
-    <input class="hc-radio" type="radio" name="t-indigo" checked />
+    <input class="hc-radio" type="radio" name="t-teal" checked />
     Free
   </label>
   <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
-### Emerald
+### Lime
 
-<div class="hc-preview not-content" data-color="emerald" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" data-color="lime" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="ghost">Edit</button>
   <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
@@ -108,15 +122,15 @@ themed `::selection` highlight.
     Notify me
   </label>
   <label class="hc-radio-label">
-    <input class="hc-radio" type="radio" name="t-emerald" checked />
+    <input class="hc-radio" type="radio" name="t-lime" checked />
     Free
   </label>
   <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
-### Rose
+### Orange
 
-<div class="hc-preview not-content" data-color="rose" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" data-color="orange" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="ghost">Edit</button>
   <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
@@ -125,15 +139,15 @@ themed `::selection` highlight.
     Notify me
   </label>
   <label class="hc-radio-label">
-    <input class="hc-radio" type="radio" name="t-rose" checked />
+    <input class="hc-radio" type="radio" name="t-orange" checked />
     Free
   </label>
   <span class="hc-field__message">Select this text to preview ::selection.</span>
 </div>
 
-### Amber
+### Fuchsia
 
-<div class="hc-preview not-content" data-color="amber" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
+<div class="hc-preview not-content" data-color="fuchsia" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;">
   <button class="hc-button" data-variant="primary">Save</button>
   <button class="hc-button" data-variant="ghost">Edit</button>
   <input class="hc-input" type="text" value="focus me" style="inline-size:9rem;" />
@@ -142,7 +156,7 @@ themed `::selection` highlight.
     Notify me
   </label>
   <label class="hc-radio-label">
-    <input class="hc-radio" type="radio" name="t-amber" checked />
+    <input class="hc-radio" type="radio" name="t-fuchsia" checked />
     Free
   </label>
   <span class="hc-field__message">Select this text to preview ::selection.</span>
@@ -153,7 +167,7 @@ themed `::selection` highlight.
 For a site-wide theme, set the attribute on `<html>`:
 
 ```html
-<html data-color="emerald">
+<html data-color="lime">
   ...
 </html>
 ```
@@ -162,7 +176,7 @@ For a per-section override (e.g. a marketing landing surface inside
 an otherwise neutral app), attach it locally:
 
 ```html
-<section data-color="rose">
+<section data-color="orange">
   <button class="hc-button" data-variant="primary">Subscribe</button>
 </section>
 ```
@@ -224,10 +238,11 @@ These tokens are overridden per `data-color` value (under
 --hc-color-action-primary-soft-bg
 ```
 
-`primary-soft-bg` is a 12 % (18 % for amber) tint of the theme's
-primary color generated with `color-mix()` and `transparent`, so the
+`primary-soft-bg` is a 12 % tint of the theme's primary color
+generated with `color-mix(in oklab, …)` and `transparent`, so the
 same value blends correctly on both light and dark surfaces — no
-per-mode variant required.
+per-mode variant required, and the percentage is identical across all
+five themes.
 
 Components consume these through their own `--hc-{component}-*`
 variables (with `var()` indirection, the same pattern used for
@@ -378,17 +393,32 @@ stay owned by `data-theme`, and control sizing by `data-density`.
 ## Accessibility
 
 Each theme passes WCAG AA contrast for the button's text-on-primary
-combination:
+combination — by construction rather than by inspection:
 
-| Theme    | Text color | Primary bg | Contrast ratio |
-| -------- | ----------- | ---------- | -------------- |
-| default  | white       | #2563eb    | 4.9 : 1        |
-| indigo   | white       | #4f46e5    | 6.9 : 1        |
-| emerald  | white       | #047857    | 5.0 : 1        |
-| rose     | white       | #be123c    | 5.7 : 1        |
-| amber    | #111827     | #f59e0b    | 9.4 : 1        |
+| Theme    | Text color | Primary bg  | Contrast ratio |
+| -------- | ----------- | ----------- | -------------- |
+| default  | white       | blue.600    | 5.31 : 1       |
+| teal     | white       | teal.600    | 4.83 : 1       |
+| lime     | white       | lime.600    | 4.89 : 1       |
+| orange   | white       | orange.600  | 5.36 : 1       |
+| fuchsia  | white       | fuchsia.600 | 5.70 : 1       |
 
-Verified against [WebAIM's contrast checker](https://webaim.org/resources/contrastchecker/).
+All five land in a narrow band because they share a lightness, not
+because each was tuned. Contrast at a fixed OKLCH lightness barely
+moves with hue or chroma: sweeping all 360 hues at step `600` gives
+4.73–5.86 : 1, and sweeping chroma from 0 to 0.25 at one hue moves the
+ratio only 5.06 → 5.43. Lightness carries the guarantee on its own,
+which is why a new accent hue needs no contrast review.
+
+Teal is the strictest of the five and sets the floor at 4.83 : 1.
+`packages/core/test/ramp.test.mjs` asserts the whole table — and the
+pentagon spacing itself — so an accent that fell below AA or drifted
+toward a status hue would fail the unit suite rather than reach a page.
+
+One consequence worth knowing: step `500` is **not** a text surface. At
+lightness `0.62` the saturated hues clear neither white (3.4–4.0 : 1)
+nor dark text (4.4–5.2 : 1), so `500` is the focus-ring and accent step
+while `600` carries anything that holds a label.
 
 The [Theme builder](/hypermedia-components/tokens/theme-builder/) runs
 this same contrast check live as you pick a color, so a custom theme

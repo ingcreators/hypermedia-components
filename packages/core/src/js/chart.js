@@ -416,6 +416,14 @@ function parseDim(value, base = 16) {
 }
 
 // Resolve the --hc-chart-series-1..6 palette into a colour range for Plot.
+//
+// The tokens resolve to `oklch()`. Plot hands an *ordinal* range straight
+// through to the SVG `fill` attribute, so that works — but a *continuous*
+// scale interpolates the range through d3-color, which cannot parse
+// `oklch()` and silently yields black. Keep this range on ordinal scales
+// only: the continuous preset (heatmap) replaces `base.color` wholesale
+// rather than merging (see the shallow spread in renderFigure), which is
+// what keeps these values away from the interpolating path.
 function resolveSeriesRange(figure) {
   if (typeof getComputedStyle !== 'function') return null;
   const cs = getComputedStyle(figure);

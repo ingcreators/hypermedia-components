@@ -40,7 +40,7 @@
     },
     "warning": {
       "$type": "color",
-      "$value": "{primitive.color.amber.600}"
+      "$value": "{primitive.color.amber.500}"
     },
     "info": {
       "$type": "color",
@@ -106,7 +106,7 @@
       "primary-soft": {
         "bg": {
           "$type": "color",
-          "$value": "color-mix(in srgb, {primitive.color.blue.600} 12%, transparent)"
+          "$value": "color-mix(in oklab, {primitive.color.blue.600} 12%, transparent)"
         }
       },
       "error": {

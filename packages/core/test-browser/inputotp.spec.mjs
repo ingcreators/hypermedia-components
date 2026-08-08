@@ -1,5 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -76,20 +77,17 @@ test.describe('hc-inputotp', () => {
     expect(await done).toBe('246813');
   });
 
+  const slotBorder = (page, id) =>
+    cssColor(page.getByTestId(id).locator('.hc-inputotp__slot').first(), 'borderTopColor');
+
   test('aria-invalid paints the error border', async ({ page }) => {
-    const color = await page.getByTestId('otp-invalid').locator('.hc-inputotp__slot').first()
-      .evaluate((el) => getComputedStyle(el).borderTopColor);
-    // semantic.color.error → red.600 = rgb(220, 38, 38).
-    expect(color).toMatch(/rgba?\(\s*220,\s*38,\s*38/);
+    // semantic.color.error → red.600
+    expect(await slotBorder(page, 'otp-invalid')).toBeColor('rgb(206, 14, 24)');
   });
 
   test('data-variant success / warning recolour the slot border', async ({ page }) => {
-    const success = await page.getByTestId('otp-success').locator('.hc-inputotp__slot').first()
-      .evaluate((el) => getComputedStyle(el).borderTopColor);
-    expect(success).toMatch(/rgba?\(\s*5,\s*150,\s*105/); // green.600
-    const warning = await page.getByTestId('otp-warning').locator('.hc-inputotp__slot').first()
-      .evaluate((el) => getComputedStyle(el).borderTopColor);
-    expect(warning).toMatch(/rgba?\(\s*217,\s*119,\s*6/); // amber.600
+    expect(await slotBorder(page, 'otp-success')).toBeColor('rgb(9, 131, 91)'); // green.600
+    expect(await slotBorder(page, 'otp-warning')).toBeColor('rgb(184, 118, 11)'); // amber.500 (semantic.color.warning)
   });
 
   test('axe finds no violations in the inputotp section', async ({ page }) => {

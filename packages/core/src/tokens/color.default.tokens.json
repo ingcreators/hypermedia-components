@@ -1,5 +1,5 @@
 {
-  "$description": "Default color theme — blue. Emitted under :root and [data-color=\"default\"]. Values mirror semantic.color.action.primary / focus-ring so explicit data-color=\"default\" matches the unset state.",
+  "$description": "Default color theme — blue. Emitted under :root and [data-color=\"default\"]. Values mirror semantic.color.action.primary / focus-ring so explicit data-color=\"default\" matches the unset state. Every axis is the same shape: `600` for the resting action surface, `700` for hover, `500` for the focus ring, and white text. The five axes sit 72° apart on the hue wheel (the accent pentagon, anchored at blue), so no two accents read as shades of each other and none collides with the status hues.",
   "color": {
     "focus-ring": { "$type": "color", "$value": "{primitive.color.blue.500}" },
     "action": {
@@ -13,7 +13,7 @@
         "border": { "$type": "color", "$value": "{primitive.color.blue.700}" }
       },
       "primary-soft": {
-        "bg": { "$type": "color", "$value": "color-mix(in srgb, {primitive.color.blue.600} 12%, transparent)" }
+        "bg": { "$type": "color", "$value": "color-mix(in oklab, {primitive.color.blue.600} 12%, transparent)" }
       }
     }
   }

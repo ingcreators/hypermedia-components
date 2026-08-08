@@ -17,14 +17,46 @@
 // contains a `:` and the placeholder pattern excludes it. Thymeleaf
 // expressions (`${title}`) are excluded by the `$` lookbehind.
 
+import { parseOklch, oklchToHex } from './oklch.mjs';
+
 const PLACEHOLDER_RE = /(?<!\$)\{([a-z0-9][a-z0-9-]*)(\.dark)?\}/g;
 
 // rem -> px at the 16px root size. Email clients that matter (Outlook's
 // Word engine, several webmail contexts) don't resolve rem; the token
 // sources are rem-based, so every substituted value is converted.
+// Quantifiers are bounded: JS has no possessive quantifiers, so an
+// unbounded `\d+` before a literal that can fail (`rem`) backtracks
+// per start position — polynomial on long digit runs. Real rem values
+// fit well inside the bounds, and a bounded scan is linear (CodeQL
+// js/polynomial-redos; the transformer also runs in the browser).
 function pxify(value) {
-  return value.replace(/(\d*\.?\d+)rem\b/g, (_, n) => `${Math.round(parseFloat(n) * 16)}px`);
+  return value.replace(
+    /(\d{1,4}(?:\.\d{1,6})?|\.\d{1,6})rem\b/g,
+    (_, n) => `${Math.round(parseFloat(n) * 16)}px`,
+  );
 }
+
+// oklch() -> #rrggbb, including inside composite values (color-mix,
+// borders, shadows). Same reasoning as pxify: the design primitives are
+// authored in OKLCH, but the email render target is the one place custom
+// properties — and modern colour spaces — cannot be assumed. Outlook's
+// Word engine parses hex and little else, so every substituted colour is
+// converted to the sRGB literal it rasterizes to.
+const OKLCH_RE = /oklch\(\s{0,4}[\d.]{1,10}%?\s{1,4}[\d.]{1,10}\s{1,4}[\d.]{1,10}\s{0,4}\)/g;
+function hexify(value) {
+  return value.replace(OKLCH_RE, (m) => {
+    const parsed = parseOklch(m);
+    return parsed ? oklchToHex(parsed) : m;
+  });
+}
+
+/**
+ * Normalize one resolved token value for the email render target:
+ * rem -> px, oklch() -> #rrggbb. Exported so consumers comparing
+ * against the baked output (tests, the builder preview) can apply the
+ * same mapping to a raw resolved value.
+ */
+export const emailSafeValue = (value) => hexify(pxify(value));
 
 /**
  * Replace `{flat-token-name}` / `{flat-token-name.dark}` placeholders
@@ -39,7 +71,7 @@ export function expandEmailHtml(source, { tokens, darkTokens }) {
   return source.replace(PLACEHOLDER_RE, (m, name, dark) => {
     const value = (dark ? darkTokens : tokens)?.get(name);
     if (value == null) throw new Error(`Unknown email token reference: ${m}`);
-    return pxify(value);
+    return emailSafeValue(value);
   });
 }
 
@@ -96,12 +128,12 @@ export function emailManifestComment({ version, color, neutral, flavor, custom =
 
 /** The runtime-theming escape hatch: both resolved maps as JSON. */
 export function emailTokensJson(tokens, darkTokens) {
+  // The machine contract gets the same email-safe values the templates
+  // bake — consumers assembling their own emails from this map face the
+  // same client limitations the fragments do.
+  const safe = (map) => Object.fromEntries([...map].map(([k, v]) => [k, emailSafeValue(v)]));
   return (
-    JSON.stringify(
-      { light: Object.fromEntries(tokens), dark: Object.fromEntries(darkTokens) },
-      null,
-      2
-    ) + '\n'
+    JSON.stringify({ light: safe(tokens), dark: safe(darkTokens) }, null, 2) + '\n'
   );
 }
 
