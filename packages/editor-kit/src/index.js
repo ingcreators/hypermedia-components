@@ -20,6 +20,8 @@ export { createDragController, CONTAINER_ATTR } from './dnd.js';
 export { Overlay } from './overlay.js';
 export {
   serialize,
+  serializeNode,
+  serializePatch,
   toJson,
   fromJson,
   EDITOR_ATTR_PREFIX,
@@ -28,7 +30,7 @@ export {
 
 import { CommandStack } from './commands.js';
 import { Selection } from './selection.js';
-import { serialize, toJson } from './serializer.js';
+import { serialize, serializePatch, toJson } from './serializer.js';
 
 /**
  * Wire the pieces together over a canvas mount element. The manifest
@@ -37,8 +39,8 @@ import { serialize, toJson } from './serializer.js';
  * without it.
  *
  * Returns `{ root, manifest, stack, selection, serialize(), toJson(),
- * dispose() }`. The selection is pruned automatically after undo/redo
- * removes nodes from the canvas.
+ * serializePatch(), dispose() }`. The selection is pruned
+ * automatically after undo/redo removes nodes from the canvas.
  */
 export function createEditor({ root, manifest = null } = {}) {
   if (!root) throw new Error('createEditor: a root element is required');
@@ -53,6 +55,7 @@ export function createEditor({ root, manifest = null } = {}) {
     selection,
     serialize: () => serialize(root),
     toJson: () => toJson(root, { manifest }),
+    serializePatch: () => serializePatch(root, stack.dirtyNodes()),
     dispose() {
       stack.removeEventListener('change', onStackChange);
       stack.clear();

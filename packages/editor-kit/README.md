@@ -93,6 +93,14 @@ const dirty = editor.stack.dirtyNodes();
 // Map<Node, Set<'attr:<name>' | 'text' | 'children'>> — a moved node is
 // itself NOT dirty; only its old and new parents' child lists are.
 editor.stack.markClean();
+
+// The dirty regions as clean HTML — the minimal dirty subtrees, one
+// patch per dirty node with no dirty ancestor. Good for partial
+// re-render, smaller save payloads, or a "review before apply" list.
+// (Format-stable TEXT splicing is Stage 3 of the #452 plan.)
+const { clean, patches } = editor.serializePatch();
+// patches: [{ node, kinds, html }] — html is the element's cleaned
+// outerHTML (or serialize(root)'s innerHTML when node === root).
 ```
 
 ## Drag & drop and the overlay

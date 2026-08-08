@@ -37,6 +37,52 @@ export function serialize(root) {
   return clone.innerHTML;
 }
 
+/** One element's clean outerHTML (editor scaffolding stripped). */
+export function serializeNode(node) {
+  const clone = stripEditorArtifacts(node.cloneNode(true));
+  return clone.outerHTML;
+}
+
+/**
+ * Clean HTML for the minimal dirty subtrees (#452 Stage 2). Takes the
+ * stack's `dirtyNodes()` map and returns
+ * `{ clean, patches: [{ node, kinds, html }] }`: one patch per dirty
+ * node still under `root` that has no dirty ancestor (the ancestor's
+ * outerHTML subsumes it). Dirty nodes inside removed subtrees drop out
+ * — no information is lost, because the removal itself marked the
+ * in-root parent `children`. When `root` itself is a patch root
+ * (top-level insert/remove/move) its `html` is `serialize(root)` —
+ * innerHTML, since the mount is not part of the artifact.
+ *
+ * No splicing happens here: there are no source positions. Good for
+ * partial re-render, smaller save payloads, and "these regions
+ * changed" review UI; format-stable text output is Stage 3.
+ */
+export function serializePatch(root, dirtyMap) {
+  const contained = [...dirtyMap].filter(
+    ([node]) => node === root || root.contains(node),
+  );
+  const dirty = new Set(contained.map(([node]) => node));
+  const patches = [];
+  for (const [node, kinds] of contained) {
+    let covered = false;
+    for (let p = node === root ? null : node.parentNode; p; p = p.parentNode) {
+      if (dirty.has(p)) {
+        covered = true;
+        break;
+      }
+      if (p === root) break;
+    }
+    if (covered) continue;
+    patches.push({
+      node,
+      kinds: new Set(kinds),
+      html: node === root ? serialize(root) : serializeNode(node),
+    });
+  }
+  return { clean: patches.length === 0, patches };
+}
+
 function blockSet(manifest) {
   if (!manifest?.components) return null;
   return new Set(manifest.components.map((c) => c.block));
