@@ -1,0 +1,42 @@
+{
+  "detect": "form:has(input[type=\"checkbox\"][name=\"cols\"])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "cols-share-name",
+      "level": "error",
+      "message": "Every chooser checkbox shares name=\"cols\" — Apply must serialize repeated cols= params.",
+      "attr": { "on": "input[type=\"checkbox\"]", "name": "name", "assert": "present", "value": "cols" }
+    },
+    {
+      "id": "apply-is-get",
+      "level": "error",
+      "message": "Choosing columns is idempotent navigation — the chooser form GETs the grid URL (data-hx-get), never posts.",
+      "attr": { "on": "form", "name": "data-hx-get", "assert": "present" }
+    },
+    {
+      "id": "target-declared",
+      "level": "error",
+      "message": "The chooser must declare where the grid lives: data-hx-target on the form.",
+      "attr": { "on": "form", "name": "data-hx-target", "assert": "present" }
+    },
+    {
+      "id": "grid-target-resolves",
+      "level": "error",
+      "message": "data-hx-target must resolve to the grid element the server re-renders.",
+      "resolves": { "on": "form", "name": "data-hx-target" }
+    },
+    {
+      "id": "targets-grid-wrapper",
+      "level": "warn",
+      "message": "Target the datagrid wrapper by id (e.g. #items-grid) — the server re-renders the whole grid (header + rows), not just a tbody.",
+      "attr": { "on": "form", "name": "data-hx-target", "assert": "present", "matches": "^#" }
+    },
+    {
+      "id": "nojs-get",
+      "level": "warn",
+      "message": "Keep action + method=\"get\" on the chooser so Apply works without JavaScript.",
+      "attr": { "on": "form", "name": "action", "assert": "present" }
+    }
+  ]
+}

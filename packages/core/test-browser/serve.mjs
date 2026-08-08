@@ -1077,6 +1077,68 @@ function handleConflict(req, res, url) {
   return false;
 }
 
+// Mock column chooser for the datagrid-columns recipe spec
+// (datagrid-columns.html): stateless — GET /mock/datagrid-columns/items
+// answers the grid fragment (the wrapper's innerHTML: scroll + table)
+// with exactly the requested cols= columns in the server's canonical
+// order, plus the chooser form re-rendered out of band with matching
+// checked states (recipe contract). Absent or unknown-only cols fall
+// back to the default set (all four).
+const DGC_COLUMNS = [
+  { key: 'name', label: 'Name' },
+  { key: 'status', label: 'Status' },
+  { key: 'owner', label: 'Owner' },
+  { key: 'updated', label: 'Updated' },
+];
+const DGC_ITEMS = [
+  { name: 'Ingest pipeline', status: 'Active', owner: 'Ada', updated: '2026-08-01' },
+  { name: 'Nightly backup', status: 'Active', owner: 'Grace', updated: '2026-08-03' },
+  { name: 'Billing export', status: 'Pending', owner: 'Alan', updated: '2026-08-05' },
+  { name: 'Legacy sync', status: 'Failed', owner: 'Mary', updated: '2026-07-28' },
+];
+
+// OOB unit = the fieldset, never the form (the form carries
+// data-hc-close-popover-on-success; replacing it would detach the
+// carrier before afterRequest and the popover would never close).
+function dgcChooser(selected) {
+  const shown = new Set(selected.map((col) => col.key));
+  const boxes = DGC_COLUMNS.map((col) => `
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="${col.key}"${shown.has(col.key) ? ' checked' : ''} data-testid="cb-${col.key}">
+      ${col.label}
+    </label>`).join('');
+  return `<fieldset class="hc-popover__body" id="cols-fields" data-testid="chooser-fields" data-hx-swap-oob="outerHTML">${boxes}
+  </fieldset>`;
+}
+
+function handleDatagridColumns(req, res, url) {
+  if (url.pathname !== '/mock/datagrid-columns/items' || req.method !== 'GET') return false;
+  req.resume();
+  const wanted = new Set(url.searchParams.getAll('cols'));
+  let selected = DGC_COLUMNS.filter((col) => wanted.has(col.key));
+  if (selected.length === 0) selected = DGC_COLUMNS; // absent/unknown-only → default
+  const head = selected
+    .map((col) => `<th class="hc-datagrid__headcell" scope="col">${col.label}</th>`)
+    .join('');
+  const rows = DGC_ITEMS
+    .map((item) => `<tr class="hc-datagrid__row">${selected
+      .map((col) => `<td class="hc-datagrid__cell">${item[col.key]}</td>`)
+      .join('')}</tr>`)
+    .join('\n      ');
+  res.statusCode = 200;
+  res.setHeader('Content-Type', MIME['.html']);
+  res.end(`<div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head"><tr>${head}</tr></thead>
+      <tbody class="hc-datagrid__body">
+      ${rows}
+      </tbody>
+    </table>
+  </div>
+  ${dgcChooser(selected)}`);
+  return true;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -1090,6 +1152,7 @@ function handleMock(req, res, url) {
   if (handleDirty(req, res, url)) return true;
   if (handleSession(req, res, url)) return true;
   if (handleConflict(req, res, url)) return true;
+  if (handleDatagridColumns(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.

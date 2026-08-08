@@ -1,0 +1,67 @@
+<!-- Expanded state: Apply answered for cols=name&cols=status.
+
+  The grid wrapper's innerHTML was replaced with a two-column render,
+  and the chooser arrived in the same response as an out-of-band
+  outerHTML re-render (same id, checked states matching the request).
+  Unchecking everything sends no cols= at all — that is the
+  absent-params branch, and the server's default set comes back. -->
+<button class="hc-button" type="button" popovertarget="cols-popover">
+  Columns
+</button>
+
+<div id="cols-popover" class="hc-popover" popover>
+  <form id="cols-chooser" action="/items" method="get"
+        data-hx-get="/items"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+      <fieldset class="hc-popover__body" id="cols-fields">
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+      Name
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="status" checked>
+      Status
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="owner">
+      Owner
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="updated">
+      Updated
+    </label>
+      </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>
+
+<!-- Server response for GET /items?cols=name&cols=status — this
+     wrapper's innerHTML, plus the chooser above re-rendered with
+     data-hx-swap-oob="outerHTML" on the FIELDSET — never the form,
+     which carries data-hc-close-popover-on-success and must survive
+     the request for the popover to close. -->
+<div class="hc-datagrid" id="items-grid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Ingest pipeline</td>
+          <td class="hc-datagrid__cell">Active</td>
+        </tr>
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Nightly backup</td>
+          <td class="hc-datagrid__cell">Active</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
