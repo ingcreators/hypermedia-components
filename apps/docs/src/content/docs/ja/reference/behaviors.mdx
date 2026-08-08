@@ -3,7 +3,7 @@ title: ビヘイビア
 description: すべての installXxx() ビヘイビア — 何を担い、ゼロ設定バンドルが自動インストールするかの一覧。
 ---
 
-キットは 47 個の小さなビヘイビアを出荷しています。すべて冪等で
+キットは 49 個の小さなビヘイビアを出荷しています。すべて冪等で
 アンインストーラを返し、`installChart()` ただ 1 つの例外を除いて、
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリが
 **自動インストール**します(htmx でスワップされた内容も拾います)。
@@ -34,6 +34,8 @@ installToast();
 | `installValidation()` | [フィールド](/hypermedia-components/ja/components/field/)のネイティブ検証の配線(blur/submit 検証、メッセージスロット)。 | ネイティブ制約属性(`required`、`pattern` など) | — | ✓ |
 | `installFieldErrors()` | サーバー駆動のインラインエラー — [field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/)の 422 フラグメント契約。 | `data-hc-field-errors`、`data-field`、`data-message-key`(サーバーが書く) | — | ✓ |
 | `installShowWhen()` | 条件付きフィールド表示 — [conditional-fields レシピ](/hypermedia-components/ja/recipes/conditional-fields/)。 | `data-hc-show-when`、`data-hc-show-switch`、`data-hc-show-src` | — | ✓ |
+| `installFormat()` | 数値のグループ表示とワイヤ上の生値 — [入力](/hypermedia-components/ja/components/input/#金額のグループ表示)。 | `data-hc-format`、`data-decimals`、`data-locale` | — | ✓ |
+| `installNormalize()` | 確定時の IME 全角/かな正規化 — [入力](/hypermedia-components/ja/components/input/#ime-正規化)。 | `data-hc-normalize` | — | ✓ |
 | `installSortable()` | ポインタ + キーボードのリスト並べ替え — [sortable レシピ](/hypermedia-components/ja/recipes/sortable/)。 | `data-hc-sortable`、`data-hc-sortable-handle`、`data-hc-sortable-id` | `hc:sortchange` | ✓ |
 | `installCombobox()` | [コンボボックス](/hypermedia-components/ja/components/combobox/)のキーボード・フィルタ・ARIA。 | `data-remote`、`data-allow-create`、`data-value`、… | `hc:comboboxselect` | ✓ |
 | `installMulticombobox()` | [マルチコンボボックス](/hypermedia-components/ja/components/multicombobox/)のタグ・キーボード・ARIA。 | `data-name`、`data-allow-create`、`data-value`、… | `hc:multicomboboxchange` | ✓ |

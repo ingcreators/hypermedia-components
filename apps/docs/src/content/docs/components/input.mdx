@@ -127,6 +127,63 @@ cells, logical so RTL flips free:
 </label>
 ```
 
+### Grouped amounts
+
+For amount fields, add `data-hc-format="number"` — the auto-installed
+`installFormat()` behavior keeps the **display grouped and the wire
+raw**:
+
+```html
+<label class="hc-field">
+  <span class="hc-field__label">Amount</span>
+  <div class="hc-input-group">
+    <span class="hc-input-group__addon">¥</span>
+    <input class="hc-input" name="amount" type="text" inputmode="numeric"
+           data-numeric data-hc-format="number" value="1,234,567">
+  </div>
+</label>
+```
+
+- **Blur** normalizes fullwidth digits (`１２３４` → `1,234`, NFKC) and
+  groups per locale; **focus** shows the raw value again, so editing
+  never fights separators (and the behavior needs no caret management).
+- **The server always receives the raw value** (`amount=1234567`): the
+  behavior rewrites the entry list in the `formdata` event, which fires
+  for both the htmx request (`new FormData(form)`) and the native
+  submit.
+- `data-decimals="2"` pads to a minimum number of fraction digits
+  (display only — it never rounds); `data-locale` overrides the
+  grouping locale, defaulting to the closest `[lang]`.
+- Render the initial value grouped server-side if it should look
+  grouped before the first blur — the wire value stays raw either way.
+
+Use `type="text"` + `inputmode="numeric"`, not `type="number"`:
+`type="number"` rejects grouped values, drops leading zeros, and
+changes the value on scroll — all wrong for amounts. Unparseable input
+is left exactly as typed; the server stays the validator
+([field-errors](/hypermedia-components/recipes/field-errors/)).
+
+## IME normalization
+
+`data-hc-normalize` (the auto-installed `installNormalize()`) rewrites
+a control's value on commit, so fullwidth leftovers from IME typing
+self-correct without re-typing:
+
+```html
+<input class="hc-input" name="sku" data-hc-normalize="ascii">
+<input class="hc-input" name="furigana" data-hc-normalize="kana">
+```
+
+- `ascii` — fullwidth ASCII → halfwidth (`ＡＢ１２` → `AB12`, NFKC) and
+  ideographic space → plain space. Put it only on fields whose wire
+  format is ASCII (codes, identifiers, phone digits).
+- `kana` — halfwidth kana → fullwidth (`ﾀﾛｳ` → `タロウ`) and hiragana →
+  katakana (`やまだ` → `ヤマダ`), for furigana fields.
+
+The rewrite runs in a capture-phase `change` listener, so htmx triggers
+reading `target.value` already see the normalized value — with a
+`formdata` safety net for values that never fired `change`.
+
 ## htmx usage
 
 `hc-input` works with htmx like any other input. The [live-search](/hypermedia-components/recipes/live-search/)

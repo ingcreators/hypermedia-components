@@ -20,6 +20,30 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`installFormat()` / `installNormalize()` — business-form input
+  hygiene** (PR 2 of
+  [`plans/hc-input-format-plan-en.md`](plans/hc-input-format-plan-en.md)).
+  `data-hc-format="number"` turns a plain text input into an amount
+  field: fullwidth digits normalize on blur (NFKC) and the display
+  groups per locale (`1,234,567`), focus shows the raw value again (no
+  caret management anywhere), and the **wire value stays raw** — the
+  behavior rewrites the entry list in the `formdata` event, which fires
+  for both the htmx path (`new FormData(form)`) and the native submit.
+  `data-decimals` pads (never rounds); `data-locale` overrides the
+  grouping locale. `data-hc-normalize="ascii | kana"` self-corrects IME
+  leftovers on commit (fullwidth ASCII → halfwidth, ideographic space →
+  space; halfwidth kana → fullwidth, hiragana → katakana for furigana
+  fields) in a capture-phase `change` listener so htmx triggers read
+  the normalized value, with the same `formdata` safety net. Both are
+  auto-installed, idempotent, and return uninstallers; no new events,
+  CSS, or i18n keys. Documented on the input page (grouped amounts +
+  IME normalization, en/ja) and the behaviors roster (now 49); pinned
+  by a jsdom suite (synthetic `formdata` — jsdom lacks the event) and a
+  cross-engine Playwright spec whose fixture snapshots
+  `new FormData(form)` to prove raw-on-the-wire in real browsers.
+
 ### Fixed
 
 - **Docs: the Display settings Color picker follows the accent

@@ -43,6 +43,8 @@ describe('manifest.json', () => {
       'installCsrfHeader',
       'installThemeToggle',
       'installNavCurrent',
+      'installFormat',
+      'installNormalize',
     ]);
     const unclaimed = installs.filter((n) => !claimed.has(n));
     expect(unclaimed).toEqual([]);
