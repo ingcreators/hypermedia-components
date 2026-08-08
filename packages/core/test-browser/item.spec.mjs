@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -45,7 +46,7 @@ test.describe('hc-item', () => {
   });
 
   test('data-variant="error" tints the title', async ({ page }) => {
-    await expect(page.getByTestId('item-error-title')).toHaveCSS('color', 'rgb(220, 38, 38)');
+    expect(await cssColor(page.getByTestId('item-error-title'), 'color')).toBe('rgb(220, 38, 38)');
   });
 
   test('axe finds no violations across the item examples', async ({ page }) => {

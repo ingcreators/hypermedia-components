@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -35,17 +36,13 @@ test.describe('hc-datepicker', () => {
   });
 
   test('data-variant="error" + aria-invalid swaps border to the error colour', async ({ page }) => {
-    const dp = page.getByTestId('dp-error');
-    const border = await dp.evaluate((el) => getComputedStyle(el).borderColor);
-    // red.600 = #dc2626 = rgb(220, 38, 38).
-    expect(border).toMatch(/rgba?\(\s*220,\s*38,\s*38/);
+    // red.600
+    expect(await cssColor(page.getByTestId('dp-error'), 'borderTopColor')).toBe('rgb(220, 38, 38)');
   });
 
   test('data-variant="success" swaps border to the success colour', async ({ page }) => {
-    const dp = page.getByTestId('dp-success');
-    const border = await dp.evaluate((el) => getComputedStyle(el).borderColor);
-    // green.600 = #059669 = rgb(5, 150, 105).
-    expect(border).toMatch(/rgba?\(\s*5,\s*150,\s*105/);
+    // green.600
+    expect(await cssColor(page.getByTestId('dp-success'), 'borderTopColor')).toBe('rgb(5, 150, 105)');
   });
 
   test('disabled lowers opacity and changes cursor', async ({ page }) => {

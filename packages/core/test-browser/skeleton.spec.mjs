@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -8,9 +9,9 @@ test.beforeEach(async ({ page }) => {
 test.describe('hc-skeleton', () => {
   test('base block paints the muted surface colour', async ({ page }) => {
     const sk = page.getByTestId('sk-pulse');
-    const bg = await sk.evaluate((el) => getComputedStyle(el).backgroundColor);
+    const bg = await cssColor(sk, 'backgroundColor');
     // semantic.color.muted-bg (light) → gray.100 = rgb(243, 244, 246).
-    expect(bg).toMatch(/rgba?\(\s*243,\s*244,\s*246/);
+    expect(bg).toBe('rgb(243, 244, 246)');
   });
 
   test('default animation is the pulse keyframes', async ({ page }) => {

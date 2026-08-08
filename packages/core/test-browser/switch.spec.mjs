@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -28,8 +29,8 @@ test.describe('hc-switch', () => {
     await expect(sw).toBeChecked();
     // Action-primary defaults to blue.600 = rgb(37, 99, 235).
     await expect
-      .poll(() => sw.evaluate((el) => getComputedStyle(el).backgroundColor))
-      .toMatch(/rgba?\(\s*37,\s*99,\s*235/);
+      .poll(() => cssColor(sw, 'backgroundColor'))
+      .toBe('rgb(37, 99, 235)');
   });
 
   test('disabled state lowers opacity and blocks clicks', async ({ page }) => {
@@ -45,24 +46,24 @@ test.describe('hc-switch', () => {
     const sw = page.getByTestId('sw-success');
     // semantic.color.success → green.600 = rgb(5, 150, 105).
     await expect
-      .poll(() => sw.evaluate((el) => getComputedStyle(el).backgroundColor))
-      .toMatch(/rgba?\(\s*5,\s*150,\s*105/);
+      .poll(() => cssColor(sw, 'backgroundColor'))
+      .toBe('rgb(5, 150, 105)');
   });
 
   test('data-variant="warning" tints the checked track amber', async ({ page }) => {
     const sw = page.getByTestId('sw-warning');
     // semantic.color.warning → amber.600 = rgb(217, 119, 6).
     await expect
-      .poll(() => sw.evaluate((el) => getComputedStyle(el).backgroundColor))
-      .toMatch(/rgba?\(\s*217,\s*119,\s*6/);
+      .poll(() => cssColor(sw, 'backgroundColor'))
+      .toBe('rgb(217, 119, 6)');
   });
 
   test('data-variant="error" tints the checked track red', async ({ page }) => {
     const sw = page.getByTestId('sw-error');
     // semantic.color.error → red.600 = rgb(220, 38, 38).
     await expect
-      .poll(() => sw.evaluate((el) => getComputedStyle(el).backgroundColor))
-      .toMatch(/rgba?\(\s*220,\s*38,\s*38/);
+      .poll(() => cssColor(sw, 'backgroundColor'))
+      .toBe('rgb(220, 38, 38)');
   });
 
   test('data-size="sm" / "lg" render with different widths', async ({ page }) => {

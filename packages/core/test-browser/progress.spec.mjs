@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -20,23 +21,23 @@ test.describe('hc-progress', () => {
     // The pseudo-element styles cannot be inspected directly in
     // most engines, but the `color` channel on the element doubles
     // as the fill source via `currentColor` — match against it.
-    const colour = await pg.evaluate((el) => getComputedStyle(el).color);
+    const colour = await cssColor(pg, 'color');
     // action.primary defaults to blue.600 = rgb(37, 99, 235).
-    expect(colour).toMatch(/rgba?\(\s*37,\s*99,\s*235/);
+    expect(colour).toBe('rgb(37, 99, 235)');
   });
 
   test('data-variant="success" recolours the fill', async ({ page }) => {
     const pg = page.getByTestId('pg-success');
-    const colour = await pg.evaluate((el) => getComputedStyle(el).color);
+    const colour = await cssColor(pg, 'color');
     // semantic.color.success → green.600 = rgb(5, 150, 105).
-    expect(colour).toMatch(/rgba?\(\s*5,\s*150,\s*105/);
+    expect(colour).toBe('rgb(5, 150, 105)');
   });
 
   test('data-variant="error" recolours the fill', async ({ page }) => {
     const pg = page.getByTestId('pg-error');
-    const colour = await pg.evaluate((el) => getComputedStyle(el).color);
+    const colour = await cssColor(pg, 'color');
     // semantic.color.error → red.600 = rgb(220, 38, 38).
-    expect(colour).toMatch(/rgba?\(\s*220,\s*38,\s*38/);
+    expect(colour).toBe('rgb(220, 38, 38)');
   });
 
   test('data-size="sm" / "lg" render distinct heights', async ({ page }) => {

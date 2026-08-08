@@ -1,6 +1,7 @@
 # OKLCH — perceptual color primitives plan
 
-Status: **approved; implementation pending (five PRs, §9).** The
+Status: **PR 2 implemented (format conversion, no visual change); PRs
+3–5 pending.** The
 primitive ramps are Tailwind's sRGB palette, where the step number does
 not mean a lightness. Across the seven chromatic ramps the spread at
 step `500` is **18.3 L points** (indigo 58.5 vs amber 76.9), which is
@@ -224,7 +225,7 @@ Stated explicitly because the blast radius looks larger than it is:
 | `scripts/oklch.mjs` + exports map + `files` | new | §6 |
 | `token-transform.mjs` | 0 | none |
 | VRT baseline PNGs | 14 | regenerate |
-| Playwright specs asserting literal colors | 16 files | update values |
+| Playwright specs asserting literal colors | 18 files, 68 assertions | route through the sRGB normalizer (done, PR 2) |
 | Vitest real-token assertions (`test/tokens.test.mjs`) | 8 lines | update |
 | Axe specs running `color-contrast` | 66 files | no edit; must stay green |
 | Docs pages printing hex | 6 EN (+6 ja) | 35 of 40 literals are in `tokens/themes.mdx` + `tokens/neutral.mdx` |
@@ -240,21 +241,33 @@ Every EN docs page edited needs its `ja/` twin in the **same** PR —
 
 ### PR 1 — this plan (`chore(plans)`)
 
-### PR 2 — `refactor(tokens): express primitives in oklch`
+### PR 2 — `refactor(tokens): express primitives in oklch` — **done**
 
 No visual change; every value round-trips to the same 8-bit sRGB hex.
 
-- [ ] `primitive.tokens.json`: all 139 values → `oklch()`, target ΔE 0.
-- [ ] `test/tokens.test.mjs`: 8 real-token assertions → `oklch(` forms.
-- [ ] `nested-theme.spec.mjs`: it compares **raw custom-property text**
-      against hex, so it breaks at ΔE 0 — fix here, not in PR 4.
-- [ ] `PrimitivePalette.astro` `readableOn()`: parse `oklch()`.
-- [ ] `ColorThemeSwatches.astro`: confirm the `{primitive.color.X.N}`
-      resolver is format-agnostic.
-- [ ] VRT: expect **no** regeneration. If any of the 14 baselines
-      exceeds `maxDiffPixels: 2400`, the conversion is wrong — fix the
-      values, do not update the snapshots.
-- [ ] CHANGELOG (*Changed*, "no visual change"); plan Status.
+- [x] `primitive.tokens.json`: all 139 values → `oklch()` at precision
+      L4/C4/H2 — the smallest that round-trips **all** 139 exactly, with
+      more than half an ulp of margin on every one.
+- [x] `scripts/oklch.mjs` + `"./oklch"` export (pulled forward from
+      PR 4: the docs palette needs sRGB *now*, and a throwaway local
+      converter would have been rewritten in PR 4 anyway). Conversion
+      primitives only — the ladder still lands in PR 4.
+- [x] `test/tokens.test.mjs`: the two real-token colour assertions now
+      compare OKLCH *lightness* (dark error must be perceptibly lighter
+      than light error) instead of pinning a literal, so they survive
+      PR 4 and would catch a ramp mistake.
+- [x] `test-browser/helpers/color.mjs` + 68 assertions across 18 spec
+      files (§11 risk 5 — far larger than predicted).
+- [x] `PrimitivePalette.astro`: `readableOn()` is now a single
+      threshold on OKLCH L (0.55, the §5 pivot); swatches label with
+      sRGB hex and keep the authored token value in the tooltip.
+- [x] `ColorThemeSwatches.astro`: resolver confirmed format-agnostic.
+- [x] `chart.js`: comment guarding the continuous-scale landmine
+      (§11 risk 2).
+- [x] VRT: all 14 baselines **byte-identical** — the acceptance proof.
+      767 browser tests, 863 unit tests, lint, typecheck, docs build
+      all green.
+- [x] CHANGELOG (*Changed*, "no visual change"); plan Status.
 
 ### PR 3 — `feat(tokens): oklab interpolation for color-mix` (after PR 2)
 
@@ -320,13 +333,21 @@ No visual change; every value round-trips to the same 8-bit sRGB hex.
 1. **Amber changes visibly** (mean ΔE 8.9, max 15.4) and green gets
    more saturated at `200`–`300`. Accepted per §1 non-goals; called out
    here so the CHANGELOG entry for PR 4 says so plainly.
-2. **Observable Plot / d3-color.** `chart.js:424` hands
-   `--hc-chart-series-*` strings to Plot. Ordinal ranges pass through
-   to SVG `fill` and are fine, but Plot's legend swatches and any
-   continuous scale route through `d3-color`, which **cannot parse
-   `oklch()`** and returns `null`. Must be checked in PR 2; if it
-   breaks, keep the six `--hc-chart-series-*` tokens in a
-   `d3`-parseable form and note why in the token file.
+2. **Observable Plot / d3-color — checked in PR 2, not a defect.**
+   Probed against the real `@observablehq/plot` 0.6.17 (the browser
+   fixture *stubs* Plot, so the suite never exercised this):
+   - Ordinal ranges pass `oklch()` straight through to SVG `fill` —
+     correct. This is the only path `resolveSeriesRange()` feeds.
+   - A **continuous** scale given an `oklch()` range interpolates via
+     d3-color and silently renders **every cell black**. Reproduced.
+   - hc-chart never hits that: the one continuous preset (heatmap)
+     *replaces* `base.color` rather than merging it (the shallow spread
+     in `renderFigure`), so the token range is dropped and Plot's own
+     scheme applies.
+
+   It stays a live landmine for anyone who adds a continuous scale fed
+   from the series tokens, so `resolveSeriesRange()` now carries a
+   comment saying exactly this.
 3. **Client-bundle size.** `scripts/oklch.mjs` enters the docs client
    bundle. It is math-only (no dependencies) and replaces a comparable
    amount of inline code, so the net should be ≈ zero — but the builder
@@ -337,10 +358,21 @@ No visual change; every value round-trips to the same 8-bit sRGB hex.
    colors in `box-shadow`. Neither blocks this, but the shadow rule
    fires if a shadow token ever resolves to an `oklch()`-bearing string
    inside an authored `box-shadow`.
-5. **Serialization in tests.** Chromium serializes in-gamut `oklch()`
-   back to `rgb()` for *used* values, so `toHaveCSS('color', 'rgb(…)')`
-   specs keep working. Only raw custom-property comparisons break — see
-   PR 2.
+5. **Serialization in tests — this was wrong, and it cost the most.**
+   Chromium does **not** re-serialize `oklch()` to `rgb()`.
+   `getComputedStyle(el).backgroundColor` returns
+   `"oklch(0.5461 0.2152 262.88)"` verbatim, and once `color-mix()` is
+   involved it returns `color(srgb 0.14 0.39 0.92 / 0.12)`. Canvas
+   `fillStyle` round-trips the colour space too, so it is not a
+   normalizer either.
+
+   So it was not "just raw custom-property comparisons": **68 assertions
+   across 18 spec files** broke, every one that reads a resolved colour.
+   Fixed in PR 2 by `test-browser/helpers/color.mjs` — paint the value
+   onto a 1×1 canvas and read the pixel back, which yields the sRGB
+   triple that actually rasterizes, in any engine and colour space. The
+   existing `rgb(…)` expectations then stay literally true, so PR 4 only
+   has to change *values*, not mechanism.
 
 ## 12. Sequencing against 1.0.0
 

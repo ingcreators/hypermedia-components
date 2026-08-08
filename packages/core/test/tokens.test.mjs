@@ -472,23 +472,37 @@ describe('buildTokensCss', () => {
 
   describe('dark mode error-text contrast (real tokens)', () => {
     // Regression: error/help text in an invalid field used semantic
-    // color.error (red-600 #dc2626), which renders at only 3.67:1 on the
-    // dark surface (#111827) — below WCAG AA 4.5:1 for normal text. The
-    // dark theme now lightens color.error to red-400 (#f87171, ≥4.5:1), so
-    // the field error message and every error border/fill that resolves
-    // through it inherits the readable red. Light mode stays red-600.
+    // color.error (red-600), which renders at only 3.67:1 on the dark
+    // surface — below WCAG AA 4.5:1 for normal text. The dark theme now
+    // lightens color.error to red-400 (≥4.5:1), so the field error
+    // message and every error border/fill that resolves through it
+    // inherits the readable red. Light mode stays red-600.
+    //
+    // Asserted on OKLCH lightness rather than a literal colour: the
+    // guarantee is "dark mode's error is perceptibly lighter", which is
+    // what the fix was about and what a ramp change must not undo.
+    const lightnessOf = (block, name) =>
+      Number(block.match(new RegExp(`--${name}:\\s*oklch\\(([\\d.]+)`))[1]);
+
     it('lightens color.error and the field error message under [data-theme="dark"]', () => {
       const { css } = buildRealTokens();
       const dark = css.match(/\[data-theme="dark"\] \{[\s\S]*?\n {2}\}/)[0];
-      expect(dark).toMatch(/--hc-color-error:\s*#f87171;/);
+      const light = css.match(/:root, \[data-theme="light"\] \{[\s\S]*?\n {2}\}/)[0];
+      expect(lightnessOf(dark, 'hc-color-error'))
+        .toBeGreaterThan(lightnessOf(light, 'hc-color-error') + 0.1);
       // Component leaf re-emitted with the dark-resolved error colour.
-      expect(dark).toMatch(/--hc-field-invalid-message-color:\s*#f87171;/);
+      expect(lightnessOf(dark, 'hc-field-invalid-message-color'))
+        .toBe(lightnessOf(dark, 'hc-color-error'));
     });
 
     it('keeps the light error colour at red-600', () => {
       const { css } = buildRealTokens();
       const light = css.match(/:root, \[data-theme="light"\] \{[\s\S]*?\n {2}\}/)[0];
-      expect(light).toMatch(/--hc-color-error:\s*#dc2626;/);
+      const primitives = JSON.parse(
+        readFileSync(join(tokensDir, 'primitive.tokens.json'), 'utf8'),
+      );
+      const red600 = primitives.color.red['600'].$value;
+      expect(light).toContain(`--hc-color-error: ${red600};`);
     });
   });
 

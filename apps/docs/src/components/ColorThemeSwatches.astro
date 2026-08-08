@@ -18,10 +18,10 @@ const THEMES = [
   { name: 'amber', tree: amber },
 ];
 
-/** Replace every {primitive.color.X.Y} ref with its hex (leaves color-mix intact). */
+/** Replace every {primitive.color.X.Y} ref with its value (leaves color-mix intact). */
 function resolve(value) {
   return String(value).replace(/\{primitive\.color\.([a-z]+)\.(\d+)\}/g, (_, ramp, shade) => {
-    return primitive.color?.[ramp]?.[shade]?.$value ?? '#000';
+    return primitive.color?.[ramp]?.[shade]?.$value ?? 'oklch(0 0 0)';
   });
 }
 const v = (tree, path) => {

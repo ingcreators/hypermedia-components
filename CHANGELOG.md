@@ -20,6 +20,28 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Changed
+
+- **Primitives expressed in OKLCH** — all 139 literal colors in
+  `src/tokens/primitive.tokens.json` are now `oklch()` instead of hex.
+  **No visual change:** every value was chosen to round-trip to the
+  identical 8-bit sRGB triple, verified two ways — a conversion check
+  on all 139 values, and all 14 Playwright VRT baselines staying
+  byte-identical (light/dark × LTR/RTL, plus compact and accent).
+  Generated `--hc-*` custom properties now carry `oklch(…)`, so code
+  that compares the *text* of a resolved token against a hex string
+  needs updating; what the browser paints is unchanged. This is
+  groundwork for regularizing the ramps on a shared lightness ladder —
+  see [`plans/hc-oklch-color-plan-en.md`](plans/hc-oklch-color-plan-en.md).
+
+### Added
+
+- **`@hypermedia-components/core/oklch`** — a dependency-free OKLCH ↔
+  sRGB module (`parseOklch`, `oklchToRgb`, `oklchToHex`, `rgbToOklch`,
+  `hexToOklch`, `inSrgbGamut`, `toHex`). The docs palette uses it to
+  label swatches with their sRGB hex while the tooltip keeps the
+  authored token value. Exported the same way as `./token-transform`.
+
 ## [0.1.15] - 2026-08-07
 
 - **`@hypermedia-components/editor-kit@0.1.0`** — the editor-kit

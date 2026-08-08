@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { cssColor } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -38,11 +39,9 @@ test.describe('hc-toggle-group — single (exclusive)', () => {
   });
 
   test('the selected option paints the accent border', async ({ page }) => {
-    const border = await page.getByTestId('tg-s-left').evaluate(
-      (el) => getComputedStyle(el).borderTopColor,
-    );
-    // on-border → action.primary.border → blue.600 = rgb(37, 99, 235).
-    expect(border).toMatch(/rgba?\(\s*37,\s*99,\s*235/);
+    // on-border → action.primary.border → blue.600.
+    expect(await cssColor(page.getByTestId('tg-s-left'), 'borderTopColor'))
+      .toBe('rgb(37, 99, 235)');
   });
 });
 

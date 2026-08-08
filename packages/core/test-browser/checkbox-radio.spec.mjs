@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { cssColor } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -46,9 +47,8 @@ test.describe('hc-checkbox', () => {
 
   test('aria-invalid swaps the border to the error colour', async ({ page }) => {
     const cb = page.getByTestId('cb-invalid');
-    const borderColor = await cb.evaluate((el) => getComputedStyle(el).borderColor);
-    // --hc-checkbox-invalid-border resolves to --hc-color-error (red.600 #dc2626).
-    expect(borderColor).toMatch(/rgba?\(\s*220,\s*38,\s*38/);
+    // --hc-checkbox-invalid-border resolves to --hc-color-error (red.600).
+    expect(await cssColor(cb, 'borderTopColor')).toBe('rgb(220, 38, 38)');
   });
 
   test('data-variant="error" uses the error checked colour', async ({ page }) => {
@@ -56,20 +56,16 @@ test.describe('hc-checkbox', () => {
     await cb.check();
 
     // The element has a 120ms background-color transition. Poll until it
-    // settles on the resolved variable value (red.600 = rgb(220, 38, 38)).
-    await expect
-      .poll(() => cb.evaluate((el) => getComputedStyle(el).backgroundColor))
-      .toMatch(/rgba?\(\s*220,\s*38,\s*38/);
+    // settles on the resolved variable value (red.600).
+    await expect.poll(() => cssColor(cb, 'backgroundColor')).toBe('rgb(220, 38, 38)');
   });
 
   test('data-variant="warning" uses the warning checked colour', async ({ page }) => {
     const cb = page.getByTestId('cb-warning');
     await cb.check();
 
-    // amber.600 = #d97706 = rgb(217, 119, 6).
-    await expect
-      .poll(() => cb.evaluate((el) => getComputedStyle(el).backgroundColor))
-      .toMatch(/rgba?\(\s*217,\s*119,\s*6/);
+    // amber.600
+    await expect.poll(() => cssColor(cb, 'backgroundColor')).toBe('rgb(217, 119, 6)');
   });
 
   test('data-size="sm" / "lg" render at the dedicated sm / lg sizes', async ({ page }) => {
@@ -132,9 +128,7 @@ test.describe('hc-radio', () => {
     const warning = page.getByTestId('radio-warning');
     await expect(warning).toBeChecked();
 
-    await expect
-      .poll(() => warning.evaluate((el) => getComputedStyle(el).backgroundColor))
-      .toMatch(/rgba?\(\s*217,\s*119,\s*6/);
+    await expect.poll(() => cssColor(warning, 'backgroundColor')).toBe('rgb(217, 119, 6)');
   });
 
   test('data-size="sm" / "lg" render the radio at sm / lg sizes', async ({ page }) => {

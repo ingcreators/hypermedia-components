@@ -56,6 +56,7 @@
     "./behaviors/min": "./dist/hc.behaviors.min.js",
     "./tokens/*": "./src/tokens/*",
     "./token-transform": "./scripts/token-transform.mjs",
+    "./oklch": "./scripts/oklch.mjs",
     "./email/*": "./src/email/*",
     "./email-transform": "./scripts/email-transform.mjs",
     "./email-artifacts/*": "./dist/email/*",
@@ -67,6 +68,7 @@
     "src/tokens",
     "src/email",
     "scripts/token-transform.mjs",
+    "scripts/oklch.mjs",
     "scripts/email-transform.mjs",
     "custom-elements.json"
   ],

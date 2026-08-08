@@ -31,9 +31,16 @@ const tokenRgb = (page, name) =>
     const probe = document.createElement('div');
     probe.style.color = `var(${n})`;
     document.body.append(probe);
-    const rgb = getComputedStyle(probe).color;
+    const value = getComputedStyle(probe).color;
     probe.remove();
-    return rgb.match(/\d+/g).slice(0, 3).map(Number);
+    // Tokens are oklch(), so the computed string is not rgb() — paint it
+    // and read the pixel back to get the sRGB triple that gets rendered.
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 1;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.fillStyle = value;
+    ctx.fillRect(0, 0, 1, 1);
+    return [...ctx.getImageData(0, 0, 1, 1).data].slice(0, 3);
   }, name);
 
 test.describe('hc-meter', () => {
