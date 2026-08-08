@@ -1,0 +1,30 @@
+{
+  "detect": "tr[data-hx-trigger*=\"revealed\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "fetches-batch",
+      "level": "error",
+      "message": "The sentinel fetches the next batch: data-hx-get with the after= cursor on the sentinel row.",
+      "attr": { "on": "tr", "name": "data-hx-get", "assert": "present" }
+    },
+    {
+      "id": "revealed-trigger",
+      "level": "error",
+      "message": "The sentinel loads on reveal: data-hx-trigger=\"revealed\" (a window-viewport trigger — inside an overflow container htmx needs intersect instead).",
+      "attr": { "on": "tr", "name": "data-hx-trigger", "assert": "present", "matches": "revealed" }
+    },
+    {
+      "id": "swap-outerhtml",
+      "level": "error",
+      "message": "The sentinel must replace ITSELF: data-hx-swap=\"outerHTML\" — anything else accumulates loading rows instead of renewing the one sentinel.",
+      "attr": { "on": "tr", "name": "data-hx-swap", "assert": "present", "value": "outerHTML" }
+    },
+    {
+      "id": "end-marker-live",
+      "level": "warn",
+      "message": "Keep the sentinel cell aria-live=\"polite\" — its slot becomes the end-of-list marker (\"40 of 40\"), announced without focus theft.",
+      "exists": { "selector": "[aria-live]" }
+    }
+  ]
+}

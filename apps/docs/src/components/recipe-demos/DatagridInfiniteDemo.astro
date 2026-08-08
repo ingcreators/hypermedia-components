@@ -1,0 +1,40 @@
+---
+/*
+ * Live demo for the datagrid-infinite recipe. The tbody's `load`
+ * trigger fetches the first batch (5 of 15 rows) plus the sentinel
+ * from the demo API; each time the sentinel scrolls into view it
+ * outerHTML-replaces itself with the next batch + the next sentinel,
+ * until the end-of-list marker ("15 of 15") retires it. No height
+ * constraint on purpose: htmx's `revealed` is a window-viewport
+ * trigger (inside an overflow container it needs `intersect`), so the
+ * demo grows the page exactly like a real feed — scroll the docs page
+ * past the table to load more.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-infinite`;
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid infinite scroll demo">
+  <div class="hc-datagrid" style="--hc-datagrid-max-height: none;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">ID</th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+            <th class="hc-datagrid__headcell" scope="col">Price</th>
+            <th class="hc-datagrid__headcell" scope="col">Stock</th>
+          </tr>
+        </thead>
+        <tbody
+          class="hc-datagrid__body"
+          id="datagrid-infinite-demo-rows"
+          data-hx-get={`${api}/items`}
+          data-hx-trigger="load"
+          data-hx-swap="innerHTML">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</DemoFrame>

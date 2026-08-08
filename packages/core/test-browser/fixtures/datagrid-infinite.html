@@ -1,0 +1,88 @@
+<!doctype html>
+<!-- Fixture for the datagrid-infinite recipe — revealed-sentinel cursor
+     paging against the serve.mjs mock. Pins: the sentinel below the
+     fold NOT loading until scrolled (plan §5's eager-reveal risk — the
+     spec runs a short viewport and the spacer below keeps the table
+     under the fold), each swap replacing the sentinel with the next
+     batch + a renewed sentinel, and the end-of-list marker ("15 of
+     15", aria-live) retiring it. `revealed` is a window-viewport
+     trigger, so the fixture scrolls the PAGE — no overflow container
+     around the table. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid-infinite fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Datagrid infinite scroll</h1>
+
+    <!-- Keeps the table (and its sentinel) below the short viewport
+         the spec uses, so the first reveal is a real scroll. -->
+    <div style="block-size: 24rem" aria-hidden="true"></div>
+
+    <div class="hc-datagrid" style="--hc-datagrid-max-height: none">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">ID</th>
+              <th class="hc-datagrid__headcell" scope="col">Product</th>
+              <th class="hc-datagrid__headcell" scope="col">Price</th>
+              <th class="hc-datagrid__headcell" scope="col">Stock</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body" data-testid="rows">
+            <!-- Page 1 server-rendered (mirrors the mock's products). -->
+            <tr class="hc-datagrid__row" data-testid="row">
+              <th class="hc-datagrid__cell" scope="row">item-1</th>
+              <td class="hc-datagrid__cell">Compact Anvil</td>
+              <td class="hc-datagrid__cell">$137</td>
+              <td class="hc-datagrid__cell">7</td>
+            </tr>
+            <tr class="hc-datagrid__row" data-testid="row">
+              <th class="hc-datagrid__cell" scope="row">item-2</th>
+              <td class="hc-datagrid__cell">Durable Sprocket</td>
+              <td class="hc-datagrid__cell">$174</td>
+              <td class="hc-datagrid__cell">14</td>
+            </tr>
+            <tr class="hc-datagrid__row" data-testid="row">
+              <th class="hc-datagrid__cell" scope="row">item-3</th>
+              <td class="hc-datagrid__cell">Foldable Widget</td>
+              <td class="hc-datagrid__cell">$211</td>
+              <td class="hc-datagrid__cell">21</td>
+            </tr>
+            <tr class="hc-datagrid__row" data-testid="row">
+              <th class="hc-datagrid__cell" scope="row">item-4</th>
+              <td class="hc-datagrid__cell">Luminous Anvil</td>
+              <td class="hc-datagrid__cell">$248</td>
+              <td class="hc-datagrid__cell">28</td>
+            </tr>
+            <tr class="hc-datagrid__row" data-testid="row">
+              <th class="hc-datagrid__cell" scope="row">item-5</th>
+              <td class="hc-datagrid__cell">Compact Sprocket</td>
+              <td class="hc-datagrid__cell">$285</td>
+              <td class="hc-datagrid__cell">5</td>
+            </tr>
+
+            <!-- The sentinel: the last row, carrying the cursor. -->
+            <tr class="hc-datagrid__row" data-testid="sentinel"
+                data-hx-get="/mock/datagrid-infinite/items?after=item-5"
+                data-hx-trigger="revealed"
+                data-hx-swap="outerHTML">
+              <td class="hc-datagrid__cell" colspan="4" aria-live="polite">
+                <span class="hc-spinner" aria-hidden="true"></span> Loading…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

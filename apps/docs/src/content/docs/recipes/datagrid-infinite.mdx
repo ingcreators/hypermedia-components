@@ -1,0 +1,119 @@
+---
+title: Datagrid infinite scroll
+description: Revealed-sentinel cursor paging — the tbody's last row fetches the next batch when scrolled into view and replaces itself with the rows plus the next sentinel, or the aria-live end-of-list marker.
+---
+
+import DatagridInfiniteDemo from '../../../components/recipe-demos/DatagridInfiniteDemo.astro';
+
+The [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/)
+sibling for feeds and long lists: the tbody's **last row is a
+sentinel** — scrolled into view it GETs the next batch and
+`outerHTML`-replaces *itself* with the new rows plus the next
+sentinel, until the end-of-list marker retires it. The cursor is the
+last row's id (`after=`), never a page number: append-only lists shift
+under offset paging; ids do not. Zero new JavaScript. Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add datagrid-infinite
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-infinite/contract.md).
+:::
+
+## Live demo
+
+Scroll the page past the table — each time the loading row enters the
+viewport it swaps itself for the next 5 rows (of 15) and a fresh
+sentinel, and the list closes with the "15 of 15" marker. The demo
+grows the page on purpose: feeds scroll the page, and that is exactly
+what `revealed` measures.
+
+<DatagridInfiniteDemo />
+
+## The markup
+
+**Uncap the grid first**: `--hc-datagrid-max-height: none` on the
+`hc-datagrid` root, so the *page* is the scroller. The default cap
+(70vh) turns the grid into its own overflow container — and `revealed`
+is a window-viewport trigger, so a sentinel that overflows *inside*
+the grid never fires again: the feed deadlocks after the first batch.
+Grids that must keep their own scrollbar use the `intersect` variant
+below instead.
+
+
+```html
+<tbody class="hc-datagrid__body">
+  <!-- Page 1 server-rendered — the grid is full without JS. -->
+  <tr class="hc-datagrid__row">
+    <th class="hc-datagrid__cell" scope="row">item-1</th>
+    <td class="hc-datagrid__cell">Compact Anvil</td>
+    <td class="hc-datagrid__cell">$107</td>
+    <td class="hc-datagrid__cell">12</td>
+  </tr>
+  <!-- …rows item-2 … item-5… -->
+
+  <!-- The sentinel: the last row, carrying the cursor. -->
+  <tr class="hc-datagrid__row"
+      data-hx-get="/items?after=item-5"
+      data-hx-trigger="revealed"
+      data-hx-swap="outerHTML">
+    <td class="hc-datagrid__cell" colspan="4" aria-live="polite">
+      <span class="hc-spinner" aria-hidden="true"></span> Loading…
+    </td>
+  </tr>
+</tbody>
+```
+
+The `outerHTML` swap is the whole trick: each response either renews
+the sentinel (batch + a fresh sentinel with the next cursor) or
+retires it (batch + end marker), so exactly one loading row ever
+exists. The endpoint answers **just the rows**; a server that can only
+render full pages adds `data-hx-select="tbody > tr"` to carve them
+out. Note `revealed` is a **window-viewport** trigger — feeds scroll
+the page; inside an overflow container (`overflow-y: scroll`) htmx
+needs `intersect` instead.
+
+## Server response contract
+
+`GET /items?after=<cursor>`:
+
+| Case | Response (200 — always) |
+| --- | --- |
+| more rows exist | the next `<tr>` batch **plus a new sentinel row** carrying the next cursor |
+| end of list | the batch (possibly empty) with **no** sentinel, closed by the end-of-list row: `<td colspan aria-live="polite">40 of 40</td>` |
+| stale cursor | the batch from the **nearest stable point** — cursors are resumable, never 4xx; scrolling is not an error |
+
+Batch rows mirror the initial rows (same classes, `scope="row"` id
+header), so swapped rows are indistinguishable from the
+server-rendered page 1.
+
+## Progressive enhancement
+
+Page 1 is server-rendered, so the list is useful as delivered; the
+sentinel is an inert loading row without JavaScript. Offer a plain
+"more" link (`<a href="/items?after=…">`) if the full set must stay
+reachable — the same endpoint serves the fragment or a full page via
+the `HX-Request` branch.
+
+## Accessibility
+
+- The sentinel/end cell is one `aria-live="polite"` slot: "Loading…"
+  and the final "40 of 40" are announced without stealing focus.
+- The spinner is `aria-hidden="true"` — the announced text carries the
+  meaning.
+- Rows stay real `<tr>`s in one `<tbody>` of a real `<table>` —
+  assistive tech sees one growing table, never a stack of tables.
+
+## Related
+
+- [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) —
+  numbered paging, for when users must address a page (jump, share,
+  resume).
+- [lazy-panel](/hypermedia-components/recipes/lazy-panel/) — the
+  `intersect once` cousin, and the trigger to reach for inside
+  overflow containers.
+- [Datagrid](/hypermedia-components/components/datagrid/) — the
+  component's CSS API the rows render into.

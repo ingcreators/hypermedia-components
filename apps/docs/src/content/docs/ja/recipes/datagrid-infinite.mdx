@@ -1,0 +1,126 @@
+---
+title: データグリッドの無限スクロール
+description: revealed センチネルによるカーソルページング — tbody の最終行がビューポートに入ると次バッチを取得し、自分自身を行 + 次のセンチネル、または aria-live の末尾マーカーに置き換えます。
+---
+
+import DatagridInfiniteDemo from '../../../../components/recipe-demos/DatagridInfiniteDemo.astro';
+
+フィードや長いリストのための
+[datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) の
+姉妹レシピです: tbody の**最終行がセンチネル** — ビューポートに
+入ると次バッチを GET し、`outerHTML` で*自分自身*を新しい行 + 次の
+センチネルに置き換え、末尾マーカーが引退させるまで続きます。
+カーソルは最終行の id(`after=`)で、ページ番号ではありません:
+追記型のリストはオフセットページングの下でずれますが、id はずれ
+ません。新規 JavaScript ゼロ。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add datagrid-infinite
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-infinite/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+ページをテーブルの先までスクロールしてください — ローディング行が
+ビューポートに入るたびに、自分を次の 5 行(全 15 行)と新しい
+センチネルに入れ替え、リストは「15 of 15」マーカーで閉じます。
+デモがページを伸ばすのは意図的です: フィードはページをスクロール
+するもので、`revealed` が測るのはまさにそれです。
+
+<DatagridInfiniteDemo />
+
+## マークアップ
+
+**まずグリッドのキャップを外します**: `hc-datagrid` ルートに
+`--hc-datagrid-max-height: none` を指定し、*ページ*をスクローラに
+します。既定のキャップ(70vh)はグリッドを自前のオーバーフロー
+コンテナに変えます — そして `revealed` はウィンドウビューポート
+基準のトリガーなので、グリッドの*内側*であふれた番兵は二度と発火
+しません: フィードは最初のバッチでデッドロックします。自前の
+スクロールバーを保ちたいグリッドは、代わりに下の `intersect`
+変種を使ってください。
+
+
+```html
+<tbody class="hc-datagrid__body">
+  <!-- Page 1 server-rendered — the grid is full without JS. -->
+  <tr class="hc-datagrid__row">
+    <th class="hc-datagrid__cell" scope="row">item-1</th>
+    <td class="hc-datagrid__cell">Compact Anvil</td>
+    <td class="hc-datagrid__cell">$107</td>
+    <td class="hc-datagrid__cell">12</td>
+  </tr>
+  <!-- …rows item-2 … item-5… -->
+
+  <!-- The sentinel: the last row, carrying the cursor. -->
+  <tr class="hc-datagrid__row"
+      data-hx-get="/items?after=item-5"
+      data-hx-trigger="revealed"
+      data-hx-swap="outerHTML">
+    <td class="hc-datagrid__cell" colspan="4" aria-live="polite">
+      <span class="hc-spinner" aria-hidden="true"></span> Loading…
+    </td>
+  </tr>
+</tbody>
+```
+
+`outerHTML` スワップがトリック全体です: どの応答もセンチネルを更新
+(バッチ + 次カーソル付きの新センチネル)するか、引退(バッチ +
+末尾マーカー)させるかのどちらかなので、ローディング行は常に
+ちょうど 1 つです。エンドポイントは**行だけ**を返します。フルページ
+しかレンダリングできないサーバーは `data-hx-select="tbody > tr"` を
+足して行を切り出してください。`revealed` は**ウィンドウビューポート**
+のトリガーです — フィードはページをスクロールします。オーバーフロー
+コンテナ(`overflow-y: scroll`)の中では htmx は代わりに `intersect`
+を必要とします。
+
+## サーバー応答契約
+
+`GET /items?after=<cursor>`:
+
+| ケース | 応答(常に 200) |
+| --- | --- |
+| まだ行がある | 次の `<tr>` バッチ **+ 次カーソルを積んだ新しいセンチネル行** |
+| リストの末尾 | バッチ(空もあり)に**センチネルなし**、末尾行で閉じる: `<td colspan aria-live="polite">40 of 40</td>` |
+| 古いカーソル | **最寄りの安定点**からのバッチ — カーソルは再開可能で、4xx にはなりません。スクロールはエラーではありません |
+
+バッチの行は初期行を鏡写しにします(同じクラス、id の
+`scope="row"` ヘッダー)。スワップされた行はサーバーレンダリングの
+1 ページ目と見分けがつきません。
+
+## プログレッシブエンハンスメント
+
+1 ページ目はサーバーレンダリングなので、リストは届いた時点で有用
+です。JavaScript なしではセンチネルはただの行です。全件に到達可能で
+ある必要があるなら、素朴な「もっと見る」リンク
+(`<a href="/items?after=…">`)を用意してください — 同じ
+エンドポイントが `HX-Request` 分岐でフラグメントとフルページの両方を
+返します。
+
+## アクセシビリティ
+
+- センチネル/末尾のセルは 1 つの `aria-live="polite"` スロットです:
+  「Loading…」と最後の「40 of 40」が、フォーカスを奪わずに読み上げ
+  られます。
+- スピナーは `aria-hidden="true"` — 意味を運ぶのは読み上げられる
+  テキストです。
+- 行は本物の `<table>` の 1 つの `<tbody>` の中の本物の `<tr>` の
+  ままです — 支援技術には積み重なるテーブルではなく、1 つの育つ
+  テーブルが見えます。
+
+## 関連
+
+- [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) —
+  ページを指名(ジャンプ・共有・再開)する必要があるときの番号付き
+  ページング。
+- [lazy-panel](/hypermedia-components/ja/recipes/lazy-panel/) —
+  `intersect once` のいとこ。オーバーフローコンテナの中で手を伸ばす
+  べきトリガーです。
+- [データグリッド](/hypermedia-components/ja/components/datagrid/) —
+  行のレンダリング先になるコンポーネントの CSS API。

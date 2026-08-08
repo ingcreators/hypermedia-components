@@ -1,0 +1,55 @@
+<!-- Expanded state: one swap answered.
+
+  The sentinel was revealed, GET /items?after=item-5 answered rows
+  item-6…item-10 plus the next sentinel (cursor item-10), and the
+  outerHTML swap replaced the old sentinel with all of it — the tbody
+  now holds ten rows and one fresh sentinel.
+
+  End of list: the final response is the last batch (possibly empty)
+  with NO sentinel, closed by the end-of-list marker row in the same
+  slot:
+
+  <tr class="hc-datagrid__row">
+    <td class="hc-datagrid__cell" colspan="4" aria-live="polite">40 of 40</td>
+  </tr>
+-->
+<div class="hc-datagrid" style="--hc-datagrid-max-height: none">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">ID</th>
+          <th class="hc-datagrid__headcell" scope="col">Product</th>
+          <th class="hc-datagrid__headcell" scope="col">Price</th>
+          <th class="hc-datagrid__headcell" scope="col">Stock</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row">
+          <th class="hc-datagrid__cell" scope="row">item-1</th>
+          <td class="hc-datagrid__cell">Compact Anvil</td>
+          <td class="hc-datagrid__cell">$107</td>
+          <td class="hc-datagrid__cell">12</td>
+        </tr>
+        <!-- …rows item-2 … item-5 (the initial page)… -->
+        <tr class="hc-datagrid__row">
+          <th class="hc-datagrid__cell" scope="row">item-6</th>
+          <td class="hc-datagrid__cell">Durable Sprocket</td>
+          <td class="hc-datagrid__cell">$142</td>
+          <td class="hc-datagrid__cell">3</td>
+        </tr>
+        <!-- …rows item-7 … item-10 (the swapped-in batch)… -->
+
+        <!-- The next sentinel, carrying the new cursor. -->
+        <tr class="hc-datagrid__row"
+            data-hx-get="/items?after=item-10"
+            data-hx-trigger="revealed"
+            data-hx-swap="outerHTML">
+          <td class="hc-datagrid__cell" colspan="4" aria-live="polite">
+            <span class="hc-spinner" aria-hidden="true"></span> Loading…
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

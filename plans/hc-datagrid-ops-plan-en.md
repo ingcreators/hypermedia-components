@@ -1,6 +1,6 @@
 # datagrid-ops — column chooser, saved views, CSV import, infinite scroll
 
-Status: **proposed.**
+Status: **shipped — plan #473, datagrid-columns #481 (assembly hardening: the chooser's OOB unit is the fieldset, never the close-popover-carrying form), saved-views #482, csv-import #483, datagrid-infinite (this PR; `data-hx-select` dropped from the sentinel — fragment endpoints return rows directly, the full-page carve-out is documented).**
 Sixth theme of the business-app gap analysis (2026-08-08): the datagrid
 renders and edits well but has no *operations* layer — the things every
 line-of-business list grows within a quarter: per-user column choice,
