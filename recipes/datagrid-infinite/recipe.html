@@ -1,0 +1,46 @@
+<!-- Short recommended usage.
+
+  Revealed-sentinel paging — the datagrid-pager sibling for feeds and
+  long lists. The tbody's last row is a sentinel: scrolled into view it
+  GETs the next batch by cursor (?after=<last id>, never page numbers —
+  append-only lists shift under offset paging) and outerHTML-replaces
+  ITSELF with the new rows plus the next sentinel, or with the
+  end-of-list marker row. The endpoint answers just the <tr> batch; a
+  server that can only render full pages adds
+  data-hx-select="tbody > tr" to carve the rows out. Note `revealed`
+  is a window-viewport trigger — feeds scroll the page; inside an
+  overflow container htmx needs `intersect` instead. See contract.md. -->
+<div class="hc-datagrid" style="--hc-datagrid-max-height: none">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">ID</th>
+          <th class="hc-datagrid__headcell" scope="col">Product</th>
+          <th class="hc-datagrid__headcell" scope="col">Price</th>
+          <th class="hc-datagrid__headcell" scope="col">Stock</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <!-- Page 1 server-rendered — the grid is full without JS. -->
+        <tr class="hc-datagrid__row">
+          <th class="hc-datagrid__cell" scope="row">item-1</th>
+          <td class="hc-datagrid__cell">Compact Anvil</td>
+          <td class="hc-datagrid__cell">$107</td>
+          <td class="hc-datagrid__cell">12</td>
+        </tr>
+        <!-- …rows item-2 … item-5… -->
+
+        <!-- The sentinel: the last row, carrying the cursor. -->
+        <tr class="hc-datagrid__row"
+            data-hx-get="/items?after=item-5"
+            data-hx-trigger="revealed"
+            data-hx-swap="outerHTML">
+          <td class="hc-datagrid__cell" colspan="4" aria-live="polite">
+            <span class="hc-spinner" aria-hidden="true"></span> Loading…
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

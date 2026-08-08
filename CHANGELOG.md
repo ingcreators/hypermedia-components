@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`datagrid-infinite` recipe — revealed-sentinel cursor paging**
+  (PR 5, final, of
+  [`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md);
+  the 36th recipe, zero new JS — the datagrid-ops theme closes with
+  four recipes and **no new public API at all**). The last row is a
+  sentinel — `data-hx-trigger="revealed"` + `data-hx-swap="outerHTML"`
+  — replaced by the next `<tr>` batch plus the next sentinel; cursors
+  (`?after=<id>`), not offsets, so append-only lists never shift; the
+  end of the list is a batch with an `aria-live` end-marker row
+  ("15 of 15") instead of a sentinel; stale cursors resume from the
+  nearest stable point (`200`, never a 4xx — scrolling is not an
+  error). `revealed` is a window-viewport trigger (it does not fire in
+  overflow containers) — the docs spell out the `intersect` carve-out,
+  and the spec pins two-batch loading with a short viewport. API
+  tests, docs en/ja, cross-engine Playwright suite.
+
 - **`csv-import` recipe — upload, validate, confirm** (PR 4 of
   [`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md);
   the 35th recipe, zero new JS). The missing bulk-in wire contract, in

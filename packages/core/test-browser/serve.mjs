@@ -1413,6 +1413,58 @@ function handleCsvImport(req, res, url) {
   return false;
 }
 
+// Mock cursor feed for the datagrid-infinite recipe spec
+// (datagrid-infinite.html): stateless — 15 deterministic products in
+// batches of 5 (the fixture server-renders rows 1–5 with the same
+// formula). GET /mock/datagrid-infinite/items?after=item-N answers the
+// next <tr> batch plus a renewed sentinel, or the final batch closed
+// by the aria-live end marker ("15 of 15"). Stale cursors resume from
+// the nearest stable point — always 200, scrolling is not an error.
+const DGI_TOTAL = 15;
+const DGI_BATCH = 5;
+const DGI_ADJECTIVES = ['Compact', 'Durable', 'Foldable', 'Luminous'];
+const DGI_NOUNS = ['Anvil', 'Sprocket', 'Widget'];
+
+function dgiRow(i) {
+  const name = `${DGI_ADJECTIVES[(i - 1) % DGI_ADJECTIVES.length]} ${DGI_NOUNS[(i - 1) % DGI_NOUNS.length]}`;
+  return `<tr class="hc-datagrid__row" data-testid="row">
+    <th class="hc-datagrid__cell" scope="row">item-${i}</th>
+    <td class="hc-datagrid__cell">${name}</td>
+    <td class="hc-datagrid__cell">$${100 + ((i * 37) % 400)}</td>
+    <td class="hc-datagrid__cell">${(i * 7) % 30}</td>
+  </tr>`;
+}
+
+function dgiSentinel(afterIndex) {
+  return `<tr class="hc-datagrid__row" data-testid="sentinel"
+      data-hx-get="/mock/datagrid-infinite/items?after=item-${afterIndex}"
+      data-hx-trigger="revealed"
+      data-hx-swap="outerHTML">
+    <td class="hc-datagrid__cell" colspan="4" aria-live="polite"><span class="hc-spinner" aria-hidden="true"></span> Loading…</td>
+  </tr>`;
+}
+
+function handleDatagridInfinite(req, res, url) {
+  if (url.pathname !== '/mock/datagrid-infinite/items' || req.method !== 'GET') return false;
+  req.resume();
+  // Resumable cursor: item-N clamps into [0, TOTAL]; garbage resumes
+  // from the start (the nearest stable point) — never a 4xx.
+  const n = Number.parseInt(url.searchParams.get('after')?.match(/^item-(\d+)$/)?.[1] ?? '', 10);
+  const afterIndex = Number.isNaN(n) ? 0 : Math.min(DGI_TOTAL, Math.max(0, n));
+  const last = Math.min(afterIndex + DGI_BATCH, DGI_TOTAL);
+  const parts = [];
+  for (let i = afterIndex + 1; i <= last; i += 1) parts.push(dgiRow(i));
+  parts.push(last < DGI_TOTAL
+    ? dgiSentinel(last)
+    : `<tr class="hc-datagrid__row">
+    <td class="hc-datagrid__cell" colspan="4" aria-live="polite" data-testid="end">${DGI_TOTAL} of ${DGI_TOTAL}</td>
+  </tr>`);
+  res.statusCode = 200;
+  res.setHeader('Content-Type', MIME['.html']);
+  res.end(parts.join('\n'));
+  return true;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -1426,6 +1478,7 @@ function handleMock(req, res, url) {
   if (handleDirty(req, res, url)) return true;
   if (handleSession(req, res, url)) return true;
   if (handleConflict(req, res, url)) return true;
+  if (handleDatagridInfinite(req, res, url)) return true;
   if (handleCsvImport(req, res, url)) return true;
   if (handleSavedViews(req, res, url)) return true;
   if (handleDatagridColumns(req, res, url)) return true;
