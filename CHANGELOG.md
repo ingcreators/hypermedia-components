@@ -22,6 +22,27 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installSessionExpiry()` + `session-expiry` recipe — 401 → login
+  dialog → request replay** (PR 3 of
+  [`plans/hc-error-paths-plan-en.md`](plans/hc-error-paths-plan-en.md);
+  the 31st recipe). An expired session turns any interrupted action
+  into a login `<dialog>` — the server steers it with `HX-Retarget`
+  into the shared `[data-hc-remote-dialog-root]` host (shipped
+  machinery opens it), the page-level allowance lets the 401 fragment
+  swap, and the new ~50-line bridge remembers the interrupted
+  `requestConfig` and **replays it through `htmx.ajax()`** when the
+  login response fires `hc:sessionrenewed` — the user's click completes
+  instead of vanishing. One slot, latest wins; a rotated CSRF token is
+  picked up fresh by `installCsrfHeader` on replay; nothing survives a
+  page load. The docs demo frame's beforeSwap allowance widens from
+  `422` to `[401, 409, 422]` (the consolidated shape the error-paths
+  theme documents). Roster now 52; pinned by a 7-test jsdom suite
+  (capture/replay/single-slot/host-gating via a stubbed `htmx.ajax`)
+  and a cross-engine Playwright suite whose keystone asserts the
+  replay: click → 401 dialog → sign in → **the approval completes by
+  itself** (cookie-session mock; wrong-password 422 re-renders the
+  dialog with field-errors).
+
 - **`autosave` recipe — debounced drafts + restore banner** (PR 3,
   final, of
   [`plans/hc-form-safety-plan-en.md`](plans/hc-form-safety-plan-en.md);

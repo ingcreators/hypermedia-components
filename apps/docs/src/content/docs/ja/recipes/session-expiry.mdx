@@ -1,0 +1,112 @@
+---
+title: セッション切れ再認証
+description: 作業を失わないセッション切れ — 401 が共有エラーホストへのログインダイアログになり、サインインすると中断されたリクエストが再実行されます。
+---
+
+import SessionExpiryDemo from '../../../../components/recipe-demos/SessionExpiryDemo.astro';
+
+昼休みに切れたセッションが、それを発見したクリックまで食べてしまう
+べきではありません。このレシピでは、保護されたアクションの `401` が
+共有ホストへ retarget されたログイン `<dialog>` を運びます —
+[`installRemoteDialog`](/hypermedia-components/ja/components/dialog/)
+(出荷済み)がそれを開きます。そして自動インストールされる
+`installSessionExpiry()` が中断されたリクエストを覚えていて、ログイン
+応答が `hc:sessionrenewed` を発火した瞬間に**再実行**します。ユーザーの
+操作は消えずに完了します。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::note[セットアップ]
+このレシピは `installSessionExpiry()` を必要とします
+(`installRemoteDialog()` は出荷済み)。
+`import '@hypermedia-components/core/behaviors';` でまとめて、または
+個別に:
+
+```js
+import { installSessionExpiry } from '@hypermedia-components/core';
+installSessionExpiry();
+```
+
+さらに `401` のページレベル許可
+([422 ブランチ](/hypermedia-components/ja/recipes/field-errors/#サーバレスポンス契約)と同じ形):
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if ([401, 422].includes(event.detail.xhr.status)) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+:::
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add session-expiry` がこのレシピの
+スキャフォールドをコピーし、`npx @hypermedia-components/cli validate`
+が機械検査します。完全な契約は
+[`recipes/session-expiry/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/session-expiry/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+デモのセッションは切れた状態から始まります: **Approve** をクリックし、
+サインインして(どのパスワードでも可、`wrong` はインラインエラー)、
+承認がひとりでに完了するのを見てください。**Expire session** で
+フローを再武装できます。
+
+<SessionExpiryDemo />
+
+## マークアップ
+
+```html
+<button class="hc-button" data-variant="primary"
+        data-hx-post="/tickets/7/approve"
+        data-hx-target="#status" data-hx-swap="innerHTML">
+  Approve
+</button>
+<p class="hc-field__hint" id="status" aria-live="polite"></p>
+
+<!-- body 末尾の共有ホスト 1 つ -->
+<div id="error-dialog" data-hc-remote-dialog-root data-hc-session-expiry></div>
+```
+
+ホストは 2 つの帽子をかぶります: `data-hc-remote-dialog-root` は
+サーバーがスワップしてきたダイアログを開き、`data-hc-session-expiry`
+はリプレイブリッジを武装します。
+
+## サーバー応答契約
+
+| ケース | 応答 |
+| --- | --- |
+| 保護されたエンドポイント、セッション切れ、htmx リクエスト | `401` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + ログインダイアログのフラグメント。**サーバーは処理の前に 401 しなければなりません** — リプレイの安全性はそこに依存します |
+| ログイン成功 | `200` + 空ボディ + `HX-Trigger: {"hc:sessionrenewed": {}}` — ブリッジがダイアログを閉じてリプレイします |
+| ログイン失敗 | `422` + 同じダイアログに [field-errors](/hypermedia-components/ja/recipes/field-errors/) をインラインで |
+| 非 htmx リクエストでのセッション切れ | `?next=` 付きログインページへの `303` |
+
+## リプレイの意味論
+
+スロットは 1 つ、最新が勝ちます: 並行して中断された場合は最後の
+1 件だけがリプレイされます。リプレイは
+`htmx.ajax(verb, path, { source, values })` を通り、通常の
+パイプラインを再走します — ローテートされた CSRF トークンは
+`installCsrfHeader` が毎リクエスト読み直し、インジケーターも
+ターゲットも、ユーザーがもう一度クリックしたかのように振る舞います。
+複数値フィールドは最後の値に畳まれます。中断された要素が DOM を
+離れていればリプレイはスキップされます。ページロードをまたいで
+何も生き残りません。
+
+## アクセシビリティ
+
+- ダイアログは `showModal()` による本物の `<dialog>` です — ネイティブの
+  フォーカストラップと `Escape`。`aria-labelledby` が名前を与えます。
+- Cancel は `<form method="dialog">` のボタン — 宣言的で CSP 安全です。
+- リプレイの結果はアクション自身の `aria-live` ターゲットに着地する
+  ため、完了が読み上げられます。
+
+## 関連
+
+- [remote-dialog](/hypermedia-components/ja/recipes/remote-dialog/) —
+  このレシピが乗るホスト機構。
+- [field-errors](/hypermedia-components/ja/recipes/field-errors/) —
+  このレシピが 401 へ拡張する 422 許可の形。

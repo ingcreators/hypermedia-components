@@ -54,7 +54,7 @@ const classes = ['hc-preview', 'not-content', extra].filter(Boolean).join(' ');
   // the exact hook the contracts document.
   document.body.addEventListener('htmx:beforeSwap', (event) => {
     const detail = (event as CustomEvent).detail;
-    if (detail?.xhr?.status === 422) {
+    if ([401, 409, 422].includes(detail?.xhr?.status)) {
       detail.shouldSwap = true;
       detail.isError = false;
     }

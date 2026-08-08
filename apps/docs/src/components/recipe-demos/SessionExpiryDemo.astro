@@ -1,0 +1,39 @@
+---
+/*
+ * Live demo for the session-expiry recipe. The demo "session" is a
+ * namespace-scoped cookie: Approve 401s until you sign in (any
+ * password; "wrong" fails with an inline error), then the interrupted
+ * approval completes by itself — that is installSessionExpiry's replay.
+ * Expire session re-arms the 401 branch.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/session-expiry`;
+---
+
+<DemoFrame class="hc-preview--col" label="Session expiry demo">
+  <div class="hc-cluster">
+    <button
+      class="hc-button"
+      data-variant="primary"
+      data-hx-post={`${api}/tickets/7/approve`}
+      data-hx-target="#session-expiry-demo-status"
+      data-hx-swap="innerHTML">
+      Approve
+    </button>
+    <button
+      class="hc-button"
+      data-variant="ghost"
+      data-hx-post={`${api}/session/expire`}
+      data-hx-target="#session-expiry-demo-status"
+      data-hx-swap="innerHTML">
+      Expire session
+    </button>
+  </div>
+  <p class="hc-field__hint" id="session-expiry-demo-status" aria-live="polite">
+    The session starts expired — click Approve.
+  </p>
+
+  <div id="session-expiry-demo-dialog" data-hc-remote-dialog-root
+       data-hc-session-expiry></div>
+</DemoFrame>

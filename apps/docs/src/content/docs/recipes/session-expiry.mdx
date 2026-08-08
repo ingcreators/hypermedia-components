@@ -1,0 +1,106 @@
+---
+title: Session expiry
+description: Session expiry without lost work — a 401 becomes a login dialog aimed at the shared error host, and signing in replays the interrupted request.
+---
+
+import SessionExpiryDemo from '../../../components/recipe-demos/SessionExpiryDemo.astro';
+
+The session that expired over lunch should not eat the click that
+discovered it. In this recipe any protected action's `401` carries a
+login `<dialog>` retargeted at a shared host —
+[`installRemoteDialog`](/hypermedia-components/components/dialog/)
+(shipped) opens it — and the auto-installed `installSessionExpiry()`
+remembers the interrupted request and **replays it** once the login
+response fires `hc:sessionrenewed`. The user's action completes instead
+of vanishing. Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::note[Setup]
+This recipe needs `installSessionExpiry()` (and `installRemoteDialog()`,
+already shipped). Install everything at once with
+`import '@hypermedia-components/core/behaviors';`, or individually:
+
+```js
+import { installSessionExpiry } from '@hypermedia-components/core';
+installSessionExpiry();
+```
+
+Plus the page-level allowance for `401` (same shape as the
+[422 branch](/hypermedia-components/recipes/field-errors/#server-response-contract)):
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if ([401, 422].includes(event.detail.xhr.status)) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+:::
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add session-expiry` copies this
+recipe's scaffold; `npx @hypermedia-components/cli validate`
+machine-checks your copy. The full contract lives in
+[`recipes/session-expiry/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/session-expiry/contract.md).
+:::
+
+## Live demo
+
+The demo session starts expired: click **Approve**, sign in (any
+password; `wrong` fails inline), and watch the approval complete by
+itself. **Expire session** re-arms the flow.
+
+<SessionExpiryDemo />
+
+## The markup
+
+```html
+<button class="hc-button" data-variant="primary"
+        data-hx-post="/tickets/7/approve"
+        data-hx-target="#status" data-hx-swap="innerHTML">
+  Approve
+</button>
+<p class="hc-field__hint" id="status" aria-live="polite"></p>
+
+<!-- One shared host at body end -->
+<div id="error-dialog" data-hc-remote-dialog-root data-hc-session-expiry></div>
+```
+
+The host wears two hats: `data-hc-remote-dialog-root` opens whatever
+dialog the server swaps in; `data-hc-session-expiry` arms the replay
+bridge.
+
+## Server response contract
+
+| Case | Response |
+| --- | --- |
+| protected endpoint, session expired, htmx request | `401` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + the login dialog fragment. **The server must 401 before acting** — replay safety depends on it |
+| login success | `200` + empty body + `HX-Trigger: {"hc:sessionrenewed": {}}` — the bridge closes the dialog and replays |
+| login failure | `422` + the same dialog with [field-errors](/hypermedia-components/recipes/field-errors/) inline |
+| non-htmx request, session expired | `303` to the login page with `?next=` |
+
+## Replay semantics
+
+One slot, latest wins: parallel interruptions replay only the last.
+The replay goes through `htmx.ajax(verb, path, { source, values })`,
+re-running the full pipeline — a rotated CSRF token is picked up fresh
+by `installCsrfHeader`, indicators and targets behave as if the user
+clicked again. Multi-value fields collapse to their last value; if the
+interrupted element left the DOM, the replay is skipped. Nothing
+survives a full page load.
+
+## Accessibility
+
+- The dialog is a real `<dialog>` via `showModal()` — native focus
+  trap and `Escape`; `aria-labelledby` names it.
+- Cancel is a `<form method="dialog">` button — declarative, CSP-safe.
+- The replayed outcome lands in the action's own `aria-live` target,
+  so completion is announced.
+
+## Related
+
+- [remote-dialog](/hypermedia-components/recipes/remote-dialog/) — the
+  host mechanism this recipe rides.
+- [field-errors](/hypermedia-components/recipes/field-errors/) — the
+  422 allowance shape this recipe extends to 401.
