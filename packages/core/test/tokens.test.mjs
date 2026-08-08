@@ -603,11 +603,11 @@ describe('resolveTokens', () => {
     }
     const base = ['primitive', 'semantic', 'component', 'density.comfortable', 'color.default'];
     const light = resolveTokens({
-      sources: [...base, 'color.indigo', 'neutral.slate'].map((namespace) => ({ namespace })),
+      sources: [...base, 'color.teal', 'neutral.slate'].map((namespace) => ({ namespace })),
       trees,
     });
     const dark = resolveTokens({
-      sources: [...base, 'color.indigo', 'neutral.slate', 'theme.dark', 'neutral.slate.dark']
+      sources: [...base, 'color.teal', 'neutral.slate', 'theme.dark', 'neutral.slate.dark']
         .map((namespace) => ({ namespace })),
       trees,
     });

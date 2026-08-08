@@ -138,11 +138,31 @@ describe('the ladder carries the contrast guarantee', () => {
 describe('the colour axes are one shape', () => {
   const AXES = {
     default: ['color.default.tokens.json', 'blue'],
-    indigo: ['color.indigo.tokens.json', 'indigo'],
-    emerald: ['color.emerald.tokens.json', 'green'],
-    rose: ['color.rose.tokens.json', 'rose'],
-    amber: ['color.amber.tokens.json', 'amber'],
+    teal: ['color.teal.tokens.json', 'teal'],
+    lime: ['color.lime.tokens.json', 'lime'],
+    orange: ['color.orange.tokens.json', 'orange'],
+    fuchsia: ['color.fuchsia.tokens.json', 'fuchsia'],
   };
+
+  it('the five axis hues form the accent pentagon', () => {
+    // 72° apart, anchored at blue — so no two accents read as shades of
+    // each other, and none collides with the status hues (error 27.3 /
+    // warning 70.1 / success 163.2 stay ≥ 21° from every vertex).
+    const hues = Object.values(AXES)
+      .map(([, ramp]) => RAMP_HUES[ramp])
+      .sort((a, b) => a - b);
+    for (let i = 0; i < hues.length; i += 1) {
+      const next = hues[(i + 1) % hues.length];
+      const gap = ((next - hues[i]) % 360 + 360) % 360;
+      expect(gap, `gap after ${hues[i]}°`).toBeCloseTo(72, 1);
+    }
+    for (const status of [27.3, 70.1, 163.2]) {
+      const nearest = Math.min(
+        ...hues.map((h) => Math.min(Math.abs(h - status), 360 - Math.abs(h - status))),
+      );
+      expect(nearest, `status hue ${status}°`).toBeGreaterThanOrEqual(20);
+    }
+  });
 
   it.each(Object.entries(AXES))('%s uses 600 / 700 / 500 with white text', (_name, [file, ramp]) => {
     const tree = read(file).color;

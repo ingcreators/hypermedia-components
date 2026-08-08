@@ -7,16 +7,17 @@ import { cssColor } from './helpers/color.mjs';
 // resolved its var() chain on :root and was inherited as a frozen
 // blue; this spec proves the shadcn-style leaf emission cured it.
 
-// Every axis now resolves its action surface from step 600 of its own
+// Every axis resolves its action surface from step 600 of its own
 // ramp — the ladder puts 600 at L 0.54, which is white-text-safe on
 // every hue, so no axis needs a different step or a different
-// foreground any more.
+// foreground. The five hues are the accent pentagon (72° apart,
+// anchored at blue).
 const CASES = [
-  { color: 'default', rgb: 'rgb(44, 96, 233)' },  // blue.600
-  { color: 'indigo',  rgb: 'rgb(87, 85, 231)' },  // indigo.600
-  { color: 'emerald', rgb: 'rgb(9, 131, 91)' },  // green.600
-  { color: 'rose',    rgb: 'rgb(205, 12, 62)' },  // rose.600
-  { color: 'amber',   rgb: 'rgb(152, 97, 7)'  },  // amber.600
+  { color: 'default', rgb: 'rgb(44, 96, 233)'  },  // blue.600
+  { color: 'teal',    rgb: 'rgb(9, 127, 125)' },  // teal.600
+  { color: 'lime',    rgb: 'rgb(101, 121, 7)'  },  // lime.600
+  { color: 'orange',  rgb: 'rgb(174, 79, 7)'   },  // orange.600
+  { color: 'fuchsia', rgb: 'rgb(181, 35, 156)' },  // fuchsia.600
 ];
 
 test.describe('nested data-color wrappers recolour component primitives', () => {

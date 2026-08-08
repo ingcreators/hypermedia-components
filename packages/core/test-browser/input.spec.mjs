@@ -12,8 +12,8 @@ test.describe('hc-input variants', () => {
   test('data-variant recolours the border (success / warning / error)', async ({ page }) => {
     // success → green.600
     expect(await border(page, 'in-success')).toBe('rgb(9, 131, 91)');
-    // warning → amber.600
-    expect(await border(page, 'in-warning')).toBe('rgb(152, 97, 7)');
+    // warning → amber.500 (semantic.color.warning)
+    expect(await border(page, 'in-warning')).toBe('rgb(184, 118, 11)');
     // error → red.600
     expect(await border(page, 'in-error')).toBe('rgb(206, 14, 24)');
   });

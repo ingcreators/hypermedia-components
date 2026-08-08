@@ -35,7 +35,10 @@ function ramp(name) {
 }
 
 const NEUTRALS = ['gray', 'slate', 'zinc', 'neutral', 'stone'].map(ramp).filter(Boolean);
-const ACCENTS = ['blue', 'indigo', 'violet', 'rose', 'red', 'amber', 'green'].map(ramp).filter(Boolean);
+// Ordered by hue angle around the wheel.
+const ACCENTS = ['blue', 'indigo', 'violet', 'fuchsia', 'rose', 'red', 'orange', 'amber', 'lime', 'green', 'teal']
+  .map(ramp)
+  .filter(Boolean);
 const BASE = ['white', 'black']
   .filter((n) => color[n]?.$value)
   .map((n) => ({ name: n, value: color[n].$value }));

@@ -87,7 +87,7 @@ test.describe('hc-inputotp', () => {
 
   test('data-variant success / warning recolour the slot border', async ({ page }) => {
     expect(await slotBorder(page, 'otp-success')).toBe('rgb(9, 131, 91)'); // green.600
-    expect(await slotBorder(page, 'otp-warning')).toBe('rgb(152, 97, 7)'); // amber.600
+    expect(await slotBorder(page, 'otp-warning')).toBe('rgb(184, 118, 11)'); // amber.500 (semantic.color.warning)
   });
 
   test('axe finds no violations in the inputotp section', async ({ page }) => {

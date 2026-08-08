@@ -53,16 +53,16 @@ const MONO_FONTS = [
 const PRESETS = [
   { group: 'Built-in accents', items: [
     { label: 'Default · blue', mode: 'accent', name: 'brand',   bg: '#2c60e9' },
-    { label: 'Indigo',         mode: 'accent', name: 'indigo',  bg: '#5755e7' },
-    { label: 'Emerald',        mode: 'accent', name: 'emerald', bg: '#0a835b' },
-    { label: 'Rose',           mode: 'accent', name: 'rose',    bg: '#cd0c3e' },
-    { label: 'Amber',          mode: 'accent', name: 'amber',   bg: '#986107' },
+    { label: 'Teal',           mode: 'accent', name: 'teal',    bg: '#0a7f7d' },
+    { label: 'Lime',           mode: 'accent', name: 'lime',    bg: '#657907' },
+    { label: 'Orange',         mode: 'accent', name: 'orange',  bg: '#ae4f07' },
+    { label: 'Fuchsia',        mode: 'accent', name: 'fuchsia', bg: '#b5239c' },
   ] },
   { group: 'Curated full themes', items: [
-    { label: 'Slate · Indigo',  mode: 'full', name: 'slate-indigo',  bg: '#5755e7', neutral: 'slate',   radius: 8 },
-    { label: 'Stone · Amber',   mode: 'full', name: 'stone-amber',   bg: '#986107', neutral: 'stone',   radius: 10 },
-    { label: 'Zinc · Emerald',  mode: 'full', name: 'zinc-emerald',  bg: '#0a835b', neutral: 'zinc',    radius: 6 },
-    { label: 'Neutral · Rose',  mode: 'full', name: 'neutral-rose',  bg: '#cd0c3e', neutral: 'neutral', radius: 4 },
+    { label: 'Slate · Teal',      mode: 'full', name: 'slate-teal',      bg: '#0a7f7d', neutral: 'slate',   radius: 8 },
+    { label: 'Stone · Orange',    mode: 'full', name: 'stone-orange',    bg: '#ae4f07', neutral: 'stone',   radius: 10 },
+    { label: 'Zinc · Lime',       mode: 'full', name: 'zinc-lime',       bg: '#657907', neutral: 'zinc',    radius: 6 },
+    { label: 'Neutral · Fuchsia', mode: 'full', name: 'neutral-fuchsia', bg: '#b5239c', neutral: 'neutral', radius: 4 },
   ] },
 ];
 // Flatten for stable indexed lookup from the <select>.
@@ -338,10 +338,10 @@ import corePkg from '../../../../packages/core/package.json';
   import densityCompact from '@hypermedia-components/core/tokens/density.compact.tokens.json';
   import densityDense from '@hypermedia-components/core/tokens/density.dense.tokens.json';
   import colorDefault from '@hypermedia-components/core/tokens/color.default.tokens.json';
-  import colorIndigo from '@hypermedia-components/core/tokens/color.indigo.tokens.json';
-  import colorEmerald from '@hypermedia-components/core/tokens/color.emerald.tokens.json';
-  import colorRose from '@hypermedia-components/core/tokens/color.rose.tokens.json';
-  import colorAmber from '@hypermedia-components/core/tokens/color.amber.tokens.json';
+  import colorTeal from '@hypermedia-components/core/tokens/color.teal.tokens.json';
+  import colorLime from '@hypermedia-components/core/tokens/color.lime.tokens.json';
+  import colorOrange from '@hypermedia-components/core/tokens/color.orange.tokens.json';
+  import colorFuchsia from '@hypermedia-components/core/tokens/color.fuchsia.tokens.json';
 
   const BASE_TREES = {
     primitive, semantic, component,
@@ -350,10 +350,10 @@ import corePkg from '../../../../packages/core/package.json';
     'density.compact': densityCompact,
     'density.dense': densityDense,
     'color.default': colorDefault,
-    'color.indigo': colorIndigo,
-    'color.emerald': colorEmerald,
-    'color.rose': colorRose,
-    'color.amber': colorAmber,
+    'color.teal': colorTeal,
+    'color.lime': colorLime,
+    'color.orange': colorOrange,
+    'color.fuchsia': colorFuchsia,
   };
 
   // Neutral ramps live in the primitive tokens (slate/zinc/neutral/stone +

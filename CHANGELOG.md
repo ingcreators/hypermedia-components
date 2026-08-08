@@ -22,6 +22,38 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **The accent axes are now the accent pentagon** — `data-color`
+  values are `default` (blue) / `teal` / `lime` / `orange` / `fuchsia`,
+  replacing `indigo` / `emerald` / `rose` / `amber`. **Breaking** for
+  markup using the old values (flagged per VERSIONING.md; pre-adoption
+  window). The five hues sit exactly 72° apart around the hue wheel,
+  anchored at blue (264° / 336° / 48° / 120° / 192°), which fixes two
+  real defects in the old set: `rose` sat 9.7° from the error red, so a
+  rose-themed app rendered primary actions and error states in visually
+  identical colors, and `indigo` sat 12.6° from the default blue —
+  two of five choices were nearly the same color. Every pentagon vertex
+  stays ≥ 21° from the error / warning / success hues, and
+  `test/ramp.test.mjs` asserts the spacing. Four new primitive ramps
+  (`fuchsia` / `orange` / `lime` / `teal`) back the axes; all existing
+  ramps are unchanged and remain available as primitives. A hexagon was
+  considered and rejected: anchored at blue, one vertex lands 2.9° from
+  the error red. For a sixth accent, the theme builder generates any
+  hue through the same ladder.
+
+### Fixed
+
+- **`semantic.color.warning` was bronze.** It resolved to `amber.600`
+  (`#986107`) — the ladder's white-text-safe step, but visibly brown as
+  a warning color. Every consumer is a border, fill, or checked-state
+  surface (never a text background — text-bearing warning chips use
+  `status.warning`'s own pair), so the requirement is the 3:1
+  graphical-object contrast, not 4.5:1. It now resolves to `amber.500`
+  (`#b8760b`, 3.73:1 against white), which reads as amber. Note the
+  physics: a *bright* amber like the old `#f59e0b` is 2.1:1 against
+  white and cannot coexist with white glyphs at all.
+
+### Changed
+
 - **Theme builder derives in OKLCH.** The docs theme builder no longer
   carries its own sRGB colour theory — `hexToRgb` / `rgbToHex` /
   `darken` / `luminance` / `hslToHex` are gone, replaced by the shared

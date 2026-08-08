@@ -52,10 +52,10 @@ test.describe('hc-switch', () => {
 
   test('data-variant="warning" tints the checked track amber', async ({ page }) => {
     const sw = page.getByTestId('sw-warning');
-    // semantic.color.warning → amber.600 = rgb(152, 97, 7).
+    // semantic.color.warning → amber.500 = rgb(184, 118, 11).
     await expect
       .poll(() => cssColor(sw, 'backgroundColor'))
-      .toBe('rgb(152, 97, 7)');
+      .toBe('rgb(184, 118, 11)');
   });
 
   test('data-variant="error" tints the checked track red', async ({ page }) => {

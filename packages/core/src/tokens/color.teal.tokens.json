@@ -1,0 +1,20 @@
+{
+  "$description": "Teal color theme. Emitted under [data-color=\"teal\"]. Every axis is the same shape: `600` for the resting action surface, `700` for hover, `500` for the focus ring, and white text. The five axes sit 72° apart on the hue wheel (the accent pentagon, anchored at blue), so no two accents read as shades of each other and none collides with the status hues.",
+  "color": {
+    "focus-ring": { "$type": "color", "$value": "{primitive.color.teal.500}" },
+    "action": {
+      "primary": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.teal.600}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.white}" },
+        "border": { "$type": "color", "$value": "{primitive.color.teal.600}" }
+      },
+      "primary-hover": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.teal.700}" },
+        "border": { "$type": "color", "$value": "{primitive.color.teal.700}" }
+      },
+      "primary-soft": {
+        "bg": { "$type": "color", "$value": "color-mix(in oklab, {primitive.color.teal.600} 12%, transparent)" }
+      }
+    }
+  }
+}

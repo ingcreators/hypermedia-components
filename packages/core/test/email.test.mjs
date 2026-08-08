@@ -155,7 +155,7 @@ describe('email generation (real tokens)', () => {
 
   it('themes follow the axis combination', () => {
     const stock = generate();
-    const themed = generate({ color: 'indigo', neutral: 'slate' });
+    const themed = generate({ color: 'teal', neutral: 'slate' });
     expect(themed.tokens.get('button-primary-bg')).not.toBe(stock.tokens.get('button-primary-bg'));
     expect(themed.files['hc-email.html']).toContain(themed.tokens.get('button-primary-bg'));
     expect(themed.files['hc-email.html']).not.toContain(stock.tokens.get('button-primary-bg'));
@@ -182,21 +182,21 @@ describe('email-transform unit surface', () => {
   });
 
   it('emailLayerStacks appends dark layers in DEFAULT_SOURCES overlay order', () => {
-    const { light, dark } = emailLayerStacks({ color: 'indigo', neutral: 'slate' });
+    const { light, dark } = emailLayerStacks({ color: 'teal', neutral: 'slate' });
     expect(light).toEqual([
       'primitive', 'semantic', 'component', 'density.comfortable',
-      'color.default', 'color.indigo', 'neutral.slate',
+      'color.default', 'color.teal', 'neutral.slate',
     ]);
     expect(dark).toEqual([...light, 'theme.dark', 'neutral.slate.dark']);
   });
 
   it('manifest comment and tokens JSON round-trip', () => {
     const manifest = emailManifestComment({
-      version: '0.0.0-test', color: 'indigo', neutral: 'slate',
-      flavor: 'thymeleaf', command: 'npx @hypermedia-components/cli email eject --color indigo',
+      version: '0.0.0-test', color: 'teal', neutral: 'slate',
+      flavor: 'thymeleaf', command: 'npx @hypermedia-components/cli email eject --color teal',
     });
-    expect(manifest).toContain('color=indigo neutral=slate');
-    expect(manifest).toContain('email eject --color indigo');
+    expect(manifest).toContain('color=teal neutral=slate');
+    expect(manifest).toContain('email eject --color teal');
     const { tokens, darkTokens } = resolvedMaps({});
     const parsed = JSON.parse(emailTokensJson(tokens, darkTokens));
     expect(parsed.light['button-primary-bg']).toBe(tokens.get('button-primary-bg'));

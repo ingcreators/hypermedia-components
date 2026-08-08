@@ -25,9 +25,15 @@ const here = dirname(fileURLToPath(import.meta.url));
 const TOKENS = join(here, '..', 'src', 'tokens', 'primitive.tokens.json');
 
 /**
- * Hue angle per chromatic ramp, anchored on the hue of the most
- * saturated step of the original Tailwind-derived palette so each ramp
- * keeps its identity.
+ * Hue angle per chromatic ramp.
+ *
+ * The first seven are anchored on the hue of the most saturated step of
+ * the original Tailwind-derived palette, so each keeps its identity.
+ * The last four are the remaining vertices of the accent pentagon: the
+ * five `data-color` axes sit 72° apart around the hue wheel, anchored
+ * at blue (264.4 → 336.4 → 48.4 → 120.4 → 192.4), so no two accents
+ * read as shades of each other and none collides with the status hues
+ * (error 27.3 / warning 70.1 / success 163.2).
  */
 export const RAMP_HUES = {
   blue: 264.4,
@@ -37,6 +43,11 @@ export const RAMP_HUES = {
   indigo: 277.0,
   rose: 17.6,
   violet: 293.0,
+  // accent pentagon vertices (blue is the fifth)
+  fuchsia: 336.4,
+  orange: 48.4,
+  lime: 120.4,
+  teal: 192.4,
 };
 
 /** `{ blue: { 50: 'oklch(…)', … }, … }` straight from the ladder. */

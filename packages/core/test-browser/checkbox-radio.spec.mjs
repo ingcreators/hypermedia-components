@@ -64,8 +64,8 @@ test.describe('hc-checkbox', () => {
     const cb = page.getByTestId('cb-warning');
     await cb.check();
 
-    // amber.600
-    await expect.poll(() => cssColor(cb, 'backgroundColor')).toBe('rgb(152, 97, 7)');
+    // amber.500 (semantic.color.warning)
+    await expect.poll(() => cssColor(cb, 'backgroundColor')).toBe('rgb(184, 118, 11)');
   });
 
   test('data-size="sm" / "lg" render at the dedicated sm / lg sizes', async ({ page }) => {
@@ -128,7 +128,7 @@ test.describe('hc-radio', () => {
     const warning = page.getByTestId('radio-warning');
     await expect(warning).toBeChecked();
 
-    await expect.poll(() => cssColor(warning, 'backgroundColor')).toBe('rgb(152, 97, 7)');
+    await expect.poll(() => cssColor(warning, 'backgroundColor')).toBe('rgb(184, 118, 11)');
   });
 
   test('data-size="sm" / "lg" render the radio at sm / lg sizes', async ({ page }) => {

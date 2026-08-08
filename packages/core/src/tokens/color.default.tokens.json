@@ -1,5 +1,5 @@
 {
-  "$description": "Default color theme — blue. Emitted under :root and [data-color=\"default\"]. Values mirror semantic.color.action.primary / focus-ring so explicit data-color=\"default\" matches the unset state. Every axis is the same shape: `600` for the resting action surface, `700` for hover, `500` for the focus ring, and white text. That is not a coincidence per hue — the ladder puts `600` at L 0.54, and white clears 4.5:1 below L 0.554 on every hue, so the foreground follows from the lightness rather than from a per-theme judgement.",
+  "$description": "Default color theme — blue. Emitted under :root and [data-color=\"default\"]. Values mirror semantic.color.action.primary / focus-ring so explicit data-color=\"default\" matches the unset state. Every axis is the same shape: `600` for the resting action surface, `700` for hover, `500` for the focus ring, and white text. The five axes sit 72° apart on the hue wheel (the accent pentagon, anchored at blue), so no two accents read as shades of each other and none collides with the status hues.",
   "color": {
     "focus-ring": { "$type": "color", "$value": "{primitive.color.blue.500}" },
     "action": {

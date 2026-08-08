@@ -101,7 +101,7 @@ function collectDeps(raw, table, stack = [], deps = new Set()) {
 }
 
 /**
- * For a runtime-themed source like `color.indigo`, build a resolution
+ * For a runtime-themed source like `color.teal`, build a resolution
  * table that re-routes every `semantic.<path>` key the source overrides
  * to that source's own value. Used to compute the leaf value of a
  * theme-dependent component token *as if that theme were active*.
@@ -267,7 +267,7 @@ export function buildTokensCss({ sources, trees }) {
  * Unlike `buildTokensCss`, the source list here is not "all axes with
  * selectors" but the ordered layer stack of a single combination, e.g.
  * light indigo/slate:
- *   [primitive, semantic, component, color.indigo, neutral.slate]
+ *   [primitive, semantic, component, color.teal, neutral.slate]
  * and its dark counterpart appends `theme.dark` before the `*.dark`
  * neutral. Every source except primitive/semantic/component acts as a
  * semantic overlay; later sources win. Passing DEFAULT_SOURCES wholesale
@@ -313,10 +313,10 @@ export const DEFAULT_SOURCES = [
   { namespace: 'density.compact',     file: 'density.compact.tokens.json',     selector: '[data-density="compact"]' },
   { namespace: 'density.dense',       file: 'density.dense.tokens.json',       selector: '[data-density="dense"]' },
   { namespace: 'color.default', file: 'color.default.tokens.json', selector: ':root, [data-color="default"]' },
-  { namespace: 'color.indigo',  file: 'color.indigo.tokens.json',  selector: '[data-color="indigo"]' },
-  { namespace: 'color.emerald', file: 'color.emerald.tokens.json', selector: '[data-color="emerald"]' },
-  { namespace: 'color.rose',    file: 'color.rose.tokens.json',    selector: '[data-color="rose"]' },
-  { namespace: 'color.amber',   file: 'color.amber.tokens.json',   selector: '[data-color="amber"]' },
+  { namespace: 'color.teal',    file: 'color.teal.tokens.json',    selector: '[data-color="teal"]' },
+  { namespace: 'color.lime',    file: 'color.lime.tokens.json',    selector: '[data-color="lime"]' },
+  { namespace: 'color.orange',  file: 'color.orange.tokens.json',  selector: '[data-color="orange"]' },
+  { namespace: 'color.fuchsia', file: 'color.fuchsia.tokens.json', selector: '[data-color="fuchsia"]' },
   // Neutral axis: swaps the surface / text / border / secondary ramp.
   // Unlike color, neutrals differ by light/dark, so each non-default ramp
   // ships a light block and a dark block. `overlay` lets the dark block
@@ -343,7 +343,7 @@ export const DEFAULT_SOURCES = [
 // theme-independent component leaves, dark mode, and the default density /
 // color blocks. The remaining axes ship as their own files.
 export const CORE_NAMESPACES = ['semantic', 'component', 'theme.dark', 'density.comfortable', 'color.default'];
-export const AXIS_NAMESPACES = ['density.compact', 'density.dense', 'color.indigo', 'color.emerald', 'color.rose', 'color.amber'];
+export const AXIS_NAMESPACES = ['density.compact', 'density.dense', 'color.teal', 'color.lime', 'color.orange', 'color.fuchsia'];
 
 // Non-default neutral ramps. Each ships as one axis file carrying both its
 // light and compound-dark blocks.
