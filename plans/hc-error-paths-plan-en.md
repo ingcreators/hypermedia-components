@@ -1,6 +1,6 @@
 # error-paths — session expiry, edit conflicts, and the errors & recovery map
 
-Status: **proposed.**
+Status: **shipped — PR 1 (plan, #470), PR 3 (session-expiry, #476), PR 4 (edit-conflict, #477), PR 2 (errors & recovery page — reordered last: its links need the recipe pages to exist for the links validator).**
 Third theme of the business-app gap analysis (2026-08-08). The recipe
 layer is rich on happy paths and thin on the failures every
 line-of-business app meets weekly: the session that expired over lunch

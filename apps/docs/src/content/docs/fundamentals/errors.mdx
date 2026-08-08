@@ -1,0 +1,89 @@
+---
+title: Errors & recovery
+description: The status-code map — which failure shows what, which recipe owns it, the one shared beforeSwap allowance, and double-submit hygiene.
+---
+
+Happy paths swap fragments; real apps also expire sessions, lose edit
+races, and get double-clicked. This page is the map: one table from
+status code to user experience, the single page-level snippet that
+makes error fragments swappable, and the request-hygiene attributes
+that prevent the classic duplicates.
+
+## The status-code map
+
+| Status | The user sees | Contract |
+| --- | --- | --- |
+| `422` | inline field errors under the controls | [field-errors](/hypermedia-components/recipes/field-errors/) / [mutating-form](/hypermedia-components/recipes/mutating-form/) |
+| `401` | a login dialog; after signing in, **the interrupted action completes** | [session-expiry](/hypermedia-components/recipes/session-expiry/) |
+| `409` | a conflict dialog — keep mine / take theirs | [edit-conflict](/hypermedia-components/recipes/edit-conflict/) |
+| `413` | an error toast; the form stays | [file-upload](/hypermedia-components/recipes/file-upload/) (proxy-limit note) |
+| `5xx` | an error toast via `HX-Trigger`; no swap | [lazy-panel](/hypermedia-components/recipes/lazy-panel/) (503 branch) |
+
+Two doctrines run through all of it:
+
+- **The server is the validator and the narrator.** Error UI arrives as
+  server-rendered fragments (dialogs, hints, field errors) — the client
+  never composes error messages from status codes.
+- **200-with-truth beats 4xx-with-nothing** for domain outcomes (see
+  [undo-delete](/hypermedia-components/recipes/undo-delete/)'s expiry
+  branch). Protocol failures (401/409/422) use their codes so generic
+  machinery — like the allowance below — can route them.
+
+## The shared allowance
+
+htmx swaps nothing on non-2xx by default. Allow the statuses your
+contracts steer, once, at page level:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if ([401, 409, 422].includes(event.detail.xhr.status)) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+With that in place the *server* steers each error's UI — `HX-Retarget`
+/ `HX-Reswap` headers aim the fragment (the login dialog into the
+[remote-dialog root](/hypermedia-components/components/dialog/), field
+errors into the form), and no per-page wiring accumulates. The
+per-recipe pages repeat their own one-status version of this snippet;
+this is the consolidated form.
+
+## Double-submit hygiene
+
+The duplicate-order bug is request hygiene, not a component. Three
+attributes, all htmx-native:
+
+```html
+<form data-hx-post="/orders"
+      data-hx-sync="this:abort"
+      data-hx-disabled-elt="find button[type=submit]"
+      data-hx-indicator="find .hc-spinner">
+  …
+  <button class="hc-button" data-variant="primary" type="submit">
+    Place order <span class="hc-spinner" aria-hidden="true"></span>
+  </button>
+</form>
+```
+
+- `data-hx-sync="this:abort"` — a resubmit aborts the in-flight
+  request instead of racing it.
+- `data-hx-disabled-elt` — the button disables for the request's
+  lifetime and **re-enables on every settle path, including errors**.
+  Hand-rolled `onclick` disabling gets the error path wrong and bricks
+  the form.
+- `data-hx-indicator` — the [spinner](/hypermedia-components/components/spinner/)
+  shows only in flight (`htmx-indicator` CSS ships in `hc.htmx.css`).
+
+For destructive actions, prefer [undo-delete](/hypermedia-components/recipes/undo-delete/)
+over confirm dialogs — executed-but-reversible beats asked-but-ignored.
+
+## Related
+
+- [request-action](/hypermedia-components/recipes/request-action/) —
+  the base mutating-button recipe these attributes decorate.
+- [Writing UI copy](/hypermedia-components/fundamentals/writing/) —
+  error message voice ("what happened + how to fix").
+- [htmx integration](/hypermedia-components/integrations/htmx/) — the
+  event/lifecycle reference behind the allowance.
