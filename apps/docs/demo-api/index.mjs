@@ -26,6 +26,7 @@ import * as chatMessages from './recipes/chat-messages.mjs';
 import * as confirmAction from './recipes/confirm-action.mjs';
 import * as dataRegion from './recipes/data-region.mjs';
 import * as datagridBulkActions from './recipes/datagrid-bulk-actions.mjs';
+import * as datagridColumns from './recipes/datagrid-columns.mjs';
 import * as datagridPager from './recipes/datagrid-pager.mjs';
 import * as editConflict from './recipes/edit-conflict.mjs';
 import * as fieldErrors from './recipes/field-errors.mjs';
@@ -55,6 +56,7 @@ const RECIPES = new Map([
   ['confirm-action', confirmAction],
   ['data-region', dataRegion],
   ['datagrid-bulk-actions', datagridBulkActions],
+  ['datagrid-columns', datagridColumns],
   ['datagrid-pager', datagridPager],
   ['edit-conflict', editConflict],
   ['field-errors', fieldErrors],

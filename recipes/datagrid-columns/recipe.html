@@ -1,0 +1,72 @@
+<!-- Short recommended usage.
+
+  Column chooser for hc-datagrid: a filter-popover shell holds one
+  checkbox per column, all sharing name="cols". Apply GETs the grid URL
+  with repeated cols= params and the server re-renders the whole grid
+  with exactly those columns (its canonical order), plus this chooser
+  out of band with matching checked states. No client column hiding —
+  the server deciding which columns exist keeps print/exports matching
+  the screen. Zero custom JS; see contract.md. -->
+<button class="hc-button" type="button" popovertarget="cols-popover">
+  Columns
+</button>
+
+<div id="cols-popover" class="hc-popover" popover>
+  <form id="cols-chooser" action="/items" method="get"
+        data-hx-get="/items"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+      <fieldset class="hc-popover__body" id="cols-fields">
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+      Name
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="status" checked>
+      Status
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="owner" checked>
+      Owner
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="updated" checked>
+      Updated
+    </label>
+      </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>
+
+<!-- The swap target: the server answers this wrapper's innerHTML
+     (scroll + table), so header and rows always change together. -->
+<div class="hc-datagrid" id="items-grid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col">Status</th>
+          <th class="hc-datagrid__headcell" scope="col">Owner</th>
+          <th class="hc-datagrid__headcell" scope="col">Updated</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Ingest pipeline</td>
+          <td class="hc-datagrid__cell">Active</td>
+          <td class="hc-datagrid__cell">Ada</td>
+          <td class="hc-datagrid__cell">2026-08-01</td>
+        </tr>
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Nightly backup</td>
+          <td class="hc-datagrid__cell">Active</td>
+          <td class="hc-datagrid__cell">Grace</td>
+          <td class="hc-datagrid__cell">2026-08-03</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

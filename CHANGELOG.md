@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`datagrid-columns` recipe — the server-owned column chooser**
+  (PR 2 of
+  [`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md);
+  the 33rd recipe, zero new JS). A filter-popover-shell chooser with
+  one checkbox per column; **Apply** GETs the grid URL with repeated
+  `cols=` params and the server re-renders the whole grid with exactly
+  those columns (canonical order; unknown names ignored — the server
+  is the schema) plus the chooser re-rendered out of band with
+  matching checked states. No client column-hiding: the server
+  deciding *which columns exist* means one round trip, zero state
+  drift, and print/export match the screen for free (CSV export is a
+  plain link — documented, not a recipe). Stateless live demo + API
+  tests, docs en/ja, cross-engine Playwright suite, checks.json
+  (shared `cols` name, GET-not-POST, target resolution, no-JS
+  `action`+`method=get` parity).
+
 - **`installTime()` — client-side `<time>` localization** (theme F of
   the business-app gap analysis). Servers render UTC and a
   machine-readable `datetime`; the auto-installed behavior rewrites the

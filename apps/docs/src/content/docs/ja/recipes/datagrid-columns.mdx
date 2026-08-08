@@ -1,0 +1,122 @@
+---
+title: データグリッドの列選択
+description: hc-datagrid の列チューザー — cols= チェックボックスを載せたポップオーバーフォームがグリッド URL を GET し、サーバーがちょうどその列だけのグリッドと、チェック状態が一致したチューザーを再レンダリングします。
+---
+
+import DatagridColumnsDemo from '../../../../components/recipe-demos/DatagridColumnsDemo.astro';
+
+業務アプリのグリッドが最初に生やす運用レイヤー、ユーザーごとの列選択
+です。このレシピはそれをハイパーメディアのまま保ちます —
+[filter-popover](/hypermedia-components/ja/recipes/filter-popover/)
+のシェルに列ごとのチェックボックスを 1 つずつ載せ、**Apply** が
+`cols=` の繰り返しパラメータ付きでグリッド URL を GET し、サーバーが
+[データグリッド](/hypermedia-components/ja/components/datagrid/)全体を
+その列だけで再レンダリングします。クライアント側の列隠しはありません:
+*どの列が存在するか*をサーバーが決めるので、往復 1 回、状態のずれゼロ、
+印刷やエクスポートは何もしなくても画面と一致します。新規 JavaScript
+ゼロ。[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add datagrid-columns
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-columns/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+**Columns** を開いていくつか外し、**Apply** — サーバーがちょうどその
+列(サーバーの正準順)のグリッドと、チェック状態が一致したチューザーの
+アウトオブバンド再レンダリングで応答します。全部外すと、パラメータ
+なしブランチがデフォルトセットを返すのが見られます。
+
+<DatagridColumnsDemo />
+
+## マークアップ
+
+```html
+<button class="hc-button" type="button" popovertarget="cols-popover">
+  Columns
+</button>
+
+<div id="cols-popover" class="hc-popover" popover>
+  <form id="cols-chooser" action="/items" method="get"
+        data-hx-get="/items"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <fieldset class="hc-popover__body" id="cols-fields">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+        Name
+      </label>
+      <!-- …one checkbox per column: status, owner, updated… -->
+    </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>
+
+<div class="hc-datagrid" id="items-grid">
+  <!-- server-rendered: .hc-datagrid__scroll > table with the current columns -->
+</div>
+```
+
+チューザーは filter-popover のシェルです —
+`data-hc-close-popover-on-success`(自動インストールされる
+`installClosePopover()`)が 2xx で閉じます。チェックボックスはすべて
+`name="cols"` を共有するため、Apply は繰り返しの `cols=` パラメータを
+シリアライズし、フォームは**グリッドのラッパー**を target にします
+(`innerHTML` デフォルト): ヘッダーと行は常に一緒に変わります。
+チューザーの安定した id が、チェック状態を再レンダリングする
+アウトオブバンドスワップのアンカーです。
+
+## サーバー応答契約
+
+`GET /items?cols=name&cols=status&…`:
+
+| ケース | 応答(200) |
+| --- | --- |
+| いずれかの `cols` あり | **ちょうどその列を、サーバーの正準順で**並べたグリッドフラグメント + チェック状態が一致したチューザー**フィールドセット**の OOB `outerHTML` 再レンダリング(フォームは決して置換しません — `data-hc-close-popover-on-success` を運ぶフォームはリクエストを生き延びる必要があります) |
+| `cols` が空/なし | サーバーのデフォルト列セット — 全部外した Apply は `cols` を一切送らないので、ここに着地します |
+| 未知の列名 | 無視(スキーマはサーバーです)。認識できるものが残らなければデフォルトセットへフォールバック |
+
+勝つのは要求された*集合*で、要求された*順序*ではありません —
+並べ替えはサーバーの正準順であり、ユーザーごとの選択の永続化も
+サーバーの選択肢です。CSV エクスポートにもレシピは不要です:
+`<a href="/items.csv?cols=…">` が同じパラメータを使い回すので、
+ファイルは画面と一致します。
+
+## プログレッシブエンハンスメント
+
+チューザーは本物の GET フォームです(`action` + `method="get"`):
+JavaScript なしでは Apply が `/items?cols=…` へ遷移し、サーバーが
+その列でフルページをレンダリングします。グリッド自体もサーバー
+レンダリングされた HTML なので、列選択がクライアント JavaScript に
+依存することはありません。
+
+## アクセシビリティ
+
+- 可視ラベル付きのネイティブチェックボックス(`hc-checkbox-label`)—
+  チューザーはただのフォームで、メニューのセマンティクスを偽装
+  しません。
+- どの応答でもグリッドは `scope="col"` ヘッダー付きの本物の
+  `<table>` のままです。外した列は支援技術からも消えます — それが
+  狙いです。
+- 成功時にポップオーバーが閉じ、フォーカスはトリガーボタンに戻ります
+  (ネイティブ popover の挙動)。
+
+## 関連
+
+- [filter-popover](/hypermedia-components/ja/recipes/filter-popover/) —
+  このチューザーが使い回すシェル。
+- [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) —
+  同じグリッドのサーバーページネーション。ページリンクは `cols=` を
+  保ちます。
+- [datagrid-bulk-actions](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) —
+  同じグリッドでの行選択 + 一括 POST。
+- [データグリッド](/hypermedia-components/ja/components/datagrid/) —
+  このレシピがレンダリング先にするコンポーネントの CSS API。

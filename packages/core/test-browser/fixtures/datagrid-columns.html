@@ -1,0 +1,91 @@
+<!doctype html>
+<!-- Fixture for the datagrid-columns recipe — the filter-popover shell
+     as a column chooser + a server-rendered hc-datagrid against the
+     serve.mjs mock. Pins: Apply GETting repeated cols= params, the grid
+     re-render with exactly those columns in canonical order, the OOB
+     chooser re-render with matching checked states (and the popover
+     closing on success), and the absent-cols default branch. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid-columns fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Datagrid columns</h1>
+
+    <button class="hc-button" type="button" popovertarget="cols-popover"
+            data-testid="open">Columns</button>
+
+    <div id="cols-popover" class="hc-popover" popover>
+      <form id="cols-chooser" action="/mock/datagrid-columns/items" method="get"
+            data-hx-get="/mock/datagrid-columns/items"
+            data-hx-target="#items-grid"
+            data-hc-close-popover-on-success
+            data-testid="chooser">
+        <fieldset class="hc-popover__body" id="cols-fields" data-testid="chooser-fields">
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="name"
+                 checked data-testid="cb-name">
+          Name
+        </label>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="status"
+                 checked data-testid="cb-status">
+          Status
+        </label>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="owner"
+                 checked data-testid="cb-owner">
+          Owner
+        </label>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="updated"
+                 checked data-testid="cb-updated">
+          Updated
+        </label>
+        </fieldset>
+        <footer class="hc-popover__footer">
+          <button class="hc-button" type="submit" data-variant="primary"
+                  data-testid="apply">Apply</button>
+        </footer>
+      </form>
+    </div>
+
+    <!-- Initial render = the server's default set (all four columns). -->
+    <div class="hc-datagrid" id="items-grid" data-testid="grid">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">Name</th>
+              <th class="hc-datagrid__headcell" scope="col">Status</th>
+              <th class="hc-datagrid__headcell" scope="col">Owner</th>
+              <th class="hc-datagrid__headcell" scope="col">Updated</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell">Ingest pipeline</td>
+              <td class="hc-datagrid__cell">Active</td>
+              <td class="hc-datagrid__cell">Ada</td>
+              <td class="hc-datagrid__cell">2026-08-01</td>
+            </tr>
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell">Nightly backup</td>
+              <td class="hc-datagrid__cell">Active</td>
+              <td class="hc-datagrid__cell">Grace</td>
+              <td class="hc-datagrid__cell">2026-08-03</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

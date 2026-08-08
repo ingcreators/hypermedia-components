@@ -1,0 +1,117 @@
+---
+title: Datagrid columns
+description: A column chooser for hc-datagrid — a popover form of cols= checkboxes GETs the grid URL, and the server re-renders the grid with exactly those columns and the chooser with matching checked states.
+---
+
+import DatagridColumnsDemo from '../../../components/recipe-demos/DatagridColumnsDemo.astro';
+
+The operations layer every line-of-business grid grows first: per-user
+column choice. This recipe keeps it hypermedia — a
+[filter-popover](/hypermedia-components/recipes/filter-popover/) shell
+holds one checkbox per column, **Apply** GETs the grid URL with
+repeated `cols=` params, and the server re-renders the whole
+[datagrid](/hypermedia-components/components/datagrid/) with only those
+columns. No client column hiding: the server deciding *which columns
+exist* means one round trip, zero state drift, and print/export match
+the screen for free. Zero new JavaScript. Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add datagrid-columns
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-columns/contract.md).
+:::
+
+## Live demo
+
+Open **Columns**, uncheck a few, **Apply** — the server answers the
+grid with exactly those columns (in its canonical order) plus the
+chooser re-rendered out of band with matching checked states. Uncheck
+everything to see the absent-params branch bring the default set back.
+
+<DatagridColumnsDemo />
+
+## The markup
+
+```html
+<button class="hc-button" type="button" popovertarget="cols-popover">
+  Columns
+</button>
+
+<div id="cols-popover" class="hc-popover" popover>
+  <form id="cols-chooser" action="/items" method="get"
+        data-hx-get="/items"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <fieldset class="hc-popover__body" id="cols-fields">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+        Name
+      </label>
+      <!-- …one checkbox per column: status, owner, updated… -->
+    </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>
+
+<div class="hc-datagrid" id="items-grid">
+  <!-- server-rendered: .hc-datagrid__scroll > table with the current columns -->
+</div>
+```
+
+The chooser is the filter-popover shell —
+`data-hc-close-popover-on-success` (`installClosePopover()`,
+auto-installed) dismisses it on any 2xx. Every checkbox shares
+`name="cols"`, so Apply serializes repeated `cols=` params, and the
+form targets the **grid wrapper** (`innerHTML` default): header and
+rows always change together. The chooser's stable id is the
+out-of-band swap anchor for the re-rendered checked states.
+
+## Server response contract
+
+`GET /items?cols=name&cols=status&…`:
+
+| Case | Response (200) |
+| --- | --- |
+| any `cols` set | the grid fragment with **exactly those columns, in the server's canonical order**, plus an OOB `outerHTML` re-render of the chooser **fieldset** with matching checked states (never the form — it carries `data-hc-close-popover-on-success` and must survive the request) |
+| empty/absent `cols` | the server's default column set — an all-unchecked Apply serializes no `cols` at all, so it lands here |
+| unknown col name | ignored (the server is the schema); nothing recognized falls back to the default set |
+
+The requested *set* wins; the requested *order* does not — reordering
+is the server's canonical order, and persisting the choice per user is
+the server's option. A CSV export needs no recipe either:
+`<a href="/items.csv?cols=…">` reuses the same params, so the file
+matches the screen.
+
+## Progressive enhancement
+
+The chooser is a real GET form (`action` + `method="get"`): without
+JavaScript, Apply navigates to `/items?cols=…` and the server renders
+the full page with those columns. The grid itself is server-rendered
+HTML — column choice never depends on client JavaScript.
+
+## Accessibility
+
+- Native checkboxes with visible labels (`hc-checkbox-label`) — the
+  chooser is a plain form; no menu semantics to fake.
+- Every response keeps the grid a real `<table>` with `scope="col"`
+  headers, so a removed column is removed for assistive tech too —
+  which is the point.
+- Closing the popover on success returns focus to the trigger button
+  (native popover behavior).
+
+## Related
+
+- [filter-popover](/hypermedia-components/recipes/filter-popover/) —
+  the shell this chooser reuses.
+- [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) —
+  server pagination for the same grid; page links keep their `cols=`.
+- [datagrid-bulk-actions](/hypermedia-components/recipes/datagrid-bulk-actions/) —
+  row selection + one POST against the same grid.
+- [Datagrid](/hypermedia-components/components/datagrid/) — the
+  component's CSS API this recipe renders into.
