@@ -45,7 +45,6 @@ describe('manifest.json', () => {
       'installNavCurrent',
       'installFormat',
       'installNormalize',
-      'installMask',
     ]);
     const unclaimed = installs.filter((n) => !claimed.has(n));
     expect(unclaimed).toEqual([]);

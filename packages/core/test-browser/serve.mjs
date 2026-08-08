@@ -863,6 +863,61 @@ function handleChat(req, res, url) {
   return false;
 }
 
+// Mock postal lookup for the postal-address recipe spec
+// (postal-address.html): GET /mock/postal/lookup?postal=###-####
+// [&choice=<n>] per the recipe contract — single hit fills the address
+// inputs out of band, a shared code lists candidate buttons, unknown
+// codes hint, malformed codes 422.
+const POSTAL_BOOK = {
+  '123-4567': [{ pref: 'Tokyo', city: 'Chiyoda-ku', addr1: 'Chiyoda 1-1' }],
+  '600-8216': [
+    { pref: 'Kyoto', city: 'Shimogyo-ku', addr1: 'Higashishiokoji-cho' },
+    { pref: 'Kyoto', city: 'Shimogyo-ku', addr1: 'Nishishiokoji-cho' },
+  ],
+};
+const POSTAL_AUTOCOMPLETE = {
+  pref: 'address-level1', city: 'address-level2', addr1: 'address-line1',
+};
+
+function postalOob(field, value) {
+  return `<input class="hc-input" id="${field}" name="${field}" value="${value}" autocomplete="${POSTAL_AUTOCOMPLETE[field]}" data-testid="${field}" data-hx-swap-oob="outerHTML">`;
+}
+
+function handlePostal(req, res, url) {
+  if (req.method !== 'GET' || url.pathname !== '/mock/postal/lookup') return false;
+  const postal = url.searchParams.get('postal') ?? '';
+  res.setHeader('Content-Type', MIME['.html']);
+  if (!/^\d{3}-\d{4}$/.test(postal)) {
+    res.statusCode = 422;
+    res.end('<span>Enter a postal code as 123-4567.</span>');
+    return true;
+  }
+  const hits = POSTAL_BOOK[postal];
+  res.statusCode = 200;
+  if (!hits) {
+    res.end(`<span>No address for ${postal} — enter it manually.</span>`);
+    return true;
+  }
+  const choice = Number.parseInt(url.searchParams.get('choice') ?? '', 10);
+  const hit = hits.length === 1
+    ? hits[0]
+    : Number.isInteger(choice) && hits[choice] ? hits[choice] : null;
+  if (hit) {
+    res.end([
+      `<span>Address filled from ${postal}.</span>`,
+      postalOob('pref', hit.pref),
+      postalOob('city', hit.city),
+      postalOob('addr1', hit.addr1),
+    ].join('\n'));
+    return true;
+  }
+  const buttons = hits
+    .map((h, i) => `<button type="button" class="hc-button" data-size="sm" data-hx-get="/mock/postal/lookup?postal=${postal}&amp;choice=${i}" data-hx-target="#postal-result">${h.pref}, ${h.city}, ${h.addr1}</button>`)
+    .join('\n');
+  res.end(`<span>${hits.length} addresses share ${postal} — pick one:</span>\n${buttons}`);
+  return true;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -872,6 +927,7 @@ function handleMock(req, res, url) {
   if (handleTree(req, res, url)) return true;
   if (handleTransfer(req, res, url)) return true;
   if (handleCascade(req, res, url)) return true;
+  if (handlePostal(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.

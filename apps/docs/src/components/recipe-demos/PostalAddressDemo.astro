@@ -1,0 +1,50 @@
+---
+/*
+ * Live demo for the postal-address recipe. Same shape as
+ * recipes/postal-address/recipe.html, pointed at the demo API namespace
+ * (a real app would use its own /address-by-postal). Try 123-4567
+ * (single hit), 600-8216 (two candidates), or 999-0000 (no match).
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/postal-address`;
+---
+
+<DemoFrame class="hc-preview--col" label="Postal address demo">
+  <div class="hc-field">
+    <label class="hc-field__label" for="postal-address-demo-postal">Postal code</label>
+    <input
+      class="hc-input"
+      id="postal-address-demo-postal"
+      name="postal"
+      inputmode="numeric"
+      placeholder="123-4567"
+      pattern="\d{3}-\d{4}"
+      data-hc-mask="postal-jp"
+      data-hx-get={`${api}/address-by-postal`}
+      data-hx-trigger="change[target.value.length==8]"
+      data-hx-include="this"
+      data-hx-target="#postal-address-demo-result">
+    <p class="hc-field__hint" id="postal-address-demo-result" aria-live="polite">
+      Try 123-4567, 600-8216 (two candidates), or 999-0000.
+    </p>
+  </div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="postal-address-demo-pref">Prefecture</label>
+    <input class="hc-input" id="postal-address-demo-pref" name="pref"
+           autocomplete="address-level1">
+  </div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="postal-address-demo-city">City</label>
+    <input class="hc-input" id="postal-address-demo-city" name="city"
+           autocomplete="address-level2">
+  </div>
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="postal-address-demo-addr1">Street</label>
+    <input class="hc-input" id="postal-address-demo-addr1" name="addr1"
+           autocomplete="address-line1">
+  </div>
+</DemoFrame>

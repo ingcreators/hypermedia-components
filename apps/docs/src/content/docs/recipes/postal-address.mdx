@@ -1,0 +1,98 @@
+---
+title: Postal address
+description: Postal-code → address autofill — a masked postal input triggers one lookup GET; the server fills the address inputs out of band and reports through a polite hint slot.
+---
+
+import PostalAddressDemo from '../../../components/recipe-demos/PostalAddressDemo.astro';
+
+The form every Japanese business app repeats: type `123-4567`, get the
+prefecture and city filled. The postal input wears the
+[`postal-jp` mask](/hypermedia-components/components/input/#input-masks)
+(`installMask()`, auto-installed), so a guarded `change` trigger fires
+exactly once — on a complete code — and the server answers with
+out-of-band re-renders of the address inputs. The server owns the
+postal database; the client never parses addresses. Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add postal-address
+npx @hypermedia-components/cli validate form.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/postal-address/contract.md).
+:::
+
+## Live demo
+
+Try `123-4567` (single hit), `600-8216` (two candidates), or
+`999-0000` (no match).
+
+<PostalAddressDemo />
+
+## The markup
+
+```html
+<div class="hc-field">
+  <label class="hc-field__label" for="postal">Postal code</label>
+  <input class="hc-input" id="postal" name="postal" inputmode="numeric"
+         placeholder="123-4567" pattern="\d{3}-\d{4}"
+         data-hc-mask="postal-jp"
+         data-hx-get="/address-by-postal"
+         data-hx-trigger="change[target.value.length==8]"
+         data-hx-include="this"
+         data-hx-target="#postal-result">
+  <p class="hc-field__hint" id="postal-result" aria-live="polite"></p>
+</div>
+
+<div class="hc-field">
+  <label class="hc-field__label" for="pref">Prefecture</label>
+  <input class="hc-input" id="pref" name="pref" autocomplete="address-level1">
+</div>
+<!-- #city (address-level2) and #addr1 (address-line1) follow the same shape -->
+```
+
+The mask makes the trigger guard exact: `change[target.value.length==8]`
+can only be the complete `123-4567`. Forms that prefer an explicit
+affordance put the same `data-hx-get` on a 「住所検索」 button with
+`data-hx-include="#postal"` — the responses are identical.
+
+## Server response contract
+
+`GET /address-by-postal?postal=123-4567`:
+
+| Case | Response (200 unless noted) |
+| --- | --- |
+| single hit | a status line for the hint slot **+ OOB `outerHTML` re-renders** of `#pref` / `#city` / `#addr1` — complete inputs, values filled, `data-hx-swap-oob="outerHTML"` |
+| multiple hits | candidate `<button type="button">`s in the hint slot, each re-calling with `&choice=<n>` → single-hit shape |
+| not found | a hint line ("enter it manually"); no OOB swaps |
+| malformed postal | `422` + a hint line (the standard [422 allowance](/hypermedia-components/recipes/field-errors/#server-response-contract) swaps it) |
+
+OOB responses re-render **complete** inputs (class, id, name,
+`autocomplete`, value): `outerHTML` replaces the whole control, and the
+stable ids keep every `<label for>` association intact. Overwriting
+user-typed values is what autofill means.
+
+## Progressive enhancement
+
+Without JavaScript the address inputs are ordinary inputs — manual
+entry always works. `pattern` + `placeholder` mirror the mask so
+native validation stays equivalent.
+
+## Accessibility
+
+- The hint slot is `aria-live="polite"` — fills, candidate lists, and
+  no-match messages are announced without stealing focus.
+- Candidate buttons are real buttons in DOM order right after the
+  postal input.
+- `autocomplete` tokens stay on the inputs, so browser autofill and the
+  lookup coexist.
+
+## Related
+
+- [Input masks](/hypermedia-components/components/input/#input-masks) —
+  the `postal-jp` mask this recipe leans on.
+- [cascading-select](/hypermedia-components/recipes/cascading-select/) —
+  the sibling pattern for hierarchical selects.
+- [field-errors](/hypermedia-components/recipes/field-errors/) — the
+  422 allowance the malformed branch rides.

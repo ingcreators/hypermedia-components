@@ -22,6 +22,23 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`postal-address` recipe — postal-code → address autofill** (PR 4 of
+  [`plans/hc-input-format-plan-en.md`](plans/hc-input-format-plan-en.md);
+  the 28th recipe). The masked postal input
+  (`data-hc-mask="postal-jp"`) makes the trigger guard exact —
+  `change[target.value.length==8]` fires once, on a complete code — and
+  the server answers with a status line for an `aria-live` hint slot
+  plus **out-of-band `outerHTML` re-renders** of the address inputs
+  (stable ids keep the label associations; `autocomplete` tokens keep
+  browser autofill alive). Multiple hits come back as candidate buttons
+  re-calling with `&choice=<n>`; not-found is a hint; malformed is
+  `422` through the standard allowance. No new JavaScript and no new
+  public API — the mask shipped in #471; this PR is contract +
+  composition. Ships as `recipes/postal-address/` with a live demo
+  (stateless demo-api module + tests), a docs page (en/ja), and a
+  cross-engine Playwright suite (mask-guarded trigger, OOB fill, the
+  candidate pick, no-match, axe with the candidate list open).
+
 - **`installMask()` — declarative fixed-format input masks** (PR 3 of
   [`plans/hc-input-format-plan-en.md`](plans/hc-input-format-plan-en.md)).
   `data-hc-mask` renders codes as the user types: `#`/`a`/`A`/`*`

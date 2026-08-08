@@ -1,0 +1,99 @@
+---
+title: 郵便番号住所補完
+description: 郵便番号 → 住所の自動入力 — マスク付き郵便番号入力が 1 回のルックアップ GET を発行し、サーバーが住所欄をアウトオブバンドで埋めて aria-live のヒント枠に報告します。
+---
+
+import PostalAddressDemo from '../../../../components/recipe-demos/PostalAddressDemo.astro';
+
+日本の業務アプリが必ず繰り返すフォームです: `123-4567` と入力すると、
+都道府県と市区町村が埋まります。郵便番号入力は
+[`postal-jp` マスク](/hypermedia-components/ja/components/input/#入力マスク)
+(自動インストールされる `installMask()`)を着ているため、ガード付きの
+`change` トリガーは完全なコードのときに一度だけ発火し、サーバーは住所
+入力のアウトオブバンド再レンダリングで応答します。郵便番号データベースを
+持つのはサーバーです — クライアントは住所を一切解析しません。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add postal-address
+npx @hypermedia-components/cli validate form.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/postal-address/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+`123-4567`(単一ヒット)、`600-8216`(候補 2 件)、`999-0000`
+(該当なし)を試してください。
+
+<PostalAddressDemo />
+
+## マークアップ
+
+```html
+<div class="hc-field">
+  <label class="hc-field__label" for="postal">Postal code</label>
+  <input class="hc-input" id="postal" name="postal" inputmode="numeric"
+         placeholder="123-4567" pattern="\d{3}-\d{4}"
+         data-hc-mask="postal-jp"
+         data-hx-get="/address-by-postal"
+         data-hx-trigger="change[target.value.length==8]"
+         data-hx-include="this"
+         data-hx-target="#postal-result">
+  <p class="hc-field__hint" id="postal-result" aria-live="polite"></p>
+</div>
+
+<div class="hc-field">
+  <label class="hc-field__label" for="pref">Prefecture</label>
+  <input class="hc-input" id="pref" name="pref" autocomplete="address-level1">
+</div>
+<!-- #city (address-level2) と #addr1 (address-line1) も同じ形です -->
+```
+
+マスクがトリガーガードを正確にします:
+`change[target.value.length==8]` は完全な `123-4567` のときにしか
+成立しません。明示的な操作を好むフォームは、同じ `data-hx-get` を
+`data-hx-include="#postal"` 付きの「住所検索」ボタンに載せてください —
+応答は同一です。
+
+## サーバー応答契約
+
+`GET /address-by-postal?postal=123-4567`:
+
+| ケース | 応答(注記がなければ 200) |
+| --- | --- |
+| 単一ヒット | ヒント枠へのステータス行 **+ OOB `outerHTML` 再レンダリング**(`#pref` / `#city` / `#addr1` — 完全な input、値入り、`data-hx-swap-oob="outerHTML"`) |
+| 複数ヒット | ヒント枠に候補の `<button type="button">` 群。各候補は `&choice=<n>` 付きで再呼び出し → 単一ヒットの形 |
+| 該当なし | ヒント行(「手入力してください」)。OOB スワップなし |
+| 郵便番号が不正 | `422` + ヒント行(標準の [422 許可](/hypermedia-components/ja/recipes/field-errors/#サーバレスポンス契約)でスワップ) |
+
+OOB 応答は**完全な** input を再レンダリングします(class、id、name、
+`autocomplete`、value): `outerHTML` はコントロール全体を置き換え、
+安定した id が `<label for>` の関連付けを保ちます。ユーザーが打った値を
+上書きするのが、オートフィルの意味そのものです。
+
+## プログレッシブエンハンスメント
+
+JavaScript なしでは住所入力はただの input です — 手入力は常に機能
+します。`pattern` + `placeholder` がマスクを鏡写しにするので、
+ネイティブ検証は等価なままです。
+
+## アクセシビリティ
+
+- ヒント枠は `aria-live="polite"` — 補完・候補一覧・該当なしの
+  メッセージが、フォーカスを奪わずに読み上げられます。
+- 候補は本物のボタンで、DOM 順で郵便番号入力の直後に並びます。
+- `autocomplete` トークンは input に残るため、ブラウザの自動入力と
+  ルックアップは共存します。
+
+## 関連
+
+- [入力マスク](/hypermedia-components/ja/components/input/#入力マスク) —
+  このレシピが頼る `postal-jp` マスク。
+- [cascading-select](/hypermedia-components/ja/recipes/cascading-select/) —
+  階層セレクトの姉妹パターン。
+- [field-errors](/hypermedia-components/ja/recipes/field-errors/) —
+  不正入力ブランチが乗る 422 許可。

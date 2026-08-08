@@ -1,0 +1,54 @@
+<!doctype html>
+<!-- Fixture for the postal-address recipe — masked postal input + lookup
+     GET + OOB autofill against the serve.mjs mock. Pins: the mask-guarded
+     change trigger firing exactly on a complete code, the OOB input
+     re-renders (label associations survive), the multi-candidate pick,
+     and the not-found hint. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>postal-address fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Postal address</h1>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="postal">Postal code</label>
+      <input class="hc-input" id="postal" name="postal" inputmode="numeric"
+             placeholder="123-4567" pattern="\d{3}-\d{4}"
+             data-hc-mask="postal-jp"
+             data-hx-get="/mock/postal/lookup"
+             data-hx-trigger="change[target.value.length==8]"
+             data-hx-include="this"
+             data-hx-target="#postal-result"
+             data-testid="postal">
+      <p class="hc-field__hint" id="postal-result" aria-live="polite"
+         data-testid="result"></p>
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="pref">Prefecture</label>
+      <input class="hc-input" id="pref" name="pref"
+             autocomplete="address-level1" data-testid="pref">
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="city">City</label>
+      <input class="hc-input" id="city" name="city"
+             autocomplete="address-level2" data-testid="city">
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="addr1">Street</label>
+      <input class="hc-input" id="addr1" name="addr1"
+             autocomplete="address-line1" data-testid="addr1">
+    </div>
+  </main>
+</body>
+</html>
