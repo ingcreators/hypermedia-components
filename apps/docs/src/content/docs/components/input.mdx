@@ -184,6 +184,37 @@ The rewrite runs in a capture-phase `change` listener, so htmx triggers
 reading `target.value` already see the normalized value — with a
 `formdata` safety net for values that never fired `change`.
 
+## Input masks
+
+`data-hc-mask` (the auto-installed `installMask()`) renders fixed-format
+codes as the user types — literals appear by themselves and fullwidth
+input fills the slots:
+
+```html
+<input class="hc-input" name="postal" inputmode="numeric"
+       placeholder="123-4567" pattern="\d{3}-\d{4}"
+       data-hc-mask="postal-jp">
+
+<input class="hc-input" name="product" placeholder="AB-12"
+       data-hc-mask="AA-##">
+```
+
+- Tokens: `#` digit, `a` letter, `A` letter (upcased), `*` alphanumeric;
+  every other character is a literal. `postal-jp` is an alias for
+  `###-####`. Characters that fit no slot are dropped.
+- Typing `1234` shows `123-4` (literals render lazily); Backspace and
+  Delete hop a literal run and always consume a raw character, so the
+  caret never sticks on a hyphen.
+- The submitted value is the displayed canonical form.
+  `data-hc-mask-submit="raw"` strips literals on the wire (servers that
+  store 7-digit postal codes) — same `formdata` mechanism as
+  [grouped amounts](#grouped-amounts).
+- Mirror the mask with `pattern` + `placeholder`: the behavior never
+  blocks submission, so no-JS submits stay validatable.
+
+Variable-width formats (Japanese landline numbers) have no fixed mask —
+leave those fields unmasked and normalize server-side.
+
 ## htmx usage
 
 `hc-input` works with htmx like any other input. The [live-search](/hypermedia-components/recipes/live-search/)

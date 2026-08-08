@@ -189,6 +189,36 @@ import Demo from '../../../../components/Demo.astro';
 `change` が発火しなかった値には `formdata` のセーフティネットが
 あります。
 
+## 入力マスク
+
+`data-hc-mask`(自動インストールされる `installMask()`)は、固定形式の
+コードを入力と同時に整形します — 区切り文字は自動で現れ、全角入力も
+スロットを埋めます:
+
+```html
+<input class="hc-input" name="postal" inputmode="numeric"
+       placeholder="123-4567" pattern="\d{3}-\d{4}"
+       data-hc-mask="postal-jp">
+
+<input class="hc-input" name="product" placeholder="AB-12"
+       data-hc-mask="AA-##">
+```
+
+- トークン: `#` 数字、`a` 英字、`A` 英字(大文字化)、`*` 英数字。
+  それ以外の文字はリテラルです。`postal-jp` は `###-####` の別名です。
+  どのスロットにも合わない文字は捨てられます。
+- `1234` と打つと `123-4` になります(リテラルは遅延レンダリング)。
+  Backspace / Delete はリテラル列を飛び越えて必ず生文字を 1 つ消すため、
+  キャレットがハイフンで詰まりません。
+- 送信値は表示どおりの正準形です。`data-hc-mask-submit="raw"` を付けると
+  ワイヤ上でリテラルを除去します(7 桁の郵便番号を保存するサーバー向け)
+  — [金額のグループ表示](#金額のグループ表示)と同じ `formdata` 機構です。
+- `pattern` + `placeholder` でマスクを鏡写しにしてください。ビヘイビアは
+  送信を止めないので、no-JS の送信も検証可能なままです。
+
+可変長の形式(固定電話番号)には固定マスクがありません — そうした
+フィールドはマスクせず、サーバー側で正規化してください。
+
 ## htmx での利用
 
 `hc-input` は他の入力と同様に htmx と組み合います。[live-search](/hypermedia-components/ja/recipes/live-search/)

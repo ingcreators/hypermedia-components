@@ -3,7 +3,7 @@ title: Behaviors
 description: Every installXxx() behavior — what it powers and whether the zero-config bundle auto-installs it.
 ---
 
-The kit ships 49 small behaviors. All of them are idempotent, return an
+The kit ships 50 small behaviors. All of them are idempotent, return an
 uninstaller, and — with the single exception of `installChart()` — are
 **auto-installed** by the zero-config
 `@hypermedia-components/core/behaviors` entry, which also picks up
@@ -37,6 +37,7 @@ the behavior dispatches; "—" means none.
 | `installShowWhen()` | Conditional field visibility — the [conditional-fields recipe](/hypermedia-components/recipes/conditional-fields/). | `data-hc-show-when`, `data-hc-show-switch`, `data-hc-show-src` | — | ✓ |
 | `installFormat()` | Grouped numeric display with a raw wire value — [input](/hypermedia-components/components/input/#grouped-amounts). | `data-hc-format`, `data-decimals`, `data-locale` | — | ✓ |
 | `installNormalize()` | IME fullwidth / kana normalization on commit — [input](/hypermedia-components/components/input/#ime-normalization). | `data-hc-normalize` | — | ✓ |
+| `installMask()` | Declarative fixed-format masks (`postal-jp`, `#`/`a`/`A`/`*` patterns) — [input](/hypermedia-components/components/input/#input-masks). | `data-hc-mask`, `data-hc-mask-submit` | — | ✓ |
 | `installSortable()` | Pointer + keyboard list reordering — the [sortable recipe](/hypermedia-components/recipes/sortable/). | `data-hc-sortable`, `data-hc-sortable-handle`, `data-hc-sortable-id` | `hc:sortchange` | ✓ |
 | `installCombobox()` | [Combobox](/hypermedia-components/components/combobox/) keyboard, filtering, ARIA. | `data-remote`, `data-allow-create`, `data-value`, … | `hc:comboboxselect` | ✓ |
 | `installMulticombobox()` | [Multicombobox](/hypermedia-components/components/multicombobox/) tags, keyboard, ARIA. | `data-name`, `data-allow-create`, `data-value`, … | `hc:multicomboboxchange` | ✓ |

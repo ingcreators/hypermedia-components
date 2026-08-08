@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installMask()` — declarative fixed-format input masks** (PR 3 of
+  [`plans/hc-input-format-plan-en.md`](plans/hc-input-format-plan-en.md)).
+  `data-hc-mask` renders codes as the user types: `#`/`a`/`A`/`*`
+  pattern tokens plus literal characters (`postal-jp` = `###-####`),
+  NFKC entry so fullwidth digits fill slots, lazy literals (`1234` →
+  `123-4`), caret-preserving re-renders, and Backspace/Delete that hop a
+  literal run and always consume a raw character. The wire value is the
+  displayed canonical form; `data-hc-mask-submit="raw"` strips literals
+  via the same `formdata` hook installFormat uses. No `maxlength` is
+  imposed — the render caps at the mask, so pastes like `〒123-4567`
+  clean instead of truncating. Auto-installed; documented on the input
+  page (en/ja) and the behaviors roster (50); pinned by an 11-test
+  jsdom suite (caret math, literal hops, submit modes) and a
+  cross-engine Playwright spec (real typing, caret position, raw wire
+  snapshot, axe).
+
 - **`installFormat()` / `installNormalize()` — business-form input
   hygiene** (PR 2 of
   [`plans/hc-input-format-plan-en.md`](plans/hc-input-format-plan-en.md)).

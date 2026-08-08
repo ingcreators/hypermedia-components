@@ -54,6 +54,7 @@ import { installCodeEditor } from './code-editor.js';
 import { installShowWhen } from './show-when.js';
 import { installSortable } from './sortable.js';
 import { installFormat, installNormalize } from './format.js';
+import { installMask } from './mask.js';
 
 function init() {
   installConfirm();
@@ -104,6 +105,7 @@ function init() {
   installSortable();
   installFormat();
   installNormalize();
+  installMask();
 }
 
 if (typeof document !== 'undefined') {
@@ -163,6 +165,7 @@ export {
   installSortable,
   installFormat,
   installNormalize,
+  installMask,
 };
 
 // registerCodeLanguage — plug a tokenizer into the editable-code highlight

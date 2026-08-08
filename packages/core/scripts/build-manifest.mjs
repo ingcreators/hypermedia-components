@@ -45,6 +45,7 @@ const EXPLICIT_CLAIMS = {
   installValidation: 'platform', // native-validation wiring (field docs)
   installFormat: 'platform', // numeric display formatting (input docs)
   installNormalize: 'platform', // IME fullwidth/kana normalization (input docs)
+  installMask: 'platform', // declarative input masks (input docs; postal-address recipe follows)
   installCsrfHeader: 'platform',
   installThemeToggle: 'platform',
   installNavCurrent: 'platform', // boosted-nav re-marking (shell docs)
