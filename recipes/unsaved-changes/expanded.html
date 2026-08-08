@@ -1,0 +1,20 @@
+<!-- Expanded state: the user edited the title — the guard flipped
+  data-dirty on the form (and dispatched hc:dirtychange). Style hooks
+  key off the attribute; here a badge appears while dirty:
+
+    form[data-dirty] .unsaved-badge { visibility: visible; }
+
+  Closing the tab now prompts; a boosted link asks first; a successful
+  save (the form's own request) re-snapshots and removes data-dirty. -->
+<form data-hc-dirty-guard data-dirty
+      data-hx-post="/reports/42"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Quarterly report (edited)">
+  </div>
+  <p class="hc-field__hint" id="status" aria-live="polite">
+    <span class="hc-badge unsaved-badge" data-variant="warning">Unsaved changes</span>
+  </p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>

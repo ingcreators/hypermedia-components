@@ -77,6 +77,7 @@ const FILES = [
   ['src/js/sortable.js',      'sortable.js'],
   ['src/js/format.js',        'format.js'],
   ['src/js/mask.js',          'mask.js'],
+  ['src/js/dirty-guard.js',   'dirty-guard.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
 
   // Macros — kept under dist/macros/ so the entry module's relative

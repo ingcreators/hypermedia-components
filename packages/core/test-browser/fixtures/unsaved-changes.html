@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- Fixture for installDirtyGuard / the unsaved-changes recipe. Pins:
+     dirty flip on real typing, the data-dirty style hook, clean-on-save
+     via the form's own htmx request (204 from the mock), the draft-like
+     inner request NOT cleaning, and the beforeunload prompt (chromium
+     asserts the real dialog; other engines assert the synthetic path). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>unsaved-changes fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+  <style>
+    .unsaved-badge { visibility: hidden; }
+    form[data-dirty] .unsaved-badge { visibility: visible; }
+  </style>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Unsaved changes</h1>
+
+    <form data-hc-dirty-guard data-testid="guarded"
+          data-hx-post="/mock/dirty/save"
+          data-hx-target="#save-status" data-hx-swap="innerHTML">
+      <div class="hc-field">
+        <label class="hc-field__label" for="title">Title</label>
+        <input class="hc-input" id="title" name="title" value="Quarterly report"
+               data-testid="title">
+      </div>
+      <p class="hc-field__hint">
+        <span class="hc-badge unsaved-badge" data-variant="warning"
+              data-testid="badge">Unsaved changes</span>
+      </p>
+      <p class="hc-field__hint" id="save-status" aria-live="polite"
+         data-testid="save-status"></p>
+      <button class="hc-button" data-variant="primary" type="submit"
+              data-testid="save">Save</button>
+    </form>
+  </main>
+</body>
+</html>

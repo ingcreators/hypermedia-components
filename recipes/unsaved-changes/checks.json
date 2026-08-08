@@ -1,0 +1,18 @@
+{
+  "detect": "form[data-hc-dirty-guard]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "has-submit-control",
+      "level": "warn",
+      "message": "A guarded form should have a way to save: add a submit button (the guard turns clean when the form's own request succeeds).",
+      "exists": { "selector": "button[type=\"submit\"], input[type=\"submit\"]" }
+    },
+    {
+      "id": "labelled-fields",
+      "level": "warn",
+      "message": "Guarded forms are data-entry forms — wrap controls in hc-field with labels.",
+      "exists": { "selector": ".hc-field" }
+    }
+  ]
+}

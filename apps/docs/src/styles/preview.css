@@ -157,3 +157,13 @@
     overflow: clip;
   }
 }
+
+/* unsaved-changes recipe demo: the badge keys off the guard's
+   data-dirty attribute (docs-only styling, not public API). */
+.hc-preview .hc-preview-unsaved-badge {
+  visibility: hidden;
+}
+
+.hc-preview form[data-dirty] .hc-preview-unsaved-badge {
+  visibility: visible;
+}

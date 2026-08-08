@@ -44,6 +44,7 @@ import {
   installFormat,
   installNormalize,
   installMask,
+  installDirtyGuard,
   version,
 } from '@hypermedia-components/core';
 
@@ -82,6 +83,7 @@ import {
   installFormat as installFormatFromBehaviors,
   installNormalize as installNormalizeFromBehaviors,
   installMask as installMaskFromBehaviors,
+  installDirtyGuard as installDirtyGuardFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -129,6 +131,7 @@ const uninstallers: Array<() => void> = [
   installFormat(document),
   installNormalize(document),
   installMask(document),
+  installDirtyGuard(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -163,6 +166,7 @@ const uninstallers: Array<() => void> = [
   installFormatFromBehaviors(),
   installNormalizeFromBehaviors(),
   installMaskFromBehaviors(),
+  installDirtyGuardFromBehaviors(),
 ];
 
 // `version` is a string literal export.

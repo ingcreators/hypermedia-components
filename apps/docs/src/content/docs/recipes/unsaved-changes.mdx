@@ -1,0 +1,109 @@
+---
+title: Unsaved changes
+description: An unsaved-changes guard for forms — data-dirty state + hc:dirtychange, a tab-close prompt, a boosted-navigation confirm, and clean-on-save, from one attribute.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+Losing a half-filled form is the top complaint class in business apps.
+`data-hc-dirty-guard` (the auto-installed `installDirtyGuard()`) makes
+a form honest about its edit state: `data-dirty` appears on the first
+real change, the tab refuses to close silently, boosted navigation
+asks first, and a successful save resets the baseline. Client-only —
+the save keeps whatever contract the form already follows. Covered by
+the [versioning policy](/hypermedia-components/reference/versioning/).
+
+:::note[Setup]
+This recipe needs the `installDirtyGuard()` behavior. Install every
+behavior at once with `import '@hypermedia-components/core/behaviors';`,
+or just this one:
+
+```js
+import { installDirtyGuard } from '@hypermedia-components/core';
+installDirtyGuard();
+```
+
+See [Installation](/hypermedia-components/start/installation/).
+:::
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add unsaved-changes` copies this
+recipe's scaffold; `npx @hypermedia-components/cli validate`
+machine-checks your copy. The full contract lives in
+[`recipes/unsaved-changes/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/unsaved-changes/contract.md).
+:::
+
+## Live demo
+
+The preview is live: edit the title and the badge appears (a plain
+`form[data-dirty]` CSS hook); revert the exact text and it disappears.
+Closing the tab while dirty would prompt — the demo form has no server,
+so Save here is inert.
+
+<Demo previewClass="hc-preview--col">
+  <form data-hc-dirty-guard class="hc-stack">
+    <div class="hc-field">
+      <label class="hc-field__label" for="unsaved-demo-title">Title</label>
+      <input class="hc-input" id="unsaved-demo-title" name="title" value="Quarterly report" />
+    </div>
+    <p class="hc-field__hint">
+      <span class="hc-badge hc-preview-unsaved-badge" data-variant="warning">Unsaved changes</span>
+    </p>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form data-hc-dirty-guard data-hx-post="/reports/42"
+        data-hx-target="#status" data-hx-swap="innerHTML">
+    <div class="hc-field">
+      <label class="hc-field__label" for="title">Title</label>
+      <input class="hc-input" id="title" name="title" value="Quarterly report">
+    </div>
+    <p class="hc-field__hint" id="status" aria-live="polite"></p>
+    <button class="hc-button" data-variant="primary" type="submit">Save</button>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+## What the guard does
+
+| Moment | Effect |
+| --- | --- |
+| first focus in the form | baseline snapshot (via `new FormData(form)` — [installFormat](/hypermedia-components/components/input/#grouped-amounts)'s canonical values, so display regrouping is never "dirty") |
+| any `input` / `change` | compare → toggle `data-dirty`, dispatch `hc:dirtychange` `{ dirty }` on flips |
+| tab close / reload while dirty | the browser's generic prompt (custom strings are ignored by modern browsers) |
+| boosted `<a>` navigation while dirty | `window.confirm` with the `dirtyguard.leave` message (localize via [`setMessages()`](/hypermedia-components/fundamentals/i18n/)) |
+| the form's own request succeeds | re-snapshot → clean |
+| a request from inside the form but not by it | **not** clean — a draft autosaver's draft stays a draft (the autosave recipe follows) |
+| native submit | never prompts (`submit` fires only after constraint validation passes) |
+
+## Styling the state
+
+`data-dirty` is a plain attribute — style it in app CSS:
+
+```css
+.unsaved-badge { visibility: hidden; }
+form[data-dirty] .unsaved-badge { visibility: visible; }
+```
+
+A server may also **render** `data-dirty` (a restored draft is unsaved
+by definition) — the guard warns from the attribute alone.
+
+## Progressive enhancement
+
+Without JavaScript nothing guards and nothing breaks: the form submits
+natively. Pure enhancement by construction.
+
+## Accessibility
+
+- The tab-close prompt is the browser's own dialog.
+- Mirror the state into an `aria-live` status line via `hc:dirtychange`
+  when a visual badge alone is not enough.
+
+## Related
+
+- [mutating-form](/hypermedia-components/recipes/mutating-form/) — the
+  save contract the guarded form usually follows.
