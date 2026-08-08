@@ -19,7 +19,10 @@ What it owns is *editing hc markup safely*.
 - **Six primitives close the edit vocabulary**: `setAttribute`,
   `removeAttribute` (a set-to-null), `setText`, `insertNode`,
   `removeNode`, `moveNode`. Every canvas mutation is one of these, and
-  each captures its own inverse — undo/redo needs no snapshots.
+  each captures its own inverse — undo/redo needs no snapshots. Each
+  also declares what it dirties (`dirt()`), so the stack knows exactly
+  which nodes drifted from the last clean point — the foundation for
+  dirty-region serialization (#452).
 - **Editor scaffolding is namespaced.** Attributes prefixed
   `data-hc-editor-` and elements marked `data-hc-editor-only` are
   editor-internal; both serializers strip them, so they can never leak
@@ -81,6 +84,15 @@ editor.selection.addEventListener('change', (e) => console.log(e.detail.items));
 // Artifact HTML (editor scaffolding stripped) and the JSON projection:
 const html = editor.serialize();
 const json = editor.toJson();
+
+// The stack tracks which nodes drifted from the last clean point
+// (#452): `dirty` for an unsaved-changes indicator, `dirtyNodes()`
+// for partial re-render / save payloads, `markClean()` after saving.
+editor.stack.addEventListener('change', () => setUnsavedBadge(editor.stack.dirty));
+const dirty = editor.stack.dirtyNodes();
+// Map<Node, Set<'attr:<name>' | 'text' | 'children'>> — a moved node is
+// itself NOT dirty; only its old and new parents' child lists are.
+editor.stack.markClean();
 ```
 
 ## Drag & drop and the overlay

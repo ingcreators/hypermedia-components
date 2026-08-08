@@ -20,7 +20,20 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
-## [0.2.0] - 2026-08-08
+### Added
+
+- **editor-kit: dirty tracking on `CommandStack`** (#452 Stage 1, of
+  three staged in
+  [`plans/hc-editor-kit-dirty-serialize-plan-en.md`](plans/hc-editor-kit-dirty-serialize-plan-en.md)) —
+  the stack now tracks which nodes drifted from the last clean point:
+  `stack.dirty`, `stack.dirtyNodes()` (`Map<Node, Set<kind>>` with
+  kinds `attr:<name>` / `text` / `children`), and `stack.markClean()`
+  (emits `change` `{action: 'clean'}`). Signed-count semantics: undo
+  back to the clean point is clean, undo *past* a `markClean()`
+  watermark is dirty again; coalesced merges don't double-count;
+  `clear()` forgets history but keeps dirt. Each of the six command
+  primitives declares its dirt via a new `dirt()` method (a moved node
+  is itself not dirty — only its old and new parents' child lists).
 
 The OKLCH color release (#457). **Contains breaking changes** — the
 first since `0.1.0` — flagged below per VERSIONING.md; shipped as a

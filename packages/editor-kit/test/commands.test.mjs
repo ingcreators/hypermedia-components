@@ -235,3 +235,180 @@ describe('CommandStack', () => {
     expect(spy).not.toHaveBeenCalled();
   });
 });
+
+describe('dirty tracking', () => {
+  it('starts clean and reports attribute dirt per name', () => {
+    root.innerHTML = '<button data-variant="ghost">Go</button>';
+    const btn = root.firstElementChild;
+    const stack = new CommandStack();
+
+    expect(stack.dirty).toBe(false);
+    expect(stack.dirtyNodes().size).toBe(0);
+
+    stack.apply(setAttribute(btn, 'data-variant', 'primary'));
+    expect(stack.dirty).toBe(true);
+    expect(stack.dirtyNodes().get(btn)).toEqual(new Set(['attr:data-variant']));
+
+    stack.apply(removeAttribute(btn, 'data-size'));
+    expect(stack.dirtyNodes().get(btn)).toEqual(
+      new Set(['attr:data-variant', 'attr:data-size']),
+    );
+  });
+
+  it('marks text dirt on the node and children dirt on the parent', () => {
+    root.innerHTML = '<section><p>hi</p></section>';
+    const section = root.firstElementChild;
+    const p = section.firstElementChild;
+    const stack = new CommandStack();
+
+    stack.apply(setText(p, 'bye'));
+    expect(stack.dirtyNodes().get(p)).toEqual(new Set(['text']));
+
+    stack.apply(insertNode(section, document.createElement('div'), 99));
+    expect(stack.dirtyNodes().get(section)).toEqual(new Set(['children']));
+  });
+
+  it('removeNode dirties the captured parent, not the removed node', () => {
+    root.innerHTML = '<ul><li>a</li><li>b</li></ul>';
+    const ul = root.firstElementChild;
+    const li = ul.firstElementChild;
+    const stack = new CommandStack();
+
+    stack.apply(removeNode(li));
+    const dirty = stack.dirtyNodes();
+    expect(dirty.get(ul)).toEqual(new Set(['children']));
+    expect(dirty.has(li)).toBe(false);
+  });
+
+  it('moveNode dirties both parents but not the moved node', () => {
+    root.innerHTML = '<div id="a"><span>x</span></div><div id="b"></div>';
+    const [a, b] = root.children;
+    const span = a.firstElementChild;
+    const stack = new CommandStack();
+
+    stack.apply(moveNode(span, b, 0));
+    const dirty = stack.dirtyNodes();
+    expect(dirty.get(a)).toEqual(new Set(['children']));
+    expect(dirty.get(b)).toEqual(new Set(['children']));
+    expect(dirty.has(span)).toBe(false);
+  });
+
+  it('same-parent moves record the parent once and undo back to clean', () => {
+    root.innerHTML = '<ul><li>a</li><li>b</li></ul>';
+    const ul = root.firstElementChild;
+    const stack = new CommandStack();
+
+    stack.apply(moveNode(ul.children[1], ul, 0));
+    expect(stack.dirtyNodes().get(ul)).toEqual(new Set(['children']));
+    stack.undo();
+    expect(stack.dirty).toBe(false);
+  });
+
+  it('undo returns to clean, redo re-dirties', () => {
+    root.innerHTML = '<button>Go</button>';
+    const btn = root.firstElementChild;
+    const stack = new CommandStack();
+
+    stack.apply(setAttribute(btn, 'data-size', 'lg'));
+    stack.undo();
+    expect(stack.dirty).toBe(false);
+    stack.redo();
+    expect(stack.dirty).toBe(true);
+  });
+
+  it('coalesced typing undone in one step returns to clean', () => {
+    root.innerHTML = '<input placeholder="a">';
+    const input = root.firstElementChild;
+    const stack = new CommandStack();
+
+    for (const v of ['ab', 'abc', 'abcd']) {
+      stack.apply(setAttribute(input, 'placeholder', v), { coalesce: true });
+    }
+    expect(stack.dirty).toBe(true);
+    stack.undo();
+    expect(stack.dirty).toBe(false);
+  });
+
+  it('a transaction counts per command and one undo cleans it', () => {
+    root.innerHTML = '<div><span>x</span></div><aside></aside>';
+    const [div, aside] = root.children;
+    const span = div.firstElementChild;
+    const stack = new CommandStack();
+
+    stack.transact(() => {
+      stack.apply(setAttribute(span, 'data-variant', 'primary'));
+      stack.apply(moveNode(span, aside, 0));
+    });
+    expect(stack.dirtyNodes().get(span)).toEqual(new Set(['attr:data-variant']));
+    expect(stack.dirtyNodes().get(div)).toEqual(new Set(['children']));
+    expect(stack.dirtyNodes().get(aside)).toEqual(new Set(['children']));
+
+    stack.undo();
+    expect(stack.dirty).toBe(false);
+  });
+
+  it('markClean resets, and undoing past the watermark is dirty again', () => {
+    root.innerHTML = '<button>Go</button>';
+    const btn = root.firstElementChild;
+    const stack = new CommandStack();
+
+    stack.apply(setAttribute(btn, 'data-size', 'lg'));
+    stack.markClean();
+    expect(stack.dirty).toBe(false);
+
+    stack.undo(); // DOM now differs from the saved baseline (count −1)
+    expect(stack.dirty).toBe(true);
+    expect(stack.dirtyNodes().get(btn)).toEqual(new Set(['attr:data-size']));
+
+    stack.redo(); // back at the baseline
+    expect(stack.dirty).toBe(false);
+  });
+
+  it('markClean emits change {action: "clean"}', () => {
+    const stack = new CommandStack();
+    const seen = vi.fn();
+    stack.addEventListener('change', (e) => seen(e.detail.action));
+    stack.markClean();
+    expect(seen).toHaveBeenCalledWith('clean');
+  });
+
+  it('clear() forgets history but keeps dirt', () => {
+    root.innerHTML = '<button>Go</button>';
+    const btn = root.firstElementChild;
+    const stack = new CommandStack();
+
+    stack.apply(setAttribute(btn, 'data-size', 'lg'));
+    stack.clear();
+    expect(stack.canUndo).toBe(false);
+    expect(stack.dirty).toBe(true);
+  });
+
+  it('dirtyNodes() is a defensive copy', () => {
+    root.innerHTML = '<button>Go</button>';
+    const btn = root.firstElementChild;
+    const stack = new CommandStack();
+
+    stack.apply(setAttribute(btn, 'data-size', 'lg'));
+    const copy = stack.dirtyNodes();
+    copy.delete(btn);
+    expect(stack.dirtyNodes().has(btn)).toBe(true);
+  });
+
+  it('commands without dirt() are tolerated', () => {
+    const stack = new CommandStack();
+    let on = false;
+    stack.apply({
+      type: 'custom',
+      apply() {
+        on = true;
+      },
+      revert() {
+        on = false;
+      },
+    });
+    expect(on).toBe(true);
+    expect(stack.dirty).toBe(false);
+    stack.undo();
+    expect(on).toBe(false);
+  });
+});

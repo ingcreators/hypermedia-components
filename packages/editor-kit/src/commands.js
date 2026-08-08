@@ -10,6 +10,15 @@
 // the moved/inserted node absent; `moveNode` therefore behaves the
 // same for same-parent and cross-parent moves (remove first, then
 // insert before `childNodes[index]`).
+//
+// Because every mutation flows through these primitives, the stack can
+// track exactly which nodes drifted from the last clean point (#452).
+// Each primitive declares what it dirties via `dirt()` — records of
+// `[node, kind]` with kind `'attr:<name>'` (start tag), `'text'`
+// (content), or `'children'` (the PARENT's child list; a moved node is
+// itself NOT dirty). `dirt()` is called after first apply, so captured
+// fields (`removeNode.parent`, `moveNode.prevParent`) are available.
+// Custom commands without `dirt()` simply don't participate.
 
 /** Set (or, with `value === null`, remove) an attribute. */
 export function setAttribute(node, name, value) {
@@ -32,6 +41,9 @@ export function setAttribute(node, name, value) {
     },
     merge(next) {
       this.value = next.value;
+    },
+    dirt() {
+      return [[node, `attr:${name}`]];
     },
   };
 }
@@ -58,6 +70,9 @@ export function setText(node, text) {
     },
     merge(next) {
       this.value = next.value;
+    },
+    dirt() {
+      return [[node, 'text']];
     },
   };
 }
@@ -96,6 +111,9 @@ export function insertNode(parent, node, index) {
     revert() {
       node.remove();
     },
+    dirt() {
+      return [[parent, 'children']];
+    },
   };
 }
 
@@ -115,6 +133,9 @@ export function removeNode(node) {
     },
     revert() {
       this.parent.insertBefore(node, this.parent.childNodes[this.index] ?? null);
+    },
+    dirt() {
+      return [[this.parent, 'children']];
     },
   };
 }
@@ -143,6 +164,14 @@ export function moveNode(node, parent, index) {
         this.prevParent.childNodes[this.prevIndex] ?? null,
       );
     },
+    dirt() {
+      return this.prevParent === parent
+        ? [[parent, 'children']]
+        : [
+            [this.prevParent, 'children'],
+            [parent, 'children'],
+          ];
+    },
   };
 }
 
@@ -154,12 +183,22 @@ const COALESCIBLE = new Set(['setAttribute', 'setText']);
  * `apply(cmd, { coalesce: true })` merges consecutive attribute/text
  * edits on the same target (inspector typing = one undo step).
  * Emits a `change` CustomEvent (`detail.action`:
- * apply | undo | redo | clear) after every mutation.
+ * apply | undo | redo | clear | clean) after every mutation.
+ *
+ * The stack also tracks which nodes are dirty relative to the last
+ * clean point (construction or `markClean()`), via signed counts of
+ * each command's `dirt()` records: apply/redo +1, undo −1, and a node
+ * is dirty while any count is nonzero — so undoing back to the clean
+ * point is clean, and undoing PAST a `markClean()` watermark is dirty
+ * again. Coalesced merges don't count (the stack entry doesn't grow).
+ * `clear()` forgets history but keeps dirt: forgetting how the DOM got
+ * here doesn't make it match the baseline.
  */
 export class CommandStack extends EventTarget {
   #undo = [];
   #redo = [];
   #batch = null;
+  #dirt = new Map(); // Node → Map<kind, signed count>; pruned at zero.
 
   get canUndo() {
     return this.#undo.length > 0;
@@ -169,6 +208,45 @@ export class CommandStack extends EventTarget {
     return this.#redo.length > 0;
   }
 
+  /** Whether any node drifted from the last clean point. */
+  get dirty() {
+    return this.#dirt.size > 0;
+  }
+
+  /** The dirty nodes and how they are dirty, as a defensive copy:
+   * `Map<Node, Set<kind>>` with kinds `'attr:<name>'` | `'text'` |
+   * `'children'`. Detached nodes are not filtered — the stack has no
+   * root; containment is the serializer's concern. */
+  dirtyNodes() {
+    const out = new Map();
+    for (const [node, kinds] of this.#dirt) out.set(node, new Set(kinds.keys()));
+    return out;
+  }
+
+  /** Declare the current DOM the clean baseline (e.g. after saving). */
+  markClean() {
+    this.#dirt.clear();
+    this.#emit('clean');
+  }
+
+  #markDirt(entry, delta) {
+    const commands = Array.isArray(entry) ? entry : [entry];
+    for (const cmd of commands) {
+      if (typeof cmd.dirt !== 'function') continue;
+      for (const [node, kind] of cmd.dirt()) {
+        let kinds = this.#dirt.get(node);
+        if (!kinds) this.#dirt.set(node, (kinds = new Map()));
+        const next = (kinds.get(kind) ?? 0) + delta;
+        if (next === 0) {
+          kinds.delete(kind);
+          if (kinds.size === 0) this.#dirt.delete(node);
+        } else {
+          kinds.set(kind, next);
+        }
+      }
+    }
+  }
+
   #emit(action) {
     this.dispatchEvent(new CustomEvent('change', { detail: { action } }));
   }
@@ -176,6 +254,7 @@ export class CommandStack extends EventTarget {
   apply(command, { coalesce = false } = {}) {
     if (this.#batch) {
       command.apply();
+      this.#markDirt(command, +1);
       this.#batch.push(command);
       return;
     }
@@ -193,6 +272,7 @@ export class CommandStack extends EventTarget {
       top.apply();
     } else {
       command.apply();
+      this.#markDirt(command, +1);
       this.#undo.push(command);
     }
     this.#redo.length = 0;
@@ -225,6 +305,7 @@ export class CommandStack extends EventTarget {
     } else {
       entry.revert();
     }
+    this.#markDirt(entry, -1);
     this.#redo.push(entry);
     this.#emit('undo');
     return true;
@@ -238,6 +319,7 @@ export class CommandStack extends EventTarget {
     } else {
       entry.apply();
     }
+    this.#markDirt(entry, +1);
     this.#undo.push(entry);
     this.#emit('redo');
     return true;
