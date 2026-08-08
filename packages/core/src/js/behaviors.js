@@ -57,6 +57,7 @@ import { installFormat, installNormalize } from './format.js';
 import { installMask } from './mask.js';
 import { installDirtyGuard } from './dirty-guard.js';
 import { installSessionExpiry } from './session-expiry.js';
+import { installTime } from './time.js';
 
 function init() {
   installConfirm();
@@ -110,6 +111,7 @@ function init() {
   installMask();
   installDirtyGuard();
   installSessionExpiry();
+  installTime();
 }
 
 if (typeof document !== 'undefined') {
@@ -172,6 +174,7 @@ export {
   installMask,
   installDirtyGuard,
   installSessionExpiry,
+  installTime,
 };
 
 // registerCodeLanguage — plug a tokenizer into the editable-code highlight

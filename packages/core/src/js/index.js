@@ -54,6 +54,7 @@ export { installFormat, installNormalize } from './format.js';
 export { installMask } from './mask.js';
 export { installDirtyGuard } from './dirty-guard.js';
 export { installSessionExpiry } from './session-expiry.js';
+export { installTime } from './time.js';
 
 // registerCodeLanguage — plug a tokenizer into installCodeEditor()'s live
 // highlight overlay (built-in grammars: sql, json, yaml, html).

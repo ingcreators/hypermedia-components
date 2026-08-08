@@ -3,7 +3,7 @@ title: Behaviors
 description: Every installXxx() behavior — what it powers and whether the zero-config bundle auto-installs it.
 ---
 
-The kit ships 52 small behaviors. All of them are idempotent, return an
+The kit ships 53 small behaviors. All of them are idempotent, return an
 uninstaller, and — with the single exception of `installChart()` — are
 **auto-installed** by the zero-config
 `@hypermedia-components/core/behaviors` entry, which also picks up
@@ -40,6 +40,7 @@ the behavior dispatches; "—" means none.
 | `installMask()` | Declarative fixed-format masks (`postal-jp`, `#`/`a`/`A`/`*` patterns) — [input](/hypermedia-components/components/input/#input-masks). | `data-hc-mask`, `data-hc-mask-submit` | — | ✓ |
 | `installDirtyGuard()` | Unsaved-changes guard — the [unsaved-changes recipe](/hypermedia-components/recipes/unsaved-changes/). | `data-hc-dirty-guard` (state: `data-dirty`) | `hc:dirtychange` | ✓ |
 | `installSessionExpiry()` | 401 → login dialog → request replay — the [session-expiry recipe](/hypermedia-components/recipes/session-expiry/). | `data-hc-session-expiry` | consumes `hc:sessionrenewed` | ✓ |
+| `installTime()` | Client-side `<time>` localization (relative / absolute) — [i18n](/hypermedia-components/fundamentals/i18n/#localized-timestamps). | `data-hc-time`, `data-hc-time-style` | — | ✓ |
 | `installSortable()` | Pointer + keyboard list reordering — the [sortable recipe](/hypermedia-components/recipes/sortable/). | `data-hc-sortable`, `data-hc-sortable-handle`, `data-hc-sortable-id` | `hc:sortchange` | ✓ |
 | `installCombobox()` | [Combobox](/hypermedia-components/components/combobox/) keyboard, filtering, ARIA. | `data-remote`, `data-allow-create`, `data-value`, … | `hc:comboboxselect` | ✓ |
 | `installMulticombobox()` | [Multicombobox](/hypermedia-components/components/multicombobox/) tags, keyboard, ARIA. | `data-name`, `data-allow-create`, `data-value`, … | `hc:multicomboboxchange` | ✓ |

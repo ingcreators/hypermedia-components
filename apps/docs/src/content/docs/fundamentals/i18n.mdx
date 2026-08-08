@@ -196,3 +196,28 @@ All exported from the main entry and the `i18n` submodule.
 
 Missing translations degrade gracefully: an unknown key falls back to the
 English default, then to the key itself — never an empty string or a throw.
+
+## Localized timestamps
+
+Servers render UTC — the only honest thing a server clock can say —
+and the auto-installed `installTime()` rewrites the visible text in
+the viewer's zone and language via `Intl`:
+
+```html
+<time datetime="2026-08-08T03:24:00Z" data-hc-time="relative">
+  2026-08-08 03:24 UTC
+</time>
+```
+
+- `data-hc-time="relative"` — "3 minutes ago" (`Intl.RelativeTimeFormat`,
+  refreshed every 30 s); the absolute localized timestamp goes into
+  `title` unless one exists.
+- `data-hc-time="datetime" | "date" | "time"` — absolute local
+  rendering; `data-hc-time-style="short | medium | long | full"` picks
+  the style.
+- The `datetime` attribute is never touched (the wire truth), the
+  server-rendered text is the no-JS fallback, unparseable values are
+  left alone, and the language follows the closest `[lang]`. Content
+  swapped in by htmx is localized automatically.
+
+No message keys are involved — `Intl` carries the language.

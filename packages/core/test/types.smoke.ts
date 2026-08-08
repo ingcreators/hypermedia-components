@@ -46,6 +46,7 @@ import {
   installMask,
   installDirtyGuard,
   installSessionExpiry,
+  installTime,
   version,
 } from '@hypermedia-components/core';
 
@@ -86,6 +87,7 @@ import {
   installMask as installMaskFromBehaviors,
   installDirtyGuard as installDirtyGuardFromBehaviors,
   installSessionExpiry as installSessionExpiryFromBehaviors,
+  installTime as installTimeFromBehaviors,
 } from '@hypermedia-components/core/behaviors';
 
 import { HcConfirmAction, HcLiveSearch } from '@hypermedia-components/core/macros';
@@ -135,6 +137,7 @@ const uninstallers: Array<() => void> = [
   installMask(document),
   installDirtyGuard(document),
   installSessionExpiry(document),
+  installTime(document),
   installConfirmFromBehaviors(),
   installToastFromBehaviors(),
   installCloseDialogFromBehaviors(),
@@ -171,6 +174,7 @@ const uninstallers: Array<() => void> = [
   installMaskFromBehaviors(),
   installDirtyGuardFromBehaviors(),
   installSessionExpiryFromBehaviors(),
+  installTimeFromBehaviors(),
 ];
 
 // `version` is a string literal export.
