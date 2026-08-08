@@ -42,6 +42,18 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **Email templates baked `oklch()` — unreadable by email clients.**
+  The OKLCH primitive conversion leaked into the email render target:
+  `expandEmailHtml()` substituted resolved token values verbatim, so
+  the baked artifacts (`./email-artifacts/*`, the builder's Email tab,
+  and `hc email eject` output) carried `oklch()` colors that Outlook's
+  Word engine and several webmail clients cannot parse. The
+  transformer now converts every substituted color to its sRGB hex —
+  the same treatment `rem→px` already got, for the same reason — and
+  `email-tokens.json` carries the same email-safe values. New export
+  `emailSafeValue()`; a regression test asserts no `oklch()` or custom
+  property survives in any generated file.
+
 - **`semantic.color.warning` was bronze.** It resolved to `amber.600`
   (`#986107`) — the ladder's white-text-safe step, but visibly brown as
   a warning color. Every consumer is a border, fill, or checked-state

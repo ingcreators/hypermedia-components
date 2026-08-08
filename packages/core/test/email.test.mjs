@@ -5,6 +5,7 @@ import { describe, it, expect } from 'vitest';
 import { resolveTokens, DEFAULT_SOURCES } from '../scripts/build-tokens.mjs';
 import {
   expandEmailHtml,
+  emailSafeValue,
   stripThymeleaf,
   buildEmailFiles,
   emailLayerStacks,
@@ -121,8 +122,8 @@ describe('email generation (real tokens)', () => {
     expect(layout).not.toContain('<!--hc:styles-->');
     expect(layout).toContain('<style>');
     expect(layout).toContain('prefers-color-scheme: dark');
-    // Dark overrides carry actual dark values.
-    expect(layout).toContain(darkTokens.get('color-bg'));
+    // Dark overrides carry actual dark values, baked email-safe.
+    expect(layout).toContain(emailSafeValue(darkTokens.get('color-bg')));
   });
 
   it('exposes every documented th:fragment signature', () => {
@@ -150,15 +151,37 @@ describe('email generation (real tokens)', () => {
       // Attribute-shaped only — `width:` inside CSS also contains "th:".
       expect(html, name).not.toMatch(/(?:th|xmlns):[a-z-]+="/);
     }
-    expect(files['hc-email.html']).toContain(`background-color:${tokens.get('button-primary-bg')}`);
+    expect(files['hc-email.html'])
+      .toContain(`background-color:${emailSafeValue(tokens.get('button-primary-bg'))}`);
   });
 
   it('themes follow the axis combination', () => {
     const stock = generate();
     const themed = generate({ color: 'teal', neutral: 'slate' });
     expect(themed.tokens.get('button-primary-bg')).not.toBe(stock.tokens.get('button-primary-bg'));
-    expect(themed.files['hc-email.html']).toContain(themed.tokens.get('button-primary-bg'));
-    expect(themed.files['hc-email.html']).not.toContain(stock.tokens.get('button-primary-bg'));
+    expect(themed.files['hc-email.html'])
+      .toContain(emailSafeValue(themed.tokens.get('button-primary-bg')));
+    expect(themed.files['hc-email.html'])
+      .not.toContain(emailSafeValue(stock.tokens.get('button-primary-bg')));
+  });
+
+  it('bakes email-safe colours — no oklch() or custom properties survive', () => {
+    // The tokens are authored in oklch(), but email clients (Outlook's
+    // Word engine above all) parse hex and little else. This is the
+    // regression guard for the render target the browser suites cannot
+    // see: every generated file, both flavors, must be free of modern
+    // colour syntax, and the JSON contract must carry the same values
+    // the templates bake.
+    for (const flavor of ['thymeleaf', 'plain']) {
+      const { files, tokens, darkTokens } = generate({ color: 'teal', neutral: 'slate' }, flavor);
+      const all = Object.entries(files).concat([['email-tokens.json', emailTokensJson(tokens, darkTokens)]]);
+      for (const [name, content] of all) {
+        expect(content, `${flavor}/${name}`).not.toContain('oklch(');
+        expect(content, `${flavor}/${name}`).not.toContain('var(--');
+      }
+    }
+    // And the conversion is the real colour, not a stub: blue.600.
+    expect(emailSafeValue('oklch(0.54 0.215 264.4)')).toBe('#2c60e9');
   });
 });
 
@@ -199,7 +222,7 @@ describe('email-transform unit surface', () => {
     expect(manifest).toContain('email eject --color teal');
     const { tokens, darkTokens } = resolvedMaps({});
     const parsed = JSON.parse(emailTokensJson(tokens, darkTokens));
-    expect(parsed.light['button-primary-bg']).toBe(tokens.get('button-primary-bg'));
-    expect(parsed.dark['color-bg']).toBe(darkTokens.get('color-bg'));
+    expect(parsed.light['button-primary-bg']).toBe(emailSafeValue(tokens.get('button-primary-bg')));
+    expect(parsed.dark['color-bg']).toBe(emailSafeValue(darkTokens.get('color-bg')));
   });
 });
