@@ -1139,6 +1139,145 @@ function handleDatagridColumns(req, res, url) {
   return true;
 }
 
+// Mock saved-views backend for the saved-views recipe spec
+// (saved-views.html): stateless, exactly like the docs demo — the strip
+// threads its own state (hidden view= inputs the save form includes;
+// each chip's delete URL repeats the OTHER chips as view= params; a
+// view= value packs as `<name>|<querystring>` and splits on the first
+// `|`). GET /items answers the result list + the filter form
+// re-rendered OOB with the values filled (a view is never opaque);
+// POST /views answers the strip fragment (422 + field-errors alert on a
+// blank or duplicate name — the fixture carries the documented
+// beforeSwap allowance); DELETE /views/<name> answers the strip
+// without it.
+const SV_ITEMS = [
+  { name: 'Quarterly revenue', status: 'active' },
+  { name: 'Churn cohorts', status: 'active' },
+  { name: 'Signup funnel', status: 'pending' },
+  { name: 'Legacy exports', status: 'failed' },
+  { name: 'Beans forecast', status: 'active' },
+];
+
+const svEsc = (v) => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+function svPack(view) {
+  return `${view.name}|${new URLSearchParams({ q: view.q, status: view.status })}`;
+}
+
+function svUnpack(value) {
+  const split = value.indexOf('|');
+  if (split < 1) return null;
+  const pairs = new URLSearchParams(value.slice(split + 1));
+  return { name: value.slice(0, split), q: pairs.get('q') ?? '', status: pairs.get('status') ?? '' };
+}
+
+function svChip(view, others, current) {
+  const applyUrl = svEsc(`/mock/saved-views/items?${new URLSearchParams({ q: view.q, status: view.status })}`);
+  const remaining = new URLSearchParams();
+  for (const other of others) remaining.append('view', svPack(other));
+  const qs = remaining.toString();
+  const deleteUrl = svEsc(`/mock/saved-views/views/${encodeURIComponent(view.name)}${qs ? `?${qs}` : ''}`);
+  return `<li class="hc-chip">
+    <a href="${applyUrl}"${current ? ' aria-current="true"' : ''} data-hx-get="${applyUrl}" data-hx-target="#results">${svEsc(view.name)}</a>
+    <button class="hc-button" data-size="sm" type="button" aria-label="Delete view ${svEsc(view.name)}"
+            data-hx-delete="${deleteUrl}" data-hx-target="#views">×</button>
+  </li>`;
+}
+
+function svStrip(views, { currentName = null, error = '' } = {}) {
+  if (views.length === 0) {
+    return `${error}<p class="hc-field__message">No saved views yet.</p>`;
+  }
+  const hidden = views
+    .map((view) => `<input type="hidden" name="view" value="${svEsc(svPack(view))}">`)
+    .join('\n');
+  const chips = views
+    .map((view) => svChip(view, views.filter((o) => o !== view), view.name === currentName))
+    .join('\n');
+  return `${error}${hidden}\n<ul class="hc-chips">${chips}</ul>`;
+}
+
+function svFilterForm(q, status) {
+  const options = [['', 'All'], ['active', 'Active'], ['pending', 'Pending'], ['failed', 'Failed']]
+    .map(([value, label]) => `<option value="${value}"${value === status ? ' selected' : ''}>${label}</option>`)
+    .join('');
+  return `<form id="filters" action="/mock/saved-views/items" method="get"
+      data-hx-get="/mock/saved-views/items" data-hx-target="#results" data-hx-swap-oob="outerHTML">
+    <div class="hc-field">
+      <label class="hc-field__label" for="q">Search</label>
+      <input class="hc-input" id="q" name="q" type="search" value="${svEsc(q)}" data-testid="q">
+    </div>
+    <div class="hc-field">
+      <label class="hc-field__label" for="status">Status</label>
+      <select class="hc-select" id="status" name="status" data-testid="status">${options}</select>
+    </div>
+    <button class="hc-button" type="submit" data-testid="filter-apply">Apply</button>
+  </form>`;
+}
+
+function svResults(q, status) {
+  const term = q.trim().toLowerCase();
+  const hits = SV_ITEMS.filter(
+    (item) => (status === '' || item.status === status) && item.name.toLowerCase().includes(term),
+  );
+  if (hits.length === 0) {
+    return '<p class="hc-field__message">No items match the current filters.</p>';
+  }
+  return `<ul class="hc-list">${hits.map(({ name }) => `<li>${name}</li>`).join('')}</ul>`;
+}
+
+function handleSavedViews(req, res, url) {
+  if (url.pathname === '/mock/saved-views/items' && req.method === 'GET') {
+    req.resume();
+    const q = url.searchParams.get('q') ?? '';
+    const status = url.searchParams.get('status') ?? '';
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(`${svResults(q, status)}\n${svFilterForm(q, status)}`);
+    return true;
+  }
+  if (url.pathname === '/mock/saved-views/views' && req.method === 'POST') {
+    readBody(req).then((body) => {
+      const params = new URLSearchParams(body);
+      const name = (params.get('name') ?? '').trim();
+      const q = params.get('q') ?? '';
+      const status = params.get('status') ?? '';
+      const views = params.getAll('view').map(svUnpack).filter(Boolean);
+      res.setHeader('Content-Type', MIME['.html']);
+      const fail = (code, detail) => {
+        res.statusCode = 422;
+        res.end(svStrip(views, {
+          error: `<div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+          <p class="hc-alert__title">The view was not saved.</p>
+          <ul class="hc-alert__errors"><li class="hc-alert__error" data-field="name" data-code="${code}">name: ${detail}</li></ul>
+        </div>\n`,
+        }));
+      };
+      if (!name) return fail('required', 'name the view first');
+      if (views.some((view) => view.name === name)) {
+        return fail('duplicate', 'a view with this name already exists');
+      }
+      res.statusCode = 200;
+      res.end(svStrip([...views, { name, q, status }], { currentName: name }));
+    });
+    return true;
+  }
+  const del = url.pathname.match(/^\/mock\/saved-views\/views\/([^/]+)$/);
+  if (del && req.method === 'DELETE') {
+    req.resume();
+    const name = decodeURIComponent(del[1]);
+    const remaining = url.searchParams.getAll('view')
+      .map(svUnpack)
+      .filter(Boolean)
+      .filter((view) => view.name !== name);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(svStrip(remaining));
+    return true;
+  }
+  return false;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -1152,6 +1291,7 @@ function handleMock(req, res, url) {
   if (handleDirty(req, res, url)) return true;
   if (handleSession(req, res, url)) return true;
   if (handleConflict(req, res, url)) return true;
+  if (handleSavedViews(req, res, url)) return true;
   if (handleDatagridColumns(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);

@@ -1,0 +1,77 @@
+<!-- Expanded state: "active-beans" saved, then applied.
+
+  POST /views answered the #views strip with the new chip marked
+  current (aria-current="true"); GET /items?view=active-beans answered
+  the result list for #results plus an out-of-band outerHTML re-render
+  of the filter form with the view's values filled — the querystring a
+  view expands to is always visible in the controls.
+
+  Duplicate name: POST /views answers 422 (swapped via the standard
+  beforeSwap allowance) with the strip plus a field-errors alert:
+
+  <div class="hc-alert" data-variant="error" role="alert" data-hc-field-errors>
+    <p class="hc-alert__title">The view was not saved.</p>
+    <ul class="hc-alert__errors">
+      <li class="hc-alert__error" data-field="name" data-code="duplicate">name: a view with this name already exists</li>
+    </ul>
+  </div>
+-->
+<form id="filters" action="/items" method="get"
+      data-hx-get="/items"
+      data-hx-target="#results">
+  <div class="hc-field">
+    <label class="hc-field__label" for="q">Search</label>
+    <input class="hc-input" id="q" name="q" type="search" value="beans">
+  </div>
+  <div class="hc-field">
+    <label class="hc-field__label" for="status">Status</label>
+    <select class="hc-select" id="status" name="status">
+      <option value="">All</option>
+      <option value="active" selected>Active</option>
+      <option value="pending">Pending</option>
+      <option value="failed">Failed</option>
+    </select>
+  </div>
+  <button class="hc-button" type="submit">Apply</button>
+</form>
+
+<form method="post" action="/views"
+      data-hx-post="/views"
+      data-hx-include="#filters"
+      data-hx-target="#views"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div class="hc-field">
+    <label class="hc-field__label" for="view-name">View name</label>
+    <input class="hc-input" id="view-name" name="name" required>
+  </div>
+  <button class="hc-button" data-variant="primary" type="submit">Save view</button>
+</form>
+
+<div id="views">
+  <ul class="hc-chips">
+    <li class="hc-chip">
+      <a href="/items?view=quarterly"
+         data-hx-get="/items?view=quarterly"
+         data-hx-target="#results">quarterly</a>
+      <button class="hc-button" data-size="sm" type="button"
+              aria-label="Delete view quarterly"
+              data-hx-delete="/views/quarterly"
+              data-hx-target="#views">×</button>
+    </li>
+    <li class="hc-chip">
+      <a href="/items?view=active-beans" aria-current="true"
+         data-hx-get="/items?view=active-beans"
+         data-hx-target="#results">active-beans</a>
+      <button class="hc-button" data-size="sm" type="button"
+              aria-label="Delete view active-beans"
+              data-hx-delete="/views/active-beans"
+              data-hx-target="#views">×</button>
+    </li>
+  </ul>
+</div>
+
+<div id="results" aria-live="polite">
+  <ul class="hc-list">
+    <li>Beans forecast <span class="hc-badge" data-variant="success">Active</span></li>
+  </ul>
+</div>

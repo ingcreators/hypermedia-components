@@ -1,0 +1,124 @@
+---
+title: Saved views
+description: Named filter sets — POST the current filter pairs under a name, apply views as plain GET links, delete from the server-owned strip; the server fills the controls, so a view is never opaque.
+---
+
+import SavedViewsDemo from '../../../components/recipe-demos/SavedViewsDemo.astro';
+
+The current search's querystring, named and kept server-side. Saving
+posts the filter form's pairs plus a name (`data-hx-include`);
+applying a view is a plain `GET` link — bookmarkable, shareable, zero
+client state; deleting answers the re-rendered strip. When a view is
+applied, the server re-renders the filter form with the controls
+filled — the querystring a view expands to is always visible, so a
+view is never opaque. Zero new JavaScript. Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add saved-views
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/saved-views/contract.md).
+:::
+
+## Live demo
+
+Filter, name the result, **Save view** — the new chip lands in the
+strip marked current. Click a chip to apply it (watch the filter
+controls fill), × to delete it, and save the same name twice for the
+`422` branch. This demo stores nothing: each chip's link carries the
+view's full querystring — a real app stores views per user.
+
+<SavedViewsDemo />
+
+## The markup
+
+```html
+<form id="filters" action="/items" method="get"
+      data-hx-get="/items"
+      data-hx-target="#results">
+  <!-- …the filter fields: q, status, …, and an Apply button… -->
+</form>
+
+<form method="post" action="/views"
+      data-hx-post="/views"
+      data-hx-include="#filters"
+      data-hx-target="#views"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div class="hc-field">
+    <label class="hc-field__label" for="view-name">View name</label>
+    <input class="hc-input" id="view-name" name="name" required>
+  </div>
+  <button class="hc-button" data-variant="primary" type="submit">Save view</button>
+</form>
+
+<div id="views">
+  <ul class="hc-chips">
+    <li class="hc-chip">
+      <a href="/items?view=quarterly"
+         data-hx-get="/items?view=quarterly"
+         data-hx-target="#results">quarterly</a>
+      <button class="hc-button" data-size="sm" type="button"
+              aria-label="Delete view quarterly"
+              data-hx-delete="/views/quarterly"
+              data-hx-target="#views">×</button>
+    </li>
+  </ul>
+</div>
+
+<div id="results" aria-live="polite"></div>
+```
+
+The save form pulls the filter pairs in with
+`data-hx-include="#filters"` and targets the strip region — the
+response is the `#views` contents, never a client-side splice. Each
+chip is a plain apply link plus a delete button whose accessible name
+names the view.
+
+## Server response contract
+
+| Case | Response |
+| --- | --- |
+| `POST /views` (name + filter pairs) | `200` + the strip fragment, the new chip marked current (`aria-current="true"`) |
+| duplicate name | `422` + the strip with an inline field error (the [field-errors shape](/hypermedia-components/recipes/field-errors/#server-response-contract), `data-field="name"`) — swaps via the standard 422 allowance |
+| `GET /items?view=<name>` | the list fragment for `#results` with that view's filters applied, **plus an OOB `outerHTML` re-render of the filter form with the controls filled** — a view is never opaque |
+| `DELETE /views/<name>` | `200` + the strip |
+
+The view's name is its key (URL-encoded in the `DELETE` path), and
+views are **per user** by definition — storage and limits are the
+server's business; the wire contract is the same. Because the applied
+querystring lands back in the controls, a view stays editable: apply,
+tweak a field, save under a new name.
+
+## Progressive enhancement
+
+Apply links are real hrefs — bookmarkable, shareable, full-page
+navigations without JavaScript. The save form keeps `method="post"` +
+`action="/views"`, so a native submit works (answer a full page or a
+classic 303 post/redirect/get). The delete button is htmx-only; wrap
+it in a tiny POST form if deletion must work without JavaScript.
+
+## Accessibility
+
+- The strip is a real list — `ul.hc-chips` announces as "list,
+  N items" — and `aria-current="true"` marks the current view.
+- Every × has an accessible name naming its view ("Delete view
+  quarterly"), not a bare glyph.
+- The results region is `aria-live="polite"`, so applying a view
+  announces the new list without stealing focus; the duplicate-name
+  error is a `role="alert"` field-errors fragment.
+- The OOB filter re-render keeps ids stable, so `<label for>`
+  associations survive.
+
+## Related
+
+- [filter-popover](/hypermedia-components/recipes/filter-popover/) —
+  where the filter form itself often lives.
+- [live-search](/hypermedia-components/recipes/live-search/) — the
+  as-you-type sibling for the same `q` input.
+- [field-errors](/hypermedia-components/recipes/field-errors/) — the
+  422 shape the duplicate-name branch answers with.
+- [data-region](/hypermedia-components/recipes/data-region/) — keeping
+  the result list fresh once views select it.

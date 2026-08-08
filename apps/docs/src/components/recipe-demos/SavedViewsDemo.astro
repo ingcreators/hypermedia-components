@@ -1,0 +1,65 @@
+---
+/*
+ * Live demo for the saved-views recipe. The filter form and the save
+ * form mirror recipes/saved-views/recipe.html; the strip and the
+ * result list are server fragments. The demo API is stateless (the
+ * live-demos doctrine): each chip's link carries the view's full
+ * querystring — the querystring IS the view — and the strip's hidden
+ * view= inputs ride along on the next save via data-hx-include, so no
+ * storage is involved. A real app stores views per user; see the
+ * docblock in apps/docs/demo-api/recipes/saved-views.mjs.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/saved-views`;
+---
+
+<DemoFrame class="hc-preview--col" label="Saved views demo">
+  <form
+    id="saved-views-demo-filters"
+    action={`${api}/items`}
+    method="get"
+    data-hx-get={`${api}/items`}
+    data-hx-target="#saved-views-demo-results">
+    <div class="hc-field">
+      <label class="hc-field__label" for="saved-views-demo-q">Search</label>
+      <input class="hc-input" id="saved-views-demo-q" name="q" type="search" />
+    </div>
+    <div class="hc-field">
+      <label class="hc-field__label" for="saved-views-demo-status">Status</label>
+      <select class="hc-select" id="saved-views-demo-status" name="status">
+        <option value="" selected>All</option>
+        <option value="active">Active</option>
+        <option value="pending">Pending</option>
+        <option value="failed">Failed</option>
+      </select>
+    </div>
+    <button class="hc-button" type="submit">Apply</button>
+  </form>
+
+  <form
+    method="post"
+    action={`${api}/views`}
+    data-hx-post={`${api}/views`}
+    data-hx-include="#saved-views-demo-filters, #saved-views-demo-views"
+    data-hx-target="#saved-views-demo-views"
+    data-hx-disabled-elt="find button[type=submit]">
+    <div class="hc-field">
+      <label class="hc-field__label" for="saved-views-demo-name">View name</label>
+      <input class="hc-input" id="saved-views-demo-name" name="name" required />
+    </div>
+    <button class="hc-button" data-variant="primary" type="submit">Save view</button>
+  </form>
+
+  <div id="saved-views-demo-views">
+    <p class="hc-field__message">No saved views yet — filter, then save the result under a name.</p>
+  </div>
+
+  <div
+    id="saved-views-demo-results"
+    aria-live="polite"
+    data-hx-get={`${api}/items`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+</DemoFrame>

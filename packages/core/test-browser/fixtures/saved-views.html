@@ -1,0 +1,72 @@
+<!doctype html>
+<!-- Fixture for the saved-views recipe — filter form + save form +
+     server-rendered views strip + result list against the serve.mjs
+     mock (stateless: chips thread their querystrings, exactly like the
+     docs demo). Pins: saving marks the new chip current, applying a
+     chip fills the filter controls (a view is never opaque), deleting
+     answers the strip without it, and the duplicate-name 422 rides the
+     documented beforeSwap allowance. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>saved-views fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Saved views</h1>
+
+    <form id="filters" action="/mock/saved-views/items" method="get"
+          data-hx-get="/mock/saved-views/items"
+          data-hx-target="#results">
+      <div class="hc-field">
+        <label class="hc-field__label" for="q">Search</label>
+        <input class="hc-input" id="q" name="q" type="search" data-testid="q">
+      </div>
+      <div class="hc-field">
+        <label class="hc-field__label" for="status">Status</label>
+        <select class="hc-select" id="status" name="status" data-testid="status">
+          <option value="" selected>All</option>
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+        </select>
+      </div>
+      <button class="hc-button" type="submit" data-testid="filter-apply">Apply</button>
+    </form>
+
+    <form method="post" action="/mock/saved-views/views"
+          data-hx-post="/mock/saved-views/views"
+          data-hx-include="#filters, #views"
+          data-hx-target="#views"
+          data-hx-disabled-elt="find button[type=submit]">
+      <div class="hc-field">
+        <label class="hc-field__label" for="view-name">View name</label>
+        <input class="hc-input" id="view-name" name="name" required data-testid="name">
+      </div>
+      <button class="hc-button" data-variant="primary" type="submit"
+              data-testid="save">Save view</button>
+    </form>
+
+    <div id="views" data-testid="views">
+      <p class="hc-field__message">No saved views yet.</p>
+    </div>
+
+    <div id="results" aria-live="polite" data-testid="results"></div>
+  </main>
+
+  <script>
+    // Documented one-time allowance: htmx ≥ 2 won't swap non-2xx by default.
+    document.body.addEventListener('htmx:beforeSwap', (event) => {
+      if (event.detail.xhr.status === 422) {
+        event.detail.shouldSwap = true;
+        event.detail.isError = false;
+      }
+    });
+  </script>
+</body>
+</html>
