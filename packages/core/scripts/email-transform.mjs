@@ -24,11 +24,16 @@ const PLACEHOLDER_RE = /(?<!\$)\{([a-z0-9][a-z0-9-]*)(\.dark)?\}/g;
 // rem -> px at the 16px root size. Email clients that matter (Outlook's
 // Word engine, several webmail contexts) don't resolve rem; the token
 // sources are rem-based, so every substituted value is converted.
-// The two alternation branches are disjoint (`\d` first vs `.` first),
-// so the scan is linear — the transformer also runs in the browser
-// (CodeQL js/polynomial-redos).
+// Quantifiers are bounded: JS has no possessive quantifiers, so an
+// unbounded `\d+` before a literal that can fail (`rem`) backtracks
+// per start position — polynomial on long digit runs. Real rem values
+// fit well inside the bounds, and a bounded scan is linear (CodeQL
+// js/polynomial-redos; the transformer also runs in the browser).
 function pxify(value) {
-  return value.replace(/(\d+(?:\.\d+)?|\.\d+)rem\b/g, (_, n) => `${Math.round(parseFloat(n) * 16)}px`);
+  return value.replace(
+    /(\d{1,4}(?:\.\d{1,6})?|\.\d{1,6})rem\b/g,
+    (_, n) => `${Math.round(parseFloat(n) * 16)}px`,
+  );
 }
 
 // oklch() -> #rrggbb, including inside composite values (color-mix,
@@ -37,7 +42,7 @@ function pxify(value) {
 // properties — and modern colour spaces — cannot be assumed. Outlook's
 // Word engine parses hex and little else, so every substituted colour is
 // converted to the sRGB literal it rasterizes to.
-const OKLCH_RE = /oklch\(\s*[\d.]+%?\s+[\d.]+\s+[\d.]+\s*\)/g;
+const OKLCH_RE = /oklch\(\s{0,4}[\d.]{1,10}%?\s{1,4}[\d.]{1,10}\s{1,4}[\d.]{1,10}\s{0,4}\)/g;
 function hexify(value) {
   return value.replace(OKLCH_RE, (m) => {
     const parsed = parseOklch(m);
