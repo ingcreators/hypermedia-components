@@ -79,7 +79,7 @@ installDirtyGuard();
 | ダーティなままタブを閉じる / リロード | ブラウザの汎用プロンプト(現代のブラウザはカスタム文字列を無視します) |
 | ダーティな状態での boosted `<a>` ナビゲーション | `dirtyguard.leave` メッセージでの `window.confirm`([`setMessages()`](/hypermedia-components/ja/fundamentals/i18n/) でローカライズ) |
 | フォーム自身のリクエストが成功 | 再スナップショット → クリーン |
-| フォーム内発だがフォーム自身ではないリクエスト | クリーンに**なりません** — [autosave](/hypermedia-components/ja/recipes/autosave/) のドラフトはドラフトのまま |
+| フォーム内発だがフォーム自身ではないリクエスト | クリーンに**なりません** — ドラフト自動保存のドラフトはドラフトのままです(autosave レシピが続きます) |
 | ネイティブ送信 | 決して警告しません(`submit` は制約検証を通過した後にだけ発火します) |
 
 ## 状態のスタイリング
@@ -107,7 +107,5 @@ JavaScript がなければ何も守りませんが、何も壊れません: フ�
 
 ## 関連
 
-- [autosave](/hypermedia-components/ja/recipes/autosave/) — 入力と
-  同時にドラフトを保存し、警告の出番をほぼなくします。
 - [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) —
   ガード付きフォームが通常従う保存契約。
