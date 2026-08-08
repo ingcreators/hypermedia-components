@@ -284,7 +284,7 @@ export default defineConfig({
               } catch (e) {}
               try {
                 var c = localStorage.getItem('hc-color');
-                if (c === 'default' || c === 'indigo' || c === 'emerald' || c === 'rose' || c === 'amber') {
+                if (c === 'default' || c === 'teal' || c === 'lime' || c === 'orange' || c === 'fuchsia') {
                   document.documentElement.setAttribute('data-color', c);
                 }
               } catch (e) {}

@@ -64,10 +64,10 @@ const settingsLabel = isJa ? '表示設定' : 'Display settings';
     <span class="hc-picker__label">Color</span>
     <select id="hc-color-select" class="hc-select" data-size="sm">
       <option value="default">Default</option>
-      <option value="indigo">Indigo</option>
-      <option value="emerald">Emerald</option>
-      <option value="rose">Rose</option>
-      <option value="amber">Amber</option>
+      <option value="teal">Teal</option>
+      <option value="lime">Lime</option>
+      <option value="orange">Orange</option>
+      <option value="fuchsia">Fuchsia</option>
     </select>
   </label>
 
@@ -104,7 +104,7 @@ const settingsLabel = isJa ? '表示設定' : 'Display settings';
   /** @type {Array<{ key: string, attr: string, values: string[], fallback: string, id: string }>} */
   const PICKERS = [
     { key: 'hc-density', attr: 'data-density', values: ['comfortable', 'compact', 'dense'], fallback: 'comfortable', id: 'hc-density-select' },
-    { key: 'hc-color',   attr: 'data-color',   values: ['default', 'indigo', 'emerald', 'rose', 'amber'], fallback: 'default', id: 'hc-color-select' },
+    { key: 'hc-color',   attr: 'data-color',   values: ['default', 'teal', 'lime', 'orange', 'fuchsia'], fallback: 'default', id: 'hc-color-select' },
     { key: 'hc-neutral', attr: 'data-neutral', values: ['gray', 'slate', 'zinc', 'neutral', 'stone'], fallback: 'gray', id: 'hc-neutral-select' },
     { key: 'hc-dir',     attr: 'dir',          values: ['ltr', 'rtl'], fallback: 'ltr', id: 'hc-dir-select' },
   ];

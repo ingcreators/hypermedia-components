@@ -20,6 +20,16 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **Docs: the Display settings Color picker follows the accent
+  pentagon** — the header popover still offered the pre-0.2.0 accent
+  names (indigo / emerald / rose / amber), which core 0.2.0 no longer
+  ships, so picking them did nothing. The picker, its localStorage
+  whitelist, and the pre-paint head script now list
+  `teal / lime / orange / fuchsia`; a stored pre-0.2.0 value falls
+  back to `default` and self-heals on the next pick.
+
 ### Security
 
 - Range-scoped `pnpm` overrides floor two vulnerable transitive
