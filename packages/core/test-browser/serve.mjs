@@ -1008,6 +1008,75 @@ function handleSession(req, res, url) {
   return false;
 }
 
+// Mock optimistic locking for the edit-conflict recipe spec
+// (edit-conflict.html): record pinned at v13; stale saves 409 with the
+// retargeted conflict dialog; force wins only with the fresh version.
+const CONFLICT_CURRENT = { version: '13', title: 'Restock the beans (theirs)' };
+
+function conflictDialogMock(yourTitle) {
+  return `<dialog class="hc-dialog" aria-labelledby="conflict-title">
+  <div class="hc-stack">
+    <h2 class="hc-dialog__title" id="conflict-title">Someone saved first</h2>
+    <table class="hc-table">
+      <thead><tr><th scope="col"></th><th scope="col">Theirs (v13)</th><th scope="col">Yours</th></tr></thead>
+      <tbody><tr><th scope="row">Title</th><td>${CONFLICT_CURRENT.title}</td><td>${yourTitle}</td></tr></tbody>
+    </table>
+    <form class="hc-cluster">
+      <input type="hidden" name="version" value="13">
+      <button class="hc-button" data-variant="error" type="button" data-hc-close-dialog-on-success
+              data-hx-put="/mock/conflict/tickets/7?force=1"
+              data-hx-include="#ticket-form [name='title'], closest form"
+              data-hx-target="#status" data-hx-swap="innerHTML">Overwrite with mine</button>
+      <button class="hc-button" type="button" data-hc-close-dialog-on-success
+              data-hx-get="/mock/conflict/tickets/7/edit"
+              data-hx-target="#ticket-form" data-hx-swap="outerHTML">Reload theirs</button>
+    </form>
+    <form method="dialog"><button class="hc-button" data-variant="ghost">Keep editing</button></form>
+  </div>
+</dialog>`;
+}
+
+function conflictForm() {
+  return `<form id="ticket-form" class="hc-stack" data-testid="form"
+      data-hx-put="/mock/conflict/tickets/7"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <input type="hidden" name="version" value="13" data-testid="version">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="${CONFLICT_CURRENT.title}" data-testid="title">
+  </div>
+  <p class="hc-field__hint" id="status" aria-live="polite" data-testid="status"></p>
+  <button class="hc-button" data-variant="primary" type="submit" data-testid="save">Save</button>
+</form>`;
+}
+
+function handleConflict(req, res, url) {
+  if (url.pathname === '/mock/conflict/tickets/7' && req.method === 'PUT') {
+    readBody(req).then((body) => {
+      const params = new URLSearchParams(body);
+      const force = url.searchParams.get('force') === '1';
+      res.setHeader('Content-Type', MIME['.html']);
+      if (params.get('version') === CONFLICT_CURRENT.version) {
+        res.statusCode = 200;
+        res.end(`<span>Saved as v14${force ? ' (overwrote v13)' : ''}.</span>`);
+        return;
+      }
+      res.statusCode = 409;
+      res.setHeader('HX-Retarget', '#error-dialog');
+      res.setHeader('HX-Reswap', 'innerHTML');
+      res.end(conflictDialogMock(params.get('title') ?? ''));
+    });
+    return true;
+  }
+  if (url.pathname === '/mock/conflict/tickets/7/edit' && req.method === 'GET') {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(conflictForm());
+    return true;
+  }
+  return false;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -1020,6 +1089,7 @@ function handleMock(req, res, url) {
   if (handlePostal(req, res, url)) return true;
   if (handleDirty(req, res, url)) return true;
   if (handleSession(req, res, url)) return true;
+  if (handleConflict(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.

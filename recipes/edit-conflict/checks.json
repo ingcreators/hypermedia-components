@@ -1,0 +1,18 @@
+{
+  "detect": "form input[type=\"hidden\"][name=\"version\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "inside-form",
+      "level": "error",
+      "message": "The version field must live inside the edit form it protects.",
+      "closest": { "on": "input[name=\"version\"]", "selector": "form" }
+    },
+    {
+      "id": "version-value",
+      "level": "warn",
+      "message": "Render the version value server-side — an empty version can never match and every save conflicts.",
+      "attr": { "on": "input[name=\"version\"]", "name": "value", "assert": "present", "matches": "." }
+    }
+  ]
+}

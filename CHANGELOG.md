@@ -22,6 +22,26 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`edit-conflict` recipe — optimistic locking via a hidden version**
+  (PR 4, final, of
+  [`plans/hc-error-paths-plan-en.md`](plans/hc-error-paths-plan-en.md);
+  the 32nd recipe). Two people open the same record; the slower save
+  must not silently eat the faster one: a hidden `version` rides every
+  save, a stale save answers `409` steered by `HX-Retarget` into the
+  same shared error-dialog host session-expiry uses, and the conflict
+  dialog — a real theirs/yours `<table>` — finishes the flow through
+  ordinary htmx: **Overwrite** re-submits the user's fields plus the
+  dialog's **fresh** hidden version (`force=1` means "I saw v13 and
+  chose to overwrite"; a record that moved again re-conflicts),
+  **Reload** swaps the form `outerHTML` from the current record, and
+  the `<form method="dialog">` escape keeps editing. Both action
+  buttons ride the shipped `data-hc-close-dialog-on-success`.
+  **Zero new JavaScript, zero new public API** — hidden field +
+  headers + shipped machinery. Live demo (v13-pinned stateless module,
+  5 API tests), docs (en/ja), and a cross-engine Playwright suite
+  (conflict dialog, overwrite-wins-and-closes, reload-discards,
+  keep-editing leaves the stale version, axe with the dialog open).
+
 - **`installSessionExpiry()` + `session-expiry` recipe — 401 → login
   dialog → request replay** (PR 3 of
   [`plans/hc-error-paths-plan-en.md`](plans/hc-error-paths-plan-en.md);

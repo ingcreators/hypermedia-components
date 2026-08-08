@@ -1,0 +1,21 @@
+<!-- Short recommended usage.
+
+  Optimistic locking: the edit form carries the version it was rendered
+  from; a save against a newer record answers 409 with a conflict
+  <dialog> (HX-Retarget into the shared error host, opened by
+  installRemoteDialog) offering overwrite / reload. Zero custom JS —
+  hidden version + the page-level allowance (401/409/422) + the shared
+  host. See contract.md. -->
+<form id="ticket-form" data-hx-put="/tickets/7"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <input type="hidden" name="version" value="12">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Restock the beans">
+  </div>
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>
+
+<!-- The same shared host the session-expiry recipe uses. -->
+<div id="error-dialog" data-hc-remote-dialog-root></div>

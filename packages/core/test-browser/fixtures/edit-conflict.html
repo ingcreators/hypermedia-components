@@ -1,0 +1,49 @@
+<!doctype html>
+<!-- Fixture for the edit-conflict recipe. Pins against the serve.mjs
+     mock: a stale save opens the retargeted conflict dialog
+     (remote-dialog), Overwrite wins with the dialog's fresh version and
+     the dialog closes (close-dialog-on-success), Reload discards local
+     edits, and a clean-version save just saves. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>edit-conflict fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Edit conflict</h1>
+
+    <form id="ticket-form" class="hc-stack" data-testid="form"
+          data-hx-put="/mock/conflict/tickets/7"
+          data-hx-target="#status" data-hx-swap="innerHTML">
+      <input type="hidden" name="version" value="12" data-testid="version">
+      <div class="hc-field">
+        <label class="hc-field__label" for="title">Title</label>
+        <input class="hc-input" id="title" name="title"
+               value="Restock the beans (mine)" data-testid="title">
+      </div>
+      <p class="hc-field__hint" id="status" aria-live="polite"
+         data-testid="status"></p>
+      <button class="hc-button" data-variant="primary" type="submit"
+              data-testid="save">Save</button>
+    </form>
+
+    <div id="error-dialog" data-hc-remote-dialog-root data-testid="host"></div>
+  </main>
+
+  <script type="module">
+    // The page-level allowance from the contract — status-based, once.
+    document.body.addEventListener('htmx:beforeSwap', (event) => {
+      if ([409, 422].includes(event.detail.xhr.status)) {
+        event.detail.shouldSwap = true;
+        event.detail.isError = false;
+      }
+    });
+  </script>
+</body>
+</html>
