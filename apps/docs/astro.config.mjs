@@ -113,6 +113,7 @@ export default defineConfig({
             { slug: 'fundamentals/responsive' },
             { slug: 'fundamentals/i18n' },
             { slug: 'fundamentals/accessibility' },
+            { slug: 'fundamentals/print' },
             { slug: 'fundamentals/errors' },
             { slug: 'fundamentals/writing' },
             { slug: 'fundamentals/motion' },

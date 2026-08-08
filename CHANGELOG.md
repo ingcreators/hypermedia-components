@@ -22,6 +22,27 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`hc.print.css` — opt-in print stylesheet** (theme E of the
+  business-app gap analysis; `@hypermedia-components/core/css/print`,
+  also at `dist/hc.print.css`). Business pages get printed — the order
+  detail for the courier, the search result for the meeting — and until
+  now the kit had **zero** `@media print` rules. Everything lives in
+  `@media print` inside the `hc.utilities` layer, so nothing changes on
+  screen and on paper the rules win by layer order alone. Doctrine:
+  **paper shows the record, not the app** (shell nav/header, toolbars,
+  menubars, buttons, pagination, toasts, drawers, tooltips, hovercards,
+  command palette, skeletons, spinners, htmx indicators, and closed
+  dialogs hide); **data survives the page** (scroll areas un-clip,
+  sticky datagrid headers go static, truncated cells un-ellipsize,
+  `<thead>` repeats, rows/cards/fields/alerts refuse to split);
+  **ink is honest** (shadows drop, prints light regardless of
+  `data-theme`, black hairlines, status containers keep a thin border
+  for grayscale). State attributes stay authoritative — `[hidden]`,
+  closed details/dialogs, inactive tab panels do not print. **Not**
+  concatenated into `hc.css`: printing a screen layout is a product
+  decision, one `<link>`/`@import` away. Documented at
+  `fundamentals/print` (en/ja, sidebar entry).
+
 - **Docs: `fundamentals/errors` — the errors & recovery map** (PR 2 of
   [`plans/hc-error-paths-plan-en.md`](plans/hc-error-paths-plan-en.md),
   landed last so its links resolve; the plan's Status records the
