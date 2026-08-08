@@ -16,8 +16,9 @@ machine-check your copy against its contract with
 Every recipe page also has a **Live demo**. Almost all of them make
 real htmx requests against a demo API served by this site's Worker,
 implementing that recipe's server response contract under
-`api/recipes/<name>/` (the exceptions: [copy](/hypermedia-components/recipes/copy/)
-and [conditional fields](/hypermedia-components/recipes/conditional-fields/)
+`api/recipes/<name>/` (the exceptions: [copy](/hypermedia-components/recipes/copy/),
+[conditional fields](/hypermedia-components/recipes/conditional-fields/),
+and [unsaved changes](/hypermedia-components/recipes/unsaved-changes/)
 are client-only, and [streaming response](/hypermedia-components/recipes/streaming-response/)
 shares the chat-messages endpoint).
 
@@ -40,6 +41,7 @@ shares the chat-messages endpoint).
 | [Copy to clipboard](/hypermedia-components/recipes/copy/) | copy a read-only value (URL, token, snippet) to the clipboard | `installCopy()` |
 | [Conditional fields](/hypermedia-components/recipes/conditional-fields/) | hide the fields the chosen mode does not read — declaratively, without a round-trip | `installShowWhen()` |
 | [Sortable list](/hypermedia-components/recipes/sortable/) | reorder a server-owned list with pointer or keyboard and persist the order in one request | `installSortable()` |
+| [Unsaved changes](/hypermedia-components/recipes/unsaved-changes/) | warn before edits are lost — data-dirty state, tab-close prompt, boosted-nav confirm, clean-on-save | `installDirtyGuard()` |
 
 ## Search &amp; filter
 

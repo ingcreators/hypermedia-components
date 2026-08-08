@@ -22,6 +22,25 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installDirtyGuard()` + `unsaved-changes` recipe — warn before
+  edits are lost** (PR 2 of
+  [`plans/hc-form-safety-plan-en.md`](plans/hc-form-safety-plan-en.md);
+  the 29th recipe, client-only). `data-hc-dirty-guard` on a form:
+  baseline snapshot on first focus (via `new FormData(form)`, so
+  installFormat's canonical wire values mean display regrouping is
+  never "dirty"), `data-dirty` + `hc:dirtychange` on real changes, the
+  browser's beforeunload prompt while dirty (never during the form's
+  own submission — the `submit` event fires only after constraint
+  validation), a localized `window.confirm` on boosted-link navigation
+  (`dirtyguard.leave`, en/ja), and clean-on-save keyed on
+  `htmx:afterRequest` **element identity** — a draft autosaver inside
+  the form deliberately does not clean the guard. The dirty check is
+  attribute-driven, so a server may render `data-dirty` (a restored
+  draft) and the guard warns before the form is ever focused.
+  Auto-installed; behaviors roster now 51; pinned by a 9-test jsdom
+  suite and a cross-engine Playwright spec (real typing, style hook,
+  clean-on-save via the mock, Chromium-only real beforeunload dialog).
+
 - **`postal-address` recipe — postal-code → address autofill** (PR 4 of
   [`plans/hc-input-format-plan-en.md`](plans/hc-input-format-plan-en.md);
   the 28th recipe). The masked postal input

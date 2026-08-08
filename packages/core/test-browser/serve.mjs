@@ -918,6 +918,33 @@ function handlePostal(req, res, url) {
   return true;
 }
 
+// Mock no-redirect save for the unsaved-changes / autosave recipe specs
+// (unsaved-changes.html, autosave.html): the guard's clean-on-save keys
+// on htmx:afterRequest for the form's own request, so the mock answers
+// 200 in place (no HX-Redirect — the page must survive the save).
+function handleDirty(req, res, url) {
+  if (req.method !== 'POST') return false;
+  if (url.pathname === '/mock/dirty/save') {
+    req.resume();
+    setTimeout(() => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', MIME['.html']);
+      res.end('<span>Saved.</span>');
+    }, 100);
+    return true;
+  }
+  if (url.pathname === '/mock/autosave/draft') {
+    req.resume();
+    setTimeout(() => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', MIME['.html']);
+      res.end('<span>Draft saved.</span>');
+    }, 50);
+    return true;
+  }
+  return false;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -928,6 +955,7 @@ function handleMock(req, res, url) {
   if (handleTransfer(req, res, url)) return true;
   if (handleCascade(req, res, url)) return true;
   if (handlePostal(req, res, url)) return true;
+  if (handleDirty(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.

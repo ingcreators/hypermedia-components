@@ -1,0 +1,18 @@
+<!-- Short recommended usage.
+
+  Unsaved-changes guard: data-hc-dirty-guard (installDirtyGuard, auto)
+  snapshots the form on first focus and tracks edits. A dirty form
+  gains data-dirty (style hook), warns on tab close, asks before
+  boosted-link navigation, and turns clean when the form's own htmx
+  request succeeds. Client-only — the save itself is whatever contract
+  the form already follows (see the mutating-form recipe). -->
+<form data-hc-dirty-guard
+      data-hx-post="/reports/42"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Quarterly report">
+  </div>
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>

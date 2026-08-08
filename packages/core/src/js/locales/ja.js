@@ -36,6 +36,7 @@ const ja = Object.freeze({
   'datagrid.selected': '{selected} 件選択中',
   'fieldErrors.unknown': '入力値が正しくありません',
   'copy.ok': 'コピーしました',
+  'dirtyguard.leave': '保存されていない変更があります。ページを離れますか?',
   'sortable.handle': '並べ替え',
   'sortable.grabbed': 'つかみました。{count} 件中 {index} 番目。',
   'sortable.moved': '{count} 件中 {index} 番目',

@@ -55,6 +55,7 @@ import { installShowWhen } from './show-when.js';
 import { installSortable } from './sortable.js';
 import { installFormat, installNormalize } from './format.js';
 import { installMask } from './mask.js';
+import { installDirtyGuard } from './dirty-guard.js';
 
 function init() {
   installConfirm();
@@ -106,6 +107,7 @@ function init() {
   installFormat();
   installNormalize();
   installMask();
+  installDirtyGuard();
 }
 
 if (typeof document !== 'undefined') {
@@ -166,6 +168,7 @@ export {
   installFormat,
   installNormalize,
   installMask,
+  installDirtyGuard,
 };
 
 // registerCodeLanguage — plug a tokenizer into the editable-code highlight

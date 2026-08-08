@@ -1,0 +1,113 @@
+---
+title: 未保存ガード
+description: フォームの未保存変更ガード — data-dirty 状態 + hc:dirtychange、タブを閉じる前の警告、boosted ナビゲーションの確認、保存でクリーン。属性 1 つから。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+入力途中のフォームを失うことは、業務アプリで最も多い苦情の類型です。
+`data-hc-dirty-guard`(自動インストールされる `installDirtyGuard()`)は
+フォームを編集状態について正直にします: 最初の実変更で `data-dirty` が
+現れ、タブは黙って閉じなくなり、boosted ナビゲーションは先に確認し、
+保存が成功すればベースラインがリセットされます。クライアント専用 —
+保存自体はフォームが既に従っている契約のままです。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::note[セットアップ]
+このレシピは `installDirtyGuard()` ビヘイビアを必要とします。
+`import '@hypermedia-components/core/behaviors';` で全部まとめて
+インストールするか、これだけを:
+
+```js
+import { installDirtyGuard } from '@hypermedia-components/core';
+installDirtyGuard();
+```
+
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add unsaved-changes` がこのレシピの
+スキャフォールドをコピーし、`npx @hypermedia-components/cli validate`
+が機械検査します。完全な契約は
+[`recipes/unsaved-changes/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/unsaved-changes/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+プレビューは動いています: タイトルを編集するとバッジが現れます
+(素の `form[data-dirty]` CSS フック)。元の文字列に戻すと消えます。
+ダーティなままタブを閉じようとすると警告されます — このデモの
+フォームにはサーバーがないため、Save は何もしません。
+
+<Demo previewClass="hc-preview--col">
+  <form data-hc-dirty-guard class="hc-stack">
+    <div class="hc-field">
+      <label class="hc-field__label" for="unsaved-demo-title-ja">Title</label>
+      <input class="hc-input" id="unsaved-demo-title-ja" name="title" value="Quarterly report" />
+    </div>
+    <p class="hc-field__hint">
+      <span class="hc-badge hc-preview-unsaved-badge" data-variant="warning">Unsaved changes</span>
+    </p>
+  </form>
+
+  <Fragment slot="code">
+
+  ```html
+  <form data-hc-dirty-guard data-hx-post="/reports/42"
+        data-hx-target="#status" data-hx-swap="innerHTML">
+    <div class="hc-field">
+      <label class="hc-field__label" for="title">Title</label>
+      <input class="hc-input" id="title" name="title" value="Quarterly report">
+    </div>
+    <p class="hc-field__hint" id="status" aria-live="polite"></p>
+    <button class="hc-button" data-variant="primary" type="submit">Save</button>
+  </form>
+  ```
+
+  </Fragment>
+</Demo>
+
+## ガードがすること
+
+| タイミング | 効果 |
+| --- | --- |
+| フォーム内で最初のフォーカス | ベースラインのスナップショット(`new FormData(form)` 経由 — [installFormat](/hypermedia-components/ja/components/input/#金額のグループ表示) の正準値なので、表示上の再グループ化が「ダーティ」になることはありません) |
+| 任意の `input` / `change` | 比較 → `data-dirty` をトグルし、反転時に `hc:dirtychange` `{ dirty }` をディスパッチ |
+| ダーティなままタブを閉じる / リロード | ブラウザの汎用プロンプト(現代のブラウザはカスタム文字列を無視します) |
+| ダーティな状態での boosted `<a>` ナビゲーション | `dirtyguard.leave` メッセージでの `window.confirm`([`setMessages()`](/hypermedia-components/ja/fundamentals/i18n/) でローカライズ) |
+| フォーム自身のリクエストが成功 | 再スナップショット → クリーン |
+| フォーム内発だがフォーム自身ではないリクエスト | クリーンに**なりません** — [autosave](/hypermedia-components/ja/recipes/autosave/) のドラフトはドラフトのまま |
+| ネイティブ送信 | 決して警告しません(`submit` は制約検証を通過した後にだけ発火します) |
+
+## 状態のスタイリング
+
+`data-dirty` はただの属性です — アプリの CSS でスタイルします:
+
+```css
+.unsaved-badge { visibility: hidden; }
+form[data-dirty] .unsaved-badge { visibility: visible; }
+```
+
+サーバーが `data-dirty` を**レンダリング**しても構いません(復元
+されたドラフトは定義上未保存です) — ガードは属性だけから警告します。
+
+## プログレッシブエンハンスメント
+
+JavaScript がなければ何も守りませんが、何も壊れません: フォームは
+ネイティブに送信されます。構造からして純粋なエンハンスメントです。
+
+## アクセシビリティ
+
+- タブを閉じる際のプロンプトはブラウザ自身のダイアログです。
+- 視覚的なバッジだけで足りないときは、`hc:dirtychange` で状態を
+  `aria-live` のステータス行に写してください。
+
+## 関連
+
+- [autosave](/hypermedia-components/ja/recipes/autosave/) — 入力と
+  同時にドラフトを保存し、警告の出番をほぼなくします。
+- [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) —
+  ガード付きフォームが通常従う保存契約。
