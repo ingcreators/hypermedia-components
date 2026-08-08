@@ -1,0 +1,36 @@
+{
+  "detect": "[data-hx-trigger*=\"from:closest form\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "includes-form",
+      "level": "error",
+      "message": "The draft post must carry the form: data-hx-include=\"closest form\" on the request-owning div.",
+      "attr": { "on": "[data-hx-trigger*=\"from:closest form\"]", "name": "data-hx-include", "assert": "present", "value": "closest form" }
+    },
+    {
+      "id": "status-target-resolves",
+      "level": "error",
+      "message": "The draft status needs a home: data-hx-target must resolve (e.g. #draft-status with aria-live=\"polite\").",
+      "resolves": { "on": "[data-hx-trigger*=\"from:closest form\"]", "name": "data-hx-target" }
+    },
+    {
+      "id": "debounced",
+      "level": "warn",
+      "message": "Debounce the autosave (delay:2s) — an unthrottled trigger posts on every keystroke.",
+      "attr": { "on": "[data-hx-trigger*=\"from:closest form\"]", "name": "data-hx-trigger", "assert": "present", "matches": "delay:" }
+    },
+    {
+      "id": "changed-guard",
+      "level": "warn",
+      "message": "Add the changed modifier so caret movement does not post drafts.",
+      "attr": { "on": "[data-hx-trigger*=\"from:closest form\"]", "name": "data-hx-trigger", "assert": "present", "matches": "changed" }
+    },
+    {
+      "id": "inside-form",
+      "level": "error",
+      "message": "The draft div must live inside the form it drafts (closest form must exist).",
+      "closest": { "on": "[data-hx-trigger*=\"from:closest form\"]", "selector": "form" }
+    }
+  ]
+}

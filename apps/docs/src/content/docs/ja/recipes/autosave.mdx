@@ -1,0 +1,93 @@
+---
+title: 自動保存
+description: 長いフォームのデバウンス付きドラフト自動保存 — リクエストを持つ div が入力中にフォーム全体をドラフトとして送信し、クラッシュ後は復元バナーが差し戻します。新規 JavaScript ゼロ。
+---
+
+import AutosaveDemo from '../../../../components/recipe-demos/AutosaveDemo.astro';
+
+[未保存ガード](/hypermedia-components/ja/recipes/unsaved-changes/)は
+データが失われる前に警告します。自動保存はその警告の出番をほぼ
+なくします — クラッシュで失うのは最大でもデバウンス 1 回分の入力
+です。**新規 JavaScript はゼロ**: フォーム内のリクエストを持つ
+`<div>`、htmx のトリガー修飾子 3 つ、そして小さなドラフト用サーバー
+契約だけです。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add autosave` がこのレシピの
+スキャフォールドをコピーし、`npx @hypermedia-components/cli validate`
+が機械検査します。完全な契約は
+[`recipes/autosave/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/autosave/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+タイトルに入力して手を止めてください — 2 秒のデバウンス後、
+ドラフトのステータス行に時刻が刻まれます。Save はレコードを送信し、
+未保存ガードはクリーンに戻ります。
+
+<AutosaveDemo />
+
+## マークアップ
+
+```html
+<form id="report" data-hc-dirty-guard
+      data-hx-post="/reports/42"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Quarterly report">
+  </div>
+
+  <div data-hx-post="/reports/42/draft"
+       data-hx-include="closest form"
+       data-hx-trigger="input from:closest form changed delay:2s"
+       data-hx-target="#draft-status" data-hx-swap="innerHTML"></div>
+  <p class="hc-field__hint" id="draft-status" aria-live="polite"></p>
+
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>
+```
+
+修飾子 3 つがループ全体を担います: `from:closest form` は全フィールドの
+バブリングする `input` を聴き、`changed` はキャレット移動だけの
+キーストロークを飛ばし、`delay:2s` がバーストをデバウンスします。
+`data-hx-include="closest form"` がフォーム全体を送信します。空の
+`<div>` はリクエストを所有するだけで、それ以外何もしません。
+
+**ドラフトは意図的に未保存ガードをクリーンにしません**: ガードが
+リセットされるのは*フォーム自身の*リクエストが成功したときだけです
+(`htmx:afterRequest` の要素同一性) — ドラフトはレコードでは
+ありません。
+
+## サーバー応答契約
+
+| ケース | 応答 |
+| --- | --- |
+| `POST …/draft`(デバウンスされた各バースト) | `200` + ステータス行(「Draft saved at 14:03:12」— サーバーが時刻印字)。ドラフトは生のまま保存され、**検証されません** |
+| `POST …`(レコード保存) | [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) の契約。成功時にサーバーがドラフトを削除 |
+| より新しいドラフトがある状態でのページレンダリング | **レコードから**レンダリングしたフォーム + `hc-alert` の復元バナー: 復元(`GET …/draft` → ドラフト値からのフォーム全体、**`data-dirty` 付き**)/ 破棄(`DELETE …/draft`) |
+| `DELETE …/draft` | `200` + 空フラグメント |
+| no-JS | ネイティブの PRG。ドラフトはそもそも発生しません |
+
+サーバー側の衛生は契約の規範です: `type="password"` の値をドラフトに
+入れない、ドラフトはユーザー×レコード単位で last-write-wins、
+レコード保存時にパージ。
+
+## アクセシビリティ
+
+- `#draft-status` は `aria-live="polite"` — メッセージは短く安定させて
+  ください(「Draft saved at …」)。おしゃべりにしないこと。
+- 復元バナーは本物の `hc-alert` で、DOM 順でフォームの前にあります。
+
+## 関連
+
+- [unsaved-changes](/hypermedia-components/ja/recipes/unsaved-changes/) —
+  このレシピと対になるガード。
+- [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) —
+  レコード保存の契約。
+- [金額のグループ表示](/hypermedia-components/ja/components/input/#金額のグループ表示) —
+  整形フィールドは正準の生値で自動的にドラフトされます。

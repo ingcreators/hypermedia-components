@@ -1,0 +1,25 @@
+<!-- Short recommended usage.
+
+  Autosave drafts: a request-owning <div> inside the form posts the
+  whole form as a draft, debounced, on any input — zero new JS, pure
+  htmx composition. The dirty guard (unsaved-changes recipe) stays
+  authoritative about the RECORD: the draft div's request has a
+  different elt, so a draft save deliberately does not clean the
+  guard. See contract.md for the draft/restore endpoints. -->
+<form id="report" data-hc-dirty-guard
+      data-hx-post="/reports/42"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Quarterly report">
+  </div>
+
+  <div data-hx-post="/reports/42/draft"
+       data-hx-include="closest form"
+       data-hx-trigger="input from:closest form changed delay:2s"
+       data-hx-target="#draft-status" data-hx-swap="innerHTML"></div>
+  <p class="hc-field__hint" id="draft-status" aria-live="polite"></p>
+
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>
