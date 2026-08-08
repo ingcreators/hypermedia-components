@@ -1,0 +1,91 @@
+---
+title: エラーとリカバリー
+description: ステータスコードの地図 — どの失敗が何を見せ、どのレシピが担うか。共有する beforeSwap 許可と、二重送信の衛生。
+---
+
+ハッピーパスはフラグメントをスワップします。しかし現実のアプリは
+セッションが切れ、編集が競合し、ボタンは二度押しされます。この
+ページはその地図です: ステータスコードからユーザー体験への 1 枚の
+表、エラーフラグメントをスワップ可能にするページレベルの単一
+スニペット、そして古典的な重複を防ぐリクエスト衛生の属性群。
+
+## ステータスコードの地図
+
+| ステータス | ユーザーが見るもの | 契約 |
+| --- | --- | --- |
+| `422` | コントロール直下のインラインエラー | [field-errors](/hypermedia-components/ja/recipes/field-errors/) / [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) |
+| `401` | ログインダイアログ。サインイン後、**中断された操作が完了します** | [session-expiry](/hypermedia-components/ja/recipes/session-expiry/) |
+| `409` | 競合ダイアログ — 自分を残す / 相手を取り込む | [edit-conflict](/hypermedia-components/ja/recipes/edit-conflict/) |
+| `413` | エラートースト。フォームは残ります | [file-upload](/hypermedia-components/ja/recipes/file-upload/)(プロキシ上限の注記) |
+| `5xx` | `HX-Trigger` 経由のエラートースト。スワップなし | [lazy-panel](/hypermedia-components/ja/recipes/lazy-panel/)(503 ブランチ) |
+
+すべてを貫くのは 2 つのドクトリンです:
+
+- **サーバーが検証者であり語り手です。** エラー UI はサーバーが
+  レンダリングしたフラグメント(ダイアログ、ヒント、フィールド
+  エラー)として届きます — クライアントがステータスコードから
+  エラーメッセージを組み立てることはありません。
+- ドメインの帰結には **4xx で何も返さないより、200 で真実を返す**
+  ([undo-delete](/hypermedia-components/ja/recipes/undo-delete/) の
+  期限切れブランチ参照)。プロトコルの失敗(401/409/422)は
+  コードを使い、下の許可のような汎用機構がルーティングできるように
+  します。
+
+## 共有する許可
+
+htmx は既定で非 2xx を一切スワップしません。契約が操縦する
+ステータスを、ページレベルで一度だけ許可します:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if ([401, 409, 422].includes(event.detail.xhr.status)) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+これがあれば各エラーの UI を操縦するのは*サーバー*です —
+`HX-Retarget` / `HX-Reswap` ヘッダーがフラグメントを狙い
+(ログインダイアログは [remote-dialog ルート](/hypermedia-components/ja/components/dialog/)へ、
+フィールドエラーはフォームへ)、ページごとの配線は増えません。
+各レシピのページには自分のステータスだけの版が載っています —
+これはその統合形です。
+
+## 二重送信の衛生
+
+注文が二重になるバグはコンポーネントではなくリクエスト衛生の
+問題です。属性 3 つ、すべて htmx ネイティブ:
+
+```html
+<form data-hx-post="/orders"
+      data-hx-sync="this:abort"
+      data-hx-disabled-elt="find button[type=submit]"
+      data-hx-indicator="find .hc-spinner">
+  …
+  <button class="hc-button" data-variant="primary" type="submit">
+    Place order <span class="hc-spinner" aria-hidden="true"></span>
+  </button>
+</form>
+```
+
+- `data-hx-sync="this:abort"` — 再送信は競走せず、進行中の
+  リクエストを中止します。
+- `data-hx-disabled-elt` — ボタンはリクエストの間だけ無効化され、
+  **エラー経路を含むすべての settle 経路で再有効化されます**。
+  手書きの `onclick` 無効化はエラー経路を誤り、フォームを固めます。
+- `data-hx-indicator` — [スピナー](/hypermedia-components/ja/components/spinner/)は
+  飛行中のみ表示(`htmx-indicator` の CSS は `hc.htmx.css` にあります)。
+
+破壊的な操作には確認ダイアログより
+[undo-delete](/hypermedia-components/ja/recipes/undo-delete/) を —
+「聞いたが無視された」より「実行されたが取り消せる」が勝ちます。
+
+## 関連
+
+- [request-action](/hypermedia-components/ja/recipes/request-action/) —
+  これらの属性が飾る、変更ボタンの基本レシピ。
+- [UI コピーを書く](/hypermedia-components/ja/fundamentals/writing/) —
+  エラーメッセージの声(「何が起きたか + どう直すか」)。
+- [htmx 連携](/hypermedia-components/ja/integrations/htmx/) —
+  許可の背後にあるイベント/ライフサイクルのリファレンス。

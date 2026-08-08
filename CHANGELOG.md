@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: `fundamentals/errors` — the errors & recovery map** (PR 2 of
+  [`plans/hc-error-paths-plan-en.md`](plans/hc-error-paths-plan-en.md),
+  landed last so its links resolve; the plan's Status records the
+  reorder). One page (en/ja) turning the scattered failure branches
+  into a single table — status → what the user sees → which recipe
+  owns it (`422` field-errors, `401` session-expiry, `409`
+  edit-conflict, `413`/`5xx` toast branches) — plus the **one
+  consolidated `htmx:beforeSwap` allowance** (`[401, 409, 422]`) the
+  per-recipe pages repeat in one-status form, the two doctrines
+  (server-narrated errors; 200-with-truth for domain outcomes), and
+  **double-submit hygiene** (`data-hx-sync="this:abort"` +
+  `data-hx-disabled-elt` + indicator — with the "hand-rolled disabling
+  gets the error path wrong" warning). Session-expiry and
+  edit-conflict pages gain their deferred cross-links (en/ja).
+
 - **`edit-conflict` recipe — optimistic locking via a hidden version**
   (PR 4, final, of
   [`plans/hc-error-paths-plan-en.md`](plans/hc-error-paths-plan-en.md);
