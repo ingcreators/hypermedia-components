@@ -32,7 +32,7 @@ Options:
   -f, --force          add/email eject: overwrite existing files
   -r, --recipe <name>  validate: check one recipe (must be detected)
   -s, --strict         validate: treat warnings as errors
-      --color <name>   email eject: accent axis (default | indigo | emerald | rose | amber)
+      --color <name>   email eject: accent axis (default | teal | lime | orange | fuchsia)
       --neutral <name> email eject: neutral ramp (gray | slate | zinc | neutral | stone)
       --tokens <file>  email eject: theme-builder DTCG export (custom theme)
       --flavor <name>  email eject: thymeleaf (default) | plain

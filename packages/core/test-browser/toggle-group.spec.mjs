@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { cssColor } from './helpers/color.mjs';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -41,7 +41,7 @@ test.describe('hc-toggle-group — single (exclusive)', () => {
   test('the selected option paints the accent border', async ({ page }) => {
     // on-border → action.primary.border → blue.600.
     expect(await cssColor(page.getByTestId('tg-s-left'), 'borderTopColor'))
-      .toBe('rgb(44, 96, 233)');
+      .toBeColor('rgb(44, 96, 233)');
   });
 });
 

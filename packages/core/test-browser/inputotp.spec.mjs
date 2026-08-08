@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { cssColor } from './helpers/color.mjs';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -82,12 +82,12 @@ test.describe('hc-inputotp', () => {
 
   test('aria-invalid paints the error border', async ({ page }) => {
     // semantic.color.error → red.600
-    expect(await slotBorder(page, 'otp-invalid')).toBe('rgb(206, 14, 24)');
+    expect(await slotBorder(page, 'otp-invalid')).toBeColor('rgb(206, 14, 24)');
   });
 
   test('data-variant success / warning recolour the slot border', async ({ page }) => {
-    expect(await slotBorder(page, 'otp-success')).toBe('rgb(9, 131, 91)'); // green.600
-    expect(await slotBorder(page, 'otp-warning')).toBe('rgb(184, 118, 11)'); // amber.500 (semantic.color.warning)
+    expect(await slotBorder(page, 'otp-success')).toBeColor('rgb(9, 131, 91)'); // green.600
+    expect(await slotBorder(page, 'otp-warning')).toBeColor('rgb(184, 118, 11)'); // amber.500 (semantic.color.warning)
   });
 
   test('axe finds no violations in the inputotp section', async ({ page }) => {

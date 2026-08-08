@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { cssColor } from './helpers/color.mjs';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -34,7 +34,7 @@ test.describe('hc-separator', () => {
 
   test('the line is painted with the border token colour', async ({ page }) => {
     // semantic.color.border → gray.300.
-    expect(await cssColor(page.getByTestId('sep-h'), 'backgroundColor')).toBe('rgb(208, 213, 221)');
+    expect(await cssColor(page.getByTestId('sep-h'), 'backgroundColor')).toBeColor('rgb(208, 213, 221)');
   });
 
   test('the label variant grows hairlines around a muted label', async ({ page }) => {
@@ -55,7 +55,7 @@ test.describe('hc-separator', () => {
     // …and the pseudo-element segments draw it instead.
     expect(styles.beforeContent).toBe('""');
     expect(styles.beforeFlex).toBe('1');
-    expect(await cssColor(sep, 'backgroundColor', '::before')).toBe('rgb(208, 213, 221)');
+    expect(await cssColor(sep, 'backgroundColor', '::before')).toBeColor('rgb(208, 213, 221)');
 
     // The label sits between the segments, muted.
     const label = sep.locator('.hc-separator__label');

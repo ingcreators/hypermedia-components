@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { cssColor } from './helpers/color.mjs';
+import { test } from '@playwright/test';
+import { cssColor, expect } from './helpers/color.mjs';
 
 // Regression: nested data-color wrappers must recolour every
 // theme-dependent component primitive (button, checkbox, tabs
@@ -55,11 +55,11 @@ test.describe('nested data-color wrappers recolour component primitives', () => 
 
   for (const { color, rgb } of CASES) {
     test(`data-color="${color}" → button primary bg`, async ({ page }) => {
-      expect(await cssColor(page.getByTestId(`btn-${color}`), 'backgroundColor')).toBe(rgb);
+      expect(await cssColor(page.getByTestId(`btn-${color}`), 'backgroundColor')).toBeColor(rgb);
     });
 
     test(`data-color="${color}" → checkbox checked bg`, async ({ page }) => {
-      expect(await cssColor(page.getByTestId(`nt-cb-${color}`), 'backgroundColor')).toBe(rgb);
+      expect(await cssColor(page.getByTestId(`nt-cb-${color}`), 'backgroundColor')).toBeColor(rgb);
     });
 
     test(`data-color="${color}" → tabs active indicator`, async ({ page }) => {
@@ -67,7 +67,7 @@ test.describe('nested data-color wrappers recolour component primitives', () => 
       // is --hc-tabs-tab-indicator. Verify the resolved var is set
       // correctly on the tab element.
       const tab = page.getByTestId(`tab-${color}`);
-      expect(await cssColor(tab, '--hc-tabs-tab-indicator')).toBe(rgb);
+      expect(await cssColor(tab, '--hc-tabs-tab-indicator')).toBeColor(rgb);
     });
   }
 });
@@ -113,7 +113,7 @@ test.describe('dark mode recolours neutral hover / surface backgrounds', () => {
   for (const name of VARS) {
     test(`${name} is dark under [data-theme="dark"]`, async ({ page }) => {
       // gray.700 under dark — not the shipped-light gray.100 / gray.50.
-      expect(await cssColor(page.getByTestId('dark-probe'), name)).toBe('rgb(55, 65, 81)');
+      expect(await cssColor(page.getByTestId('dark-probe'), name)).toBeColor('rgb(55, 65, 81)');
     });
   }
 });
@@ -147,7 +147,7 @@ test.describe('dark mode tints status surfaces (alert / toast / badge)', () => {
 
   for (const [name, rgb, label] of STATUS) {
     test(`${name} is the dark tint (${label})`, async ({ page }) => {
-      expect(await cssColor(page.getByTestId('dark-probe'), name)).toBe(rgb);
+      expect(await cssColor(page.getByTestId('dark-probe'), name)).toBeColor(rgb);
     });
   }
 });

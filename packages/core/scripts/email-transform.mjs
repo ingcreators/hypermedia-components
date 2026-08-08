@@ -24,8 +24,11 @@ const PLACEHOLDER_RE = /(?<!\$)\{([a-z0-9][a-z0-9-]*)(\.dark)?\}/g;
 // rem -> px at the 16px root size. Email clients that matter (Outlook's
 // Word engine, several webmail contexts) don't resolve rem; the token
 // sources are rem-based, so every substituted value is converted.
+// The two alternation branches are disjoint (`\d` first vs `.` first),
+// so the scan is linear — the transformer also runs in the browser
+// (CodeQL js/polynomial-redos).
 function pxify(value) {
-  return value.replace(/(\d*\.?\d+)rem\b/g, (_, n) => `${Math.round(parseFloat(n) * 16)}px`);
+  return value.replace(/(\d+(?:\.\d+)?|\.\d+)rem\b/g, (_, n) => `${Math.round(parseFloat(n) * 16)}px`);
 }
 
 // oklch() -> #rrggbb, including inside composite values (color-mix,

@@ -20,7 +20,7 @@ import {
 const corePath = (subpath) =>
   fileURLToPath(import.meta.resolve(`@hypermedia-components/core/${subpath}`));
 
-export const EMAIL_COLORS = ['default', 'indigo', 'emerald', 'rose', 'amber'];
+export const EMAIL_COLORS = ['default', 'teal', 'lime', 'orange', 'fuchsia'];
 export const EMAIL_NEUTRALS = ['gray', 'slate', 'zinc', 'neutral', 'stone'];
 export const EMAIL_FLAVORS = ['thymeleaf', 'plain'];
 export const EMAIL_FILES = ['hc-email.html', 'hc-email-layout.html', 'email-tokens.json'];

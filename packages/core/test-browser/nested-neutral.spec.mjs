@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { cssColor } from './helpers/color.mjs';
+import { test } from '@playwright/test';
+import { cssColor, expect } from './helpers/color.mjs';
 
 // The neutral axis swaps the surface-family ramp. It must work on a nested
 // wrapper (orthogonal to data-color / data-theme / data-density) and in both
@@ -33,14 +33,14 @@ test.describe('nested data-neutral wrappers re-tint the surface ramp', () => {
     const card = page.getByTestId('nn-card-light');
     const bg = await cssColor(card, 'backgroundColor');
     const border = await cssColor(card, 'borderTopColor');
-    expect(bg).toBe('rgb(255, 255, 255)'); // white surface in light
-    expect(border).toBe('rgb(203, 213, 225)'); // slate.300 #cbd5e1
+    expect(bg).toBeColor('rgb(255, 255, 255)'); // white surface in light
+    expect(border).toBeColor('rgb(203, 213, 225)'); // slate.300 #cbd5e1
   });
 
   test('dark slate (both attrs on one element): card surface becomes slate.800', async ({ page }) => {
     const card = page.getByTestId('nn-card-dark');
     const bg = await cssColor(card, 'backgroundColor');
-    expect(bg).toBe('rgb(30, 41, 59)'); // slate.800 #1e293b
+    expect(bg).toBeColor('rgb(30, 41, 59)'); // slate.800 #1e293b
   });
 
   // The realistic case: data-theme="dark" on an ancestor (e.g. <html>),
@@ -49,6 +49,6 @@ test.describe('nested data-neutral wrappers re-tint the surface ramp', () => {
   test('dark slate (theme on ancestor, neutral on descendant): card surface becomes slate.800', async ({ page }) => {
     const card = page.getByTestId('nn-card-dark-descendant');
     const bg = await cssColor(card, 'backgroundColor');
-    expect(bg).toBe('rgb(30, 41, 59)'); // slate.800 #1e293b, not light
+    expect(bg).toBeColor('rgb(30, 41, 59)'); // slate.800 #1e293b, not light
   });
 });

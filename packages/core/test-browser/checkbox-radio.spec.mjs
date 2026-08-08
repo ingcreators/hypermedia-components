@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { cssColor } from './helpers/color.mjs';
+import { test } from '@playwright/test';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -48,7 +48,7 @@ test.describe('hc-checkbox', () => {
   test('aria-invalid swaps the border to the error colour', async ({ page }) => {
     const cb = page.getByTestId('cb-invalid');
     // --hc-checkbox-invalid-border resolves to --hc-color-error (red.600).
-    expect(await cssColor(cb, 'borderTopColor')).toBe('rgb(206, 14, 24)');
+    expect(await cssColor(cb, 'borderTopColor')).toBeColor('rgb(206, 14, 24)');
   });
 
   test('data-variant="error" uses the error checked colour', async ({ page }) => {
@@ -57,7 +57,7 @@ test.describe('hc-checkbox', () => {
 
     // The element has a 120ms background-color transition. Poll until it
     // settles on the resolved variable value (red.600).
-    await expect.poll(() => cssColor(cb, 'backgroundColor')).toBe('rgb(206, 14, 24)');
+    await expect.poll(() => cssColor(cb, 'backgroundColor')).toBeColor('rgb(206, 14, 24)');
   });
 
   test('data-variant="warning" uses the warning checked colour', async ({ page }) => {
@@ -65,7 +65,7 @@ test.describe('hc-checkbox', () => {
     await cb.check();
 
     // amber.500 (semantic.color.warning)
-    await expect.poll(() => cssColor(cb, 'backgroundColor')).toBe('rgb(184, 118, 11)');
+    await expect.poll(() => cssColor(cb, 'backgroundColor')).toBeColor('rgb(184, 118, 11)');
   });
 
   test('data-size="sm" / "lg" render at the dedicated sm / lg sizes', async ({ page }) => {
@@ -128,7 +128,7 @@ test.describe('hc-radio', () => {
     const warning = page.getByTestId('radio-warning');
     await expect(warning).toBeChecked();
 
-    await expect.poll(() => cssColor(warning, 'backgroundColor')).toBe('rgb(184, 118, 11)');
+    await expect.poll(() => cssColor(warning, 'backgroundColor')).toBeColor('rgb(184, 118, 11)');
   });
 
   test('data-size="sm" / "lg" render the radio at sm / lg sizes', async ({ page }) => {

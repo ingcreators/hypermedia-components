@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { cssColor } from './helpers/color.mjs';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -30,7 +30,7 @@ test.describe('hc-switch', () => {
     // Action-primary defaults to blue.600 = rgb(44, 96, 233).
     await expect
       .poll(() => cssColor(sw, 'backgroundColor'))
-      .toBe('rgb(44, 96, 233)');
+      .toBeColor('rgb(44, 96, 233)');
   });
 
   test('disabled state lowers opacity and blocks clicks', async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe('hc-switch', () => {
     // semantic.color.success → green.600 = rgb(9, 131, 91).
     await expect
       .poll(() => cssColor(sw, 'backgroundColor'))
-      .toBe('rgb(9, 131, 91)');
+      .toBeColor('rgb(9, 131, 91)');
   });
 
   test('data-variant="warning" tints the checked track amber', async ({ page }) => {
@@ -55,7 +55,7 @@ test.describe('hc-switch', () => {
     // semantic.color.warning → amber.500 = rgb(184, 118, 11).
     await expect
       .poll(() => cssColor(sw, 'backgroundColor'))
-      .toBe('rgb(184, 118, 11)');
+      .toBeColor('rgb(184, 118, 11)');
   });
 
   test('data-variant="error" tints the checked track red', async ({ page }) => {
@@ -63,7 +63,7 @@ test.describe('hc-switch', () => {
     // semantic.color.error → red.600 = rgb(206, 14, 24).
     await expect
       .poll(() => cssColor(sw, 'backgroundColor'))
-      .toBe('rgb(206, 14, 24)');
+      .toBeColor('rgb(206, 14, 24)');
   });
 
   test('data-size="sm" / "lg" render with different widths', async ({ page }) => {

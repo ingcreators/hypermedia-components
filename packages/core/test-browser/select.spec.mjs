@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { cssColor } from './helpers/color.mjs';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -37,12 +37,12 @@ test.describe('hc-select', () => {
 
   test('aria-invalid + data-variant="error" swaps the border to error', async ({ page }) => {
     // semantic.color.error → primitive.color.red.600
-    expect(await cssColor(page.getByTestId('sel-error'), 'borderTopColor')).toBe('rgb(206, 14, 24)');
+    expect(await cssColor(page.getByTestId('sel-error'), 'borderTopColor')).toBeColor('rgb(206, 14, 24)');
   });
 
   test('data-variant="success" swaps the border to success', async ({ page }) => {
     // semantic.color.success → primitive.color.green.600
-    expect(await cssColor(page.getByTestId('sel-success'), 'borderTopColor')).toBe('rgb(9, 131, 91)');
+    expect(await cssColor(page.getByTestId('sel-success'), 'borderTopColor')).toBeColor('rgb(9, 131, 91)');
   });
 
   test('disabled state reduces opacity and changes cursor', async ({ page }) => {

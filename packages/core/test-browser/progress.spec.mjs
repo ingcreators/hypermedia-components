@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { cssColor } from './helpers/color.mjs';
+import { cssColor, expect } from './helpers/color.mjs';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -23,21 +23,21 @@ test.describe('hc-progress', () => {
     // as the fill source via `currentColor` — match against it.
     const colour = await cssColor(pg, 'color');
     // action.primary defaults to blue.600 = rgb(44, 96, 233).
-    expect(colour).toBe('rgb(44, 96, 233)');
+    expect(colour).toBeColor('rgb(44, 96, 233)');
   });
 
   test('data-variant="success" recolours the fill', async ({ page }) => {
     const pg = page.getByTestId('pg-success');
     const colour = await cssColor(pg, 'color');
     // semantic.color.success → green.600 = rgb(9, 131, 91).
-    expect(colour).toBe('rgb(9, 131, 91)');
+    expect(colour).toBeColor('rgb(9, 131, 91)');
   });
 
   test('data-variant="error" recolours the fill', async ({ page }) => {
     const pg = page.getByTestId('pg-error');
     const colour = await cssColor(pg, 'color');
     // semantic.color.error → red.600 = rgb(206, 14, 24).
-    expect(colour).toBe('rgb(206, 14, 24)');
+    expect(colour).toBeColor('rgb(206, 14, 24)');
   });
 
   test('data-size="sm" / "lg" render distinct heights', async ({ page }) => {
