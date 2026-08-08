@@ -1278,6 +1278,141 @@ function handleSavedViews(req, res, url) {
   return false;
 }
 
+// Mock CSV import backend for the csv-import recipe spec
+// (csv-import.html). POST /mock/csv-import/imports parses the CSV out
+// of the multipart body (tiny strict parser: comma, "quoted" fields
+// with "" escapes, \r\n? rows; two columns name,qty with an optional
+// header) and answers the validation report — summary + real error
+// table + the tokened confirm form — importing nothing. The token is
+// stateless like the docs demo: base64url of the valid rows re-
+// serialized as CSV (a real app holds the batch server-side). Commit
+// decodes it and answers the result + toast; the canned token
+// "expired" (and anything undecodable) answers the single-shot 409.
+function csvParse(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i += 1; } else inQuotes = false;
+      } else field += c;
+    } else if (c === '"') inQuotes = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i += 1;
+      row.push(field); rows.push(row); row = []; field = '';
+    } else field += c;
+  }
+  if (field !== '' || row.length > 0) { row.push(field); rows.push(row); }
+  return rows.filter((r) => !(r.length === 1 && r[0].trim() === ''));
+}
+
+function csvValidate(rows) {
+  const valid = [];
+  const errors = [];
+  const first = rows[0];
+  const hasHeader = first?.length === 2
+    && first[0].trim().toLowerCase() === 'name'
+    && first[1].trim().toLowerCase() === 'qty';
+  for (let i = hasHeader ? 1 : 0; i < rows.length; i += 1) {
+    const line = i + 1;
+    const r = rows[i];
+    if (r.length !== 2) {
+      errors.push({ row: line, field: 'row', message: `expected 2 fields, got ${r.length}` });
+      continue;
+    }
+    const name = r[0].trim();
+    const qty = r[1].trim();
+    if (!name) { errors.push({ row: line, field: 'name', message: 'name is required' }); continue; }
+    if (!/^\d+$/.test(qty) || Number.parseInt(qty, 10) < 1) {
+      errors.push({ row: line, field: 'qty', message: 'qty must be a positive integer' });
+      continue;
+    }
+    valid.push({ name, qty: Number.parseInt(qty, 10) });
+  }
+  return { valid, errors };
+}
+
+function csvReport(valid, errors) {
+  const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const parts = [];
+  if (errors.length === 0) {
+    parts.push(`<p>${valid.length} ${valid.length === 1 ? 'row' : 'rows'} ready to import.</p>`);
+  } else {
+    parts.push(`<p>${valid.length} of ${valid.length + errors.length} rows ready — ${errors.length} ${errors.length === 1 ? 'row has' : 'rows have'} errors and will be skipped.</p>`);
+    const body = errors.map(({ row, field, message }) =>
+      `<tr><th scope="row">${row}</th><td>${esc(field)}</td><td>${esc(message)}</td></tr>`).join('\n');
+    parts.push(`<table class="hc-table">
+      <caption>Rows that will not be imported</caption>
+      <thead><tr><th scope="col">Row</th><th scope="col">Field</th><th scope="col">Message</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table>`);
+  }
+  if (valid.length > 0) {
+    const csvField = (v) => (/[",\n\r]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v);
+    const token = Buffer.from(
+      valid.map((r) => `${csvField(r.name)},${r.qty}`).join('\n'), 'utf8',
+    ).toString('base64url');
+    const url = `/mock/csv-import/imports/${token}/commit`;
+    parts.push(`<form method="post" action="${url}" data-hx-post="${url}" data-hx-target="#import-report" data-hx-disabled-elt="find button[type=submit]">
+      <input type="hidden" name="token" value="${token}">
+      <button class="hc-button" data-variant="primary" type="submit">Import the valid ${valid.length} ${valid.length === 1 ? 'row' : 'rows'}</button>
+    </form>`);
+  }
+  return parts.join('\n');
+}
+
+function handleCsvImport(req, res, url) {
+  if (url.pathname === '/mock/csv-import/imports' && req.method === 'POST') {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => {
+      const body = Buffer.concat(chunks).toString('utf8');
+      // The csv part's content: after its headers' blank line, up to
+      // the next boundary line (single-file form, ASCII fixtures).
+      const content = body.match(/name="csv"[^]*?\r\n\r\n([^]*?)\r\n--/)?.[1] ?? '';
+      res.setHeader('Content-Type', MIME['.html']);
+      const rows = csvParse(content);
+      if (rows.length === 0) {
+        res.statusCode = 422;
+        return res.end('<p class="hc-field__message">The file has no data rows.</p>');
+      }
+      const { valid, errors } = csvValidate(rows);
+      res.statusCode = valid.length > 0 ? 200 : 422;
+      res.end(csvReport(valid, errors));
+    });
+    return true;
+  }
+  const commit = url.pathname.match(/^\/mock\/csv-import\/imports\/([^/]+)\/commit$/);
+  if (commit && req.method === 'POST') {
+    readBody(req).then(() => {
+      const token = commit[1];
+      res.setHeader('Content-Type', MIME['.html']);
+      let batch = null;
+      if (token !== 'expired') {
+        try { batch = Buffer.from(token, 'base64url').toString('utf8'); } catch { batch = null; }
+      }
+      const n = batch === null ? 0 : csvParse(batch).length;
+      if (n === 0) {
+        // Single-shot tokens: consumed/expired/undecodable → 409.
+        res.statusCode = 409;
+        return res.end('<p class="hc-field__message">This import was already committed or has expired — upload the file again for a fresh report.</p>');
+      }
+      res.statusCode = 200;
+      res.setHeader('HX-Trigger', hxTrigger({
+        'hc:toast': { message: `${n} rows imported`, variant: 'success' },
+        'items:changed': {},
+      }));
+      res.end(`<p>${n} ${n === 1 ? 'row' : 'rows'} imported.</p>`);
+    });
+    return true;
+  }
+  return false;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -1291,6 +1426,7 @@ function handleMock(req, res, url) {
   if (handleDirty(req, res, url)) return true;
   if (handleSession(req, res, url)) return true;
   if (handleConflict(req, res, url)) return true;
+  if (handleCsvImport(req, res, url)) return true;
   if (handleSavedViews(req, res, url)) return true;
   if (handleDatagridColumns(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;

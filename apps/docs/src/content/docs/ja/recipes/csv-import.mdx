@@ -1,0 +1,121 @@
+---
+title: CSV インポート
+description: 一括 CSV 取り込みを 2 フェーズで、驚きなしに — アップロードはインポートせずに検証だけを行い、応答は本物のエラーテーブルとトークン付き確認フォームを持つレポート。コミットは検証されたとおりを正確に実行します。
+---
+
+import CsvImportDemo from '../../../../components/recipe-demos/CsvImportDemo.astro';
+
+一括取り込みに欠けていたワイヤ契約です。フェーズ 1:
+[file-upload](/hypermedia-components/ja/recipes/file-upload/) の
+フォームが CSV を POST し、サーバーは**インポートせずに**解析・検証
+します — 応答は検証レポートです: サマリー行、本物のエラーテーブル、
+そして(インポート可能な行があるときだけ)サーバー側バッチを参照する
+隠し `token` を持つ確認フォーム。フェーズ 2:
+`POST /imports/<token>/commit` の確認が、検証されたとおりを正確に
+実行します。再アップロードはバッチを置き換えます。新規 JavaScript
+ゼロ。[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add csv-import
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/csv-import/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+これを `items.csv` として保存して(最後の 2 行はわざと壊してあります)
+アップロードしてください — レポートが有効な行のインポートを提案し、
+残りをエラーテーブルに並べます。コミットすると結果が表示され、
+トーストが上がります:
+
+```csv
+name,qty
+Anvil,3
+"Widget, small",12
+Sprocket,zero
+,4
+```
+
+<CsvImportDemo />
+
+## マークアップ
+
+```html
+<form id="csv-upload" method="post" action="/imports"
+      enctype="multipart/form-data"
+      data-hx-post="/imports"
+      data-hx-encoding="multipart/form-data"
+      data-hx-target="#import-report"
+      data-hx-indicator="find progress"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div class="hc-field">
+    <label class="hc-field__label" for="csv">CSV file</label>
+    <input class="hc-input" id="csv" name="csv" type="file" required
+           accept=".csv,text/csv">
+  </div>
+
+  <progress class="hc-progress htmx-indicator" data-hc-upload-progress
+            value="0" max="100" aria-label="Upload progress"></progress>
+
+  <button class="hc-button" data-variant="primary" type="submit">Upload</button>
+</form>
+
+<div id="import-report" aria-live="polite"></div>
+```
+
+アップロードフォームは file-upload の形そのままです(あのレシピの
+両エンコーディング: htmx 用の `data-hx-encoding` とネイティブ送信用の
+`enctype`)。確認フォームはレポートの中に**サーバーがレンダリング**
+します — `/imports/<token>/commit` へ POST し、トークンはパスと隠し
+input の両方に載り、同じスロットを target にするので結果がレポート
+全体を置き換えます。
+
+## サーバー応答契約
+
+`POST /imports`(multipart、ファイルフィールド `csv`)、続いて
+`POST /imports/<token>/commit`:
+
+| ケース | 応答 |
+| --- | --- |
+| アップロード、全行有効 | `200` + レポート:「N 行の準備ができました」+ 確認フォーム(隠し `token`) |
+| アップロード、一部の行が不正 | `200` + レポート: スキップ数入りのサマリー、エラーテーブル(`Row` / `Field` / `Message` — 本物の `<table>`)、「有効な N 行をインポート」確認フォーム |
+| アップロード、有効な行なし/読めないファイル | `422` + エラーレポート(またはファイルレベルのエラー行)— **確認フォームなし** |
+| コミット、生きているトークン | `200` + 結果サマリー + `HX-Trigger`(`hc:toast` **と**ドメインイベント、例: `items:changed` — [data-region](/hypermedia-components/ja/recipes/data-region/) のリスナーがグリッドを更新) |
+| コミット、期限切れ/消費済みトークン | `409` + 再アップロードのヒント — トークンは**単発**です。直すには常に再アップロードで、リトライではありません(`409` は統合された `[401, 409, 422]` の `htmx:beforeSwap` 許可に乗ります) |
+
+トークンはサーバー側の解析済みバッチを参照します: コミットは検証
+された行を正確に実行します — その後ディスク上のファイルが変わって
+いても、です。CSV の解析はサーバーの領分です — パーサーは各自の
+ものを使ってください。ワイヤ契約は変わりません。
+
+## プログレッシブエンハンスメント
+
+`enctype` がフォームにあるので、ネイティブの multipart POST は
+そのまま機能します。サーバーはフルページのレポートで応え、その中の
+確認フォームもネイティブに POST できます(古典的な
+post/redirect/get — 実アプリはバッチをサーバー側に持つので
+`/imports/<token>` へ `303` します)。JavaScript なしでもフローは
+同一で、1 ページずつ進みます。
+
+## アクセシビリティ
+
+- レポートスロットは `aria-live="polite"` — サマリー、エラー
+  レポート、コミット結果が、フォーカスを奪わずに読み上げられます。
+- エラーテーブルは `<caption>`、`scope="col"` ヘッダー、行番号の
+  `scope="row"` ヘッダーを持つ本物の `<table>` です。
+- プログレスバーは `aria-label` を持ち、アップロード/確認ボタンは
+  リクエスト中は無効化されます。
+
+## 関連
+
+- [file-upload](/hypermedia-components/ja/recipes/file-upload/) —
+  フェーズ 1 が使い回すアップロードフォームの形(とその checks)。
+- [toast](/hypermedia-components/ja/recipes/toast/) — コミットが
+  上げる `HX-Trigger` 通知。
+- [data-region](/hypermedia-components/ja/recipes/data-region/) —
+  取り込んだ行が着地するグリッドを更新するドメインイベントの
+  ペアリング。

@@ -1,0 +1,32 @@
+<!-- Short recommended usage.
+
+  CSV import in two phases, no surprises: the file-upload form posts
+  the CSV and the server parses and validates WITHOUT importing — the
+  response is a validation report (summary line, a real error table,
+  and, when importable rows exist, a confirm form whose hidden token
+  references the server-held batch). Confirming POST /imports/<token>/
+  commit executes exactly what was validated; re-uploading replaces the
+  batch. Both encodings are required: data-hx-encoding drives the htmx
+  request, enctype drives the native no-JS submit. See contract.md. -->
+<form id="csv-upload" method="post" action="/imports"
+      enctype="multipart/form-data"
+      data-hx-post="/imports"
+      data-hx-encoding="multipart/form-data"
+      data-hx-target="#import-report"
+      data-hx-indicator="find progress"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div class="hc-field">
+    <label class="hc-field__label" for="csv">CSV file</label>
+    <input class="hc-input" id="csv" name="csv" type="file" required
+           accept=".csv,text/csv">
+  </div>
+
+  <progress class="hc-progress htmx-indicator" data-hc-upload-progress
+            value="0" max="100" aria-label="Upload progress"></progress>
+
+  <button class="hc-button" data-variant="primary" type="submit">Upload</button>
+</form>
+
+<!-- The report slot: the validation report (and later the commit
+     result) lands here. -->
+<div id="import-report" aria-live="polite"></div>
