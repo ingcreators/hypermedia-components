@@ -68,4 +68,4 @@ export { installChart } from './chart.js';
 // ARIA labels). Call setMessages() once at startup, before installing.
 export { setMessages, resetMessages, getMessages, hasMessage, DEFAULT_MESSAGES } from './i18n.js';
 
-export const version = '0.2.0';
+export const version = '0.2.1';

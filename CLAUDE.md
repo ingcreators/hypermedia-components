@@ -46,15 +46,16 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.1.8` + Unreleased (2026-07-05): 66 component stylesheets ·
-45 behaviors (44 auto-init + opt-in chart) · 2 macros · 26 recipes ·
-8 integration guides · ~129 docs pages **fully mirrored in Japanese
-(`/ja/`)** · runtime axes
+As of `0.2.1` (2026-08-08): 67 component stylesheets ·
+53 behaviors (52 auto-init + opt-in chart) · 2 macros · 36 recipes ·
+8 integration guides · 3 full-page templates · opt-in `hc.print.css`
+(`./css/print`) · docs **fully mirrored in Japanese (`/ja/`)** ·
+runtime axes
 `data-theme` / `data-color` / `data-neutral` / `data-density` / `dir` ·
 i18n message catalog (`setMessages()`) · examples for plain-html +
-htmx · 57 Vitest suites (core + CLI) · 107 Playwright suites (incl. axe
-scans and the VRT screenshot sheets) · `hc validate` machine-checked
-recipe contracts (`@hypermedia-components/cli@0.2.1`).
+htmx · Vitest suites (core + CLI + demo-api) · Playwright suites (incl.
+axe scans and the VRT screenshot sheets) · `hc validate` machine-checked
+recipe contracts (`@hypermedia-components/cli@0.4.1`).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -122,6 +123,29 @@ working-tree operations need isolation. Remove the worktree and delete
 the local branch after its PR merges.
 
 ## Current focus
+
+Core `0.2.1` + CLI `0.4.1` shipped (2026-08-08, `v0.2.1` /
+`cli-v0.4.1` tags) — the **business-app release**: seven themes from
+the 2026-08-08 line-of-business gap analysis, 19 feature PRs
+(#467–#485), each theme plan-first:
+
+| Theme | Plan | Shipped |
+| --- | --- | --- |
+| A 入力基盤 | [`plans/hc-input-format-plan-en.md`](plans/hc-input-format-plan-en.md) | `installFormat`/`installNormalize` (formdata-event raw wire values), `installMask` (`postal-jp`), postal-address recipe |
+| B フォーム安全 | [`plans/hc-form-safety-plan-en.md`](plans/hc-form-safety-plan-en.md) | `installDirtyGuard` + unsaved-changes recipe, autosave recipe (zero JS) |
+| C 異常系 | [`plans/hc-error-paths-plan-en.md`](plans/hc-error-paths-plan-en.md) | `installSessionExpiry` (401→replay), edit-conflict recipe (409, zero JS), `fundamentals/errors` map |
+| D グリッド運用 | [`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md) | datagrid-columns / saved-views / csv-import / datagrid-infinite — four zero-JS contracts |
+| E 印刷 | — | opt-in `hc.print.css` (`./css/print`) + `fundamentals/print` |
+| F 時刻 | — | `installTime` (`<time data-hc-time>` Intl localization) |
+| G テンプレート | — | `templates/data-entry` composing the whole stack |
+
+Assembly hardening worth remembering: OOB units must never replace an
+`data-hc-close-*-on-success` carrier mid-request (datagrid-columns);
+`revealed` is window-based, so infinite grids require
+`--hc-datagrid-max-height: none` (datagrid-infinite); dialog-open axe
+scans emulate reduced motion (#342 pattern).
+
+Previous milestones follow.
 
 `0.1.0` shipped (npm `latest`, 2026-06-12) — the alpha-graduation
 release that closed out the **TesseraQL improvement brief** (all 7
