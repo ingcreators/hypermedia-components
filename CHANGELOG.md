@@ -35,6 +35,18 @@ Security    — security-relevant changes
   primitives declares its dirt via a new `dirt()` method (a moved node
   is itself not dirty — only its old and new parents' child lists).
 
+- **editor-kit: `serializePatch()` / `serializeNode()`** (#452
+  Stage 2) — the dirty regions as clean HTML: `serializeNode(node)` is
+  one element's scaffolding-stripped outerHTML, and
+  `serializePatch(root, dirtyMap)` returns
+  `{ clean, patches: [{ node, kinds, html }] }` — one patch per dirty
+  node under `root` with no dirty ancestor (minimal cover; the root
+  patch uses `serialize(root)`'s innerHTML). Wired into
+  `createEditor()` as `editor.serializePatch()`. No text splicing yet
+  — that is Stage 3.
+
+## [0.2.0] - 2026-08-08
+
 The OKLCH color release (#457). **Contains breaking changes** — the
 first since `0.1.0` — flagged below per VERSIONING.md; shipped as a
 minor while the major is 0. No adopters were on the renamed surface.

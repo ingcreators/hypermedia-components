@@ -93,6 +93,21 @@ describe('createEditor', () => {
     expect(editor.selection.size).toBe(0);
   });
 
+  it('wires serializePatch to the stack dirt', () => {
+    root.innerHTML = '<button class="hc-button">Go</button><p>sib</p>';
+    const btn = root.firstElementChild;
+    const editor = createEditor({ root });
+
+    expect(editor.serializePatch().clean).toBe(true);
+    editor.stack.apply(setAttribute(btn, 'data-variant', 'primary'));
+    const { clean, patches } = editor.serializePatch();
+    expect(clean).toBe(false);
+    expect(patches).toHaveLength(1);
+    expect(patches[0].node).toBe(btn);
+    editor.stack.markClean();
+    expect(editor.serializePatch().clean).toBe(true);
+  });
+
   it('dispose clears state and unhooks the stack listener', () => {
     root.innerHTML = '<p>a</p>';
     const a = root.firstElementChild;
