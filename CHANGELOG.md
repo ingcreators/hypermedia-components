@@ -20,6 +20,15 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Security
+
+- Range-scoped `pnpm` overrides floor two vulnerable transitive
+  dev-toolchain deps flagged by Dependabot: `nanoid` ≥ 3.3.17
+  (GHSA-2v37-7h3g-55p8, via postcss) and `js-yaml` ≥ 4.3.1
+  (GHSA-5p4m-2wfm-xmqj, via astro/stylelint). Build/lint/docs tooling
+  only — nothing shipped in the published packages; the overrides
+  self-retire once the parent ranges resolve at or above the floors.
+
 ## [editor-kit-0.2.0] - 2026-08-08
 
 **`@hypermedia-components/editor-kit@0.2.0`** — the #452 dirty-region
