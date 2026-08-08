@@ -1,0 +1,34 @@
+<!-- Short recommended usage.
+
+  Postal → address autofill: the masked postal input GETs the lookup
+  endpoint once it holds a complete 123-4567 value; the server answers
+  with a status fragment for the hint slot plus out-of-band re-renders
+  of the address inputs it filled. The server owns all address data —
+  the client never parses addresses. Requires installMask (auto) for
+  the postal-jp mask; see contract.md for the lookup contract. -->
+<div class="hc-field">
+  <label class="hc-field__label" for="postal">Postal code</label>
+  <input class="hc-input" id="postal" name="postal" inputmode="numeric"
+         placeholder="123-4567" pattern="\d{3}-\d{4}"
+         data-hc-mask="postal-jp"
+         data-hx-get="/address-by-postal"
+         data-hx-trigger="change[target.value.length==8]"
+         data-hx-include="this"
+         data-hx-target="#postal-result">
+  <p class="hc-field__hint" id="postal-result" aria-live="polite"></p>
+</div>
+
+<div class="hc-field">
+  <label class="hc-field__label" for="pref">Prefecture</label>
+  <input class="hc-input" id="pref" name="pref" autocomplete="address-level1">
+</div>
+
+<div class="hc-field">
+  <label class="hc-field__label" for="city">City</label>
+  <input class="hc-input" id="city" name="city" autocomplete="address-level2">
+</div>
+
+<div class="hc-field">
+  <label class="hc-field__label" for="addr1">Street</label>
+  <input class="hc-input" id="addr1" name="addr1" autocomplete="address-line1">
+</div>

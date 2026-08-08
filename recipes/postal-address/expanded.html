@@ -1,0 +1,54 @@
+<!-- Expanded state: the lookup answered.
+
+  Single hit: the hint slot got a status line and the address inputs
+  below arrived as out-of-band outerHTML swaps (same ids, values
+  filled). Multiple hits: the hint slot holds a compact candidate list
+  instead — each candidate re-calls the endpoint with &choice=<n>,
+  which then answers in the single-hit shape. -->
+<div class="hc-field">
+  <label class="hc-field__label" for="postal">Postal code</label>
+  <input class="hc-input" id="postal" name="postal" inputmode="numeric"
+         placeholder="123-4567" pattern="\d{3}-\d{4}" value="600-8216"
+         data-hc-mask="postal-jp"
+         data-hx-get="/address-by-postal"
+         data-hx-trigger="change[target.value.length==8]"
+         data-hx-include="this"
+         data-hx-target="#postal-result">
+  <p class="hc-field__hint" id="postal-result" aria-live="polite">
+    <span>2 addresses share 600-8216 — pick one:</span>
+    <button type="button" class="hc-button" data-size="sm"
+            data-hx-get="/address-by-postal?postal=600-8216&amp;choice=0"
+            data-hx-target="#postal-result">
+      Kyoto, Shimogyo-ku, Higashishiokoji-cho
+    </button>
+    <button type="button" class="hc-button" data-size="sm"
+            data-hx-get="/address-by-postal?postal=600-8216&amp;choice=1"
+            data-hx-target="#postal-result">
+      Kyoto, Shimogyo-ku, Nishishiokoji-cho
+    </button>
+  </p>
+</div>
+
+<!-- Single-hit OOB fragment the server appends after the status line:
+<input class="hc-input" id="pref" name="pref" value="Kyoto"
+       autocomplete="address-level1" data-hx-swap-oob="outerHTML">
+<input class="hc-input" id="city" name="city" value="Shimogyo-ku"
+       autocomplete="address-level2" data-hx-swap-oob="outerHTML">
+<input class="hc-input" id="addr1" name="addr1" value="Higashishiokoji-cho"
+       autocomplete="address-line1" data-hx-swap-oob="outerHTML">
+-->
+
+<div class="hc-field">
+  <label class="hc-field__label" for="pref">Prefecture</label>
+  <input class="hc-input" id="pref" name="pref" autocomplete="address-level1">
+</div>
+
+<div class="hc-field">
+  <label class="hc-field__label" for="city">City</label>
+  <input class="hc-input" id="city" name="city" autocomplete="address-level2">
+</div>
+
+<div class="hc-field">
+  <label class="hc-field__label" for="addr1">Street</label>
+  <input class="hc-input" id="addr1" name="addr1" autocomplete="address-line1">
+</div>

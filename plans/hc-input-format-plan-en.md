@@ -1,6 +1,6 @@
 # input-format — formatted numbers, fullwidth normalization, input masks, postal-address recipe
 
-Status: **proposed.**
+Status: **shipped — PR 1 (plan, #467), PR 2 (installFormat/installNormalize, #468), PR 3 (installMask, #471; plan deviation: no auto-`maxlength` — it would truncate pastes like `〒123-4567` before the mask cleans them), PR 4 (postal-address recipe).**
 First theme of the business-app gap analysis (2026-08-08): the input
 layer between "native constraint validation" (already shipped:
 `installValidation` / `installFieldErrors`) and "what business forms

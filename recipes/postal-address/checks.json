@@ -1,0 +1,36 @@
+{
+  "detect": "input[data-hc-mask][data-hx-get]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "lookup-target-resolves",
+      "level": "error",
+      "message": "The lookup needs a hint slot: data-hx-target must resolve to an element (e.g. #postal-result).",
+      "resolves": { "on": "input[data-hc-mask]", "name": "data-hx-target" }
+    },
+    {
+      "id": "trigger-guarded",
+      "level": "warn",
+      "message": "Guard the trigger on a complete value — change[target.value.length==8] — or every keystroke becomes a request.",
+      "attr": { "on": "input[data-hc-mask]", "name": "data-hx-trigger", "assert": "present", "matches": "change\\[" }
+    },
+    {
+      "id": "includes-self",
+      "level": "error",
+      "message": "The lookup must send the postal value: data-hx-include=\"this\" on the input.",
+      "attr": { "on": "input[data-hc-mask]", "name": "data-hx-include", "assert": "present" }
+    },
+    {
+      "id": "numeric-affordance",
+      "level": "warn",
+      "message": "Give the postal input inputmode=\"numeric\" and a placeholder mirroring the mask (123-4567).",
+      "attr": { "on": "input[data-hc-mask]", "name": "inputmode", "assert": "present", "value": "numeric" }
+    },
+    {
+      "id": "nojs-pattern",
+      "level": "warn",
+      "message": "Mirror the mask for no-JS validation: pattern=\"\\d{3}-\\d{4}\" on the postal input.",
+      "attr": { "on": "input[data-hc-mask]", "name": "pattern", "assert": "present" }
+    }
+  ]
+}
