@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **Docs: `templates/data-entry` — the business-form stack in one
+  page** (theme G, the closing piece of the 2026-08-08 business-app
+  gap analysis). A third full-page template (en/ja + sidebar) whose
+  live preview composes everything the effort shipped into one guarded
+  form: grouped amounts with raw wire values (`installFormat`), IME
+  normalization (`installNormalize`), the `postal-jp` mask feeding the
+  postal-address lookup with OOB autofill, debounced draft autosave, the
+  unsaved-changes guard (badge on `data-dirty`), double-submit hygiene
+  (`data-hx-sync` + `data-hx-disabled-elt`), and the shared
+  error-dialog host for session-expiry/edit-conflict. The page
+  skeleton, a nine-row wiring map (region → behavior → recipe →
+  contract), and an adapt-it list (version field, real CSRF,
+  server-side validation, draft hygiene) make it the entry point the
+  errors-and-recovery and form-safety themes plug into.
+
 - **`datagrid-infinite` recipe — revealed-sentinel cursor paging**
   (PR 5, final, of
   [`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md);

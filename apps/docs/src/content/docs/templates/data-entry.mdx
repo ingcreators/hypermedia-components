@@ -1,0 +1,120 @@
+---
+title: Data entry form
+description: The business-form stack in one page — formatted amounts, IME normalization, postal→address autofill, autosave drafts, an unsaved-changes guard, double-submit hygiene, and the error-dialog host.
+---
+
+import DataEntryTemplateDemo from '../../../components/template-demos/DataEntryTemplateDemo.astro';
+
+The page every line-of-business app repeats: a long form whose data
+must arrive clean and must not get lost. This template composes the
+whole input stack — grouped amounts with raw wire values, IME
+normalization, a masked postal code that fills the address, debounced
+draft autosave, the unsaved-changes guard, request hygiene on the save
+button, and the shared error-dialog host for expired sessions and
+edit conflicts.
+
+## Live template
+
+Edit anything: the unsaved badge appears (dirty guard), pausing two
+seconds drafts the form (autosave), a complete postal code fills the
+address (lookup + OOB), and Save posts the record and turns the guard
+clean. Amounts regroup on blur; the wire stays raw.
+
+<DataEntryTemplateDemo />
+
+## Page skeleton
+
+```html
+<form id="report-form" data-hc-dirty-guard
+      data-hx-post="/reports/42"
+      data-hx-sync="this:abort"
+      data-hx-disabled-elt="find button[type=submit]"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+
+  <!-- Amount: grouped display, raw wire value -->
+  <div class="hc-field">
+    <label class="hc-field__label" for="amount">Amount</label>
+    <div class="hc-input-group">
+      <span class="hc-input-group__addon">¥</span>
+      <input class="hc-input" id="amount" name="amount" type="text"
+             inputmode="numeric" data-numeric data-hc-format="number"
+             value="1,280,000">
+    </div>
+  </div>
+
+  <!-- Codes: fullwidth leftovers self-correct -->
+  <div class="hc-field">
+    <label class="hc-field__label" for="sku">SKU</label>
+    <input class="hc-input" id="sku" name="sku" data-hc-normalize="ascii">
+  </div>
+
+  <!-- Postal → address (mask + lookup + OOB autofill) -->
+  <div class="hc-field">
+    <label class="hc-field__label" for="postal">Postal code</label>
+    <input class="hc-input" id="postal" name="postal" inputmode="numeric"
+           placeholder="123-4567" pattern="\d{3}-\d{4}"
+           data-hc-mask="postal-jp"
+           data-hx-get="/address-by-postal"
+           data-hx-trigger="change[target.value.length==8]"
+           data-hx-include="this" data-hx-target="#postal-result">
+    <p class="hc-field__hint" id="postal-result" aria-live="polite"></p>
+  </div>
+  <div class="hc-field">
+    <label class="hc-field__label" for="pref">Prefecture</label>
+    <input class="hc-input" id="pref" name="pref" autocomplete="address-level1">
+  </div>
+  <!-- #city / #addr1 follow the same shape -->
+
+  <!-- Autosave: a request-owning div drafts the whole form -->
+  <div data-hx-post="/reports/42/draft"
+       data-hx-include="closest form"
+       data-hx-trigger="input from:closest form changed delay:2s"
+       data-hx-target="#draft-status" data-hx-swap="innerHTML"></div>
+  <p class="hc-field__hint" id="draft-status" aria-live="polite"></p>
+
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>
+
+<!-- One shared host: 401 login dialogs and 409 conflict dialogs land here -->
+<div id="error-dialog" data-hc-remote-dialog-root data-hc-session-expiry></div>
+
+<script type="module">
+  document.body.addEventListener('htmx:beforeSwap', (event) => {
+    if ([401, 409, 422].includes(event.detail.xhr.status)) {
+      event.detail.shouldSwap = true;
+      event.detail.isError = false;
+    }
+  });
+</script>
+```
+
+## Wiring map
+
+| Region | Component / behavior | Recipe | Contract |
+| --- | --- | --- | --- |
+| Amount field | [`installFormat`](/hypermedia-components/components/input/#grouped-amounts) | — | client-only (formdata rewrite) |
+| SKU field | [`installNormalize`](/hypermedia-components/components/input/#ime-normalization) | — | client-only |
+| Postal → address | [`installMask`](/hypermedia-components/components/input/#input-masks) | [postal-address](/hypermedia-components/recipes/postal-address/) | [`postal-address/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/postal-address/contract.md) |
+| Draft autosave | — (pure htmx) | [autosave](/hypermedia-components/recipes/autosave/) | [`autosave/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/autosave/contract.md) |
+| Unsaved guard | [`installDirtyGuard`](/hypermedia-components/recipes/unsaved-changes/) | [unsaved-changes](/hypermedia-components/recipes/unsaved-changes/) | [`unsaved-changes/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/unsaved-changes/contract.md) |
+| Save hygiene | `data-hx-sync` + `data-hx-disabled-elt` | — | [Errors & recovery](/hypermedia-components/fundamentals/errors/) |
+| Session expiry | [`installSessionExpiry`](/hypermedia-components/recipes/session-expiry/) | [session-expiry](/hypermedia-components/recipes/session-expiry/) | [`session-expiry/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/session-expiry/contract.md) |
+| Edit conflicts | — (version field) | [edit-conflict](/hypermedia-components/recipes/edit-conflict/) | [`edit-conflict/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/edit-conflict/contract.md) |
+| Field errors | [`installFieldErrors`](/hypermedia-components/recipes/field-errors/) | [field-errors](/hypermedia-components/recipes/field-errors/) | [`field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md) |
+
+## Adapt it
+
+- **Rename the endpoints.** `/reports/42` and `/address-by-postal` are
+  placeholders — each region only needs its linked contract.
+- **Add the version field** (`<input type="hidden" name="version">`)
+  when the record can be edited concurrently — the
+  [edit-conflict](/hypermedia-components/recipes/edit-conflict/) dialog
+  rides the same error host that is already on the page.
+- **Real CSRF**: `<meta name="csrf-token">` + `installCsrfHeader()` —
+  replays after re-login pick the rotated token up automatically.
+- **Validation stays on the server** — `422` + the
+  [field-errors](/hypermedia-components/recipes/field-errors/) fragment;
+  the allowance in the skeleton already lets it swap.
+- **Drop draft-sensitive fields** server-side (`type="password"`)
+  per the autosave contract.
