@@ -1,0 +1,36 @@
+{
+  "detect": "form[data-hx-post][data-hx-include]:has(input[name=\"name\"])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "include-resolves",
+      "level": "error",
+      "message": "data-hx-include must point at the filter form whose pairs the view captures (e.g. #filters).",
+      "resolves": { "on": "form", "name": "data-hx-include" }
+    },
+    {
+      "id": "target-declared",
+      "level": "error",
+      "message": "The save response is the views strip — point data-hx-target at the strip region, not at the save form itself.",
+      "attr": { "on": "form", "name": "data-hx-target", "assert": "present" }
+    },
+    {
+      "id": "strip-target-resolves",
+      "level": "warn",
+      "message": "data-hx-target (the strip region) must point at an element in the document. (warn: fragments may target elements elsewhere on the page)",
+      "resolves": { "on": "form", "name": "data-hx-target" }
+    },
+    {
+      "id": "nojs-post",
+      "level": "warn",
+      "message": "Keep method=\"post\" + action on the save form so saving works without JavaScript.",
+      "attr": { "on": "form", "name": "action", "assert": "present" }
+    },
+    {
+      "id": "name-labeled",
+      "level": "warn",
+      "message": "Label the name input — placeholder text is not a label.",
+      "exists": { "selector": "label" }
+    }
+  ]
+}

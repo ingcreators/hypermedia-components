@@ -1,0 +1,59 @@
+<!-- Short recommended usage.
+
+  Saved views: the current search's querystring, named and kept
+  server-side. Saving posts the filter form's pairs (data-hx-include)
+  plus a name; the server stores them per user and answers the views
+  strip. Applying a view is a plain GET link — bookmarkable, shareable,
+  zero client state — whose response re-renders the filter form with
+  the controls filled, so a view is never opaque. Deleting answers the
+  strip without it. Zero custom JS; see contract.md. -->
+<form id="filters" action="/items" method="get"
+      data-hx-get="/items"
+      data-hx-target="#results">
+  <div class="hc-field">
+    <label class="hc-field__label" for="q">Search</label>
+    <input class="hc-input" id="q" name="q" type="search">
+  </div>
+  <div class="hc-field">
+    <label class="hc-field__label" for="status">Status</label>
+    <select class="hc-select" id="status" name="status">
+      <option value="">All</option>
+      <option value="active">Active</option>
+      <option value="pending">Pending</option>
+      <option value="failed">Failed</option>
+    </select>
+  </div>
+  <button class="hc-button" type="submit">Apply</button>
+</form>
+
+<!-- Save the filters above under a name; the response re-renders the
+     #views strip with the new chip marked current. -->
+<form method="post" action="/views"
+      data-hx-post="/views"
+      data-hx-include="#filters"
+      data-hx-target="#views"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div class="hc-field">
+    <label class="hc-field__label" for="view-name">View name</label>
+    <input class="hc-input" id="view-name" name="name" required>
+  </div>
+  <button class="hc-button" data-variant="primary" type="submit">Save view</button>
+</form>
+
+<!-- The server-rendered views strip; POST /views and DELETE /views/…
+     both answer this region's contents. -->
+<div id="views">
+  <ul class="hc-chips">
+    <li class="hc-chip">
+      <a href="/items?view=quarterly"
+         data-hx-get="/items?view=quarterly"
+         data-hx-target="#results">quarterly</a>
+      <button class="hc-button" data-size="sm" type="button"
+              aria-label="Delete view quarterly"
+              data-hx-delete="/views/quarterly"
+              data-hx-target="#views">×</button>
+    </li>
+  </ul>
+</div>
+
+<div id="results" aria-live="polite"></div>

@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`saved-views` recipe — named filter sets as plain links** (PR 3 of
+  [`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md);
+  the 34th recipe, zero new JS). The current search's querystring,
+  named and kept server-side: **Save** posts a small name form with
+  `data-hx-include` of the filter form and gets the views strip back;
+  **Apply** is a plain `GET /items?view=<name>` link — bookmarkable,
+  shareable, zero client state — whose response renders the filter
+  form **with the view's values filled**, so a view is never opaque;
+  **Delete** is `data-hx-delete` on each chip's ×; duplicate names are
+  `422` field-errors. Stateless live demo (the demo threads views
+  through the strip's hidden inputs and says so — real apps store
+  per-user), docs en/ja, API tests, cross-engine Playwright suite,
+  checks.json (include-resolves, target-declared, no-JS post parity,
+  labeled name input).
+
 - **`datagrid-columns` recipe — the server-owned column chooser**
   (PR 2 of
   [`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md);

@@ -1,0 +1,127 @@
+---
+title: 保存ビュー
+description: 名前付きフィルタセット — 現在のフィルタのペアを名前付きで POST し、ビューはただの GET リンクで適用、サーバー所有のストリップから削除。サーバーがコントロールを埋めるので、ビューが不透明になることはありません。
+---
+
+import SavedViewsDemo from '../../../../components/recipe-demos/SavedViewsDemo.astro';
+
+現在の検索のクエリ文字列に名前を付けて、サーバー側に保存します。
+保存はフィルタフォームのペアと名前を POST し(`data-hx-include`)、
+ビューの適用はただの `GET` リンク — ブックマーク可能・共有可能・
+クライアント状態ゼロ — で、削除は再レンダリングされたストリップで
+応答します。ビューを適用すると、サーバーがフィルタフォームを値入りで
+再レンダリングします — ビューが展開するクエリ文字列は常に見えるので、
+ビューが不透明になることはありません。新規 JavaScript ゼロ。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add saved-views
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/saved-views/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+フィルタして、結果に名前を付けて **Save view** — 新しいチップが
+current 印付きでストリップに入ります。チップをクリックすると適用
+(フィルタコントロールが埋まるのを見てください)、× で削除、同じ
+名前を 2 回保存すると `422` ブランチです。このデモは何も保存しません:
+各チップのリンクがビューの完全なクエリ文字列を運びます — 実アプリは
+ユーザーごとにビューを保存します。
+
+<SavedViewsDemo />
+
+## マークアップ
+
+```html
+<form id="filters" action="/items" method="get"
+      data-hx-get="/items"
+      data-hx-target="#results">
+  <!-- …the filter fields: q, status, …, and an Apply button… -->
+</form>
+
+<form method="post" action="/views"
+      data-hx-post="/views"
+      data-hx-include="#filters"
+      data-hx-target="#views"
+      data-hx-disabled-elt="find button[type=submit]">
+  <div class="hc-field">
+    <label class="hc-field__label" for="view-name">View name</label>
+    <input class="hc-input" id="view-name" name="name" required>
+  </div>
+  <button class="hc-button" data-variant="primary" type="submit">Save view</button>
+</form>
+
+<div id="views">
+  <ul class="hc-chips">
+    <li class="hc-chip">
+      <a href="/items?view=quarterly"
+         data-hx-get="/items?view=quarterly"
+         data-hx-target="#results">quarterly</a>
+      <button class="hc-button" data-size="sm" type="button"
+              aria-label="Delete view quarterly"
+              data-hx-delete="/views/quarterly"
+              data-hx-target="#views">×</button>
+    </li>
+  </ul>
+</div>
+
+<div id="results" aria-live="polite"></div>
+```
+
+保存フォームは `data-hx-include="#filters"` でフィルタのペアを
+取り込み、ストリップ領域を target にします — 応答は `#views` の
+中身であり、クライアント側でチップを継ぎ足すことはありません。
+各チップはただの適用リンクと、ビュー名を含むアクセシブルネームを
+持つ削除ボタンです。
+
+## サーバー応答契約
+
+| ケース | 応答 |
+| --- | --- |
+| `POST /views`(name + フィルタのペア) | `200` + ストリップフラグメント。新しいチップに current 印(`aria-current="true"`) |
+| 名前が重複 | `422` + インラインフィールドエラー付きのストリップ([field-errors の形](/hypermedia-components/ja/recipes/field-errors/#サーバレスポンス契約)、`data-field="name"`)— 標準の 422 許可でスワップ |
+| `GET /items?view=<name>` | そのビューのフィルタを適用した `#results` 用リストフラグメント **+ 値入りフィルタフォームの OOB `outerHTML` 再レンダリング** — ビューは不透明になりません |
+| `DELETE /views/<name>` | `200` + ストリップ |
+
+ビューの名前がキーです(`DELETE` パスでは URL エンコード)。ビューは
+定義からして**ユーザーごと**です — 保存方法や上限はサーバーの領分で、
+ワイヤ契約は同じです。適用したクエリ文字列がコントロールに戻るため、
+ビューは編集可能なままです: 適用して、フィールドを直して、別名で
+保存。
+
+## プログレッシブエンハンスメント
+
+適用リンクは本物の href です — ブックマーク可能・共有可能で、
+JavaScript なしではフルページ遷移になります。保存フォームは
+`method="post"` + `action="/views"` を保つので、ネイティブ送信も
+機能します(フルページか、古典的な 303 post/redirect/get で応答)。
+削除ボタンは htmx 専用です。JavaScript なしでも削除が必要なら、
+小さな POST フォームで包んでください。
+
+## アクセシビリティ
+
+- ストリップは本物のリストです — `ul.hc-chips` は「リスト、N 項目」と
+  読み上げられ、`aria-current="true"` が現在のビューを示します。
+- どの × も、素のグリフではなくビュー名を含むアクセシブルネーム
+  (「Delete view quarterly」)を持ちます。
+- 結果領域は `aria-live="polite"` なので、ビューの適用はフォーカスを
+  奪わずに新しいリストを読み上げます。名前重複のエラーは
+  `role="alert"` の field-errors フラグメントです。
+- フィルタの OOB 再レンダリングは id を安定させたままなので、
+  `<label for>` の関連付けが保たれます。
+
+## 関連
+
+- [filter-popover](/hypermedia-components/ja/recipes/filter-popover/) —
+  フィルタフォーム自体がよく住む場所。
+- [live-search](/hypermedia-components/ja/recipes/live-search/) —
+  同じ `q` 入力の逐次検索版。
+- [field-errors](/hypermedia-components/ja/recipes/field-errors/) —
+  名前重複ブランチが応答する 422 の形。
+- [data-region](/hypermedia-components/ja/recipes/data-region/) —
+  ビューで選んだ結果リストを新鮮に保つ方法。
