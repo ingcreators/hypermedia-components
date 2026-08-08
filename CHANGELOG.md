@@ -20,6 +20,19 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-08
+
+The OKLCH color release (#457). **Contains breaking changes** — the
+first since `0.1.0` — flagged below per VERSIONING.md; shipped as a
+minor while the major is 0. No adopters were on the renamed surface.
+
+- **CLI `@hypermedia-components/cli@0.4.0`** — the email axis list
+  follows the accent pentagon (`--color teal | lime | orange |
+  fuchsia`; the old names are rejected). Breaking for scripts passing
+  the old values, and older CLI versions cannot themed-eject against
+  core `0.2.0` — upgrade both together. (Independent `cli-v0.4.0`
+  tag.)
+
 ### Changed
 
 - **The accent axes are now the accent pentagon** — `data-color`
