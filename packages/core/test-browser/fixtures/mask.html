@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- Fixture for installMask — declarative fixed-format masks. Pins real
+     typing through the mask (literal insertion, caret position after
+     backspace-over-literal) and the data-hc-mask-submit="raw" wire strip
+     via new FormData(form). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mask fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Input masks</h1>
+
+    <form class="hc-stack" data-testid="mask-form">
+      <label class="hc-field">
+        <span class="hc-field__label">Postal code</span>
+        <input class="hc-input" name="postal" inputmode="numeric"
+               placeholder="123-4567" data-hc-mask="postal-jp"
+               data-hc-mask-submit="raw" data-testid="postal">
+      </label>
+
+      <label class="hc-field">
+        <span class="hc-field__label">Product code</span>
+        <input class="hc-input" name="product" placeholder="AB-12"
+               data-hc-mask="AA-##" data-testid="product">
+      </label>
+
+      <button class="hc-button" type="button" data-testid="snapshot">
+        Snapshot wire values
+      </button>
+      <output data-testid="wire" aria-label="Wire values"></output>
+    </form>
+  </main>
+
+  <script type="module">
+    const form = document.querySelector('[data-testid="mask-form"]');
+    const wire = document.querySelector('[data-testid="wire"]');
+    document.querySelector('[data-testid="snapshot"]').addEventListener('click', () => {
+      wire.textContent = [...new FormData(form).entries()]
+        .map(([k, v]) => `${k}=${v}`)
+        .join('&');
+    });
+  </script>
+</body>
+</html>
