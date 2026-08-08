@@ -48,8 +48,11 @@ server validates (it is the validator anyway).
   same event native submission fires when it builds the entry list.
   Consequence: one root-delegated `formdata` listener rewrites the wire
   value for **both** transports; behaviors never touch the network.
-- The `formdata` event bubbles; jsdom has fired it on
-  `new FormData(form)` since 16.3 — unit-testable without a browser.
+- The `formdata` event bubbles. jsdom implements `FormData` but does
+  **not** fire the event on `new FormData(form)` (no `FormDataEvent`
+  constructor either) — unit tests dispatch a synthetic event to pin
+  the handler, and a cross-engine Playwright spec pins the real firing
+  (fixture snapshots `new FormData(form)` into the DOM).
 - **IME safety**: `input` events during composition carry
   `isComposing: true`, and `blur` commits any open composition first.
   Format-on-blur therefore never fights the IME; live masking skips
