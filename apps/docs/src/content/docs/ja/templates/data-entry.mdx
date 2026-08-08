@@ -1,0 +1,120 @@
+---
+title: データ入力フォーム
+description: 業務フォームスタックを 1 ページに — 金額整形、IME 正規化、郵便番号住所補完、ドラフト自動保存、未保存ガード、二重送信衛生、そしてエラーダイアログホスト。
+---
+
+import DataEntryTemplateDemo from '../../../../components/template-demos/DataEntryTemplateDemo.astro';
+
+あらゆる業務アプリが繰り返すページです: データはきれいに届かなければ
+ならず、失われてもいけない長いフォーム。このテンプレートは入力
+スタック全体を合成します — ワイヤ上は生値のままのグループ化された
+金額、IME 正規化、住所を埋めるマスク付き郵便番号、デバウンスされた
+ドラフト自動保存、未保存ガード、保存ボタンのリクエスト衛生、そして
+セッション切れと編集競合のための共有エラーダイアログホスト。
+
+## ライブテンプレート
+
+何か編集してみてください: 未保存バッジが現れ(ダーティガード)、
+2 秒手を止めるとフォームがドラフトされ(自動保存)、完全な郵便番号は
+住所を埋め(ルックアップ + OOB)、Save はレコードを送信してガードを
+クリーンに戻します。金額は blur で再グループ化され、ワイヤ上は生値の
+ままです。
+
+<DataEntryTemplateDemo />
+
+## ページスケルトン
+
+```html
+<form id="report-form" data-hc-dirty-guard
+      data-hx-post="/reports/42"
+      data-hx-sync="this:abort"
+      data-hx-disabled-elt="find button[type=submit]"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+
+  <!-- Amount: grouped display, raw wire value -->
+  <div class="hc-field">
+    <label class="hc-field__label" for="amount">Amount</label>
+    <div class="hc-input-group">
+      <span class="hc-input-group__addon">¥</span>
+      <input class="hc-input" id="amount" name="amount" type="text"
+             inputmode="numeric" data-numeric data-hc-format="number"
+             value="1,280,000">
+    </div>
+  </div>
+
+  <!-- Codes: fullwidth leftovers self-correct -->
+  <div class="hc-field">
+    <label class="hc-field__label" for="sku">SKU</label>
+    <input class="hc-input" id="sku" name="sku" data-hc-normalize="ascii">
+  </div>
+
+  <!-- Postal → address (mask + lookup + OOB autofill) -->
+  <div class="hc-field">
+    <label class="hc-field__label" for="postal">Postal code</label>
+    <input class="hc-input" id="postal" name="postal" inputmode="numeric"
+           placeholder="123-4567" pattern="\d{3}-\d{4}"
+           data-hc-mask="postal-jp"
+           data-hx-get="/address-by-postal"
+           data-hx-trigger="change[target.value.length==8]"
+           data-hx-include="this" data-hx-target="#postal-result">
+    <p class="hc-field__hint" id="postal-result" aria-live="polite"></p>
+  </div>
+  <div class="hc-field">
+    <label class="hc-field__label" for="pref">Prefecture</label>
+    <input class="hc-input" id="pref" name="pref" autocomplete="address-level1">
+  </div>
+  <!-- #city / #addr1 follow the same shape -->
+
+  <!-- Autosave: a request-owning div drafts the whole form -->
+  <div data-hx-post="/reports/42/draft"
+       data-hx-include="closest form"
+       data-hx-trigger="input from:closest form changed delay:2s"
+       data-hx-target="#draft-status" data-hx-swap="innerHTML"></div>
+  <p class="hc-field__hint" id="draft-status" aria-live="polite"></p>
+
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>
+
+<!-- One shared host: 401 login dialogs and 409 conflict dialogs land here -->
+<div id="error-dialog" data-hc-remote-dialog-root data-hc-session-expiry></div>
+
+<script type="module">
+  document.body.addEventListener('htmx:beforeSwap', (event) => {
+    if ([401, 409, 422].includes(event.detail.xhr.status)) {
+      event.detail.shouldSwap = true;
+      event.detail.isError = false;
+    }
+  });
+</script>
+```
+
+## 配線マップ
+
+| 領域 | コンポーネント / ビヘイビア | レシピ | 契約 |
+| --- | --- | --- | --- |
+| 金額フィールド | [`installFormat`](/hypermedia-components/ja/components/input/#金額のグループ表示) | — | クライアント専用(formdata 書き換え) |
+| SKU フィールド | [`installNormalize`](/hypermedia-components/ja/components/input/#ime-正規化) | — | クライアント専用 |
+| 郵便番号 → 住所 | [`installMask`](/hypermedia-components/ja/components/input/#入力マスク) | [postal-address](/hypermedia-components/ja/recipes/postal-address/) | [`postal-address/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/postal-address/contract.md) |
+| ドラフト自動保存 | —(純粋な htmx) | [autosave](/hypermedia-components/ja/recipes/autosave/) | [`autosave/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/autosave/contract.md) |
+| 未保存ガード | [`installDirtyGuard`](/hypermedia-components/ja/recipes/unsaved-changes/) | [unsaved-changes](/hypermedia-components/ja/recipes/unsaved-changes/) | [`unsaved-changes/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/unsaved-changes/contract.md) |
+| 保存の衛生 | `data-hx-sync` + `data-hx-disabled-elt` | — | [エラーとリカバリー](/hypermedia-components/ja/fundamentals/errors/) |
+| セッション切れ | [`installSessionExpiry`](/hypermedia-components/ja/recipes/session-expiry/) | [session-expiry](/hypermedia-components/ja/recipes/session-expiry/) | [`session-expiry/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/session-expiry/contract.md) |
+| 編集競合 | —(version フィールド) | [edit-conflict](/hypermedia-components/ja/recipes/edit-conflict/) | [`edit-conflict/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/edit-conflict/contract.md) |
+| フィールドエラー | [`installFieldErrors`](/hypermedia-components/ja/recipes/field-errors/) | [field-errors](/hypermedia-components/ja/recipes/field-errors/) | [`field-errors/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md) |
+
+## 適応のしかた
+
+- **エンドポイントを改名する。** `/reports/42` と `/address-by-postal`
+  はプレースホルダーです — 各領域はリンク先の契約だけを必要とします。
+- レコードが並行編集されうるなら **version フィールドを足す**
+  (`<input type="hidden" name="version">`) —
+  [edit-conflict](/hypermedia-components/ja/recipes/edit-conflict/) の
+  ダイアログは、既にページにあるエラーホストに乗ります。
+- **本物の CSRF**: `<meta name="csrf-token">` + `installCsrfHeader()` —
+  再ログイン後のリプレイはローテートされたトークンを自動で拾います。
+- **検証はサーバーに** — `422` +
+  [field-errors](/hypermedia-components/ja/recipes/field-errors/)
+  フラグメント。スケルトンの許可が既にスワップを許しています。
+- autosave 契約に従い、**ドラフトに入れてはいけないフィールド**
+  (`type="password"`)はサーバー側で落としてください。

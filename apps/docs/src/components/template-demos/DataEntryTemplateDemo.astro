@@ -1,0 +1,106 @@
+---
+/*
+ * Live preview for the data-entry template — the business-form stack in
+ * one guarded form, each concern powered by its own recipe namespace of
+ * the demo API:
+ *
+ *   - postal → address autofill → postal-address (lookup + OOB fill)
+ *   - debounced draft autosave  → autosave       (draft + record save)
+ *   - amount / SKU hygiene      → installFormat / installNormalize /
+ *                                 installMask (client-side, no API)
+ *   - unsaved-changes guard     → installDirtyGuard (data-dirty badge)
+ *   - double-submit hygiene     → hx-sync + hx-disabled-elt (htmx-native)
+ *
+ * Id policy: ids the demo API's fragments carry or target are reused
+ * verbatim (postal-address-demo-pref / -city / -addr1 / -result — the
+ * lookup's OOB anchors) — so only one instance of this template can
+ * render per page. Ids only referenced by this markup are prefixed
+ * template-entry-.
+ */
+import DemoFrame from '../recipe-demos/DemoFrame.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const postalApi = `${base}/api/recipes/postal-address`;
+const autosaveApi = `${base}/api/recipes/autosave`;
+---
+
+<DemoFrame label="Data entry template">
+  <form id="template-entry-form" class="hc-stack" data-hc-dirty-guard
+        style="max-inline-size: 30rem;"
+        data-hx-post={`${autosaveApi}/reports/42`}
+        data-hx-sync="this:abort"
+        data-hx-disabled-elt="find button[type=submit]"
+        data-hx-target="#template-entry-status" data-hx-swap="innerHTML">
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="template-entry-amount">Amount</label>
+      <div class="hc-input-group">
+        <span class="hc-input-group__addon">¥</span>
+        <input class="hc-input" id="template-entry-amount" name="amount"
+               type="text" inputmode="numeric" data-numeric
+               data-hc-format="number" value="1,280,000" />
+      </div>
+      <p class="hc-field__hint">Fullwidth digits normalize on blur; the wire value stays raw.</p>
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="template-entry-sku">SKU</label>
+      <input class="hc-input" id="template-entry-sku" name="sku"
+             data-hc-normalize="ascii" value="HC-0042" />
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="postal-address-demo-postal">Postal code</label>
+      <input
+        class="hc-input"
+        id="postal-address-demo-postal"
+        name="postal"
+        inputmode="numeric"
+        placeholder="123-4567"
+        pattern="\d{3}-\d{4}"
+        data-hc-mask="postal-jp"
+        data-hx-get={`${postalApi}/address-by-postal`}
+        data-hx-trigger="change[target.value.length==8]"
+        data-hx-include="this"
+        data-hx-target="#postal-address-demo-result" />
+      <p class="hc-field__hint" id="postal-address-demo-result" aria-live="polite">
+        Try 123-4567 or 600-8216.
+      </p>
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="postal-address-demo-pref">Prefecture</label>
+      <input class="hc-input" id="postal-address-demo-pref" name="pref"
+             autocomplete="address-level1" />
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="postal-address-demo-city">City</label>
+      <input class="hc-input" id="postal-address-demo-city" name="city"
+             autocomplete="address-level2" />
+    </div>
+
+    <div class="hc-field">
+      <label class="hc-field__label" for="postal-address-demo-addr1">Street</label>
+      <input class="hc-input" id="postal-address-demo-addr1" name="addr1"
+             autocomplete="address-line1" />
+    </div>
+
+    <div data-hx-post={`${autosaveApi}/reports/42/draft`}
+         data-hx-include="closest form"
+         data-hx-trigger="input from:closest form changed delay:2s"
+         data-hx-target="#template-entry-draft-status" data-hx-swap="innerHTML">
+    </div>
+    <p class="hc-field__hint" id="template-entry-draft-status" aria-live="polite">
+      Pause two seconds after typing — the draft saves itself.
+    </p>
+
+    <div class="hc-cluster" style="justify-content: space-between; align-items: center;">
+      <span class="hc-badge hc-preview-unsaved-badge" data-variant="warning">
+        Unsaved changes
+      </span>
+      <button class="hc-button" data-variant="primary" type="submit">Save</button>
+    </div>
+    <p class="hc-field__hint" id="template-entry-status" aria-live="polite"></p>
+  </form>
+</DemoFrame>
