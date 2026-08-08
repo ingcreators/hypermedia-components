@@ -20,6 +20,20 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-08
+
+The business-app release: seven themes from the 2026-08-08
+line-of-business gap analysis
+([`plans/hc-input-format-plan-en.md`](plans/hc-input-format-plan-en.md),
+[`plans/hc-form-safety-plan-en.md`](plans/hc-form-safety-plan-en.md),
+[`plans/hc-error-paths-plan-en.md`](plans/hc-error-paths-plan-en.md),
+[`plans/hc-datagrid-ops-plan-en.md`](plans/hc-datagrid-ops-plan-en.md)),
+PRs #467–#485 — six new behaviors (53 total), nine new recipes
+(36 total, five of them zero-new-JS contracts), the opt-in print
+stylesheet, the errors-and-recovery map, and the data-entry template.
+Strictly additive → patch per VERSIONING.md. The CLI ships 0.4.1 to
+re-bundle the nine new recipes.
+
 ### Added
 
 - **Docs: `templates/data-entry` — the business-form stack in one
