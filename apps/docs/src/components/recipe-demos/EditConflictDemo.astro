@@ -1,0 +1,32 @@
+---
+/*
+ * Live demo for the edit-conflict recipe. The demo record is pinned at
+ * v13; this form renders from v12, so the first save always conflicts —
+ * the point of the demo. Overwrite forces with the dialog's fresh
+ * version; Reload discards local edits and re-renders v13 (which then
+ * saves cleanly).
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/edit-conflict`;
+---
+
+<DemoFrame class="hc-preview--col" label="Edit conflict demo">
+  <form id="edit-conflict-demo-form" class="hc-stack"
+        data-hx-put={`${api}/tickets/7`}
+        data-hx-target="#edit-conflict-demo-status" data-hx-swap="innerHTML">
+    <input type="hidden" name="version" value="12" />
+    <div class="hc-field">
+      <label class="hc-field__label" for="edit-conflict-demo-title">Title</label>
+      <input class="hc-input" id="edit-conflict-demo-title" name="title"
+             value="Restock the beans (mine)" />
+    </div>
+    <p class="hc-field__hint" id="edit-conflict-demo-status" aria-live="polite">
+      This form was rendered from v12; the record is at v13 — Save to
+      see the conflict.
+    </p>
+    <button class="hc-button" data-variant="primary" type="submit">Save</button>
+  </form>
+
+  <div id="edit-conflict-demo-dialog" data-hc-remote-dialog-root></div>
+</DemoFrame>

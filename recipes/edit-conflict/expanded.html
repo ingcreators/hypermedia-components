@@ -1,0 +1,55 @@
+<!-- Expanded state: the save hit a newer record — the 409 retargeted
+  this conflict dialog into the host and installRemoteDialog opened it.
+  上書き (Overwrite) resubmits the user's values with force=1 and the
+  CURRENT version from the dialog; 読み直す (Reload) discards local
+  edits and swaps a fresh form. Both are ordinary htmx — the recipe
+  stays zero-JS. -->
+<form id="ticket-form" data-hx-put="/tickets/7"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <input type="hidden" name="version" value="12">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Restock the beans (mine)">
+  </div>
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>
+
+<div id="error-dialog" data-hc-remote-dialog-root>
+  <dialog class="hc-dialog" open aria-labelledby="conflict-title">
+    <div class="hc-stack">
+      <h2 class="hc-dialog__title" id="conflict-title">Someone saved first</h2>
+      <table class="hc-table">
+        <thead>
+          <tr><th scope="col"></th><th scope="col">Theirs (v13)</th><th scope="col">Yours</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Title</th>
+            <td>Restock the beans (theirs)</td>
+            <td>Restock the beans (mine)</td>
+          </tr>
+        </tbody>
+      </table>
+      <form class="hc-cluster">
+        <input type="hidden" name="version" value="13">
+        <button class="hc-button" data-variant="error" type="button"
+                data-hc-close-dialog-on-success
+                data-hx-put="/tickets/7?force=1"
+                data-hx-include="#ticket-form [name='title'], closest form"
+                data-hx-target="#status" data-hx-swap="innerHTML">
+          Overwrite with mine
+        </button>
+        <button class="hc-button" type="button"
+                data-hc-close-dialog-on-success
+                data-hx-get="/tickets/7/edit"
+                data-hx-target="#ticket-form" data-hx-swap="outerHTML">
+          Reload theirs
+        </button>
+      </form>
+      <form method="dialog">
+        <button class="hc-button" data-variant="ghost">Keep editing</button>
+      </form>
+    </div>
+  </dialog>
+</div>

@@ -1,0 +1,96 @@
+---
+title: 編集競合
+description: 編集フォームの楽観ロック — 隠し version が毎回の保存に同乗し、古い保存は 409 と競合ダイアログ(上書き / 読み直し)で応答されます。カスタム JavaScript ゼロ。
+---
+
+import EditConflictDemo from '../../../../components/recipe-demos/EditConflictDemo.astro';
+
+同じレコードを 2 人が開いたとき、遅いほうの保存が速いほうを黙って
+食べてはいけません。このレシピは純粋な合成としての楽観ロックです:
+隠し `version` フィールド、`HX-Retarget` で
+[session-expiry](/hypermedia-components/ja/recipes/session-expiry/)
+レシピと同じ共有ダイアログホストへ操縦される `409`、そして通常の
+htmx でフローを完結させるダイアログのボタン群。**新規 JavaScript
+ゼロ、新規公開 API ゼロ。**
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::note[セットアップ]
+仕事はすべて出荷済みビヘイビアがします(`installRemoteDialog`、
+`installCloseDialog` — どちらも自動インストール)。ページレベル許可に
+`409` を足してください
+([422 ブランチ](/hypermedia-components/ja/recipes/field-errors/#サーバレスポンス契約)と同じ形):
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if ([401, 409, 422].includes(event.detail.xhr.status)) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+:::
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add edit-conflict` がこのレシピの
+スキャフォールドをコピーし、`npx @hypermedia-components/cli validate`
+が機械検査します。完全な契約は
+[`recipes/edit-conflict/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/edit-conflict/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+デモのフォームは v12 からレンダリングされ、レコードは v13 にあります —
+Save は意図的に必ず競合します。Overwrite はダイアログの新しい version
+で強制し、Reload はあなたの編集を破棄します(その後はきれいに保存
+できます)。
+
+<EditConflictDemo />
+
+## マークアップ
+
+```html
+<form id="ticket-form" data-hx-put="/tickets/7"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <input type="hidden" name="version" value="12">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Restock the beans">
+  </div>
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>
+
+<div id="error-dialog" data-hc-remote-dialog-root></div>
+```
+
+## サーバー応答契約
+
+| ケース | 応答 |
+| --- | --- |
+| 現在の `version` での `PUT` | [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) の成功。フラグメントが**新しい** version を運びます |
+| 古い `version` での `PUT` | `409` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + 競合ダイアログ: 相手/自分の表、**Overwrite**(`…?force=1`、あなたのフィールド **+ ダイアログ自身の新しい隠し version** を `data-hx-include`)、**Reload**(`GET …/edit` でフォームを `outerHTML` スワップ)、編集を続ける `<form method="dialog">`。操作ボタンは `data-hc-close-dialog-on-success` 付き |
+| `force=1` + 新しい version での `PUT` | 上書きが勝ちます。その間に*さらに*動いたレコードは再び競合します |
+| `GET …/edit` | 現在の version でフォーム全体を再レンダリング |
+| no-JS | 同じ 2 択を提示する完全な `409` ページ(PRG) |
+
+ダイアログの version フィールドは**競合した瞬間の**現在値です —
+それで強制することは「v13 を見た上で上書きを選んだ」という意味に
+なります。負けたフォームから来ることはありません。
+
+## アクセシビリティ
+
+- 本物の `<dialog>`(`showModal()` — ネイティブのフォーカストラップと
+  `Escape`)、`aria-labelledby` が名前を与えます。相手/自分の差分は
+  行・列見出しを持つ本物のテーブルです。
+- 結果はフォームの `aria-live` ステータス枠に着地します。
+
+## 関連
+
+- [session-expiry](/hypermedia-components/ja/recipes/session-expiry/) —
+  同じエラーダイアログホストを共有する 401 の姉妹レシピ。
+- [unsaved-changes](/hypermedia-components/ja/recipes/unsaved-changes/) —
+  Reload との相互作用を契約が文書化しているガード。
+- [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) —
+  各保存が従う成功契約。

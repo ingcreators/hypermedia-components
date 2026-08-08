@@ -1,0 +1,93 @@
+---
+title: Edit conflict
+description: Optimistic locking for edit forms — a hidden version rides every save, a stale save answers 409 with a conflict dialog offering overwrite or reload; zero custom JavaScript.
+---
+
+import EditConflictDemo from '../../../components/recipe-demos/EditConflictDemo.astro';
+
+Two people open the same record; the slower save must not silently
+eat the faster one. This recipe is optimistic locking as pure
+composition: a hidden `version` field, a `409` steered by
+`HX-Retarget` into the same shared dialog host the
+[session-expiry](/hypermedia-components/recipes/session-expiry/)
+recipe uses, and dialog buttons that finish the flow through ordinary
+htmx. **Zero new JavaScript, zero new public API.** Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::note[Setup]
+Shipped behaviors do all the work (`installRemoteDialog`,
+`installCloseDialog` — both auto-installed). Add `409` to the
+page-level allowance (same shape as the
+[422 branch](/hypermedia-components/recipes/field-errors/#server-response-contract)):
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if ([401, 409, 422].includes(event.detail.xhr.status)) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+:::
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add edit-conflict` copies this
+recipe's scaffold; `npx @hypermedia-components/cli validate`
+machine-checks your copy. The full contract lives in
+[`recipes/edit-conflict/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/edit-conflict/contract.md).
+:::
+
+## Live demo
+
+The demo form was rendered from v12 while the record sits at v13 —
+Save always conflicts, on purpose. Overwrite forces with the dialog's
+fresh version; Reload discards your edits (and then saves cleanly).
+
+<EditConflictDemo />
+
+## The markup
+
+```html
+<form id="ticket-form" data-hx-put="/tickets/7"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <input type="hidden" name="version" value="12">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Restock the beans">
+  </div>
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>
+
+<div id="error-dialog" data-hc-remote-dialog-root></div>
+```
+
+## Server response contract
+
+| Case | Response |
+| --- | --- |
+| `PUT` with the current `version` | [mutating-form](/hypermedia-components/recipes/mutating-form/) success; the fragment carries the **new** version |
+| `PUT` with a stale `version` | `409` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + the conflict dialog: theirs/yours table, **Overwrite** (`…?force=1`, `data-hx-include` of your fields **plus the dialog's fresh hidden version**), **Reload** (`GET …/edit` swapping the form `outerHTML`), `<form method="dialog">` to keep editing. Action buttons carry `data-hc-close-dialog-on-success` |
+| `PUT` with `force=1` + the fresh version | overwrite wins; a record that moved *again* re-conflicts |
+| `GET …/edit` | the whole form re-rendered at the current version |
+| no-JS | a full `409` page with the same two choices (PRG) |
+
+The dialog's version field is the current one **from the moment of
+conflict** — forcing with it means "I saw v13 and chose to overwrite".
+It never comes from the losing form.
+
+## Accessibility
+
+- A real `<dialog>` (`showModal()` — native focus trap and `Escape`),
+  named by `aria-labelledby`; the theirs/yours diff is a real table
+  with row and column headers.
+- Outcomes land in the form's `aria-live` status slot.
+
+## Related
+
+- [session-expiry](/hypermedia-components/recipes/session-expiry/) —
+  the 401 sibling sharing the same error-dialog host.
+- [unsaved-changes](/hypermedia-components/recipes/unsaved-changes/) —
+  the guard whose Reload interplay the contract documents.
+- [mutating-form](/hypermedia-components/recipes/mutating-form/) — the
+  success contract each save follows.

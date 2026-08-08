@@ -27,6 +27,7 @@ import * as confirmAction from './recipes/confirm-action.mjs';
 import * as dataRegion from './recipes/data-region.mjs';
 import * as datagridBulkActions from './recipes/datagrid-bulk-actions.mjs';
 import * as datagridPager from './recipes/datagrid-pager.mjs';
+import * as editConflict from './recipes/edit-conflict.mjs';
 import * as fieldErrors from './recipes/field-errors.mjs';
 import * as fileUpload from './recipes/file-upload.mjs';
 import * as filterPopover from './recipes/filter-popover.mjs';
@@ -55,6 +56,7 @@ const RECIPES = new Map([
   ['data-region', dataRegion],
   ['datagrid-bulk-actions', datagridBulkActions],
   ['datagrid-pager', datagridPager],
+  ['edit-conflict', editConflict],
   ['field-errors', fieldErrors],
   ['file-upload', fileUpload],
   ['filter-popover', filterPopover],
