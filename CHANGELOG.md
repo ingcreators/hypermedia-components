@@ -22,6 +22,34 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`installTime()` — client-side `<time>` localization** (theme F of
+  the business-app gap analysis). Servers render UTC and a
+  machine-readable `datetime`; the auto-installed behavior rewrites the
+  visible text in the viewer's zone and language via `Intl`:
+  `data-hc-time="relative"` ("3 minutes ago" / 「3 分前」,
+  `Intl.RelativeTimeFormat` with one shared 30 s refresh interval, the
+  absolute localized timestamp mirrored into `title` unless one
+  exists), or `datetime` / `date` / `time` absolute rendering with
+  `data-hc-time-style`. The `datetime` attribute is never touched (the
+  wire truth), the server-rendered text is the no-JS fallback,
+  unparseable values are left alone, the language follows the closest
+  `[lang]`, and htmx-swapped content localizes automatically (the
+  avatar/nav-current MutationObserver pattern). No message keys —
+  `Intl` carries the language. Documented in the i18n fundamentals
+  ("Localized timestamps", en/ja) + the behaviors roster (now 53);
+  pinned by a 7-test jsdom suite (fake timers + system time; locale
+  following; observer pickup; interval refresh; uninstall stops the
+  clock).
+
+### Fixed
+
+- **Browser specs: dialog-opening axe scans emulate reduced motion**
+  — the seven specs this effort added now set
+  `page.emulateMedia({ reducedMotion: 'reduce' })` in `beforeEach`,
+  matching the #342 house pattern, after a CI-only recurrence of the
+  dialog-open contrast flake (PR #479's chromium job; same commit
+  passed locally and on rerun).
+
 - **`hc.print.css` — opt-in print stylesheet** (theme E of the
   business-app gap analysis; `@hypermedia-components/core/css/print`,
   also at `dist/hc.print.css`). Business pages get printed — the order

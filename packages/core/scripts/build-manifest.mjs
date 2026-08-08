@@ -51,6 +51,7 @@ const EXPLICIT_CLAIMS = {
   installCsrfHeader: 'platform',
   installThemeToggle: 'platform',
   installNavCurrent: 'platform', // boosted-nav re-marking (shell docs)
+  installTime: 'platform', // client-side <time> localization (i18n docs)
 };
 
 /** Editor-canvas composition metadata (#447): per block, the parts

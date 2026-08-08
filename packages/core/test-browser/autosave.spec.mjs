@@ -4,6 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 test.beforeEach(async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/autosave.html');
 });
 
