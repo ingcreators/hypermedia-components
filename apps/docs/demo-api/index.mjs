@@ -37,6 +37,7 @@ import * as liveSearch from './recipes/live-search.mjs';
 import * as multiStepForm from './recipes/multi-step-form.mjs';
 import * as mutatingForm from './recipes/mutating-form.mjs';
 import * as postalAddress from './recipes/postal-address.mjs';
+import * as sessionExpiry from './recipes/session-expiry.mjs';
 import * as remoteDialog from './recipes/remote-dialog.mjs';
 import * as requestAction from './recipes/request-action.mjs';
 import * as sseToast from './recipes/sse-toast.mjs';
@@ -64,6 +65,7 @@ const RECIPES = new Map([
   ['multi-step-form', multiStepForm],
   ['mutating-form', mutatingForm],
   ['postal-address', postalAddress],
+  ['session-expiry', sessionExpiry],
   ['remote-dialog', remoteDialog],
   ['request-action', requestAction],
   ['sse-toast', sseToast],

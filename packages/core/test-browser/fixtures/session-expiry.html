@@ -1,0 +1,42 @@
+<!doctype html>
+<!-- Fixture for the session-expiry recipe. Pins the whole loop against
+     the serve.mjs cookie mock: 401 → retargeted login dialog opens
+     (remote-dialog) → sign in → hc:sessionrenewed closes it and the
+     interrupted approval REPLAYS to completion. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>session-expiry fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Session expiry</h1>
+
+    <button class="hc-button" data-variant="primary" data-testid="approve"
+            data-hx-post="/mock/session/approve"
+            data-hx-target="#status" data-hx-swap="innerHTML">
+      Approve
+    </button>
+    <p class="hc-field__hint" id="status" aria-live="polite"
+       data-testid="status"></p>
+
+    <div id="error-dialog" data-hc-remote-dialog-root data-hc-session-expiry
+         data-testid="host"></div>
+  </main>
+
+  <script type="module">
+    // The page-level allowance from the contract — status-based, once.
+    document.body.addEventListener('htmx:beforeSwap', (event) => {
+      if ([401, 422].includes(event.detail.xhr.status)) {
+        event.detail.shouldSwap = true;
+        event.detail.isError = false;
+      }
+    });
+  </script>
+</body>
+</html>

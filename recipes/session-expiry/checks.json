@@ -1,0 +1,18 @@
+{
+  "detect": "[data-hc-session-expiry]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "dialog-root",
+      "level": "error",
+      "message": "The session-expiry host must also be a remote-dialog root (data-hc-remote-dialog-root) — without it the login dialog never opens.",
+      "attr": { "on": "[data-hc-session-expiry]", "name": "data-hc-remote-dialog-root", "assert": "present" }
+    },
+    {
+      "id": "stable-id",
+      "level": "warn",
+      "message": "Give the host a stable id (e.g. #error-dialog) — the 401's HX-Retarget header points at it.",
+      "attr": { "on": "[data-hc-session-expiry]", "name": "id", "assert": "present" }
+    }
+  ]
+}

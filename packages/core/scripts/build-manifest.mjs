@@ -43,6 +43,7 @@ const EXPLICIT_CLAIMS = {
   installShowWhen: 'conditional-fields',
   installSortable: 'sortable',
   installDirtyGuard: 'unsaved-changes',
+  installSessionExpiry: 'session-expiry',
   installValidation: 'platform', // native-validation wiring (field docs)
   installFormat: 'platform', // numeric display formatting (input docs)
   installNormalize: 'platform', // IME fullwidth/kana normalization (input docs)

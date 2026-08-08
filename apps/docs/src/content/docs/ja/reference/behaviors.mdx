@@ -3,7 +3,7 @@ title: ビヘイビア
 description: すべての installXxx() ビヘイビア — 何を担い、ゼロ設定バンドルが自動インストールするかの一覧。
 ---
 
-キットは 51 個の小さなビヘイビアを出荷しています。すべて冪等で
+キットは 52 個の小さなビヘイビアを出荷しています。すべて冪等で
 アンインストーラを返し、`installChart()` ただ 1 つの例外を除いて、
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリが
 **自動インストール**します(htmx でスワップされた内容も拾います)。
@@ -38,6 +38,7 @@ installToast();
 | `installNormalize()` | 確定時の IME 全角/かな正規化 — [入力](/hypermedia-components/ja/components/input/#ime-正規化)。 | `data-hc-normalize` | — | ✓ |
 | `installMask()` | 宣言的な固定形式マスク(`postal-jp`、`#`/`a`/`A`/`*` パターン) — [入力](/hypermedia-components/ja/components/input/#入力マスク)。 | `data-hc-mask`、`data-hc-mask-submit` | — | ✓ |
 | `installDirtyGuard()` | 未保存変更ガード — [unsaved-changes レシピ](/hypermedia-components/ja/recipes/unsaved-changes/)。 | `data-hc-dirty-guard`(状態: `data-dirty`) | `hc:dirtychange` | ✓ |
+| `installSessionExpiry()` | 401 → ログインダイアログ → リクエスト再実行 — [session-expiry レシピ](/hypermedia-components/ja/recipes/session-expiry/)。 | `data-hc-session-expiry` | `hc:sessionrenewed` を消費 | ✓ |
 | `installSortable()` | ポインタ + キーボードのリスト並べ替え — [sortable レシピ](/hypermedia-components/ja/recipes/sortable/)。 | `data-hc-sortable`、`data-hc-sortable-handle`、`data-hc-sortable-id` | `hc:sortchange` | ✓ |
 | `installCombobox()` | [コンボボックス](/hypermedia-components/ja/components/combobox/)のキーボード・フィルタ・ARIA。 | `data-remote`、`data-allow-create`、`data-value`、… | `hc:comboboxselect` | ✓ |
 | `installMulticombobox()` | [マルチコンボボックス](/hypermedia-components/ja/components/multicombobox/)のタグ・キーボード・ARIA。 | `data-name`、`data-allow-create`、`data-value`、… | `hc:multicomboboxchange` | ✓ |

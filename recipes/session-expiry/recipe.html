@@ -1,0 +1,19 @@
+<!-- Short recommended usage.
+
+  Session expiry with replay: protected actions answer 401 with a login
+  <dialog> aimed at the shared error-dialog host (HX-Retarget); the
+  page-level allowance lets it swap, installRemoteDialog opens it, and
+  installSessionExpiry (auto) remembers the interrupted request and
+  replays it after the login response fires hc:sessionrenewed. The
+  user's click completes instead of vanishing. Requires the beforeSwap
+  allowance for 401 — see contract.md. -->
+<button class="hc-button" data-variant="primary"
+        data-hx-post="/tickets/7/approve"
+        data-hx-target="#status" data-hx-swap="innerHTML">
+  Approve
+</button>
+<p class="hc-field__hint" id="status" aria-live="polite"></p>
+
+<!-- One shared host at body end: remote-dialog opens whatever lands
+     here; data-hc-session-expiry arms the replay bridge. -->
+<div id="error-dialog" data-hc-remote-dialog-root data-hc-session-expiry></div>

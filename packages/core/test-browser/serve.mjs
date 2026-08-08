@@ -945,6 +945,69 @@ function handleDirty(req, res, url) {
   return false;
 }
 
+// Mock cookie-session for the session-expiry recipe spec
+// (session-expiry.html): approve 401s with the retargeted login dialog
+// until the login sets the session cookie; hc:sessionrenewed rides the
+// HX-Trigger header and installSessionExpiry replays the approval.
+function sessionLoginDialog(error) {
+  const err = error
+    ? `<p class="hc-field__error" id="relogin-error">${error}</p>`
+    : '';
+  const aria = error
+    ? ' aria-invalid="true" aria-describedby="relogin-error"'
+    : '';
+  return `<dialog class="hc-dialog" aria-labelledby="relogin-title">
+  <form class="hc-stack" data-hx-post="/mock/session/login" data-hx-target="this" data-hx-swap="none">
+    <h2 class="hc-dialog__title" id="relogin-title">Session expired</h2>
+    <div class="hc-field"${error ? ' data-invalid="true"' : ''}>
+      <label class="hc-field__label" for="relogin-password">Password</label>
+      <input class="hc-input" id="relogin-password" name="password" type="password" autocomplete="current-password" required${aria}>
+      ${err}
+    </div>
+    <button class="hc-button" data-variant="primary" type="submit">Sign in</button>
+  </form>
+  <form method="dialog"><button class="hc-button" data-variant="ghost">Cancel</button></form>
+</dialog>`;
+}
+
+function handleSession(req, res, url) {
+  if (req.method !== 'POST') return false;
+  if (url.pathname === '/mock/session/approve') {
+    req.resume();
+    const hasSession = (req.headers.cookie ?? '').includes('hc_session=1');
+    res.setHeader('Content-Type', MIME['.html']);
+    if (hasSession) {
+      res.statusCode = 200;
+      res.end('<span>Approved.</span>');
+      return true;
+    }
+    res.statusCode = 401;
+    res.setHeader('HX-Retarget', '#error-dialog');
+    res.setHeader('HX-Reswap', 'innerHTML');
+    res.end(sessionLoginDialog());
+    return true;
+  }
+  if (url.pathname === '/mock/session/login') {
+    readBody(req).then((body) => {
+      const params = new URLSearchParams(body);
+      res.setHeader('Content-Type', MIME['.html']);
+      if (params.get('password') === 'wrong') {
+        res.statusCode = 422;
+        res.setHeader('HX-Retarget', '#error-dialog');
+        res.setHeader('HX-Reswap', 'innerHTML');
+        res.end(sessionLoginDialog('That password is not right.'));
+        return;
+      }
+      res.statusCode = 200;
+      res.setHeader('Set-Cookie', 'hc_session=1; Path=/; Max-Age=300; SameSite=Lax');
+      res.setHeader('HX-Trigger', hxTrigger({ 'hc:sessionrenewed': {} }));
+      res.end('');
+    });
+    return true;
+  }
+  return false;
+}
+
 function handleMock(req, res, url) {
   if (!url.pathname.startsWith('/mock/')) return false;
   if (handleSse(req, res, url)) return true;
@@ -956,6 +1019,7 @@ function handleMock(req, res, url) {
   if (handleCascade(req, res, url)) return true;
   if (handlePostal(req, res, url)) return true;
   if (handleDirty(req, res, url)) return true;
+  if (handleSession(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.

@@ -1,0 +1,37 @@
+<!-- Expanded state: the 401 landed. The server retargeted this login
+  dialog into the host (HX-Retarget: #error-dialog + HX-Reswap:
+  innerHTML); installRemoteDialog called showModal(). Submitting posts
+  the login form; success answers 200 + HX-Trigger hc:sessionrenewed —
+  installSessionExpiry closes the dialog and replays the interrupted
+  Approve request. A login failure is a 422 field-errors fragment back
+  into this same dialog. -->
+<button class="hc-button" data-variant="primary"
+        data-hx-post="/tickets/7/approve"
+        data-hx-target="#status" data-hx-swap="innerHTML">
+  Approve
+</button>
+<p class="hc-field__hint" id="status" aria-live="polite"></p>
+
+<div id="error-dialog" data-hc-remote-dialog-root data-hc-session-expiry>
+  <dialog class="hc-dialog" open aria-labelledby="relogin-title">
+    <form class="hc-stack" data-hx-post="/session/login"
+          data-hx-target="this" data-hx-swap="none">
+      <h2 class="hc-dialog__title" id="relogin-title">Session expired</h2>
+      <p>Sign in again to continue — your action will complete
+         automatically.</p>
+      <div class="hc-field">
+        <label class="hc-field__label" for="relogin-password">Password</label>
+        <input class="hc-input" id="relogin-password" name="password"
+               type="password" autocomplete="current-password" required>
+      </div>
+      <button class="hc-button" data-variant="primary" type="submit">
+        Sign in
+      </button>
+    </form>
+    <!-- Cancel lives in its own <form method="dialog"> (forms cannot
+         nest) — declarative close, no inline JS. -->
+    <form method="dialog">
+      <button class="hc-button" data-variant="ghost">Cancel</button>
+    </form>
+  </dialog>
+</div>
