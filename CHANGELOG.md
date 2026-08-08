@@ -20,6 +20,14 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [editor-kit-0.2.0] - 2026-08-08
+
+**`@hypermedia-components/editor-kit@0.2.0`** — the #452 dirty-region
+serialization plan
+([`plans/hc-editor-kit-dirty-serialize-plan-en.md`](plans/hc-editor-kit-dirty-serialize-plan-en.md)),
+all three stages, strictly additive. Independent `editor-kit-v0.2.0`
+tag; core and CLI are not part of this release.
+
 ### Added
 
 - **editor-kit: dirty tracking on `CommandStack`** (#452 Stage 1, of
@@ -4539,7 +4547,9 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.15...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/editor-kit-v0.2.0...HEAD
+[editor-kit-0.2.0]: https://github.com/ingcreators/hypermedia-components/compare/editor-kit-v0.1.0...editor-kit-v0.2.0
+[0.2.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.15...v0.2.0
 [0.1.15]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.12...v0.1.13
