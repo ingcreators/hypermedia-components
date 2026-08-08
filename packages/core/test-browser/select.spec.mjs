@@ -37,12 +37,12 @@ test.describe('hc-select', () => {
 
   test('aria-invalid + data-variant="error" swaps the border to error', async ({ page }) => {
     // semantic.color.error → primitive.color.red.600
-    expect(await cssColor(page.getByTestId('sel-error'), 'borderTopColor')).toBe('rgb(220, 38, 38)');
+    expect(await cssColor(page.getByTestId('sel-error'), 'borderTopColor')).toBe('rgb(206, 14, 24)');
   });
 
   test('data-variant="success" swaps the border to success', async ({ page }) => {
     // semantic.color.success → primitive.color.green.600
-    expect(await cssColor(page.getByTestId('sel-success'), 'borderTopColor')).toBe('rgb(5, 150, 105)');
+    expect(await cssColor(page.getByTestId('sel-success'), 'borderTopColor')).toBe('rgb(9, 131, 91)');
   });
 
   test('disabled state reduces opacity and changes cursor', async ({ page }) => {

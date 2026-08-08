@@ -37,12 +37,12 @@ test.describe('hc-datepicker', () => {
 
   test('data-variant="error" + aria-invalid swaps border to the error colour', async ({ page }) => {
     // red.600
-    expect(await cssColor(page.getByTestId('dp-error'), 'borderTopColor')).toBe('rgb(220, 38, 38)');
+    expect(await cssColor(page.getByTestId('dp-error'), 'borderTopColor')).toBe('rgb(206, 14, 24)');
   });
 
   test('data-variant="success" swaps border to the success colour', async ({ page }) => {
     // green.600
-    expect(await cssColor(page.getByTestId('dp-success'), 'borderTopColor')).toBe('rgb(5, 150, 105)');
+    expect(await cssColor(page.getByTestId('dp-success'), 'borderTopColor')).toBe('rgb(9, 131, 91)');
   });
 
   test('disabled lowers opacity and changes cursor', async ({ page }) => {

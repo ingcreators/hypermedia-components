@@ -35,7 +35,7 @@
 
   .hc-checkbox:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-focus-ring) 35%, transparent);
   }
 
   /* Checked — default variant uses the action.primary fill. The check
@@ -92,7 +92,7 @@
 
   .hc-checkbox[aria-invalid="true"]:focus-visible,
   .hc-checkbox:user-invalid:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-error) 30%, transparent);
   }
 
   /* Disabled */

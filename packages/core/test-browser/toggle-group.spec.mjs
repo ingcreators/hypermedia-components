@@ -41,7 +41,7 @@ test.describe('hc-toggle-group — single (exclusive)', () => {
   test('the selected option paints the accent border', async ({ page }) => {
     // on-border → action.primary.border → blue.600.
     expect(await cssColor(page.getByTestId('tg-s-left'), 'borderTopColor'))
-      .toBe('rgb(37, 99, 235)');
+      .toBe('rgb(44, 96, 233)');
   });
 });
 

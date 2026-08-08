@@ -11,20 +11,20 @@ const border = (page, id) => cssColor(page.getByTestId(id), 'borderTopColor');
 test.describe('hc-input variants', () => {
   test('data-variant recolours the border (success / warning / error)', async ({ page }) => {
     // success → green.600
-    expect(await border(page, 'in-success')).toBe('rgb(5, 150, 105)');
+    expect(await border(page, 'in-success')).toBe('rgb(9, 131, 91)');
     // warning → amber.600
-    expect(await border(page, 'in-warning')).toBe('rgb(217, 119, 6)');
+    expect(await border(page, 'in-warning')).toBe('rgb(152, 97, 7)');
     // error → red.600
-    expect(await border(page, 'in-error')).toBe('rgb(220, 38, 38)');
+    expect(await border(page, 'in-error')).toBe('rgb(206, 14, 24)');
   });
 
   test('aria-invalid uses the same error border (the accessible hook)', async ({ page }) => {
-    expect(await border(page, 'in-invalid')).toBe('rgb(220, 38, 38)');
+    expect(await border(page, 'in-invalid')).toBe('rgb(206, 14, 24)');
   });
 
   test('the variant vocabulary also applies to <textarea>', async ({ page }) => {
     await expect(page.getByTestId('in-textarea')).toHaveJSProperty('tagName', 'TEXTAREA');
-    expect(await border(page, 'in-textarea')).toBe('rgb(5, 150, 105)');
+    expect(await border(page, 'in-textarea')).toBe('rgb(9, 131, 91)');
   });
 
   test('default input keeps the neutral border', async ({ page }) => {

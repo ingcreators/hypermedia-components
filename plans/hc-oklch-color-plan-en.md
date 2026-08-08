@@ -1,7 +1,7 @@
 # OKLCH — perceptual color primitives plan
 
-Status: **PR 2 implemented (format conversion, no visual change); PRs
-3–5 pending.** The
+Status: **PRs 2 and 4 implemented; PR 3 dropped as a measured no-op
+(§9); PR 5 pending.** The
 primitive ramps are Tailwind's sRGB palette, where the step number does
 not mean a lightness. Across the seven chromatic ramps the spread at
 step `500` is **18.3 L points** (indigo 58.5 vs amber 76.9), which is
@@ -93,15 +93,23 @@ indigo 277.0, rose 17.6, violet 293.0.
 | 400 | 0.72 | 0.94 | 950 | 0.24 | 0.85 |
 | 500 | 0.62 | 0.92 | | | |
 
+> **Superseded during implementation.** The `rel. C` column below —
+> chroma as a fraction of the in-gamut maximum — was replaced by an
+> **absolute** per-step chroma clamped to the gamut. See PR 4 in §9 for
+> the measurement; the short version is that a fraction traces the
+> gamut boundary, which is a different shape per hue, so `green.200`
+> came out more chromatic than `green.500`. The shipped ladder is in
+> `scripts/oklch.mjs`; the `L` column is unchanged and is what carries
+> the contrast guarantee either way.
+
 `C = rel. C × max_in_gamut_chroma(L, H)`.
 
-**Chroma is relative, not absolute, and that is forced — not a
-preference.** A shared *absolute* chroma has to fit the worst hue in
-sRGB, and at L 0.54 the worst hue (≈200°, cyan) holds only **C 0.092**,
-where blue/indigo/violet currently sit at 0.215–0.247. An absolute
-ladder would flatten every ramp to pastel. Relative-to-gamut keeps each
-hue as saturated as its lightness allows and stays inside sRGB by
-construction.
+The reasoning that led here still holds for why a *naive* absolute
+ladder fails: a single absolute chroma applied to every hue has to fit
+the worst one, and at L 0.54 that is ≈200° (cyan), which holds only
+**C 0.092** where blue sits at 0.215. What works is an absolute target
+that hues clamp against individually — pastel where sRGB forces it,
+full chroma everywhere else.
 
 The `rel. C` column is the median relative chroma today's ramps already
 use at each step, so light steps keep their tint (`blue.50` `#eff6ff` →
@@ -269,33 +277,76 @@ No visual change; every value round-trips to the same 8-bit sRGB hex.
       all green.
 - [x] CHANGELOG (*Changed*, "no visual change"); plan Status.
 
-### PR 3 — `feat(tokens): oklab interpolation for color-mix` (after PR 2)
+### PR 3 — **dropped; folded into PR 4**
 
-- [ ] The 11 `color-mix(in srgb, …)` token values → `in oklab`.
-- [ ] The ~17 authored `color-mix(in srgb, …)` in `src/css/` → `in
-      oklab` (focus rings, selected rows, date ranges).
-- [ ] Regenerate all 14 VRT baselines — **delete the PNGs first**, then
-      `--update-snapshots`; diffs under 2400 px are otherwise silently
-      kept as stale.
-- [ ] CHANGELOG (*Changed*); plan Status.
+The premise ("`in srgb` tints go muddy, `in oklab` keeps the hue") is
+true in general but **false for every mix this codebase actually
+performs.** Measured in Chromium:
 
-### PR 4 — `feat(tokens): regularize chromatic ramps` (after PR 3)
+| mix | max channel Δ (srgb vs oklab) |
+| --- | --- |
+| any `… N%, transparent` (26 of 31 sites) | **0** |
+| `focus-ring 10/14/18%, surface` | 1–2 |
+| `border 55%, surface` · `muted-bg, white 35%` | 0 |
+| *(reference)* blue 50% + amber | 41 |
+| *(reference)* green 50% + rose | 42 |
 
-- [ ] `scripts/oklch.mjs` (§6) + `"./oklch"` exports entry + `files`.
-- [ ] `scripts/build-ramp.mjs`: generate the 77 chromatic values from
-      the ladder into `primitive.tokens.json`, so the ramps are
-      reproducible rather than hand-maintained.
-- [ ] `color.amber.tokens.json`: drop the `fg` and 18%-tint
-      exceptions; re-point the axis at the step §5 selects.
-- [ ] Apply the §5 rule to all five `color.*` axes; record it in each
-      `$description`.
-- [ ] Update the 16 Playwright specs' literal color assertions.
-- [ ] Regenerate all 14 VRT baselines (delete-then-update).
-- [ ] Docs + `ja/` twins: `tokens/themes.mdx`, `tokens/neutral.mdx`,
-      `tokens/palette.mdx`, `tokens/theme-builder.mdx`,
-      `fundamentals/tokens.mdx`, `recipes/chart.mdx`,
-      `components/button.mdx`.
-- [ ] CHANGELOG (*Changed*, flagged as a visual change); plan Status.
+Two reasons. `color-mix()` interpolates **premultiplied**, so mixing
+with `transparent` is interpolation-space-independent by construction —
+and 26 of the 31 sites mix with `transparent`. The other 5 mix a colour
+into a near-neutral surface at 10–55%, where the two paths barely
+diverge. The classic sRGB failure needs two saturated, differently-hued
+colours, which HC never mixes.
+
+A ≤2/255 change is not worth regenerating 14 VRT baselines for: doing
+so spends the "baselines are meaningful" signal that PR 2 depended on.
+The `in oklab` switch still lands — as intent and future-proofing —
+inside PR 4, which regenerates the baselines anyway.
+
+### PR 4 — `feat(tokens): regularize chromatic ramps` — **done**
+
+- [x] `scripts/oklch.mjs` gains `LADDER`, `maxChroma`, `rampStep`,
+      `formatOklch`, `autoForeground`, `FG_LIGHTNESS_PIVOT`.
+- [x] **Chroma is absolute, not relative — the plan had this wrong.**
+      §4 argued for chroma as a fraction of the in-gamut maximum. In
+      practice that traces the gamut boundary, whose shape swings by
+      hue: green's sRGB gamut is widest at high lightness, so the
+      fraction made `green.200` *more* chromatic than `green.500` and
+      the light tints came out neon. Switching to an absolute per-step
+      target clamped to the gamut fixed it and was better on every
+      count — no ramp peaks in the light half (was: green), overall
+      drift fell from ΔE 4.1 to 3.7, and each step now has comparable
+      colourfulness across hues.
+- [x] `scripts/build-ramp.mjs` generates the 77 chromatic values;
+      `--check` reports drift. Neutrals stay hand-maintained.
+- [x] All five axes unified — not just amber. `emerald` and `rose`
+      were also reaching down to `700`/`800`; every axis is now
+      `600` / `700` / `500` with white text and a 12% soft tint.
+- [x] `color-mix` → `in oklab` at all 31 sites (folded up from PR 3).
+- [x] `test/ramp.test.mjs` — 37 assertions: ladder conformance,
+      hue constancy, gamut, generator parity, the contrast table, and
+      that any hue produces an AA-safe `600` (what the builder relies
+      on). It also **found a real edge**: step `500` clears neither
+      white nor dark text on the saturated hues, so it is asserted as
+      the dead band and documented as ring-only.
+- [x] 33 colour literals across 13 specs; 14 VRT baselines
+      deleted-then-regenerated. 767 browser tests, 900 unit, lint,
+      typecheck, docs build green.
+- [x] `examples-plain-html.spec.mjs` gains `reducedMotion: 'reduce'`.
+      The narrower contrast margins made the known axe-samples-a-
+      transition flake reachable (observed once at 4.34:1 on a blue
+      that rests at 5.31:1); same guard the `code-*` specs use.
+- [x] Docs + `ja/` twins: `tokens/themes.mdx`, `tokens/palette.mdx`.
+      `tokens/neutral.mdx` needed no edit — its hexes are neutral-ramp
+      values, which did not change. The `fundamentals/tokens.mdx`,
+      `recipes/chart.mdx` and `components/button.mdx` hexes are
+      consumer-override *examples*; still valid CSS, left alone.
+- [x] CHANGELOG (*Changed*, flagged as a visual change); plan Status.
+
+Known caveat: `oklchToRgb` is not bit-exact against a browser. Three of
+the 139 committed values land within half an ulp of an 8-bit boundary
+and differ by 1/255 from what Chromium paints. Fine for swatch labels;
+assert browser output in tests.
 
 ### PR 5 — `refactor(docs): OKLCH theme builder` (after PR 4)
 

@@ -22,6 +22,40 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Chromatic ramps regularized on a shared lightness ladder.** The
+  seven chromatic ramps (blue / red / green / amber / indigo / rose /
+  violet) are now generated from one hue angle per ramp plus a shared
+  ladder: `L` fixed per step, `C` an absolute per-step target clamped
+  to the hue's sRGB gamut, `H` constant down the ramp. **Colors change
+  visibly** — mean Oklab ΔE ≈ 3.7, largest on `amber`, which was the
+  ramp furthest off the ladder. The five **neutral** ramps are
+  untouched (they were already even), so surfaces, borders, text and
+  dark mode do not move.
+
+  The payoff is that the step number now means a lightness, so the
+  `data-color` axes collapse to one shape: **every** axis takes `600`
+  for the action surface, `700` for hover, `500` for the focus ring,
+  and **white** text. `amber` no longer needs dark text or an 18% soft
+  tint, and `emerald` / `rose` no longer reach down to `700` / `800`.
+  Contrast is now a property of the construction — white on `600`
+  scores 4.73–5.86:1 across all 360 hues — so a new accent hue needs no
+  contrast review. Measured margins narrow relative to before
+  (`emerald` 5.48 → 4.76:1, `indigo` 6.29 → 5.44:1); all clear AA, and
+  `test/ramp.test.mjs` now asserts the whole table.
+
+  Note that step `500` is not a text surface: at L 0.62 the saturated
+  hues clear neither white nor dark text, which is why it is the
+  focus-ring step. Regenerate with `node scripts/build-ramp.mjs`;
+  `--check` reports drift.
+
+- **`color-mix()` interpolates in `oklab`** at all 31 sites. This is
+  intent and future-proofing, not a visual change: 26 of the sites mix
+  with `transparent`, which is interpolation-space-independent because
+  `color-mix()` is premultiplied, and the other 5 mix into a
+  near-neutral surface where the two paths differ by at most 2/255.
+
+### Changed
+
 - **Primitives expressed in OKLCH** — all 139 literal colors in
   `src/tokens/primitive.tokens.json` are now `oklch()` instead of hex.
   **No visual change:** every value was chosen to round-trip to the
@@ -38,9 +72,11 @@ Security    — security-relevant changes
 
 - **`@hypermedia-components/core/oklch`** — a dependency-free OKLCH ↔
   sRGB module (`parseOklch`, `oklchToRgb`, `oklchToHex`, `rgbToOklch`,
-  `hexToOklch`, `inSrgbGamut`, `toHex`). The docs palette uses it to
-  label swatches with their sRGB hex while the tooltip keeps the
-  authored token value. Exported the same way as `./token-transform`.
+  `hexToOklch`, `inSrgbGamut`, `toHex`) plus the ramp ladder itself
+  (`LADDER`, `maxChroma`, `rampStep`, `formatOklch`, `autoForeground`,
+  `FG_LIGHTNESS_PIVOT`). The token generator and the docs read the same
+  constants, so a generated accent is built exactly like a built-in
+  one. Exported the same way as `./token-transform`.
 
 ## [0.1.15] - 2026-08-07
 

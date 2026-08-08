@@ -13,6 +13,13 @@ async function axeViolations(page, include) {
 
 test.describe('examples/plain-html — accessibility', () => {
   test.beforeEach(async ({ page }) => {
+    // Dialog/drawer entry animates, and the controls inside transition
+    // their background. axe samples rendered pixels, so without this it
+    // can score a mid-transition colour instead of the resting one and
+    // report a contrast violation that does not exist (observed once as
+    // 4.34:1 on a blue that resolves to 5.31:1 at rest). Same guard the
+    // code-* and status specs already use.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(PLAIN_HTML);
   });
 

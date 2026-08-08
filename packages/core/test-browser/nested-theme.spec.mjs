@@ -7,12 +7,16 @@ import { cssColor } from './helpers/color.mjs';
 // resolved its var() chain on :root and was inherited as a frozen
 // blue; this spec proves the shadcn-style leaf emission cured it.
 
+// Every axis now resolves its action surface from step 600 of its own
+// ramp — the ladder puts 600 at L 0.54, which is white-text-safe on
+// every hue, so no axis needs a different step or a different
+// foreground any more.
 const CASES = [
-  { color: 'default', rgb: 'rgb(37, 99, 235)'   },  // blue.600
-  { color: 'indigo',  rgb: 'rgb(79, 70, 229)'   },  // indigo.600
-  { color: 'emerald', rgb: 'rgb(4, 120, 87)'    },  // green.700
-  { color: 'rose',    rgb: 'rgb(190, 18, 60)'   },  // rose.700
-  { color: 'amber',   rgb: 'rgb(245, 158, 11)'  },  // amber.500
+  { color: 'default', rgb: 'rgb(44, 96, 233)' },  // blue.600
+  { color: 'indigo',  rgb: 'rgb(87, 85, 231)' },  // indigo.600
+  { color: 'emerald', rgb: 'rgb(9, 131, 91)' },  // green.600
+  { color: 'rose',    rgb: 'rgb(205, 12, 62)' },  // rose.600
+  { color: 'amber',   rgb: 'rgb(152, 97, 7)'  },  // amber.600
 ];
 
 test.describe('nested data-color wrappers recolour component primitives', () => {
@@ -130,11 +134,11 @@ test.describe('dark mode tints status surfaces (alert / toast / badge)', () => {
 
   // [var, dark sRGB] — bg is a colour.950 tint, fg is the colour.200 light text.
   const STATUS = [
-    ['--hc-badge-info-bg',    'rgb(23, 37, 84)',    'blue.950'],
-    ['--hc-badge-info-fg',    'rgb(191, 219, 254)', 'blue.200'],
-    ['--hc-alert-success-bg', 'rgb(2, 44, 34)',     'green.950'],
-    ['--hc-alert-error-bg',   'rgb(69, 10, 10)',    'red.950'],
-    ['--hc-toast-warning-bg', 'rgb(69, 26, 3)',     'amber.950'],
+    ['--hc-badge-info-bg',    'rgb(9, 27, 72)',    'blue.950'],
+    ['--hc-badge-info-fg',    'rgb(202, 219, 254)', 'blue.200'],
+    ['--hc-alert-success-bg', 'rgb(1, 39, 24)',     'green.950'],
+    ['--hc-alert-error-bg',   'rgb(63, 6, 5)',    'red.950'],
+    ['--hc-toast-warning-bg', 'rgb(46, 26, 0)',     'amber.950'],
     ['--hc-badge-default-bg', 'rgb(31, 41, 55)',    'gray.800'],
     // Avatar initials flip to the light text colour on the dark fallback.
     ['--hc-avatar-fg',        'rgb(243, 244, 246)', 'gray.100'],

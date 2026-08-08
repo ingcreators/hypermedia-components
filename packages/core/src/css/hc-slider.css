@@ -102,11 +102,11 @@
   }
 
   .hc-slider:focus-visible::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-focus-ring) 35%, transparent);
   }
 
   .hc-slider:focus-visible::-moz-range-thumb {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-focus-ring) 35%, transparent);
   }
 
   /* Variants — recolor the fill (via --hc-slider-fill-current, read by both

@@ -33,22 +33,33 @@ semi-transparent, shown over a checkerboard):
 
 | `data-color` value | Primary bg          | Hover bg          | Text on primary | Common use case |
 | ------------------ | ------------------- | ----------------- | --------------- | --------------- |
-| _(none)_ / `default` | `#2563eb` (blue.600) | `#1d4ed8` (blue.700) | white         | Default neutral SaaS — Linear, AWS-style |
-| `indigo`           | `#4f46e5` (indigo.600) | `#4338ca` (indigo.700) | white      | Modern SaaS — Tailwind, Cal.com |
-| `emerald`          | `#047857` (green.700) | `#065f46` (green.800) | white         | Fintech / sustainability — Stripe Atlas |
-| `rose`             | `#be123c` (rose.700) | `#9f1239` (rose.800) | white           | Marketing / CRM / healthcare |
-| `amber`            | `#f59e0b` (amber.500) | `#d97706` (amber.600) | gray.900       | Energetic / productivity — Notion-yellow |
+| _(none)_ / `default` | blue.600 | blue.700 | white | Default neutral SaaS — Linear, AWS-style |
+| `indigo`           | indigo.600 | indigo.700 | white | Modern SaaS — Tailwind, Cal.com |
+| `emerald`          | green.600 | green.700 | white | Fintech / sustainability — Stripe Atlas |
+| `rose`             | rose.600 | rose.700 | white | Marketing / CRM / healthcare |
+| `amber`            | amber.600 | amber.700 | white | Energetic / productivity — Notion-yellow |
 
 Every value above resolves to a [primitive ramp](/hypermedia-components/tokens/palette/)
 shade — these themes don't introduce new colors, they re-point the accent
 at a different ramp.
 
-Two shades land deeper on the color scale (green.700, rose.700 — the
-ramps behind the `emerald` and `rose` themes) so
-white text on the button clears the 4.5:1 contrast bar that the
-brighter 600 shades would have missed. Amber is the inverse — the
-500 shade is bright enough that dark text becomes the contrast-clean
-choice, and it stays consistent in dark mode too.
+Notice that the table has one shape, not five. Every theme takes `600`
+for the resting surface, `700` for hover, `500` for the focus ring, and
+white text. That is a property of the ramps rather than a coincidence:
+step `600` sits at OKLCH lightness `0.54`, and white text clears AA on
+**any** hue below lightness `0.554`. Picking the accent is picking a hue
+angle; the rest follows.
+
+This used to be messier. `emerald` and `rose` reached down to their
+`700` shades because their `600` was too light for white text, and
+`amber` went the other way — its `500` was bright enough that dark text
+was the contrast-clean choice, so that one theme carried a different
+foreground and a different soft-tint percentage from the other four.
+
+Those were symptoms of ramps whose step numbers did not mean a
+lightness: `amber.500` sat 18 lightness points above `indigo.500`. Now
+that every chromatic ramp shares one lightness ladder, the step number
+means the same thing on every hue and the exceptions are gone.
 
 ## Live preview
 
@@ -378,17 +389,32 @@ stay owned by `data-theme`, and control sizing by `data-density`.
 ## Accessibility
 
 Each theme passes WCAG AA contrast for the button's text-on-primary
-combination:
+combination — by construction rather than by inspection:
 
 | Theme    | Text color | Primary bg | Contrast ratio |
 | -------- | ----------- | ---------- | -------------- |
-| default  | white       | #2563eb    | 4.9 : 1        |
-| indigo   | white       | #4f46e5    | 6.9 : 1        |
-| emerald  | white       | #047857    | 5.0 : 1        |
-| rose     | white       | #be123c    | 5.7 : 1        |
-| amber    | #111827     | #f59e0b    | 9.4 : 1        |
+| default  | white       | blue.600   | 5.31 : 1       |
+| indigo   | white       | indigo.600 | 5.44 : 1       |
+| emerald  | white       | green.600  | 4.76 : 1       |
+| rose     | white       | rose.600   | 5.65 : 1       |
+| amber    | white       | amber.600  | 5.19 : 1       |
 
-Verified against [WebAIM's contrast checker](https://webaim.org/resources/contrastchecker/).
+All five land in a narrow band because they share a lightness, not
+because each was tuned. Contrast at a fixed OKLCH lightness barely
+moves with hue or chroma: sweeping all 360 hues at step `600` gives
+4.73–5.86 : 1, and sweeping chroma from 0 to 0.25 at one hue moves the
+ratio only 5.06 → 5.43. Lightness carries the guarantee on its own,
+which is why a new accent hue needs no contrast review.
+
+Green is the strictest hue and sets the floor at 4.76 : 1.
+`packages/core/test/ramp.test.mjs` asserts the whole table, so an
+accent that fell below AA would fail the unit suite rather than reach
+a page.
+
+One consequence worth knowing: step `500` is **not** a text surface. At
+lightness `0.62` the saturated hues clear neither white (3.4–4.0 : 1)
+nor dark text (4.4–5.2 : 1), so `500` is the focus-ring and accent step
+while `600` carries anything that holds a label.
 
 The [Theme builder](/hypermedia-components/tokens/theme-builder/) runs
 this same contrast check live as you pick a color, so a custom theme

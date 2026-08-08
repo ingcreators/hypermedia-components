@@ -106,7 +106,7 @@
       "primary-soft": {
         "bg": {
           "$type": "color",
-          "$value": "color-mix(in srgb, {primitive.color.blue.600} 12%, transparent)"
+          "$value": "color-mix(in oklab, {primitive.color.blue.600} 12%, transparent)"
         }
       },
       "error": {

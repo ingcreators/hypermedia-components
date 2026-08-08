@@ -53,7 +53,7 @@
   .hc-input:focus-visible {
     outline: none;
     border-color: var(--hc-input-focus-border);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-focus-ring) 35%, transparent);
   }
 
   .hc-input[aria-invalid="true"],
@@ -63,7 +63,7 @@
 
   .hc-input[aria-invalid="true"]:focus-visible,
   .hc-input:user-invalid:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-error) 30%, transparent);
   }
 
   /* Validation-state variants — border-color cues. `error` mirrors

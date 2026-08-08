@@ -22,22 +22,22 @@ test.describe('hc-progress', () => {
     // most engines, but the `color` channel on the element doubles
     // as the fill source via `currentColor` — match against it.
     const colour = await cssColor(pg, 'color');
-    // action.primary defaults to blue.600 = rgb(37, 99, 235).
-    expect(colour).toBe('rgb(37, 99, 235)');
+    // action.primary defaults to blue.600 = rgb(44, 96, 233).
+    expect(colour).toBe('rgb(44, 96, 233)');
   });
 
   test('data-variant="success" recolours the fill', async ({ page }) => {
     const pg = page.getByTestId('pg-success');
     const colour = await cssColor(pg, 'color');
-    // semantic.color.success → green.600 = rgb(5, 150, 105).
-    expect(colour).toBe('rgb(5, 150, 105)');
+    // semantic.color.success → green.600 = rgb(9, 131, 91).
+    expect(colour).toBe('rgb(9, 131, 91)');
   });
 
   test('data-variant="error" recolours the fill', async ({ page }) => {
     const pg = page.getByTestId('pg-error');
     const colour = await cssColor(pg, 'color');
-    // semantic.color.error → red.600 = rgb(220, 38, 38).
-    expect(colour).toBe('rgb(220, 38, 38)');
+    // semantic.color.error → red.600 = rgb(206, 14, 24).
+    expect(colour).toBe('rgb(206, 14, 24)');
   });
 
   test('data-size="sm" / "lg" render distinct heights', async ({ page }) => {

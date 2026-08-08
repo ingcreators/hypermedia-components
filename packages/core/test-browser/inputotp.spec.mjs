@@ -82,12 +82,12 @@ test.describe('hc-inputotp', () => {
 
   test('aria-invalid paints the error border', async ({ page }) => {
     // semantic.color.error → red.600
-    expect(await slotBorder(page, 'otp-invalid')).toBe('rgb(220, 38, 38)');
+    expect(await slotBorder(page, 'otp-invalid')).toBe('rgb(206, 14, 24)');
   });
 
   test('data-variant success / warning recolour the slot border', async ({ page }) => {
-    expect(await slotBorder(page, 'otp-success')).toBe('rgb(5, 150, 105)'); // green.600
-    expect(await slotBorder(page, 'otp-warning')).toBe('rgb(217, 119, 6)'); // amber.600
+    expect(await slotBorder(page, 'otp-success')).toBe('rgb(9, 131, 91)'); // green.600
+    expect(await slotBorder(page, 'otp-warning')).toBe('rgb(152, 97, 7)'); // amber.600
   });
 
   test('axe finds no violations in the inputotp section', async ({ page }) => {

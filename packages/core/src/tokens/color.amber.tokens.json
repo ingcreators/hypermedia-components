@@ -1,19 +1,19 @@
 {
-  "$description": "Amber color theme. Emitted under [data-color=\"amber\"]. Bright orange-amber; uses gray.900 text (not white) on the button for clear AA contrast (amber.500 + gray.900 = ≈ 9.4:1).",
+  "$description": "Amber color theme. Emitted under [data-color=\"amber\"]. Every axis is the same shape: `600` for the resting action surface, `700` for hover, `500` for the focus ring, and white text. That is not a coincidence per hue — the ladder puts `600` at L 0.54, and white clears 4.5:1 below L 0.554 on every hue, so the foreground follows from the lightness rather than from a per-theme judgement.",
   "color": {
     "focus-ring": { "$type": "color", "$value": "{primitive.color.amber.500}" },
     "action": {
       "primary": {
-        "bg":     { "$type": "color", "$value": "{primitive.color.amber.500}" },
-        "fg":     { "$type": "color", "$value": "{primitive.color.gray.900}" },
-        "border": { "$type": "color", "$value": "{primitive.color.amber.500}" }
-      },
-      "primary-hover": {
         "bg":     { "$type": "color", "$value": "{primitive.color.amber.600}" },
+        "fg":     { "$type": "color", "$value": "{primitive.color.white}" },
         "border": { "$type": "color", "$value": "{primitive.color.amber.600}" }
       },
+      "primary-hover": {
+        "bg":     { "$type": "color", "$value": "{primitive.color.amber.700}" },
+        "border": { "$type": "color", "$value": "{primitive.color.amber.700}" }
+      },
       "primary-soft": {
-        "bg": { "$type": "color", "$value": "color-mix(in srgb, {primitive.color.amber.500} 18%, transparent)" }
+        "bg": { "$type": "color", "$value": "color-mix(in oklab, {primitive.color.amber.600} 12%, transparent)" }
       }
     }
   }

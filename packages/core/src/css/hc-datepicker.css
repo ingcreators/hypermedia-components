@@ -101,7 +101,7 @@
   .hc-datepicker:focus-visible {
     outline: none;
     border-color: var(--hc-datepicker-focus-border);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-focus-ring) 35%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-focus-ring) 35%, transparent);
   }
 
   /* Variants — border-color cues. Mirror hc-input / hc-select. */
@@ -124,7 +124,7 @@
 
   .hc-datepicker[aria-invalid="true"]:focus-visible,
   .hc-datepicker:user-invalid:focus-visible {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hc-color-error) 30%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-error) 30%, transparent);
   }
 
   .hc-datepicker:disabled,

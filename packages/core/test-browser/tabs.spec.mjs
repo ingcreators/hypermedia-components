@@ -87,8 +87,8 @@ test.describe('hc-tabs — pill variant', () => {
   test('active pill tab swaps background colour, not the underline', async ({ page }) => {
     const day = page.getByTestId('tab-pill-day');
     const bg = await cssColor(day, 'backgroundColor');
-    // action.primary.bg defaults to blue.600 — rgb(37, 99, 235).
-    expect(bg).toBe('rgb(37, 99, 235)');
+    // action.primary.bg defaults to blue.600 — rgb(44, 96, 233).
+    expect(bg).toBe('rgb(44, 96, 233)');
     const shadow = await day.evaluate((el) => getComputedStyle(el).boxShadow);
     expect(shadow).toBe('none');
   });

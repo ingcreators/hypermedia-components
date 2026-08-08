@@ -36,7 +36,7 @@ test.describe('hc-spinner', () => {
     const def = await topColor('spinner-default');
     const primary = await topColor('spinner-primary');
     // Primary resolves to the default accent (blue.600).
-    expect(primary).toBe('rgb(37, 99, 235)');
+    expect(primary).toBe('rgb(44, 96, 233)');
     expect(primary).not.toBe(def);
   });
 
