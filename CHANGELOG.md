@@ -22,6 +22,24 @@ Security    — security-relevant changes
 
 ### Added
 
+- **`autosave` recipe — debounced drafts + restore banner** (PR 3,
+  final, of
+  [`plans/hc-form-safety-plan-en.md`](plans/hc-form-safety-plan-en.md);
+  the 30th recipe). A request-owning `<div>` inside the form posts the
+  whole form as a draft — `input from:closest form changed delay:2s` is
+  the entire debounce loop, **zero new JavaScript / zero new public
+  API**. The contract fixes the draft endpoints (drafts stored raw and
+  never validated; password-type fields dropped server-side), the
+  restore banner (`GET …/draft` returns the form re-rendered from the
+  draft **with `data-dirty` preset** — draft content is unsaved by
+  definition, and the guard warns from the attribute alone), and the
+  interplay with `installDirtyGuard`: the draft's `htmx:afterRequest`
+  has a different `elt`, so **a draft save deliberately does not clean
+  the guard** — only the record save does. Ships with a stateless live
+  demo (demo-api module + 5 tests), docs (en/ja), and a cross-engine
+  Playwright suite pinning "a typing burst produces exactly one
+  debounced draft post" via a fixture-side request counter.
+
 - **`installDirtyGuard()` + `unsaved-changes` recipe — warn before
   edits are lost** (PR 2 of
   [`plans/hc-form-safety-plan-en.md`](plans/hc-form-safety-plan-en.md);

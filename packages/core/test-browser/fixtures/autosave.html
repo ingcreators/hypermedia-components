@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- Fixture for the autosave recipe. Pins: a typing burst produces
+     exactly ONE debounced draft post (client-side counter on the draft
+     div's htmx:afterRequest), the status line updates, the draft does
+     NOT clean the dirty guard, and the record save does. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>autosave fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Autosave</h1>
+
+    <form id="report" data-hc-dirty-guard data-testid="form"
+          data-hx-post="/mock/dirty/save"
+          data-hx-target="#status" data-hx-swap="innerHTML">
+      <div class="hc-field">
+        <label class="hc-field__label" for="title">Title</label>
+        <input class="hc-input" id="title" name="title" value="Quarterly report"
+               data-testid="title">
+      </div>
+
+      <div data-draft-owner data-count="0"
+           data-hx-post="/mock/autosave/draft"
+           data-hx-include="closest form"
+           data-hx-trigger="input from:closest form changed delay:1s"
+           data-hx-target="#draft-status" data-hx-swap="innerHTML"></div>
+      <p class="hc-field__hint" id="draft-status" aria-live="polite"
+         data-testid="draft-status"></p>
+
+      <p class="hc-field__hint" id="status" aria-live="polite"></p>
+      <button class="hc-button" data-variant="primary" type="submit"
+              data-testid="save">Save</button>
+    </form>
+  </main>
+
+  <script type="module">
+    // Count the draft div's own requests so the spec can assert the
+    // debounce collapsed a burst into one post.
+    const owner = document.querySelector('[data-draft-owner]');
+    owner.addEventListener('htmx:afterRequest', (event) => {
+      if (event.detail.elt !== owner) return;
+      owner.dataset.count = String(Number(owner.dataset.count) + 1);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+---
+title: Autosave
+description: Debounced draft autosave for long forms — a request-owning div posts the whole form as a draft while the user types, with a restore banner after a crash; zero new JavaScript.
+---
+
+import AutosaveDemo from '../../../components/recipe-demos/AutosaveDemo.astro';
+
+The [unsaved-changes guard](/hypermedia-components/recipes/unsaved-changes/)
+warns before data is lost; autosave makes the warning mostly moot — a
+crash costs at most one debounce window of typing. **Zero new
+JavaScript**: a request-owning `<div>` inside the form, three htmx
+trigger modifiers, and a small server contract for drafts. Covered by
+the [versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add autosave` copies this recipe's
+scaffold; `npx @hypermedia-components/cli validate` machine-checks your
+copy. The full contract lives in
+[`recipes/autosave/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/autosave/contract.md).
+:::
+
+## Live demo
+
+Type in the title and pause — after the 2 s debounce the draft status
+stamps. Save posts the record and the dirty guard turns clean.
+
+<AutosaveDemo />
+
+## The markup
+
+```html
+<form id="report" data-hc-dirty-guard
+      data-hx-post="/reports/42"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Quarterly report">
+  </div>
+
+  <div data-hx-post="/reports/42/draft"
+       data-hx-include="closest form"
+       data-hx-trigger="input from:closest form changed delay:2s"
+       data-hx-target="#draft-status" data-hx-swap="innerHTML"></div>
+  <p class="hc-field__hint" id="draft-status" aria-live="polite"></p>
+
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>
+```
+
+Three modifiers carry the whole loop: `from:closest form` listens to
+every field's bubbling `input`, `changed` skips caret-only keystrokes,
+`delay:2s` debounces the burst. `data-hx-include="closest form"` posts
+the entire form; the empty `<div>` owns the request and nothing else.
+
+**The draft deliberately does not clean the dirty guard**: the guard
+resets only when the *form's own* request succeeds
+(`htmx:afterRequest` element identity) — a draft is not the record.
+
+## Server response contract
+
+| Case | Response |
+| --- | --- |
+| `POST …/draft` (each debounced burst) | `200` + a status line ("Draft saved at 14:03:12" — server-timestamped). Drafts are stored raw, **never validated** |
+| `POST …` (record save) | the [mutating-form](/hypermedia-components/recipes/mutating-form/) contract; on success the server deletes the draft |
+| page render with a newer draft | the form rendered **from the record** + an `hc-alert` restore banner: Restore (`GET …/draft` → the whole form from draft values, **`data-dirty` preset**) / Discard (`DELETE …/draft`) |
+| `DELETE …/draft` | `200` + empty fragment |
+| no-JS | native PRG; drafts simply never happen |
+
+Server-side hygiene is normative in the contract: drop `type="password"`
+values from drafts, keep drafts per-user/per-record last-write-wins,
+purge on record save.
+
+## Accessibility
+
+- `#draft-status` is `aria-live="polite"` — keep the message short and
+  stable ("Draft saved at …"), not chatty.
+- The restore banner is a real `hc-alert` with buttons before the form
+  in DOM order.
+
+## Related
+
+- [unsaved-changes](/hypermedia-components/recipes/unsaved-changes/) —
+  the guard this recipe pairs with.
+- [mutating-form](/hypermedia-components/recipes/mutating-form/) — the
+  record-save contract.
+- [Grouped amounts](/hypermedia-components/components/input/#grouped-amounts) —
+  formatted fields draft their canonical raw values automatically.

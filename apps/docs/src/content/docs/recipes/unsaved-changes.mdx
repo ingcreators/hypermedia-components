@@ -77,7 +77,7 @@ so Save here is inert.
 | tab close / reload while dirty | the browser's generic prompt (custom strings are ignored by modern browsers) |
 | boosted `<a>` navigation while dirty | `window.confirm` with the `dirtyguard.leave` message (localize via [`setMessages()`](/hypermedia-components/fundamentals/i18n/)) |
 | the form's own request succeeds | re-snapshot → clean |
-| a request from inside the form but not by it | **not** clean — a draft autosaver's draft stays a draft (the autosave recipe follows) |
+| a request from inside the form but not by it | **not** clean — the [autosave](/hypermedia-components/recipes/autosave/) draft stays a draft |
 | native submit | never prompts (`submit` fires only after constraint validation passes) |
 
 ## Styling the state
@@ -105,5 +105,7 @@ natively. Pure enhancement by construction.
 
 ## Related
 
+- [autosave](/hypermedia-components/recipes/autosave/) — make the
+  warning mostly moot by drafting as the user types.
 - [mutating-form](/hypermedia-components/recipes/mutating-form/) — the
   save contract the guarded form usually follows.

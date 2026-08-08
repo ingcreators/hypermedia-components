@@ -1,0 +1,40 @@
+<!-- Expanded state: a newer draft existed when the page rendered, so
+  the server included the restore banner above the form. 復元 (Restore)
+  swaps the whole form re-rendered from the draft — with data-dirty
+  preset, because draft content is unsaved by definition; 破棄
+  (Discard) deletes the draft and removes the banner. The draft status
+  line shows the last debounced save. -->
+<div class="hc-alert" data-variant="warning" id="draft-banner">
+  <p class="hc-alert__title">A newer draft exists</p>
+  <p>Saved 2 minutes after the last record save.</p>
+  <button class="hc-button" data-size="sm"
+          data-hx-get="/reports/42/draft"
+          data-hx-target="#report" data-hx-swap="outerHTML">
+    Restore draft
+  </button>
+  <button class="hc-button" data-size="sm" data-variant="ghost"
+          data-hx-delete="/reports/42/draft"
+          data-hx-target="#draft-banner" data-hx-swap="outerHTML">
+    Discard draft
+  </button>
+</div>
+
+<form id="report" data-hc-dirty-guard
+      data-hx-post="/reports/42"
+      data-hx-target="#status" data-hx-swap="innerHTML">
+  <div class="hc-field">
+    <label class="hc-field__label" for="title">Title</label>
+    <input class="hc-input" id="title" name="title" value="Quarterly report">
+  </div>
+
+  <div data-hx-post="/reports/42/draft"
+       data-hx-include="closest form"
+       data-hx-trigger="input from:closest form changed delay:2s"
+       data-hx-target="#draft-status" data-hx-swap="innerHTML"></div>
+  <p class="hc-field__hint" id="draft-status" aria-live="polite">
+    Draft saved at 14:03:12.
+  </p>
+
+  <p class="hc-field__hint" id="status" aria-live="polite"></p>
+  <button class="hc-button" data-variant="primary" type="submit">Save</button>
+</form>

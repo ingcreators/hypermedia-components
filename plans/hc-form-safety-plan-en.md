@@ -1,6 +1,6 @@
 # form-safety — unsaved-changes guard + autosave draft recipe
 
-Status: **proposed.**
+Status: **shipped — PR 1 (plan, #469), PR 2 (installDirtyGuard + unsaved-changes, #474), PR 3 (autosave).**
 Second theme of the business-app gap analysis (2026-08-08): losing a
 half-filled form is the top complaint class in line-of-business apps —
 misclicked navigation, expired sessions, browser crashes. Two layers,
