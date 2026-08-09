@@ -1,7 +1,7 @@
 <!-- Expanded state: Archive ran over 200 rows (best-effort mode).
 
   113 succeeded, 87 failed. The response swapped the rows (each failed
-  one marked data-tone="error", its cell pointing at the reason via
+  one marked data-attention="error", its cell pointing at the reason via
   aria-describedby) and, out of band, this report — grouped BY REASON,
   capped at 10 named rows per reason with the rest behind a count and
   a full-list link. Each named row links to its id, so clicking scrolls
@@ -84,7 +84,7 @@
         <tbody class="hc-datagrid__body" id="rows">
           <!-- A failed row: marked, and its status cell points at the
                reason (the grid suppresses its overflow tooltip here). -->
-          <tr class="hc-datagrid__row" id="row-101" data-tone="error">
+          <tr class="hc-datagrid__row" id="row-101" data-attention="error">
             <td class="hc-datagrid__cell">
               <input type="checkbox" class="hc-checkbox"
                      name="ids" value="101" aria-label="Select Anvil">

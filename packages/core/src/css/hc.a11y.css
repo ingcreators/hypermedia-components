@@ -87,7 +87,8 @@
 
     /* The fragment-landing tint collapses under forced colors — keep a
        dashed outline so "this is the row you were sent to" survives. */
-    .hc-datagrid__row:target > .hc-datagrid__cell {
+    .hc-datagrid__row:target > .hc-datagrid__cell,
+    .hc-datagrid__cell:target {
       outline: 1px dashed Highlight;
       outline-offset: -1px;
     }
@@ -96,6 +97,20 @@
        keep a solid outline so the state survives. */
     .hc-datagrid__cell[data-invalid] {
       outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+
+    /* The attention bar is an inset box-shadow, and forced colors drops
+       box-shadow entirely — outline the row's first cell (and the
+       offending column header) in its place. CanvasText, not Highlight:
+       Highlight already means selection here, and an attention row is
+       frequently selected at the same time. */
+    .hc-datagrid__row[data-attention] > .hc-datagrid__cell:first-child,
+    .hc-datagrid__record[data-attention]
+      > .hc-datagrid__row
+      > .hc-datagrid__cell:first-child,
+    .hc-datagrid__headcell[data-attention] {
+      outline: 2px solid CanvasText;
       outline-offset: -2px;
     }
 

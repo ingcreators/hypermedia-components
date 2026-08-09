@@ -56,7 +56,7 @@ function rowHtml(item, { failed = false, status = 'Active' } = {}) {
   const tip = reason
     ? `<span class="hc-tooltip" id="${tooltipId(item.id)}">${escapeHtml(reason)}</span>`
     : '';
-  return `<tr class="hc-datagrid__row" id="bulk-errors-demo-row-${item.id}"${failed ? ' data-tone="error"' : ''}>
+  return `<tr class="hc-datagrid__row" id="bulk-errors-demo-row-${item.id}"${failed ? ' data-attention="error"' : ''}>
   <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${item.id}" aria-label="Select ${escapeHtml(item.name)}"></td>
   <td class="hc-datagrid__cell">${escapeHtml(item.name)}</td>
   <td class="hc-datagrid__cell"${cellAttrs}>${escapeHtml(status)} ${tip}</td>

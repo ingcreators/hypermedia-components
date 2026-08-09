@@ -43,7 +43,7 @@ function recordHtml(id, { price, version, conflict = null } = {}) {
   data-hx-trigger="hc:datagridedit"
   data-hx-vals="js:{ col: event.detail.col, value: event.detail.value, version: event.target.closest('tbody').dataset.version }"
   data-hx-swap="outerHTML">
-  <tr class="hc-datagrid__row"${conflict ? ' data-tone="error"' : ''}>
+  <tr class="hc-datagrid__row"${conflict ? ' data-attention="error"' : ''}>
     <td class="hc-datagrid__cell">${escapeHtml(item.name)}</td>
     <td class="hc-datagrid__cell" data-numeric data-editable data-col="price" data-value="${price}">${price.toFixed(2)}</td>
   </tr>${conflictRow}

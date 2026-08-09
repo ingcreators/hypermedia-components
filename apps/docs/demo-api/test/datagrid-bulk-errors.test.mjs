@@ -17,11 +17,11 @@ describe('datagrid-bulk-errors demo API — best-effort', () => {
     expect(body).toContain('Already shipped');
     expect(body).toContain('Not permitted');
     // Failed rows are marked and point at their reason.
-    expect(body).toContain('id="bulk-errors-demo-row-102" data-tone="error"');
+    expect(body).toContain('id="bulk-errors-demo-row-102" data-attention="error"');
     expect(body).toContain('aria-describedby="bulk-errors-demo-why-102"');
     // Succeeded rows are not.
     expect(body).toContain('id="bulk-errors-demo-row-103"');
-    expect(body).not.toContain('id="bulk-errors-demo-row-103" data-tone');
+    expect(body).not.toContain('id="bulk-errors-demo-row-103" data-attention');
     // The report rides out of band and offers the failed-only filter.
     expect(body).toContain('data-hx-swap-oob="innerHTML"');
     expect(body).toContain('f-last-result=failed');
@@ -94,7 +94,7 @@ describe('datagrid-bulk-errors demo API — atomic', () => {
     expect(body).not.toContain('succeeded');
     // Rows unchanged (nothing Posted) and NOT marked.
     expect(body).not.toContain('Posted');
-    expect(body).not.toContain('data-tone="error"');
+    expect(body).not.toContain('data-attention="error"');
     // Selection preserved: both submitted ids come back checked.
     expect(body).toContain('value="101" checked');
     expect(body).toContain('value="102" checked');

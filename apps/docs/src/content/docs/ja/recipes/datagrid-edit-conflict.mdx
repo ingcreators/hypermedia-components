@@ -11,7 +11,7 @@ import DatagridEditConflictDemo from '../../../../components/recipe-demos/Datagr
 のレコードレイアウトに**楽観的ロック**を足します: レコード tbody が
 **`data-version`** を持ち、PATCH がそれを同送し、古いバージョンは
 **`409`** で応答します — レコードは**競合プレゼンテーション**として
-再描画されます: セルにはサーバーの現在値(`data-tone="error"`)、
+再描画されます: セルにはサーバーの現在値(`data-attention="error"`)、
 新しいバージョン、そして*両方*の値を名指しするアラートに
 **上書き** / **破棄** のアクション。モーダルもクライアント側マージ UI
 もありません: 行そのものがマージ UI です。
@@ -69,7 +69,7 @@ npx @hypermedia-components/cli validate page.html
 | --- | --- |
 | バージョン一致・受理 | `200` + レコード — サーバーの整形、**インクリメントされた `data-version`** |
 | バージョン一致・拒否 | `422` — [datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/) のブランチ(バージョンは維持) |
-| **古いバージョン** | **`409`** + 競合プレゼンテーション: セルには相手の値 + `data-tone="error"`、**新しい `data-version`**、両方の値を名指しする `role="alert"` の競合行に、**上書き**ボタン(静的 `data-hx-vals` であなたの値を新バージョンに対して再送)と**破棄**ボタン(行の `data-hx-get`) |
+| **古いバージョン** | **`409`** + 競合プレゼンテーション: セルには相手の値 + `data-attention="error"`、**新しい `data-version`**、両方の値を名指しする `role="alert"` の競合行に、**上書き**ボタン(静的 `data-hx-vals` であなたの値を新バージョンに対して再送)と**破棄**ボタン(行の `data-hx-get`) |
 | 未知の行 / 列 | `404` — 標準のエラートーストがカバー |
 
 `GET /items/:id` はレコードを素のまま返します — 破棄のターゲット
@@ -86,7 +86,7 @@ npx @hypermedia-components/cli validate page.html
 
 - 競合は `role="alert"` で読み上げられ、両方の解決はメッセージセル内の
   本物のボタンです。
-- `data-tone="error"` が行を視覚的にマークし、**かつ**メッセージが値を
+- `data-attention="error"` が行を視覚的にマークし、**かつ**メッセージが値を
   名指しします — 決して色だけではありません。
 - どちらの解決でもレコードはその場で再描画され、キーボードユーザーは
   そこから続行できます。

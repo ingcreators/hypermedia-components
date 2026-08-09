@@ -41,7 +41,7 @@ Two actions over one selection. **102 / 105 / 108** are "shipped" and
 | --- | --- | --- |
 | Fits | independent items (archive, tag, notify) | invariants (postings, transfers, permissions) |
 | Failure response | `200` + rows reflecting what happened | **`409` / `422`** + rows **unchanged** |
-| Failed rows | marked `data-tone="error"` + reason | **not marked** — nothing changed |
+| Failed rows | marked `data-attention="error"` + reason | **not marked** — nothing changed |
 | Copy | "113 succeeded / 87 failed" | "**Nothing was executed** (2 rows do not qualify)" |
 | Selection | clears by construction | **preserved** — re-render checkboxes `checked` |
 | Recovery | filter to the failed rows, retry | fix, or exclude the blockers and re-run |

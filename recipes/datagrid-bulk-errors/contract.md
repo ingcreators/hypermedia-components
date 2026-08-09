@@ -33,7 +33,7 @@ and their copy is part of the contract.
 | Fits | independent items (archive, tag, notify) | invariants (postings, transfers, permissions) |
 | Success | `200` + rows + report + `success` toast | `200` + rows + `success` toast |
 | Failure | `200` + rows **reflecting what happened** + report + `warning` toast | **`409`** (state conflict) or **`422`** (input) + rows **unchanged** + report + `error` toast |
-| Failed rows | marked `data-tone="error"`, reason via `aria-describedby` | **not marked** — nothing changed; marking would lie |
+| Failed rows | marked `data-attention="error"`, reason via `aria-describedby` | **not marked** — nothing changed; marking would lie |
 | Copy | "113 succeeded / 87 failed" | "**Nothing was executed** (2 rows do not qualify)" |
 | Selection | clears by construction (fresh unchecked rows) | **preserved** — re-render the checkboxes `checked` |
 | Recovery | filter to the failed rows and retry | fix the blockers, or exclude them and re-run |
@@ -87,7 +87,7 @@ browser foster-parents it and mangles the report's nested `<table>`.
 **Wrap the out-of-band report in `<template>`**:
 
 ```html
-<tr class="hc-datagrid__row" id="row-101" data-tone="error">…</tr>
+<tr class="hc-datagrid__row" id="row-101" data-attention="error">…</tr>
 …
 <template>
   <div id="bulk-report" aria-live="polite" data-hx-swap-oob="innerHTML">…</div>
@@ -151,8 +151,8 @@ pre-flight becomes an ordinary intermediate page.
   without stealing focus; the reasons are readable in place.
 - Row links move focus into the grid via the active cell — no silent
   scroll-only jumps.
-- Failure is never colour alone: `data-tone="error"` plus the reason
-  text plus the report entry.
+- Failure is never colour alone: `data-attention="error"` plus the
+  reason text plus the report entry.
 - The pre-flight's dead-end case renders the reasons instead of a
   disabled button with no explanation.
 

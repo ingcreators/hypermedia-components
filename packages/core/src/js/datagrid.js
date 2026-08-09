@@ -1436,24 +1436,36 @@ function attach(grid, detachers) {
     else hideTip();
   }
 
-  // ---- Fragment navigation (report → row) ----
+  // ---- Fragment navigation (report → row, or → the offending cell) ----
   // A link like `#row-101` (a bulk-error report entry, a deep link)
   // scrolls the row into view for free — but scrolling alone strands
   // keyboard and screen-reader users. When the hash names a row in
   // THIS grid, move the active cell to its first cell and focus it, so
   // arrow keys continue from where the user landed. `:target` supplies
   // the visual emphasis (CSS); this supplies the focus.
+  //
+  // The hash may name a CELL instead (`#cell-101-ship-date`). A row of
+  // thirty columns does not tell the user which one was rejected, and
+  // the offending column is often scrolled out of view — landing on the
+  // cell fixes both, because setActive() scrolls it in on both axes.
   function focusHashRow() {
     const hash = grid.ownerDocument.defaultView?.location?.hash;
     if (!hash || hash.length < 2) return;
-    let row;
+    let target;
     try {
-      row = grid.querySelector(`${hash}.hc-datagrid__row`);
+      target = grid.querySelector(
+        `${hash}.hc-datagrid__row, ${hash}.hc-datagrid__cell`,
+      );
     } catch {
       return; // not a usable id selector
     }
-    if (!row || row.closest('.hc-datagrid') !== grid || row.hidden) return;
-    const pos = locate(rowCells(row)[0]);
+    if (!target || target.closest('.hc-datagrid') !== grid) return;
+    const cell = target.classList.contains('hc-datagrid__cell')
+      ? target
+      : rowCells(target)[0];
+    const row = cell?.closest('.hc-datagrid__row');
+    if (!cell || !row || row.hidden) return;
+    const pos = locate(cell);
     if (pos) setActive(pos.r, pos.c);
   }
 
