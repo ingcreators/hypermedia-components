@@ -154,6 +154,21 @@ opt-in: `data-numeric` on a cell or header cell end-aligns it
   </Fragment>
 </Demo>
 
+## Conditional formatting
+
+The server evaluates the rule and renders the outcome as
+`data-tone="info | success | warning | error"` on a cell (`td`/`th`) or
+a whole `tr`; the stylesheet tints it with the shared semantic status
+colors (dark-theme aware). Don't rely on the color alone — keep the
+value or a text marker in the cell:
+
+```html
+<tr>
+  <td>Legacy sync</td>
+  <td data-tone="error">Failed</td>
+</tr>
+```
+
 ## Key-value variant
 
 `data-variant="kv"` turns the table into a two-column definition list

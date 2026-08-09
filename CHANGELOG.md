@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid / table**: declarative conditional formatting via
+  `data-tone="info | success | warning | error"` on a cell, a row, or a
+  record `<tbody>` (`plans/hc-datagrid-enrichment-plan-en.md` §1.8).
+  The server evaluates the rules and renders the outcome as the
+  attribute; the CSS paints it — datagrid via the new token-backed
+  `--hc-datagrid-tone-<tone>-bg/-fg` (frozen-safe gradient), `hc-table`
+  via the shared `--hc-color-status-*` semantic colors. Dark-theme
+  aware; under forced colors the tint becomes a dotted outline.
+
 - **datagrid**: grouped rows — server-rendered, client-toggled
   (`plans/hc-datagrid-enrichment-plan-en.md` §1.6). The server
   interleaves `.hc-datagrid__grouprow` heading rows (one `colspan` cell

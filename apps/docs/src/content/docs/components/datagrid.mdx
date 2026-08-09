@@ -358,6 +358,26 @@ sort indicator simply follows the end-aligned label.
 alignment — the mounted editor re-inherits the cell's `text-align`, so
 the value doesn't jump when entering edit mode.
 
+## Conditional formatting
+
+Conditional formatting is a *server* rule with a *CSS* paint: the server
+evaluates the condition and renders the **outcome** as
+`data-tone="info | success | warning | error"` on a cell, a row, or a
+record `<tbody>`; the stylesheet tints it with the shared status colors
+(dark-theme aware, frozen-safe gradient):
+
+```html
+<td class="hc-datagrid__cell" data-numeric data-tone="error">-12%</td>
+…
+<tr class="hc-datagrid__row" data-tone="warning">…</tr>
+```
+
+The tint colors come from the `datagrid.tone-*` tokens (referencing the
+semantic status ramps) — override `--hc-datagrid-tone-<tone>-bg/-fg`
+for a bespoke intensity. Don't rely on the color alone: keep the value,
+or an icon/text marker, in the cell (under forced colors the tint
+becomes a dotted outline).
+
 ## Behavior — `installDatagrid()`
 
 ```js
@@ -418,6 +438,7 @@ State is expressed with attributes, styled by the component:
 | `data-active` | `.hc-datagrid__cell` | Active-cell focus ring (set by the keyboard behavior). |
 | `data-highlight` | `.hc-datagrid__cell` | Column / cell highlight band. |
 | `data-in-range` | `.hc-datagrid__cell` | Cell-range selection tint (set by the keyboard behavior). |
+| `data-tone` | cell / row / record | Conditional-formatting tint — `info` / `success` / `warning` / `error` (server-rendered). |
 | `data-editing` | `.hc-datagrid__cell` | Edit mode — padding drops so the editor fills the cell. |
 
 ## Selection actions bar
@@ -781,6 +802,7 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Vertical headers | `data-orientation` — `vertical` / `sideways` (header cell) | CSS |
 | Column / cell highlight | `data-highlight` (cell) | CSS |
 | Numeric columns | `data-numeric` (head/body cells) | CSS |
+| Conditional formatting | `data-tone` — `info` / `success` / `warning` / `error` (cell / row / record) | CSS |
 | Column resize | `data-resizable` + `data-col` (header) · matching `data-col` (body cells) | `installDatagrid()` |
 | Sortable columns | `data-sortable` + `data-col` (header) | `installDatagrid()` |
 | Grouped rows | `.hc-datagrid__grouprow` + `data-group-level` (heading row) · `aria-expanded` (heading cell, start collapsed with `"false"`) | `installDatagrid()` |
@@ -818,6 +840,7 @@ theme automatically.
 | `datagrid.row-hover-bg` | Hovered-row tint. |
 | `datagrid.selected-bg` / `highlight-bg` | Selected-row / highlighted-row tint. |
 | `datagrid.current-bg` / `current-fg` | Accent for the active record's lead cell. |
+| `datagrid.tone-<tone>-bg` / `-fg` | Conditional-formatting tints (`info` / `success` / `warning` / `error`), referencing the semantic status colors. |
 | `datagrid.subrow-border` | Line between a record's sub-rows. |
 | `datagrid.cell-padding-x` / `cell-padding-y` | Cell padding. |
 | `datagrid.head-1-h` / `head-2-h` | Fixed heights of the non-leaf header levels (so the level below can offset its sticky `top`). |
@@ -838,6 +861,7 @@ seen in admin apps are just overrides):
 --hc-datagrid-current-bg | -current-fg | -subrow-border
 --hc-datagrid-cell-padding-x | -cell-padding-y
 --hc-datagrid-head-1-h | -head-2-h
+--hc-datagrid-tone-info-bg | … (per-tone -bg / -fg: info, success, warning, error)
 ```
 
 A few knobs are **not** token-backed — set them directly:

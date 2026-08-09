@@ -363,6 +363,26 @@ htmx とつなぐには、ソートパラメータつきで行を再読み込み
 マウントされたエディタがセルの `text-align` を再継承するので、編集
 モードに入っても値がジャンプしません。
 
+## 条件付き書式
+
+条件付き書式は*サーバー*のルールと *CSS* の塗りです: サーバーが条件を
+評価し、その**結果**を `data-tone="info | success | warning | error"`
+としてセル・行・レコード `<tbody>` に描画します。スタイルシートは共有の
+ステータスカラーでティントします(ダークテーマ対応、固定列でも安全な
+グラデーション):
+
+```html
+<td class="hc-datagrid__cell" data-numeric data-tone="error">-12%</td>
+…
+<tr class="hc-datagrid__row" data-tone="warning">…</tr>
+```
+
+ティント色は `datagrid.tone-*` トークン(セマンティックステータス
+ランプを参照)から来ます — 独自の濃さにするには
+`--hc-datagrid-tone-<tone>-bg/-fg` を上書きします。色だけに頼らないで
+ください: 値、またはアイコン/テキストのマーカーをセルに残します
+(forced colors ではティントは点線アウトラインになります)。
+
 ## ビヘイビア — `installDatagrid()`
 
 ```js
@@ -424,6 +444,7 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | `data-active` | `.hc-datagrid__cell` | アクティブセルのフォーカスリング(キーボードビヘイビアが設定)。 |
 | `data-highlight` | `.hc-datagrid__cell` | 列 / セルのハイライト帯。 |
 | `data-in-range` | `.hc-datagrid__cell` | セル範囲選択のティント(キーボードビヘイビアが設定)。 |
+| `data-tone` | セル / 行 / レコード | 条件付き書式のティント — `info` / `success` / `warning` / `error`(サーバーが描画)。 |
 | `data-editing` | `.hc-datagrid__cell` | 編集モード — エディタがセルを満たすようパディングが落ちる。 |
 
 ## 選択アクションバー
@@ -795,6 +816,7 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | 縦書きヘッダー | `data-orientation` — `vertical` / `sideways`(ヘッダーセル) | CSS |
 | 列 / セルのハイライト | `data-highlight`(セル) | CSS |
 | 数値列 | `data-numeric`(ヘッダー / ボディのセル) | CSS |
+| 条件付き書式 | `data-tone` — `info` / `success` / `warning` / `error`(セル / 行 / レコード) | CSS |
 | 列のリサイズ | `data-resizable` + `data-col`(ヘッダー)· 同じ `data-col`(ボディセル) | `installDatagrid()` |
 | ソート可能な列 | `data-sortable` + `data-col`(ヘッダー) | `installDatagrid()` |
 | グループ化された行 | `.hc-datagrid__grouprow` + `data-group-level`(見出し行)· `aria-expanded`(見出しセル。`"false"` で折りたたみ開始) | `installDatagrid()` |
@@ -833,6 +855,7 @@ component トークン(`component.tokens.json`)。共有のセマンティック
 | `datagrid.row-hover-bg` | ホバー行の色味。 |
 | `datagrid.selected-bg` / `highlight-bg` | 選択行 / ハイライト行の色味。 |
 | `datagrid.current-bg` / `current-fg` | アクティブレコードの先頭セルのアクセント。 |
+| `datagrid.tone-<tone>-bg` / `-fg` | 条件付き書式のティント(`info` / `success` / `warning` / `error`)。セマンティックステータスカラーを参照。 |
 | `datagrid.subrow-border` | レコード内サブ行の間の線。 |
 | `datagrid.cell-padding-x` / `cell-padding-y` | セルのパディング。 |
 | `datagrid.head-1-h` / `head-2-h` | 非リーフのヘッダー段の固定高さ(下の段がスティッキーの `top` をオフセットできるように)。 |
@@ -853,6 +876,7 @@ component トークン(`component.tokens.json`)。共有のセマンティック
 --hc-datagrid-current-bg | -current-fg | -subrow-border
 --hc-datagrid-cell-padding-x | -cell-padding-y
 --hc-datagrid-head-1-h | -head-2-h
+--hc-datagrid-tone-info-bg | … (per-tone -bg / -fg: info, success, warning, error)
 ```
 
 いくつかのノブはトークン非対応です — 直接設定してください:

@@ -155,6 +155,21 @@ import Demo from '../../../../components/Demo.astro';
   </Fragment>
 </Demo>
 
+## 条件付き書式
+
+サーバーがルールを評価し、その結果を
+`data-tone="info | success | warning | error"` としてセル(`td`/`th`)
+または行全体(`tr`)に描画します。スタイルシートは共有のセマンティック
+ステータスカラーでティントします(ダークテーマ対応)。色だけに頼らず、
+値やテキストのマーカーをセルに残してください:
+
+```html
+<tr>
+  <td>Legacy sync</td>
+  <td data-tone="error">Failed</td>
+</tr>
+```
+
 ## キー・バリュー変種
 
 `data-variant="kv"` はテーブルを詳細ビュー向けの 2 列の定義リストに
