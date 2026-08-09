@@ -56,15 +56,17 @@ test.describe('datagrid sortable headers', () => {
     await expect(price).toHaveAttribute('aria-sort', 'ascending');
     await expect(name).toHaveAttribute('data-sort-index', '1');
     await expect(price).toHaveAttribute('data-sort-index', '2');
-    // Chromium resolves attr() in getComputedStyle content; Firefox and
-    // WebKit return the unresolved specified value — accept both, the
-    // data-sort-index attribute assertions above pin the actual ordinal.
-    const c1 = await indicator(name);
-    const c2 = await indicator(price);
-    expect(c1).toContain('↑');
-    expect(c2).toContain('↑');
-    expect(c1.includes('↑1') || c1.includes('attr(data-sort-index)')).toBe(true);
-    expect(c2.includes('↑2') || c2.includes('attr(data-sort-index)')).toBe(true);
+    // Engines serialize the computed content differently — Chromium
+    // resolves attr() into one string ("↑1"), WebKit keeps separate
+    // quoted parts ("↑" "1"), Firefox returns the unresolved specified
+    // value ("↑" attr(data-sort-index)). Normalize away quotes and
+    // whitespace and accept either the resolved ordinal or the attr()
+    // wiring — the data-sort-index assertions above pin the ordinal.
+    const norm = (s) => s.replace(/["'\s]/g, '');
+    const c1 = norm(await indicator(name));
+    const c2 = norm(await indicator(price));
+    expect(c1.includes('↑1') || c1.includes('attr(')).toBe(true);
+    expect(c2.includes('↑2') || c2.includes('attr(')).toBe(true);
     const last = await page.evaluate(() => window.__sorts.at(-1));
     expect(last.sorts).toEqual([
       { col: 'name', direction: 'asc' },
