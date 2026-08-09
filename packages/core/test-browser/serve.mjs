@@ -1335,6 +1335,75 @@ function handleDatagridEditErrors(req, res, url) {
   return true;
 }
 
+// Mock optimistic-locking backend for the datagrid-edit-conflict spec
+// (datagrid-edit-conflict.html): the record starts at version 3, but
+// "another user" has already saved 20.00 as version 4 — a PATCH with
+// version < 4 answers the 409 conflict presentation (theirs in the
+// cell, fresh version, alert + overwrite/discard); version >= 4
+// succeeds (200, version + 1). GET answers the record plain.
+const DGC2_THEIRS = { price: 20, version: 4 };
+
+function dgc2Record({ price, version, conflict = null }) {
+  const conflictRow = conflict
+    ? `
+  <tr class="hc-datagrid__error-row" data-testid="conflict-row">
+    <td class="hc-datagrid__error" colspan="2">
+      <span role="alert" id="item-1-conflict" data-testid="conflict-msg">Edit conflict: another user saved ${DGC2_THEIRS.price.toFixed(2)} while you were editing. Your value: ${conflict.yours}.</span>
+      <button class="hc-button" data-size="sm" data-variant="primary" type="button" data-testid="overwrite"
+              data-hx-patch="/mock/datagrid-edit-conflict/items/1"
+              data-hx-vals='{"col":"price","value":"${conflict.yours}","version":"${version}"}'
+              data-hx-target="closest tbody" data-hx-swap="outerHTML">Overwrite with ${conflict.yours}</button>
+      <button class="hc-button" data-size="sm" type="button" data-testid="discard"
+              data-hx-get="/mock/datagrid-edit-conflict/items/1"
+              data-hx-target="closest tbody" data-hx-swap="outerHTML">Discard mine</button>
+    </td>
+  </tr>`
+    : '';
+  return `<tbody class="hc-datagrid__record" id="item-1" data-testid="record-1" data-version="${version}"
+  data-hx-patch="/mock/datagrid-edit-conflict/items/1"
+  data-hx-trigger="hc:datagridedit"
+  data-hx-vals="js:{ col: event.detail.col, value: event.detail.value, version: event.target.closest('tbody').dataset.version }"
+  data-hx-swap="outerHTML">
+  <tr class="hc-datagrid__row"${conflict ? ' data-tone="error"' : ''} data-testid="row-1">
+    <td class="hc-datagrid__cell">Chai</td>
+    <td class="hc-datagrid__cell" data-numeric data-editable data-col="price" data-value="${price}" data-testid="price-cell">${price.toFixed(2)}</td>
+  </tr>${conflictRow}
+</tbody>`;
+}
+
+function handleDatagridEditConflict(req, res, url) {
+  if (url.pathname !== '/mock/datagrid-edit-conflict/items/1') return false;
+  if (req.method === 'GET') {
+    req.resume();
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(dgc2Record({ price: DGC2_THEIRS.price, version: DGC2_THEIRS.version }));
+    return true;
+  }
+  if (req.method !== 'PATCH') return false;
+  let raw = '';
+  req.on('data', (chunk) => { raw += chunk; });
+  req.on('end', () => {
+    const params = new URLSearchParams(raw);
+    const version = Number(params.get('version'));
+    const value = String(params.get('value') ?? '').trim();
+    res.setHeader('Content-Type', MIME['.html']);
+    if (!(version >= DGC2_THEIRS.version)) {
+      res.statusCode = 409;
+      res.end(dgc2Record({
+        price: DGC2_THEIRS.price,
+        version: DGC2_THEIRS.version,
+        conflict: { yours: value },
+      }));
+    } else {
+      const n = Number(value);
+      res.statusCode = 200;
+      res.end(dgc2Record({ price: Number.isFinite(n) ? n : DGC2_THEIRS.price, version: version + 1 }));
+    }
+  });
+  return true;
+}
+
 // Mock saved-views backend for the saved-views recipe spec
 // (saved-views.html): stateless, exactly like the docs demo — the strip
 // threads its own state (hidden view= inputs the save form includes;
@@ -1682,6 +1751,7 @@ function handleMock(req, res, url) {
   if (handleDatagridFilter(req, res, url)) return true;
   if (handleDatagridTree(req, res, url)) return true;
   if (handleDatagridEditErrors(req, res, url)) return true;
+  if (handleDatagridEditConflict(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.

@@ -1,0 +1,61 @@
+<!doctype html>
+<!-- Fixture for the datagrid-edit-conflict recipe — a versioned record
+     against the serve.mjs mock (base version 3; "another user" already
+     saved 20.00 as version 4). Pins: the 409 conflict presentation
+     (theirs in the cell, data-tone=error, fresh version, alert naming
+     both values), Overwrite re-submitting yours against the fresh
+     version (succeeds), and Discard GETting the row fresh. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid-edit-conflict fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+  <script>
+    // The blessed allowance, extended to 409 per the contract.
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.addEventListener('htmx:beforeSwap', (event) => {
+        if ([409, 422].includes(event.detail.xhr.status)) {
+          event.detail.shouldSwap = true;
+          event.detail.isError = false;
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Datagrid edit conflict</h1>
+
+    <div class="hc-datagrid" data-testid="grid" data-hc-datagrid-pending style="max-inline-size: 460px;">
+      <template data-datagrid-editor data-col="price">
+        <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+      </template>
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">Name</th>
+              <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__record" id="item-1" data-testid="record-1" data-version="3"
+                 data-hx-patch="/mock/datagrid-edit-conflict/items/1"
+                 data-hx-trigger="hc:datagridedit"
+                 data-hx-vals="js:{ col: event.detail.col, value: event.detail.value, version: event.target.closest('tbody').dataset.version }"
+                 data-hx-swap="outerHTML">
+            <tr class="hc-datagrid__row" data-testid="row-1">
+              <td class="hc-datagrid__cell">Chai</td>
+              <td class="hc-datagrid__cell" data-numeric data-editable
+                  data-col="price" data-value="18" data-testid="price-cell">18.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

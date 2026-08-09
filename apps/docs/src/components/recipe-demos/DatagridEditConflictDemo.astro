@@ -1,0 +1,44 @@
+---
+/*
+ * Live demo for the datagrid-edit-conflict recipe. The record starts
+ * at version 3, but the demo server simulates another user having
+ * already saved 20.00 as version 4 — so the FIRST commit always
+ * conflicts: 409 re-renders the record with their value in the cell,
+ * the fresh version, and the alert offering Overwrite (re-submit yours
+ * against version 4 — succeeds) or Discard (GET the row fresh).
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-edit-conflict`;
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid edit conflict demo">
+  <div class="hc-datagrid" id="edit-conflict-demo-grid" data-hc-datagrid-pending style="max-inline-size: 460px;">
+    <template data-datagrid-editor data-col="price">
+      <input class="hc-input" type="text" inputmode="decimal" aria-label="Price" />
+    </template>
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+          </tr>
+        </thead>
+        <tbody
+          class="hc-datagrid__record"
+          id="edit-conflict-demo-1"
+          data-version="3"
+          data-hx-patch={`${api}/items/1`}
+          data-hx-trigger="hc:datagridedit"
+          data-hx-vals="js:{ col: event.detail.col, value: event.detail.value, version: event.target.closest('tbody').dataset.version }"
+          data-hx-swap="outerHTML">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">Chai</td>
+            <td class="hc-datagrid__cell" data-numeric data-editable data-col="price" data-value="18">18.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</DemoFrame>

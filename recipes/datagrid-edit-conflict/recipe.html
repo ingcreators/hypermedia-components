@@ -1,0 +1,39 @@
+<!-- Short recommended usage.
+
+  The 409 wire for datagrid inline editing — optimistic locking per
+  row. The record tbody (the datagrid-edit-errors swap unit) carries
+  data-version; the PATCH includes it. A stale version answers 409
+  with the record re-rendered as a CONFLICT PRESENTATION: the server's
+  current values in the cells (data-tone="error" on the row), a fresh
+  data-version, and a conflict __error-row showing YOUR submitted
+  value next to THEIRS with two actions — Overwrite (re-submit yours
+  against the new version; a second conflict just re-presents) and
+  Discard (GET the row fresh; the cells already show theirs). No
+  client merge UI: the row is the merge UI. Allow 409 swaps with the
+  same beforeSwap allowance as 422 (see contract.md). -->
+<div class="hc-datagrid" id="items-grid" data-hc-datagrid-pending>
+  <template data-datagrid-editor data-col="price">
+    <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+  </template>
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__record" id="item-1" data-version="3"
+             data-hx-patch="/items/1"
+             data-hx-trigger="hc:datagridedit"
+             data-hx-vals="js:{ col: event.detail.col, value: event.detail.value, version: event.target.closest('tbody').dataset.version }"
+             data-hx-swap="outerHTML">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell" data-numeric data-editable
+              data-col="price" data-value="18">18.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

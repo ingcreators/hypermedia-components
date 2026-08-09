@@ -1,0 +1,36 @@
+{
+  "detect": "tbody[data-version][data-hx-trigger*=\"hc:datagridedit\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "record-is-swap-unit",
+      "level": "error",
+      "message": "The conflict presentation swaps one record atomically — the versioned tbody must be a hc-datagrid__record.",
+      "attr": { "on": "tbody[data-version][data-hx-trigger*=\"hc:datagridedit\"]", "name": "class", "assert": "present", "matches": "hc-datagrid__record" }
+    },
+    {
+      "id": "persist-is-patch",
+      "level": "error",
+      "message": "Optimistic locking rides the same mutation: data-hx-patch on the record tbody.",
+      "attr": { "on": "tbody[data-version][data-hx-trigger*=\"hc:datagridedit\"]", "name": "data-hx-patch", "assert": "present" }
+    },
+    {
+      "id": "version-travels",
+      "level": "error",
+      "message": "The PATCH must include the record's version — data-hx-vals reading dataset.version (or an equivalent hidden input).",
+      "attr": { "on": "tbody[data-version][data-hx-trigger*=\"hc:datagridedit\"]", "name": "data-hx-vals", "assert": "present", "matches": "version" }
+    },
+    {
+      "id": "swap-outerhtml",
+      "level": "error",
+      "message": "Every branch re-renders the record: data-hx-swap=\"outerHTML\".",
+      "attr": { "on": "tbody[data-version][data-hx-trigger*=\"hc:datagridedit\"]", "name": "data-hx-swap", "assert": "present", "value": "outerHTML" }
+    },
+    {
+      "id": "pending-opt-in",
+      "level": "warn",
+      "message": "Opt the grid into the saving state: data-hc-datagrid-pending on .hc-datagrid.",
+      "attr": { "on": ".hc-datagrid", "name": "data-hc-datagrid-pending", "assert": "present" }
+    }
+  ]
+}

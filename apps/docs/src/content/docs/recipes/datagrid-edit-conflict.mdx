@@ -1,0 +1,100 @@
+---
+title: Datagrid edit conflict
+description: The 409 wire for datagrid inline editing — optimistic locking per row; a stale version re-renders the record as a conflict presentation with overwrite/discard resolutions.
+---
+
+import DatagridEditConflictDemo from '../../../components/recipe-demos/DatagridEditConflictDemo.astro';
+
+Two people edit the same row; the second save must not silently win.
+This recipe adds **optimistic locking** to the
+[datagrid-edit-errors](/hypermedia-components/recipes/datagrid-edit-errors/)
+record layout: the record tbody carries **`data-version`**, the PATCH
+includes it, and a stale version answers **`409`** with the record
+re-rendered as a **conflict presentation** — the server's current
+values in the cells (`data-tone="error"`), the fresh version, and an
+alert naming *both* values with **Overwrite** / **Discard** actions.
+No modal, no client merge UI: the row is the merge UI. Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add datagrid-edit-conflict
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-edit-conflict/contract.md).
+:::
+
+## Live demo
+
+Edit the **Price** (double-click, or <kbd>Enter</kbd> on the cell) and
+commit any number — the demo simulates another user having already
+saved `20.00`, so your first commit **conflicts**: their value lands in
+the cell, and the alert offers to overwrite with yours (succeeds — the
+version is now fresh) or discard.
+
+<DatagridEditConflictDemo />
+
+## The markup
+
+```html
+<tbody class="hc-datagrid__record" id="item-1" data-version="3"
+       data-hx-patch="/items/1"
+       data-hx-trigger="hc:datagridedit"
+       data-hx-vals="js:{ col: event.detail.col, value: event.detail.value,
+                          version: event.target.closest('tbody').dataset.version }"
+       data-hx-swap="outerHTML">
+  <tr class="hc-datagrid__row">
+    <td class="hc-datagrid__cell">Chai</td>
+    <td class="hc-datagrid__cell" data-numeric data-editable
+        data-col="price" data-value="18">18.00</td>
+  </tr>
+</tbody>
+```
+
+`hc:datagridedit` bubbles from the edited cell, so
+`event.target.closest('tbody')` resolves the record and its current
+version rides along. Add `409` to the same one-time `htmx:beforeSwap`
+allowance the
+[field-errors](/hypermedia-components/recipes/field-errors/) contract
+documents for `422`.
+
+## Server response contract
+
+`PATCH /items/:id` (`col`, `value`, `version`):
+
+| Case | Response |
+| --- | --- |
+| version matches, accepted | `200` + the record — server formatting, **incremented `data-version`** |
+| version matches, rejected | `422` — the [datagrid-edit-errors](/hypermedia-components/recipes/datagrid-edit-errors/) branch (version kept) |
+| **stale version** | **`409`** + the conflict presentation: their values in the cells + `data-tone="error"`, the **fresh `data-version`**, and a `role="alert"` conflict row naming both values with an **Overwrite** button (static `data-hx-vals` re-submitting yours against the fresh version) and a **Discard** button (`data-hx-get` of the row) |
+| unknown row / column | `404` — the standard error toast covers it |
+
+`GET /items/:id` answers the record plain — the Discard target. A
+second conflict on Overwrite just re-presents with newer values;
+overwrite is last-writer-wins **by explicit consent**.
+
+## Progressive enhancement
+
+Optimistic locking degrades with the editing itself; the no-JS path is
+the [edit-conflict](/hypermedia-components/recipes/edit-conflict/)
+recipe's full-form 409 page.
+
+## Accessibility
+
+- The conflict announces via `role="alert"`; both resolutions are real
+  buttons inside the message cell.
+- `data-tone="error"` marks the row visually **and** the message names
+  the values — never color alone.
+- After either resolution the record re-renders in place; keyboard
+  users continue where they were.
+
+## Related
+
+- [datagrid-edit-errors](/hypermedia-components/recipes/datagrid-edit-errors/) —
+  the 422 sibling this recipe extends with versions.
+- [edit-conflict](/hypermedia-components/recipes/edit-conflict/) — the
+  same 409 philosophy for whole forms.
+- [sse-updates](/hypermedia-components/recipes/sse-updates/) — live row
+  refreshes *reduce* conflicts; this contract catches the race that
+  slips through.
