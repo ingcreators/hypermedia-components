@@ -461,6 +461,7 @@ State is expressed with attributes, styled by the component:
 | `data-pending` | `.hc-datagrid__cell` | Optimistic commit awaiting the row re-render (opt-in via `data-hc-datagrid-pending` on the grid). |
 | `data-invalid` | `.hc-datagrid__cell` | Server-rejected value — error ring + tint (rendered by the 422 re-render). |
 | `data-attention` | row / record / head cell | This row (or column) needs the user — `error` / `warning`. An edge bar that no tint can cover. |
+| `data-alt` | `.hc-datagrid__row` | Zebra stripe (assigned by the behavior when the grid opts in). |
 
 ## State layering
 
@@ -507,6 +508,35 @@ occlusive over scrolled content — a background on the row is painted
 *behind* them and never shows. Assign
 `--hc-datagrid-cell-tint` (or use the attributes above) instead.
 :::
+
+### Zebra striping
+
+Opt in with `data-hc-zebra` on the grid:
+
+```html
+<div class="hc-datagrid" data-hc-zebra>…</div>
+```
+
+`installDatagrid()` assigns `data-alt` to alternate rows on every
+rebuild. `:nth-child()` cannot express this correctly:
+
+- it counts rows **hidden by a collapsed group**, so the stripes shuffle
+  the moment a group closes;
+- it cannot alternate per **record** — a `.hc-datagrid__record` spanning
+  three physical rows must stripe as one block, or the record stops
+  reading as one thing.
+
+Both are things `rebuild()` already knows, so the stripe is assigned
+there — over visible rows, one step per record.
+
+The stripe is the bottom rung of the ladder, so hover, selection and the
+attention bar all stay visible over a striped row, and frozen columns
+keep their stripe (the tint is painted over `frozen-bg`, which stays
+opaque).
+
+Without the opt-in the behavior leaves `data-alt` alone, so a server
+that renders it directly works with **no JavaScript at all** — right for
+a flat grid with no grouping or records.
 
 ## Selection actions bar
 
@@ -1028,6 +1058,7 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Column / cell highlight | `data-highlight` (cell) | CSS |
 | Numeric columns | `data-numeric` (head/body cells) | CSS |
 | Conditional formatting | `data-tone` — `info` / `success` / `warning` / `error` (cell / row / record) | CSS |
+| Zebra striping | `data-hc-zebra` (grid) — or server-rendered `data-alt` (row) | `installDatagrid()` for the dynamic cases; CSS alone if the server assigns `data-alt` |
 | Column resize | `data-resizable` + `data-col` (header) · matching `data-col` (body cells) | `installDatagrid()` |
 | Sortable columns | `data-sortable` + `data-col` (header) — the value `"client"` sorts the rendered page in the DOM | `installDatagrid()` |
 | Grouped rows | `.hc-datagrid__grouprow` + `data-group-level` (heading row) · `aria-expanded` (heading cell, start collapsed with `"false"`) | `installDatagrid()` |

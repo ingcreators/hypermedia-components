@@ -466,6 +466,7 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | `data-pending` | `.hc-datagrid__cell` | 行再描画を待つ楽観的コミット(グリッドの `data-hc-datagrid-pending` でオプトイン)。 |
 | `data-invalid` | `.hc-datagrid__cell` | サーバーが拒否した値 — エラーリング + ティント(422 再描画が描画)。 |
 | `data-attention` | 行 / レコード / ヘッダーセル | この行(または列)がユーザーの対応を要する — `error` / `warning`。どのティントにも塗りつぶされない端のバー。 |
+| `data-alt` | `.hc-datagrid__row` | ゼブラ縞(グリッドがオプトインしたときビヘイビアが付与)。 |
 
 ## 状態の重ね順
 
@@ -511,6 +512,34 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 見えません。代わりに `--hc-datagrid-cell-tint` を代入するか、上記の
 属性を使ってください。
 :::
+
+### ゼブラ縞
+
+グリッドに `data-hc-zebra` を付けてオプトインします:
+
+```html
+<div class="hc-datagrid" data-hc-zebra>…</div>
+```
+
+`installDatagrid()` が再構築のたびに `data-alt` を交互の行へ付与します。
+`:nth-child()` ではこれを正しく表現できません:
+
+- **折りたたまれたグループで隠れた行**も数えてしまうため、グループを
+  閉じた瞬間に縞がずれます。
+- **レコード単位**で交互にできません。3 行にまたがる
+  `.hc-datagrid__record` は 1 ブロックとして縞を付けないと、レコードが
+  1 つのまとまりとして読めなくなります。
+
+どちらも `rebuild()` が既に知っていることなので、そこで付与します —
+表示中の行に対して、レコード 1 つにつき 1 段階です。
+
+縞は梯子の最下段なので、ホバー・選択・アテンションバーは縞付きの行の
+上でも見えたままです。固定列も縞を保ちます(ティントは不透明な
+`frozen-bg` の上に描かれます)。
+
+オプトインしなければビヘイビアは `data-alt` に触れないので、サーバーが
+直接描画すれば **JavaScript なし**で動きます — グループもレコードも
+ないフラットなグリッドにはそれが適切です。
 
 ## 選択アクションバー
 
@@ -1039,6 +1068,7 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
 | 列 / セルのハイライト | `data-highlight`(セル) | CSS |
 | 数値列 | `data-numeric`(ヘッダー / ボディのセル) | CSS |
 | 条件付き書式 | `data-tone` — `info` / `success` / `warning` / `error`(セル / 行 / レコード) | CSS |
+| ゼブラ縞 | `data-hc-zebra`(グリッド) — またはサーバーが描画する `data-alt`(行) | 動的なケースでは `installDatagrid()`。サーバーが `data-alt` を付けるなら CSS だけ |
 | 列のリサイズ | `data-resizable` + `data-col`(ヘッダー)· 同じ `data-col`(ボディセル) | `installDatagrid()` |
 | ソート可能な列 | `data-sortable` + `data-col`(ヘッダー)— 値 `"client"` は描画済みページを DOM 内でソート | `installDatagrid()` |
 | グループ化された行 | `.hc-datagrid__grouprow` + `data-group-level`(見出し行)· `aria-expanded`(見出しセル。`"false"` で折りたたみ開始) | `installDatagrid()` |

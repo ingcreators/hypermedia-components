@@ -304,10 +304,41 @@ function attach(grid, detachers) {
     });
   }
 
+  // ---- Zebra striping ----
+  // Opt-in via `data-hc-zebra`, because :nth-child() cannot express it:
+  // it counts rows hidden by a collapsed group (so the stripes shuffle
+  // the moment a group closes) and it cannot alternate per RECORD, which
+  // is the unit users read when a record spans several physical rows.
+  // Both are exactly what rebuild() already knows, so the stripe is
+  // assigned here — over VISIBLE rows only, one step per record.
+  //
+  // Without the opt-in the attribute is left alone, so a server that
+  // renders `data-alt` itself keeps working with no JS at all.
+  function applyZebra() {
+    if (!grid.hasAttribute('data-hc-zebra')) return;
+    let i = -1;
+    let lastUnit = null;
+    for (const row of bodyRows(grid)) {
+      if (row.classList.contains('hc-datagrid__grouprow')) {
+        // A heading is not a stripe: it separates the groups it labels.
+        row.removeAttribute('data-alt');
+        continue;
+      }
+      const unit = row.closest('.hc-datagrid__record') ?? row;
+      if (unit !== lastUnit) {
+        i += 1;
+        lastUnit = unit;
+      }
+      if (i % 2) row.setAttribute('data-alt', '');
+      else row.removeAttribute('data-alt');
+    }
+  }
+
   function rebuild() {
     matrix = buildMatrix(grid);
     clearRange(); // swapped-in rows invalidate the range geometry
     applyRoles();
+    applyZebra();
     applyResizedWidths(); // re-apply column widths to swapped-in rows
     let cur = matrix[active.r]?.[active.c];
     if (!cur) {

@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: opt-in **zebra striping**
+  (`plans/hc-datagrid-state-clarity-plan-en.md` PR-3). `data-hc-zebra`
+  on the grid makes `installDatagrid()` assign `data-alt` to alternate
+  rows on every rebuild, because `:nth-child()` cannot express it: it
+  counts rows hidden by a collapsed group (so the stripes shuffle the
+  moment a group closes) and it cannot alternate per **record** — a
+  `.hc-datagrid__record` spanning three physical rows must stripe as one
+  block. Both are things `rebuild()` already knows. The stripe is the
+  bottom rung of the tint ladder, so hover, selection and the attention
+  bar stay visible over it, and frozen columns keep their stripe. New
+  `--hc-datagrid-row-alt-bg` token. Without the opt-in the behavior
+  leaves `data-alt` alone, so a server that renders it directly needs no
+  JavaScript.
+
 - **datagrid**: editability states are now announced and afforded
   (`plans/hc-datagrid-editability-plan-en.md` §1.1, §1.2).
   `installDatagrid()` derives **`aria-required`** from the column

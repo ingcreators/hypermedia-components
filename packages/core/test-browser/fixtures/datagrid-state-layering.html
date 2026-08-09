@@ -73,6 +73,49 @@
         </table>
       </div>
     </div>
+    <h2>Zebra</h2>
+    <div class="hc-datagrid" data-hc-zebra data-testid="zebra-grid"
+         style="max-inline-size: 420px;">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col" data-frozen data-frozen-edge
+                  style="--hc-datagrid-left: 0; width: 56px;">ID</th>
+              <th class="hc-datagrid__headcell" scope="col">Order</th>
+              <th class="hc-datagrid__headcell" scope="col">Ship date</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <tr class="hc-datagrid__row" id="z-1" data-testid="z-1">
+              <th class="hc-datagrid__cell" scope="row" data-frozen data-frozen-edge
+                  data-testid="z-1-frozen" style="--hc-datagrid-left:0;width:56px;">1</th>
+              <td class="hc-datagrid__cell" data-testid="z-1-cell">B-1</td>
+              <td class="hc-datagrid__cell">2026-08-10</td>
+            </tr>
+            <tr class="hc-datagrid__row" id="z-2" data-testid="z-2">
+              <th class="hc-datagrid__cell" scope="row" data-frozen data-frozen-edge
+                  data-testid="z-2-frozen" style="--hc-datagrid-left:0;width:56px;">2</th>
+              <td class="hc-datagrid__cell" data-testid="z-2-cell">B-2</td>
+              <td class="hc-datagrid__cell">2026-08-11</td>
+            </tr>
+            <tr class="hc-datagrid__row" id="z-3" data-testid="z-3">
+              <th class="hc-datagrid__cell" scope="row" data-frozen data-frozen-edge
+                  style="--hc-datagrid-left:0;width:56px;">3</th>
+              <td class="hc-datagrid__cell" data-testid="z-3-cell">B-3</td>
+              <td class="hc-datagrid__cell">2026-08-12</td>
+            </tr>
+            <!-- striped AND selected: selection must win the background -->
+            <tr class="hc-datagrid__row" id="z-4" data-testid="z-4" aria-selected="true">
+              <th class="hc-datagrid__cell" scope="row" data-frozen data-frozen-edge
+                  style="--hc-datagrid-left:0;width:56px;">4</th>
+              <td class="hc-datagrid__cell" data-testid="z-4-cell">B-4</td>
+              <td class="hc-datagrid__cell">2026-08-13</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </main>
 </body>
 </html>
