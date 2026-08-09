@@ -231,7 +231,12 @@ function attach(grid, detachers) {
   }
 
   function applyRoles() {
-    table.setAttribute('role', 'grid');
+    // Tree rows (aria-level + aria-expanded) make it a treegrid — the
+    // role under which those row attributes are valid.
+    table.setAttribute(
+      'role',
+      ownedBy(grid, '[data-hc-datagrid-tree]').length ? 'treegrid' : 'grid',
+    );
     for (const r of ownedBy(
       grid,
       '.hc-datagrid__head > tr, .hc-datagrid__row, .hc-datagrid__foot > tr',
@@ -571,6 +576,15 @@ function attach(grid, detachers) {
       event.preventDefault();
       toggleGroup(activeCell.parentElement);
       return;
+    }
+    const treeBtn = activeCell?.querySelector?.('[data-hc-datagrid-tree]');
+    if (treeBtn && event.key === 'Enter') {
+      const row = treeRowOf(treeBtn);
+      if (row) {
+        event.preventDefault();
+        toggleTree(row);
+        return;
+      }
     }
     const toggleBtn = activeCell?.querySelector?.('[data-hc-datagrid-toggle]');
     if (toggleBtn && event.key === 'Enter') {
@@ -918,6 +932,103 @@ function attach(grid, detachers) {
     if (row && grid.contains(row)) toggleGroup(row);
   }
 
+  // ---- Tree rows (lazy hypermedia hierarchy) ----
+  // Rows carry aria-level; a row with children carries aria-expanded and
+  // a `data-hc-datagrid-tree` toggle in its lead cell. Children are
+  // sibling rows one level deeper — either server-rendered, or loaded
+  // once via htmx (`data-lazy` on the row + data-hx-trigger on
+  // `hc:datagridtreeload`, afterend swap). Collapse is pure visibility.
+  function rowLevel(row) {
+    return Number(row?.getAttribute?.('aria-level')) || 1;
+  }
+
+  function treeRowOf(el) {
+    const row = el?.closest?.('.hc-datagrid__row');
+    return row && row.hasAttribute('aria-expanded') && grid.contains(row)
+      ? row
+      : null;
+  }
+
+  function setTreeExpanded(row, on, { silent = false } = {}) {
+    row.setAttribute('aria-expanded', on ? 'true' : 'false');
+    // The button's own aria-expanded only drives the +/− glyph (it is
+    // aria-hidden; the row announces the state).
+    const btn = row.querySelector('[data-hc-datagrid-tree]');
+    if (btn) btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+
+    if (on && row.hasAttribute('data-lazy') && !row.hasAttribute('data-loaded')) {
+      // First expand: hand the fetch to htmx; the tbody observer clears
+      // aria-busy when the child rows arrive.
+      row.setAttribute('data-loaded', '');
+      row.setAttribute('aria-busy', 'true');
+      row.dispatchEvent(
+        new CustomEvent('hc:datagridtreeload', { bubbles: true, detail: { row } }),
+      );
+    } else {
+      const level = rowLevel(row);
+      let el = row.nextElementSibling;
+      let skipUntil = null; // a collapsed sub-tree's level while expanding
+      while (el) {
+        const l = rowLevel(el);
+        if (l <= level) break; // the subtree ends at a same-or-higher row
+        if (!on) {
+          el.hidden = true;
+        } else {
+          if (skipUntil != null && l <= skipUntil) skipUntil = null;
+          if (skipUntil == null) {
+            el.hidden = false;
+            // A collapsed child keeps its own subtree hidden.
+            if (el.getAttribute('aria-expanded') === 'false') skipUntil = l;
+          }
+        }
+        el = el.nextElementSibling;
+      }
+    }
+    rebuild(); // hidden rows leave the navigation matrix
+    if (!silent) {
+      grid.dispatchEvent(
+        new CustomEvent('hc:datagridtreetoggle', {
+          bubbles: true,
+          detail: { row, expanded: on },
+        }),
+      );
+    }
+  }
+
+  function toggleTree(row) {
+    setTreeExpanded(row, row.getAttribute('aria-expanded') !== 'true');
+  }
+
+  function initTrees() {
+    for (const btn of ownedBy(grid, '[data-hc-datagrid-tree]')) {
+      const row = btn.closest('.hc-datagrid__row');
+      if (!row) continue;
+      if (!row.hasAttribute('aria-expanded')) {
+        row.setAttribute('aria-expanded', 'false');
+      }
+      btn.setAttribute(
+        'aria-expanded',
+        row.getAttribute('aria-expanded') === 'true' ? 'true' : 'false',
+      );
+      // Already-rendered children mean no lazy fetch is needed.
+      const next = row.nextElementSibling;
+      if (next && rowLevel(next) > rowLevel(row)) {
+        row.setAttribute('data-loaded', '');
+        if (row.getAttribute('aria-expanded') !== 'true' && !row.hidden) {
+          setTreeExpanded(row, false, { silent: true });
+        }
+      }
+    }
+  }
+
+  function onTreeClick(event) {
+    if (!isOurs(event)) return;
+    const btn = event.target.closest('[data-hc-datagrid-tree]');
+    if (!btn || !grid.contains(btn)) return;
+    const row = treeRowOf(btn);
+    if (row) toggleTree(row);
+  }
+
   // ---- Expandable row detail (master / detail) ----
   function detailRowOf(record) {
     return record.querySelector(':scope > .hc-datagrid__detail-row');
@@ -1189,6 +1300,7 @@ function attach(grid, detachers) {
 
   rebuild();
   initGroups();
+  initTrees();
   measure(grid);
   initDetails();
   initResizers();
@@ -1202,6 +1314,7 @@ function attach(grid, detachers) {
   table.addEventListener('focusin', onFocusin);
   table.addEventListener('dblclick', onDblclick);
   table.addEventListener('click', onToggleClick);
+  table.addEventListener('click', onTreeClick);
   table.addEventListener('click', onGroupClick);
   table.addEventListener('click', onSortClick);
   grid.addEventListener('pointerover', onPointerOver);
@@ -1220,6 +1333,10 @@ function attach(grid, detachers) {
   if (tbody && typeof MutationObserver !== 'undefined') {
     mo = new MutationObserver(() => {
       rebuild();
+      // Lazy tree children have arrived — clear the loading state.
+      for (const r of ownedBy(grid, '.hc-datagrid__row[data-loaded][aria-busy]')) {
+        r.removeAttribute('aria-busy');
+      }
       measure(grid);
       // Swapped-in rows carry their own selection state (usually none;
       // possibly server-rendered `checked` + aria-selected). Normalize the
@@ -1245,6 +1362,7 @@ function attach(grid, detachers) {
     table.removeEventListener('focusin', onFocusin);
     table.removeEventListener('dblclick', onDblclick);
     table.removeEventListener('click', onToggleClick);
+    table.removeEventListener('click', onTreeClick);
     table.removeEventListener('click', onGroupClick);
     table.removeEventListener('click', onSortClick);
     grid.removeEventListener('pointerover', onPointerOver);

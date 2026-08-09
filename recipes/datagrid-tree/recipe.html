@@ -1,0 +1,40 @@
+<!-- Short recommended usage.
+
+  Tree rows for hc-datagrid — hierarchy as lazy hypermedia. Rows carry
+  aria-level; a row with children carries aria-expanded + a
+  data-hc-datagrid-tree toggle in its lead cell, and (when lazy) htmx
+  wiring that fires once on the first expand: installDatagrid()
+  dispatches hc:datagridtreeload, htmx GETs the children and inserts
+  them right after the row (afterend). Collapse hides loaded
+  descendants client-side; re-expanding shows them without refetching.
+  See contract.md. -->
+<div class="hc-datagrid" id="files-grid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col" data-numeric>Size</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row" id="node-docs" aria-level="1"
+            aria-expanded="false" data-lazy
+            data-hx-get="/items/docs/children"
+            data-hx-trigger="hc:datagridtreeload"
+            data-hx-swap="afterend">
+          <td class="hc-datagrid__cell">
+            <button class="hc-datagrid__toggle" type="button"
+                    data-hc-datagrid-tree aria-hidden="true" tabindex="-1"></button>
+            docs
+          </td>
+          <td class="hc-datagrid__cell" data-numeric>—</td>
+        </tr>
+        <tr class="hc-datagrid__row" id="node-readme" aria-level="1">
+          <td class="hc-datagrid__cell">README.md</td>
+          <td class="hc-datagrid__cell" data-numeric>4 KB</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

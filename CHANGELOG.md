@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: tree rows + the `datagrid-tree` recipe
+  (`plans/hc-datagrid-enrichment-plan-en.md` §1.7). Rows carry
+  `aria-level`; an expandable row carries `aria-expanded` + a
+  `data-hc-datagrid-tree` lead-cell toggle, and the table upgrades to
+  `role="treegrid"`. A lazy row's first expand marks `data-loaded`,
+  sets `aria-busy`, and dispatches **`hc:datagridtreeload`** — htmx
+  GETs the children and inserts them `afterend`, one level deeper
+  (empty answers the contract's single empty-state row). Collapse /
+  re-expand of loaded subtrees is client-side visibility (collapsed
+  children respected; hidden rows leave keyboard navigation) and emits
+  **`hc:datagridtreetoggle`** `{ row, expanded }`. Levels 2–4 indent
+  via `--hc-datagrid-indent`. Machine-checked contract; live docs demo
+  (en/ja).
+
 - **datagrid**: native validation gates the inline-edit commit
   (`plans/hc-datagrid-enrichment-plan-en.md` §1.9). An editor template
   control carrying `required` / `pattern` / `min` / `max` / `maxlength`

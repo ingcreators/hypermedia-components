@@ -1,0 +1,102 @@
+---
+title: Datagrid tree
+description: Tree rows for hc-datagrid — rows carry aria-level, a lazy row fires hc:datagridtreeload once on first expand, and the server answers the child <tr> batch inserted right after it.
+---
+
+import DatagridTreeDemo from '../../../components/recipe-demos/DatagridTreeDemo.astro';
+
+Hierarchy as lazy hypermedia, table-shaped: every row carries
+**`aria-level`**, an expandable row carries `aria-expanded` + a lead-cell
+toggle, and the *first* expand fires **`hc:datagridtreeload`** once —
+htmx GETs the children and inserts them right after the row
+(`afterend`). Collapse and re-expand after that are pure client-side
+visibility; the hierarchy itself stays server-owned. This is the
+[lazy-tree](/hypermedia-components/recipes/lazy-tree/) recipe for the
+[datagrid](/hypermedia-components/components/datagrid/). Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add datagrid-tree
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-tree/contract.md).
+:::
+
+## Live demo
+
+Expand **docs** — the children arrive from the server one level deeper
+(the **guide** sub-directory brings its own toggle; expand it for
+level 3). Collapse and re-open: no second request. **src** shows the
+empty-state row branch.
+
+<DatagridTreeDemo />
+
+## The markup
+
+```html
+<tbody class="hc-datagrid__body">
+  <tr class="hc-datagrid__row" id="node-docs" aria-level="1"
+      aria-expanded="false" data-lazy
+      data-hx-get="/items/docs/children"
+      data-hx-trigger="hc:datagridtreeload"
+      data-hx-swap="afterend">
+    <td class="hc-datagrid__cell">
+      <button class="hc-datagrid__toggle" type="button"
+              data-hc-datagrid-tree aria-hidden="true" tabindex="-1"></button>
+      docs
+    </td>
+    <td class="hc-datagrid__cell" data-numeric>—</td>
+  </tr>
+  <tr class="hc-datagrid__row" aria-level="1">
+    <td class="hc-datagrid__cell">README.md</td>
+    <td class="hc-datagrid__cell" data-numeric>4 KB</td>
+  </tr>
+</tbody>
+```
+
+`installDatagrid()` upgrades the table to **`role="treegrid"`** when
+tree toggles exist — the role under which row-level `aria-level` /
+`aria-expanded` are valid. The toggle button stays `aria-hidden`
+(mouse affordance); <kbd>Enter</kbd> on the lead cell covers keyboard,
+and the **row** announces the state. Levels 2–4 indent the lead cell
+(`--hc-datagrid-indent`).
+
+## Server response contract
+
+`GET /items/:id/children`:
+
+| Case | Response (200) |
+| --- | --- |
+| children exist | the child `<tr>` batch, each `aria-level="n+1"`; a child with children brings its own toggle + lazy wiring; leaves carry `aria-level` only |
+| empty | one empty-state row (single `colspan` cell, polite text) — never an empty body: the arriving row is also what clears the parent's `aria-busy` |
+| unknown id | `404` — surface via the standard error toast |
+
+Grandchildren load from their own parents — the server renders direct
+children only. A re-sort / re-filter / page change re-renders the whole
+grid fragment; loaded subtrees are gone by design.
+
+## Progressive enhancement
+
+Render the tree pre-expanded to a sensible depth (rows are plain
+`<tr>`s), or link the lead cell to a drill-down page — the hierarchy is
+navigable as pages without any script.
+
+## Accessibility
+
+- `role="treegrid"` + row-level `aria-level` / `aria-expanded` — the
+  hierarchy is announced, not just indented.
+- The `aria-hidden` toggle keeps a single announced control per row;
+  keyboard toggling is <kbd>Enter</kbd> on the lead cell.
+- The empty-state row renders "nothing here" instead of implying it by
+  silence.
+
+## Related
+
+- [lazy-tree](/hypermedia-components/recipes/lazy-tree/) — the same
+  economics for `hc-tree` lists.
+- [datagrid-infinite](/hypermedia-components/recipes/datagrid-infinite/) —
+  unbounded flat lists for the same grid.
+- [Datagrid](/hypermedia-components/components/datagrid/) — the
+  component's tree-rows section documents the behavior side.

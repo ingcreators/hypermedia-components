@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- Fixture for the datagrid-tree recipe — aria-level rows against the
+     serve.mjs mock. Pins: the treegrid role upgrade, the once-only
+     hc:datagridtreeload → htmx afterend insertion, aria-busy clearing on
+     arrival, client-side collapse/re-expand (no refetch), nested lazy
+     dirs, and the empty-state row branch. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid-tree fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Datagrid tree</h1>
+
+    <div class="hc-datagrid" data-testid="grid" style="max-inline-size: 560px;">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">Name</th>
+              <th class="hc-datagrid__headcell" scope="col" data-numeric>Size</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <tr class="hc-datagrid__row" data-testid="node-docs" aria-level="1"
+                aria-expanded="false" data-lazy
+                data-hx-get="/mock/datagrid-tree/items/docs/children"
+                data-hx-trigger="hc:datagridtreeload"
+                data-hx-swap="afterend">
+              <td class="hc-datagrid__cell" data-testid="node-docs-cell">
+                <button class="hc-datagrid__toggle" type="button"
+                        data-hc-datagrid-tree aria-hidden="true" tabindex="-1"
+                        data-testid="toggle-docs"></button>
+                docs
+              </td>
+              <td class="hc-datagrid__cell" data-numeric>—</td>
+            </tr>
+            <tr class="hc-datagrid__row" data-testid="node-src" aria-level="1"
+                aria-expanded="false" data-lazy
+                data-hx-get="/mock/datagrid-tree/items/src/children"
+                data-hx-trigger="hc:datagridtreeload"
+                data-hx-swap="afterend">
+              <td class="hc-datagrid__cell">
+                <button class="hc-datagrid__toggle" type="button"
+                        data-hc-datagrid-tree aria-hidden="true" tabindex="-1"
+                        data-testid="toggle-src"></button>
+                src
+              </td>
+              <td class="hc-datagrid__cell" data-numeric>—</td>
+            </tr>
+            <tr class="hc-datagrid__row" data-testid="node-readme" aria-level="1">
+              <td class="hc-datagrid__cell">README.md</td>
+              <td class="hc-datagrid__cell" data-numeric>4 KB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

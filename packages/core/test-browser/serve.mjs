@@ -1209,6 +1209,49 @@ function handleDatagridFilter(req, res, url) {
   return true;
 }
 
+// Mock children endpoint for the datagrid-tree recipe spec
+// (datagrid-tree.html): stateless — GET /mock/datagrid-tree/items/:id/children
+// answers the child <tr> batch one level deeper (dirs carry their own
+// toggle + lazy wiring; leaves carry aria-level only); an empty dir
+// answers the contract's single empty-state row.
+const DGT_CHILDREN = {
+  docs: [
+    { id: 'docs-guide', name: 'guide', dir: true, level: 2 },
+    { id: 'docs-api', name: 'api.md', size: '12 KB', level: 2 },
+  ],
+  'docs-guide': [
+    { id: 'docs-guide-intro', name: 'intro.md', size: '6 KB', level: 3 },
+  ],
+  src: [],
+};
+
+function handleDatagridTree(req, res, url) {
+  const m = url.pathname.match(/^\/mock\/datagrid-tree\/items\/([a-z-]+)\/children$/);
+  if (!m || req.method !== 'GET') return false;
+  req.resume();
+  const kids = DGT_CHILDREN[m[1]];
+  res.statusCode = kids === undefined ? 404 : 200;
+  res.setHeader('Content-Type', MIME['.html']);
+  if (kids === undefined) {
+    res.end('Not found');
+    return true;
+  }
+  if (kids.length === 0) {
+    res.end('<tr class="hc-datagrid__row" aria-level="2" data-testid="empty-row"><td class="hc-datagrid__cell" colspan="2">No entries</td></tr>');
+    return true;
+  }
+  res.end(kids.map((node) => {
+    const lead = node.dir
+      ? `<button class="hc-datagrid__toggle" type="button" data-hc-datagrid-tree aria-hidden="true" tabindex="-1"></button> ${node.name}`
+      : node.name;
+    const treeAttrs = node.dir
+      ? ` aria-expanded="false" data-lazy data-hx-get="/mock/datagrid-tree/items/${node.id}/children" data-hx-trigger="hc:datagridtreeload" data-hx-swap="afterend"`
+      : '';
+    return `<tr class="hc-datagrid__row" data-testid="node-${node.id}" aria-level="${node.level}"${treeAttrs}><td class="hc-datagrid__cell">${lead}</td><td class="hc-datagrid__cell" data-numeric>${node.dir ? '—' : node.size}</td></tr>`;
+  }).join('\n'));
+  return true;
+}
+
 // Mock saved-views backend for the saved-views recipe spec
 // (saved-views.html): stateless, exactly like the docs demo — the strip
 // threads its own state (hidden view= inputs the save form includes;
@@ -1553,6 +1596,7 @@ function handleMock(req, res, url) {
   if (handleSavedViews(req, res, url)) return true;
   if (handleDatagridColumns(req, res, url)) return true;
   if (handleDatagridFilter(req, res, url)) return true;
+  if (handleDatagridTree(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.

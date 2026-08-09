@@ -440,6 +440,31 @@
     display: none;
   }
 
+  /* ---- Tree rows (lazy hypermedia hierarchy) ----
+     Rows carry aria-level (and aria-expanded when they have children);
+     the lead cell holds a `data-hc-datagrid-tree` toggle (aria-hidden —
+     the ROW announces the state; the button's own aria-expanded only
+     drives the +/− glyph above). Children arrive as sibling rows one
+     level deeper (htmx afterend swap). Levels 2–4 indent the lead cell;
+     override --hc-datagrid-indent for a different step. */
+  .hc-datagrid__row[aria-level="2"] > .hc-datagrid__cell:first-child {
+    padding-inline-start: calc(
+      var(--hc-datagrid-cell-padding-x) + var(--hc-datagrid-indent, 1.25rem)
+    );
+  }
+
+  .hc-datagrid__row[aria-level="3"] > .hc-datagrid__cell:first-child {
+    padding-inline-start: calc(
+      var(--hc-datagrid-cell-padding-x) + var(--hc-datagrid-indent, 1.25rem) * 2
+    );
+  }
+
+  .hc-datagrid__row[aria-level="4"] > .hc-datagrid__cell:first-child {
+    padding-inline-start: calc(
+      var(--hc-datagrid-cell-padding-x) + var(--hc-datagrid-indent, 1.25rem) * 3
+    );
+  }
+
   .hc-datagrid__detail {
     padding: var(--hc-datagrid-cell-padding-y) var(--hc-datagrid-cell-padding-x);
     border-block-end: 1px solid var(--hc-datagrid-border);

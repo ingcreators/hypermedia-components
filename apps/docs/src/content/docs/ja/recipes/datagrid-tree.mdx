@@ -1,0 +1,102 @@
+---
+title: データグリッドのツリー
+description: hc-datagrid のツリー行 — 行が aria-level を持ち、遅延行は初回展開で hc:datagridtreeload を一度発火、サーバーが子 <tr> バッチを直後に挿入して応答します。
+---
+
+import DatagridTreeDemo from '../../../../components/recipe-demos/DatagridTreeDemo.astro';
+
+階層を遅延ハイパーメディアとして、テーブルの形で: すべての行が
+**`aria-level`** を持ち、展開可能な行は `aria-expanded` と先頭セルの
+トグルを持ちます。*初回*の展開で **`hc:datagridtreeload`** が一度だけ
+発火し、htmx が子を GET して行の直後(`afterend`)に挿入します。
+その後の折りたたみ/再展開は純粋にクライアント側の表示切り替えで、
+階層そのものはサーバーが所有し続けます。これは
+[lazy-tree](/hypermedia-components/ja/recipes/lazy-tree/) レシピの
+[データグリッド](/hypermedia-components/ja/components/datagrid/)版です。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add datagrid-tree
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-tree/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+**docs** を展開してください — 子がサーバーから 1 レベル深く到着します
+(**guide** サブディレクトリは自分のトグルを連れてきます。展開すると
+レベル 3 が見られます)。折りたたんで再度開いても 2 回目のリクエストは
+ありません。**src** は空状態行のブランチを見せます。
+
+<DatagridTreeDemo />
+
+## マークアップ
+
+```html
+<tbody class="hc-datagrid__body">
+  <tr class="hc-datagrid__row" id="node-docs" aria-level="1"
+      aria-expanded="false" data-lazy
+      data-hx-get="/items/docs/children"
+      data-hx-trigger="hc:datagridtreeload"
+      data-hx-swap="afterend">
+    <td class="hc-datagrid__cell">
+      <button class="hc-datagrid__toggle" type="button"
+              data-hc-datagrid-tree aria-hidden="true" tabindex="-1"></button>
+      docs
+    </td>
+    <td class="hc-datagrid__cell" data-numeric>—</td>
+  </tr>
+  <tr class="hc-datagrid__row" aria-level="1">
+    <td class="hc-datagrid__cell">README.md</td>
+    <td class="hc-datagrid__cell" data-numeric>4 KB</td>
+  </tr>
+</tbody>
+```
+
+ツリートグルが存在すると `installDatagrid()` はテーブルを
+**`role="treegrid"`** に格上げします — 行レベルの `aria-level` /
+`aria-expanded` が有効になるロールです。トグルボタンは `aria-hidden`
+のまま(マウス用のアフォーダンス)で、キーボードは先頭セルの
+<kbd>Enter</kbd> がカバーし、状態は**行**が読み上げられます。
+レベル 2〜4 は先頭セルをインデントします(`--hc-datagrid-indent`)。
+
+## サーバーレスポンス契約
+
+`GET /items/:id/children`:
+
+| ケース | レスポンス (200) |
+| --- | --- |
+| 子がある | 子 `<tr>` バッチ。それぞれ `aria-level="n+1"`。子を持つ子は自分のトグル + 遅延ワイヤリングを連れてくる。リーフは `aria-level` のみ |
+| 空 | 空状態行を 1 つ(単一の `colspan` セル、丁寧なテキスト)— **決して**空のボディにしない: 到着した行が親の `aria-busy` を解除するものでもあります |
+| 未知の id | `404` — 標準のエラートーストで通知 |
+
+孫はそれぞれの親からロードされます — サーバーは直接の子だけを描画
+します。再ソート / 再フィルタ / ページ変更はグリッドフラグメント全体を
+再描画し、ロード済みサブツリーは設計どおり消えます。
+
+## プログレッシブエンハンスメント
+
+適切な深さまで展開済みでツリーを描画するか(行はただの `<tr>` です)、
+先頭セルをドリルダウンページへのリンクにします — 階層はスクリプト
+なしでもページとしてナビゲートできます。
+
+## アクセシビリティ
+
+- `role="treegrid"` + 行レベルの `aria-level` / `aria-expanded` —
+  階層はインデントだけでなく読み上げられます。
+- `aria-hidden` のトグルにより、行ごとに読み上げられるコントロールは
+  1 つに保たれます。キーボードのトグルは先頭セルの <kbd>Enter</kbd>。
+- 空状態行は「何もない」を沈黙でほのめかす代わりに描画します。
+
+## 関連
+
+- [lazy-tree](/hypermedia-components/ja/recipes/lazy-tree/) — `hc-tree`
+  リストのための同じ経済学。
+- [datagrid-infinite](/hypermedia-components/ja/recipes/datagrid-infinite/) —
+  同じグリッドのための無限フラットリスト。
+- [データグリッド](/hypermedia-components/ja/components/datagrid/) —
+  コンポーネント側のツリー行セクション。
