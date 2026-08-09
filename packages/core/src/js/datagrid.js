@@ -429,6 +429,17 @@ function attach(grid, detachers) {
     }
     if (
       editable &&
+      (event.isComposing || event.key === 'Process' || event.keyCode === 229)
+    ) {
+      // An IME composition is targeting the cell. The session belongs to
+      // the IME — cancelling the keydown (or seeding event.key) would drop
+      // or corrupt it, so open the editor unseeded, without preventDefault,
+      // and let the IME re-target composition into the focused input.
+      startEdit(activeCell);
+      return;
+    }
+    if (
+      editable &&
       event.key.length === 1 &&
       event.key !== ' ' &&
       !event.ctrlKey &&
@@ -471,6 +482,18 @@ function attach(grid, detachers) {
         return;
     }
     event.preventDefault();
+  }
+
+  // Some engines fire compositionstart before any keydown reaches the
+  // grid — same answer as the keydown path: open the editor unseeded so
+  // the composition lands in the input instead of being swallowed by the
+  // non-editable cell.
+  function onCompositionstart(event) {
+    if (editingCell || !isOurs(event)) return;
+    const cell = event.target.closest?.('.hc-datagrid__cell');
+    if (!cell || matrix[active.r]?.[active.c] !== cell) return;
+    if (!cell.hasAttribute('data-editable') || !templates.has(cell.dataset.col)) return;
+    startEdit(cell);
   }
 
   function onFocusin(event) {
@@ -824,6 +847,7 @@ function attach(grid, detachers) {
   initSort();
 
   table.addEventListener('keydown', onKeydown);
+  table.addEventListener('compositionstart', onCompositionstart);
   table.addEventListener('keydown', onSortKeydown);
   table.addEventListener('change', onChange);
   table.addEventListener('focusin', onFocusin);
@@ -864,6 +888,7 @@ function attach(grid, detachers) {
 
   detachers.set(grid, () => {
     table.removeEventListener('keydown', onKeydown);
+    table.removeEventListener('compositionstart', onCompositionstart);
     table.removeEventListener('keydown', onSortKeydown);
     table.removeEventListener('change', onChange);
     table.removeEventListener('focusin', onFocusin);
