@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: inline-edit lifecycle states
+  (`plans/hc-datagrid-edit-feedback-plan-en.md` §1.1). With
+  `data-hc-datagrid-pending` on the grid wrapper, a changed commit
+  marks the edited cell **`data-pending`** + `aria-busy` (busy tint +
+  spinner) until the server's row re-render replaces it — opt-in
+  because it assumes the re-render contract. **`data-invalid`**
+  (server-rendered in a 422 re-render) paints the rejected cell with
+  an error ring + tone; **`.hc-datagrid__error-row` /
+  `.hc-datagrid__error`** is the message slot directly under the row
+  (grid roles applied, out of keyboard navigation, `role="alert"` on
+  an inner element). Forced-colors fallbacks; reduced motion stops the
+  spinner.
+
 - **datagrid**: auto-size and opt-in client page sort
   (`plans/hc-datagrid-enrichment-plan-en.md` §1.11). Double-click a
   column's resize grip (or press Enter while it has focus) to fit the

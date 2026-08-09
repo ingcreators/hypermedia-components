@@ -518,6 +518,56 @@
     text-align: inherit;
   }
 
+  /* ---- Edit feedback (edit-feedback plan §1.1) ---- */
+
+  /* Saving: the optimistic commit awaiting the server's row re-render.
+     installDatagrid() sets it (with aria-busy) only when the grid opts
+     in via data-hc-datagrid-pending — the re-render contract is what
+     clears it. */
+  .hc-datagrid__cell[data-pending] {
+    background-image: linear-gradient(
+      var(--hc-datagrid-row-hover-bg),
+      var(--hc-datagrid-row-hover-bg)
+    );
+  }
+
+  .hc-datagrid__cell[data-pending]::after {
+    content: "";
+    display: inline-block;
+    inline-size: 0.6em;
+    block-size: 0.6em;
+    margin-inline-start: 0.4em;
+    border: 2px solid var(--hc-datagrid-border);
+    border-block-start-color: var(--hc-color-action-primary-bg);
+    border-radius: 50%;
+    animation: hc-datagrid-detail-spin 0.6s linear infinite;
+  }
+
+  /* Rejected: the server's 422 re-render marks the cell (alongside
+     aria-invalid + aria-describedby pointing at the error row). The
+     cell shows the SERVER's value; the error row carries the message. */
+  .hc-datagrid__cell[data-invalid] {
+    outline: 2px solid var(--hc-color-status-error-border);
+    outline-offset: -2px;
+    background-image: linear-gradient(
+      var(--hc-datagrid-tone-error-bg),
+      var(--hc-datagrid-tone-error-bg)
+    );
+    color: var(--hc-datagrid-tone-error-fg);
+  }
+
+  /* The message slot: a server-rendered row directly under the edited
+     row — one colspan cell; put role="alert" on an inner element so the
+     announcement fires without stealing focus. Not a __row, so it stays
+     out of keyboard navigation (like __detail-row). */
+  .hc-datagrid__error-row > .hc-datagrid__error {
+    padding: var(--hc-datagrid-cell-padding-y) var(--hc-datagrid-cell-padding-x);
+    border-block-end: 1px solid var(--hc-color-status-error-border);
+    background-color: var(--hc-color-status-error-bg);
+    color: var(--hc-color-status-error-fg);
+    white-space: normal; /* messages wrap — they are prose, not data */
+  }
+
   /* ---- Truncation ---- */
 
   /* Wrap a cell's value in this block to clip overflow to one ellipsised
@@ -601,7 +651,8 @@
       scroll-behavior: auto;
     }
 
-    .hc-datagrid__detail[aria-busy="true"]::after {
+    .hc-datagrid__detail[aria-busy="true"]::after,
+    .hc-datagrid__cell[data-pending]::after {
       animation: none;
     }
   }

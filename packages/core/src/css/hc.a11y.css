@@ -77,6 +77,13 @@
       outline-offset: -1px;
     }
 
+    /* A rejected cell's error ring + tint collapse under forced colors —
+       keep a solid outline so the state survives. */
+    .hc-datagrid__cell[data-invalid] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+
     /* Conditional-formatting tints disappear under forced colors — mark
        toned cells with a dotted outline so the flag survives. */
     .hc-datagrid__cell[data-tone],

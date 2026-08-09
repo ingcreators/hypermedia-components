@@ -392,6 +392,74 @@ describe('installDatagrid — inline editing', () => {
     expect(cell.textContent).toBe('Ada'); // restored
   });
 
+  it('with data-hc-datagrid-pending, a changed commit marks the cell pending', async () => {
+    document.body.innerHTML = FIXTURE_EDIT.replace(
+      '<div class="hc-datagrid" id="grid">',
+      '<div class="hc-datagrid" id="grid" data-hc-datagrid-pending>',
+    );
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Enter');
+    const input = cell.querySelector('input');
+    input.value = 'Grace';
+    press(input, 'Enter');
+    expect(cell.getAttribute('data-pending')).toBe('');
+    expect(cell.getAttribute('aria-busy')).toBe('true');
+
+    // The server's row re-render (any tbody mutation) clears survivors.
+    document.querySelector('.hc-datagrid__body').innerHTML =
+      document.querySelector('.hc-datagrid__body').innerHTML;
+    await new Promise((r) => setTimeout(r, 0));
+    expect(document.querySelector('[data-pending]')).toBeNull();
+    expect(document.querySelector('.hc-datagrid__cell[aria-busy]')).toBeNull();
+  });
+
+  it('without the opt-in, a commit never marks pending', () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Enter');
+    const input = cell.querySelector('input');
+    input.value = 'Grace';
+    press(input, 'Enter');
+    expect(cell.hasAttribute('data-pending')).toBe(false);
+    expect(cell.hasAttribute('aria-busy')).toBe(false);
+  });
+
+  it('an unchanged commit stays quiet even with the opt-in', () => {
+    document.body.innerHTML = FIXTURE_EDIT.replace(
+      '<div class="hc-datagrid" id="grid">',
+      '<div class="hc-datagrid" id="grid" data-hc-datagrid-pending>',
+    );
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Enter');
+    press(cell.querySelector('input'), 'Enter'); // same value
+    expect(cell.hasAttribute('data-pending')).toBe(false);
+  });
+
+  it('server-rendered error rows get grid roles and stay out of navigation', () => {
+    document.body.innerHTML = FIXTURE_EDIT.replace(
+      '</tr>\n        </tbody>',
+      `</tr>
+          <tr class="hc-datagrid__error-row" id="err-row">
+            <td class="hc-datagrid__error" colspan="2" id="err-cell"><span role="alert">Name is required.</span></td>
+          </tr>
+        </tbody>`,
+    );
+    uninstall = installDatagrid();
+    expect($('err-row').getAttribute('role')).toBe('row');
+    expect($('err-cell').getAttribute('role')).toBe('gridcell');
+    // Not navigable: ArrowDown from the only data row stays put.
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'ArrowDown');
+    expect(cell.getAttribute('data-active')).toBe('');
+  });
+
   it('compositionstart on a non-editable cell does nothing', () => {
     document.body.innerHTML = FIXTURE;
     uninstall = installDatagrid();

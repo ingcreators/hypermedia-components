@@ -463,6 +463,8 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | `data-in-range` | `.hc-datagrid__cell` | セル範囲選択のティント(キーボードビヘイビアが設定)。 |
 | `data-tone` | セル / 行 / レコード | 条件付き書式のティント — `info` / `success` / `warning` / `error`(サーバーが描画)。 |
 | `data-editing` | `.hc-datagrid__cell` | 編集モード — エディタがセルを満たすようパディングが落ちる。 |
+| `data-pending` | `.hc-datagrid__cell` | 行再描画を待つ楽観的コミット(グリッドの `data-hc-datagrid-pending` でオプトイン)。 |
+| `data-invalid` | `.hc-datagrid__cell` | サーバーが拒否した値 — エラーリング + トーン(422 再描画が描画)。 |
 
 ## 選択アクションバー
 
@@ -827,6 +829,31 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
   …
 </tbody>
 ```
+
+### 編集フィードバック
+
+コミットは**楽観的**です — サーバーが応答する前にセルは新しい値を
+表示します。フィードバックのループは 3 つの追加ピースで閉じます
+(edit-feedback プラン):
+
+- **`data-pending`** — グリッドラッパーに `data-hc-datagrid-pending`
+  があるとき、値が変わったコミットは編集セルに `data-pending` +
+  `aria-busy="true"`(ビジーティント + スピナー)を付け、サーバーの
+  行再描画が置き換えるまで保ちます。意図的なオプトインです:
+  再描画契約が前提で、永続化の配線なしでは何もクリアしません。
+- **`data-invalid`** — サーバーの `422` 再描画が拒否されたセルに
+  付けます(`aria-invalid="true"` と、エラー行のメッセージを指す
+  `aria-describedby` も描画してください)。セルは**サーバーの値**を
+  表示し、エラー行が送信された値を保存します。`Enter` で再編集
+  します — エディタは自動では再オープンされません。
+- **`.hc-datagrid__error-row`** — メッセージスロット: 行の直下に
+  サーバーが描画する `<tr>` で、`colspan` の
+  `.hc-datagrid__error` セルを 1 つ持ちます。フォーカスを奪わず
+  読み上げるため、`role="alert"` は内側の要素に付けてください。
+  詳細行と同様、キーボードナビゲーションには入りません。
+
+422 / 409 の完全なワイヤ契約は `datagrid-edit-errors` /
+`datagrid-edit-conflict` レシピが担います。
 
 ## イベント
 

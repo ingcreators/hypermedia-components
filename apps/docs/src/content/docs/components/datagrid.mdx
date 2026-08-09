@@ -458,6 +458,8 @@ State is expressed with attributes, styled by the component:
 | `data-in-range` | `.hc-datagrid__cell` | Cell-range selection tint (set by the keyboard behavior). |
 | `data-tone` | cell / row / record | Conditional-formatting tint — `info` / `success` / `warning` / `error` (server-rendered). |
 | `data-editing` | `.hc-datagrid__cell` | Edit mode — padding drops so the editor fills the cell. |
+| `data-pending` | `.hc-datagrid__cell` | Optimistic commit awaiting the row re-render (opt-in via `data-hc-datagrid-pending` on the grid). |
+| `data-invalid` | `.hc-datagrid__cell` | Server-rejected value — error ring + tone (rendered by the 422 re-render). |
 
 ## Selection actions bar
 
@@ -815,6 +817,31 @@ e.g. on the row or grid:
   …
 </tbody>
 ```
+
+### Edit feedback
+
+The commit is **optimistic** — the cell shows the new value before the
+server has answered. The feedback loop closes with three additive
+pieces (the edit-feedback plan):
+
+- **`data-pending`** — with `data-hc-datagrid-pending` on the grid
+  wrapper, a changed commit marks the edited cell `data-pending` +
+  `aria-busy="true"` (busy tint + spinner) until the server's row
+  re-render replaces it. Opt-in on purpose: it assumes the re-render
+  contract — without persistence wiring nothing would clear it.
+- **`data-invalid`** — the server's `422` re-render marks the rejected
+  cell (render `aria-invalid="true"` and `aria-describedby` pointing at
+  the error row's message too). The cell shows the **server's value**;
+  the error row preserves what was submitted. Press `Enter` to re-edit
+  — the editor is not reopened automatically.
+- **`.hc-datagrid__error-row`** — the message slot: a server-rendered
+  `<tr>` directly under the row with one `colspan`
+  `.hc-datagrid__error` cell; put `role="alert"` on an inner element so
+  it announces without stealing focus. Like the detail row, it stays
+  out of keyboard navigation.
+
+The `datagrid-edit-errors` and `datagrid-edit-conflict` recipes carry
+the full 422 / 409 wire contracts.
 
 ## Events
 
