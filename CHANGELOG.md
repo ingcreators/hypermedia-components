@@ -20,6 +20,22 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **datagrid**: fragment navigation and the error-tooltip carve-out
+  (`plans/hc-datagrid-bulk-errors-plan-en.md` §1.4, §1.5). A link to a
+  row (`#row-101` — a bulk-error report entry or a deep link) now moves
+  the **active cell** to that row's first cell and focuses it (on load
+  and on `hashchange`; unknown or unusable hashes are ignored), so
+  keyboard and screen-reader users arrive where the eye does. The
+  landing row is emphasised with `:target` and carries
+  `scroll-margin-block-start` derived from the measured header heights
+  so it never lands under the sticky header (forced-colors fallback
+  included). A cell carrying its own message — server-rendered
+  `data-invalid`, or `aria-describedby` pointing at an `hc-tooltip` —
+  now suppresses the built-in overflow tooltip, so one hover never
+  carries two meanings.
+
 ### Fixed
 
 - **docs / recipes**: the `datagrid-infinite` live demo chain-loaded

@@ -326,6 +326,28 @@
     color: var(--hc-datagrid-tone-error-fg);
   }
 
+  /* Fragment landing — a report entry linking `#row-101` (or a deep
+     link) marks the row it lands on. Persistent, not a flash: the row
+     stays emphasised until another fragment takes over, so the eye can
+     find it after scrolling. installDatagrid() moves the active cell
+     here too, so the keyboard lands where the eye does. */
+  .hc-datagrid__row:target > .hc-datagrid__cell {
+    background-image: linear-gradient(
+      var(--hc-datagrid-highlight-bg),
+      var(--hc-datagrid-highlight-bg)
+    );
+  }
+
+  /* Sticky headers cover the landing row unless the scrollport keeps a
+     margin. The behavior sets scroll-padding on the viewport from the
+     measured header height; this is the per-row belt-and-braces for
+     fragment navigation. */
+  .hc-datagrid__row {
+    scroll-margin-block-start: calc(
+      var(--hc-datagrid-head-1-h, 0px) + var(--hc-datagrid-head-2-h, 0px)
+    );
+  }
+
   /* Active cell — the keyboard focus target (installDatagrid sets
      data-active). */
   .hc-datagrid__cell[data-active] {

@@ -311,6 +311,71 @@ test.describe('hc-datagrid — overflow truncation & tooltip', () => {
     await page.getByTestId('cell-Epsilon-2').hover();
     await expect(page.locator('.hc-datagrid__tooltip')).toBeHidden();
   });
+
+  test('a cell carrying its own message suppresses the overflow tooltip', async ({ page }) => {
+    const cell = page.getByTestId('cell-Delta-1');
+    const tip = page.locator('.hc-datagrid__tooltip');
+    // Baseline: clipped content, so the overflow tip normally shows.
+    await cell.locator('.hc-datagrid__truncate').hover();
+    await expect(tip).toBeVisible();
+    await page.getByTestId('cell-Epsilon-1').hover();
+    await expect(tip).toBeHidden();
+
+    // Server marks the cell as rejected and points at its own message —
+    // error wins the gesture; two tooltips on one hover would be a bug.
+    await cell.evaluate((el) => {
+      el.setAttribute('data-invalid', '');
+      el.setAttribute('aria-describedby', 'delta-1-error');
+    });
+    await cell.locator('.hc-datagrid__truncate').hover();
+    await expect(tip).toBeHidden();
+
+    // Focus is the keyboard path — same rule.
+    await cell.focus();
+    await expect(tip).toBeHidden();
+  });
+});
+
+test.describe('hc-datagrid — fragment navigation', () => {
+  test('a #row hash moves the active cell and focuses it', async ({ page }) => {
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="row-9"]').id = 'row-9';
+    });
+    await page.evaluate(() => {
+      window.location.hash = '#row-9';
+    });
+    const active = await page.evaluate(
+      () =>
+        document
+          .querySelector('.hc-datagrid__cell[data-active]')
+          ?.closest('.hc-datagrid__row')
+          ?.getAttribute('data-testid') ?? null,
+    );
+    expect(active).toBe('row-9');
+    const focused = await page.evaluate(
+      () => document.activeElement?.closest?.('.hc-datagrid__row')?.getAttribute('data-testid') ?? null,
+    );
+    expect(focused).toBe('row-9');
+  });
+
+  test('the landing row is emphasised and clears the sticky header', async ({ page }) => {
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="row-9"]').id = 'row-9';
+      window.location.hash = '#row-9';
+    });
+    const row = page.getByTestId('row-9');
+    // :target emphasis paints the row's cells.
+    const painted = await row
+      .locator('.hc-datagrid__cell')
+      .first()
+      .evaluate((el) => getComputedStyle(el).backgroundImage);
+    expect(painted).toContain('linear-gradient');
+    // scroll-margin keeps it out from under the sticky header.
+    const margin = await row.evaluate(
+      (el) => parseFloat(getComputedStyle(el).scrollMarginBlockStart) || 0,
+    );
+    expect(margin).toBeGreaterThan(0);
+  });
 });
 
 test.describe('hc-datagrid — multi-row records', () => {

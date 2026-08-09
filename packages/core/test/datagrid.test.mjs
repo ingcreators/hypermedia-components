@@ -507,6 +507,59 @@ describe('installDatagrid — inline editing', () => {
   });
 });
 
+describe('installDatagrid — fragment navigation (report → row)', () => {
+  const setHash = (hash) => {
+    window.location.hash = hash;
+  };
+
+  afterEach(() => {
+    window.location.hash = '';
+  });
+
+  it('a hash naming a row moves the active cell to its first cell', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    setHash('#row-2');
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    const first = $('row-2').querySelector('.hc-datagrid__cell');
+    expect(first.getAttribute('data-active')).toBe('');
+    expect(document.activeElement).toBe(first);
+  });
+
+  it('picks up a deep link that arrived with the page', () => {
+    setHash('#row-2');
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    expect(
+      $('row-2').querySelector('.hc-datagrid__cell').getAttribute('data-active'),
+    ).toBe('');
+  });
+
+  it('ignores hashes that name nothing in this grid', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const before = document.querySelector('[data-active]');
+    setHash('#not-a-row');
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    expect(document.querySelector('[data-active]')).toBe(before);
+    // A syntactically invalid selector must not throw either.
+    setHash('#1bad~selector');
+    expect(() =>
+      window.dispatchEvent(new HashChangeEvent('hashchange')),
+    ).not.toThrow();
+  });
+
+  it('uninstall removes the hashchange listener', () => {
+    document.body.innerHTML = FIXTURE;
+    const u = installDatagrid();
+    u();
+    uninstall = () => {};
+    setHash('#row-2');
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    expect($('row-2').querySelector('.hc-datagrid__cell').hasAttribute('data-active')).toBe(false);
+  });
+});
+
 const FIXTURE_GROUP = `
   <div class="hc-datagrid" id="grid">
     <div class="hc-datagrid__scroll">
