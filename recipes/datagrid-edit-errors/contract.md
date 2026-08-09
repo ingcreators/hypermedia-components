@@ -78,7 +78,7 @@ row edit page). The grid renders and reads fine without any script.
   `pattern` on the editor template) — the client gate catches format
   errors before the wire; this contract owns everything only the
   server can know.
-- Version conflicts (409) are the `datagrid-edit-conflict` recipe
-  (next in the edit-feedback plan).
+- Version conflicts (409) are the
+  [datagrid-edit-conflict](../datagrid-edit-conflict/) recipe.
 - Network death / 500 stay with the standard error toast — this
   contract covers the *addressed* rejection.

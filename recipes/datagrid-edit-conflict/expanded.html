@@ -1,0 +1,55 @@
+<!-- Expanded state: 22 was committed against version 3, but another
+  user had already saved 20 as version 4.
+
+  The server answered 409 with this record re-render: the row shows
+  THEIR current value (20.00) with data-tone="error", the record
+  carries the fresh data-version="4", and the conflict row presents
+  your submitted value next to theirs with the two resolutions.
+  Overwrite re-submits YOUR value against version 4 through the same
+  contract (a second conflict just re-presents); Discard GETs the row
+  fresh — the cells already show theirs, so it simply clears the
+  conflict presentation. -->
+<div class="hc-datagrid" id="items-grid" data-hc-datagrid-pending>
+  <template data-datagrid-editor data-col="price">
+    <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+  </template>
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__record" id="item-1" data-version="4"
+             data-hx-patch="/items/1"
+             data-hx-trigger="hc:datagridedit"
+             data-hx-vals="js:{ col: event.detail.col, value: event.detail.value, version: event.target.closest('tbody').dataset.version }"
+             data-hx-swap="outerHTML">
+        <tr class="hc-datagrid__row" data-tone="error">
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell" data-numeric data-editable
+              data-col="price" data-value="20">20.00</td>
+        </tr>
+        <tr class="hc-datagrid__error-row">
+          <td class="hc-datagrid__error" colspan="2">
+            <span role="alert" id="item-1-conflict">
+              Edit conflict: another user saved 20.00 while you were
+              editing. Your value: 22.
+            </span>
+            <button class="hc-button" data-size="sm" data-variant="primary"
+                    type="button"
+                    data-hx-patch="/items/1"
+                    data-hx-vals='{"col":"price","value":"22","version":"4"}'
+                    data-hx-target="closest tbody"
+                    data-hx-swap="outerHTML">Overwrite with 22</button>
+            <button class="hc-button" data-size="sm" type="button"
+                    data-hx-get="/items/1"
+                    data-hx-target="closest tbody"
+                    data-hx-swap="outerHTML">Discard mine</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

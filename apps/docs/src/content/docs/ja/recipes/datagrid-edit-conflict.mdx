@@ -1,0 +1,102 @@
+---
+title: データグリッドの編集競合
+description: データグリッドインライン編集の 409 ワイヤ — 行単位の楽観的ロック。古いバージョンはレコードを競合プレゼンテーションとして再描画し、上書き/破棄の解決を提示します。
+---
+
+import DatagridEditConflictDemo from '../../../../components/recipe-demos/DatagridEditConflictDemo.astro';
+
+2 人が同じ行を編集したとき、後から保存した側が黙って勝ってはいけません。
+このレシピは
+[datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/)
+のレコードレイアウトに**楽観的ロック**を足します: レコード tbody が
+**`data-version`** を持ち、PATCH がそれを同送し、古いバージョンは
+**`409`** で応答します — レコードは**競合プレゼンテーション**として
+再描画されます: セルにはサーバーの現在値(`data-tone="error"`)、
+新しいバージョン、そして*両方*の値を名指しするアラートに
+**上書き** / **破棄** のアクション。モーダルもクライアント側マージ UI
+もありません: 行そのものがマージ UI です。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add datagrid-edit-conflict
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-edit-conflict/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+**Price** を編集(ダブルクリック、またはセルで <kbd>Enter</kbd>)して
+任意の数値をコミットしてください — デモは他のユーザーがすでに
+`20.00` を保存した状況をシミュレートするため、最初のコミットは必ず
+**競合**します: 相手の値がセルに入り、アラートがあなたの値での上書き
+(バージョンが新しくなっているので成功します)か破棄を提案します。
+
+<DatagridEditConflictDemo />
+
+## マークアップ
+
+```html
+<tbody class="hc-datagrid__record" id="item-1" data-version="3"
+       data-hx-patch="/items/1"
+       data-hx-trigger="hc:datagridedit"
+       data-hx-vals="js:{ col: event.detail.col, value: event.detail.value,
+                          version: event.target.closest('tbody').dataset.version }"
+       data-hx-swap="outerHTML">
+  <tr class="hc-datagrid__row">
+    <td class="hc-datagrid__cell">Chai</td>
+    <td class="hc-datagrid__cell" data-numeric data-editable
+        data-col="price" data-value="18">18.00</td>
+  </tr>
+</tbody>
+```
+
+`hc:datagridedit` は編集されたセルからバブリングするため、
+`event.target.closest('tbody')` がレコードを解決し、現在のバージョンが
+同乗します。
+[field-errors](/hypermedia-components/ja/recipes/field-errors/) 契約が
+`422` 用に文書化している一度きりの `htmx:beforeSwap` 許可に `409` を
+足してください。
+
+## サーバーレスポンス契約
+
+`PATCH /items/:id`(`col`、`value`、`version`):
+
+| ケース | レスポンス |
+| --- | --- |
+| バージョン一致・受理 | `200` + レコード — サーバーの整形、**インクリメントされた `data-version`** |
+| バージョン一致・拒否 | `422` — [datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/) のブランチ(バージョンは維持) |
+| **古いバージョン** | **`409`** + 競合プレゼンテーション: セルには相手の値 + `data-tone="error"`、**新しい `data-version`**、両方の値を名指しする `role="alert"` の競合行に、**上書き**ボタン(静的 `data-hx-vals` であなたの値を新バージョンに対して再送)と**破棄**ボタン(行の `data-hx-get`) |
+| 未知の行 / 列 | `404` — 標準のエラートーストがカバー |
+
+`GET /items/:id` はレコードを素のまま返します — 破棄のターゲット
+です。上書きでの再競合は、より新しい値で再提示されるだけです。
+上書きは**明示的な同意による** last-writer-wins です。
+
+## プログレッシブエンハンスメント
+
+楽観的ロックは編集そのものと一緒にデグレードします。no-JS の経路は
+[edit-conflict](/hypermedia-components/ja/recipes/edit-conflict/)
+レシピのフルフォーム 409 ページです。
+
+## アクセシビリティ
+
+- 競合は `role="alert"` で読み上げられ、両方の解決はメッセージセル内の
+  本物のボタンです。
+- `data-tone="error"` が行を視覚的にマークし、**かつ**メッセージが値を
+  名指しします — 決して色だけではありません。
+- どちらの解決でもレコードはその場で再描画され、キーボードユーザーは
+  そこから続行できます。
+
+## 関連
+
+- [datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/) —
+  このレシピがバージョンで拡張する 422 の兄弟。
+- [edit-conflict](/hypermedia-components/ja/recipes/edit-conflict/) —
+  フォーム全体のための同じ 409 哲学。
+- [sse-updates](/hypermedia-components/ja/recipes/sse-updates/) —
+  ライブ行リフレッシュは競合を*減らします*。すり抜けたレースをこの
+  契約が受け止めます。

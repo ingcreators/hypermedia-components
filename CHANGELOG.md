@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `datagrid-edit-conflict` — the 409 wire for datagrid
+  inline editing (`plans/hc-datagrid-edit-feedback-plan-en.md` §1.3).
+  Optimistic locking per row: the record `<tbody>` carries
+  `data-version` and the PATCH includes it; a stale version answers
+  `409` with the record re-rendered as a conflict presentation — the
+  server's current values in the cells (`data-tone="error"`), the
+  fresh version, and a `role="alert"` conflict row naming both values
+  with **Overwrite** (static-vals re-submit against the fresh version)
+  and **Discard** (`GET` of the row) actions. The row is the merge UI;
+  overwrite is last-writer-wins by explicit consent. Machine-checked
+  contract; live docs demo (en/ja).
+
 - **recipes**: `datagrid-edit-errors` — the 422 wire for datagrid
   inline editing (`plans/hc-datagrid-edit-feedback-plan-en.md` §1.2).
   Each row is its own record `<tbody>` carrying the persistence wiring
