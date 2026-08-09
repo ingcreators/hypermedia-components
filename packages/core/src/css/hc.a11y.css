@@ -77,6 +77,14 @@
       outline-offset: -1px;
     }
 
+    /* The editability hints are tints — under forced colors keep the
+       editable cells outlined so the affordance survives. */
+    .hc-datagrid[data-hc-editable-hint="editable"]
+      .hc-datagrid__cell[data-editable] {
+      outline: 1px dotted CanvasText;
+      outline-offset: -1px;
+    }
+
     /* The fragment-landing tint collapses under forced colors — keep a
        dashed outline so "this is the row you were sent to" survives. */
     .hc-datagrid__row:target > .hc-datagrid__cell {

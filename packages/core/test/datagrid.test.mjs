@@ -496,6 +496,33 @@ describe('installDatagrid — inline editing', () => {
     expect(cell.querySelector('input')).toBeTruthy(); // editing works again
   });
 
+  it('a row swapped while its editor is open does not strand the grid', async () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Enter');
+    expect(cell.querySelector('input')).toBeTruthy();
+
+    // The server re-renders the row underneath the open editor.
+    document.querySelector('.hc-datagrid__body').innerHTML = `
+      <tr class="hc-datagrid__row" id="row-1">
+        <td class="hc-datagrid__cell" id="c-name" data-editable data-col="name">Grace</td>
+        <td class="hc-datagrid__cell" id="c-status" data-editable data-col="status" data-value="open">Open</td>
+      </tr>`;
+    await new Promise((r) => setTimeout(r, 0)); // observer
+
+    // Keyboard navigation must still respond (it used to die here:
+    // onKeydown returns early while editingCell is set).
+    const fresh = $('c-name');
+    fresh.focus();
+    press(fresh, 'ArrowRight');
+    expect($('c-status').getAttribute('data-active')).toBe('');
+    // …and editing still works on the new rows.
+    press($('c-status'), 'F2');
+    expect($('c-status').querySelector('select')).toBeTruthy();
+  });
+
   it('compositionstart on a non-editable cell does nothing', () => {
     document.body.innerHTML = FIXTURE;
     uninstall = installDatagrid();
@@ -504,6 +531,69 @@ describe('installDatagrid — inline editing', () => {
     cell.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
     expect(cell.querySelector('input')).toBeNull();
     expect(cell.hasAttribute('data-editing')).toBe(false);
+  });
+});
+
+describe('installDatagrid — editability states', () => {
+  const REQUIRED_EDIT = FIXTURE_EDIT.replace(
+    '<input class="hc-input" type="text" aria-label="Name">',
+    '<input class="hc-input" type="text" required aria-label="Name">',
+  );
+
+  it('derives aria-required from the column editor and aria-readonly from the rest', () => {
+    document.body.innerHTML = REQUIRED_EDIT;
+    uninstall = installDatagrid();
+    // name: editable + required → aria-required
+    expect($('c-name').getAttribute('aria-required')).toBe('true');
+    expect($('c-name').hasAttribute('aria-readonly')).toBe(false);
+    // status: editable + optional → neither
+    expect($('c-status').hasAttribute('aria-required')).toBe(false);
+    expect($('c-status').hasAttribute('aria-readonly')).toBe(false);
+  });
+
+  it('marks non-editable cells read-only when the grid has editors', () => {
+    document.body.innerHTML = FIXTURE_EDIT.replace(
+      '<td class="hc-datagrid__cell" id="c-status" data-editable data-col="status" data-value="open">Open</td>',
+      '<td class="hc-datagrid__cell" id="c-status">Open</td>',
+    );
+    uninstall = installDatagrid();
+    expect($('c-status').getAttribute('aria-readonly')).toBe('true');
+    expect($('c-name').hasAttribute('aria-readonly')).toBe(false);
+  });
+
+  it('a wholly read-only grid says so once, on the grid', () => {
+    document.body.innerHTML = FIXTURE; // no editors at all
+    uninstall = installDatagrid();
+    // On the table (role="grid"), not the roleless wrapper div.
+    expect(
+      document.querySelector('.hc-datagrid__table').getAttribute('aria-readonly'),
+    ).toBe('true');
+    expect($('grid').hasAttribute('aria-readonly')).toBe(false);
+    expect(document.querySelector('.hc-datagrid__cell[aria-readonly]')).toBeNull();
+  });
+
+  it('a server-rendered value always wins (conditional requiredness)', () => {
+    document.body.innerHTML = REQUIRED_EDIT.replace(
+      '<td class="hc-datagrid__cell" id="c-name" data-editable data-col="name">Ada</td>',
+      '<td class="hc-datagrid__cell" id="c-name" data-editable data-col="name" aria-required="false">Ada</td>',
+    );
+    uninstall = installDatagrid();
+    expect($('c-name').getAttribute('aria-required')).toBe('false');
+  });
+
+  it('re-derives per cell after a row swap (row-state-dependent editability)', async () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    expect($('c-name').hasAttribute('aria-readonly')).toBe(false);
+    // The server ships the row: the cell loses data-editable.
+    document.querySelector('.hc-datagrid__body').innerHTML = `
+      <tr class="hc-datagrid__row" id="row-1">
+        <td class="hc-datagrid__cell" id="c-name">Ada</td>
+        <td class="hc-datagrid__cell" id="c-status" data-editable data-col="status" data-value="open">Open</td>
+      </tr>`;
+    await new Promise((r) => setTimeout(r, 0));
+    expect($('c-name').getAttribute('aria-readonly')).toBe('true');
+    expect($('c-status').hasAttribute('aria-readonly')).toBe(false);
   });
 });
 
