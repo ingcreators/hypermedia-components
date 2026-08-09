@@ -358,6 +358,117 @@ describe('installDatagrid — inline editing', () => {
   });
 });
 
+const FIXTURE_GROUP = `
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">
+              <input type="checkbox" class="hc-checkbox" id="select-all" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col">Qty</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row hc-datagrid__grouprow" id="g-fruit" data-group-level="1">
+            <td class="hc-datagrid__cell" colspan="3">Fruit — Σ 30</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="r-apple">
+            <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" aria-label="Select Apple"></td>
+            <td class="hc-datagrid__cell" id="c-apple">Apple</td>
+            <td class="hc-datagrid__cell">10</td>
+          </tr>
+          <tr class="hc-datagrid__row hc-datagrid__grouprow" id="g-citrus" data-group-level="2">
+            <td class="hc-datagrid__cell" colspan="3" aria-expanded="false">Citrus — Σ 20</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="r-lemon">
+            <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" aria-label="Select Lemon"></td>
+            <td class="hc-datagrid__cell">Lemon</td>
+            <td class="hc-datagrid__cell">20</td>
+          </tr>
+          <tr class="hc-datagrid__row hc-datagrid__grouprow" id="g-tools" data-group-level="1">
+            <td class="hc-datagrid__cell" colspan="3">Tools — Σ 5</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="r-hammer">
+            <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" aria-label="Select Hammer"></td>
+            <td class="hc-datagrid__cell">Hammer</td>
+            <td class="hc-datagrid__cell">5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+`;
+
+describe('installDatagrid — grouped rows', () => {
+  it('defaults aria-expanded and hides members of a pre-collapsed group', () => {
+    document.body.innerHTML = FIXTURE_GROUP;
+    uninstall = installDatagrid();
+    expect(
+      $('g-fruit').querySelector('.hc-datagrid__cell').getAttribute('aria-expanded'),
+    ).toBe('true');
+    expect($('r-apple').hidden).toBe(false);
+    // g-citrus was server-rendered collapsed → its member is hidden.
+    expect($('r-lemon').hidden).toBe(true);
+    expect($('g-citrus').hidden).toBe(false);
+  });
+
+  it('click collapses a group (up to the next same-or-higher heading) and emits', () => {
+    document.body.innerHTML = FIXTURE_GROUP;
+    uninstall = installDatagrid();
+    const onToggle = vi.fn();
+    $('grid').addEventListener('hc:datagridgrouptoggle', (e) => onToggle(e.detail));
+    const fruitCell = $('g-fruit').querySelector('.hc-datagrid__cell');
+    click(fruitCell);
+    expect(fruitCell.getAttribute('aria-expanded')).toBe('false');
+    expect($('r-apple').hidden).toBe(true);
+    expect($('g-citrus').hidden).toBe(true);
+    expect($('r-lemon').hidden).toBe(true);
+    // The next level-1 group is untouched.
+    expect($('g-tools').hidden).toBe(false);
+    expect($('r-hammer').hidden).toBe(false);
+    expect(onToggle).toHaveBeenCalledWith({ row: $('g-fruit'), expanded: false });
+  });
+
+  it('re-expanding keeps a collapsed sub-group collapsed', () => {
+    document.body.innerHTML = FIXTURE_GROUP;
+    uninstall = installDatagrid();
+    const cell = $('g-fruit').querySelector('.hc-datagrid__cell');
+    click(cell); // collapse all of Fruit
+    click(cell); // expand Fruit again
+    expect($('r-apple').hidden).toBe(false);
+    expect($('g-citrus').hidden).toBe(false);
+    expect($('r-lemon').hidden).toBe(true); // Citrus stays collapsed
+  });
+
+  it('Enter on the focused group cell toggles; hidden rows leave keyboard nav', () => {
+    document.body.innerHTML = FIXTURE_GROUP;
+    uninstall = installDatagrid();
+    const cell = $('g-fruit').querySelector('.hc-datagrid__cell');
+    cell.focus();
+    press(cell, 'Enter');
+    expect(cell.getAttribute('aria-expanded')).toBe('false');
+    // ArrowDown from the collapsed heading lands on the next visible row.
+    press(cell, 'ArrowDown');
+    expect(
+      document.querySelector('[data-active]').closest('.hc-datagrid__row').id,
+    ).toBe('g-tools');
+  });
+
+  it('group rows are not selectable units', () => {
+    document.body.innerHTML = FIXTURE_GROUP;
+    uninstall = installDatagrid();
+    const onSel = vi.fn();
+    $('grid').addEventListener('hc:datagridselectionchange', (e) => onSel(e.detail));
+    $('select-all').checked = true;
+    $('select-all').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(onSel.mock.calls.at(-1)[0]).toEqual({ selected: 3, total: 3 });
+    expect($('g-fruit').hasAttribute('data-selected')).toBe(false);
+  });
+});
+
 const FIXTURE_FOOT = `
   <div class="hc-datagrid" id="grid">
     <div class="hc-datagrid__scroll">

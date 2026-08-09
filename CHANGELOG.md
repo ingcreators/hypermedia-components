@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: grouped rows — server-rendered, client-toggled
+  (`plans/hc-datagrid-enrichment-plan-en.md` §1.6). The server
+  interleaves `.hc-datagrid__grouprow` heading rows (one `colspan` cell
+  with the label and any aggregates it renders); `installDatagrid()`
+  toggles the group on click / Enter / Space via the heading **cell**'s
+  `aria-expanded` (render `"false"` to start collapsed), with a `▸`/`▾`
+  caret, `data-group-level="1…3"` nesting (collapse runs to the next
+  same-or-higher heading; re-expanding keeps collapsed sub-groups
+  collapsed), and **`hc:datagridgrouptoggle`** `{ row, expanded }`.
+  Headings join keyboard navigation but are not selectable units, and
+  collapsing never changes the selection. Nothing is grouped or summed
+  client-side.
+
 - **datagrid**: multi-column sort
   (`plans/hc-datagrid-enrichment-plan-en.md` §1.4). `Shift+Click` /
   `Shift+Enter` on a `data-sortable` header **adds** the column to the

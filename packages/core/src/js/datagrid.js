@@ -39,18 +39,29 @@ function ownedBy(grid, selector) {
 // Every physical body row — across the single `.hc-datagrid__body` and any
 // `.hc-datagrid__record` tbodies (multi-row records). These become the
 // navigation matrix rows; non-uniform widths are fine (nav clamps).
+// Rows hidden by a collapsed group leave the matrix (and re-enter on
+// expand — toggling rebuilds).
 function bodyRows(grid) {
   return ownedBy(
     grid,
     '.hc-datagrid__body > .hc-datagrid__row, .hc-datagrid__record > .hc-datagrid__row',
-  );
+  ).filter((row) => !row.hidden);
 }
 
 // The selectable units. With `.hc-datagrid__record` tbodies each record is
 // one unit (it may span several physical rows); otherwise each row is a unit.
+// Group rows are headings, not records — they never count as units. Rows
+// hidden by a collapsed group DO count: collapsing is a viewing state and
+// must not change the selection.
 function recordUnits(grid) {
   const records = ownedBy(grid, '.hc-datagrid__record');
-  return records.length ? records : bodyRows(grid);
+  const units = records.length
+    ? records
+    : ownedBy(
+        grid,
+        '.hc-datagrid__body > .hc-datagrid__row, .hc-datagrid__record > .hc-datagrid__row',
+      );
+  return units.filter((u) => !u.classList.contains('hc-datagrid__grouprow'));
 }
 
 // The record/row unit `el` belongs to — scoped to this grid (so a control
@@ -131,7 +142,11 @@ function measure(grid) {
     grid.style.setProperty('--hc-datagrid-foot-1-h', `${h}px`);
   }
 
-  const ref = bodyRows(grid)[0];
+  // The reference row for column widths must be a real data row — a
+  // group row's single colspan cell says nothing about the columns.
+  const ref = bodyRows(grid).find(
+    (row) => !row.classList.contains('hc-datagrid__grouprow'),
+  );
   const offsets = [];
   let acc = 0;
   const endOffsets = [];
@@ -549,6 +564,14 @@ function attach(grid, detachers) {
     if (!matrix.length) return;
     const { r, c } = active;
     const activeCell = matrix[r]?.[c];
+    if (
+      isGroupRow(activeCell?.parentElement) &&
+      (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar')
+    ) {
+      event.preventDefault();
+      toggleGroup(activeCell.parentElement);
+      return;
+    }
     const toggleBtn = activeCell?.querySelector?.('[data-hc-datagrid-toggle]');
     if (toggleBtn && event.key === 'Enter') {
       event.preventDefault();
@@ -809,6 +832,92 @@ function attach(grid, detachers) {
     cycleSort(th, event.shiftKey);
   }
 
+  // ---- Grouped rows (server-rendered, client-toggled) ----
+  // The server interleaves `.hc-datagrid__grouprow` heading rows (also
+  // carrying .hc-datagrid__row so they join keyboard navigation) with one
+  // colspan cell holding the group label and any aggregates it chose to
+  // render. Collapse is pure visibility — the rows are already on the
+  // page; paging happens within the server's rendering choice.
+  function isGroupRow(el) {
+    return !!el && el.classList?.contains('hc-datagrid__grouprow');
+  }
+
+  function groupLevel(row) {
+    return Number(row.dataset.groupLevel || 1);
+  }
+
+  // The expansion state lives on the heading's CELL — aria-expanded is
+  // valid on gridcell, but on row only inside a treegrid.
+  function groupCell(row) {
+    return row.querySelector('.hc-datagrid__cell');
+  }
+
+  function groupExpanded(row) {
+    return groupCell(row)?.getAttribute('aria-expanded') !== 'false';
+  }
+
+  function setGroupExpanded(row, on, { silent = false } = {}) {
+    groupCell(row)?.setAttribute('aria-expanded', on ? 'true' : 'false');
+    const level = groupLevel(row);
+    let el = row.nextElementSibling;
+    let skipUntil = null; // a collapsed sub-group's level while expanding
+    while (el) {
+      if (isGroupRow(el)) {
+        const l = groupLevel(el);
+        if (l <= level) break; // the group ends at a same-or-higher heading
+        if (!on) {
+          el.hidden = true;
+        } else {
+          if (skipUntil != null && l <= skipUntil) skipUntil = null;
+          if (skipUntil == null) {
+            el.hidden = false;
+            // A collapsed sub-group re-appears, but keeps its members hidden.
+            if (!groupExpanded(el)) skipUntil = l;
+          }
+        }
+      } else if (!on) {
+        el.hidden = true;
+      } else if (skipUntil == null) {
+        el.hidden = false;
+      }
+      el = el.nextElementSibling;
+    }
+    rebuild(); // hidden rows leave the navigation matrix
+    if (!silent) {
+      grid.dispatchEvent(
+        new CustomEvent('hc:datagridgrouptoggle', {
+          bubbles: true,
+          detail: { row, expanded: on },
+        }),
+      );
+    }
+  }
+
+  function toggleGroup(row) {
+    setGroupExpanded(row, !groupExpanded(row));
+  }
+
+  function initGroups() {
+    for (const row of ownedBy(grid, '.hc-datagrid__grouprow')) {
+      const cell = groupCell(row);
+      if (cell && !cell.hasAttribute('aria-expanded')) {
+        cell.setAttribute('aria-expanded', 'true');
+      }
+      // The server may render a group pre-collapsed.
+      if (!groupExpanded(row) && !row.hidden) {
+        setGroupExpanded(row, false, { silent: true });
+      }
+    }
+  }
+
+  function onGroupClick(event) {
+    if (!isOurs(event)) return;
+    // Widgets inside a group row (e.g. a link in the label) keep their job.
+    if (event.target.closest('a, button, input, select, textarea, label')) return;
+    const row = event.target.closest('.hc-datagrid__grouprow');
+    if (row && grid.contains(row)) toggleGroup(row);
+  }
+
   // ---- Expandable row detail (master / detail) ----
   function detailRowOf(record) {
     return record.querySelector(':scope > .hc-datagrid__detail-row');
@@ -1064,6 +1173,7 @@ function attach(grid, detachers) {
   }
 
   rebuild();
+  initGroups();
   measure(grid);
   initDetails();
   initResizers();
@@ -1077,6 +1187,7 @@ function attach(grid, detachers) {
   table.addEventListener('focusin', onFocusin);
   table.addEventListener('dblclick', onDblclick);
   table.addEventListener('click', onToggleClick);
+  table.addEventListener('click', onGroupClick);
   table.addEventListener('click', onSortClick);
   grid.addEventListener('pointerover', onPointerOver);
   grid.addEventListener('pointerout', onPointerOut);
@@ -1119,6 +1230,7 @@ function attach(grid, detachers) {
     table.removeEventListener('focusin', onFocusin);
     table.removeEventListener('dblclick', onDblclick);
     table.removeEventListener('click', onToggleClick);
+    table.removeEventListener('click', onGroupClick);
     table.removeEventListener('click', onSortClick);
     grid.removeEventListener('pointerover', onPointerOver);
     grid.removeEventListener('pointerout', onPointerOut);

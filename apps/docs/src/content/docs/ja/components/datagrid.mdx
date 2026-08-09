@@ -460,6 +460,44 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 [datagrid-bulk-actions レシピ](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)を
 参照してください。
 
+## グループ化された行
+
+グループ化は*描画*の選択です: サーバーが見出し行 —
+`hc-datagrid__row hc-datagrid__grouprow` に、グループラベルと
+**サーバーが描画すると決めた集計**を収めた `colspan` セルを 1 つ —
+を行間に差し込み、ビヘイビアがクリック / <kbd>Enter</kbd> /
+<kbd>Space</kbd> でグループの行をトグルします。クライアント側では何も
+グループ化も合計もしません。折りたたみは純粋な表示状態です(行は
+すでにページ上にあります):
+
+```html
+<tbody class="hc-datagrid__body">
+  <tr class="hc-datagrid__row hc-datagrid__grouprow" data-group-level="1">
+    <td class="hc-datagrid__cell" colspan="3">Fruit — Σ 30</td>
+  </tr>
+  <tr class="hc-datagrid__row">…</tr>
+  <tr class="hc-datagrid__row">…</tr>
+</tbody>
+```
+
+- 見出しの**セル**が `aria-expanded` を持ちます(`gridcell` で有効。
+  ビヘイビアのデフォルトは `"true"`)— `"false"` で描画すると
+  折りたたみ状態で始まります。キャレット(`▸` / `▾`)が追随します。
+- `data-group-level="1…3"` でネストします: 折りたたみは次の同位以上の
+  見出しまでをすべて隠し、再展開しても折りたたまれたサブグループは
+  折りたたまれたままです。レベル 2・3 はインデントされます。
+- グループ見出しは通常の行としてキーボードナビゲーションに参加します
+  (スパンする 1 セルが 1 ストップ)が、選択ユニットでは**ありません**
+  — 全選択とアクションバーの件数はデータ行だけを数え、折りたたみが
+  選択を変えることはありません。
+- トグルは **`hc:datagridgrouptoggle`** `{ row, expanded }` を
+  発行します。
+- ソートやページングとの組み合わせはサーバーの関心事です: グループ
+  見出しはフラグメント内のただの行なので、再描画がアトミックに
+  置き換えます。(グループレイアウトはフラット行のグリッド向けです —
+  [複数行レコード](#複数行レコード)では代わりにレコードごとの
+  `tbody` を使ってください。)
+
 ## 複数行レコード
 
 密度の高い業務画面では、**1 レコードを複数行にまたいで**表示することが
@@ -739,6 +777,7 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | `hc:datagridcopy` | `.hc-datagrid` | `{ text, rows, cols }` — キャンセル可能。`preventDefault()` でクリップボード書き込みを引き取れます。 |
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — レコード / 行の単位で数えます。 |
 | `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — コミット時のみ、かつ値が変わったときのみ。 |
+| `hc:datagridgrouptoggle` | `.hc-datagrid` | `{ row, expanded }` — トグルされた `.hc-datagrid__grouprow`。 |
 | `hc:datagridexpand` | `.hc-datagrid` | `{ record }` — 展開されたレコード `<tbody>`。 |
 | `hc:datagridcollapse` | `.hc-datagrid` | `{ record }` — 折りたたまれたレコード `<tbody>`。 |
 | `hc:datagriddetailload` | `[data-lazy]` の `.hc-datagrid__detail` セル | `{ record }` — 初回の展開のみ。 |
@@ -758,6 +797,7 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | 数値列 | `data-numeric`(ヘッダー / ボディのセル) | CSS |
 | 列のリサイズ | `data-resizable` + `data-col`(ヘッダー)· 同じ `data-col`(ボディセル) | `installDatagrid()` |
 | ソート可能な列 | `data-sortable` + `data-col`(ヘッダー) | `installDatagrid()` |
+| グループ化された行 | `.hc-datagrid__grouprow` + `data-group-level`(見出し行)· `aria-expanded`(見出しセル。`"false"` で折りたたみ開始) | `installDatagrid()` |
 | 展開可能な行詳細 | `data-hc-datagrid-toggle`(ボタン)· `data-expanded`(レコード `<tbody>`、開いた状態で開始)· `data-lazy`(詳細セル) | `installDatagrid()` |
 | インライン編集 | `data-editable` + `data-col`(+ `data-value`)(セル)· `data-datagrid-editor` + `data-col`(`<template>`) | `installDatagrid()` |
 | 選択アクションバー | `data-hc-datagrid-actions="<selector>"`(バー)· `data-hc-datagrid-count`(件数要素) | `installDatagridActions()` |
