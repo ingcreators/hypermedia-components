@@ -1,7 +1,14 @@
 # datagrid-edit-feedback — the missing half of inline editing
 
-Status: **plan approved 2026-08-09 — implementation PRs follow, one theme
-per PR, sequential (no stacking).**
+Status: **shipped in full 2026-08-09 — plan #500, cell edit lifecycle
+states #501, datagrid-edit-errors #502 (two enabling core fixes rode
+along: `hc:datagridedit` now dispatches from the edited CELL and
+bubbles — it used to fire on the grid element, so per-record wiring
+could never hear it; and the behavior now also observes the table's
+children so record-tbody swaps rebuild roles/matrix/editing),
+datagrid-edit-conflict #503. Note: htmx has no `from:this` extended
+selector — the record tbody hears its own descendants' bubbles, so a
+bare `data-hx-trigger="hc:datagridedit"` is both correct and scoped.**
 
 Follow-up to the [datagrid-enrichment plan](hc-datagrid-enrichment-plan-en.md)
 (#487–#499). Enrichment finished the *input* half of inline editing —
