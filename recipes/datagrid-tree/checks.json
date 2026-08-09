@@ -1,0 +1,36 @@
+{
+  "detect": "tr[aria-level][data-hx-trigger=\"hc:datagridtreeload\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "swap-afterend",
+      "level": "error",
+      "message": "Children are inserted right after the parent row — the lazy row must declare data-hx-swap=\"afterend\".",
+      "attr": { "on": "tr[data-hx-trigger=\"hc:datagridtreeload\"]", "name": "data-hx-swap", "assert": "present", "value": "afterend" }
+    },
+    {
+      "id": "children-url-declared",
+      "level": "error",
+      "message": "A lazy tree row must declare its children URL: data-hx-get on the row.",
+      "attr": { "on": "tr[data-hx-trigger=\"hc:datagridtreeload\"]", "name": "data-hx-get", "assert": "present" }
+    },
+    {
+      "id": "lazy-declared",
+      "level": "error",
+      "message": "The first-expand fetch is opt-in: the row must carry data-lazy (installDatagrid() fires hc:datagridtreeload once and marks data-loaded).",
+      "attr": { "on": "tr[data-hx-trigger=\"hc:datagridtreeload\"]", "name": "data-lazy", "assert": "present" }
+    },
+    {
+      "id": "expandable-state",
+      "level": "error",
+      "message": "An expandable row announces its state: aria-expanded on the row (\"false\" to start collapsed).",
+      "attr": { "on": "tr[data-hx-trigger=\"hc:datagridtreeload\"]", "name": "aria-expanded", "assert": "present" }
+    },
+    {
+      "id": "toggle-in-lead",
+      "level": "warn",
+      "message": "Give the lead cell a data-hc-datagrid-tree toggle (aria-hidden + tabindex=\"-1\") — the mouse affordance; Enter on the cell covers keyboard.",
+      "exists": { "selector": "[data-hc-datagrid-tree]" }
+    }
+  ]
+}

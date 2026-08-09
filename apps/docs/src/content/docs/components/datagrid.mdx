@@ -511,6 +511,24 @@ pure visibility (the rows are already on the page):
   [multi-row records](#multi-row-records) use one `tbody` per record
   instead.)
 
+## Tree rows
+
+Hierarchy as lazy hypermedia: every row carries `aria-level`, an
+expandable row carries `aria-expanded` + a `data-hc-datagrid-tree`
+toggle in its lead cell, and children are sibling rows one level deeper
+— server-rendered, or loaded once via htmx (the
+[datagrid-tree recipe](/hypermedia-components/recipes/datagrid-tree/)
+has the wire contract). When tree toggles exist the behavior upgrades
+the table to **`role="treegrid"`** — the role under which row-level
+`aria-level` / `aria-expanded` are valid. Click the toggle or press
+<kbd>Enter</kbd> on the lead cell; collapse hides the loaded subtree
+(hidden rows leave keyboard navigation), re-expanding respects
+collapsed children, and toggling emits **`hc:datagridtreetoggle`**
+`{ row, expanded }`. A lazy first expand marks the row `data-loaded`,
+sets `aria-busy`, and dispatches **`hc:datagridtreeload`** for htmx.
+Levels 2–4 indent the lead cell — override `--hc-datagrid-indent` for
+a different step.
+
 ## Multi-row records
 
 Dense business screens often show **one record across several rows** (e.g.
@@ -794,6 +812,8 @@ on the `.hc-datagrid` root except `hc:datagriddetailload`:
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — counted by record/row unit. |
 | `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — commit only, and only when the value changed. |
 | `hc:datagridgrouptoggle` | `.hc-datagrid` | `{ row, expanded }` — the toggled `.hc-datagrid__grouprow`. |
+| `hc:datagridtreetoggle` | `.hc-datagrid` | `{ row, expanded }` — the toggled tree row. |
+| `hc:datagridtreeload` | the lazy tree `.hc-datagrid__row` | `{ row }` — first expand only (htmx loads via `data-hx-trigger`). |
 | `hc:datagridexpand` | `.hc-datagrid` | `{ record }` — the expanded record `<tbody>`. |
 | `hc:datagridcollapse` | `.hc-datagrid` | `{ record }` — the collapsed record `<tbody>`. |
 | `hc:datagriddetailload` | the `[data-lazy]` `.hc-datagrid__detail` cell | `{ record }` — first expand only. |
@@ -815,6 +835,7 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Column resize | `data-resizable` + `data-col` (header) · matching `data-col` (body cells) | `installDatagrid()` |
 | Sortable columns | `data-sortable` + `data-col` (header) | `installDatagrid()` |
 | Grouped rows | `.hc-datagrid__grouprow` + `data-group-level` (heading row) · `aria-expanded` (heading cell, start collapsed with `"false"`) | `installDatagrid()` |
+| Tree rows | `aria-level` (every row) · `aria-expanded` + `data-hc-datagrid-tree` toggle (expandable row) · `data-lazy` + htmx wiring (lazy row) | `installDatagrid()` |
 | Expandable row detail | `data-hc-datagrid-toggle` (button) · `data-expanded` (record `<tbody>`, start open) · `data-lazy` (detail cell) | `installDatagrid()` |
 | Inline editing | `data-editable` + `data-col` (+ `data-value`) (cell) · `data-datagrid-editor` + `data-col` (`<template>`) | `installDatagrid()` |
 | Selection actions bar | `data-hc-datagrid-actions="<selector>"` (bar) · `data-hc-datagrid-count` (count element) | `installDatagridActions()` |

@@ -1,0 +1,58 @@
+---
+/*
+ * Live demo for the datagrid-tree recipe. Same shape as
+ * recipes/datagrid-tree/recipe.html, pointed at the demo API namespace.
+ * The docs and src rows are lazy directories: the first expand fires
+ * hc:datagridtreeload once and htmx inserts the children right after
+ * the row (afterend). Collapse/re-expand after that is pure
+ * client-side visibility.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-tree`;
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid tree demo">
+  <div class="hc-datagrid" id="datagrid-tree-demo-grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col" data-numeric>Size</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row" id="tree-demo-docs" aria-level="1"
+              aria-expanded="false" data-lazy
+              data-hx-get={`${api}/items/docs/children`}
+              data-hx-trigger="hc:datagridtreeload"
+              data-hx-swap="afterend">
+            <td class="hc-datagrid__cell">
+              <button class="hc-datagrid__toggle" type="button"
+                      data-hc-datagrid-tree aria-hidden="true" tabindex="-1"></button>
+              docs
+            </td>
+            <td class="hc-datagrid__cell" data-numeric>—</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="tree-demo-src" aria-level="1"
+              aria-expanded="false" data-lazy
+              data-hx-get={`${api}/items/src/children`}
+              data-hx-trigger="hc:datagridtreeload"
+              data-hx-swap="afterend">
+            <td class="hc-datagrid__cell">
+              <button class="hc-datagrid__toggle" type="button"
+                      data-hc-datagrid-tree aria-hidden="true" tabindex="-1"></button>
+              src
+            </td>
+            <td class="hc-datagrid__cell" data-numeric>—</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="tree-demo-readme" aria-level="1">
+            <td class="hc-datagrid__cell">README.md</td>
+            <td class="hc-datagrid__cell" data-numeric>4 KB</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</DemoFrame>

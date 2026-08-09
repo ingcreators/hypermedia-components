@@ -30,6 +30,7 @@ import * as datagridBulkActions from './recipes/datagrid-bulk-actions.mjs';
 import * as datagridColumns from './recipes/datagrid-columns.mjs';
 import * as datagridFilter from './recipes/datagrid-filter.mjs';
 import * as datagridInfinite from './recipes/datagrid-infinite.mjs';
+import * as datagridTree from './recipes/datagrid-tree.mjs';
 import * as datagridPager from './recipes/datagrid-pager.mjs';
 import * as editConflict from './recipes/edit-conflict.mjs';
 import * as fieldErrors from './recipes/field-errors.mjs';
@@ -64,6 +65,7 @@ const RECIPES = new Map([
   ['datagrid-columns', datagridColumns],
   ['datagrid-filter', datagridFilter],
   ['datagrid-infinite', datagridInfinite],
+  ['datagrid-tree', datagridTree],
   ['datagrid-pager', datagridPager],
   ['edit-conflict', editConflict],
   ['field-errors', fieldErrors],

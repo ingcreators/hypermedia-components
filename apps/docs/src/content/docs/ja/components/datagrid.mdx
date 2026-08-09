@@ -519,6 +519,24 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
   [複数行レコード](#複数行レコード)では代わりにレコードごとの
   `tbody` を使ってください。)
 
+## ツリー行
+
+階層を遅延ハイパーメディアとして: すべての行が `aria-level` を持ち、
+展開可能な行は `aria-expanded` と先頭セルの `data-hc-datagrid-tree`
+トグルを持ちます。子は 1 レベル深い兄弟行です — サーバー描画済み、
+または htmx で一度だけロード(ワイヤ契約は
+[datagrid-tree レシピ](/hypermedia-components/ja/recipes/datagrid-tree/))。
+ツリートグルが存在するとビヘイビアはテーブルを **`role="treegrid"`**
+に格上げします — 行レベルの `aria-level` / `aria-expanded` が有効に
+なるロールです。トグルのクリックか先頭セルの <kbd>Enter</kbd> で開閉。
+折りたたみはロード済みサブツリーを隠し(隠れた行はキーボード
+ナビゲーションから抜けます)、再展開は折りたたまれた子を尊重し、
+トグルは **`hc:datagridtreetoggle`** `{ row, expanded }` を発行します。
+遅延行の初回展開は `data-loaded` を付け、`aria-busy` を立て、htmx の
+ために **`hc:datagridtreeload`** をディスパッチします。レベル 2〜4 は
+先頭セルをインデントします — ステップは `--hc-datagrid-indent` で
+変更できます。
+
 ## 複数行レコード
 
 密度の高い業務画面では、**1 レコードを複数行にまたいで**表示することが
@@ -808,6 +826,8 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — レコード / 行の単位で数えます。 |
 | `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — コミット時のみ、かつ値が変わったときのみ。 |
 | `hc:datagridgrouptoggle` | `.hc-datagrid` | `{ row, expanded }` — トグルされた `.hc-datagrid__grouprow`。 |
+| `hc:datagridtreetoggle` | `.hc-datagrid` | `{ row, expanded }` — トグルされたツリー行。 |
+| `hc:datagridtreeload` | 遅延ツリーの `.hc-datagrid__row` | `{ row }` — 初回の展開のみ(htmx が `data-hx-trigger` でロード)。 |
 | `hc:datagridexpand` | `.hc-datagrid` | `{ record }` — 展開されたレコード `<tbody>`。 |
 | `hc:datagridcollapse` | `.hc-datagrid` | `{ record }` — 折りたたまれたレコード `<tbody>`。 |
 | `hc:datagriddetailload` | `[data-lazy]` の `.hc-datagrid__detail` セル | `{ record }` — 初回の展開のみ。 |
@@ -829,6 +849,7 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
 | 列のリサイズ | `data-resizable` + `data-col`(ヘッダー)· 同じ `data-col`(ボディセル) | `installDatagrid()` |
 | ソート可能な列 | `data-sortable` + `data-col`(ヘッダー) | `installDatagrid()` |
 | グループ化された行 | `.hc-datagrid__grouprow` + `data-group-level`(見出し行)· `aria-expanded`(見出しセル。`"false"` で折りたたみ開始) | `installDatagrid()` |
+| ツリー行 | `aria-level`(全行)· `aria-expanded` + `data-hc-datagrid-tree` トグル(展開可能な行)· `data-lazy` + htmx ワイヤリング(遅延行) | `installDatagrid()` |
 | 展開可能な行詳細 | `data-hc-datagrid-toggle`(ボタン)· `data-expanded`(レコード `<tbody>`、開いた状態で開始)· `data-lazy`(詳細セル) | `installDatagrid()` |
 | インライン編集 | `data-editable` + `data-col`(+ `data-value`)(セル)· `data-datagrid-editor` + `data-col`(`<template>`) | `installDatagrid()` |
 | 選択アクションバー | `data-hc-datagrid-actions="<selector>"`(バー)· `data-hc-datagrid-count`(件数要素) | `installDatagridActions()` |

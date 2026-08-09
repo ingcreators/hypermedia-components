@@ -514,6 +514,104 @@ describe('installDatagrid — grouped rows', () => {
   });
 });
 
+const TREE_BTN =
+  '<button class="hc-datagrid__toggle" type="button" data-hc-datagrid-tree aria-hidden="true" tabindex="-1"></button>';
+const FIXTURE_TREE = `
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col">Kind</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row" id="t-1" aria-level="1" aria-expanded="true">
+            <td class="hc-datagrid__cell" id="t-1-c">${TREE_BTN} Root A</td>
+            <td class="hc-datagrid__cell">dir</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="t-1-1" aria-level="2" aria-expanded="false">
+            <td class="hc-datagrid__cell">${TREE_BTN} Child A1</td>
+            <td class="hc-datagrid__cell">dir</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="t-1-1-1" aria-level="3">
+            <td class="hc-datagrid__cell">Grandchild</td>
+            <td class="hc-datagrid__cell">file</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="t-2" aria-level="1" aria-expanded="false" data-lazy>
+            <td class="hc-datagrid__cell" id="t-2-c">${TREE_BTN} Root B</td>
+            <td class="hc-datagrid__cell">dir</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+`;
+
+describe('installDatagrid — tree rows', () => {
+  it('tree grids get role=treegrid and pre-collapsed subtrees hide', () => {
+    document.body.innerHTML = FIXTURE_TREE;
+    uninstall = installDatagrid();
+    expect(document.querySelector('.hc-datagrid__table').getAttribute('role')).toBe('treegrid');
+    expect($('t-1-1').hidden).toBe(false); // its parent is expanded
+    expect($('t-1-1-1').hidden).toBe(true); // its parent is collapsed
+    expect($('t-1-1').hasAttribute('data-loaded')).toBe(true); // children in DOM
+  });
+
+  it('collapsing a root hides the whole subtree; re-expanding respects children', () => {
+    document.body.innerHTML = FIXTURE_TREE;
+    uninstall = installDatagrid();
+    const onToggle = vi.fn();
+    $('grid').addEventListener('hc:datagridtreetoggle', (e) => onToggle(e.detail));
+    click($('t-1-c').querySelector('[data-hc-datagrid-tree]'));
+    expect($('t-1').getAttribute('aria-expanded')).toBe('false');
+    expect($('t-1-1').hidden).toBe(true);
+    expect($('t-1-1-1').hidden).toBe(true);
+    expect($('t-2').hidden).toBe(false); // the next root is untouched
+    expect(onToggle).toHaveBeenCalledWith({ row: $('t-1'), expanded: false });
+
+    click($('t-1-c').querySelector('[data-hc-datagrid-tree]'));
+    expect($('t-1-1').hidden).toBe(false);
+    expect($('t-1-1-1').hidden).toBe(true); // A1 stays collapsed
+  });
+
+  it('a lazy row fires hc:datagridtreeload once and clears aria-busy on arrival', async () => {
+    document.body.innerHTML = FIXTURE_TREE;
+    uninstall = installDatagrid();
+    const onLoad = vi.fn();
+    $('grid').addEventListener('hc:datagridtreeload', (e) => onLoad(e.detail));
+    const btn = $('t-2-c').querySelector('[data-hc-datagrid-tree]');
+    click(btn);
+    expect($('t-2').getAttribute('aria-expanded')).toBe('true');
+    expect($('t-2').getAttribute('aria-busy')).toBe('true');
+    expect(onLoad).toHaveBeenCalledTimes(1);
+
+    // Simulate the htmx afterend swap.
+    $('t-2').insertAdjacentHTML(
+      'afterend',
+      '<tr class="hc-datagrid__row" id="t-2-1" aria-level="2"><td class="hc-datagrid__cell">Child B1</td><td class="hc-datagrid__cell">file</td></tr>',
+    );
+    await new Promise((r) => setTimeout(r, 0)); // tbody observer
+    expect($('t-2').hasAttribute('aria-busy')).toBe(false);
+
+    // Collapse and re-expand: no second fetch (data-loaded).
+    click(btn);
+    click(btn);
+    expect(onLoad).toHaveBeenCalledTimes(1);
+    expect($('t-2-1').hidden).toBe(false);
+  });
+
+  it('Enter on the lead cell toggles the row', () => {
+    document.body.innerHTML = FIXTURE_TREE;
+    uninstall = installDatagrid();
+    const cell = $('t-1-c');
+    cell.focus();
+    press(cell, 'Enter');
+    expect($('t-1').getAttribute('aria-expanded')).toBe('false');
+  });
+});
+
 const FIXTURE_FOOT = `
   <div class="hc-datagrid" id="grid">
     <div class="hc-datagrid__scroll">

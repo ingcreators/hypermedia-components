@@ -1,0 +1,56 @@
+<!-- Expanded state: the docs row was expanded once.
+
+  installDatagrid() set aria-expanded="true" + data-loaded + aria-busy,
+  dispatched hc:datagridtreeload, and htmx inserted the children right
+  after the row (afterend swap) — each one aria-level="2"; the
+  sub-directory carries its own toggle + lazy wiring. The tbody
+  mutation cleared aria-busy. Collapsing now just hides the loaded
+  descendants; re-expanding shows them without a second request
+  (data-loaded). -->
+<div class="hc-datagrid" id="files-grid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col" data-numeric>Size</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row" id="node-docs" aria-level="1"
+            aria-expanded="true" data-lazy data-loaded
+            data-hx-get="/items/docs/children"
+            data-hx-trigger="hc:datagridtreeload"
+            data-hx-swap="afterend">
+          <td class="hc-datagrid__cell">
+            <button class="hc-datagrid__toggle" type="button"
+                    data-hc-datagrid-tree aria-hidden="true" tabindex="-1"
+                    aria-expanded="true"></button>
+            docs
+          </td>
+          <td class="hc-datagrid__cell" data-numeric>—</td>
+        </tr>
+        <tr class="hc-datagrid__row" id="node-docs-guide" aria-level="2"
+            aria-expanded="false" data-lazy
+            data-hx-get="/items/docs-guide/children"
+            data-hx-trigger="hc:datagridtreeload"
+            data-hx-swap="afterend">
+          <td class="hc-datagrid__cell">
+            <button class="hc-datagrid__toggle" type="button"
+                    data-hc-datagrid-tree aria-hidden="true" tabindex="-1"></button>
+            guide
+          </td>
+          <td class="hc-datagrid__cell" data-numeric>—</td>
+        </tr>
+        <tr class="hc-datagrid__row" id="node-docs-api" aria-level="2">
+          <td class="hc-datagrid__cell">api.md</td>
+          <td class="hc-datagrid__cell" data-numeric>12 KB</td>
+        </tr>
+        <tr class="hc-datagrid__row" id="node-readme" aria-level="1">
+          <td class="hc-datagrid__cell">README.md</td>
+          <td class="hc-datagrid__cell" data-numeric>4 KB</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
