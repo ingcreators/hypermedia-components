@@ -45,8 +45,17 @@ function rowHtml(i) {
 </tr>`;
 }
 
+// The docs demo is the CONTAINER-SCROLLED variant: the grid keeps its
+// own scrollbar, so the sentinel uses `intersect once root:<scroll>`
+// (IntersectionObserver, container-aware) instead of the
+// window-viewport `revealed` — which, with only 15 demo rows, would
+// chain-load everything on a tall screen before any scrolling. The
+// contract's page-scroll shape keeps `revealed`; see its
+// container-scrolled carve-out.
+const DEMO_ROOT = '#datagrid-infinite-demo-scroll';
+
 function sentinelHtml(afterIndex) {
-  return `<tr class="hc-datagrid__row" data-hx-get="${API}/items?after=item-${afterIndex}" data-hx-trigger="revealed" data-hx-swap="outerHTML">
+  return `<tr class="hc-datagrid__row" data-hx-get="${API}/items?after=item-${afterIndex}" data-hx-trigger="intersect once root:${DEMO_ROOT} threshold:0.5" data-hx-swap="outerHTML">
   <td class="hc-datagrid__cell" colspan="4" aria-live="polite"><span class="hc-spinner" aria-hidden="true"></span> Loading…</td>
 </tr>`;
 }

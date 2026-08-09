@@ -1,14 +1,17 @@
 ---
 /*
- * Live demo for the datagrid-infinite recipe. The tbody's `load`
- * trigger fetches the first batch (5 of 15 rows) plus the sentinel
- * from the demo API; each time the sentinel scrolls into view it
- * outerHTML-replaces itself with the next batch + the next sentinel,
- * until the end-of-list marker ("15 of 15") retires it. No height
- * constraint on purpose: htmx's `revealed` is a window-viewport
- * trigger (inside an overflow container it needs `intersect`), so the
- * demo grows the page exactly like a real feed — scroll the docs page
- * past the table to load more.
+ * Live demo for the datagrid-infinite recipe — the CONTAINER-SCROLLED
+ * variant. The grid keeps its own scrollbar (a height cap), so each
+ * sentinel triggers on `intersect once root:#datagrid-infinite-demo-scroll`
+ * (IntersectionObserver, container-aware) rather than the contract's
+ * window-viewport `revealed`.
+ *
+ * Why: `revealed` measures the WINDOW. With only 15 demo rows, a tall
+ * screen has the fresh sentinel already in view, so it chain-loads the
+ * whole list before the reader ever scrolls — the demo would show a
+ * full table instead of infinite scrolling. Real page-scrolled feeds
+ * (the recipe's default shape) keep `revealed`; the contract documents
+ * this carve-out.
  */
 import DemoFrame from './DemoFrame.astro';
 
@@ -16,8 +19,8 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
 ---
 
 <DemoFrame class="hc-preview--col" label="Datagrid infinite scroll demo">
-  <div class="hc-datagrid" style="--hc-datagrid-max-height: none;">
-    <div class="hc-datagrid__scroll">
+  <div class="hc-datagrid" style="--hc-datagrid-max-height: 260px;">
+    <div class="hc-datagrid__scroll" id="datagrid-infinite-demo-scroll">
       <table class="hc-datagrid__table">
         <thead class="hc-datagrid__head">
           <tr>

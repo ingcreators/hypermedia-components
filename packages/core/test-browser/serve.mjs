@@ -1700,10 +1700,15 @@ function dgiRow(i) {
   </tr>`;
 }
 
-function dgiSentinel(afterIndex) {
+// `root` (a selector) switches the sentinel to the container-scrolled
+// variant: `intersect once root:<sel>` instead of the window-viewport
+// `revealed` — the cursor links thread the param along.
+function dgiSentinel(afterIndex, root) {
+  const trigger = root ? `intersect once root:${root} threshold:0.5` : 'revealed';
+  const rootParam = root ? `&root=${encodeURIComponent(root)}` : '';
   return `<tr class="hc-datagrid__row" data-testid="sentinel"
-      data-hx-get="/mock/datagrid-infinite/items?after=item-${afterIndex}"
-      data-hx-trigger="revealed"
+      data-hx-get="/mock/datagrid-infinite/items?after=item-${afterIndex}${rootParam}"
+      data-hx-trigger="${trigger}"
       data-hx-swap="outerHTML">
     <td class="hc-datagrid__cell" colspan="4" aria-live="polite"><span class="hc-spinner" aria-hidden="true"></span> Loading…</td>
   </tr>`;
@@ -1716,11 +1721,12 @@ function handleDatagridInfinite(req, res, url) {
   // from the start (the nearest stable point) — never a 4xx.
   const n = Number.parseInt(url.searchParams.get('after')?.match(/^item-(\d+)$/)?.[1] ?? '', 10);
   const afterIndex = Number.isNaN(n) ? 0 : Math.min(DGI_TOTAL, Math.max(0, n));
+  const root = url.searchParams.get('root');
   const last = Math.min(afterIndex + DGI_BATCH, DGI_TOTAL);
   const parts = [];
   for (let i = afterIndex + 1; i <= last; i += 1) parts.push(dgiRow(i));
   parts.push(last < DGI_TOTAL
-    ? dgiSentinel(last)
+    ? dgiSentinel(last, root)
     : `<tr class="hc-datagrid__row">
     <td class="hc-datagrid__cell" colspan="4" aria-live="polite" data-testid="end">${DGI_TOTAL} of ${DGI_TOTAL}</td>
   </tr>`);

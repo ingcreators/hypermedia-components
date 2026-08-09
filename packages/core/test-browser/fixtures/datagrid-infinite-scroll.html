@@ -1,0 +1,45 @@
+<!doctype html>
+<!-- Fixture for the datagrid-infinite CONTAINER-SCROLLED variant — the
+     grid keeps its own scrollbar (height cap) and the sentinel uses
+     `intersect once root:#feed-scroll` instead of the window-viewport
+     `revealed`. Pins: no chain-load on a tall window (the sentinel
+     below the container fold must NOT fire), one batch per container
+     scroll, and the end marker. This is exactly the docs demo's shape
+     — the regression that motivated it was the demo chain-loading all
+     15 rows on large screens. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid-infinite (container-scrolled) fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Datagrid infinite — container-scrolled</h1>
+
+    <div class="hc-datagrid" data-testid="grid" style="--hc-datagrid-max-height: 200px; max-inline-size: 560px;">
+      <div class="hc-datagrid__scroll" id="feed-scroll" data-testid="scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">ID</th>
+              <th class="hc-datagrid__headcell" scope="col">Product</th>
+              <th class="hc-datagrid__headcell" scope="col">Price</th>
+              <th class="hc-datagrid__headcell" scope="col">Stock</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body" id="feed-rows"
+                 data-hx-get="/mock/datagrid-infinite/items?root=%23feed-scroll"
+                 data-hx-trigger="load"
+                 data-hx-swap="innerHTML">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

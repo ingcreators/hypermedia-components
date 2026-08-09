@@ -1,30 +1,46 @@
 {
-  "detect": "tr[data-hx-trigger*=\"revealed\"]",
+  "detect": "tr[data-hx-trigger*=\"revealed\"], tr[data-hx-trigger*=\"intersect\"][data-hx-get*=\"after=\"]",
   "contract": "contract.md",
   "rules": [
     {
       "id": "fetches-batch",
       "level": "error",
       "message": "The sentinel fetches the next batch: data-hx-get with the after= cursor on the sentinel row.",
-      "attr": { "on": "tr", "name": "data-hx-get", "assert": "present" }
+      "attr": {
+        "on": "tr",
+        "name": "data-hx-get",
+        "assert": "present"
+      }
     },
     {
-      "id": "revealed-trigger",
+      "id": "reveal-trigger",
       "level": "error",
-      "message": "The sentinel loads on reveal: data-hx-trigger=\"revealed\" (a window-viewport trigger — inside an overflow container htmx needs intersect instead).",
-      "attr": { "on": "tr", "name": "data-hx-trigger", "assert": "present", "matches": "revealed" }
+      "message": "The sentinel loads when it comes into view: data-hx-trigger=\"revealed\" (window-scrolled feeds) or \"intersect once root:<container>\" (container-scrolled grids — see the carve-out).",
+      "attr": {
+        "on": "tr",
+        "name": "data-hx-trigger",
+        "assert": "present",
+        "matches": "revealed|intersect"
+      }
     },
     {
       "id": "swap-outerhtml",
       "level": "error",
       "message": "The sentinel must replace ITSELF: data-hx-swap=\"outerHTML\" — anything else accumulates loading rows instead of renewing the one sentinel.",
-      "attr": { "on": "tr", "name": "data-hx-swap", "assert": "present", "value": "outerHTML" }
+      "attr": {
+        "on": "tr",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
     },
     {
       "id": "end-marker-live",
       "level": "warn",
       "message": "Keep the sentinel cell aria-live=\"polite\" — its slot becomes the end-of-list marker (\"40 of 40\"), announced without focus theft.",
-      "exists": { "selector": "[aria-live]" }
+      "exists": {
+        "selector": "[aria-live]"
+      }
     }
   ]
 }

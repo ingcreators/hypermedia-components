@@ -15,7 +15,7 @@ describe('datagrid-infinite demo API', () => {
     expect(body).toContain('>item-1<');
     expect(body).toContain('>item-5<');
     expect(body).toContain(`data-hx-get="${API}/items?after=item-5"`);
-    expect(body).toContain('data-hx-trigger="revealed"');
+    expect(body).toContain('data-hx-trigger="intersect once root:#datagrid-infinite-demo-scroll threshold:0.5"');
     expect(body).toContain('data-hx-swap="outerHTML"');
     expect(body).toContain('aria-live="polite"');
     expect(body).not.toContain('15 of 15');
@@ -34,7 +34,7 @@ describe('datagrid-infinite demo API', () => {
     const body = await (await call(datagridInfinite, 'GET', '/items?after=item-10')).text();
     expect(rowCount(body)).toBe(5);
     expect(body).toContain('>item-15<');
-    expect(body).not.toContain('data-hx-trigger="revealed"');
+    expect(body).not.toContain('data-hx-trigger="intersect');
     expect(body).toContain('15 of 15');
     expect(body).toContain('aria-live="polite"');
   });
@@ -45,7 +45,7 @@ describe('datagrid-infinite demo API', () => {
     const body = await response.text();
     expect(rowCount(body)).toBe(0);
     expect(body).toContain('15 of 15');
-    expect(body).not.toContain('data-hx-trigger="revealed"');
+    expect(body).not.toContain('data-hx-trigger="intersect');
   });
 
   it('resumes stale cursors from the nearest stable point', async () => {
