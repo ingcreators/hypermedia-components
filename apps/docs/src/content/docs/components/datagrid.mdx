@@ -774,6 +774,58 @@ Rows need stable `id`s for this — server-render them
 (`/items?focus=101#row-101`), letting the server render the page that
 contains it.
 
+## Editability states
+
+A business grid has to answer three questions before the user touches a
+cell — **can I edit this**, **must it have a value**, **is it locked** —
+and `gridcell` supports the vocabulary for all three. The behavior
+**derives** it from what you already wrote, so there is nothing extra to
+author:
+
+| State | Announced as | Derived from |
+| --- | --- | --- |
+| editable + required | `aria-required="true"` | the column editor template's control carrying `required` |
+| editable + optional | neither attribute | `data-editable` + a matching editor template |
+| locked | `aria-readonly="true"` | the absence of `data-editable` |
+
+Three rules keep it honest:
+
+- **A server-rendered value always wins.** Requiredness that depends on
+  the row ("required only while the order is open") is a server rule —
+  render `aria-required` on the cell and the behavior leaves it alone.
+- **A wholly read-only grid says so once**, on the grid element, rather
+  than repeating itself on every cell.
+- **Editability is per cell, so row state works out of the box.**
+  Unshipped rows editable, shipped rows locked is just the server not
+  rendering `data-editable` on the locked ones; a row swap re-derives
+  everything, so the announcement follows the data.
+
+### Affordance
+
+Editable cells get a **hover / focus affordance** by default (cursor +
+a subtle inset border) — discoverable exactly when the user is looking
+at the cell, and silent at rest, which matters at 200 rows. For a
+standing mark, opt in per grid and **mark the exception**:
+
+```html
+<!-- mostly read-only grid → mark what CAN be edited -->
+<div class="hc-datagrid" data-hc-editable-hint="editable">
+
+<!-- mostly editable grid → sink what cannot -->
+<div class="hc-datagrid" data-hc-editable-hint="readonly">
+```
+
+Required-ness is marked with a `*` wherever `aria-required="true"`
+sits: put it on the **column header** when the whole column is required
+(said once, survives printing), and on the **cell** when it varies by
+row. The server decides which, because only it knows the rule. Colour
+is never the only channel — the marker is text and the state is in the
+accessibility tree either way.
+
+"Required but empty" is a *row error*, not a column property: use the
+server-rendered `data-invalid` / `data-tone` vocabulary from
+[edit feedback](#edit-feedback) for that.
+
 ## Inline editing
 
 Editing reuses existing HC form controls rather than a bespoke editor
@@ -822,6 +874,14 @@ Typing through an IME also works: composition keystrokes open the editor
 never swallowed by the cell.
 **Commit:** `Enter`, moving focus out of the cell, or — for a combobox —
 picking an option. **Cancel:** `Escape` (restores the original value).
+
+**A row replaced while its editor is open** — an SSE update, another
+user's change, a pager refresh — discards the open edit: the row it
+belonged to is gone. The grid drops the editing state so keyboard
+navigation keeps working on the new rows. If silent loss is
+unacceptable, pair remote row updates with the
+[edit-conflict contract](/hypermedia-components/recipes/datagrid-edit-conflict/)
+so the commit is refused rather than overwritten.
 
 **Validation:** the editor control's native constraints are the API —
 give the template's input `required`, `pattern`, `min` / `max` or
@@ -911,6 +971,7 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Tree rows | `aria-level` (every row) · `aria-expanded` + `data-hc-datagrid-tree` toggle (expandable row) · `data-lazy` + htmx wiring (lazy row) | `installDatagrid()` |
 | Expandable row detail | `data-hc-datagrid-toggle` (button) · `data-expanded` (record `<tbody>`, start open) · `data-lazy` (detail cell) | `installDatagrid()` |
 | Inline editing | `data-editable` + `data-col` (+ `data-value`) (cell) · `data-datagrid-editor` + `data-col` (`<template>`) | `installDatagrid()` |
+| Editability states | derived `aria-required` / `aria-readonly` (cell or grid; a server-rendered value wins) · `data-hc-editable-hint` — `editable` / `readonly` (grid) | `installDatagrid()` |
 | Selection actions bar | `data-hc-datagrid-actions="<selector>"` (bar) · `data-hc-datagrid-count` (count element) | `installDatagridActions()` |
 
 The behavior also *writes* state attributes for the CSS — `data-active`,

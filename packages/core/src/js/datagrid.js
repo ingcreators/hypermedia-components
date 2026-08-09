@@ -260,10 +260,43 @@ function attach(grid, detachers) {
     for (const h of ownedBy(grid, '.hc-datagrid__headcell')) {
       if (!h.getAttribute('role')) h.setAttribute('role', 'columnheader');
     }
+    // Editability is a per-CELL fact (a row's state can lock it), and
+    // `gridcell` supports both attributes — so derive them from what
+    // the author already wrote and never overwrite a server-rendered
+    // value (conditional requiredness is a server rule).
+    //   editable + required → aria-required="true"
+    //   editable + optional → neither
+    //   not editable        → aria-readonly="true"
+    // A grid with no editors at all says so ONCE on the grid instead of
+    // repeating itself on every cell.
+    const anyEditable = matrix
+      .flat()
+      .some((cell) => cell.hasAttribute('data-editable'));
+    // On the TABLE, which carries role="grid" — the wrapper div has no
+    // role, and aria-* on a roleless element is invalid.
+    if (!anyEditable && templates.size === 0) {
+      table.setAttribute('aria-readonly', 'true');
+    } else {
+      table.removeAttribute('aria-readonly');
+    }
+
     // A spanning cell occupies several matrix slots — visit each cell once.
     new Set(matrix.flat()).forEach((cell) => {
       cell.setAttribute('role', cell.tagName === 'TH' ? 'rowheader' : 'gridcell');
       cell.tabIndex = -1;
+      const editable =
+        cell.hasAttribute('data-editable') && templates.has(cell.dataset.col);
+      if (anyEditable) {
+        if (!editable && !cell.hasAttribute('aria-readonly')) {
+          cell.setAttribute('aria-readonly', 'true');
+        }
+        if (editable && !cell.hasAttribute('aria-required')) {
+          const ctrl = editorControl(
+            templates.get(cell.dataset.col).content.firstElementChild,
+          );
+          if (ctrl?.required) cell.setAttribute('aria-required', 'true');
+        }
+      }
       // Widgets in cells are not separate tab stops — the grid manages focus.
       cell.querySelectorAll(WIDGETS).forEach((w) => {
         w.tabIndex = -1;
@@ -1463,6 +1496,21 @@ function attach(grid, detachers) {
   const tbody = grid.querySelector('.hc-datagrid__body');
   if (typeof MutationObserver !== 'undefined') {
     mo = new MutationObserver(() => {
+      // A row replaced WHILE its editor was open (an SSE update,
+      // another user's change, a pager refresh) leaves editingCell
+      // pointing at a detached node. Left alone it strands the
+      // behavior: onKeydown returns early whenever editingCell is set,
+      // so keyboard navigation stops responding, and a later commit
+      // would write into a node no longer in the document. The row is
+      // gone either way — drop the editing state so navigation
+      // resumes. (Apps that cannot afford silent loss should pair
+      // remote row updates with the edit-conflict contract.)
+      if (editingCell && !grid.contains(editingCell)) {
+        delete editingCell.__hcOldValue;
+        delete editingCell.__hcOldHTML;
+        editingCell = null;
+        pendingCombo = null;
+      }
       rebuild();
       // Lazy tree children have arrived — clear the loading state.
       for (const r of ownedBy(grid, '.hc-datagrid__row[data-loaded][aria-busy]')) {

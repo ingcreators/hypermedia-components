@@ -540,6 +540,50 @@
     text-align: inherit;
   }
 
+  /* ---- Editability affordance (editability plan §1.2) ----
+     Which of "editable" and "locked" is the exception differs per app,
+     so the standing marks are opt-in per grid and the discovery
+     affordance costs nothing at rest.
+
+     The hover/focus affordance is the default: it appears exactly when
+     the user is looking at the cell, so a 200-row grid stays quiet.
+     It keys off `data-editable`, so a server that stops rendering the
+     attribute (a shipped row, say) stops the affordance in the same
+     breath. */
+  .hc-datagrid__cell[data-editable] {
+    cursor: cell;
+  }
+
+  .hc-datagrid__cell[data-editable]:hover,
+  .hc-datagrid__cell[data-editable][data-active] {
+    box-shadow: inset 0 0 0 1px var(--hc-datagrid-border);
+  }
+
+  /* Mostly read-only grid → mark the editable cells. */
+  .hc-datagrid[data-hc-editable-hint="editable"] .hc-datagrid__cell[data-editable] {
+    background-image: linear-gradient(
+      var(--hc-datagrid-row-hover-bg),
+      var(--hc-datagrid-row-hover-bg)
+    );
+  }
+
+  /* Mostly editable grid → sink the locked cells instead. */
+  .hc-datagrid[data-hc-editable-hint="readonly"]
+    .hc-datagrid__cell[aria-readonly="true"] {
+    color: var(--hc-color-text-muted);
+  }
+
+  /* Required columns mark their HEADER — required-ness is usually a
+     column property, and repeating a marker down 200 rows is noise.
+     When it varies per row the server marks the cell instead (the
+     `*` convention is the same; see the docs). */
+  .hc-datagrid__headcell[aria-required="true"]::before,
+  .hc-datagrid__cell[aria-required="true"]::before {
+    content: "*";
+    margin-inline-end: 0.25em;
+    color: var(--hc-color-status-error-fg);
+  }
+
   /* ---- Edit feedback (edit-feedback plan §1.1) ---- */
 
   /* Saving: the optimistic commit awaiting the server's row re-render.

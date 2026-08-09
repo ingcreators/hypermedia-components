@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: editability states are now announced and afforded
+  (`plans/hc-datagrid-editability-plan-en.md` §1.1, §1.2).
+  `installDatagrid()` derives **`aria-required`** from the column
+  editor template's `required` and **`aria-readonly`** from the absence
+  of `data-editable` — per cell, so row-state-dependent editability
+  (unshipped editable, shipped locked) works without a client-side
+  rule; a server-rendered value always wins, and a wholly read-only
+  grid says so once on the table (which carries `role="grid"`) instead
+  of on every cell. Editable
+  cells gain a hover/focus affordance by default, `*` marks anything
+  `aria-required`, and the opt-in `data-hc-editable-hint="editable" |
+  "readonly"` marks whichever of the two is the exception in that grid
+  (forced-colors fallback included).
+
 - **recipes**: `datagrid-bulk-errors` — bulk-action failures at scale
   (`plans/hc-datagrid-bulk-errors-plan-en.md`). Makes the **execution
   semantics** an explicit contract choice: *best-effort* (`200`, rows
@@ -35,6 +49,29 @@ Security    — security-relevant changes
   named row links back into the grid (`#row-<id>`, or
   `?focus=<id>#row-<id>` for another page). Machine-checked contract;
   live docs demo (en/ja).
+
+- **recipes**: `datagrid-edit-conflict` — the 409 wire for datagrid
+  inline editing (`plans/hc-datagrid-edit-feedback-plan-en.md` §1.3).
+  Optimistic locking per row: the record `<tbody>` carries
+  `data-version` and the PATCH includes it; a stale version answers
+  `409` with the record re-rendered as a conflict presentation — the
+  server's current values in the cells (`data-tone="error"`), the
+  fresh version, and a `role="alert"` conflict row naming both values
+  with **Overwrite** (static-vals re-submit against the fresh version)
+  and **Discard** (`GET` of the row) actions. The row is the merge UI;
+  overwrite is last-writer-wins by explicit consent. Machine-checked
+  contract; live docs demo (en/ja).
+
+- **recipes**: `datagrid-edit-errors` — the 422 wire for datagrid
+  inline editing (`plans/hc-datagrid-edit-feedback-plan-en.md` §1.2).
+  Each row is its own record `<tbody>` carrying the persistence wiring
+  (`hc:datagridedit` → PATCH → `outerHTML`); `200` answers
+  the record with the row alone (server formatting confirms the
+  optimistic commit and clears `data-pending`), `422` answers the
+  record with the server's value restored, the cell marked
+  `data-invalid` + aria wiring, and the `__error-row` naming the
+  rejected input — one atomic swap unit, no stale error rows.
+  Machine-checked contract; live docs demo (en/ja).
 
 ### Changed
 
@@ -60,6 +97,17 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **datagrid**: a row replaced **while its editor was open** (an SSE
+  update, another user's change, a pager refresh) left the internal
+  editing state pointing at a detached node — and since the keyboard
+  handler returns early whenever an edit is in progress, **the grid's
+  keyboard navigation stopped responding** until an edit was started
+  and finished again; a later commit would also have written into a
+  node no longer in the document. The behavior now drops the editing
+  state when the edited cell leaves the grid, so navigation and
+  editing resume on the swapped-in rows. Row-state-dependent
+  editability makes this a routine path, not a corner case.
+
 - **docs / recipes**: the `datagrid-infinite` live demo chain-loaded
   all 15 rows before the reader could scroll. `revealed` measures the
   **window** viewport, so on a tall screen every renewed sentinel was
@@ -72,33 +120,6 @@ Security    — security-relevant changes
   **container-scrolled carve-out** documenting the trigger swap and
   both failure modes (deadlock and chain-load); `hc validate` accepts
   either trigger.
-
-### Added
-
-- **recipes**: `datagrid-edit-conflict` — the 409 wire for datagrid
-  inline editing (`plans/hc-datagrid-edit-feedback-plan-en.md` §1.3).
-  Optimistic locking per row: the record `<tbody>` carries
-  `data-version` and the PATCH includes it; a stale version answers
-  `409` with the record re-rendered as a conflict presentation — the
-  server's current values in the cells (`data-tone="error"`), the
-  fresh version, and a `role="alert"` conflict row naming both values
-  with **Overwrite** (static-vals re-submit against the fresh version)
-  and **Discard** (`GET` of the row) actions. The row is the merge UI;
-  overwrite is last-writer-wins by explicit consent. Machine-checked
-  contract; live docs demo (en/ja).
-
-- **recipes**: `datagrid-edit-errors` — the 422 wire for datagrid
-  inline editing (`plans/hc-datagrid-edit-feedback-plan-en.md` §1.2).
-  Each row is its own record `<tbody>` carrying the persistence wiring
-  (`hc:datagridedit` → PATCH → `outerHTML`); `200` answers
-  the record with the row alone (server formatting confirms the
-  optimistic commit and clears `data-pending`), `422` answers the
-  record with the server's value restored, the cell marked
-  `data-invalid` + aria wiring, and the `__error-row` naming the
-  rejected input — one atomic swap unit, no stale error rows.
-  Machine-checked contract; live docs demo (en/ja).
-
-### Fixed
 
 - **datagrid**: `hc:datagridedit` now dispatches from the **edited
   cell** (bubbling through row → record → grid) instead of the grid
@@ -234,8 +255,6 @@ Security    — security-relevant changes
   `preventDefault()` claims the clipboard write). `Ctrl/Cmd+A` selects
   every row on the page through the select-all path instead of
   selecting the document.
-
-### Fixed
 
 - **datagrid**: type-to-edit is now IME-safe. Composition keystrokes on
   an editable cell (`isComposing`, key `Process`, or keyCode 229) open
