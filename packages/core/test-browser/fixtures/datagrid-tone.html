@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-datagrid / hc-table data-tone fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <main class="hc-stack">
+    <h1>data-tone</h1>
+  <div class="hc-datagrid" data-testid="grid" style="max-inline-size: 560px;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+            <th class="hc-datagrid__headcell" scope="col" data-numeric>Δ</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">Ingest pipeline</td>
+            <td class="hc-datagrid__cell" data-tone="success" data-testid="cell-success">Active</td>
+            <td class="hc-datagrid__cell" data-numeric>+4%</td>
+          </tr>
+          <tr class="hc-datagrid__row" data-tone="warning" data-testid="row-warning">
+            <td class="hc-datagrid__cell" data-testid="row-warning-first">Billing export</td>
+            <td class="hc-datagrid__cell">Pending</td>
+            <td class="hc-datagrid__cell" data-numeric>0%</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">Legacy sync</td>
+            <td class="hc-datagrid__cell" data-tone="error" data-testid="cell-error">Failed</td>
+            <td class="hc-datagrid__cell" data-numeric data-tone="error">-12%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <table class="hc-table" data-testid="table" style="max-inline-size: 560px;">
+    <thead>
+      <tr><th scope="col">Name</th><th scope="col">Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Ingest pipeline</td><td data-tone="success" data-testid="t-success">Active</td></tr>
+      <tr data-tone="error" data-testid="t-row-error"><td data-testid="t-row-error-first">Legacy sync</td><td>Failed</td></tr>
+    </tbody>
+  </table>
+  </main>
+</body>
+</html>

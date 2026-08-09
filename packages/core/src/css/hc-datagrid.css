@@ -280,6 +280,52 @@
     );
   }
 
+  /* ---- Conditional formatting: data-tone ----
+     The server evaluates the rules and renders the OUTCOME as an
+     attribute (info | success | warning | error); the CSS only paints
+     it. Same opaque-gradient technique as the state tints so frozen
+     cells stay occlusive. Don't rely on the color alone — keep the
+     value (or an icon/text marker) in the cell. */
+  .hc-datagrid__cell[data-tone="info"],
+  .hc-datagrid__row[data-tone="info"] > .hc-datagrid__cell,
+  .hc-datagrid__record[data-tone="info"] .hc-datagrid__cell {
+    background-image: linear-gradient(
+      var(--hc-datagrid-tone-info-bg),
+      var(--hc-datagrid-tone-info-bg)
+    );
+    color: var(--hc-datagrid-tone-info-fg);
+  }
+
+  .hc-datagrid__cell[data-tone="success"],
+  .hc-datagrid__row[data-tone="success"] > .hc-datagrid__cell,
+  .hc-datagrid__record[data-tone="success"] .hc-datagrid__cell {
+    background-image: linear-gradient(
+      var(--hc-datagrid-tone-success-bg),
+      var(--hc-datagrid-tone-success-bg)
+    );
+    color: var(--hc-datagrid-tone-success-fg);
+  }
+
+  .hc-datagrid__cell[data-tone="warning"],
+  .hc-datagrid__row[data-tone="warning"] > .hc-datagrid__cell,
+  .hc-datagrid__record[data-tone="warning"] .hc-datagrid__cell {
+    background-image: linear-gradient(
+      var(--hc-datagrid-tone-warning-bg),
+      var(--hc-datagrid-tone-warning-bg)
+    );
+    color: var(--hc-datagrid-tone-warning-fg);
+  }
+
+  .hc-datagrid__cell[data-tone="error"],
+  .hc-datagrid__row[data-tone="error"] > .hc-datagrid__cell,
+  .hc-datagrid__record[data-tone="error"] .hc-datagrid__cell {
+    background-image: linear-gradient(
+      var(--hc-datagrid-tone-error-bg),
+      var(--hc-datagrid-tone-error-bg)
+    );
+    color: var(--hc-datagrid-tone-error-fg);
+  }
+
   /* Active cell — the keyboard focus target (installDatagrid sets
      data-active). */
   .hc-datagrid__cell[data-active] {

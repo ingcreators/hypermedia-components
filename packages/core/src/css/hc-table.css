@@ -27,6 +27,38 @@
     text-align: end;
   }
 
+  /* Conditional formatting: the server evaluates the rules and renders
+   * the outcome as data-tone (info | success | warning | error) on a
+   * cell or a whole row; the CSS only paints it via the shared semantic
+   * status colors. Don't rely on the color alone. */
+  .hc-table td[data-tone="info"],
+  .hc-table th[data-tone="info"],
+  .hc-table tr[data-tone="info"] > * {
+    background-color: var(--hc-color-status-info-bg);
+    color: var(--hc-color-status-info-fg);
+  }
+
+  .hc-table td[data-tone="success"],
+  .hc-table th[data-tone="success"],
+  .hc-table tr[data-tone="success"] > * {
+    background-color: var(--hc-color-status-success-bg);
+    color: var(--hc-color-status-success-fg);
+  }
+
+  .hc-table td[data-tone="warning"],
+  .hc-table th[data-tone="warning"],
+  .hc-table tr[data-tone="warning"] > * {
+    background-color: var(--hc-color-status-warning-bg);
+    color: var(--hc-color-status-warning-fg);
+  }
+
+  .hc-table td[data-tone="error"],
+  .hc-table th[data-tone="error"],
+  .hc-table tr[data-tone="error"] > * {
+    background-color: var(--hc-color-status-error-bg);
+    color: var(--hc-color-status-error-fg);
+  }
+
   .hc-table thead th {
     background: var(--hc-table-header-bg);
     color: var(--hc-table-header-fg);

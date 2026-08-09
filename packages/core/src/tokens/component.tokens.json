@@ -475,6 +475,38 @@
       "$type": "color",
       "$value": "{semantic.color.action.primary-soft.bg}"
     },
+    "tone-info-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.info.bg}"
+    },
+    "tone-info-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.info.fg}"
+    },
+    "tone-success-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.success.bg}"
+    },
+    "tone-success-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.success.fg}"
+    },
+    "tone-warning-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.warning.bg}"
+    },
+    "tone-warning-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.warning.fg}"
+    },
+    "tone-error-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.error.bg}"
+    },
+    "tone-error-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.error.fg}"
+    },
     "subrow-border": {
       "$type": "color",
       "$value": "color-mix(in oklab, {semantic.color.border} 55%, {semantic.color.surface})"
