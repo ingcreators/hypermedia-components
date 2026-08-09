@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: native validation gates the inline-edit commit
+  (`plans/hc-datagrid-enrichment-plan-en.md` §1.9). An editor template
+  control carrying `required` / `pattern` / `min` / `max` / `maxlength`
+  must satisfy them before the value is written back — the editor stays
+  open with the native `reportValidity()` message, no `hc:datagridedit`
+  fires, and type-to-edit on another cell won't abandon an invalid
+  editor. `Escape` still cancels; combobox picks bypass (options are
+  valid by construction). No new attributes — the constraints are the
+  API.
+
 - **datagrid / table**: declarative conditional formatting via
   `data-tone="info | success | warning | error"` on a cell, a row, or a
   record `<tbody>` (`plans/hc-datagrid-enrichment-plan-en.md` §1.8).

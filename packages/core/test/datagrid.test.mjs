@@ -347,6 +347,51 @@ describe('installDatagrid — inline editing', () => {
     expect(input.value).toBe('Ada');
   });
 
+  it('an invalid editor value blocks the commit and keeps the editor open', () => {
+    document.body.innerHTML = FIXTURE_EDIT.replace(
+      '<input class="hc-input" type="text" aria-label="Name">',
+      '<input class="hc-input" type="text" required pattern="[A-Z].*" aria-label="Name">',
+    );
+    uninstall = installDatagrid();
+    const onEdit = vi.fn();
+    $('grid').addEventListener('hc:datagridedit', onEdit);
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Enter');
+    const input = cell.querySelector('input');
+    input.value = ''; // violates required
+    press(input, 'Enter');
+    expect(cell.getAttribute('data-editing')).toBe(''); // still editing
+    expect(onEdit).not.toHaveBeenCalled();
+
+    input.value = 'lower'; // violates the pattern
+    press(input, 'Enter');
+    expect(cell.getAttribute('data-editing')).toBe('');
+    expect(onEdit).not.toHaveBeenCalled();
+
+    input.value = 'Grace'; // satisfies both
+    press(input, 'Enter');
+    expect(cell.hasAttribute('data-editing')).toBe(false);
+    expect(cell.textContent).toBe('Grace');
+    expect(onEdit).toHaveBeenCalledTimes(1);
+  });
+
+  it('Escape still cancels an invalid editor', () => {
+    document.body.innerHTML = FIXTURE_EDIT.replace(
+      '<input class="hc-input" type="text" aria-label="Name">',
+      '<input class="hc-input" type="text" required aria-label="Name">',
+    );
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Enter');
+    const input = cell.querySelector('input');
+    input.value = '';
+    press(input, 'Escape');
+    expect(cell.hasAttribute('data-editing')).toBe(false);
+    expect(cell.textContent).toBe('Ada'); // restored
+  });
+
   it('compositionstart on a non-editable cell does nothing', () => {
     document.body.innerHTML = FIXTURE;
     uninstall = installDatagrid();

@@ -1021,6 +1021,18 @@ function attach(grid, detachers) {
 
   function endEdit(restore) {
     if (!editingCell) return;
+    // Native validation gates the commit: an editor control carrying
+    // required / pattern / min / max / maxlength must satisfy them before
+    // the value is written back. The editor stays open with the native
+    // message; Escape still cancels. (A combobox pick bypasses this —
+    // options are valid by construction.)
+    if (!restore && !pendingCombo) {
+      const ctrl = editorControl(editingCell.firstElementChild ?? editingCell);
+      if (ctrl && typeof ctrl.checkValidity === 'function' && !ctrl.checkValidity()) {
+        ctrl.reportValidity?.();
+        return;
+      }
+    }
     const cell = editingCell;
     editingCell = null;
     cell.removeAttribute('data-editing');
@@ -1082,7 +1094,10 @@ function attach(grid, detachers) {
     const tpl = templates.get(cell.dataset.col);
     if (!tpl) return;
     hideTip();
-    if (editingCell) commitEdit();
+    if (editingCell) {
+      commitEdit();
+      if (editingCell) return; // commit refused (invalid) — stay there
+    }
 
     const oldLabel = cell.textContent.trim();
     const oldValue = cell.dataset.value ?? oldLabel;

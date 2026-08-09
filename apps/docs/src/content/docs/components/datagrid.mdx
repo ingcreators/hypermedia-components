@@ -758,6 +758,15 @@ never swallowed by the cell.
 **Commit:** `Enter`, moving focus out of the cell, or — for a combobox —
 picking an option. **Cancel:** `Escape` (restores the original value).
 
+**Validation:** the editor control's native constraints are the API —
+give the template's input `required`, `pattern`, `min` / `max` or
+`maxlength`, and an invalid value blocks the commit: the editor stays
+open showing the native message (`reportValidity()`), nothing is
+written back, and no event fires. `Escape` still cancels. Server-side
+rejection stays the
+[inline-edit recipe](/hypermedia-components/recipes/inline-edit/)'s 422
+contract.
+
 On commit the value is written back (`data-value` + the cell's display
 text) and the grid dispatches **`hc:datagridedit`** with
 `detail: { cell, col, value, label, oldValue }`. Persist it with htmx —
