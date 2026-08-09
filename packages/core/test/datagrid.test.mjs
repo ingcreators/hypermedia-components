@@ -1002,6 +1002,23 @@ describe('installDatagrid — column resize', () => {
     expect(onResize.mock.calls.at(-1)[0]).toMatchObject({ col: 'name', width: 40 });
   });
 
+  it('Enter (or double-click) on the grip auto-sizes to the widest cell', () => {
+    document.body.innerHTML = FIXTURE_RESIZE;
+    uninstall = installDatagrid();
+    const onResize = vi.fn();
+    $('grid').addEventListener('hc:datagridcolumnresize', (e) => onResize(e.detail));
+    const handle = $('h-name').querySelector('.hc-datagrid__resizer');
+    press(handle, 'Enter');
+    // jsdom has no layout (scrollWidth 0) → clamps to the 40px minimum;
+    // the point is the fit-to-content pathway fires and emits.
+    expect($('h-name').style.inlineSize).toBe('40px');
+    expect(onResize).toHaveBeenCalledWith({ col: 'name', width: 40 });
+
+    onResize.mockClear();
+    handle.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+    expect(onResize).toHaveBeenCalledTimes(1);
+  });
+
   it('mirrors the committed width into declared prefs inputs before the event', () => {
     document.body.innerHTML =
       FIXTURE_RESIZE +
@@ -1128,6 +1145,33 @@ describe('installDatagrid — sortable columns', () => {
     expect(b.getAttribute('aria-sort')).toBe('descending');
     expect(a.dataset.sortIndex).toBeUndefined();
     expect(b.dataset.sortIndex).toBeUndefined();
+  });
+
+  it('data-sortable="client" reorders the rendered page rows in the DOM', () => {
+    document.body.innerHTML = FIXTURE;
+    const heads = document.querySelectorAll(
+      '.hc-datagrid__head > tr:nth-child(2) > .hc-datagrid__headcell',
+    );
+    heads[0].setAttribute('data-sortable', 'client');
+    heads[0].setAttribute('data-col', 'a');
+    // Give column A comparable values (numeric via data-value).
+    $('c-1-a').dataset.value = '20';
+    $('c-2-a').dataset.value = '5';
+    // data-col markers so the client sort finds the cells.
+    $('c-1-a').setAttribute('data-col', 'a');
+    $('c-2-a').setAttribute('data-col', 'a');
+    uninstall = installDatagrid();
+    const details = [];
+    $('grid').addEventListener('hc:datagridsort', (e) => details.push(e.detail));
+
+    click(heads[0]); // ascending → 5 before 20 → row-2 first
+    let ids = [...document.querySelectorAll('.hc-datagrid__body > tr')].map((r) => r.id);
+    expect(ids).toEqual(['row-2', 'row-1']);
+    expect(details.at(-1)).toMatchObject({ col: 'a', direction: 'asc' });
+
+    click(heads[0]); // descending → 20 first
+    ids = [...document.querySelectorAll('.hc-datagrid__body > tr')].map((r) => r.id);
+    expect(ids).toEqual(['row-1', 'row-2']);
   });
 
   it('Shift+Enter on a focused header adds to the sort set', () => {

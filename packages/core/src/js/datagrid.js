@@ -361,7 +361,30 @@ function attach(grid, detachers) {
       handle.releasePointerCapture?.(event.pointerId);
       emitResize(key, th.getBoundingClientRect().width);
     }
+    // Auto-size: fit the column to its widest rendered cell content
+    // (scrollWidth includes padding, so a clipped cell reports its full
+    // content width). Double-click the grip, or Enter while it has focus.
+    function autoSize() {
+      let max = MIN_COL;
+      for (const cell of columnCells(key)) {
+        max = Math.max(max, cell.scrollWidth + 2);
+      }
+      setColumnWidth(key, max);
+      emitResize(key, max);
+    }
+
+    function onDblclickHandle(event) {
+      event.preventDefault();
+      event.stopPropagation(); // not a cell double-click (edit)
+      autoSize();
+    }
+
     function onKeydown(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        autoSize();
+        return;
+      }
       const step = event.shiftKey ? 32 : 8;
       const cur = th.getBoundingClientRect().width;
       let w;
@@ -376,11 +399,13 @@ function attach(grid, detachers) {
     handle.addEventListener('pointerdown', onPointerDown);
     handle.addEventListener('pointermove', onPointerMove);
     handle.addEventListener('pointerup', onPointerUp);
+    handle.addEventListener('dblclick', onDblclickHandle);
     handle.addEventListener('keydown', onKeydown);
     resizerCleanups.push(() => {
       handle.removeEventListener('pointerdown', onPointerDown);
       handle.removeEventListener('pointermove', onPointerMove);
       handle.removeEventListener('pointerup', onPointerUp);
+      handle.removeEventListener('dblclick', onDblclickHandle);
       handle.removeEventListener('keydown', onKeydown);
       handle.remove();
     });
@@ -783,6 +808,40 @@ function attach(grid, detachers) {
   const isSorted = (h) =>
     /^(ascending|descending)$/.test(h.getAttribute('aria-sort') || '');
 
+  // Opt-in client sort of the ALREADY-RENDERED page (data-sortable="client")
+  // — explicitly allowed by the depth plan for small, fully-loaded tables.
+  // Reorders the flat tbody rows only; any htmx swap restores the server's
+  // order, which is correct (the server's order wins after a round trip).
+  function clientSort(th, direction) {
+    if (direction == null) return; // cleared — the server's order returns on swap
+    const key = th.dataset.col;
+    const colIndex = [...th.parentElement.children].indexOf(th);
+    const tbody = grid.querySelector('.hc-datagrid__body');
+    if (!tbody) return; // multi-row records: server sort only
+    const rows = [...tbody.children].filter(
+      (r) =>
+        r.classList.contains('hc-datagrid__row') &&
+        !r.classList.contains('hc-datagrid__grouprow'),
+    );
+    const valueOf = (row) => {
+      const cell =
+        (key && row.querySelector(`[data-col="${key}"]`)) || rowCells(row)[colIndex];
+      const raw = cell?.dataset.value ?? cell?.textContent.trim() ?? '';
+      const n = Number(raw.replace(/[,\s]/g, ''));
+      return raw !== '' && Number.isFinite(n) ? n : raw;
+    };
+    rows.sort((a, b) => {
+      const va = valueOf(a);
+      const vb = valueOf(b);
+      const cmp =
+        typeof va === 'number' && typeof vb === 'number'
+          ? va - vb
+          : String(va).localeCompare(String(vb));
+      return direction === 'desc' ? -cmp : cmp;
+    });
+    for (const row of rows) tbody.appendChild(row); // observer rebuilds
+  }
+
   // A plain activation resets to single-column sort; Shift adds the
   // column to the sort set instead. The client only marks the
   // instruction (aria-sort + the data-sort-index ordinal) — the server
@@ -830,6 +889,9 @@ function attach(grid, detachers) {
       col: colOf(h),
       direction: h.getAttribute('aria-sort') === 'ascending' ? 'asc' : 'desc',
     }));
+    if (th.getAttribute('data-sortable') === 'client') {
+      clientSort(th, direction);
+    }
     grid.dispatchEvent(
       new CustomEvent('hc:datagridsort', {
         bubbles: true,

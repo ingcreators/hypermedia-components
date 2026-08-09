@@ -78,6 +78,29 @@ test.describe('datagrid sortable headers', () => {
     await expect(name).not.toHaveAttribute('data-sort-index', /.+/);
   });
 
+  test('data-sortable="client" reorders the rendered page rows', async ({ page }) => {
+    await page.evaluate(() => {
+      document
+        .querySelector('[data-testid="h-name"]')
+        .setAttribute('data-sortable', 'client');
+    });
+    const names = () =>
+      page.evaluate(() =>
+        [...document.querySelectorAll('.hc-datagrid__body > tr')].map((r) =>
+          r.children[1].textContent.trim(),
+        ),
+      );
+    await page.getByTestId('h-name').click(); // ascending
+    const asc = await names();
+    expect(asc).toEqual([...asc].sort((a, b) => a.localeCompare(b)));
+    await page.getByTestId('h-name').click(); // descending
+    const desc = await names();
+    expect(desc).toEqual([...asc].reverse());
+    // The instruction event still fires for observers.
+    const last = await page.evaluate(() => window.__sorts.at(-1));
+    expect(last).toMatchObject({ col: 'name', direction: 'desc' });
+  });
+
   test('keyboard: focus + Enter sorts', async ({ page }) => {
     const name = page.getByTestId('h-name');
     await name.focus();
