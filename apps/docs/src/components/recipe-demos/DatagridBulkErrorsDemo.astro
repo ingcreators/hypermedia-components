@@ -1,0 +1,85 @@
+---
+/*
+ * Live demo for the datagrid-bulk-errors recipe. Two actions on one
+ * selection, so both execution modes are visible side by side:
+ *
+ *   Archive        — best-effort: runs, reports what happened, marks
+ *                    the failed rows, offers the failed-only filter.
+ *   Post to ledger — atomic: pre-flights first, and a run containing a
+ *                    blocked row refuses with 409, rows unchanged and
+ *                    the selection kept.
+ *
+ * 102 / 105 / 108 are "shipped" and 107 is "not yours" — select one of
+ * those with a normal row to see each branch.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-bulk-errors`;
+const rows = [101, 102, 103, 104, 105, 106, 107, 108];
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid bulk errors demo">
+  <form method="post" action={`${api}/bulk`}>
+    <div id="bulk-errors-demo-report" aria-live="polite"></div>
+
+    <div
+      class="hc-toolbar"
+      role="toolbar"
+      aria-label="Bulk actions"
+      data-hc-datagrid-actions="#bulk-errors-demo-grid"
+      hidden>
+      <span data-hc-datagrid-count></span>
+      <button
+        class="hc-button"
+        type="submit"
+        name="action"
+        value="archive"
+        data-hx-post={`${api}/bulk`}
+        data-hx-target="#bulk-errors-demo-rows"
+        data-hx-swap="innerHTML"
+        data-hx-disabled-elt="this">Archive（best-effort）</button>
+      <button
+        class="hc-button"
+        data-variant="primary"
+        type="button"
+        data-hx-get={`${api}/preflight?action=post`}
+        data-hx-include="closest form"
+        data-hx-target="#bulk-errors-demo-report"
+        data-hx-swap="innerHTML"
+        data-hx-disabled-elt="this">Post to ledger…（atomic）</button>
+    </div>
+
+    <div class="hc-datagrid" id="bulk-errors-demo-grid" style="--hc-datagrid-max-height: 260px;">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell">
+                <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+              </th>
+              <th class="hc-datagrid__headcell" scope="col">Product</th>
+              <th class="hc-datagrid__headcell" scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body" id="bulk-errors-demo-rows">
+            {rows.map((id) => (
+              <tr class="hc-datagrid__row" id={`bulk-errors-demo-row-${id}`}>
+                <td class="hc-datagrid__cell">
+                  <input
+                    type="checkbox"
+                    class="hc-checkbox"
+                    name="ids"
+                    value={String(id)}
+                    aria-label={`Select Product ${id}`}
+                  />
+                </td>
+                <td class="hc-datagrid__cell">Product {id}</td>
+                <td class="hc-datagrid__cell">Active</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </form>
+</DemoFrame>

@@ -1,0 +1,146 @@
+---
+title: データグリッドの一括操作エラー
+description: 大量エラーに耐える一括操作 — best-effort と atomic を契約として明示し、失敗をトーストではなく理由別に集約し、名指しした行をグリッドへリンクします。
+---
+
+import DatagridBulkErrorsDemo from '../../../../components/recipe-demos/DatagridBulkErrorsDemo.astro';
+
+[datagrid-bulk-actions](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)
+は 1 つのアクションを多数の行に対して実行します。このレシピはその
+一部が失敗したときの話で、まず**実行セマンティクスを明示する**ことから
+始まります。すべてロールバックした操作に「3 件成功、1 件失敗」と書くのは
+間違った文だからです。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add datagrid-bulk-errors
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-errors/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+1 つの選択に対して 2 つのアクションがあります。**102 / 105 / 108** は
+「出荷済み」、**107** は「権限なし」です。これらのどれかを通常の行と
+一緒に選んでください:
+
+- **Archive**（best-effort）は実行してから結果を報告します。失敗行は
+  マーク付きで戻り、レポートが理由別に集約し、再試行は絞り込みリンク
+  になります。
+- **Post to ledger**（atomic）はまずプリフライトし、阻害行を除いて
+  実行する選択肢を出します。阻害行を含めたまま実行すると、サーバーは
+  **拒否**します — 行は変わらず、選択も残ったままです。
+
+<DatagridBulkErrorsDemo />
+
+## まずセマンティクスを選ぶ
+
+| | **best-effort** | **atomic** |
+| --- | --- | --- |
+| 適する操作 | 独立した項目(アーカイブ、タグ付け、通知) | 不変条件のある操作(仕訳、振替、権限) |
+| 失敗時の応答 | `200` + 実際に起きたことを反映した行 | **`409` / `422`** + 行は**変更なし** |
+| 失敗行 | `data-tone="error"` と理由でマーク | **マークしない** — 何も変わっていない |
+| 文言 | 「113 件成功 / 87 件失敗」 | 「**実行しませんでした**（2 件が条件を満たさないため）」 |
+| 選択状態 | 構造的にクリアされる | **保持する** — チェックボックスを `checked` で再描画 |
+| リカバリー | 失敗行に絞り込んで再試行 | 原因を直す、または阻害行を除いて再実行 |
+
+**atomic ブランチでの選択保持は必須です。**ベースレシピの「選択は
+構造的にクリアされる」が成り立つのはアクションが*実行された*場合だけ
+です。拒否のついでに手作業で選んだ 200 行を消すのは、ユーザーが取り消せ
+ないデータ損失です。選択の真実はチェックボックスなので、`checked` で
+描画し返すだけで直ります。
+
+## 報告よりプリフライト
+
+atomic なアクションは実行前に検証します — 確認ステップが実行可否の
+レポートになります:
+
+```text
+20 件のうち 18 件が実行可能、2 件は不可（理由: 締め済み）
+〔2 件を除いて 18 件を実行〕〔キャンセル〕
+```
+
+`GET /products/bulk/preflight?ids=…&action=…` がこのフラグメントを
+返します。「除いて実行」はサーバーが描画した隠し入力で**実行可能な id
+だけ**を送るため、原子性を保ったままユーザーに前進の道が残ります。
+実行できる行が 1 つもないときはレポートがそう告げ、**submit を描画
+しません** — 行き止まりは見えるべきで、無効化されたボタンの謎であって
+はなりません。
+
+## レポート
+
+グリッド上部の `aria-live="polite"` 領域 1 つで、行と一緒にアウト
+オブバンドでスワップされます。
+[csv-import](/hypermedia-components/ja/recipes/csv-import/) の検証
+レポートの型を再利用し、3 つの規則に従います。
+
+1. **行ではなく理由でグルーピング** — 87 件の失敗では理由が行動の
+   単位です。平坦な一覧はレビューできません。
+2. **インライン詳細に上限**（理由ごとに 10 行が良い既定値）を設け、
+   上限と全件リンク（ページか CSV — ただの `<a href>`）を必ずセットで
+   出します。上限のない 1 万件のレポートは壊れたページです。
+3. **名指しした行をすべてリンク**: 同一ページなら `#row-101`、別ページ
+   なら `/products?focus=101#row-101` — 失敗はページをまたぐもので、
+   どのページにその行があるかを知っているのはサーバーです。
+
+行リンクをクリックすると行がスクロール表示され、`:target` でマークされ、
+[グリッドのアクティブセルが移動](/hypermedia-components/ja/components/datagrid/#フラグメントナビゲーション)
+するのでキーボード利用者も到達します。行からは
+`<a href="#bulk-report">詳細</a>` で戻れます。
+
+best-effort ではレポートに**「失敗した行だけに絞り込む」**も出します
+— ただのフィルタ URL（`?f-last-result=failed`）で、
+[datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) /
+[saved-views](/hypermedia-components/ja/recipes/saved-views/) と合成
+します。再試行は通常の全選択 → アクションのループになり、新しい
+クライアント状態は不要です。
+
+## 行ごとの詳細
+
+失敗行の理由は該当セル内に
+[`hc-tooltip`](/hypermedia-components/ja/components/tooltip/) として
+一度だけ描画し、セルが `aria-describedby` で指します。グリッドはその
+ようなセルのオーバーフローツールチップを抑制するので、1 つの操作は
+1 つの意味だけを運びます。ツールチップは「気になった行を確認する」
+ための道具です — **理由をツールチップだけに置いてはいけません**。
+レビュー可能な面はレポートであり、タッチ・印刷・エクスポートに
+ホバーはありません。
+
+## トースト
+
+トーストは見出しであってペイロードではありません。件数とレポートへの
+誘導に徹し、失敗が存在する間は**自動で消えてはいけません**
+（best-effort は `warning`、拒否は `error`）。
+
+## プログレッシブエンハンスメント
+
+ベースレシピの `303` post/redirect/get がそのまま適用されます。同じ
+レポートをリダイレクト先ページの先頭に描画してください（フラグメント
+リンクはネイティブに動きます — アンカーである理由がまさにこれです）。
+プリフライトは通常の中間ページになります。
+
+## アクセシビリティ
+
+- レポート領域は丁寧に読み上げられ、フォーカスを奪いません。
+- 行リンクはアクティブセル経由でグリッドにフォーカスを移します —
+  無言のスクロールだけのジャンプにはなりません。
+- 失敗は決して色だけではありません: トーン**と**理由テキスト**と**
+  レポートの項目。
+- プリフライトの行き止まりは、説明のない無効ボタンではなく理由を
+  描画します。
+
+## 関連
+
+- [datagrid-bulk-actions](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) —
+  土台となるフォームの形。
+- [datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/) ·
+  [datagrid-edit-conflict](/hypermedia-components/ja/recipes/datagrid-edit-conflict/) —
+  単一セルに対する同じ哲学。
+- [csv-import](/hypermedia-components/ja/recipes/csv-import/) — レポートが
+  一般化した検証レポートの型。
+- [undo-delete](/hypermedia-components/ja/recipes/undo-delete/) — 取り消せる
+  破壊的操作では、確認ダイアログより猶予期間が優れます。

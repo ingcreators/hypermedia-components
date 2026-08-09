@@ -1,0 +1,76 @@
+<!-- Short recommended usage.
+
+  Bulk action errors at scale, on top of the datagrid-bulk-actions
+  form. Two things the base recipe does not have:
+
+  1. A REPORT region (#bulk-report, aria-live) above the grid, swapped
+     out of band with the rows. It groups failures BY REASON (the
+     actionable unit when 87 of 200 fail), caps the inline detail, and
+     links each named row to its id — `#row-101` on this page,
+     `/products?focus=101#row-101` for a row on another page.
+  2. A PRE-FLIGHT step for atomic actions: the action GETs an
+     executability report first (confirm-action shell), so the user
+     decides BEFORE anything runs — including "exclude the blockers
+     and run the rest".
+
+  Failed rows come back marked (data-tone="error") with their reason
+  as an hc-tooltip the cell points at via aria-describedby; the grid
+  suppresses its overflow tooltip on such cells so one hover carries
+  one meaning. See contract.md for both execution modes — the atomic
+  branch answers 409 with the rows UNCHANGED and the selection KEPT. -->
+<form method="post" action="/products/bulk">
+  <div id="bulk-report" aria-live="polite"></div>
+
+  <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+       data-hc-datagrid-actions="#grid" hidden>
+    <span data-hc-datagrid-count></span>
+
+    <!-- best-effort: run now, report what happened -->
+    <button class="hc-button" type="submit" name="action" value="archive"
+            data-hx-post="/products/bulk"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Archive</button>
+
+    <!-- atomic: pre-flight first, then the confirmed run -->
+    <button class="hc-button" type="button" data-variant="primary"
+            data-hx-get="/products/bulk/preflight?action=post"
+            data-hx-include="closest form"
+            data-hx-target="#bulk-report" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Post to ledger…</button>
+  </div>
+
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell">
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="rows">
+          <!-- Rows carry a stable id so the report can link to them. -->
+          <tr class="hc-datagrid__row" id="row-101">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox"
+                     name="ids" value="101" aria-label="Select Anvil">
+            </td>
+            <td class="hc-datagrid__cell">Anvil</td>
+            <td class="hc-datagrid__cell">Active</td>
+          </tr>
+          <tr class="hc-datagrid__row" id="row-102">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox"
+                     name="ids" value="102" aria-label="Select Sprocket">
+            </td>
+            <td class="hc-datagrid__cell">Sprocket</td>
+            <td class="hc-datagrid__cell">Active</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
