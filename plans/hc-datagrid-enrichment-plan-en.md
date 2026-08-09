@@ -1,7 +1,17 @@
 # datagrid-enrichment — spreadsheet-grade interaction depth
 
-Status: **plan approved 2026-08-09 — implementation PRs follow, one theme
-per PR, sequential (no stacking).**
+Status: **shipped in full 2026-08-09 — plan #487, then one theme per PR,
+sequential: IME-safe type-to-edit #488, range selection + clipboard copy
++ Ctrl+A #489, sticky footer + trailing frozen columns #490,
+datagrid-filter recipe #491 (taken ahead — no shared files), multi-column
+sort #492 (computed-`::after` assertions must normalize engine
+serialization differences), grouped rows #493 (aria-expanded lives on the
+heading CELL — axe's aria-conditional-attr rejects it on row outside a
+treegrid), data-tone conditional formatting #494, inline-edit native
+validation #495, tree rows + datagrid-tree recipe #496 (role=treegrid
+upgrade), column-preference persistence + datagrid-prefs #497 (includes
+the datagrid-columns submitted-order contract upgrade), auto-size +
+client page sort #498.**
 
 Follow-up to the business-app release (0.2.1): the datagrid now has an
 *operations* layer (columns / views / import / infinite), but its
