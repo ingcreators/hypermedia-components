@@ -11,7 +11,7 @@ describe('datagrid-edit-conflict demo API', () => {
     const body = await response.text();
     expect(body).toContain('data-version="4"'); // fresh version
     expect(body).toContain('data-value="20"'); // THEIR value in the cell
-    expect(body).toContain('data-tone="error"');
+    expect(body).toContain('data-attention="error"');
     expect(body).toContain('role="alert"');
     expect(body).toContain('another user saved 20.00');
     expect(body).toContain('Your value: 22');

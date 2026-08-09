@@ -1364,7 +1364,7 @@ function dgc2Record({ price, version, conflict = null }) {
   data-hx-trigger="hc:datagridedit"
   data-hx-vals="js:{ col: event.detail.col, value: event.detail.value, version: event.target.closest('tbody').dataset.version }"
   data-hx-swap="outerHTML">
-  <tr class="hc-datagrid__row"${conflict ? ' data-tone="error"' : ''} data-testid="row-1">
+  <tr class="hc-datagrid__row"${conflict ? ' data-attention="error"' : ''} data-testid="row-1">
     <td class="hc-datagrid__cell">Chai</td>
     <td class="hc-datagrid__cell" data-numeric data-editable data-col="price" data-value="${price}" data-testid="price-cell">${price.toFixed(2)}</td>
   </tr>${conflictRow}
@@ -1428,7 +1428,7 @@ function beRow(id, { failed = false, status = 'Active', checked = false } = {}) 
   const tip = reason
     ? `<span class="hc-tooltip" id="why-${id}">${reason}</span>`
     : '';
-  return `<tr class="hc-datagrid__row" id="row-${id}" data-testid="row-${id}"${failed ? ' data-tone="error"' : ''}>
+  return `<tr class="hc-datagrid__row" id="row-${id}" data-testid="row-${id}"${failed ? ' data-attention="error"' : ''}>
   <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${id}"${checked ? ' checked' : ''} aria-label="Select ${id}" data-testid="cb-${id}"></td>
   <td class="hc-datagrid__cell">Product ${id}</td>
   <td class="hc-datagrid__cell"${describe} data-testid="status-${id}">${status} ${tip}</td>

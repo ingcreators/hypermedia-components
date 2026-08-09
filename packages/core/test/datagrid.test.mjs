@@ -639,6 +639,36 @@ describe('installDatagrid — fragment navigation (report → row)', () => {
     ).not.toThrow();
   });
 
+  it('a hash naming a cell lands on that cell, not the row', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    setHash('#c-2-b');
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    expect($('c-2-b').getAttribute('data-active')).toBe('');
+    expect(document.activeElement).toBe($('c-2-b'));
+    // The row's first cell must NOT have been taken instead.
+    expect(
+      $('row-2').querySelector('.hc-datagrid__cell').hasAttribute('data-active'),
+    ).toBe(false);
+  });
+
+  it('picks up a deep link to a cell that arrived with the page', () => {
+    setHash('#c-1-a');
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    expect($('c-1-a').getAttribute('data-active')).toBe('');
+  });
+
+  it('ignores a cell hash in a hidden row', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const before = document.querySelector('[data-active]');
+    $('row-2').hidden = true;
+    setHash('#c-2-a');
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+    expect(document.querySelector('[data-active]')).toBe(before);
+  });
+
   it('uninstall removes the hashchange listener', () => {
     document.body.innerHTML = FIXTURE;
     const u = installDatagrid();

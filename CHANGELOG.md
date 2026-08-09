@@ -97,6 +97,35 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **datagrid**: states no longer erase each other
+  (`plans/hc-datagrid-state-clarity-plan-en.md` PR-1). Every state
+  painted the same property — a `background-image` gradient on the cell
+  — so exactly one won, and which one was decided by an accidental mix
+  of specificity and source order: hover erased a failure tint,
+  selection erased a rejected cell's ring, and a row-level `data-tone`
+  erased the selection tint entirely, leaving no feedback while the
+  user selected failed rows to retry them. There is now **one** paint
+  fed by `--hc-datagrid-cell-tint`, and each state merely assigns it in
+  a documented priority ladder (`data-tone` → `:hover` →
+  `data-pending` → `data-highlight` → `data-in-range` →
+  `aria-selected` → `:target` → `data-invalid`), with every selector
+  specificity-normalised via `:where()` so source order alone decides.
+  Anything that must survive a tint moved to an **attention channel**
+  that never touches the background: the new
+  **`data-attention="error" | "warning"`** (row / record / head cell)
+  draws an inline-start edge bar composed from a shadow channel, so it
+  coexists with a freeze line; the rejected cell's ring and corner flag
+  now use `--hc-datagrid-attention-error-bg` (`status.error.fg`)
+  instead of `status.error.border`, which was nearly invisible against
+  the error tint it sat on. A selected failed row now reads as both.
+  Failed rows in `datagrid-bulk-errors` and the conflicted row in
+  `datagrid-edit-conflict` moved from `data-tone="error"` to
+  `data-attention="error"` (`data-tone` keeps its meaning: the
+  **value** is notable). Fragment navigation additionally accepts a
+  **cell** id (`#cell-101-ship-date`), so a failure report can land on
+  the offending column — which a wide grid otherwise hides — and
+  `data-attention` on a header cell marks that column.
+
 - **datagrid**: cell state markers no longer change the column width.
   The table is `max-content` sized and cells do not wrap, so the
   saving spinner (shipped as an inline-block pseudo-element) widened

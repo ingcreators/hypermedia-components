@@ -459,7 +459,54 @@ State is expressed with attributes, styled by the component:
 | `data-tone` | cell / row / record | Conditional-formatting tint — `info` / `success` / `warning` / `error` (server-rendered). |
 | `data-editing` | `.hc-datagrid__cell` | Edit mode — padding drops so the editor fills the cell. |
 | `data-pending` | `.hc-datagrid__cell` | Optimistic commit awaiting the row re-render (opt-in via `data-hc-datagrid-pending` on the grid). |
-| `data-invalid` | `.hc-datagrid__cell` | Server-rejected value — error ring + tone (rendered by the 422 re-render). |
+| `data-invalid` | `.hc-datagrid__cell` | Server-rejected value — error ring + tint (rendered by the 422 re-render). |
+| `data-attention` | row / record / head cell | This row (or column) needs the user — `error` / `warning`. An edge bar that no tint can cover. |
+
+## State layering
+
+Several of those states land on the same cell at once: a failed row is
+hovered while being selected for a retry, a formatted value sits in a
+selected row. They are painted in **two channels** so nothing is lost.
+
+**The background channel** is a single tint — only one state can own
+it. The order below is a ladder; the later state wins:
+
+`data-tone` → `:hover` → `data-pending` → `data-highlight` →
+`data-in-range` → `aria-selected` → `:target` → `data-invalid`
+
+Selection outranks conditional formatting, because selection is the
+state the user is manipulating right now and the formatted value stays
+readable through the tint. `data-invalid` is last, but it only ever
+covers the one offending **cell** — the rest of the row keeps the
+selection tint, so a rejected cell in a selected row reads as both.
+
+**The attention channel** never touches the background: the rejected
+cell's ring and corner flag, the `data-attention` edge bar, the pending
+spinner. Whatever tint is painted underneath, these survive.
+
+That is what makes a bulk-failure report workable. Mark failed rows
+with `data-attention="error"` — **not** `data-tone="error"`:
+
+```html
+<tr class="hc-datagrid__row" id="row-101" data-attention="error"
+    aria-selected="true">…</tr>
+```
+
+The row keeps its selection tint (so the user can see the retry set
+they are about to re-submit) *and* keeps its error bar. Use `data-tone`
+for what the **value** means, `data-attention` for what the **row**
+needs.
+
+`data-attention` on a `.hc-datagrid__headcell` marks the offending
+**column**, which is what makes the fault findable when the grid is
+thirty columns wide and the cell is scrolled out of view.
+
+:::caution[Don't put a background on the `<tr>`]
+Cells carry an opaque `background-color` so frozen columns stay
+occlusive over scrolled content — a background on the row is painted
+*behind* them and never shows. Assign
+`--hc-datagrid-cell-tint` (or use the attributes above) instead.
+:::
 
 ## Selection actions bar
 
@@ -765,6 +812,12 @@ usable:
   cell and focuses it, so keyboard and screen-reader users arrive where
   the eye does and can keep arrowing. It runs on load and on
   `hashchange`; a hash naming nothing in this grid is ignored.
+- The hash may name a **cell** instead (`#cell-101-ship-date`). Landing
+  on the row is not enough when the grid is wide: the user still has to
+  find which of thirty columns was rejected, and that column may be
+  scrolled out of view. A cell link lands on it, scrolling both axes
+  (clear of the sticky header *and* the frozen columns). Link failures
+  to the cell whenever the server knows which column is at fault.
 - The row is emphasised with `:target` (persistent, not a flash) and
   carries `scroll-margin-block-start` derived from the measured header
   heights, so it does not land under the sticky header.

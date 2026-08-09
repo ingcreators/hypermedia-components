@@ -11,7 +11,7 @@ This recipe adds **optimistic locking** to the
 record layout: the record tbody carries **`data-version`**, the PATCH
 includes it, and a stale version answers **`409`** with the record
 re-rendered as a **conflict presentation** — the server's current
-values in the cells (`data-tone="error"`), the fresh version, and an
+values in the cells (`data-attention="error"`), the fresh version, and an
 alert naming *both* values with **Overwrite** / **Discard** actions.
 No modal, no client merge UI: the row is the merge UI. Covered by the
 [versioning policy](/hypermedia-components/reference/versioning/).
@@ -67,7 +67,7 @@ documents for `422`.
 | --- | --- |
 | version matches, accepted | `200` + the record — server formatting, **incremented `data-version`** |
 | version matches, rejected | `422` — the [datagrid-edit-errors](/hypermedia-components/recipes/datagrid-edit-errors/) branch (version kept) |
-| **stale version** | **`409`** + the conflict presentation: their values in the cells + `data-tone="error"`, the **fresh `data-version`**, and a `role="alert"` conflict row naming both values with an **Overwrite** button (static `data-hx-vals` re-submitting yours against the fresh version) and a **Discard** button (`data-hx-get` of the row) |
+| **stale version** | **`409`** + the conflict presentation: their values in the cells + `data-attention="error"`, the **fresh `data-version`**, and a `role="alert"` conflict row naming both values with an **Overwrite** button (static `data-hx-vals` re-submitting yours against the fresh version) and a **Discard** button (`data-hx-get` of the row) |
 | unknown row / column | `404` — the standard error toast covers it |
 
 `GET /items/:id` answers the record plain — the Discard target. A
@@ -84,7 +84,7 @@ recipe's full-form 409 page.
 
 - The conflict announces via `role="alert"`; both resolutions are real
   buttons inside the message cell.
-- `data-tone="error"` marks the row visually **and** the message names
+- `data-attention="error"` marks the row visually **and** the message names
   the values — never color alone.
 - After either resolution the record re-renders in place; keyboard
   users continue where they were.

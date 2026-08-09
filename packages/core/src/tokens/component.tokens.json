@@ -507,6 +507,14 @@
       "$type": "color",
       "$value": "{semantic.color.status.error.fg}"
     },
+    "attention-error-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.error.fg}"
+    },
+    "attention-warning-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.status.warning.fg}"
+    },
     "subrow-border": {
       "$type": "color",
       "$value": "color-mix(in oklab, {semantic.color.border} 55%, {semantic.color.surface})"

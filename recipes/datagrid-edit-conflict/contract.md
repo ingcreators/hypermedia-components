@@ -28,7 +28,7 @@ Purpose: the 409 wire for datagrid inline editing — optimistic locking per row
 The record tbody, containing:
 
 - the row with **the server's current values** in the cells and
-  `data-tone="error"` on the `<tr>` — what the user sees is always
+  `data-attention="error"` on the `<tr>` — what the user sees is always
   vouched for by the server;
 - the **fresh `data-version`** on the tbody — the next ordinary edit
   is already un-stale;
@@ -72,7 +72,7 @@ the [edit-conflict](../edit-conflict/) recipe's full-form 409 page.
 
 - The conflict announces via `role="alert"`; both resolutions are real
   buttons inside the message cell, reachable with <kbd>Tab</kbd>.
-- `data-tone="error"` marks the row visually **and** the message names
+- `data-attention="error"` marks the row visually **and** the message names
   the values — never color alone.
 - After either resolution the record re-renders and the active-cell
   slot re-clamps; keyboard users continue in place.

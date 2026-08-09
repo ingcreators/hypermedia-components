@@ -24,9 +24,9 @@ test.describe('datagrid-bulk-errors — best-effort', () => {
     await expect(page.getByTestId('summary')).toContainText('1 succeeded / 2 failed');
     // What actually happened is what the rows show.
     await expect(page.getByTestId('status-101')).toContainText('Archived');
-    await expect(page.getByTestId('row-102')).toHaveAttribute('data-tone', 'error');
-    await expect(page.getByTestId('row-107')).toHaveAttribute('data-tone', 'error');
-    await expect(page.getByTestId('row-101')).not.toHaveAttribute('data-tone', /.*/);
+    await expect(page.getByTestId('row-102')).toHaveAttribute('data-attention', 'error');
+    await expect(page.getByTestId('row-107')).toHaveAttribute('data-attention', 'error');
+    await expect(page.getByTestId('row-101')).not.toHaveAttribute('data-attention', /.*/);
     // Both reasons are named, and the retry is a filter link.
     await expect(page.getByTestId('report')).toContainText('Already shipped');
     await expect(page.getByTestId('report')).toContainText('Not permitted');
@@ -63,7 +63,7 @@ test.describe('datagrid-bulk-errors — best-effort', () => {
     // "Active") — any width delta would be the markers' doing.
     await select(page, [102, 107]);
     await page.getByTestId('archive').click();
-    await expect(page.getByTestId('row-102')).toHaveAttribute('data-tone', 'error');
+    await expect(page.getByTestId('row-102')).toHaveAttribute('data-attention', 'error');
 
     // The marker and the tooltip are drawn at zero layout cost: a
     // fixed-width column must not grow (nor clip its value) because a
@@ -80,7 +80,7 @@ test.describe('datagrid-bulk-errors — best-effort', () => {
   test('a failed cell owns the hover: the overflow tooltip stays away', async ({ page }) => {
     await select(page, [102]);
     await page.getByTestId('archive').click();
-    await expect(page.getByTestId('row-102')).toHaveAttribute('data-tone', 'error');
+    await expect(page.getByTestId('row-102')).toHaveAttribute('data-attention', 'error');
     await page.getByTestId('status-102').hover();
     await expect(page.locator('.hc-datagrid__tooltip')).toBeHidden();
   });
@@ -113,7 +113,7 @@ test.describe('datagrid-bulk-errors — atomic', () => {
     await expect(page.getByTestId('refusal')).toContainText('Nothing was executed');
     // Nothing ran: no Posted, and no row marked (marking would lie).
     await expect(page.getByTestId('status-101')).toContainText('Active');
-    await expect(page.locator('[data-tone="error"]')).toHaveCount(0);
+    await expect(page.locator('[data-attention="error"]')).toHaveCount(0);
     // The hand-picked selection survives the refusal.
     await expect(page.getByTestId('cb-101')).toBeChecked();
     await expect(page.getByTestId('cb-102')).toBeChecked();

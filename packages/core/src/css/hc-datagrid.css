@@ -87,6 +87,16 @@
     white-space: nowrap; /* Excel-like: cells don't wrap; the viewport scrolls */
     background-color: var(--hc-datagrid-bg); /* opaque so sticky cells cover scrolled content */
 
+    /* Shadow CHANNELS. A cell can be a freeze edge, a footer edge and a
+       failed row's first cell at once, so each channel owns its own
+       custom property and they compose here instead of overwriting one
+       another (a plain `box-shadow:` in any one of those rules would
+       drop the others). */
+    box-shadow:
+      var(--hc-datagrid-freeze-line, 0 0 transparent),
+      var(--hc-datagrid-foot-line, 0 0 transparent),
+      var(--hc-datagrid-attention-bar, 0 0 transparent);
+
     /* Digits align vertically down a column (affects digit glyphs only,
      * so text cells render unchanged). */
     font-variant-numeric: tabular-nums;
@@ -192,7 +202,7 @@
   /* The last frozen column casts the freeze line. */
   .hc-datagrid__cell[data-frozen-edge],
   .hc-datagrid__headcell[data-frozen-edge] {
-    box-shadow: var(--hc-datagrid-freeze-shadow);
+    --hc-datagrid-freeze-line: var(--hc-datagrid-freeze-shadow);
   }
 
   /* RTL: the freeze line falls on the other (inline-end) side. */
@@ -220,7 +230,7 @@
   /* The first frozen-end column casts the (mirrored) freeze line. */
   .hc-datagrid__cell[data-frozen-end-edge],
   .hc-datagrid__headcell[data-frozen-end-edge] {
-    box-shadow: var(--hc-datagrid-freeze-end-shadow);
+    --hc-datagrid-freeze-line: var(--hc-datagrid-freeze-end-shadow);
   }
 
   /* ---- Sticky footer (server-rendered aggregates) ----
@@ -229,13 +239,14 @@
      pins them. Rows stack upward: the last row sits on the edge, the row
      above it offsets by the measured --hc-datagrid-foot-1-h. */
   .hc-datagrid__foot .hc-datagrid__cell {
+    --hc-datagrid-foot-line: var(--hc-datagrid-foot-shadow);
+
     position: sticky;
     z-index: 2;
     background-color: var(--hc-datagrid-head-bg);
     color: var(--hc-datagrid-head-fg);
     font-weight: var(--hc-font-weight-semibold);
     border-block-start: 1px solid var(--hc-datagrid-border);
-    box-shadow: var(--hc-datagrid-foot-shadow);
   }
 
   .hc-datagrid__foot > tr:last-child > .hc-datagrid__cell {
@@ -252,99 +263,133 @@
     z-index: 3;
   }
 
-  /* ---- States ----
-     State tints are painted as a background-IMAGE layer (not background-color)
-     so each cell's opaque background-color base (surface, or frozen-bg on a
-     sticky column) stays behind a semi-transparent tint. This keeps frozen
-     columns opaque when the row is selected / hovered / highlighted, so
-     horizontally-scrolled content never bleeds through them. */
-  .hc-datagrid__body > .hc-datagrid__row:hover > .hc-datagrid__cell {
+  /* ---- States: the background channel ----
+     A cell can be toned, hovered, in range, selected and targeted at
+     once. Each of those used to paint `background-image` in a rule of
+     its own, so exactly one won and the rest vanished — hover erased a
+     failure tint, and row-level `data-tone` erased the selection tint,
+     leaving no feedback while selecting failed rows to retry them.
+
+     So there is ONE paint, fed by one custom property, and every state
+     merely ASSIGNS it. The tint is a background-IMAGE over the cell's
+     opaque background-color base (surface, or frozen-bg on a sticky
+     column), so frozen columns stay occlusive and horizontally-scrolled
+     content never bleeds through them.
+
+     PRIORITY LADDER — the later assignment wins:
+       1. [data-tone]        conditional formatting of the VALUE
+       2. :hover
+       3. [data-pending]     awaiting the server's re-render
+       4. [data-highlight]   column / cell band
+       5. [data-in-range]    range selection
+       6. [aria-selected]    row selection
+       7. :target            fragment landing
+       8. [data-invalid]     the cell the server rejected
+
+     Selection outranks conditional formatting because selection is the
+     state the user is manipulating right now; the formatted value stays
+     legible through the tint. `data-invalid` sits on top but only ever
+     covers the one offending CELL, so the rest of the row keeps the
+     selection tint and a rejected cell in a selected row reads as both.
+
+     Anything that must NEVER be overwritten — a failed row, a rejected
+     cell, a pending save — also draws in the attention channel further
+     down, which uses outlines, inset shadows and pseudo-elements.
+
+     Every selector below is specificity-normalised to (0,1,0) with
+     :where(), so SOURCE ORDER alone decides. Keep them in ladder order
+     and add new states at the right rung. (Nested cascade layers are
+     the other way to say this, and were rejected: rules sitting
+     directly in `@layer hc.components` outrank layers nested inside it,
+     so the rest of this file would silently beat the ladder.) */
+  .hc-datagrid__cell {
     background-image: linear-gradient(
-      var(--hc-datagrid-row-hover-bg),
-      var(--hc-datagrid-row-hover-bg)
+      var(--hc-datagrid-cell-tint, transparent),
+      var(--hc-datagrid-cell-tint, transparent)
     );
   }
 
-  .hc-datagrid__row[aria-selected="true"] > .hc-datagrid__cell {
-    background-image: linear-gradient(
-      var(--hc-datagrid-selected-bg),
-      var(--hc-datagrid-selected-bg)
-    );
-  }
+  /* 1. Conditional formatting: the server evaluates the rules and
+     renders the OUTCOME as an attribute (info | success | warning |
+     error); the CSS only paints it. Don't rely on the colour alone —
+     keep the value (or an icon/text marker) in the cell. */
+  .hc-datagrid__cell:where([data-tone="info"]),
+  :where(.hc-datagrid__row[data-tone="info"]) > .hc-datagrid__cell,
+  :where(.hc-datagrid__record[data-tone="info"]) .hc-datagrid__cell {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-tone-info-bg);
 
-  /* Range selection (Shift+Arrow / Shift+Click; installDatagrid sets
-     data-in-range) — same tint as row selection. */
-  .hc-datagrid__cell[data-in-range] {
-    background-image: linear-gradient(
-      var(--hc-datagrid-selected-bg),
-      var(--hc-datagrid-selected-bg)
-    );
-  }
-
-  /* Column / cell highlight (e.g. the active column band). */
-  .hc-datagrid__cell[data-highlight] {
-    background-image: linear-gradient(
-      var(--hc-datagrid-highlight-bg),
-      var(--hc-datagrid-highlight-bg)
-    );
-  }
-
-  /* ---- Conditional formatting: data-tone ----
-     The server evaluates the rules and renders the OUTCOME as an
-     attribute (info | success | warning | error); the CSS only paints
-     it. Same opaque-gradient technique as the state tints so frozen
-     cells stay occlusive. Don't rely on the color alone — keep the
-     value (or an icon/text marker) in the cell. */
-  .hc-datagrid__cell[data-tone="info"],
-  .hc-datagrid__row[data-tone="info"] > .hc-datagrid__cell,
-  .hc-datagrid__record[data-tone="info"] .hc-datagrid__cell {
-    background-image: linear-gradient(
-      var(--hc-datagrid-tone-info-bg),
-      var(--hc-datagrid-tone-info-bg)
-    );
     color: var(--hc-datagrid-tone-info-fg);
   }
 
-  .hc-datagrid__cell[data-tone="success"],
-  .hc-datagrid__row[data-tone="success"] > .hc-datagrid__cell,
-  .hc-datagrid__record[data-tone="success"] .hc-datagrid__cell {
-    background-image: linear-gradient(
-      var(--hc-datagrid-tone-success-bg),
-      var(--hc-datagrid-tone-success-bg)
-    );
+  .hc-datagrid__cell:where([data-tone="success"]),
+  :where(.hc-datagrid__row[data-tone="success"]) > .hc-datagrid__cell,
+  :where(.hc-datagrid__record[data-tone="success"]) .hc-datagrid__cell {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-tone-success-bg);
+
     color: var(--hc-datagrid-tone-success-fg);
   }
 
-  .hc-datagrid__cell[data-tone="warning"],
-  .hc-datagrid__row[data-tone="warning"] > .hc-datagrid__cell,
-  .hc-datagrid__record[data-tone="warning"] .hc-datagrid__cell {
-    background-image: linear-gradient(
-      var(--hc-datagrid-tone-warning-bg),
-      var(--hc-datagrid-tone-warning-bg)
-    );
+  .hc-datagrid__cell:where([data-tone="warning"]),
+  :where(.hc-datagrid__row[data-tone="warning"]) > .hc-datagrid__cell,
+  :where(.hc-datagrid__record[data-tone="warning"]) .hc-datagrid__cell {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-tone-warning-bg);
+
     color: var(--hc-datagrid-tone-warning-fg);
   }
 
-  .hc-datagrid__cell[data-tone="error"],
-  .hc-datagrid__row[data-tone="error"] > .hc-datagrid__cell,
-  .hc-datagrid__record[data-tone="error"] .hc-datagrid__cell {
-    background-image: linear-gradient(
-      var(--hc-datagrid-tone-error-bg),
-      var(--hc-datagrid-tone-error-bg)
-    );
+  .hc-datagrid__cell:where([data-tone="error"]),
+  :where(.hc-datagrid__row[data-tone="error"]) > .hc-datagrid__cell,
+  :where(.hc-datagrid__record[data-tone="error"]) .hc-datagrid__cell {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-tone-error-bg);
+
     color: var(--hc-datagrid-tone-error-fg);
   }
 
-  /* Fragment landing — a report entry linking `#row-101` (or a deep
+  /* 2. Hover. */
+  :where(.hc-datagrid__body > .hc-datagrid__row:hover) > .hc-datagrid__cell {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-row-hover-bg);
+  }
+
+  /* 3. Saving: the optimistic commit awaiting the server's row
+     re-render. installDatagrid() sets it (with aria-busy) only when the
+     grid opts in via data-hc-datagrid-pending — the re-render contract
+     is what clears it. The spinner lives in the attention channel. */
+  .hc-datagrid__cell:where([data-pending]) {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-row-hover-bg);
+  }
+
+  /* 4. Column / cell highlight (e.g. the active column band). */
+  .hc-datagrid__cell:where([data-highlight]) {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-highlight-bg);
+  }
+
+  /* 5. Range selection (Shift+Arrow / Shift+Click; installDatagrid sets
+     data-in-range) — same tint as row selection. */
+  .hc-datagrid__cell:where([data-in-range]) {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-selected-bg);
+  }
+
+  /* 6. Row selection. */
+  :where(.hc-datagrid__row[aria-selected="true"]) > .hc-datagrid__cell {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-selected-bg);
+  }
+
+  /* 7. Fragment landing — a report entry linking `#row-101` (or a deep
      link) marks the row it lands on. Persistent, not a flash: the row
      stays emphasised until another fragment takes over, so the eye can
      find it after scrolling. installDatagrid() moves the active cell
      here too, so the keyboard lands where the eye does. */
-  .hc-datagrid__row:target > .hc-datagrid__cell {
-    background-image: linear-gradient(
-      var(--hc-datagrid-highlight-bg),
-      var(--hc-datagrid-highlight-bg)
-    );
+  :where(.hc-datagrid__row:target) > .hc-datagrid__cell,
+  .hc-datagrid__cell:where(:target) {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-highlight-bg);
+  }
+
+  /* 8. The rejected cell. Outline and flag are in the attention
+     channel; this is only its tint. */
+  .hc-datagrid__cell:where([data-invalid]) {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-tone-error-bg);
+
+    color: var(--hc-datagrid-tone-error-fg);
   }
 
   /* Sticky headers cover the landing row unless the scrollport keeps a
@@ -604,18 +649,14 @@
     line-height: 1;
   }
 
-  /* ---- Edit feedback (edit-feedback plan §1.1) ---- */
-
-  /* Saving: the optimistic commit awaiting the server's row re-render.
-     installDatagrid() sets it (with aria-busy) only when the grid opts
-     in via data-hc-datagrid-pending — the re-render contract is what
-     clears it. */
-  .hc-datagrid__cell[data-pending] {
-    background-image: linear-gradient(
-      var(--hc-datagrid-row-hover-bg),
-      var(--hc-datagrid-row-hover-bg)
-    );
-  }
+  /* ---- Edit feedback: the attention channel (edit-feedback plan §1.1)
+     ----
+     Nothing here paints a background. A failed row is often also
+     hovered, selected or toned, and the background channel can only
+     show one of those at a time — so everything that means "this needs
+     you, and must survive any tint" is drawn with outlines, inset
+     shadows and pseudo-elements instead. Those also cost no layout, so
+     a fixed-width column keeps its width. */
 
   /* Absolutely positioned: a spinner that pushed the text along would
      widen the column (or vanish in a resized one). */
@@ -636,27 +677,76 @@
   /* A rejected cell gets the classic corner flag — the affordance that
      says "there is a reason here", with the reason itself in the
      tooltip the cell points at (aria-describedby) and in the report.
-     Zero layout cost, so a fixed-width column keeps its width. */
+     Drawn in attention-error (status.error.fg), not the border colour:
+     the flag sits ON the error tint, and the two were close enough in
+     lightness to be indistinguishable. */
   .hc-datagrid__cell[data-invalid]::after {
     content: "";
     position: absolute;
     inset-block-start: 0;
     inset-inline-end: 0;
-    border-block-start: 0.5em solid var(--hc-color-status-error-border);
+    border-block-start: 0.5em solid var(--hc-datagrid-attention-error-bg);
     border-inline-start: 0.5em solid transparent;
   }
 
   /* Rejected: the server's 422 re-render marks the cell (alongside
      aria-invalid + aria-describedby pointing at the error row). The
-     cell shows the SERVER's value; the error row carries the message. */
+     cell shows the SERVER's value; the error row carries the message.
+     The tint is rung 8 of the ladder; this is the part that survives a
+     selection or hover tint painted over it. */
   .hc-datagrid__cell[data-invalid] {
-    outline: 2px solid var(--hc-color-status-error-border);
+    outline: 2px solid var(--hc-datagrid-attention-error-bg);
     outline-offset: -2px;
-    background-image: linear-gradient(
-      var(--hc-datagrid-tone-error-bg),
-      var(--hc-datagrid-tone-error-bg)
-    );
-    color: var(--hc-datagrid-tone-error-fg);
+  }
+
+  /* ---- Attention: whole-row and whole-column ----
+     data-attention says "this row needs the user" without touching the
+     background, so it composes with selection — which is exactly what
+     a bulk-failure report needs: the failed rows stay marked while the
+     user selects them to retry. data-tone is a different thing (the
+     VALUE is notable) and stays in the background channel.
+
+     An edge bar rather than a border: a border would move the column
+     edge, and the row's first cell may already own :first-child::before
+     (group rows) or ::before (a required marker). The shadow channels
+     on the base cell rule let it coexist with a freeze line.
+
+     Severity picks the colour, which inherits down to the cells, so the
+     bar rules stay severity-agnostic. */
+  .hc-datagrid [data-attention="error"] {
+    --hc-datagrid-attention-color: var(--hc-datagrid-attention-error-bg);
+  }
+
+  .hc-datagrid [data-attention="warning"] {
+    --hc-datagrid-attention-color: var(--hc-datagrid-attention-warning-bg);
+  }
+
+  .hc-datagrid__row[data-attention] > .hc-datagrid__cell:first-child,
+  .hc-datagrid__record[data-attention]
+    > .hc-datagrid__row
+    > .hc-datagrid__cell:first-child {
+    --hc-datagrid-attention-bar: inset 3px 0 0 0
+      var(--hc-datagrid-attention-color);
+  }
+
+  /* RTL: the row's start edge is the other side. */
+  .hc-datagrid:dir(rtl) .hc-datagrid__row[data-attention] > .hc-datagrid__cell:first-child,
+  .hc-datagrid:dir(rtl)
+    .hc-datagrid__record[data-attention]
+    > .hc-datagrid__row
+    > .hc-datagrid__cell:first-child {
+    --hc-datagrid-attention-bar: inset -3px 0 0 0
+      var(--hc-datagrid-attention-color);
+  }
+
+  /* The offending COLUMN. A failed row tells you which record; without
+     this, finding which of thirty columns is at fault means reading the
+     message and counting headers — and the cell itself may be scrolled
+     out of view. Marked on the block-end edge so it reads as belonging
+     to the column below it. */
+  .hc-datagrid__headcell[data-attention] {
+    --hc-datagrid-attention-bar: inset 0 -3px 0 0
+      var(--hc-datagrid-attention-color);
   }
 
   /* The message slot: a server-rendered row directly under the edited

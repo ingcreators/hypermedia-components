@@ -26,7 +26,7 @@ test.describe('datagrid-edit-conflict recipe', () => {
     await expect(page.getByTestId('conflict-row')).toBeVisible();
     // Theirs in the cell, error tone on the row, fresh version on the record.
     await expect(page.getByTestId('price-cell')).toHaveText('20.00');
-    await expect(page.getByTestId('row-1')).toHaveAttribute('data-tone', 'error');
+    await expect(page.getByTestId('row-1')).toHaveAttribute('data-attention', 'error');
     await expect(page.getByTestId('record-1')).toHaveAttribute('data-version', '4');
     // The alert names both values.
     await expect(page.getByTestId('conflict-msg')).toContainText('another user saved 20.00');
@@ -39,7 +39,7 @@ test.describe('datagrid-edit-conflict recipe', () => {
     await expect(page.getByTestId('conflict-row')).toHaveCount(0);
     await expect(page.getByTestId('price-cell')).toHaveText('22.00');
     await expect(page.getByTestId('record-1')).toHaveAttribute('data-version', '5');
-    await expect(page.getByTestId('row-1')).not.toHaveAttribute('data-tone', /.*/);
+    await expect(page.getByTestId('row-1')).not.toHaveAttribute('data-attention', /.*/);
   });
 
   test('Discard keeps theirs and clears the conflict', async ({ page }) => {

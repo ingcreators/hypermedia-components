@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-datagrid state layering fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <main class="hc-stack">
+    <h1>State layering</h1>
+    <div class="hc-datagrid" data-testid="grid" style="max-inline-size: 640px;">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">Order</th>
+              <th class="hc-datagrid__headcell" scope="col" data-testid="head-ship"
+                  data-attention="error">Ship date</th>
+              <th class="hc-datagrid__headcell" scope="col" data-numeric>Qty</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <!-- plain -->
+            <tr class="hc-datagrid__row" id="row-plain" data-testid="row-plain">
+              <td class="hc-datagrid__cell">A-1</td>
+              <td class="hc-datagrid__cell">2026-08-10</td>
+              <td class="hc-datagrid__cell" data-numeric>10</td>
+            </tr>
+            <!-- reference: selection only -->
+            <tr class="hc-datagrid__row" id="row-selected" data-testid="row-selected"
+                aria-selected="true">
+              <td class="hc-datagrid__cell" data-testid="selected-first">A-6</td>
+              <td class="hc-datagrid__cell">2026-08-12</td>
+              <td class="hc-datagrid__cell" data-numeric>60</td>
+            </tr>
+            <!-- reference: tone only -->
+            <tr class="hc-datagrid__row" id="row-tone" data-testid="row-tone" data-tone="error">
+              <td class="hc-datagrid__cell" data-testid="tone-first">A-7</td>
+              <td class="hc-datagrid__cell">2026-08-13</td>
+              <td class="hc-datagrid__cell" data-numeric>70</td>
+            </tr>
+            <!-- selected AND flagged: the case that used to lose one of the two -->
+            <tr class="hc-datagrid__row" id="row-both" data-testid="row-both"
+                aria-selected="true" data-attention="error">
+              <td class="hc-datagrid__cell" data-testid="both-first">A-2</td>
+              <td class="hc-datagrid__cell" id="cell-both-ship" data-testid="both-ship">2027-01-01</td>
+              <td class="hc-datagrid__cell" data-numeric>20</td>
+            </tr>
+            <!-- toned AND selected: tone must not swallow the selection tint -->
+            <tr class="hc-datagrid__row" id="row-toned" data-testid="row-toned"
+                aria-selected="true" data-tone="error">
+              <td class="hc-datagrid__cell" data-testid="toned-first">A-3</td>
+              <td class="hc-datagrid__cell">2026-08-11</td>
+              <td class="hc-datagrid__cell" data-numeric>30</td>
+            </tr>
+            <!-- selected row with one rejected cell -->
+            <tr class="hc-datagrid__row" id="row-invalid" data-testid="row-invalid"
+                aria-selected="true" data-attention="error">
+              <td class="hc-datagrid__cell" data-testid="invalid-first">A-4</td>
+              <td class="hc-datagrid__cell" id="cell-invalid-ship" data-testid="invalid-ship"
+                  data-invalid aria-invalid="true">2025-01-01</td>
+              <td class="hc-datagrid__cell" data-numeric>40</td>
+            </tr>
+            <!-- warning severity -->
+            <tr class="hc-datagrid__row" id="row-warn" data-testid="row-warn" data-attention="warning">
+              <td class="hc-datagrid__cell" data-testid="warn-first">A-5</td>
+              <td class="hc-datagrid__cell">2027-06-30</td>
+              <td class="hc-datagrid__cell" data-numeric>50</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
