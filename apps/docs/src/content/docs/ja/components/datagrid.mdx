@@ -771,6 +771,15 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 フォーカス移動、またはコンボボックスならオプションの選択。
 **キャンセル:** `Escape`(元の値を復元)。
 
+**バリデーション:** エディタコントロールのネイティブ制約がそのまま
+API です — テンプレートの入力に `required`、`pattern`、`min` / `max`、
+`maxlength` を与えると、無効な値はコミットをブロックします: エディタは
+ネイティブメッセージ(`reportValidity()`)を表示したまま開き続け、
+何も書き戻されず、イベントも発火しません。`Escape` は引き続き
+キャンセルします。サーバー側の拒否は
+[inline-edit レシピ](/hypermedia-components/ja/recipes/inline-edit/)の
+422 契約のままです。
+
 コミット時に値は書き戻され(`data-value` + セルの表示テキスト)、
 グリッドは **`hc:datagridedit`** を
 `detail: { cell, col, value, label, oldValue }` つきでディスパッチ
