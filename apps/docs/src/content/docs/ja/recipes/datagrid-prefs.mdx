@@ -1,0 +1,126 @@
+---
+title: データグリッドの列プリファレンス
+description: ユーザーごとの列幅と列順を永続化 — ビヘイビアがリサイズ確定を隠し入力にミラーし、htmx がオートセーブ。ソータブルなチューザーの送信 cols= 順が列順になります。
+---
+
+import DatagridPrefsDemo from '../../../../components/recipe-demos/DatagridPrefsDemo.astro';
+
+列プリファレンスをハイパーメディア流に永続化します — ワイヤは 2 本、
+すでに同梱されているもの以外の新規 JavaScript はゼロです:
+
+1. **列幅** — `installDatagrid()` は確定したリサイズを、
+   `hc:datagridcolumnresize` をディスパッチする*前*に
+   `input[data-hc-datagrid-width="<col>"]` へミラーします。小さな
+   フォームがデバウンスされたイベントでオートセーブします。サーバーは
+   ユーザーごとに永続化し、次回以降のロードで**記憶した幅を描画し
+   返します** — インライン幅 + `data-resized` として。幅はサーバーが
+   描画する事実です。
+2. **列順** —
+   [datagrid-columns](/hypermedia-components/ja/recipes/datagrid-columns/)
+   のチューザーを
+   [`installSortable()`](/hypermedia-components/ja/recipes/sortable/)
+   でアップグレード: チェックボックスのシリアライズは DOM 順に従い、
+   サーバーは送信された `cols=` の**順序**を列順として尊重します。
+
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add datagrid-prefs
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-prefs/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+**Name** か **Status** のリサイズグリップをドラッグ(またはフォーカス
+して矢印キー)してください。確定した幅が隠し入力に入り、デバウンス
+されたフォームが POST し、ステータス行が本物のサーバーなら永続化する
+内容で応答します:
+
+<DatagridPrefsDemo />
+
+## マークアップ — 列幅
+
+```html
+<form action="/prefs/columns" method="post"
+      data-hx-post="/prefs/columns"
+      data-hx-trigger="hc:datagridcolumnresize from:body delay:500ms"
+      data-hx-include="this"
+      data-hx-target="#prefs-status" data-hx-swap="innerHTML">
+  <input type="hidden" name="w-name" data-hc-datagrid-width="name">
+  <input type="hidden" name="w-status" data-hc-datagrid-width="status">
+  <div id="prefs-status" role="status"></div>
+</form>
+```
+
+ミラーはイベントディスパッチの**前**に行われるため、イベント起動の
+リクエストは常に新しい値をシリアライズします。ミラー先の入力は
+グリッドに最も近い `<form>` の中、なければドキュメント全体から
+見つかります。
+
+## マークアップ — 列順
+
+```html
+<fieldset class="hc-popover__body" id="cols-fields" data-hc-sortable>
+  <label class="hc-checkbox-label">
+    <button type="button" class="hc-button" data-variant="ghost"
+            data-hc-sortable-handle>⠿</button>
+    <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+    Name
+  </label>
+  <!-- …列ごとにソータブルなラベルを 1 つずつ… -->
+</fieldset>
+```
+
+ドラッグ(またはキーボードでグラブ)して並べ替えると、Apply は DOM 順
+でチェックボックスをシリアライズし、アップグレードされた
+[datagrid-columns 契約](/hypermedia-components/ja/recipes/datagrid-columns/)
+がその順序で列を描画します。
+
+## サーバーレスポンス契約
+
+`POST /prefs/columns`(`w-<col>` のペア):
+
+| ケース | レスポンス (200) |
+| --- | --- |
+| いずれかの `w-<col>` あり | `role="status"` フラグメント(例: "Saved — Name 220px")。ユーザーごとに永続化 |
+| 無効な値 | サーバー側でクランプまたは無視、それでも `200` — 幅はプリファレンスであり、決してエラーではありません |
+| no-JS | ネイティブ POST → `303` PRG |
+
+**描画し返す**ことが契約のもう半分です: 次回以降のロードで、サーバーは
+記憶した幅を列のヘッダーとセルに
+`style="inline-size: <w>px; max-inline-size: <w>px"` + `data-resized`
+として描画します — 印刷/エクスポートも他のセッションも画面と一致
+します。
+
+## プログレッシブエンハンスメント
+
+JavaScript なしではクライアントのリサイズ自体がありません — そして
+サーバーが描画した幅は引き続き適用されます。列順チューザーは本物の
+GET フォームのままで、ソータブルのアップグレードなしでも
+チェックボックスは*集合*を選べます。
+
+## アクセシビリティ
+
+- 保存は `role="status"` リージョンで通知されます — 決して無言では
+  ありません。
+- ソータブルのハンドルは本物のボタンで、`installSortable()` の
+  キーボード文法(Space/Enter でグラブ、矢印で移動、Escape で
+  キャンセル)を持ちます。
+- 列リサイズ自体もキーボードでアクセス可能(グリップはフォーカス可能な
+  セパレーター)なので、プリファレンスのループ全体がそうです。
+
+## 関連
+
+- [datagrid-columns](/hypermedia-components/ja/recipes/datagrid-columns/) —
+  このレシピが順序でアップグレードするチューザー。
+- [sortable](/hypermedia-components/ja/recipes/sortable/) — 並べ替え
+  ビヘイビアとそのキーボード文法。
+- [autosave](/hypermedia-components/ja/recipes/autosave/) — フォーム
+  全体のための同じデバウンス永続化のアイデア。
+- [データグリッド](/hypermedia-components/ja/components/datagrid/) —
+  列リサイズとミラー入力のフック。

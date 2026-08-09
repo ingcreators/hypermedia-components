@@ -1,0 +1,121 @@
+---
+title: Datagrid prefs
+description: Persist per-user column widths and order — the behavior mirrors resize commits into hidden inputs, htmx autosaves them, and the sortable chooser's submitted cols= sequence becomes the column order.
+---
+
+import DatagridPrefsDemo from '../../../components/recipe-demos/DatagridPrefsDemo.astro';
+
+Column preferences, persisted the hypermedia way — two wires, zero new
+JavaScript beyond what already ships:
+
+1. **Widths** — `installDatagrid()` mirrors every committed resize into
+   any `input[data-hc-datagrid-width="<col>"]` *before* dispatching
+   `hc:datagridcolumnresize`; a small form autosaves it on the
+   debounced event. The server persists per user and **renders the
+   remembered widths back** as inline widths + `data-resized` on later
+   loads — the width is a server-rendered fact.
+2. **Order** — the
+   [datagrid-columns](/hypermedia-components/recipes/datagrid-columns/)
+   chooser upgraded with
+   [`installSortable()`](/hypermedia-components/recipes/sortable/):
+   checkbox serialization follows DOM order, and the server honors the
+   submitted `cols=` **sequence** as the column order.
+
+Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add datagrid-prefs
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-prefs/contract.md).
+:::
+
+## Live demo
+
+Drag the **Name** or **Status** resize grip (or focus it and press the
+arrow keys). The committed width lands in the hidden inputs, the
+debounced form posts them, and the status line answers with what a
+real server would persist:
+
+<DatagridPrefsDemo />
+
+## The markup — widths
+
+```html
+<form action="/prefs/columns" method="post"
+      data-hx-post="/prefs/columns"
+      data-hx-trigger="hc:datagridcolumnresize from:body delay:500ms"
+      data-hx-include="this"
+      data-hx-target="#prefs-status" data-hx-swap="innerHTML">
+  <input type="hidden" name="w-name" data-hc-datagrid-width="name">
+  <input type="hidden" name="w-status" data-hc-datagrid-width="status">
+  <div id="prefs-status" role="status"></div>
+</form>
+```
+
+The mirror happens **before** the event dispatch, so the
+event-triggered request always serializes the fresh value. Mirrored
+inputs are found in the grid's closest `<form>`, else document-wide.
+
+## The markup — order
+
+```html
+<fieldset class="hc-popover__body" id="cols-fields" data-hc-sortable>
+  <label class="hc-checkbox-label">
+    <button type="button" class="hc-button" data-variant="ghost"
+            data-hc-sortable-handle>⠿</button>
+    <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+    Name
+  </label>
+  <!-- …one sortable label per column… -->
+</fieldset>
+```
+
+Drag (or grab with the keyboard) to reorder — Apply serializes the
+checkboxes in DOM order, and the upgraded
+[datagrid-columns contract](/hypermedia-components/recipes/datagrid-columns/)
+renders the columns in that sequence.
+
+## Server response contract
+
+`POST /prefs/columns` (`w-<col>` pairs):
+
+| Case | Response (200) |
+| --- | --- |
+| any `w-<col>` set | the `role="status"` fragment (e.g. "Saved — Name 220px"); persisted per user |
+| invalid value | clamped or ignored server-side, still `200` — a width is a preference, never an error |
+| no-JS | native POST → `303` PRG |
+
+**Rendering back** is the other half: on later loads the server renders
+remembered widths as
+`style="inline-size: <w>px; max-inline-size: <w>px"` + `data-resized`
+on the column's header and cells — print/export and other sessions
+agree with the screen.
+
+## Progressive enhancement
+
+Without JavaScript there is no client resize — and the server-rendered
+widths still apply. The order chooser stays a real GET form; without
+the sortable upgrade the checkboxes still choose the *set*.
+
+## Accessibility
+
+- Saves announce through the `role="status"` region — never silent.
+- Sortable handles are real buttons with `installSortable()`'s keyboard
+  grammar (Space/Enter grabs, arrows move, Escape cancels).
+- Column resize itself is keyboard-accessible (the grip is a focusable
+  separator) — so the whole prefs loop is.
+
+## Related
+
+- [datagrid-columns](/hypermedia-components/recipes/datagrid-columns/) —
+  the chooser this recipe upgrades with ordering.
+- [sortable](/hypermedia-components/recipes/sortable/) — the reorder
+  behavior and its keyboard grammar.
+- [autosave](/hypermedia-components/recipes/autosave/) — the same
+  debounced-persistence idea for whole forms.
+- [Datagrid](/hypermedia-components/components/datagrid/) — column
+  resize and the mirrored-input hook.

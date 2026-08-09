@@ -32,6 +32,7 @@ import * as datagridFilter from './recipes/datagrid-filter.mjs';
 import * as datagridInfinite from './recipes/datagrid-infinite.mjs';
 import * as datagridTree from './recipes/datagrid-tree.mjs';
 import * as datagridPager from './recipes/datagrid-pager.mjs';
+import * as datagridPrefs from './recipes/datagrid-prefs.mjs';
 import * as editConflict from './recipes/edit-conflict.mjs';
 import * as fieldErrors from './recipes/field-errors.mjs';
 import * as fileUpload from './recipes/file-upload.mjs';
@@ -67,6 +68,7 @@ const RECIPES = new Map([
   ['datagrid-infinite', datagridInfinite],
   ['datagrid-tree', datagridTree],
   ['datagrid-pager', datagridPager],
+  ['datagrid-prefs', datagridPrefs],
   ['edit-conflict', editConflict],
   ['field-errors', fieldErrors],
   ['file-upload', fileUpload],

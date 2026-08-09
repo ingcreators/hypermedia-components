@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: column-preference persistence + the `datagrid-prefs`
+  recipe (`plans/hc-datagrid-enrichment-plan-en.md` §1.10). **Widths**:
+  `installDatagrid()` mirrors every committed resize into any
+  `input[data-hc-datagrid-width="<col>"]` (grid's closest form, else
+  document-wide) *before* dispatching `hc:datagridcolumnresize`, so a
+  debounced event-triggered form autosaves the fresh value; the server
+  renders remembered widths back as inline widths + `data-resized`.
+  **Order**: the datagrid-columns chooser upgraded with
+  `installSortable()` — checkbox serialization follows DOM order, and
+  the datagrid-columns contract now honors the submitted `cols=`
+  **sequence** as the column order (absent/unknown params unchanged).
+  Machine-checked contract; live docs demo (en/ja).
 - **datagrid**: tree rows + the `datagrid-tree` recipe
   (`plans/hc-datagrid-enrichment-plan-en.md` §1.7). Rows carry
   `aria-level`; an expandable row carries `aria-expanded` + a

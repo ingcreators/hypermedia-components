@@ -319,10 +319,21 @@ function attach(grid, detachers) {
   }
 
   function emitResize(key, width) {
+    const w = Math.max(MIN_COL, Math.round(width));
+    // Mirror the committed width into any declared prefs input BEFORE
+    // dispatching, so an event-triggered htmx request serializes the
+    // fresh value — the declarative persistence hook (the
+    // datagrid-prefs recipe posts it; the behavior never fetches).
+    const scope = grid.closest('form') ?? grid.ownerDocument;
+    for (const input of scope.querySelectorAll(
+      `input[data-hc-datagrid-width="${key}"]`,
+    )) {
+      input.value = String(w);
+    }
     grid.dispatchEvent(
       new CustomEvent('hc:datagridcolumnresize', {
         bubbles: true,
-        detail: { col: key, width: Math.max(MIN_COL, Math.round(width)) },
+        detail: { col: key, width: w },
       }),
     );
   }

@@ -29,10 +29,12 @@ Purpose: a column chooser for hc-datagrid — a popover form of `cols=` checkbox
 
 ## Column rules
 
-- The requested *set* wins; the requested *order* does not — columns
-  always render in the server's canonical order, so two users asking
-  for the same set see the same grid. Reordering is a server concern
-  (change the canonical order), not a client one.
+- The requested *set* wins, and — since the
+  [datagrid-prefs](../datagrid-prefs/) upgrade — so does the requested
+  *sequence*: the server renders the columns **in the submitted
+  `cols=` order** (a sortable chooser serializes its DOM order).
+  Absent/empty params still mean the default set in canonical order,
+  and unknown names are still ignored.
 - Persisting the choice per user (session, profile) is the server's
   option; the wire contract is the same either way.
 - The OOB unit is the fieldset, **never the form**: the form carries

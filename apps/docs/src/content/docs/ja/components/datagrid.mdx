@@ -286,12 +286,17 @@ CSS は貼り付けるだけで、クライアント側では何も合計しま�
 ```
 
 変更のたびにグリッドは **`hc:datagridcolumnresize`**
-(`detail: { col, width }`)をディスパッチします — htmx か
-`localStorage` で幅を永続化し、次の描画でその列のセル幅として書き戻し
-てください。グリップはキーボード操作可能な `role="separator"` で、
-`aria-valuenow` を持ちます。JS が生成する要素で、クラスは
-`hc-datagrid__resizer` — 他のパートクラス同様にスタイルを
-上書きできます。
+(`detail: { col, width }`)をディスパッチします — さらにディスパッチの
+**前**に、確定した幅を `input[data-hc-datagrid-width="<col>"]`
+(グリッドに最も近い `<form>` 内、なければドキュメント全体)へミラー
+するため、イベント起動の htmx リクエストは新しい値をシリアライズ
+します。
+[datagrid-prefs レシピ](/hypermedia-components/ja/recipes/datagrid-prefs/)
+がこれをユーザーごとの永続化にします。サーバーは記憶した幅を
+インライン幅 + `data-resized` として描画し返します。グリップは
+キーボード操作可能な `role="separator"` で、`aria-valuenow` を
+持ちます。JS が生成する要素で、クラスは `hc-datagrid__resizer` —
+他のパートクラス同様にスタイルを上書きできます。
 
 ## ソート可能な列
 

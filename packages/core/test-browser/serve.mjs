@@ -1102,21 +1102,28 @@ const DGC_ITEMS = [
 // carrier before afterRequest and the popover would never close).
 function dgcChooser(selected) {
   const shown = new Set(selected.map((col) => col.key));
-  const boxes = DGC_COLUMNS.map((col) => `
+  // Chosen columns first, in their chosen order (datagrid-prefs upgrade).
+  const ordered = [...selected, ...DGC_COLUMNS.filter((col) => !shown.has(col.key))];
+  const boxes = ordered.map((col) => `
     <label class="hc-checkbox-label">
+      <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle data-testid="handle-${col.key}">⠿</button>
       <input class="hc-checkbox" type="checkbox" name="cols" value="${col.key}"${shown.has(col.key) ? ' checked' : ''} data-testid="cb-${col.key}">
       ${col.label}
     </label>`).join('');
-  return `<fieldset class="hc-popover__body" id="cols-fields" data-testid="chooser-fields" data-hx-swap-oob="outerHTML">${boxes}
+  return `<fieldset class="hc-popover__body" id="cols-fields" data-testid="chooser-fields" data-hc-sortable data-hx-swap-oob="outerHTML">${boxes}
   </fieldset>`;
 }
 
 function handleDatagridColumns(req, res, url) {
   if (url.pathname !== '/mock/datagrid-columns/items' || req.method !== 'GET') return false;
   req.resume();
-  const wanted = new Set(url.searchParams.getAll('cols'));
-  let selected = DGC_COLUMNS.filter((col) => wanted.has(col.key));
-  if (selected.length === 0) selected = DGC_COLUMNS; // absent/unknown-only → default
+  // Submitted order wins (the datagrid-prefs upgrade); absent or
+  // unknown-only requests fall back to the default set.
+  const byKey = new Map(DGC_COLUMNS.map((col) => [col.key, col]));
+  let selected = [...new Set(url.searchParams.getAll('cols'))]
+    .map((key) => byKey.get(key))
+    .filter(Boolean);
+  if (selected.length === 0) selected = DGC_COLUMNS;
   const head = selected
     .map((col) => `<th class="hc-datagrid__headcell" scope="col">${col.label}</th>`)
     .join('');
@@ -1206,6 +1213,30 @@ function handleDatagridFilter(req, res, url) {
     </table>
   </div>
   ${dgfFields(selected)}`);
+  return true;
+}
+
+// Mock prefs endpoint for the datagrid-prefs recipe spec
+// (datagrid-prefs.html): POST /mock/datagrid-prefs/columns echoes the
+// w-<col> pairs as the status fragment a real server would answer
+// after persisting per user.
+function handleDatagridPrefs(req, res, url) {
+  if (url.pathname !== '/mock/datagrid-prefs/columns' || req.method !== 'POST') return false;
+  let raw = '';
+  req.on('data', (chunk) => { raw += chunk; });
+  req.on('end', () => {
+    const params = new URLSearchParams(raw);
+    const saved = [];
+    for (const [key, value] of params.entries()) {
+      const w = Number.parseInt(value, 10);
+      if (key.startsWith('w-') && Number.isFinite(w) && w > 0) {
+        saved.push(`${key.slice(2)} ${w}px`);
+      }
+    }
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(`<span data-testid="saved">${saved.length ? `Saved — ${saved.join(', ')}` : 'Nothing to save yet'}</span>`);
+  });
   return true;
 }
 
@@ -1595,6 +1626,7 @@ function handleMock(req, res, url) {
   if (handleCsvImport(req, res, url)) return true;
   if (handleSavedViews(req, res, url)) return true;
   if (handleDatagridColumns(req, res, url)) return true;
+  if (handleDatagridPrefs(req, res, url)) return true;
   if (handleDatagridFilter(req, res, url)) return true;
   if (handleDatagridTree(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;

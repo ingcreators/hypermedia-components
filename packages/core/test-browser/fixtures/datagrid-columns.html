@@ -28,23 +28,27 @@
             data-hx-target="#items-grid"
             data-hc-close-popover-on-success
             data-testid="chooser">
-        <fieldset class="hc-popover__body" id="cols-fields" data-testid="chooser-fields">
+        <fieldset class="hc-popover__body" id="cols-fields" data-testid="chooser-fields" data-hc-sortable>
         <label class="hc-checkbox-label">
+          <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle data-testid="handle-name">⠿</button>
           <input class="hc-checkbox" type="checkbox" name="cols" value="name"
                  checked data-testid="cb-name">
           Name
         </label>
         <label class="hc-checkbox-label">
+          <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle data-testid="handle-status">⠿</button>
           <input class="hc-checkbox" type="checkbox" name="cols" value="status"
                  checked data-testid="cb-status">
           Status
         </label>
         <label class="hc-checkbox-label">
+          <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle data-testid="handle-owner">⠿</button>
           <input class="hc-checkbox" type="checkbox" name="cols" value="owner"
                  checked data-testid="cb-owner">
           Owner
         </label>
         <label class="hc-checkbox-label">
+          <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle data-testid="handle-updated">⠿</button>
           <input class="hc-checkbox" type="checkbox" name="cols" value="updated"
                  checked data-testid="cb-updated">
           Updated
