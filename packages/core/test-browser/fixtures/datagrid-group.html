@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-datagrid grouped rows fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <!-- Server-rendered grouped rows: heading rows interleaved with data
+       rows; the headings carry the aggregates the server chose to render.
+       installDatagrid() toggles visibility on click / Enter / Space. -->
+  <div class="hc-datagrid" data-testid="grid" style="max-inline-size: 560px;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col" style="width:36px;">
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all" data-testid="select-all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">Name</th>
+            <th class="hc-datagrid__headcell" scope="col" data-numeric>Qty</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row hc-datagrid__grouprow" data-group-level="1" data-testid="g-fruit">
+            <td class="hc-datagrid__cell" colspan="3" data-testid="g-fruit-cell">Fruit — Σ 30</td>
+          </tr>
+          <tr class="hc-datagrid__row" data-testid="r-apple">
+            <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" aria-label="Select Apple"></td>
+            <td class="hc-datagrid__cell">Apple</td>
+            <td class="hc-datagrid__cell" data-numeric>10</td>
+          </tr>
+          <tr class="hc-datagrid__row hc-datagrid__grouprow" data-group-level="2" data-testid="g-citrus">
+            <td class="hc-datagrid__cell" colspan="3" aria-expanded="false" data-testid="g-citrus-cell">Citrus — Σ 20</td>
+          </tr>
+          <tr class="hc-datagrid__row" data-testid="r-lemon">
+            <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" aria-label="Select Lemon"></td>
+            <td class="hc-datagrid__cell">Lemon</td>
+            <td class="hc-datagrid__cell" data-numeric>20</td>
+          </tr>
+          <tr class="hc-datagrid__row hc-datagrid__grouprow" data-group-level="1" data-testid="g-tools">
+            <td class="hc-datagrid__cell" colspan="3" data-testid="g-tools-cell">Tools — Σ 5</td>
+          </tr>
+          <tr class="hc-datagrid__row" data-testid="r-hammer">
+            <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" aria-label="Select Hammer"></td>
+            <td class="hc-datagrid__cell">Hammer</td>
+            <td class="hc-datagrid__cell" data-numeric>5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

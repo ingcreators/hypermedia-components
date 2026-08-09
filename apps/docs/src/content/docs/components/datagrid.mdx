@@ -454,6 +454,42 @@ politely. For the full wire contract — native form serialization of the
 row-checkbox ids, the server response shape, the no-JS path — see the
 [bulk-actions recipe](/hypermedia-components/recipes/datagrid-bulk-actions/).
 
+## Grouped rows
+
+Grouping is a *rendering* choice: the server interleaves heading rows —
+`hc-datagrid__row hc-datagrid__grouprow` with one `colspan` cell holding
+the group label **and any aggregates it chose to render** — and the
+behavior toggles the group's rows on click / <kbd>Enter</kbd> /
+<kbd>Space</kbd>. Nothing is grouped or summed client-side; collapse is
+pure visibility (the rows are already on the page):
+
+```html
+<tbody class="hc-datagrid__body">
+  <tr class="hc-datagrid__row hc-datagrid__grouprow" data-group-level="1">
+    <td class="hc-datagrid__cell" colspan="3">Fruit — Σ 30</td>
+  </tr>
+  <tr class="hc-datagrid__row">…</tr>
+  <tr class="hc-datagrid__row">…</tr>
+</tbody>
+```
+
+- The heading's **cell** carries `aria-expanded` (valid on `gridcell`;
+  the behavior defaults it to `"true"`) — render it `"false"` to start
+  a group collapsed. The caret (`▸` / `▾`) follows it.
+- `data-group-level="1…3"` nests groups: a collapse hides everything up
+  to the next same-or-higher heading, and re-expanding keeps collapsed
+  sub-groups collapsed. Levels 2 and 3 indent.
+- Group headings join keyboard navigation as normal rows (their single
+  spanning cell is one stop) but are **not** selectable units —
+  select-all and the actions-bar count see only data rows, and
+  collapsing never changes the selection.
+- Toggling emits **`hc:datagridgrouptoggle`** `{ row, expanded }`.
+- Grouping composes with sorting/paging as a server concern: the group
+  headings are just rows in the fragment, so a re-render replaces them
+  atomically. (Grouped layouts are for flat-row grids — with
+  [multi-row records](#multi-row-records) use one `tbody` per record
+  instead.)
+
 ## Multi-row records
 
 Dense business screens often show **one record across several rows** (e.g.
@@ -727,6 +763,7 @@ on the `.hc-datagrid` root except `hc:datagriddetailload`:
 | `hc:datagridcopy` | `.hc-datagrid` | `{ text, rows, cols }` — cancelable; `preventDefault()` claims the clipboard write. |
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — counted by record/row unit. |
 | `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — commit only, and only when the value changed. |
+| `hc:datagridgrouptoggle` | `.hc-datagrid` | `{ row, expanded }` — the toggled `.hc-datagrid__grouprow`. |
 | `hc:datagridexpand` | `.hc-datagrid` | `{ record }` — the expanded record `<tbody>`. |
 | `hc:datagridcollapse` | `.hc-datagrid` | `{ record }` — the collapsed record `<tbody>`. |
 | `hc:datagriddetailload` | the `[data-lazy]` `.hc-datagrid__detail` cell | `{ record }` — first expand only. |
@@ -746,6 +783,7 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Numeric columns | `data-numeric` (head/body cells) | CSS |
 | Column resize | `data-resizable` + `data-col` (header) · matching `data-col` (body cells) | `installDatagrid()` |
 | Sortable columns | `data-sortable` + `data-col` (header) | `installDatagrid()` |
+| Grouped rows | `.hc-datagrid__grouprow` + `data-group-level` (heading row) · `aria-expanded` (heading cell, start collapsed with `"false"`) | `installDatagrid()` |
 | Expandable row detail | `data-hc-datagrid-toggle` (button) · `data-expanded` (record `<tbody>`, start open) · `data-lazy` (detail cell) | `installDatagrid()` |
 | Inline editing | `data-editable` + `data-col` (+ `data-value`) (cell) · `data-datagrid-editor` + `data-col` (`<template>`) | `installDatagrid()` |
 | Selection actions bar | `data-hc-datagrid-actions="<selector>"` (bar) · `data-hc-datagrid-count` (count element) | `installDatagridActions()` |

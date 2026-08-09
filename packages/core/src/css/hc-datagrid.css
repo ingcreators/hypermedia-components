@@ -287,6 +287,44 @@
     outline-offset: -2px;
   }
 
+  /* ---- Grouped rows (server-rendered, client-toggled) ----
+     The server interleaves heading rows
+     (`.hc-datagrid__row.hc-datagrid__grouprow`, one colspan cell with the
+     label + any aggregates); installDatagrid() toggles the group's rows on
+     click / Enter / Space via `aria-expanded`. */
+  .hc-datagrid__grouprow > .hc-datagrid__cell {
+    background-color: var(--hc-datagrid-head-bg);
+    color: var(--hc-datagrid-head-fg);
+    font-weight: var(--hc-font-weight-semibold);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Disclosure caret — driven by the heading cell's aria-expanded
+     (aria-expanded is valid on gridcell; on row only inside a treegrid). */
+  .hc-datagrid__grouprow > .hc-datagrid__cell:first-child::before {
+    content: "▸";
+    display: inline-block;
+    margin-inline-end: 0.5em;
+  }
+
+  .hc-datagrid:dir(rtl) .hc-datagrid__grouprow > .hc-datagrid__cell:first-child::before {
+    content: "◂";
+  }
+
+  .hc-datagrid__grouprow > .hc-datagrid__cell[aria-expanded="true"]:first-child::before {
+    content: "▾";
+  }
+
+  /* Nested groups indent with their level (2 and 3, like the header depth). */
+  .hc-datagrid__grouprow[data-group-level="2"] > .hc-datagrid__cell:first-child {
+    padding-inline-start: calc(var(--hc-datagrid-cell-padding-x) * 3);
+  }
+
+  .hc-datagrid__grouprow[data-group-level="3"] > .hc-datagrid__cell:first-child {
+    padding-inline-start: calc(var(--hc-datagrid-cell-padding-x) * 5);
+  }
+
   /* ---- Multi-row records (one record across several rows) ---- */
 
   /* Each record is a <tbody class="hc-datagrid__record"> of sub-rows; the
