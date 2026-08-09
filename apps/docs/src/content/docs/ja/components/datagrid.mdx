@@ -319,6 +319,10 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | Ctrl + Home / End | 最初の行の最初のセル / 最後の行の最後のセル |
 | Page Up / Down | ビューポート分の行を移動 |
 | Space | アクティブ行の選択をトグル |
+| Shift + 矢印 / Shift + クリック | アクティブセルからセル範囲を拡張 |
+| Ctrl/Cmd + C | 範囲(なければアクティブセル)を TSV としてコピー |
+| Ctrl/Cmd + A | ページ内のすべての行を選択 |
+| Escape | セル範囲をクリア |
 
 グリッドは単一のタブストップです。セル内のウィジェットは個別のタブ
 ストップになりません。`Space` は行のチェックボックスと `aria-selected`
@@ -326,6 +330,21 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 します(選択が部分的なときは不確定状態)。選択の変更はグリッド上で
 `hc:datagridselectionchange`(`detail: { selected, total }`)を発行
 します。
+
+### 範囲選択とコピー
+
+`Shift+矢印`(または `Shift+クリック`)はアクティブセルから矩形の
+セル範囲を拡張します。範囲内のセルは **`data-in-range`** を持ち、
+選択ティントで塗られます。`Ctrl/Cmd+C` は範囲を TSV(セルはタブ、
+行は改行区切り)としてクリップボードに書き込みます — そのまま
+スプレッドシートに貼り付けられます。複数スロットにまたがるセルは、
+矩形内で最初に覆われたスロットに一度だけテキストを出力します。
+
+書き込みの前に、グリッドはキャンセル可能な **`hc:datagridcopy`**
+(`detail: { text, rows, cols }`)をディスパッチします。
+`preventDefault()` でコピーを引き取り、より豊かなペイロードを自前で
+クリップボードに置けます。範囲は純粋に表示上の状態です — 行の htmx
+スワップでクリアされ、サーバーには何も送信されません。
 
 ## 状態
 
@@ -336,6 +355,7 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | `aria-selected="true"` | `.hc-datagrid__row` | 選択行の背景。 |
 | `data-active` | `.hc-datagrid__cell` | アクティブセルのフォーカスリング(キーボードビヘイビアが設定)。 |
 | `data-highlight` | `.hc-datagrid__cell` | 列 / セルのハイライト帯。 |
+| `data-in-range` | `.hc-datagrid__cell` | セル範囲選択のティント(キーボードビヘイビアが設定)。 |
 | `data-editing` | `.hc-datagrid__cell` | 編集モード — エディタがセルを満たすようパディングが落ちる。 |
 
 ## 選択アクションバー
@@ -648,6 +668,7 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | --- | --- | --- |
 | `hc:datagridsort` | `.hc-datagrid` | `{ col, direction }` — `'asc'` / `'desc'` / `null`。 |
 | `hc:datagridcolumnresize` | `.hc-datagrid` | `{ col, width }` — 新しい幅(px)。 |
+| `hc:datagridcopy` | `.hc-datagrid` | `{ text, rows, cols }` — キャンセル可能。`preventDefault()` でクリップボード書き込みを引き取れます。 |
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — レコード / 行の単位で数えます。 |
 | `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — コミット時のみ、かつ値が変わったときのみ。 |
 | `hc:datagridexpand` | `.hc-datagrid` | `{ record }` — 展開されたレコード `<tbody>`。 |
@@ -672,8 +693,8 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | 選択アクションバー | `data-hc-datagrid-actions="<selector>"`(バー)· `data-hc-datagrid-count`(件数要素) | `installDatagridActions()` |
 
 ビヘイビアは CSS のために状態属性も*書き込みます* — セルに
-`data-active`、`data-editing`、`data-resized`、レコードに
-`data-selected`、`data-current`、`data-expanded`
+`data-active`、`data-in-range`、`data-editing`、`data-resized`、
+レコードに `data-selected`、`data-current`、`data-expanded`
 ([状態](#状態)を参照)。
 
 ## アクセシビリティ

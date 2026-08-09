@@ -71,6 +71,7 @@
     /* Datagrid: selected rows, the active (current) cell, and the
        highlighted column all rely on background tints. */
     .hc-datagrid__row[aria-selected="true"] > .hc-datagrid__cell,
+    .hc-datagrid__cell[data-in-range],
     .hc-datagrid__cell[data-highlight] {
       outline: 1px solid Highlight;
       outline-offset: -1px;

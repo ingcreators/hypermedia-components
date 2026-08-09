@@ -203,6 +203,7 @@ function attach(grid, detachers) {
 
   function rebuild() {
     matrix = buildMatrix(grid);
+    clearRange(); // swapped-in rows invalidate the range geometry
     applyRoles();
     applyResizedWidths(); // re-apply column widths to swapped-in rows
     let cur = matrix[active.r]?.[active.c];
@@ -391,6 +392,99 @@ function attach(grid, detachers) {
     setActive(nr, nc);
   }
 
+  // ---- Range selection (Shift+Arrow / Shift+Click) ----
+  // A rectangle between the anchor slot and the active slot, painted with
+  // `data-in-range`. Purely visual + clipboard — no network, no persistence;
+  // any grid re-render (htmx swap) clears it.
+  let rangeAnchor = null; // {r, c} | null
+  let rangePainted = new Set();
+
+  function clearRange() {
+    rangeAnchor = null;
+    for (const cell of rangePainted) cell.removeAttribute('data-in-range');
+    rangePainted = new Set();
+  }
+
+  function rangeRect() {
+    if (!rangeAnchor) return null;
+    return {
+      r1: Math.min(rangeAnchor.r, active.r),
+      r2: Math.max(rangeAnchor.r, active.r),
+      c1: Math.min(rangeAnchor.c, active.c),
+      c2: Math.max(rangeAnchor.c, active.c),
+    };
+  }
+
+  function paintRange() {
+    const rect = rangeRect();
+    if (!rect) return;
+    const next = new Set();
+    for (let r = rect.r1; r <= rect.r2; r += 1) {
+      for (let c = rect.c1; c <= rect.c2; c += 1) {
+        const cell = matrix[r]?.[c];
+        if (cell) next.add(cell);
+      }
+    }
+    for (const cell of rangePainted) {
+      if (!next.has(cell)) cell.removeAttribute('data-in-range');
+    }
+    for (const cell of next) cell.setAttribute('data-in-range', '');
+    rangePainted = next;
+  }
+
+  // TSV of the range (or the active cell alone). A spanning cell
+  // contributes its text once — at the first slot of the rectangle it
+  // covers; its remaining slots come out empty, mirroring the visual grid.
+  function copyRange() {
+    const rect = rangeRect() ?? {
+      r1: active.r,
+      r2: active.r,
+      c1: active.c,
+      c2: active.c,
+    };
+    const seen = new Set();
+    const lines = [];
+    for (let r = rect.r1; r <= rect.r2; r += 1) {
+      const out = [];
+      for (let c = rect.c1; c <= rect.c2; c += 1) {
+        const cell = matrix[r]?.[c];
+        if (!cell || seen.has(cell)) {
+          out.push('');
+        } else {
+          seen.add(cell);
+          out.push(cell.textContent.trim());
+        }
+      }
+      lines.push(out.join('\t'));
+    }
+    const text = lines.join('\n');
+    const ok = grid.dispatchEvent(
+      new CustomEvent('hc:datagridcopy', {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          text,
+          rows: rect.r2 - rect.r1 + 1,
+          cols: rect.c2 - rect.c1 + 1,
+        },
+      }),
+    );
+    // Cancelling the event claims the copy (e.g. to put a richer payload
+    // on the clipboard); otherwise we write the TSV ourselves.
+    if (ok) navigator.clipboard?.writeText?.(text);
+  }
+
+  function selectAllUnits() {
+    const all = selectAll();
+    if (all) {
+      all.checked = true;
+      all.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    for (const unit of recordUnits(grid)) setUnitSelected(unit, true);
+    emitSelection();
+  }
+
   function toggleRow(r) {
     const row = bodyRows(grid)[r];
     if (!row) return;
@@ -450,12 +544,39 @@ function attach(grid, detachers) {
       startEdit(activeCell, event.key); // type-to-edit (Excel-style)
       return;
     }
+    const mod = event.ctrlKey || event.metaKey;
+    if (mod && (event.key === 'c' || event.key === 'C')) {
+      // A real text selection keeps native copy; otherwise copy the range
+      // (or the active cell alone) as TSV.
+      const sel = grid.ownerDocument.getSelection?.();
+      if (rangeAnchor || !sel || sel.isCollapsed) {
+        event.preventDefault();
+        copyRange();
+      }
+      return;
+    }
+    if (mod && (event.key === 'a' || event.key === 'A')) {
+      event.preventDefault(); // never select the whole document from a grid
+      selectAllUnits();
+      return;
+    }
+    if (event.key === 'Escape') {
+      if (!rangeAnchor) return;
+      event.preventDefault();
+      clearRange();
+      return;
+    }
     // In RTL the columns run right-to-left, so mirror the horizontal arrows.
     let key = event.key;
     if (getComputedStyle(grid).direction === 'rtl') {
       if (key === 'ArrowRight') key = 'ArrowLeft';
       else if (key === 'ArrowLeft') key = 'ArrowRight';
     }
+    const isArrow =
+      key === 'ArrowDown' || key === 'ArrowUp' ||
+      key === 'ArrowRight' || key === 'ArrowLeft';
+    const extending = event.shiftKey && isArrow;
+    if (extending && !rangeAnchor) rangeAnchor = { ...active };
     switch (key) {
       case 'ArrowDown': step(1, 0); break;
       case 'ArrowUp': step(-1, 0); break;
@@ -481,6 +602,8 @@ function attach(grid, detachers) {
       default:
         return;
     }
+    if (extending) paintRange();
+    else if (rangeAnchor && key !== ' ' && key !== 'Spacebar') clearRange();
     event.preventDefault();
   }
 
@@ -494,6 +617,25 @@ function attach(grid, detachers) {
     if (!cell || matrix[active.r]?.[active.c] !== cell) return;
     if (!cell.hasAttribute('data-editable') || !templates.has(cell.dataset.col)) return;
     startEdit(cell);
+  }
+
+  // Shift+Click extends the range from the active cell; a plain click on a
+  // cell drops any range. mousedown (not click) so we can suppress the
+  // browser's shift-click text selection before it starts.
+  function onMousedown(event) {
+    if (!isOurs(event)) return;
+    const cell = event.target.closest?.('.hc-datagrid__cell');
+    if (!cell || !grid.contains(cell)) return;
+    if (!event.shiftKey) {
+      if (rangeAnchor) clearRange();
+      return;
+    }
+    const pos = locate(cell);
+    if (!pos) return;
+    event.preventDefault();
+    rangeAnchor ??= { ...active };
+    setActive(pos.r, pos.c);
+    paintRange();
   }
 
   function onFocusin(event) {
@@ -847,6 +989,7 @@ function attach(grid, detachers) {
   initSort();
 
   table.addEventListener('keydown', onKeydown);
+  table.addEventListener('mousedown', onMousedown);
   table.addEventListener('compositionstart', onCompositionstart);
   table.addEventListener('keydown', onSortKeydown);
   table.addEventListener('change', onChange);
@@ -888,6 +1031,7 @@ function attach(grid, detachers) {
 
   detachers.set(grid, () => {
     table.removeEventListener('keydown', onKeydown);
+    table.removeEventListener('mousedown', onMousedown);
     table.removeEventListener('compositionstart', onCompositionstart);
     table.removeEventListener('keydown', onSortKeydown);
     table.removeEventListener('change', onChange);

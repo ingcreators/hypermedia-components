@@ -314,12 +314,31 @@ uninstaller, and picks up htmx-swapped grids and rows via
 | Ctrl + Home / End | First cell of the first row / last cell of the last row |
 | Page Up / Down | Move by a viewport of rows |
 | Space | Toggle the active row's selection |
+| Shift + Arrow / Shift + Click | Extend a cell range from the active cell |
+| Ctrl/Cmd + C | Copy the range (or the active cell) as TSV |
+| Ctrl/Cmd + A | Select every row on the page |
+| Escape | Clear the cell range |
 
 The grid is a single tab stop; widgets inside cells are not separate tab
 stops. `Space` toggles the row's checkbox and `aria-selected`; the header
 select-all checkbox toggles every row (with an indeterminate state when
 the selection is partial). Selection changes emit
 `hc:datagridselectionchange` (`detail: { selected, total }`) on the grid.
+
+### Range selection &amp; copy
+
+`Shift+Arrow` (or `Shift+Click`) extends a rectangular cell range from
+the active cell; cells in the range carry **`data-in-range`** and paint
+with the selection tint. `Ctrl/Cmd+C` puts the range on the clipboard
+as TSV — tab-separated cells, newline-separated rows, ready to paste
+into a spreadsheet. A cell spanning several slots contributes its text
+once, at the first slot of the rectangle it covers.
+
+Before writing, the grid dispatches a cancelable **`hc:datagridcopy`**
+(`detail: { text, rows, cols }`); call `preventDefault()` to claim the
+copy and put a richer payload on the clipboard yourself. The range is
+visual state only — an htmx swap of the rows clears it, and nothing is
+sent to the server.
 
 ## States
 
@@ -330,6 +349,7 @@ State is expressed with attributes, styled by the component:
 | `aria-selected="true"` | `.hc-datagrid__row` | Selected-row background. |
 | `data-active` | `.hc-datagrid__cell` | Active-cell focus ring (set by the keyboard behavior). |
 | `data-highlight` | `.hc-datagrid__cell` | Column / cell highlight band. |
+| `data-in-range` | `.hc-datagrid__cell` | Cell-range selection tint (set by the keyboard behavior). |
 | `data-editing` | `.hc-datagrid__cell` | Edit mode — padding drops so the editor fills the cell. |
 
 ## Selection actions bar
@@ -636,6 +656,7 @@ on the `.hc-datagrid` root except `hc:datagriddetailload`:
 | --- | --- | --- |
 | `hc:datagridsort` | `.hc-datagrid` | `{ col, direction }` — `'asc'` / `'desc'` / `null`. |
 | `hc:datagridcolumnresize` | `.hc-datagrid` | `{ col, width }` — the new width in px. |
+| `hc:datagridcopy` | `.hc-datagrid` | `{ text, rows, cols }` — cancelable; `preventDefault()` claims the clipboard write. |
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — counted by record/row unit. |
 | `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — commit only, and only when the value changed. |
 | `hc:datagridexpand` | `.hc-datagrid` | `{ record }` — the expanded record `<tbody>`. |
@@ -660,8 +681,9 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Selection actions bar | `data-hc-datagrid-actions="<selector>"` (bar) · `data-hc-datagrid-count` (count element) | `installDatagridActions()` |
 
 The behavior also *writes* state attributes for the CSS — `data-active`,
-`data-editing`, `data-resized` on cells; `data-selected`, `data-current`,
-`data-expanded` on records (see [States](#states)).
+`data-in-range`, `data-editing`, `data-resized` on cells;
+`data-selected`, `data-current`, `data-expanded` on records (see
+[States](#states)).
 
 ## Accessibility
 
