@@ -294,9 +294,9 @@ restyle like any other part class.
 
 Mark a header `data-sortable` (with a `data-col` key). The behavior makes it
 focusable, toggles `aria-sort` on click / <kbd>Enter</kbd> / <kbd>Space</kbd>
-through **none → ascending → descending → none** (single column at a time, with
-a `↕` / `↑` / `↓` indicator), and dispatches **`hc:datagridsort`** — the grid
-is server-paged, so the **server** sorts and returns the page.
+through **none → ascending → descending → none** (with a `↕` / `↑` / `↓`
+indicator), and dispatches **`hc:datagridsort`** — the grid is
+server-paged, so the **server** sorts and returns the page.
 
 ```html
 <th class="hc-datagrid__headcell" data-sortable data-col="price" scope="col">
@@ -306,7 +306,26 @@ is server-paged, so the **server** sorts and returns the page.
 
 ```js
 grid.addEventListener('hc:datagridsort', (e) => {
-  // e.detail = { col: 'price', direction: 'asc' | 'desc' | null }
+  // e.detail = {
+  //   col: 'price', direction: 'asc' | 'desc' | null,
+  //   sorts: [{ col, direction }, …]   // the full ordered sort set
+  // }
+});
+```
+
+A plain activation is **single-column** (the others clear);
+<kbd>Shift</kbd>+click / <kbd>Shift</kbd>+<kbd>Enter</kbd> **adds** the
+column to the sort set instead. With two or more sorted columns each
+header carries `data-sort-index="1…n"` and the indicator shows the
+ordinal (`↑1`, `↓2`). `detail.sorts` is the whole ordered set; the
+conventional wire format is `?sort=name,-price` (leading `-` = desc):
+
+```js
+grid.addEventListener('hc:datagridsort', (e) => {
+  const sort = e.detail.sorts
+    .map((s) => (s.direction === 'desc' ? `-${s.col}` : s.col))
+    .join(',');
+  // → "name,-price"
 });
 ```
 
@@ -315,7 +334,8 @@ Wire it to htmx by reloading the rows with the sort params — e.g. put
 `data-hx-vals='js:{ sort: event.detail.col, dir: event.detail.direction }'`
 on the `<tbody>` (see the
 [Datagrid pager recipe](/hypermedia-components/recipes/datagrid-pager/)). Render
-each header with the current `aria-sort` so the indicator survives the swap.
+each header with the current `aria-sort` (and `data-sort-index` when
+multi-sorted) so the indicator survives the swap.
 
 ## Numeric columns
 
@@ -702,7 +722,7 @@ on the `.hc-datagrid` root except `hc:datagriddetailload`:
 
 | Event | Dispatches on | `detail` |
 | --- | --- | --- |
-| `hc:datagridsort` | `.hc-datagrid` | `{ col, direction }` — `'asc'` / `'desc'` / `null`. |
+| `hc:datagridsort` | `.hc-datagrid` | `{ col, direction, sorts }` — direction `'asc'` / `'desc'` / `null`; `sorts` = the full ordered sort set. |
 | `hc:datagridcolumnresize` | `.hc-datagrid` | `{ col, width }` — the new width in px. |
 | `hc:datagridcopy` | `.hc-datagrid` | `{ text, rows, cols }` — cancelable; `preventDefault()` claims the clipboard write. |
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — counted by record/row unit. |

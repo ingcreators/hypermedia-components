@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: multi-column sort
+  (`plans/hc-datagrid-enrichment-plan-en.md` §1.4). `Shift+Click` /
+  `Shift+Enter` on a `data-sortable` header **adds** the column to the
+  sort set (a plain activation stays single-column and clears the
+  rest). With two or more sorted columns each header carries
+  `data-sort-index="1…n"` and the indicator shows the ordinal (`↑1`,
+  `↓2`). `hc:datagridsort` detail gains **`sorts`** — the full ordered
+  set as `[{ col, direction }, …]` (the existing `col` / `direction`
+  fields are unchanged); the conventional wire format is
+  `?sort=name,-price`.
+
 - **recipes**: `datagrid-filter` — per-column filter entry for the
   datagrid (`plans/hc-datagrid-enrichment-plan-en.md` §1.5). A
   filter-popover off a header cell's trigger button GETs the grid URL

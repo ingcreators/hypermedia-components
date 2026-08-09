@@ -732,7 +732,14 @@ function attach(grid, detachers) {
     }
   }
 
-  function cycleSort(th) {
+  const isSorted = (h) =>
+    /^(ascending|descending)$/.test(h.getAttribute('aria-sort') || '');
+
+  // A plain activation resets to single-column sort; Shift adds the
+  // column to the sort set instead. The client only marks the
+  // instruction (aria-sort + the data-sort-index ordinal) — the server
+  // returns the sorted page (`?sort=name,-price` convention).
+  function cycleSort(th, additive = false) {
     const current = th.getAttribute('aria-sort') || 'none';
     const next =
       current === 'none'
@@ -740,15 +747,46 @@ function attach(grid, detachers) {
         : current === 'ascending'
           ? 'descending'
           : 'none';
-    // Single-column sort: clear the others.
-    for (const h of sortableHeaders()) {
-      if (h !== th) h.setAttribute('aria-sort', 'none');
+    if (additive) {
+      if (current === 'none') {
+        // Entering the set: append after the existing sorted columns.
+        th.dataset.sortIndex = String(sortableHeaders().filter(isSorted).length + 1);
+      }
+    } else {
+      // Single-column sort: clear the others.
+      for (const h of sortableHeaders()) {
+        if (h !== th) {
+          h.setAttribute('aria-sort', 'none');
+          delete h.dataset.sortIndex;
+        }
+      }
+      delete th.dataset.sortIndex;
     }
     th.setAttribute('aria-sort', next);
-    const col = th.dataset.col || (th.textContent || '').trim();
+    if (next === 'none') delete th.dataset.sortIndex;
+    // Renumber 1…n in set order; a single sorted column carries no
+    // ordinal (the arrow alone says everything).
+    const sorted = sortableHeaders()
+      .filter(isSorted)
+      .sort(
+        (a, b) => Number(a.dataset.sortIndex || 0) - Number(b.dataset.sortIndex || 0),
+      );
+    sorted.forEach((h, i) => {
+      if (sorted.length > 1) h.dataset.sortIndex = String(i + 1);
+      else delete h.dataset.sortIndex;
+    });
+
+    const colOf = (h) => h.dataset.col || (h.textContent || '').trim();
     const direction = next === 'ascending' ? 'asc' : next === 'descending' ? 'desc' : null;
+    const sorts = sorted.map((h) => ({
+      col: colOf(h),
+      direction: h.getAttribute('aria-sort') === 'ascending' ? 'asc' : 'desc',
+    }));
     grid.dispatchEvent(
-      new CustomEvent('hc:datagridsort', { bubbles: true, detail: { col, direction } }),
+      new CustomEvent('hc:datagridsort', {
+        bubbles: true,
+        detail: { col: colOf(th), direction, sorts },
+      }),
     );
   }
 
@@ -760,7 +798,7 @@ function attach(grid, detachers) {
 
   function onSortClick(event) {
     const th = sortableTargetOf(event);
-    if (th) cycleSort(th);
+    if (th) cycleSort(th, event.shiftKey);
   }
 
   function onSortKeydown(event) {
@@ -768,7 +806,7 @@ function attach(grid, detachers) {
     const th = sortableTargetOf(event);
     if (!th) return;
     event.preventDefault();
-    cycleSort(th);
+    cycleSort(th, event.shiftKey);
   }
 
   // ---- Expandable row detail (master / detail) ----

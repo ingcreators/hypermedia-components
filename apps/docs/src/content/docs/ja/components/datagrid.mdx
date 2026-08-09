@@ -298,8 +298,8 @@ CSS は貼り付けるだけで、クライアント側では何も合計しま�
 ヘッダーに `data-sortable`(と `data-col` キー)を付けます。ビヘイビア
 がそれをフォーカス可能にし、クリック / <kbd>Enter</kbd> /
 <kbd>Space</kbd> で `aria-sort` を **none → ascending → descending →
-none** とトグルし(同時に 1 列のみ、`↕` / `↑` / `↓` のインジケーター
-つき)、**`hc:datagridsort`** をディスパッチします — グリッドはサーバ
+none** とトグルし(`↕` / `↑` / `↓` のインジケーターつき)、
+**`hc:datagridsort`** をディスパッチします — グリッドはサーバ
 ページングなので、**サーバ**がソートしてページを返します。
 
 ```html
@@ -310,7 +310,26 @@ none** とトグルし(同時に 1 列のみ、`↕` / `↑` / `↓` のイン�
 
 ```js
 grid.addEventListener('hc:datagridsort', (e) => {
-  // e.detail = { col: 'price', direction: 'asc' | 'desc' | null }
+  // e.detail = {
+  //   col: 'price', direction: 'asc' | 'desc' | null,
+  //   sorts: [{ col, direction }, …]   // 順序つきのソートセット全体
+  // }
+});
+```
+
+素のアクティベーションは**単一列**です(他の列はクリアされます)。
+<kbd>Shift</kbd>+クリック / <kbd>Shift</kbd>+<kbd>Enter</kbd> は代わりに
+その列をソートセットに**追加**します。2 列以上がソートされると各
+ヘッダーは `data-sort-index="1…n"` を持ち、インジケーターが序数を
+表示します(`↑1`、`↓2`)。`detail.sorts` が順序つきセットの全体で、
+ワイヤの慣例形式は `?sort=name,-price`(先頭の `-` が降順)です:
+
+```js
+grid.addEventListener('hc:datagridsort', (e) => {
+  const sort = e.detail.sorts
+    .map((s) => (s.direction === 'desc' ? `-${s.col}` : s.col))
+    .join(',');
+  // → "name,-price"
 });
 ```
 
@@ -320,7 +339,8 @@ htmx とつなぐには、ソートパラメータつきで行を再読み込み
 を置きます(
 [datagrid-pager レシピ](/hypermedia-components/ja/recipes/datagrid-pager/)を
 参照)。インジケーターがスワップ後も残るよう、各ヘッダーは現在の
-`aria-sort` つきで描画してください。
+`aria-sort`(複数列ソート時は `data-sort-index` も)つきで描画して
+ください。
 
 ## 数値列
 
@@ -714,7 +734,7 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 
 | イベント | ディスパッチ先 | `detail` |
 | --- | --- | --- |
-| `hc:datagridsort` | `.hc-datagrid` | `{ col, direction }` — `'asc'` / `'desc'` / `null`。 |
+| `hc:datagridsort` | `.hc-datagrid` | `{ col, direction, sorts }` — direction は `'asc'` / `'desc'` / `null`。`sorts` は順序つきソートセットの全体。 |
 | `hc:datagridcolumnresize` | `.hc-datagrid` | `{ col, width }` — 新しい幅(px)。 |
 | `hc:datagridcopy` | `.hc-datagrid` | `{ text, rows, cols }` — キャンセル可能。`preventDefault()` でクリップボード書き込みを引き取れます。 |
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — レコード / 行の単位で数えます。 |
