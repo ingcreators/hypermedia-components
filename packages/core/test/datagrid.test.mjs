@@ -1559,3 +1559,55 @@ describe('installDatagrid — lazy row detail', () => {
     expect($('lazy-cell').hasAttribute('aria-busy')).toBe(false);
   });
 });
+
+describe('installDatagrid — zebra striping', () => {
+  const zebra = (html) => html.replace('class="hc-datagrid"', 'class="hc-datagrid" data-hc-zebra');
+  const alt = (id) => $(id).hasAttribute('data-alt');
+
+  it('stripes alternate rows only when the grid opts in', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    expect(alt('row-1')).toBe(false);
+    expect(alt('row-2')).toBe(false);
+
+    uninstall();
+    document.body.innerHTML = zebra(FIXTURE);
+    uninstall = installDatagrid();
+    expect(alt('row-1')).toBe(false);
+    expect(alt('row-2')).toBe(true);
+  });
+
+  it('a record stripes as one unit, not per physical row', () => {
+    document.body.innerHTML = zebra(FIXTURE_MULTI);
+    uninstall = installDatagrid();
+    // Record 1 is the first unit, record 2 the second — both of record
+    // 2's rows carry the stripe, so a two-line record reads as one.
+    expect(alt('r1a')).toBe(false);
+    expect(alt('r1b')).toBe(false);
+    expect(alt('r2a')).toBe(true);
+    expect(alt('r2b')).toBe(true);
+  });
+
+  it('collapsing a group re-stripes the rows that remain visible', () => {
+    document.body.innerHTML = zebra(FIXTURE_GROUP);
+    uninstall = installDatagrid();
+    // g-citrus is pre-collapsed, so r-lemon is hidden from the start:
+    // the visible data rows are apple, hammer.
+    expect(alt('r-apple')).toBe(false);
+    expect(alt('r-hammer')).toBe(true);
+    // Expanding citrus inserts lemon between them — with :nth-child the
+    // stripes below would not move; here they do.
+    click($('g-citrus').querySelector('.hc-datagrid__cell'));
+    expect($('r-lemon').hidden).toBe(false);
+    expect(alt('r-apple')).toBe(false);
+    expect(alt('r-lemon')).toBe(true);
+    expect(alt('r-hammer')).toBe(false);
+  });
+
+  it('group headings are never striped', () => {
+    document.body.innerHTML = zebra(FIXTURE_GROUP);
+    uninstall = installDatagrid();
+    expect(alt('g-fruit')).toBe(false);
+    expect(alt('g-tools')).toBe(false);
+  });
+});

@@ -277,6 +277,7 @@
      content never bleeds through them.
 
      PRIORITY LADDER — the later assignment wins:
+       0. [data-alt]         zebra stripe
        1. [data-tone]        conditional formatting of the VALUE
        2. :hover
        3. [data-pending]     awaiting the server's re-render
@@ -307,6 +308,17 @@
       var(--hc-datagrid-cell-tint, transparent),
       var(--hc-datagrid-cell-tint, transparent)
     );
+  }
+
+  /* 0. Zebra. Bottom of the ladder: a stripe is decoration, and every
+     state above must be able to paint over it. It is a cell tint like
+     any other — a background on the `<tr>` would be painted BEHIND the
+     cells' opaque background-color and never show at all.
+     installDatagrid() assigns data-alt over visible rows when the grid
+     opts in with data-hc-zebra; a server that renders data-alt itself
+     needs no JS. */
+  :where(.hc-datagrid__row[data-alt]) > .hc-datagrid__cell {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-row-alt-bg);
   }
 
   /* 1. Conditional formatting: the server evaluates the rules and

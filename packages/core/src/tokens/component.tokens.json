@@ -507,6 +507,10 @@
       "$type": "color",
       "$value": "{semantic.color.status.error.fg}"
     },
+    "row-alt-bg": {
+      "$type": "color",
+      "$value": "color-mix(in oklab, {semantic.color.text} 4%, transparent)"
+    },
     "attention-error-bg": {
       "$type": "color",
       "$value": "{semantic.color.status.error.fg}"

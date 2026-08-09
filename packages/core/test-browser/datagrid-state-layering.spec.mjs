@@ -89,6 +89,29 @@ test.describe('datagrid state layering', () => {
     );
   });
 
+  test('zebra sits at the bottom of the ladder', async ({ page }) => {
+    const plain = await tint(page, 'z-1-cell');
+    const striped = await tint(page, 'z-2-cell');
+    expect(striped).not.toBe(plain);
+    expect(await tint(page, 'z-3-cell')).toBe(plain); // alternates
+
+    // A striped row that is selected shows the SELECTION, not the stripe.
+    expect(await tint(page, 'z-4-cell')).toBe(await tint(page, 'selected-first'));
+  });
+
+  test('a striped frozen column stays opaque', async ({ page }) => {
+    const { bgColor, image } = await page
+      .getByTestId('z-2-frozen')
+      .evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return { bgColor: cs.backgroundColor, image: cs.backgroundImage };
+      });
+    // The stripe is a tint over the opaque frozen base — never an alpha
+    // background-color, which scrolled content would show through.
+    expect(bgColor).not.toMatch(/rgba\([^)]*,\s*0(\.\d+)?\)/);
+    expect(image).toBe(await tint(page, 'z-2-cell'));
+  });
+
   test('axe: no violations', async ({ page }) => {
     const { violations } = await new AxeBuilder({ page })
       .include('.hc-datagrid')
