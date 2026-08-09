@@ -1,0 +1,75 @@
+<!doctype html>
+<!-- Fixture for a dialog taller than the viewport — the filter-panel
+     shape: one form wrapping header, body and footer, so the footer's
+     primary action submits the body's fields. Pins that the BODY
+     scrolls while the header and footer stay put; before this, the
+     whole dialog scrolled and the primary action left the screen. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tall dialog fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Tall dialog</h1>
+    <button class="hc-button" type="button" data-testid="open"
+            onclick="document.getElementById('filters').showModal()">Filters</button>
+    <button class="hc-button" type="button" data-testid="open-plain"
+            onclick="document.getElementById('plain').showModal()">Plain</button>
+
+    <!-- No wrapping form: header/body/footer are direct children. -->
+    <dialog class="hc-dialog" id="plain" data-testid="plain-dialog"
+            aria-labelledby="plain-title">
+      <div class="hc-dialog__header"><h2 class="hc-dialog__title" id="plain-title">Plain</h2></div>
+      <div class="hc-dialog__body" data-testid="plain-body">
+        <div class="hc-stack" id="plain-rows"></div>
+      </div>
+      <div class="hc-dialog__footer" data-testid="plain-footer">
+        <form method="dialog"><button class="hc-button" data-variant="primary">Close</button></form>
+      </div>
+    </dialog>
+
+    <!-- The filter shape: ONE form around everything. -->
+    <dialog class="hc-dialog" id="filters" data-testid="dialog"
+            aria-labelledby="filters-title" style="--hc-dialog-max-width: 56rem;">
+      <form method="get" action="/orders">
+        <div class="hc-dialog__header" data-testid="header">
+          <h2 class="hc-dialog__title" id="filters-title">Filters</h2>
+        </div>
+        <div class="hc-dialog__body" data-testid="body">
+          <div class="hc-grid" style="--hc-grid-min: 20rem;" id="rows"></div>
+        </div>
+        <div class="hc-dialog__footer" data-testid="footer">
+          <button class="hc-button" type="button" data-testid="cancel"
+                  onclick="this.closest('dialog').close()">Cancel</button>
+          <button class="hc-button" data-variant="primary" type="submit" data-testid="apply">Apply</button>
+        </div>
+      </form>
+    </dialog>
+  </main>
+
+  <script type="module">
+    const FIELDS = [
+      'Order number', 'Customer', 'Item code', 'Item name',
+      'Ship-to', 'Buyer', 'Ship date', 'Ordered on',
+      'Received on', 'Status', 'Warehouse', 'Currency',
+    ];
+    document.getElementById('rows').innerHTML = FIELDS.map((label, i) => `
+      <div class="hc-field">
+        <label class="hc-field__label" for="f-${i}">${label}</label>
+        <div class="hc-input-group">
+          <input class="hc-input" id="f-${i}" name="f-${i}" type="text">
+          <select class="hc-select" name="op-${i}" aria-label="${label} operator">
+            <option value="eq">equals</option>
+            <option value="contains">contains</option>
+          </select>
+        </div>
+      </div>`).join('');
+    document.getElementById('plain-rows').innerHTML = FIELDS
+      .map((label) => `<p>${label}</p>`).join('');
+  </script>
+</body>
+</html>
