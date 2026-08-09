@@ -44,8 +44,37 @@ test.describe('datagrid-bulk-errors — best-effort', () => {
     await expect(
       page.getByTestId('row-102').locator('.hc-datagrid__cell').first(),
     ).toHaveAttribute('data-active', '');
-    // The failed row links back to the report.
-    await expect(page.getByTestId('detail-102')).toHaveAttribute('href', '#bulk-report');
+    // Back returns to the report the user came from (the row link made
+    // a history entry) — no inline link is added to the cell.
+    await page.goBack();
+    await expect(page.getByTestId('report')).toBeVisible();
+  });
+
+  test('marking a row failed does not change the column width', async ({ page }) => {
+    const width = () =>
+      page.getByTestId('status-101').evaluate((el) => el.getBoundingClientRect().width);
+    const tableWidth = () =>
+      page.evaluate(
+        () => document.querySelector('.hc-datagrid__table').getBoundingClientRect().width,
+      );
+    const before = { cell: await width(), table: await tableWidth() };
+
+    // Only failing rows, so no cell TEXT changes ("Active" stays
+    // "Active") — any width delta would be the markers' doing.
+    await select(page, [102, 107]);
+    await page.getByTestId('archive').click();
+    await expect(page.getByTestId('row-102')).toHaveAttribute('data-tone', 'error');
+
+    // The marker and the tooltip are drawn at zero layout cost: a
+    // fixed-width column must not grow (nor clip its value) because a
+    // row failed.
+    expect(Math.abs((await width()) - before.cell)).toBeLessThan(2);
+    expect(Math.abs((await tableWidth()) - before.table)).toBeLessThan(2);
+    // The marker is really there.
+    const marker = await page
+      .getByTestId('status-102')
+      .evaluate((el) => getComputedStyle(el, '::after').borderTopWidth);
+    expect(parseFloat(marker)).toBeGreaterThan(0);
   });
 
   test('a failed cell owns the hover: the overflow tooltip stays away', async ({ page }) => {

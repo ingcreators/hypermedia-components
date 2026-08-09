@@ -70,6 +70,15 @@
   .hc-datagrid__cell,
   .hc-datagrid__headcell {
     box-sizing: border-box;
+
+    /* The containing block for state markers. The table is sized by
+       `max-content`, so ANY inline addition to a cell widens its whole
+       column (and in a `data-resized` column it is clipped instead) —
+       every marker below is therefore absolutely positioned and costs
+       no layout. The sticky rules further down override this for
+       header and frozen cells, which is fine: sticky is also a
+       containing block. */
+    position: relative;
     padding: var(--hc-datagrid-cell-padding-y) var(--hc-datagrid-cell-padding-x);
     border-inline-end: 1px solid var(--hc-datagrid-border);
     border-block-end: 1px solid var(--hc-datagrid-border);
@@ -577,11 +586,22 @@
      column property, and repeating a marker down 200 rows is noise.
      When it varies per row the server marks the cell instead (the
      `*` convention is the same; see the docs). */
-  .hc-datagrid__headcell[aria-required="true"]::before,
-  .hc-datagrid__cell[aria-required="true"]::before {
+  .hc-datagrid__headcell[aria-required="true"]::before {
     content: "*";
     margin-inline-end: 0.25em;
     color: var(--hc-color-status-error-fg);
+  }
+
+  /* On a CELL the marker sits in the padding gutter: inline content
+     would widen the column (max-content sizing) or be clipped in a
+     resized one. */
+  .hc-datagrid__cell[aria-required="true"]::before {
+    content: "*";
+    position: absolute;
+    inset-block-start: var(--hc-datagrid-cell-padding-y);
+    inset-inline-start: 0.15em;
+    color: var(--hc-color-status-error-fg);
+    line-height: 1;
   }
 
   /* ---- Edit feedback (edit-feedback plan §1.1) ---- */
@@ -597,16 +617,33 @@
     );
   }
 
+  /* Absolutely positioned: a spinner that pushed the text along would
+     widen the column (or vanish in a resized one). */
   .hc-datagrid__cell[data-pending]::after {
     content: "";
-    display: inline-block;
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 0.25em;
     inline-size: 0.6em;
     block-size: 0.6em;
-    margin-inline-start: 0.4em;
+    margin-block-start: -0.3em;
     border: 2px solid var(--hc-datagrid-border);
     border-block-start-color: var(--hc-color-action-primary-bg);
     border-radius: 50%;
     animation: hc-datagrid-detail-spin 0.6s linear infinite;
+  }
+
+  /* A rejected cell gets the classic corner flag — the affordance that
+     says "there is a reason here", with the reason itself in the
+     tooltip the cell points at (aria-describedby) and in the report.
+     Zero layout cost, so a fixed-width column keeps its width. */
+  .hc-datagrid__cell[data-invalid]::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    border-block-start: 0.5em solid var(--hc-color-status-error-border);
+    border-inline-start: 0.5em solid transparent;
   }
 
   /* Rejected: the server's 422 re-render marks the cell (alongside

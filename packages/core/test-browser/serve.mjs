@@ -1422,9 +1422,11 @@ function beReason(id) {
 
 function beRow(id, { failed = false, status = 'Active', checked = false } = {}) {
   const reason = failed ? beReason(id) : null;
-  const describe = reason ? ` aria-describedby="why-${id}"` : '';
+  const describe = reason
+    ? ` data-invalid aria-describedby="why-${id}"`
+    : '';
   const tip = reason
-    ? `<span class="hc-tooltip" id="why-${id}">${reason}</span> <a href="#bulk-report" data-testid="detail-${id}">Details</a>`
+    ? `<span class="hc-tooltip" id="why-${id}">${reason}</span>`
     : '';
   return `<tr class="hc-datagrid__row" id="row-${id}" data-testid="row-${id}"${failed ? ' data-tone="error"' : ''}>
   <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${id}"${checked ? ' checked' : ''} aria-label="Select ${id}" data-testid="cb-${id}"></td>

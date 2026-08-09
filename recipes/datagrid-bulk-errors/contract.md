@@ -116,8 +116,16 @@ directions.
 ## Per-row detail
 
 A failed row's reason is rendered **once** as an `hc-tooltip` inside
-the relevant cell, which points at it with `aria-describedby` (add
-`aria-invalid="true"` when the cell's own value is at fault). The grid
+the relevant cell, which points at it with `aria-describedby`, and the
+cell carries `data-invalid` so the grid draws its corner marker (add
+`aria-invalid="true"` when the cell's own value is at fault).
+
+**Do not add an inline "details" link to a data cell.** The grid's
+table is `max-content` sized and its cells do not wrap, so inline
+additions widen the whole column — and a `data-resized` column clips
+them away instead. The marker and the tooltip cost no layout; the way
+back to the report is the browser's Back button (the report's row link
+made a history entry), or an explicit link in a dedicated column. The grid
 suppresses its overflow tooltip on such cells, so one gesture carries
 one meaning. Tooltips are for inspecting a row you noticed — the
 report stays the reviewable surface, so **never put a reason only in a
