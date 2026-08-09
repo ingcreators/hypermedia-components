@@ -18,7 +18,9 @@
  * `installDatagrid()` sets them automatically by measuring the rendered
  * widths/heights; for a fully static grid you can set them yourself:
  *   - header levels:  --hc-datagrid-head-1-h, --hc-datagrid-head-2-h
- *   - frozen columns: a per-cell `--hc-datagrid-left` (inline style)
+ *   - footer levels:  --hc-datagrid-foot-1-h
+ *   - frozen columns: a per-cell `--hc-datagrid-left` (inline style);
+ *     frozen-end columns get a per-cell `--hc-datagrid-right`
  *
  * Colors and spacing come from the shared semantic tokens, so the grid
  * follows the active theme / density / color automatically. The blue
@@ -39,6 +41,8 @@
        direction flips per edge (see the frozen-edge rules below), so it
        stays a CSS-local var, not a theme token. */
     --hc-datagrid-freeze-shadow: 2px 0 4px -2px var(--hc-shadow-edge);
+    --hc-datagrid-freeze-end-shadow: -2px 0 4px -2px var(--hc-shadow-edge);
+    --hc-datagrid-foot-shadow: 0 -2px 4px -2px var(--hc-shadow-edge);
 
     position: relative;
     border: 1px solid var(--hc-datagrid-border);
@@ -185,6 +189,58 @@
   /* RTL: the freeze line falls on the other (inline-end) side. */
   .hc-datagrid:dir(rtl) {
     --hc-datagrid-freeze-shadow: -2px 0 4px -2px var(--hc-shadow-edge);
+    --hc-datagrid-freeze-end-shadow: 2px 0 4px -2px var(--hc-shadow-edge);
+  }
+
+  /* ---- Frozen (sticky inline-end) columns ----
+     The mirror of data-frozen — the classic use is a row-actions column
+     pinned to the trailing edge. The behavior measures cumulative widths
+     from the end into per-cell `--hc-datagrid-right`. */
+  .hc-datagrid__cell[data-frozen-end],
+  .hc-datagrid__headcell[data-frozen-end] {
+    position: sticky;
+    inset-inline-end: var(--hc-datagrid-right, 0);
+    z-index: 1;
+    background-color: var(--hc-datagrid-frozen-bg);
+  }
+
+  .hc-datagrid__headcell[data-frozen-end] {
+    z-index: 3; /* trailing corner: above both sticky layers */
+  }
+
+  /* The first frozen-end column casts the (mirrored) freeze line. */
+  .hc-datagrid__cell[data-frozen-end-edge],
+  .hc-datagrid__headcell[data-frozen-end-edge] {
+    box-shadow: var(--hc-datagrid-freeze-end-shadow);
+  }
+
+  /* ---- Sticky footer (server-rendered aggregates) ----
+     A <tfoot class="hc-datagrid__foot"> pins to the bottom of the scroll
+     viewport. The server computes and renders the aggregates; the CSS only
+     pins them. Rows stack upward: the last row sits on the edge, the row
+     above it offsets by the measured --hc-datagrid-foot-1-h. */
+  .hc-datagrid__foot .hc-datagrid__cell {
+    position: sticky;
+    z-index: 2;
+    background-color: var(--hc-datagrid-head-bg);
+    color: var(--hc-datagrid-head-fg);
+    font-weight: var(--hc-font-weight-semibold);
+    border-block-start: 1px solid var(--hc-datagrid-border);
+    box-shadow: var(--hc-datagrid-foot-shadow);
+  }
+
+  .hc-datagrid__foot > tr:last-child > .hc-datagrid__cell {
+    inset-block-end: 0;
+  }
+
+  .hc-datagrid__foot > tr:nth-last-child(2) > .hc-datagrid__cell {
+    inset-block-end: var(--hc-datagrid-foot-1-h, 0);
+  }
+
+  /* Footer ∩ frozen column corners must beat both sticky layers. */
+  .hc-datagrid__foot .hc-datagrid__cell[data-frozen],
+  .hc-datagrid__foot .hc-datagrid__cell[data-frozen-end] {
+    z-index: 3;
   }
 
   /* ---- States ----
