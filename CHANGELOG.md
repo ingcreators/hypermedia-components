@@ -20,6 +20,21 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **docs / recipes**: the `datagrid-infinite` live demo chain-loaded
+  all 15 rows before the reader could scroll. `revealed` measures the
+  **window** viewport, so on a tall screen every renewed sentinel was
+  already visible and each batch fired immediately — the demo showed a
+  full table instead of infinite scrolling. The demo is now the
+  container-scrolled variant (the grid keeps its scrollbar; sentinels
+  trigger on `intersect once root:<scroll> threshold:0.5`, with the
+  root threaded through the cursor URL so renewed sentinels keep it).
+  The recipe's page-scroll contract is unchanged and now carries a
+  **container-scrolled carve-out** documenting the trigger swap and
+  both failure modes (deadlock and chain-load); `hc validate` accepts
+  either trigger.
+
 ### Added
 
 - **recipes**: `datagrid-edit-conflict` — the 409 wire for datagrid

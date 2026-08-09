@@ -25,11 +25,16 @@ Ships `recipe.html`, `expanded.html`, and the machine-checked
 
 ## Live demo
 
-Scroll the page past the table — each time the loading row enters the
-viewport it swaps itself for the next 5 rows (of 15) and a fresh
-sentinel, and the list closes with the "15 of 15" marker. The demo
-grows the page on purpose: feeds scroll the page, and that is exactly
-what `revealed` measures.
+Scroll **inside the grid** — each time the loading row enters the
+container's view it swaps itself for the next 5 rows (of 15) and a
+fresh sentinel, and the list closes with the "15 of 15" marker.
+
+This demo is the **container-scrolled variant** (`intersect once
+root:…`, see the carve-out below): a 15-row demo with the default
+window-viewport `revealed` would chain-load the whole list before you
+could scroll, because on a tall screen every fresh sentinel is already
+in view. A real page-scrolled feed — the shape the markup below shows
+— keeps `revealed`.
 
 <DatagridInfiniteDemo />
 
@@ -72,9 +77,40 @@ the sentinel (batch + a fresh sentinel with the next cursor) or
 retires it (batch + end marker), so exactly one loading row ever
 exists. The endpoint answers **just the rows**; a server that can only
 render full pages adds `data-hx-select="tbody > tr"` to carve them
-out. Note `revealed` is a **window-viewport** trigger — feeds scroll
-the page; inside an overflow container (`overflow-y: scroll`) htmx
-needs `intersect` instead.
+out.
+
+## Container-scrolled grids
+
+`revealed` measures the **window** viewport. A grid that keeps its own
+scrollbar (the default `--hc-datagrid-max-height: 70vh`, or any
+`overflow-y: scroll` wrapper) needs the container-aware trigger
+instead — everything else in the contract is unchanged:
+
+```html
+<tr class="hc-datagrid__row"
+    data-hx-get="/items?after=item-5"
+    data-hx-trigger="intersect once root:#feed-scroll threshold:0.5"
+    data-hx-swap="outerHTML">
+  …
+</tr>
+```
+
+`root:` takes a selector for the scroll container (`.hc-datagrid__scroll`
+usually — give it an id); `once` retires the observer with the sentinel
+it belongs to, and `threshold:` decides how much of the row must show
+before the next batch loads. **The server must echo the same trigger on
+every renewed sentinel** — thread the root through the cursor URL (the
+docs demo passes `?root=…`) or template it in.
+
+Two failure modes this avoids:
+
+- **Deadlock** — a `revealed` sentinel that overflows *inside* the grid
+  never enters the window viewport, so the feed stops after batch one.
+- **Chain-load** — on a tall window a short list's fresh sentinel is
+  already visible, so every batch fires immediately and the "infinite"
+  list arrives complete. (This is what the live demo above avoids; it
+  is also why a real feed of hundreds of rows behaves fine with plain
+  `revealed`.)
 
 ## Server response contract
 
