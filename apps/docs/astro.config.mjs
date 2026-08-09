@@ -240,6 +240,7 @@ export default defineConfig({
             { label: 'Overview', translations: { ja: '概要' }, slug: 'templates' },
             'templates/settings',
             'templates/crud',
+            'templates/data-grid-page',
             'templates/data-entry',
           ],
         },

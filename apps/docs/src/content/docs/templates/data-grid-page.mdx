@@ -1,0 +1,283 @@
+---
+title: Data grid page
+description: The business list screen — an app shell whose grid takes the remaining height so only the grid scrolls, under sticky multi-level headers and frozen columns, with a filter panel in a dialog.
+---
+
+import DataGridPageTemplateDemo from '../../../components/template-demos/DataGridPageTemplateDemo.astro';
+
+The layout every operational screen ends up wanting: the chrome — title,
+filter chips, toolbar, pager — **stays put**, and the grid takes whatever
+height is left so **only the grid scrolls**, both axes, under sticky
+multi-level headers and frozen columns. Filter input lives in a dialog,
+because twenty conditions do not belong above the data they filter.
+
+This is the [CRUD list page](/hypermedia-components/templates/crud/)'s
+sibling: that one is about the *contracts* a list screen needs (paging,
+bulk actions, dialog editing, undo), this one is about the *frame* they
+sit in when the grid is the whole point of the screen.
+
+## Live template
+
+<DataGridPageTemplateDemo />
+
+Scroll the grid: the toolbar and the header rows stay, the first two
+columns stay, and the page itself never moves. Open **Filters…** and
+scroll the panel: its body scrolls while Search stays reachable.
+
+:::note[Layout, not round trips]
+This preview is deliberately server-free — it demonstrates what scrolls
+and what stays. The rows are static and the filter panel does not
+submit. The [wiring map](#wiring-map) below names the contract each
+region's endpoint would implement.
+:::
+
+## The layout rule
+
+Four declarations do the work. Everything else is ordinary markup:
+
+```css
+/* The page column inside hc-shell__main */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;   /* ← the load-bearing one */
+  gap: var(--hc-space-3);
+}
+
+.page > .hc-datagrid {
+  flex: 1;
+  min-block-size: 0;   /* ← and again here */
+  --hc-datagrid-max-height: 100%;
+}
+```
+
+**`min-block-size: 0` is what makes it work.** A flex item will not
+shrink below its content by default, so without it the grid grows to fit
+all its rows, the column grows with it, and the *page* scrolls — chrome
+and all — instead of the grid. The symptom is a toolbar that scrolls
+away and a header row that unsticks.
+
+`--hc-datagrid-max-height` defaults to `70vh`, which is right for a grid
+that sits **in** a scrolling page. Set it to `100%` for a grid that
+**is** the page.
+
+`hc-shell` already does its half: `__main` is `overflow: auto` with
+`min-block-size: 0`, so the frame never pushes the viewport.
+
+## Page skeleton
+
+Real-app-shaped URLs; render the first page of rows server-side so the
+grid is full before any JavaScript runs.
+
+```html
+<body>
+  <div class="hc-shell">
+    <header class="hc-shell__header">
+      <button class="hc-button" data-variant="ghost" type="button"
+              data-hc-shell-toggle aria-label="Open navigation">≡</button>
+      <strong>Order desk</strong>
+    </header>
+
+    <nav class="hc-shell__sidebar" aria-label="Primary">
+      <a href="/orders" aria-current="page">Orders</a>
+      <a href="/shipments">Shipments</a>
+      <a href="/customers">Customers</a>
+    </nav>
+
+    <main class="hc-shell__main" style="display: flex; min-block-size: 0;">
+      <div class="page">
+        <!-- Title row: applied conditions as chips, filter panel trigger -->
+        <div class="hc-cluster" style="justify-content: space-between;">
+          <div class="hc-cluster">
+            <h1>Orders</h1>
+            <a class="hc-chip" href="/orders?f-ship-from=2026-08-01">Ship date: this month</a>
+            <a class="hc-chip" href="/orders?f-carrier=road">Carrier: Road</a>
+          </div>
+          <button class="hc-button" data-variant="secondary" type="button"
+                  onclick="document.getElementById('filters').showModal()">Filters…</button>
+        </div>
+
+        <!-- Toolbar: left actions, separator, grouped actions, then the
+             pager pushed to the trailing edge by the spacer. -->
+        <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
+          <button class="hc-button" data-variant="ghost" type="button"
+                  data-hx-get="/orders/rows" data-hx-target="#order-rows">Refresh</button>
+          <a class="hc-button" data-variant="ghost" href="/orders.csv">Export</a>
+          <hr role="separator" aria-orientation="vertical">
+          <div class="hc-button-group" role="group" aria-label="Approval">
+            <button class="hc-button" data-variant="ghost" type="submit"
+                    form="order-selection" name="action" value="approve">Approve</button>
+            <button class="hc-button" data-variant="ghost" type="submit"
+                    form="order-selection" name="action" value="reject">Reject</button>
+          </div>
+          <span data-hc-spacer="true"></span>
+          <span aria-live="polite">4,901–4,940 of 5,000</span>
+          <nav class="hc-pagination" aria-label="Pages">
+            <a class="hc-pagination__item" data-hc-rel="prev" href="/orders?page=122">Previous</a>
+            <a class="hc-pagination__item" data-hc-rel="next" href="/orders?page=124">Next</a>
+          </nav>
+        </div>
+
+        <!-- The grid takes the rest. One form so checked ids serialize. -->
+        <form id="order-selection" method="post" action="/orders/bulk">
+          <div class="hc-datagrid" id="orders" data-hc-zebra data-hc-datagrid-pending>
+            <div class="hc-datagrid__scroll">
+              <table class="hc-datagrid__table">
+                <thead class="hc-datagrid__head">
+                  <tr>
+                    <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col"
+                        style="--hc-datagrid-left: 0;">
+                      <!-- Select-all: no name — it must never serialize. -->
+                      <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+                    </th>
+                    <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2"
+                        scope="col" style="--hc-datagrid-left: 2.5rem;">Order</th>
+                    <th class="hc-datagrid__headcell" colspan="3">Order</th>
+                    <th class="hc-datagrid__headcell" colspan="4">Shipment</th>
+                  </tr>
+                  <tr>
+                    <th class="hc-datagrid__headcell" scope="col">Ordered on</th>
+                    <th class="hc-datagrid__headcell" scope="col">Customer</th>
+                    <th class="hc-datagrid__headcell" scope="col">Item</th>
+                    <th class="hc-datagrid__headcell" scope="col">Ship date</th>
+                    <!-- A long label reads down a narrow column instead of
+                         widening it. `sideways` rotates the whole line. -->
+                    <th class="hc-datagrid__headcell" scope="col"
+                        data-orientation="vertical">Carrier service level</th>
+                    <th class="hc-datagrid__headcell" scope="col" data-numeric>Quantity</th>
+                    <th class="hc-datagrid__headcell" scope="col" data-numeric>Amount</th>
+                  </tr>
+                </thead>
+                <tbody class="hc-datagrid__body" id="order-rows">
+                  <tr class="hc-datagrid__row" id="row-4901">
+                    <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left: 0;">
+                      <input type="checkbox" class="hc-checkbox" name="ids" value="4901"
+                             aria-label="Select order SO-4901">
+                    </td>
+                    <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
+                        style="--hc-datagrid-left: 2.5rem;">SO-4901</th>
+                    <td class="hc-datagrid__cell">2026-07-14</td>
+                    <td class="hc-datagrid__cell">Northwind</td>
+                    <td class="hc-datagrid__cell">Bearing assembly 1000</td>
+                    <td class="hc-datagrid__cell" data-editable data-col="ship"
+                        data-value="2026-08-14">2026-08-14</td>
+                    <td class="hc-datagrid__cell">Road</td>
+                    <td class="hc-datagrid__cell" data-numeric>18</td>
+                    <td class="hc-datagrid__cell" data-numeric>2,610</td>
+                  </tr>
+                  <!-- …the rest of the page's rows… -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Filter panel. One form around header + body + footer, so Search
+       submits the fields and the BODY is what scrolls. -->
+  <dialog class="hc-dialog" id="filters" aria-labelledby="filters-title"
+          style="--hc-dialog-max-width: 52rem;">
+    <form method="get" action="/orders">
+      <div class="hc-dialog__header">
+        <h2 class="hc-dialog__title" id="filters-title">Filters</h2>
+      </div>
+
+      <div class="hc-dialog__body">
+        <div class="hc-grid" style="--hc-grid-min: 18rem;">
+          <div class="hc-field">
+            <label class="hc-field__label" for="f-order">Order number</label>
+            <!-- Value + operator share one bordered surface and one ring. -->
+            <div class="hc-input-group">
+              <input class="hc-input" type="text" id="f-order" name="f-order">
+              <select class="hc-select" name="op-order" aria-label="Order number operator">
+                <option value="eq">equals</option>
+                <option value="contains">contains</option>
+              </select>
+            </div>
+          </div>
+          <!-- …the remaining conditions… -->
+
+          <div class="hc-field">
+            <span class="hc-field__label" id="ship-label">Ship date</span>
+            <div class="hc-cluster" role="group" aria-labelledby="ship-label">
+              <input class="hc-input" type="date" name="f-ship-from" aria-label="Ship date from">
+              <span aria-hidden="true">–</span>
+              <input class="hc-input" type="date" name="f-ship-to" aria-label="Ship date to">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hc-dialog__footer">
+        <button class="hc-button" type="button"
+                onclick="this.closest('dialog').close()">Cancel</button>
+        <button class="hc-button" data-variant="primary" type="submit">Search</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+```
+
+```css
+.page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-block-size: 0;
+  gap: var(--hc-space-3);
+}
+
+.page > form,
+.page > form > .hc-datagrid {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-block-size: 0;
+}
+
+.page > form > .hc-datagrid {
+  --hc-datagrid-max-height: 100%;
+}
+```
+
+The chain matters: every ancestor between the column and the grid needs
+`flex: 1; min-block-size: 0`, including the selection `<form>`. Break the
+chain anywhere and the page scrolls instead.
+
+## Wiring map
+
+| Region | Component | Server contract |
+| --- | --- | --- |
+| App frame | [`hc-shell`](/hypermedia-components/components/shell/) | — |
+| Applied conditions | [`hc-chip`](/hypermedia-components/components/chip/) | Links that drop one condition — plain URLs |
+| Toolbar | [`hc-toolbar`](/hypermedia-components/components/toolbar/) + `installToolbar()` | — (one Tab stop, arrow keys within) |
+| Selection actions | `installDatagridActions()` | [datagrid-bulk-actions](/hypermedia-components/recipes/datagrid-bulk-actions/), and [datagrid-bulk-errors](/hypermedia-components/recipes/datagrid-bulk-errors/) for failures at scale |
+| Pager | [`hc-pagination`](/hypermedia-components/components/pagination/) | [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) |
+| Grid | [`hc-datagrid`](/hypermedia-components/components/datagrid/) | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) for `f-<col>` params |
+| Inline edits | `data-editable` + editor `<template>` | [datagrid-edit-errors](/hypermedia-components/recipes/datagrid-edit-errors/) (422 + confirmable warnings), [datagrid-edit-conflict](/hypermedia-components/recipes/datagrid-edit-conflict/) (409) |
+| Filter panel | [`hc-dialog`](/hypermedia-components/components/dialog/) + [`hc-grid`](/hypermedia-components/fundamentals/layout/) + [`hc-input-group`](/hypermedia-components/components/input-group/) | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) |
+| Saved conditions | the panel's `view` select | [saved-views](/hypermedia-components/recipes/saved-views/) |
+| Column set / widths | — | [datagrid-columns](/hypermedia-components/recipes/datagrid-columns/), [datagrid-prefs](/hypermedia-components/recipes/datagrid-prefs/) |
+
+## Adapt it
+
+- **Header levels.** Sticky offsets are measured for **three** levels
+  (`--hc-datagrid-head-1-h`, `-2-h`). A fourth needs its own rule.
+- **Long column labels.** `data-orientation="vertical"` rotates the
+  label so it reads down a narrow column instead of widening it;
+  `sideways` rotates the whole line the other way.
+- **Column bands.** Tint a column with `data-highlight` on its cells,
+  or colour a header band by overriding `--hc-datagrid-head-bg` on
+  those header cells — the grid expects to be re-skinned.
+- **Filter panel from the server.** Swap the inline `<dialog>` for the
+  [remote-dialog](/hypermedia-components/recipes/remote-dialog/) recipe
+  when the condition set is per-user or large enough to be worth
+  fetching.
+- **No-JS.** The panel is a plain `<form method="get">` and the pager is
+  plain links, so the screen filters and pages without JavaScript. The
+  grid renders; only inline editing and the roving toolbar need it.
+- **Density.** `data-density="compact"` on the shell tightens the whole
+  screen; check touch targets if your users are on tablets (see
+  [themes and runtime axes](/hypermedia-components/tokens/themes/)).
