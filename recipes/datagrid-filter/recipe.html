@@ -1,0 +1,67 @@
+<!-- Short recommended usage.
+
+  Per-column filter entry for hc-datagrid: a filter-popover shell hangs
+  off a header cell's filter button. The form's controls are namespaced
+  f-<col> (here f-status); Apply GETs the grid URL and the server
+  re-renders the whole grid filtered — the trigger button lives in the
+  header, so it comes back inside the grid fragment marked data-filtered
+  (with an aria-label naming the active filter) — plus, out of band, the
+  form's fieldset with matching checked states. Filters for other
+  columns compose as server-rendered hidden f-<col> inputs.
+  Zero custom JS; see contract.md. -->
+<div class="hc-datagrid" id="items-grid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col">
+            Status
+            <button class="hc-button" data-variant="ghost" data-size="sm"
+                    type="button" id="filter-status-trigger"
+                    popovertarget="filter-status-popover"
+                    aria-label="Filter Status">Filter</button>
+          </th>
+          <th class="hc-datagrid__headcell" scope="col">Owner</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Ingest pipeline</td>
+          <td class="hc-datagrid__cell">Active</td>
+          <td class="hc-datagrid__cell">Ada</td>
+        </tr>
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Billing export</td>
+          <td class="hc-datagrid__cell">Pending</td>
+          <td class="hc-datagrid__cell">Alan</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="filter-status-popover" class="hc-popover" popover>
+  <form id="filter-status-form" action="/items" method="get"
+        data-hx-get="/items"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <fieldset class="hc-popover__body" id="filter-status-fields">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="f-status" value="active">
+        Active
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="f-status" value="pending">
+        Pending
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="f-status" value="failed">
+        Failed
+      </label>
+    </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>

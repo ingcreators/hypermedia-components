@@ -1,0 +1,132 @@
+---
+title: データグリッドの列フィルタ
+description: hc-datagrid の列ごとのフィルタ入口 — 名前空間付き f-<col> パラメータのポップオーバーフォームがグリッド URL を GET し、サーバーがフィルタ済みグリッドと data-filtered 付きトリガーを再レンダリングします。
+---
+
+import DatagridFilterDemo from '../../../../components/recipe-demos/DatagridFilterDemo.astro';
+
+スプレッドシート流の列ごとのフィルタを、ハイパーメディアのまま:
+ヘッダーセルのフィルタボタンが
+[filter-popover](/hypermedia-components/ja/recipes/filter-popover/)
+のシェルを開き、コントロールの名前は **`f-<col>`** で名前空間化されて
+います。**Apply** が `f-status=` の繰り返しパラメータ付きでグリッド
+URL を GET し、サーバーが
+[データグリッド](/hypermedia-components/ja/components/datagrid/)全体を
+フィルタ済みで再レンダリングします。クライアント側のフィルタリングは
+ありません: 往復 1 回、状態のずれゼロ、印刷やエクスポートは画面と
+一致します。新規 JavaScript ゼロ。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add datagrid-filter
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-filter/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+Status ヘッダーの **Filter** を開き、ステータスをいくつかチェックして
+**Apply** — サーバーは一致する行だけで応答し、トリガーは
+`data-filtered`(primary バリアント、アクティブな値を並べた
+`aria-label`)で戻り、ポップオーバーのチェック状態はアウトオブバンドで
+追随します。全部外すと、パラメータなしブランチが全件リストを返すのが
+見られます。
+
+<DatagridFilterDemo />
+
+## マークアップ
+
+```html
+<div class="hc-datagrid" id="items-grid">
+  <!-- サーバーが描画: .hc-datagrid__scroll > table。Status ヘッダー
+       セルがフィルタトリガーを持ちます -->
+  <!--
+  <th class="hc-datagrid__headcell" scope="col">
+    Status
+    <button class="hc-button" data-variant="ghost" data-size="sm"
+            type="button" id="filter-status-trigger"
+            popovertarget="filter-status-popover"
+            aria-label="Filter Status">Filter</button>
+  </th>
+  -->
+</div>
+
+<div id="filter-status-popover" class="hc-popover" popover>
+  <form id="filter-status-form" action="/items" method="get"
+        data-hx-get="/items"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <fieldset class="hc-popover__body" id="filter-status-fields">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="f-status" value="active">
+        Active
+      </label>
+      <!-- …個別の値ごとにチェックボックスを 1 つずつ… -->
+    </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>
+```
+
+フォームは filter-popover のシェルです —
+`data-hc-close-popover-on-success`(`installClosePopover()`、
+自動インストール)がどの 2xx でも閉じます。コントロールはすべて列の
+名前空間付き名(`f-status`)を共有するため、Apply は `f-status=` の
+繰り返しパラメータをシリアライズし、フォームは**グリッドラッパー**
+(`innerHTML` デフォルト)をターゲットにします — トリガーのフィルタ
+状態はヘッダーに住んでいるので、ヘッダーと行は必ず一緒に変わります。
+
+## サーバーレスポンス契約
+
+`GET /items?f-status=active&…`:
+
+| ケース | レスポンス (200) |
+| --- | --- |
+| いずれかの `f-<col>` あり | 一致する行だけのグリッドフラグメント。ヘッダーのトリガーは **`data-filtered`** とアクティブな値を並べた `aria-label` で描画。加えてフォームの**フィールドセット**の OOB `outerHTML` 再レンダリング(チェック状態が一致。フォーム自体は決して置き換えない — `data-hc-close-popover-on-success` を運んでおりリクエストを生き延びる必要があります) |
+| `f-<col>` が空/なし | フィルタなしのグリッド — 全部外した Apply はパラメータを一切送らないのでここに落ちます。トリガーは素のまま |
+| 未知の値 | 無視(サーバーがスキーマ)。認識できるものが残らなければフィルタなし |
+
+**フィルタは列をまたいで合成されます**: 各列のフォームは*他の*列の
+アクティブなフィルタをサーバーが描画した隠し `f-<col>` 入力として
+運ぶため、あるフィルタの適用が残りを保持します。クエリ文字列が
+フィルタ状態の全体です —
+[saved-views](/hypermedia-components/ja/recipes/saved-views/) で名前を
+付ければワンクリックで呼び出せ、ページリンクは `f-<col>` パラメータを
+持ち回るので
+[ページング](/hypermedia-components/ja/recipes/datagrid-pager/)も
+フィルタを保持します。
+
+## プログレッシブエンハンスメント
+
+フィルタは本物の GET フォームです(`action` + `method="get"`):
+JavaScript なしでは Apply は `/items?f-status=…` へ遷移し、サーバーが
+フィルタ済みのフルページを描画します。グリッド自体がサーバー描画の
+HTML なので、フィルタリングがクライアント JavaScript に依存することは
+ありません。
+
+## アクセシビリティ
+
+- 可視ラベル付きのネイティブチェックボックス(`hc-checkbox-label`)—
+  フィルタはただのフォームで、メニューセマンティクスの偽装は
+  ありません。
+- トリガーの `aria-label` は列名と、フィルタ中はアクティブな値を
+  伝えます — 状態は色だけでなく読み上げられます。
+- 成功時にポップオーバーが閉じるとフォーカスはトリガーボタンに
+  戻ります(ネイティブ popover の挙動)。
+
+## 関連
+
+- [filter-popover](/hypermedia-components/ja/recipes/filter-popover/) —
+  このフィルタが再利用するシェル。
+- [datagrid-columns](/hypermedia-components/ja/recipes/datagrid-columns/) —
+  列選択のための同じパターン(`cols=` パラメータ)。
+- [saved-views](/hypermedia-components/ja/recipes/saved-views/) —
+  できあがったクエリ文字列に名前を付けてワンクリック呼び出し。
+- [データグリッド](/hypermedia-components/ja/components/datagrid/) —
+  このレシピが描画するコンポーネントの CSS API。

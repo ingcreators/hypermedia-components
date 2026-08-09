@@ -1139,6 +1139,76 @@ function handleDatagridColumns(req, res, url) {
   return true;
 }
 
+// Mock per-column filter for the datagrid-filter recipe spec
+// (datagrid-filter.html): stateless — GET /mock/datagrid-filter/items
+// answers the grid fragment (the wrapper's innerHTML: scroll + table)
+// with only the rows matching the f-status= params; the Status
+// header's trigger button rides inside it (data-filtered + an
+// aria-label naming the active values when filtering), plus the filter
+// form's fieldset re-rendered out of band with matching checked
+// states (recipe contract). Absent or unknown-only values fall back
+// to the unfiltered list.
+const DGF_STATUSES = [
+  { key: 'active', label: 'Active' },
+  { key: 'pending', label: 'Pending' },
+  { key: 'failed', label: 'Failed' },
+];
+const DGF_ITEMS = [
+  { name: 'Ingest pipeline', status: 'active', owner: 'Ada' },
+  { name: 'Nightly backup', status: 'active', owner: 'Grace' },
+  { name: 'Billing export', status: 'pending', owner: 'Alan' },
+  { name: 'Legacy sync', status: 'failed', owner: 'Mary' },
+];
+
+function dgfTrigger(selected) {
+  const labels = DGF_STATUSES.filter((s) => selected.includes(s.key)).map((s) => s.label);
+  const filtered = labels.length > 0;
+  const aria = filtered ? `Filter Status — active: ${labels.join(', ')}` : 'Filter Status';
+  return `<button class="hc-button" data-variant="${filtered ? 'primary' : 'ghost'}" data-size="sm" type="button" id="filter-status-trigger" popovertarget="filter-status-popover"${filtered ? ' data-filtered' : ''} aria-label="${aria}" data-testid="trigger">Filter</button>`;
+}
+
+// OOB unit = the fieldset, never the form (the form carries
+// data-hc-close-popover-on-success — replacing it would detach the
+// carrier before afterRequest and the popover would never close).
+function dgfFields(selected) {
+  const checked = new Set(selected);
+  const boxes = DGF_STATUSES.map((s) => `
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="f-status" value="${s.key}"${checked.has(s.key) ? ' checked' : ''} data-testid="cb-${s.key}">
+      ${s.label}
+    </label>`).join('');
+  return `<fieldset class="hc-popover__body" id="filter-status-fields" data-testid="filter-fields" data-hx-swap-oob="outerHTML">${boxes}
+  </fieldset>`;
+}
+
+function handleDatagridFilter(req, res, url) {
+  if (url.pathname !== '/mock/datagrid-filter/items' || req.method !== 'GET') return false;
+  req.resume();
+  const known = new Set(DGF_STATUSES.map((s) => s.key));
+  const selected = [...new Set(url.searchParams.getAll('f-status'))].filter((k) => known.has(k));
+  const label = new Map(DGF_STATUSES.map((s) => [s.key, s.label]));
+  const rows = DGF_ITEMS
+    .filter((item) => selected.length === 0 || selected.includes(item.status))
+    .map((item) => `<tr class="hc-datagrid__row"><td class="hc-datagrid__cell">${item.name}</td><td class="hc-datagrid__cell">${label.get(item.status)}</td><td class="hc-datagrid__cell">${item.owner}</td></tr>`)
+    .join('\n      ');
+  res.statusCode = 200;
+  res.setHeader('Content-Type', MIME['.html']);
+  res.end(`<div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head"><tr>
+        <th class="hc-datagrid__headcell" scope="col">Name</th>
+        <th class="hc-datagrid__headcell" scope="col">Status ${dgfTrigger(selected)}</th>
+        <th class="hc-datagrid__headcell" scope="col">Owner</th>
+      </tr></thead>
+      <tbody class="hc-datagrid__body">
+      ${rows}
+      </tbody>
+    </table>
+  </div>
+  ${dgfFields(selected)}`);
+  return true;
+}
+
 // Mock saved-views backend for the saved-views recipe spec
 // (saved-views.html): stateless, exactly like the docs demo — the strip
 // threads its own state (hidden view= inputs the save form includes;
@@ -1482,6 +1552,7 @@ function handleMock(req, res, url) {
   if (handleCsvImport(req, res, url)) return true;
   if (handleSavedViews(req, res, url)) return true;
   if (handleDatagridColumns(req, res, url)) return true;
+  if (handleDatagridFilter(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
