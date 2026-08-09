@@ -1283,6 +1283,58 @@ function handleDatagridTree(req, res, url) {
   return true;
 }
 
+// Mock persistence for the datagrid-edit-errors recipe spec
+// (datagrid-edit-errors.html): PATCH /mock/datagrid-edit-errors/items/:id
+// answers the record tbody — 200 with the accepted value formatted, or
+// 422 with the server value restored + data-invalid + the __error-row
+// naming the rejected input. A short delay keeps the data-pending
+// state observable. Stateless: the "server value" is the fixture's.
+const DGE_ITEMS = { 1: { name: 'Chai', price: 18 }, 2: { name: 'Chang', price: 19 } };
+
+function dgeRecord(id, price, invalid) {
+  const item = DGE_ITEMS[id];
+  const errorId = `item-${id}-error`;
+  const invalidAttrs = invalid
+    ? ` data-invalid aria-invalid="true" aria-describedby="${errorId}"`
+    : '';
+  const errorRow = invalid
+    ? `\n  <tr class="hc-datagrid__error-row" data-testid="error-row"><td class="hc-datagrid__error" colspan="2"><span role="alert" id="${errorId}" data-testid="error-msg">${invalid}</span></td></tr>`
+    : '';
+  return `<tbody class="hc-datagrid__record" id="item-${id}" data-testid="record-${id}"
+  data-hx-patch="/mock/datagrid-edit-errors/items/${id}"
+  data-hx-trigger="hc:datagridedit"
+  data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+  data-hx-swap="outerHTML">
+  <tr class="hc-datagrid__row">
+    <td class="hc-datagrid__cell">${item.name}</td>
+    <td class="hc-datagrid__cell" data-numeric data-editable data-col="price" data-value="${price}" data-testid="price-${id}"${invalidAttrs}>${price.toFixed(2)}</td>
+  </tr>${errorRow}
+</tbody>`;
+}
+
+function handleDatagridEditErrors(req, res, url) {
+  const m = url.pathname.match(/^\/mock\/datagrid-edit-errors\/items\/(\d+)$/);
+  if (!m || req.method !== 'PATCH') return false;
+  let raw = '';
+  req.on('data', (chunk) => { raw += chunk; });
+  req.on('end', () => {
+    setTimeout(() => {
+      const id = Number(m[1]);
+      const value = String(new URLSearchParams(raw).get('value') ?? '').trim();
+      const n = Number(value);
+      res.setHeader('Content-Type', MIME['.html']);
+      if (!Number.isFinite(n) || n <= 0) {
+        res.statusCode = 422;
+        res.end(dgeRecord(id, DGE_ITEMS[id].price, `"${value}" is not a valid price — enter a number greater than 0.`));
+      } else {
+        res.statusCode = 200;
+        res.end(dgeRecord(id, n, null));
+      }
+    }, 150); // keep data-pending observable
+  });
+  return true;
+}
+
 // Mock saved-views backend for the saved-views recipe spec
 // (saved-views.html): stateless, exactly like the docs demo — the strip
 // threads its own state (hidden view= inputs the save form includes;
@@ -1629,6 +1681,7 @@ function handleMock(req, res, url) {
   if (handleDatagridPrefs(req, res, url)) return true;
   if (handleDatagridFilter(req, res, url)) return true;
   if (handleDatagridTree(req, res, url)) return true;
+  if (handleDatagridEditErrors(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.

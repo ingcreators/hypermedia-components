@@ -852,8 +852,10 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
   読み上げるため、`role="alert"` は内側の要素に付けてください。
   詳細行と同様、キーボードナビゲーションには入りません。
 
-422 / 409 の完全なワイヤ契約は `datagrid-edit-errors` /
-`datagrid-edit-conflict` レシピが担います。
+422 の完全なワイヤ契約は
+[datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/)
+レシピが担います。409 の `datagrid-edit-conflict` は edit-feedback
+プランで続きます。
 
 ## イベント
 
@@ -868,7 +870,7 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
 | `hc:datagridcolumnresize` | `.hc-datagrid` | `{ col, width }` — 新しい幅(px)。 |
 | `hc:datagridcopy` | `.hc-datagrid` | `{ text, rows, cols }` — キャンセル可能。`preventDefault()` でクリップボード書き込みを引き取れます。 |
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — レコード / 行の単位で数えます。 |
-| `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — コミット時のみ、かつ値が変わったときのみ。 |
+| `hc:datagridedit` | 編集されたセル(行 / レコード / グリッドへバブリング) | `{ cell, col, value, label, oldValue }` — コミット時のみ、かつ値が変わったときのみ。 |
 | `hc:datagridgrouptoggle` | `.hc-datagrid` | `{ row, expanded }` — トグルされた `.hc-datagrid__grouprow`。 |
 | `hc:datagridtreetoggle` | `.hc-datagrid` | `{ row, expanded }` — トグルされたツリー行。 |
 | `hc:datagridtreeload` | 遅延ツリーの `.hc-datagrid__row` | `{ row }` — 初回の展開のみ(htmx が `data-hx-trigger` でロード)。 |

@@ -1,0 +1,56 @@
+<!-- Expanded state: "abc" was committed into item-1's price.
+
+  The optimistic commit put "abc" in the cell and (with
+  data-hc-datagrid-pending) marked it data-pending; htmx PATCHed
+  { col: "price", value: "abc" }; the server answered 422 with this
+  record re-render: the cell back on the SERVER's value (18.00),
+  data-invalid + aria-invalid + aria-describedby on it, and the
+  __error-row inside the same record preserving the rejected input.
+  The swap cleared data-pending. Enter on the cell re-edits; the next
+  200 re-render answers the record with the row alone, which removes
+  the error row atomically. -->
+<div class="hc-datagrid" id="items-grid" data-hc-datagrid-pending>
+  <template data-datagrid-editor data-col="price">
+    <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+  </template>
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__record" id="item-1"
+             data-hx-patch="/items/1"
+             data-hx-trigger="hc:datagridedit"
+             data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+             data-hx-swap="outerHTML">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell" data-numeric data-editable
+              data-col="price" data-value="18" data-invalid
+              aria-invalid="true" aria-describedby="item-1-error">18.00</td>
+        </tr>
+        <tr class="hc-datagrid__error-row">
+          <td class="hc-datagrid__error" colspan="2">
+            <span role="alert" id="item-1-error">
+              "abc" is not a number — Price must be a number greater than 0.
+            </span>
+          </td>
+        </tr>
+      </tbody>
+      <tbody class="hc-datagrid__record" id="item-2"
+             data-hx-patch="/items/2"
+             data-hx-trigger="hc:datagridedit"
+             data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+             data-hx-swap="outerHTML">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Chang</td>
+          <td class="hc-datagrid__cell" data-numeric data-editable
+              data-col="price" data-value="19">19.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

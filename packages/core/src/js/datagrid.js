@@ -1253,7 +1253,11 @@ function attach(grid, detachers) {
         cell.setAttribute('data-pending', '');
         cell.setAttribute('aria-busy', 'true');
       }
-      grid.dispatchEvent(
+      // Dispatch from the CELL so the event bubbles through the row and
+      // its record tbody — that is what lets per-record htmx wiring
+      // (the edit-errors recipe) hear only its own edits. Grid-level
+      // listeners keep working via the same bubble.
+      cell.dispatchEvent(
         new CustomEvent('hc:datagridedit', { bubbles: true, detail }),
       );
     }
@@ -1418,7 +1422,7 @@ function attach(grid, detachers) {
   }
   let mo = null;
   const tbody = grid.querySelector('.hc-datagrid__body');
-  if (tbody && typeof MutationObserver !== 'undefined') {
+  if (typeof MutationObserver !== 'undefined') {
     mo = new MutationObserver(() => {
       rebuild();
       // Lazy tree children have arrived — clear the loading state.
@@ -1445,7 +1449,12 @@ function attach(grid, detachers) {
       syncSelectAll();
       emitSelection();
     });
-    mo.observe(tbody, { childList: true });
+    if (tbody) mo.observe(tbody, { childList: true });
+    // Record layouts have no single __body — the records are table-level
+    // tbodies, and a record swap (the edit-errors contract's unit)
+    // replaces one of them. Observe the table's children so those swaps
+    // rebuild too.
+    mo.observe(table, { childList: true });
   }
 
   detachers.set(grid, () => {

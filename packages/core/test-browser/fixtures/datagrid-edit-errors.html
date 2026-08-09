@@ -1,0 +1,72 @@
+<!doctype html>
+<!-- Fixture for the datagrid-edit-errors recipe — per-row record
+     tbodies against the serve.mjs mock. Pins: the pending state during
+     the PATCH (the mock delays 150ms), the 422 record re-render
+     (server value restored, data-invalid + aria wiring, error row
+     naming the rejected input), and the 200 branch atomically
+     removing the error row. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid-edit-errors fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+  <script>
+    // The blessed field-errors allowance: htmx swaps 422s.
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.addEventListener('htmx:beforeSwap', (event) => {
+        if (event.detail.xhr.status === 422) {
+          event.detail.shouldSwap = true;
+          event.detail.isError = false;
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Datagrid edit errors</h1>
+
+    <div class="hc-datagrid" data-testid="grid" data-hc-datagrid-pending style="max-inline-size: 420px;">
+      <template data-datagrid-editor data-col="price">
+        <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+      </template>
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">Name</th>
+              <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__record" id="item-1" data-testid="record-1"
+                 data-hx-patch="/mock/datagrid-edit-errors/items/1"
+                 data-hx-trigger="hc:datagridedit"
+                 data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+                 data-hx-swap="outerHTML">
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell">Chai</td>
+              <td class="hc-datagrid__cell" data-numeric data-editable
+                  data-col="price" data-value="18" data-testid="price-1">18.00</td>
+            </tr>
+          </tbody>
+          <tbody class="hc-datagrid__record" id="item-2" data-testid="record-2"
+                 data-hx-patch="/mock/datagrid-edit-errors/items/2"
+                 data-hx-trigger="hc:datagridedit"
+                 data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+                 data-hx-swap="outerHTML">
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell">Chang</td>
+              <td class="hc-datagrid__cell" data-numeric data-editable
+                  data-col="price" data-value="19" data-testid="price-2">19.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "detect": "tbody[data-hx-trigger*=\"hc:datagridedit\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "record-is-swap-unit",
+      "level": "error",
+      "message": "Each editable row is its own record tbody (class hc-datagrid__record) — the atomic swap unit for row + error row.",
+      "attr": { "on": "tbody[data-hx-trigger*=\"hc:datagridedit\"]", "name": "class", "assert": "present", "matches": "hc-datagrid__record" }
+    },
+    {
+      "id": "persist-is-patch",
+      "level": "error",
+      "message": "Persisting a cell edit is a mutation of one resource — data-hx-patch on the record tbody.",
+      "attr": { "on": "tbody[data-hx-trigger*=\"hc:datagridedit\"]", "name": "data-hx-patch", "assert": "present" }
+    },
+    {
+      "id": "swap-outerhtml",
+      "level": "error",
+      "message": "The record re-render replaces the whole tbody: data-hx-swap=\"outerHTML\".",
+      "attr": { "on": "tbody[data-hx-trigger*=\"hc:datagridedit\"]", "name": "data-hx-swap", "assert": "present", "value": "outerHTML" }
+    },
+    {
+      "id": "trigger-on-record",
+      "level": "warn",
+      "message": "Put the trigger on the record tbody itself — it hears only its own descendants' bubbled hc:datagridedit, so scoping is free (a grid-level listener would persist every row through one URL).",
+      "attr": { "on": "tbody[data-hx-trigger*=\"hc:datagridedit\"]", "name": "data-hx-trigger", "assert": "present", "value": "hc:datagridedit" }
+    },
+    {
+      "id": "pending-opt-in",
+      "level": "warn",
+      "message": "Opt the grid into the saving state: data-hc-datagrid-pending on .hc-datagrid (the re-render contract clears it).",
+      "attr": { "on": ".hc-datagrid", "name": "data-hc-datagrid-pending", "assert": "present" }
+    }
+  ]
+}

@@ -460,6 +460,42 @@ describe('installDatagrid — inline editing', () => {
     expect(cell.getAttribute('data-active')).toBe('');
   });
 
+  it('a record-tbody swap rebuilds: roles and editing work on the new cells', async () => {
+    document.body.innerHTML = `
+      <div class="hc-datagrid" id="grid">
+        <template data-datagrid-editor data-col="price"><input class="hc-input" type="text" aria-label="Price"></template>
+        <div class="hc-datagrid__scroll">
+          <table class="hc-datagrid__table">
+            <thead class="hc-datagrid__head"><tr>
+              <th class="hc-datagrid__headcell" scope="col">Name</th>
+              <th class="hc-datagrid__headcell" scope="col">Price</th>
+            </tr></thead>
+            <tbody class="hc-datagrid__record" id="rec-a">
+              <tr class="hc-datagrid__row">
+                <td class="hc-datagrid__cell">Chai</td>
+                <td class="hc-datagrid__cell" data-editable data-col="price" id="p-old">18.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    uninstall = installDatagrid();
+    // Simulate the edit-errors outerHTML record swap.
+    $('rec-a').outerHTML = `
+      <tbody class="hc-datagrid__record" id="rec-a">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell" data-editable data-col="price" id="p-new" data-invalid>18.00</td>
+        </tr>
+      </tbody>`;
+    await new Promise((r) => setTimeout(r, 0)); // table observer
+    expect($('p-new').getAttribute('role')).toBe('gridcell');
+    const cell = $('p-new');
+    cell.focus();
+    press(cell, 'Enter');
+    expect(cell.querySelector('input')).toBeTruthy(); // editing works again
+  });
+
   it('compositionstart on a non-editable cell does nothing', () => {
     document.body.innerHTML = FIXTURE;
     uninstall = installDatagrid();
