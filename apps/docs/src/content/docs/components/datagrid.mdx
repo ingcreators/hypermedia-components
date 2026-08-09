@@ -460,7 +460,7 @@ State is expressed with attributes, styled by the component:
 | `data-editing` | `.hc-datagrid__cell` | Edit mode — padding drops so the editor fills the cell. |
 | `data-pending` | `.hc-datagrid__cell` | Optimistic commit awaiting the row re-render (opt-in via `data-hc-datagrid-pending` on the grid). |
 | `data-invalid` | `.hc-datagrid__cell` | Server-rejected value — error ring + tint (rendered by the 422 re-render). |
-| `data-attention` | row / record / head cell | This row (or column) needs the user — `error` / `warning`. An edge bar that no tint can cover. |
+| `data-attention` | row / cell / record / head cell | This row (or column) needs the user — `error` (something must **change**) / `warning` (someone must **decide**). An edge bar that no tint can cover. |
 | `data-alt` | `.hc-datagrid__row` | Zebra stripe (assigned by the behavior when the grid opts in). |
 
 ## State layering
@@ -501,6 +501,17 @@ needs.
 `data-attention` on a `.hc-datagrid__headcell` marks the offending
 **column**, which is what makes the fault findable when the grid is
 thirty columns wide and the cell is scrolled out of view.
+
+Pick the severity from **what the row needs**, not from when you found
+out — otherwise an unchanged row is `warning` before an action runs and
+`error` after it:
+
+- **`error`** — something must *change* before this can proceed: a
+  required value missing, invalid input, a wrong state ("already
+  shipped"), no permission. A required-field check is `error` wherever
+  it surfaces, including a pre-flight.
+- **`warning`** — someone must *decide*; the value itself is fine. A
+  ship date in the future, a discount above policy.
 
 :::caution[Don't put a background on the `<tr>`]
 Cells carry an opaque `background-color` so frozen columns stay

@@ -41,7 +41,7 @@ Two actions over one selection. **102 / 105 / 108** are "shipped" and
 | --- | --- | --- |
 | Fits | independent items (archive, tag, notify) | invariants (postings, transfers, permissions) |
 | Failure response | `200` + rows reflecting what happened | **`409` / `422`** + rows **unchanged** |
-| Failed rows | marked `data-attention="error"` + reason | **not marked** — nothing changed |
+| Failed rows | marked `data-attention="error"` + reason | **statuses unchanged**, blocked rows still marked |
 | Copy | "113 succeeded / 87 failed" | "**Nothing was executed** (2 rows do not qualify)" |
 | Selection | **the retry set stays selected** — retryable failures come back `checked` | **preserved** — re-render checkboxes `checked` |
 | Recovery | press the action again (it applies to the failures alone) | fix, or exclude the blockers and re-run |
@@ -51,6 +51,35 @@ recipe's "the selection clears by construction" holds only when the
 action *ran*; a refusal that also wipes 200 hand-picked rows is data
 loss the user cannot undo. The checkboxes are the selection truth, so
 rendering them `checked` is the entire fix.
+
+**Mark the blocked rows in the atomic branch too.** The rule used to be
+"never mark — nothing changed, so marking would lie". What would lie is
+a claim that the row *failed*; the mark says something else: **this row
+cannot proceed**. That is equally true in the pre-flight, in the `409`
+refusal and after a best-effort failure, because it is a fact about the
+**row**, not about the attempt — and it does not go stale when the
+selection changes ("already shipped" stays true either way). Without it,
+the report's row links land on a row that looks like every other row.
+
+The pre-flight answers a report, not rows, so it carries the marks as
+out-of-band row updates wrapped in `<template>`. What must still never
+happen in the atomic branch is a **status change**: nothing ran, so
+nothing is Posted.
+
+### Severity: what does the row need?
+
+`data-attention` takes its severity from what the row requires, not from
+when it was discovered — otherwise the same unchanged row is `warning`
+before the button and `error` after it.
+
+| Severity | Means | Examples |
+| --- | --- | --- |
+| `error` | **something must change** before this can proceed | required value missing, invalid input, wrong state, not permitted |
+| `warning` | **someone must decide**; the value itself is fine | a future ship date, a discount above policy — the [confirmable-warning](/hypermedia-components/recipes/datagrid-edit-errors/#confirmable-warnings) branch |
+
+A required-field check is therefore `error` wherever it surfaces, and so
+is a pre-flight blocker: it is not "not yet an error", it is a row that
+cannot proceed.
 
 **A partial failure must leave the retry set selected.** Re-rendering
 every row unchecked hides the actions bar (it hides at zero) and makes

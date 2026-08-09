@@ -53,8 +53,19 @@ function tooltipId(id) {
   return `bulk-errors-demo-why-${id}`;
 }
 
-function rowHtml(item, { failed = false, status = 'Active', checked = false } = {}) {
-  const reason = failed ? blockedReason(item.id) : null;
+/**
+ * `blocked` marks the row with its reason. It means "this row cannot
+ * proceed", which is equally true before the action runs (pre-flight,
+ * refusal) and after it failed — the fact belongs to the ROW, not to
+ * the attempt, so the marking never goes stale when the selection
+ * changes. `oob` turns the row into an out-of-band update, which is
+ * how the pre-flight marks rows without re-rendering the whole grid.
+ */
+function rowHtml(
+  item,
+  { blocked = false, status = 'Active', checked = false, oob = false } = {},
+) {
+  const reason = blocked ? blockedReason(item.id) : null;
   // data-invalid draws the corner marker (absolutely positioned, zero
   // layout cost); the reason rides as a tooltip the cell points at. No
   // inline "details" link: the table is max-content sized, so inline
@@ -65,7 +76,7 @@ function rowHtml(item, { failed = false, status = 'Active', checked = false } = 
   const tip = reason
     ? `<span class="hc-tooltip" id="${tooltipId(item.id)}">${escapeHtml(reason)}</span>`
     : '';
-  return `<tr class="hc-datagrid__row" id="bulk-errors-demo-row-${item.id}"${failed ? ' data-attention="error"' : ''}>
+  return `<tr class="hc-datagrid__row" id="bulk-errors-demo-row-${item.id}"${reason ? ' data-attention="error"' : ''}${oob ? ' data-hx-swap-oob="outerHTML"' : ''}>
   <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${item.id}"${checked ? ' checked' : ''} aria-label="Select ${escapeHtml(item.name)}"></td>
   <td class="hc-datagrid__cell">${escapeHtml(item.name)}</td>
   <td class="hc-datagrid__cell"${cellAttrs}>${escapeHtml(status)} ${tip}</td>
@@ -149,6 +160,16 @@ export async function handle({ method, path, url, request }) {
       );
     }
     const blockedCount = ids.length - ok.length;
+    // The report names the blocked rows and links to them; without a
+    // mark on the row itself the link lands on something that looks
+    // like every other row. These ride along as OOB updates —
+    // <template>-wrapped, because <tr> in a div-targeted response is
+    // dropped by the parser (contract.md, "Riding along with a swap").
+    const markedRows = `<template>${ITEMS.filter(
+      (item) => ids.includes(item.id) && blockedReason(item.id) != null,
+    )
+      .map((item) => rowHtml(item, { blocked: true, checked: true, oob: true }))
+      .join('\n')}</template>`;
     const excludeForm = ok.length
       ? `<form data-hx-post="${API}/bulk" data-hx-target="#bulk-errors-demo-rows" data-hx-swap="innerHTML">
     <input type="hidden" name="action" value="post">
@@ -157,11 +178,12 @@ export async function handle({ method, path, url, request }) {
   </form>`
       : '<p>No executable rows.</p>';
     return html(
-      bulkReport(`<div class="hc-alert" data-variant="warning" role="status">
+      `${bulkReport(`<div class="hc-alert" data-variant="warning" role="status">
   <p><strong>${ok.length} of ${ids.length} rows are executable</strong>; ${blockedCount} are blocked.</p>
   ${reasonTableHtml(blocked)}
   ${excludeForm}
-</div>`),
+</div>`)}
+${markedRows}`,
     );
   }
 
@@ -176,8 +198,15 @@ export async function handle({ method, path, url, request }) {
   if (action === 'post') {
     if (blocked.size > 0) {
       // Refusal: rows UNCHANGED, checkboxes KEPT, refusal copy.
+      // Nothing ran, so no status changes — but the blocked rows are
+      // WHY nothing ran, and saying so is not the same as claiming
+      // they failed. The report's row links now land on something
+      // visibly marked.
       const rows = ITEMS.map((item) =>
-        rowHtml(item, { checked: ids.includes(item.id) }),
+        rowHtml(item, {
+          checked: ids.includes(item.id),
+          blocked: ids.includes(item.id) && blockedReason(item.id) != null,
+        }),
       ).join('\n');
       const blockedCount = ids.length - ok.length;
       return html(
@@ -214,7 +243,7 @@ ${bulkReport(`<p role="status">${ok.length} rows posted.</p>`, { oob: true })}`,
     if (!ids.includes(item.id)) return rowHtml(item);
     const failed = blockedReason(item.id) != null;
     return rowHtml(item, {
-      failed,
+      blocked: failed,
       status: failed ? 'Active' : 'Archived',
       checked: failed && isRetryable(item.id),
     });
@@ -233,7 +262,9 @@ ${bulkReport(`<p role="status">${ok.length} rows archived.</p>`, { oob: true })}
   const retryLine = retryable.length
     ? `<p><strong>${retryable.length} can be retried</strong> and ${retryable.length === 1 ? 'is' : 'are'} still selected — press <strong>Archive</strong> again to apply to ${retryable.length === 1 ? 'it' : 'those'} alone.${
         failedCount > retryable.length
-          ? ` The other ${failedCount - retryable.length} need a change first.`
+          ? ` The other ${failedCount - retryable.length} ${
+              failedCount - retryable.length === 1 ? 'needs' : 'need'
+            } a change first.`
           : ''
       }</p>`
     : '';

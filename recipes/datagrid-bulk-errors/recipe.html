@@ -19,7 +19,9 @@
   one meaning. Failures worth retrying come back CHECKED, so the
   actions bar stays up and the next press applies to the retry set
   alone. See contract.md for both execution modes — the atomic branch
-  answers 409 with the rows UNCHANGED and the selection KEPT. -->
+  answers 409 with the row STATUSES unchanged and the selection KEPT,
+  while still marking the blocked rows: "this row cannot proceed" is a
+  fact about the row, not a claim that it failed. -->
 <form method="post" action="/products/bulk">
   <div id="bulk-report" aria-live="polite"></div>
 

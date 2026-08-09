@@ -1487,15 +1487,18 @@ function beRetryable(id) {
   return id === 104;
 }
 
-function beRow(id, { failed = false, status = 'Active', checked = false } = {}) {
-  const reason = failed ? beReason(id) : null;
+// `blocked` marks the row with its reason — true before the action runs
+// (pre-flight, refusal) as well as after it failed, because the fact
+// belongs to the ROW. `oob` makes it an out-of-band update.
+function beRow(id, { blocked = false, status = 'Active', checked = false, oob = false } = {}) {
+  const reason = blocked ? beReason(id) : null;
   const describe = reason
     ? ` data-invalid aria-describedby="why-${id}"`
     : '';
   const tip = reason
     ? `<span class="hc-tooltip" id="why-${id}">${reason}</span>`
     : '';
-  return `<tr class="hc-datagrid__row" id="row-${id}" data-testid="row-${id}"${failed ? ' data-attention="error"' : ''}>
+  return `<tr class="hc-datagrid__row" id="row-${id}" data-testid="row-${id}"${reason ? ' data-attention="error"' : ''}${oob ? ' data-hx-swap-oob="outerHTML"' : ''}>
   <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${id}"${checked ? ' checked' : ''} aria-label="Select ${id}" data-testid="cb-${id}"></td>
   <td class="hc-datagrid__cell">Product ${id}</td>
   <td class="hc-datagrid__cell"${describe} data-testid="status-${id}">${status} ${tip}</td>
@@ -1550,7 +1553,14 @@ function handleBulkErrors(req, res, url) {
           .map((id) => `<input type="hidden" name="ids" value="${id}">`)
           .join('')}<button class="hc-button" type="submit" data-testid="exclude-run">Exclude ${ids.length - ok.length} and run ${ok.length}</button></form>`
       : '<p data-testid="preflight-dead-end">No executable rows.</p>';
-    res.end(beReport(`<p data-testid="preflight-summary">${ok.length} of ${ids.length} rows are executable</p>${beReasonTable(blocked)}${excludeForm}`));
+    // The blocked rows ride along as OOB updates so the report's links
+    // land on something marked. <template>-wrapped: a bare <tr> in a
+    // div-targeted response is dropped by the parser.
+    const markedRows = `<template>${ids
+      .filter((id) => beReason(id) != null)
+      .map((id) => beRow(id, { blocked: true, checked: true, oob: true }))
+      .join('')}</template>`;
+    res.end(`${beReport(`<p data-testid="preflight-summary">${ok.length} of ${ids.length} rows are executable</p>${beReasonTable(blocked)}${excludeForm}`)}${markedRows}`);
     return true;
   }
 
@@ -1568,7 +1578,12 @@ function handleBulkErrors(req, res, url) {
       if (blocked.size > 0) {
         // Refusal: unchanged rows, selection kept, refusal copy.
         res.statusCode = 409;
-        res.end(`${BE_IDS.map((id) => beRow(id, { checked: ids.includes(id) })).join('\n')}
+        // Nothing ran, so no status changes — but the blocked rows are
+        // WHY nothing ran, which is not the same as claiming they failed.
+        res.end(`${BE_IDS.map((id) => beRow(id, {
+          checked: ids.includes(id),
+          blocked: ids.includes(id) && beReason(id) != null,
+        })).join('\n')}
 ${beReport(`<p data-testid="refusal"><strong>Nothing was executed.</strong></p>${beReasonTable(blocked)}`, { oob: true })}`);
         return;
       }
@@ -1583,7 +1598,7 @@ ${beReport('<p data-testid="posted">Posted.</p>', { oob: true })}`);
       if (!ids.includes(id)) return beRow(id);
       const failed = beReason(id) != null;
       return beRow(id, {
-        failed,
+        blocked: failed,
         status: failed ? 'Active' : 'Archived',
         checked: failed && beRetryable(id),
       });

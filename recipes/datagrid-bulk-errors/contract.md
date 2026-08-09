@@ -33,7 +33,7 @@ and their copy is part of the contract.
 | Fits | independent items (archive, tag, notify) | invariants (postings, transfers, permissions) |
 | Success | `200` + rows + report + `success` toast | `200` + rows + `success` toast |
 | Failure | `200` + rows **reflecting what happened** + report + `warning` toast | **`409`** (state conflict) or **`422`** (input) + rows **unchanged** + report + `error` toast |
-| Failed rows | marked `data-attention="error"`, reason via `aria-describedby` | **not marked** — nothing changed; marking would lie |
+| Failed rows | marked `data-attention="error"`, reason via `aria-describedby` | **statuses unchanged**, but the blocked rows are marked the same way — see below |
 | Copy | "113 succeeded / 87 failed" | "**Nothing was executed** (2 rows do not qualify)" |
 | Selection | **the retry set stays selected** — re-render *retryable* failures `checked` | **preserved** — re-render the checkboxes `checked` |
 | Recovery | press the action again (it now applies to the failures alone) | fix the blockers, or exclude them and re-run |
@@ -43,6 +43,42 @@ recipe's "the selection clears by construction" holds only when the
 action ran. A refusal that also wipes 200 hand-picked rows is a data
 loss the user cannot undo. The checkboxes *are* the selection truth, so
 rendering them `checked` is the whole fix.
+
+**Mark the blocked rows in the atomic branch too.** The rule used to
+be "never mark in the atomic branch — nothing changed, so marking would
+lie". What would lie is a claim that the row *failed*; the mark says
+something else: **this row cannot proceed**. That is equally true
+before the action runs (pre-flight), when it refuses (`409`), and after
+it failed (best-effort) — because it is a fact about the **row**, not
+about the attempt. It also does not go stale when the selection
+changes: "already shipped" stays true whether or not the row is ticked.
+
+Without it the report's row links land on a row that looks like every
+other row, which wastes the one affordance the report has.
+
+The pre-flight answers a report, not rows, so it carries the marks as
+**out-of-band row updates** wrapped in `<template>` (the same escape as
+below — a bare `<tr>` in a response targeting a `<div>` is dropped by
+the parser). Render them `checked`: the user is about to act on that
+selection.
+
+What must still never happen in the atomic branch is a **status
+change**. Nothing ran, so nothing is Posted, Archived or Deleted.
+
+## Severity: what does the row need?
+
+`data-attention` takes the severity from what the row requires, not
+from when it was discovered — otherwise the same unchanged row is
+`warning` before the button and `error` after it.
+
+| Severity | Means | Examples |
+| --- | --- | --- |
+| `error` | **something must change** before this can proceed | required value missing, invalid input, wrong state ("already shipped"), not permitted |
+| `warning` | **someone must decide**; the value itself is fine | a ship date in the future, a discount above policy — the [confirmable-warning](../datagrid-edit-errors/) branch |
+
+So a required-field check is `error` wherever it surfaces, and a
+pre-flight blocker is `error` too — it is not "not yet an error", it is
+a row that cannot proceed.
 
 **A partial failure must leave the retry set selected.** Re-rendering
 every row unchecked is what "the selection clears by construction"
