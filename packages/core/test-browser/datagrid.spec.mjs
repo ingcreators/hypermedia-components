@@ -518,6 +518,43 @@ test.describe('hc-datagrid — column resize', () => {
     expect(overflow).toBe(true);
   });
 
+  test('double-click (or Enter) on the grip auto-sizes to the content', async ({ page }) => {
+    const handle = page.getByTestId('h-name').locator('.hc-datagrid__resizer');
+    // Clip the column hard first…
+    await handle.focus();
+    for (let i = 0; i < 20; i += 1) {
+      await page.keyboard.press('Shift+ArrowLeft');
+    }
+    await page.evaluate(() => {
+      window.__resizes = [];
+      document.querySelector('.hc-datagrid').addEventListener(
+        'hc:datagridcolumnresize',
+        (e) => window.__resizes.push(e.detail),
+      );
+    });
+    // …then fit-to-content with a double-click on the grip.
+    await handle.dblclick();
+    const overflow = await page.getByTestId('c-name-1').evaluate(
+      (el) => el.scrollWidth > el.clientWidth + 1,
+    );
+    expect(overflow).toBe(false);
+    // The double-click gesture also runs the pointer-cycle emits (a
+    // click on the grip is a zero-move drag) — the LAST event carries
+    // the auto-sized width.
+    const resizes = await page.evaluate(() => window.__resizes);
+    expect(resizes.length).toBeGreaterThan(0);
+    expect(resizes.at(-1).col).toBe('name');
+
+    // Enter on the focused grip is the keyboard path.
+    await page.keyboard.press('Shift+ArrowLeft');
+    await handle.focus();
+    await page.keyboard.press('Enter');
+    const overflowAfterEnter = await page.getByTestId('c-name-1').evaluate(
+      (el) => el.scrollWidth > el.clientWidth + 1,
+    );
+    expect(overflowAfterEnter).toBe(false);
+  });
+
   test('axe finds no violations', async ({ page }) => {
     const results = await new AxeBuilder({ page }).include('[data-testid="grid"]').analyze();
     expect(results.violations).toEqual([]);

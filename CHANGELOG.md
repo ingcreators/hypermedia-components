@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: auto-size and opt-in client page sort
+  (`plans/hc-datagrid-enrichment-plan-en.md` §1.11). Double-click a
+  column's resize grip (or press Enter while it has focus) to fit the
+  column to its widest rendered cell — the committed width flows
+  through the normal `hc:datagridcolumnresize` pipeline.
+  `data-sortable="client"` sorts the *already-rendered* page rows in
+  the DOM (numeric when both values parse, `data-value` preferred over
+  cell text, locale compare otherwise) — allowed by the v0.6 depth
+  plan for small fully-loaded tables; any htmx swap restores the
+  server's order, and bare `data-sortable` stays server-instructed.
+
 - **datagrid**: column-preference persistence + the `datagrid-prefs`
   recipe (`plans/hc-datagrid-enrichment-plan-en.md` §1.10). **Widths**:
   `installDatagrid()` mirrors every committed resize into any

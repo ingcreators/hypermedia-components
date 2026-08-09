@@ -291,8 +291,11 @@ else document-wide), so an event-triggered htmx request serializes the
 fresh value. The
 [datagrid-prefs recipe](/hypermedia-components/recipes/datagrid-prefs/)
 turns that into per-user persistence; the server renders remembered
-widths back as inline widths + `data-resized`. The grip is a
-keyboard-operable `role="separator"` with `aria-valuenow`; it is a
+widths back as inline widths + `data-resized`.
+**Double-click the grip** (or press <kbd>Enter</kbd> while it has
+focus) to **auto-size** the column to its widest rendered cell — the
+committed width flows through the same event/mirror pipeline. The grip
+is a keyboard-operable `role="separator"` with `aria-valuenow`; it is a
 JS-generated element with the class `hc-datagrid__resizer`, which you can
 restyle like any other part class.
 
@@ -334,6 +337,15 @@ grid.addEventListener('hc:datagridsort', (e) => {
   // → "name,-price"
 });
 ```
+
+**Client page sort (opt-in)**: `data-sortable="client"` sorts the
+*already-rendered* page rows in the DOM instead of waiting for the
+server — numeric when both values parse as numbers (`data-value`
+preferred over the cell text), locale string compare otherwise.
+Explicitly allowed by the depth plan for small, fully-loaded tables;
+any htmx swap restores the server's order, which is correct. The
+instruction event still fires for observers. Bare `data-sortable`
+stays server-instructed.
 
 Wire it to htmx by reloading the rows with the sort params — e.g. put
 `data-hx-get`, `data-hx-trigger="hc:datagridsort"` and
@@ -839,7 +851,7 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Numeric columns | `data-numeric` (head/body cells) | CSS |
 | Conditional formatting | `data-tone` — `info` / `success` / `warning` / `error` (cell / row / record) | CSS |
 | Column resize | `data-resizable` + `data-col` (header) · matching `data-col` (body cells) | `installDatagrid()` |
-| Sortable columns | `data-sortable` + `data-col` (header) | `installDatagrid()` |
+| Sortable columns | `data-sortable` + `data-col` (header) — the value `"client"` sorts the rendered page in the DOM | `installDatagrid()` |
 | Grouped rows | `.hc-datagrid__grouprow` + `data-group-level` (heading row) · `aria-expanded` (heading cell, start collapsed with `"false"`) | `installDatagrid()` |
 | Tree rows | `aria-level` (every row) · `aria-expanded` + `data-hc-datagrid-tree` toggle (expandable row) · `data-lazy` + htmx wiring (lazy row) | `installDatagrid()` |
 | Expandable row detail | `data-hc-datagrid-toggle` (button) · `data-expanded` (record `<tbody>`, start open) · `data-lazy` (detail cell) | `installDatagrid()` |

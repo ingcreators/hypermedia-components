@@ -293,7 +293,10 @@ CSS は貼り付けるだけで、クライアント側では何も合計しま�
 します。
 [datagrid-prefs レシピ](/hypermedia-components/ja/recipes/datagrid-prefs/)
 がこれをユーザーごとの永続化にします。サーバーは記憶した幅を
-インライン幅 + `data-resized` として描画し返します。グリップは
+インライン幅 + `data-resized` として描画し返します。
+**グリップをダブルクリック**(またはフォーカスして <kbd>Enter</kbd>)
+すると、列を最も広い描画済みセルに**自動フィット**します — 確定した
+幅は同じイベント/ミラーのパイプラインを流れます。グリップは
 キーボード操作可能な `role="separator"` で、`aria-valuenow` を
 持ちます。JS が生成する要素で、クラスは `hc-datagrid__resizer` —
 他のパートクラス同様にスタイルを上書きできます。
@@ -337,6 +340,15 @@ grid.addEventListener('hc:datagridsort', (e) => {
   // → "name,-price"
 });
 ```
+
+**クライアントページソート(オプトイン)**: `data-sortable="client"`
+はサーバーを待たず、*描画済み*のページ行を DOM 内でソートします —
+両方の値が数値としてパースできれば数値比較(セルテキストより
+`data-value` を優先)、そうでなければロケール文字列比較です。小さく
+全件ロード済みのテーブル向けに深化プランが明示的に許容したモードです。
+htmx スワップはサーバーの順序を復元します — それが正しい挙動です。
+指示イベントは引き続きオブザーバー向けに発火します。素の
+`data-sortable` はサーバー指示のままです。
 
 htmx とつなぐには、ソートパラメータつきで行を再読み込みします — 例:
 `<tbody>` に `data-hx-get`、`data-hx-trigger="hc:datagridsort"`、
@@ -852,7 +864,7 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
 | 数値列 | `data-numeric`(ヘッダー / ボディのセル) | CSS |
 | 条件付き書式 | `data-tone` — `info` / `success` / `warning` / `error`(セル / 行 / レコード) | CSS |
 | 列のリサイズ | `data-resizable` + `data-col`(ヘッダー)· 同じ `data-col`(ボディセル) | `installDatagrid()` |
-| ソート可能な列 | `data-sortable` + `data-col`(ヘッダー) | `installDatagrid()` |
+| ソート可能な列 | `data-sortable` + `data-col`(ヘッダー)— 値 `"client"` は描画済みページを DOM 内でソート | `installDatagrid()` |
 | グループ化された行 | `.hc-datagrid__grouprow` + `data-group-level`(見出し行)· `aria-expanded`(見出しセル。`"false"` で折りたたみ開始) | `installDatagrid()` |
 | ツリー行 | `aria-level`(全行)· `aria-expanded` + `data-hc-datagrid-tree` トグル(展開可能な行)· `data-lazy` + htmx ワイヤリング(遅延行) | `installDatagrid()` |
 | 展開可能な行詳細 | `data-hc-datagrid-toggle`(ボタン)· `data-expanded`(レコード `<tbody>`、開いた状態で開始)· `data-lazy`(詳細セル) | `installDatagrid()` |
