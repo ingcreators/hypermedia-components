@@ -250,6 +250,13 @@ function attach(grid, detachers) {
         cell.setAttribute('role', cell.tagName === 'TH' ? 'rowheader' : 'gridcell');
       }
     }
+    // Server-rendered error rows (edit feedback) — grid roles, out of
+    // navigation, message announced via an inner role="alert" element.
+    for (const r of ownedBy(grid, '.hc-datagrid__error-row')) {
+      r.setAttribute('role', 'row');
+      const cell = r.querySelector('.hc-datagrid__error');
+      if (cell) cell.setAttribute('role', 'gridcell');
+    }
     for (const h of ownedBy(grid, '.hc-datagrid__headcell')) {
       if (!h.getAttribute('role')) h.setAttribute('role', 'columnheader');
     }
@@ -1238,6 +1245,14 @@ function attach(grid, detachers) {
     cell.tabIndex = 0;
     cell.focus();
     if (detail) {
+      // Opt-in saving state: the commit is optimistic — mark the cell
+      // pending until the server's row re-render replaces it (the
+      // edit-feedback contract). Only with data-hc-datagrid-pending on
+      // the grid: without the re-render wiring nothing would clear it.
+      if (grid.hasAttribute('data-hc-datagrid-pending')) {
+        cell.setAttribute('data-pending', '');
+        cell.setAttribute('aria-busy', 'true');
+      }
       grid.dispatchEvent(
         new CustomEvent('hc:datagridedit', { bubbles: true, detail }),
       );
@@ -1409,6 +1424,13 @@ function attach(grid, detachers) {
       // Lazy tree children have arrived — clear the loading state.
       for (const r of ownedBy(grid, '.hc-datagrid__row[data-loaded][aria-busy]')) {
         r.removeAttribute('aria-busy');
+      }
+      // A row re-render answered the pending commit — a swapped row
+      // arrives without data-pending, and any survivor elsewhere is
+      // stale (belt-and-braces for multi-edit races).
+      for (const cell of ownedBy(grid, '.hc-datagrid__cell[data-pending]')) {
+        cell.removeAttribute('data-pending');
+        cell.removeAttribute('aria-busy');
       }
       measure(grid);
       // Swapped-in rows carry their own selection state (usually none;
