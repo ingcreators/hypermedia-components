@@ -239,8 +239,11 @@ allowance.
 **Confirm-pending state**
 
 - The edited cell shows the **proposed** value (the user cannot confirm
-  what they cannot see) carrying `data-pending` — it is genuinely
-  unresolved — and the row carries `data-attention="warning"`.
+  what they cannot see) carrying `data-attention="warning"`, and the
+  record carries the same. **Not** `data-pending`, as this plan first
+  proposed: that state means "waiting for the server" and draws a
+  spinner, while here the server is waiting for the *user* — the
+  spinner would say the opposite. Corrected during implementation.
 - A warning row directly below states the reason and offers
   〔Confirm〕 / 〔Cancel〕. Cancel re-renders the record with the stored
   value; nothing else changes.

@@ -38,7 +38,67 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 | --- | --- |
 | accepted | `200` + the record `<tbody>` re-rendered — the row alone, the cell showing the **server's formatting** of the accepted value (`data-value` updated). This confirms the optimistic commit, clears `data-pending`, and atomically removes any previous error row |
 | rejected | **`422`** + the record `<tbody>` re-rendered — the cell back on the **server's current value**, marked `data-invalid` + `aria-invalid="true"` + `aria-describedby="<error id>"`, followed inside the same record by `<tr class="hc-datagrid__error-row"><td class="hc-datagrid__error" colspan="…"><span role="alert" id="<error id>">…</span></td></tr>` — the message **names the rejected input** so nothing typed is silently lost |
+| **needs confirmation** | **`200`** + the record `<tbody>` re-rendered in the *confirm-pending* state — see below. Nothing is committed |
 | unknown column / row | `404` — nothing swaps; the standard `HX-Trigger` toast covers it |
+
+Cancel needs one more route: **`GET /items/:id`** → the stored record,
+exactly as it was. Nothing was written, so there is nothing to undo.
+
+## Confirmable warnings
+
+Some values are **acceptable but unusual**: a ship date in the future,
+a discount above policy, a quantity ten times the usual. They are not
+errors — `422` would be a lie — and only the server knows the rule, so
+a client-side confirm (`installConfirm`) cannot express it: the rule is
+discovered *on the way in*, after the user has already committed.
+
+`200` is the honest answer. Nothing failed and nothing was rejected;
+the server is continuing the conversation. It also needs no
+`htmx:beforeSwap` allowance.
+
+The confirm-pending record:
+
+- the edited cell shows the **proposed** value — the user cannot
+  confirm what they cannot see — marked `data-attention="warning"` and
+  pointing at the message with `aria-describedby`;
+- the record carries `data-attention="warning"`, so the row reads as
+  needing the user whatever tint is painted over it;
+- **not** `data-pending`: nothing is in flight. That state means
+  "waiting for the server" and draws a spinner; here the server is
+  waiting for the *user*;
+- a message row directly below (the `__error-row` slot with
+  `data-tone="warning"` on its cell) carries `role="alert"` on an inner
+  element, plus **Confirm** and **Cancel**.
+
+```html
+<tr class="hc-datagrid__error-row">
+  <td class="hc-datagrid__error" data-tone="warning" colspan="3">
+    <span role="alert" id="r7-note">2027-01-01 is in the future. Confirm to ship Chai on that date.</span>
+    <button class="hc-button" data-variant="primary" type="button"
+            data-hx-patch="/items/7"
+            data-hx-vals='{"col":"ship","value":"2027-01-01","confirm":"9f2c1a"}'
+            data-hx-target="closest tbody" data-hx-swap="outerHTML">Confirm</button>
+    <button class="hc-button" type="button"
+            data-hx-get="/items/7"
+            data-hx-target="closest tbody" data-hx-swap="outerHTML">Cancel</button>
+  </td>
+</tr>
+```
+
+**Bind the token to the value.** `confirm` is a single-use token issued
+for one `(row, column, value)` — and in a versioned store, one
+`version` too. Without that binding, a confirmation obtained for one
+value could commit a different one, and the `409` version guard is
+bypassed by replay. A server that only checks `confirm=1` has built a
+confused-deputy, not a confirmation.
+
+The buttons are `data-hx-vals` with **static JSON**, not `js:` — the
+value being confirmed is pinned at render time, so it cannot drift, and
+it stays CSP-safe.
+
+The message row is not a `__row`, so it sits outside the navigation
+matrix and its buttons keep their natural tab order (the behavior only
+takes widgets inside matrix cells out of it).
 
 ## Rules
 
@@ -55,6 +115,15 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
   skips the error row entirely.
 - Multi-cell rows repeat the same contract per column — `col` in the
   payload says which cell is being judged.
+- **A warning is not an error.** Do not fold the confirmable branch
+  into `422`: the user's value is fine, and a rejection tells them to
+  change something that needs no changing. Do not fold it into a
+  success either — a silent commit of an unusual value is exactly what
+  the confirmation exists to prevent.
+- **Bulk operations already have this shape.** The
+  [datagrid-bulk-errors](../datagrid-bulk-errors/) pre-flight ("18 can
+  proceed, 2 cannot") is the same conversation for many rows at once;
+  no separate mechanism is needed.
 
 ## Progressive enhancement (no JS)
 

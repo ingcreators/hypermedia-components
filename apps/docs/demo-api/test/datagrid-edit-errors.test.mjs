@@ -25,7 +25,7 @@ describe('datagrid-edit-errors demo API', () => {
     expect(body).toContain('>18.00</td>');
     expect(body).toContain('data-invalid');
     expect(body).toContain('aria-invalid="true"');
-    expect(body).toContain('aria-describedby="edit-errors-demo-1-error"');
+    expect(body).toContain('aria-describedby="edit-errors-demo-1-note"');
     expect(body).toContain('role="alert"');
     expect(body).toContain('&quot;abc&quot; is not a number');
   });
@@ -39,6 +39,77 @@ describe('datagrid-edit-errors demo API', () => {
     expect(body).toContain('must be greater than 0');
     expect(body).toContain('data-value="19"');
     expect(body).toContain('>19.00</td>');
+  });
+
+  it('a future ship date comes back as a proposal, not a commit', async () => {
+    const response = await call(editErrors, 'PATCH', '/items/1', {
+      body: form({ col: 'ship', value: '2099-01-01' }),
+    });
+    // Nothing failed and nothing was rejected — the server is asking.
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    // The PROPOSED value is shown (the user cannot confirm what they
+    // cannot see), marked as needing them rather than as saved.
+    expect(body).toContain('data-value="2099-01-01"');
+    expect(body).toContain('data-attention="warning"');
+    // …and it is NOT a spinner: nothing is in flight.
+    expect(body).not.toContain('data-pending');
+    expect(body).toContain('is in the future');
+    expect(body).toContain('Confirm');
+    expect(body).toContain('Cancel');
+  });
+
+  it('confirming with the bound token commits the value', async () => {
+    const proposal = await (
+      await call(editErrors, 'PATCH', '/items/1', {
+        body: form({ col: 'ship', value: '2099-01-01' }),
+      })
+    ).text();
+    const token = /&quot;confirm&quot;:&quot;([a-z0-9]+)&quot;/.exec(proposal)?.[1];
+    expect(token).toBeTruthy();
+
+    const response = await call(editErrors, 'PATCH', '/items/1', {
+      body: form({ col: 'ship', value: '2099-01-01', confirm: token }),
+    });
+    const body = await response.text();
+    expect(response.status).toBe(200);
+    expect(body).toContain('data-value="2099-01-01"');
+    expect(body).not.toContain('data-attention');
+    expect(body).not.toContain('hc-datagrid__error-row');
+  });
+
+  it('a token issued for one value cannot commit another', async () => {
+    const proposal = await (
+      await call(editErrors, 'PATCH', '/items/1', {
+        body: form({ col: 'ship', value: '2099-01-01' }),
+      })
+    ).text();
+    const token = /&quot;confirm&quot;:&quot;([a-z0-9]+)&quot;/.exec(proposal)[1];
+
+    // Same token, different date: the binding must refuse to commit.
+    const body = await (
+      await call(editErrors, 'PATCH', '/items/1', {
+        body: form({ col: 'ship', value: '2098-05-05', confirm: token }),
+      })
+    ).text();
+    expect(body).toContain('data-attention="warning"'); // asked again
+  });
+
+  it('a past ship date needs no confirmation', async () => {
+    const body = await (
+      await call(editErrors, 'PATCH', '/items/2', {
+        body: form({ col: 'ship', value: '2020-01-01' }),
+      })
+    ).text();
+    expect(body).toContain('data-value="2020-01-01"');
+    expect(body).not.toContain('data-attention');
+  });
+
+  it('GET restores the stored record — what Cancel asks for', async () => {
+    const body = await (await call(editErrors, 'GET', '/items/1')).text();
+    expect(body).toContain('data-value="2026-08-01"');
+    expect(body).not.toContain('data-attention');
+    expect(body).not.toContain('hc-datagrid__error-row');
   });
 
   it('404s an unknown row or column', async () => {

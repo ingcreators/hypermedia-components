@@ -82,11 +82,72 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 | --- | --- |
 | accepted | `200` + the record `<tbody>` — the row alone, the cell showing the **server's formatting** of the value; confirms the optimistic commit, clears `data-pending`, and atomically removes any previous error row |
 | rejected | **`422`** + the record `<tbody>` — the cell back on the **server's current value**, `data-invalid` + `aria-invalid` + `aria-describedby`, followed by the `__error-row` whose `role="alert"` message **names the rejected input** |
+| **needs confirmation** | **`200`** + the record `<tbody>` in the *confirm-pending* state — see below. Nothing is committed |
 | unknown row / column | `404` — nothing swaps; the standard error toast covers it |
+
+Cancel needs one more route: `GET /items/:id` → the stored record,
+exactly as it was. Nothing was written, so there is nothing to undo.
 
 The record tbody is the atom: row and error row always travel together
 — no OOB bookkeeping, stateless server, and the cell never shows a
 value the server has not vouched for.
+
+## Confirmable warnings
+
+Some values are **acceptable but unusual**: a ship date in the future,
+a discount above policy, a quantity ten times the usual. They are not
+errors — `422` would tell the user to change something that needs no
+changing — and only the server knows the rule, so a client-side confirm
+(`installConfirm`) cannot express it: the rule is discovered *on the way
+in*, after the user has already committed.
+
+`200` is the honest answer. Nothing failed and nothing was rejected;
+the server is continuing the conversation. It also needs no
+`htmx:beforeSwap` allowance.
+
+```html
+<td class="hc-datagrid__cell" data-editable data-col="ship"
+    data-value="2027-01-01" data-attention="warning"
+    aria-describedby="item-2-note">2027-01-01</td>
+…
+<tr class="hc-datagrid__error-row">
+  <td class="hc-datagrid__error" data-tone="warning" colspan="3">
+    <span role="alert" id="item-2-note">2027-01-01 is in the future. Confirm to ship Chang on that date.</span>
+    <button class="hc-button" data-size="sm" data-variant="primary" type="button"
+            data-hx-patch="/items/2"
+            data-hx-vals='{"col":"ship","value":"2027-01-01","confirm":"9f2c1a"}'
+            data-hx-target="closest tbody" data-hx-swap="outerHTML">Confirm</button>
+    <button class="hc-button" data-size="sm" type="button"
+            data-hx-get="/items/2"
+            data-hx-target="closest tbody" data-hx-swap="outerHTML">Cancel</button>
+  </td>
+</tr>
+```
+
+The cell shows the **proposed** value — the user cannot confirm what
+they cannot see — marked `data-attention="warning"`, and the record
+carries the same attribute so the row reads as needing the user
+whatever tint is painted over it.
+
+:::caution[Not `data-pending`]
+`data-pending` means "waiting for the server" and draws a spinner. Here
+the server is waiting for the **user**; a spinner would say the
+opposite.
+:::
+
+**Bind the token to the value.** `confirm` is a single-use token issued
+for one `(row, column, value)` — and in a versioned store, one
+`version` too. Without that binding, a confirmation obtained for one
+value could commit a different one, and the `409` version guard is
+bypassed by replay. A server that only checks `confirm=1` has built a
+confused deputy, not a confirmation. The buttons use **static**
+`data-hx-vals` (not `js:`), so the value being confirmed is pinned at
+render time and stays CSP-safe.
+
+Bulk operations already have this shape: the
+[datagrid-bulk-errors](/hypermedia-components/recipes/datagrid-bulk-errors/)
+pre-flight ("18 can proceed, 2 cannot") is the same conversation for
+many rows at once.
 
 ## Progressive enhancement
 
@@ -103,6 +164,9 @@ script.
 - Saving is `aria-busy` on one cell — the rest of the grid stays
   operable; the error row stays out of keyboard navigation.
 - Focus survives the swap; <kbd>Enter</kbd> re-edits in place.
+- The confirm row sits outside the navigation matrix, so its buttons
+  keep their natural tab order; `role="alert"` announces the question
+  without stealing focus.
 
 ## Related
 

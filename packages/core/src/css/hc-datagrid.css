@@ -285,7 +285,8 @@
        5. [data-in-range]    range selection
        6. [aria-selected]    row selection
        7. :target            fragment landing
-       8. [data-invalid]     the cell the server rejected
+       8. [data-invalid] / [data-attention] on a CELL — the value the
+          server rejected, or a proposal awaiting confirmation
 
      Selection outranks conditional formatting because selection is the
      state the user is manipulating right now; the formatted value stays
@@ -396,12 +397,21 @@
     --hc-datagrid-cell-tint: var(--hc-datagrid-highlight-bg);
   }
 
-  /* 8. The rejected cell. Outline and flag are in the attention
-     channel; this is only its tint. */
+  /* 8. A cell that needs the user: the value the server rejected
+     (data-invalid) or a proposal awaiting confirmation
+     (data-attention="warning" — see the confirmable-warning branch of
+     datagrid-edit-errors). Outline and flag are in the attention
+     channel; this is only the tint. */
   .hc-datagrid__cell:where([data-invalid]) {
     --hc-datagrid-cell-tint: var(--hc-datagrid-tone-error-bg);
 
     color: var(--hc-datagrid-tone-error-fg);
+  }
+
+  .hc-datagrid__cell:where([data-attention="warning"]) {
+    --hc-datagrid-cell-tint: var(--hc-datagrid-tone-warning-bg);
+
+    color: var(--hc-datagrid-tone-warning-fg);
   }
 
   /* Sticky headers cover the landing row unless the scrollport keeps a
@@ -692,12 +702,13 @@
      Drawn in attention-error (status.error.fg), not the border colour:
      the flag sits ON the error tint, and the two were close enough in
      lightness to be indistinguishable. */
-  .hc-datagrid__cell[data-invalid]::after {
+  .hc-datagrid__cell[data-invalid]::after,
+  .hc-datagrid__cell[data-attention]::after {
     content: "";
     position: absolute;
     inset-block-start: 0;
     inset-inline-end: 0;
-    border-block-start: 0.5em solid var(--hc-datagrid-attention-error-bg);
+    border-block-start: 0.5em solid var(--hc-datagrid-attention-color);
     border-inline-start: 0.5em solid transparent;
   }
 
@@ -706,8 +717,11 @@
      cell shows the SERVER's value; the error row carries the message.
      The tint is rung 8 of the ladder; this is the part that survives a
      selection or hover tint painted over it. */
-  .hc-datagrid__cell[data-invalid] {
-    outline: 2px solid var(--hc-datagrid-attention-error-bg);
+  .hc-datagrid__cell[data-invalid],
+  .hc-datagrid__cell[data-attention] {
+    --hc-datagrid-attention-color: var(--hc-datagrid-attention-error-bg);
+
+    outline: 2px solid var(--hc-datagrid-attention-color);
     outline-offset: -2px;
   }
 

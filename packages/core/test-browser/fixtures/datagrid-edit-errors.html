@@ -4,7 +4,9 @@
      the PATCH (the mock delays 150ms), the 422 record re-render
      (server value restored, data-invalid + aria wiring, error row
      naming the rejected input), and the 200 branch atomically
-     removing the error row. -->
+     removing the error row. Also the confirmable-warning branch: a
+     future ship date answers 200 with the proposed value marked
+     data-attention="warning" plus Confirm / Cancel. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -30,9 +32,12 @@
   <main class="hc-stack" style="padding:1rem">
     <h1>Datagrid edit errors</h1>
 
-    <div class="hc-datagrid" data-testid="grid" data-hc-datagrid-pending style="max-inline-size: 420px;">
+    <div class="hc-datagrid" data-testid="grid" data-hc-datagrid-pending style="max-inline-size: 560px;">
       <template data-datagrid-editor data-col="price">
         <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+      </template>
+      <template data-datagrid-editor data-col="ship">
+        <input class="hc-input" type="text" aria-label="Ship date">
       </template>
       <div class="hc-datagrid__scroll">
         <table class="hc-datagrid__table">
@@ -40,6 +45,7 @@
             <tr>
               <th class="hc-datagrid__headcell" scope="col">Name</th>
               <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+              <th class="hc-datagrid__headcell" scope="col">Ship date</th>
             </tr>
           </thead>
           <tbody class="hc-datagrid__record" id="item-1" data-testid="record-1"
@@ -51,6 +57,8 @@
               <td class="hc-datagrid__cell">Chai</td>
               <td class="hc-datagrid__cell" data-numeric data-editable
                   data-col="price" data-value="18" data-testid="price-1">18.00</td>
+              <td class="hc-datagrid__cell" data-editable
+                  data-col="ship" data-value="2026-08-01" data-testid="ship-1">2026-08-01</td>
             </tr>
           </tbody>
           <tbody class="hc-datagrid__record" id="item-2" data-testid="record-2"
@@ -62,6 +70,8 @@
               <td class="hc-datagrid__cell">Chang</td>
               <td class="hc-datagrid__cell" data-numeric data-editable
                   data-col="price" data-value="19" data-testid="price-2">19.00</td>
+              <td class="hc-datagrid__cell" data-editable
+                  data-col="ship" data-value="2026-08-03" data-testid="ship-2">2026-08-03</td>
             </tr>
           </tbody>
         </table>

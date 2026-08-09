@@ -85,11 +85,72 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 | --- | --- |
 | 受理 | `200` + レコード `<tbody>` — 行のみ。セルは値の**サーバーによる整形**を表示。楽観的コミットを確定し、`data-pending` をクリアし、以前のエラー行があればアトミックに取り除きます |
 | 拒否 | **`422`** + レコード `<tbody>` — セルは**サーバーの現在値**に戻り、`data-invalid` + `aria-invalid` + `aria-describedby` 付き。続けて `role="alert"` のメッセージが**拒否された入力を名指しする** `__error-row` |
+| **確認が必要** | **`200`** + レコード `<tbody>` を*確認待ち*状態で — 下記参照。まだ何もコミットされていません |
 | 未知の行 / 列 | `404` — 何もスワップしない。標準のエラートーストがカバー |
+
+キャンセルにはもう 1 つの経路が要ります: `GET /items/:id` → 保存済みの
+レコードをそのまま返します。何も書き込んでいないので、取り消すものは
+ありません。
 
 レコード tbody がアトムです: 行とエラー行は常に一緒に移動します —
 OOB の帳簿づけなし、ステートレスなサーバー、そしてセルがサーバーの
 保証しない値を表示することはありません。
+
+## 確認付きの警告
+
+値としては**受理可能だが異常**なものがあります: 未来日の出荷日、
+規定を超える割引、通常の 10 倍の数量。これらはエラーではありません —
+`422` は「直す必要のないものを直せ」と言うことになります — そして
+ルールを知っているのはサーバーだけなので、クライアント側の確認
+(`installConfirm`)では表現できません。ルールは*送信した後で*、
+ユーザーが既に確定した後に判明するからです。
+
+正直な答えは `200` です。何も失敗しておらず、何も拒否されていません。
+サーバーは会話を続けているだけです。`htmx:beforeSwap` の許可も不要に
+なります。
+
+```html
+<td class="hc-datagrid__cell" data-editable data-col="ship"
+    data-value="2027-01-01" data-attention="warning"
+    aria-describedby="item-2-note">2027-01-01</td>
+…
+<tr class="hc-datagrid__error-row">
+  <td class="hc-datagrid__error" data-tone="warning" colspan="3">
+    <span role="alert" id="item-2-note">2027-01-01 は未来日です。この日付で Chang を出荷する場合は確認してください。</span>
+    <button class="hc-button" data-size="sm" data-variant="primary" type="button"
+            data-hx-patch="/items/2"
+            data-hx-vals='{"col":"ship","value":"2027-01-01","confirm":"9f2c1a"}'
+            data-hx-target="closest tbody" data-hx-swap="outerHTML">確認して更新</button>
+    <button class="hc-button" data-size="sm" type="button"
+            data-hx-get="/items/2"
+            data-hx-target="closest tbody" data-hx-swap="outerHTML">取り消す</button>
+  </td>
+</tr>
+```
+
+セルは**提案値**を表示します — 見えないものは確認できません — そして
+`data-attention="warning"` でマークされます。レコードにも同じ属性を
+付けるので、上にどのティントが塗られても行は「対応が必要」と読めます。
+
+:::caution[`data-pending` ではありません]
+`data-pending` は「サーバー待ち」を意味し、スピナーを描きます。ここで
+待っているのはサーバーではなく**ユーザー**です。スピナーは逆のことを
+言ってしまいます。
+:::
+
+**トークンは値に束縛します。**`confirm` は 1 つの
+`(行・列・値)` — バージョン管理されたストアではバージョンも含めて —
+に対して発行される単回限りのトークンです。この束縛がないと、ある値に
+対して得た確認が別の値をコミットしてしまい、`409` のバージョンガードも
+リプレイで回避されます。`confirm=1` だけを見るサーバーは、確認ではなく
+混乱した代理人を作ったことになります。ボタンは **静的な**
+`data-hx-vals`(`js:` ではない)を使うので、確認対象の値は描画時に
+固定され、CSP にも安全です。
+
+一括操作は既に同じ形を持っています:
+[datagrid-bulk-errors](/hypermedia-components/ja/recipes/datagrid-bulk-errors/)
+のプリフライト(「18 件は実行可能、2 件は不可」)は、多数の行に対する
+同じ会話です。
 
 ## プログレッシブエンハンスメント
 
@@ -107,6 +168,8 @@ OOB の帳簿づけなし、ステートレスなサーバー、そしてセル�
   まま。エラー行はキーボードナビゲーションに入りません。
 - フォーカスはスワップを生き延び、<kbd>Enter</kbd> でその場で
   再編集できます。
+- 確認行はナビゲーション行列の外にあるため、中のボタンは通常のタブ順を
+  保ちます。`role="alert"` はフォーカスを奪わずに問いを読み上げます。
 
 ## 関連
 

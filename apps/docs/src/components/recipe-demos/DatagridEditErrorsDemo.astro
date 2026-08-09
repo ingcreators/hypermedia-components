@@ -4,8 +4,11 @@
  * record tbody carrying the PATCH wiring; the demo server accepts
  * numbers > 0 and rejects everything else with the 422 record
  * re-render (server value restored, cell marked data-invalid, error
- * row naming the rejected input). The grid opts into the saving state
- * with data-hc-datagrid-pending. The docs site ships the global 422
+ * row naming the rejected input). Ship date shows the fourth branch:
+ * a future date is acceptable but unusual, so the server answers 200
+ * with the PROPOSED value and a Confirm / Cancel row — no commit until
+ * the user says so. The grid opts into the saving state with
+ * data-hc-datagrid-pending. The docs site ships the global 422
  * beforeSwap allowance for its demos.
  */
 import DemoFrame from './DemoFrame.astro';
@@ -14,9 +17,12 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
 ---
 
 <DemoFrame class="hc-preview--col" label="Datagrid edit errors demo">
-  <div class="hc-datagrid" id="edit-errors-demo-grid" data-hc-datagrid-pending style="max-inline-size: 420px;">
+  <div class="hc-datagrid" id="edit-errors-demo-grid" data-hc-datagrid-pending style="max-inline-size: 520px;">
     <template data-datagrid-editor data-col="price">
       <input class="hc-input" type="text" inputmode="decimal" aria-label="Price" />
+    </template>
+    <template data-datagrid-editor data-col="ship">
+      <input class="hc-input" type="date" aria-label="Ship date" />
     </template>
     <div class="hc-datagrid__scroll">
       <table class="hc-datagrid__table">
@@ -24,6 +30,7 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
           <tr>
             <th class="hc-datagrid__headcell" scope="col">Name</th>
             <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+            <th class="hc-datagrid__headcell" scope="col">Ship date</th>
           </tr>
         </thead>
         <tbody
@@ -36,6 +43,7 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
           <tr class="hc-datagrid__row">
             <td class="hc-datagrid__cell">Chai</td>
             <td class="hc-datagrid__cell" data-numeric data-editable data-col="price" data-value="18">18.00</td>
+            <td class="hc-datagrid__cell" data-editable data-col="ship" data-value="2026-08-01">2026-08-01</td>
           </tr>
         </tbody>
         <tbody
@@ -48,6 +56,7 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
           <tr class="hc-datagrid__row">
             <td class="hc-datagrid__cell">Chang</td>
             <td class="hc-datagrid__cell" data-numeric data-editable data-col="price" data-value="19">19.00</td>
+            <td class="hc-datagrid__cell" data-editable data-col="ship" data-value="2026-08-03">2026-08-03</td>
           </tr>
         </tbody>
       </table>
