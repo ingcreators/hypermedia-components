@@ -1415,8 +1415,8 @@ function handleDatagridEditConflict(req, res, url) {
 const BE_IDS = [101, 102, 103, 107];
 
 function beReason(id) {
-  if (id === 102) return '出荷済みのため変更できません';
-  if (id === 107) return '権限がありません';
+  if (id === 102) return 'Already shipped — cannot be changed';
+  if (id === 107) return 'Not permitted';
   return null;
 }
 
@@ -1424,7 +1424,7 @@ function beRow(id, { failed = false, status = 'Active', checked = false } = {}) 
   const reason = failed ? beReason(id) : null;
   const describe = reason ? ` aria-describedby="why-${id}"` : '';
   const tip = reason
-    ? `<span class="hc-tooltip" id="why-${id}">${reason}</span> <a href="#bulk-report" data-testid="detail-${id}">詳細</a>`
+    ? `<span class="hc-tooltip" id="why-${id}">${reason}</span> <a href="#bulk-report" data-testid="detail-${id}">Details</a>`
     : '';
   return `<tr class="hc-datagrid__row" id="row-${id}" data-testid="row-${id}"${failed ? ' data-tone="error"' : ''}>
   <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${id}"${checked ? ' checked' : ''} aria-label="Select ${id}" data-testid="cb-${id}"></td>
@@ -1439,7 +1439,7 @@ function beReasonTable(blocked) {
       .map((id) => `<a href="#row-${id}" data-testid="jump-${id}">${id} Product ${id}</a>`)
       .join(', ')}</td></tr>`)
     .join('');
-  return `<table class="hc-table"><thead><tr><th scope="col">理由</th><th scope="col">件数</th><th scope="col">対象</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return `<table class="hc-table"><thead><tr><th scope="col">Reason</th><th scope="col">Count</th><th scope="col">Rows</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function beSplit(ids) {
@@ -1473,15 +1473,15 @@ function handleBulkErrors(req, res, url) {
     res.statusCode = 200;
     res.setHeader('Content-Type', MIME['.html']);
     if (blocked.size === 0) {
-      res.end(beReport(`<p data-testid="preflight-ok">${ok.length} 件を実行します。</p>`));
+      res.end(beReport(`<p data-testid="preflight-ok">${ok.length} rows will be executed.</p>`));
       return true;
     }
     const excludeForm = ok.length
       ? `<form data-hx-post="/mock/bulk-errors/bulk" data-hx-target="#rows" data-hx-swap="innerHTML"><input type="hidden" name="action" value="post">${ok
           .map((id) => `<input type="hidden" name="ids" value="${id}">`)
-          .join('')}<button class="hc-button" type="submit" data-testid="exclude-run">${ids.length - ok.length} 件を除いて ${ok.length} 件を実行</button></form>`
-      : '<p data-testid="preflight-dead-end">実行できる行がありません。</p>';
-    res.end(beReport(`<p data-testid="preflight-summary">${ids.length} 件のうち ${ok.length} 件が実行可能</p>${beReasonTable(blocked)}${excludeForm}`));
+          .join('')}<button class="hc-button" type="submit" data-testid="exclude-run">Exclude ${ids.length - ok.length} and run ${ok.length}</button></form>`
+      : '<p data-testid="preflight-dead-end">No executable rows.</p>';
+    res.end(beReport(`<p data-testid="preflight-summary">${ok.length} of ${ids.length} rows are executable</p>${beReasonTable(blocked)}${excludeForm}`));
     return true;
   }
 
@@ -1500,12 +1500,12 @@ function handleBulkErrors(req, res, url) {
         // Refusal: unchanged rows, selection kept, refusal copy.
         res.statusCode = 409;
         res.end(`${BE_IDS.map((id) => beRow(id, { checked: ids.includes(id) })).join('\n')}
-${beReport(`<p data-testid="refusal"><strong>実行しませんでした。</strong></p>${beReasonTable(blocked)}`, { oob: true })}`);
+${beReport(`<p data-testid="refusal"><strong>Nothing was executed.</strong></p>${beReasonTable(blocked)}`, { oob: true })}`);
         return;
       }
       res.statusCode = 200;
       res.end(`${BE_IDS.map((id) => beRow(id, { status: ids.includes(id) ? 'Posted' : 'Active' })).join('\n')}
-${beReport('<p data-testid="posted">計上しました。</p>', { oob: true })}`);
+${beReport('<p data-testid="posted">Posted.</p>', { oob: true })}`);
       return;
     }
 
@@ -1516,8 +1516,8 @@ ${beReport('<p data-testid="posted">計上しました。</p>', { oob: true })}`
       return beRow(id, { failed, status: failed ? 'Active' : 'Archived' });
     }).join('\n');
     const inner = blocked.size
-      ? `<p data-testid="summary">${ok.length} 件成功 / ${ids.length - ok.length} 件失敗</p>${beReasonTable(blocked)}<p><a href="/mock/bulk-errors/items?f-last-result=failed" data-testid="filter-failed">失敗した行だけに絞り込む</a></p>`
-      : `<p data-testid="summary">${ok.length} 件をアーカイブしました。</p>`;
+      ? `<p data-testid="summary">${ok.length} succeeded / ${ids.length - ok.length} failed</p>${beReasonTable(blocked)}<p><a href="/mock/bulk-errors/items?f-last-result=failed" data-testid="filter-failed">Filter to the failed rows</a></p>`
+      : `<p data-testid="summary">${ok.length} rows archived.</p>`;
     res.end(`${rows}\n${beReport(inner, { oob: true })}`);
   });
   return true;

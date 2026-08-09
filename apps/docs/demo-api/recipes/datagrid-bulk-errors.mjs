@@ -35,8 +35,8 @@ const SHIPPED = new Set([102, 105, 108]);
 const NOT_YOURS = new Set([107]);
 
 function blockedReason(id) {
-  if (SHIPPED.has(id)) return '出荷済みのため変更できません';
-  if (NOT_YOURS.has(id)) return '権限がありません';
+  if (SHIPPED.has(id)) return 'Already shipped — cannot be changed';
+  if (NOT_YOURS.has(id)) return 'Not permitted';
   return null;
 }
 
@@ -48,7 +48,7 @@ function rowHtml(item, { failed = false, status = 'Active' } = {}) {
   const reason = failed ? blockedReason(item.id) : null;
   const cellAttrs = reason ? ` aria-describedby="${tooltipId(item.id)}"` : '';
   const tip = reason
-    ? `<span class="hc-tooltip" id="${tooltipId(item.id)}">${escapeHtml(reason)}</span> <a href="#bulk-errors-demo-report">詳細</a>`
+    ? `<span class="hc-tooltip" id="${tooltipId(item.id)}">${escapeHtml(reason)}</span> <a href="#bulk-errors-demo-report">Details</a>`
     : '';
   return `<tr class="hc-datagrid__row" id="bulk-errors-demo-row-${item.id}"${failed ? ' data-tone="error"' : ''}>
   <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${item.id}" aria-label="Select ${escapeHtml(item.name)}"></td>
@@ -85,12 +85,12 @@ function reasonTableHtml(blocked) {
             `<a href="#bulk-errors-demo-row-${id}">${id} Product ${id}</a>`,
         )
         .join(', ');
-      const rest = ids.length > CAP ? ` … <span>他 ${ids.length - CAP} 件</span>` : '';
+      const rest = ids.length > CAP ? ` … <span>and ${ids.length - CAP} more</span>` : '';
       return `<tr><th scope="row">${escapeHtml(reason)}</th><td data-numeric>${ids.length}</td><td>${named}${rest}</td></tr>`;
     })
     .join('\n');
   return `<table class="hc-table" data-density="compact">
-  <thead><tr><th scope="col">理由</th><th scope="col" data-numeric>件数</th><th scope="col">対象</th></tr></thead>
+  <thead><tr><th scope="col">Reason</th><th scope="col" data-numeric>Count</th><th scope="col">Rows</th></tr></thead>
   <tbody>${rows}</tbody>
 </table>`;
 }
@@ -118,17 +118,17 @@ export async function handle({ method, path, url, request }) {
     const { ok, blocked } = split(ids);
     if (ids.length === 0) {
       return html(
-        bulkReport('<p role="status">行を選択してください。</p>'),
+        bulkReport('<p role="status">Select rows first.</p>'),
       );
     }
     if (blocked.size === 0) {
       return html(
         bulkReport(`<div class="hc-alert" data-variant="info" role="status">
-  <p><strong>${ok.length} 件を実行します。</strong></p>
+  <p><strong>${ok.length} rows will be executed.</strong></p>
   <form data-hx-post="${API}/bulk" data-hx-target="#bulk-errors-demo-rows" data-hx-swap="innerHTML">
     <input type="hidden" name="action" value="post">
     ${ok.map((id) => `<input type="hidden" name="ids" value="${id}">`).join('')}
-    <button class="hc-button" data-variant="primary" type="submit">実行</button>
+    <button class="hc-button" data-variant="primary" type="submit">Run</button>
   </form>
 </div>`),
       );
@@ -138,12 +138,12 @@ export async function handle({ method, path, url, request }) {
       ? `<form data-hx-post="${API}/bulk" data-hx-target="#bulk-errors-demo-rows" data-hx-swap="innerHTML">
     <input type="hidden" name="action" value="post">
     ${ok.map((id) => `<input type="hidden" name="ids" value="${id}">`).join('')}
-    <button class="hc-button" data-variant="primary" type="submit">${blockedCount} 件を除いて ${ok.length} 件を実行</button>
+    <button class="hc-button" data-variant="primary" type="submit">Exclude ${blockedCount} and run ${ok.length}</button>
   </form>`
-      : '<p>実行できる行がありません。</p>';
+      : '<p>No executable rows.</p>';
     return html(
       bulkReport(`<div class="hc-alert" data-variant="warning" role="status">
-  <p><strong>${ids.length} 件のうち ${ok.length} 件が実行可能</strong>、${blockedCount} 件は不可です。</p>
+  <p><strong>${ok.length} of ${ids.length} rows are executable</strong>; ${blockedCount} are blocked.</p>
   ${reasonTableHtml(blocked)}
   ${excludeForm}
 </div>`),
@@ -172,13 +172,13 @@ export async function handle({ method, path, url, request }) {
       return html(
         `${rows}
 ${bulkReport(`<div class="hc-alert" data-variant="error" role="alert">
-  <p><strong>実行しませんでした。</strong>${blockedCount} 件が条件を満たさないため、${ids.length} 件すべてを取り消しました。</p>
+  <p><strong>Nothing was executed.</strong> ${blockedCount} of the ${ids.length} selected rows do not qualify, so the whole batch was rolled back.</p>
   ${reasonTableHtml(blocked)}
 </div>`, { oob: true })}`,
         {
           status: 409,
           headers: toastHeader(
-            `実行しませんでした（${blockedCount} 件が条件を満たしません）`,
+            `Nothing was executed (${blockedCount} rows do not qualify)`,
             'error',
           ),
         },
@@ -189,8 +189,8 @@ ${bulkReport(`<div class="hc-alert" data-variant="error" role="alert">
     ).join('\n');
     return html(
       `${rows}
-${bulkReport(`<p role="status">${ok.length} 件を計上しました。</p>`, { oob: true })}`,
-      { headers: toastHeader(`${ok.length} 件を計上しました`, 'success') },
+${bulkReport(`<p role="status">${ok.length} rows posted.</p>`, { oob: true })}`,
+      { headers: toastHeader(`${ok.length} rows posted`, 'success') },
     );
   }
 
@@ -204,21 +204,21 @@ ${bulkReport(`<p role="status">${ok.length} 件を計上しました。</p>`, { 
   if (blocked.size === 0) {
     return html(
       `${rows}
-${bulkReport(`<p role="status">${ok.length} 件をアーカイブしました。</p>`, { oob: true })}`,
-      { headers: toastHeader(`${ok.length} 件をアーカイブしました`, 'success') },
+${bulkReport(`<p role="status">${ok.length} rows archived.</p>`, { oob: true })}`,
+      { headers: toastHeader(`${ok.length} rows archived`, 'success') },
     );
   }
   const failedCount = ids.length - ok.length;
   return html(
     `${rows}
 ${bulkReport(`<div class="hc-alert" data-variant="warning" role="status">
-  <p><strong>${ok.length} 件成功 / ${failedCount} 件失敗</strong>（対象 ${ids.length} 件）</p>
+  <p><strong>${ok.length} succeeded / ${failedCount} failed</strong> (of ${ids.length} selected)</p>
   ${reasonTableHtml(blocked)}
-  <p><a href="${API}/items?f-last-result=failed">失敗した行だけに絞り込む</a></p>
+  <p><a href="${API}/items?f-last-result=failed">Filter to the failed rows</a></p>
 </div>`, { oob: true })}`,
     {
       headers: toastHeader(
-        `${ok.length} 件成功 / ${failedCount} 件失敗`,
+        `${ok.length} succeeded / ${failedCount} failed`,
         'warning',
       ),
     },
