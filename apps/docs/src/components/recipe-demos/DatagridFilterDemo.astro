@@ -1,0 +1,52 @@
+---
+/*
+ * Live demo for the datagrid-filter recipe. Same shape as
+ * recipes/datagrid-filter/recipe.html, pointed at the demo API
+ * namespace (a real app would use its own grid URL such as `/items`).
+ * The grid wrapper loads unfiltered on first paint; Apply GETs the same
+ * URL with repeated f-status= params, and the server answers the grid
+ * fragment (the trigger rides in its header, data-filtered when
+ * active) plus an out-of-band re-render of the fieldset with matching
+ * checked states — no client-side filtering.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-filter`;
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid filter demo">
+  <div
+    class="hc-datagrid"
+    id="datagrid-filter-demo-grid"
+    data-hx-get={`${api}/items`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+
+  <div id="datagrid-filter-demo-popover" class="hc-popover" popover>
+    <form
+      action={`${api}/items`}
+      method="get"
+      data-hx-get={`${api}/items`}
+      data-hx-target="#datagrid-filter-demo-grid"
+      data-hc-close-popover-on-success>
+      <fieldset class="hc-popover__body" id="datagrid-filter-demo-fields">
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="f-status" value="active" />
+          Active
+        </label>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="f-status" value="pending" />
+          Pending
+        </label>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="f-status" value="failed" />
+          Failed
+        </label>
+      </fieldset>
+      <footer class="hc-popover__footer">
+        <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+      </footer>
+    </form>
+  </div>
+</DemoFrame>

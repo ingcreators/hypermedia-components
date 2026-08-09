@@ -28,6 +28,7 @@ import * as csvImport from './recipes/csv-import.mjs';
 import * as dataRegion from './recipes/data-region.mjs';
 import * as datagridBulkActions from './recipes/datagrid-bulk-actions.mjs';
 import * as datagridColumns from './recipes/datagrid-columns.mjs';
+import * as datagridFilter from './recipes/datagrid-filter.mjs';
 import * as datagridInfinite from './recipes/datagrid-infinite.mjs';
 import * as datagridPager from './recipes/datagrid-pager.mjs';
 import * as editConflict from './recipes/edit-conflict.mjs';
@@ -61,6 +62,7 @@ const RECIPES = new Map([
   ['data-region', dataRegion],
   ['datagrid-bulk-actions', datagridBulkActions],
   ['datagrid-columns', datagridColumns],
+  ['datagrid-filter', datagridFilter],
   ['datagrid-infinite', datagridInfinite],
   ['datagrid-pager', datagridPager],
   ['edit-conflict', editConflict],

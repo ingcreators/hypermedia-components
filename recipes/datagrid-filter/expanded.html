@@ -1,0 +1,61 @@
+<!-- Expanded state: Apply answered for f-status=active.
+
+  The grid wrapper's innerHTML was replaced with only the Active rows.
+  The trigger button lives in the header, so the fragment itself brings
+  it back — now data-filtered + an aria-label naming the active filter,
+  upgraded to the primary variant so the filtered column is visible at
+  a glance. The same response carried the form's fieldset out of band
+  (same id, checked states matching the request). Unchecking everything
+  sends no f-status at all — the absent-params branch — and the
+  unfiltered grid comes back with the plain trigger. -->
+<div class="hc-datagrid" id="items-grid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col">
+            Status
+            <button class="hc-button" data-variant="primary" data-size="sm"
+                    type="button" id="filter-status-trigger"
+                    popovertarget="filter-status-popover" data-filtered
+                    aria-label="Filter Status — active: Active">Filter</button>
+          </th>
+          <th class="hc-datagrid__headcell" scope="col">Owner</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Ingest pipeline</td>
+          <td class="hc-datagrid__cell">Active</td>
+          <td class="hc-datagrid__cell">Ada</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="filter-status-popover" class="hc-popover" popover>
+  <form id="filter-status-form" action="/items" method="get"
+        data-hx-get="/items"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <fieldset class="hc-popover__body" id="filter-status-fields">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="f-status" value="active" checked>
+        Active
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="f-status" value="pending">
+        Pending
+      </label>
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="f-status" value="failed">
+        Failed
+      </label>
+    </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>

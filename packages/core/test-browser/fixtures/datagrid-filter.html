@@ -1,0 +1,58 @@
+<!doctype html>
+<!-- Fixture for the datagrid-filter recipe — a filter-popover off the
+     Status header's trigger button + a server-rendered hc-datagrid
+     against the serve.mjs mock. Pins: Apply GETting repeated f-status=
+     params, the grid re-render with only matching rows and the trigger
+     riding back data-filtered inside the fragment, the OOB fieldset
+     re-render with matching checked states (and the popover closing on
+     success), and the absent-params unfiltered branch. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid-filter fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Datagrid filter</h1>
+
+    <!-- Initial render = the unfiltered grid (the server's no-params branch). -->
+    <div class="hc-datagrid" id="items-grid" data-testid="grid"
+         data-hx-get="/mock/datagrid-filter/items"
+         data-hx-trigger="load"
+         data-hx-swap="innerHTML">
+    </div>
+
+    <div id="filter-status-popover" class="hc-popover" popover>
+      <form id="filter-status-form" action="/mock/datagrid-filter/items" method="get"
+            data-hx-get="/mock/datagrid-filter/items"
+            data-hx-target="#items-grid"
+            data-hc-close-popover-on-success
+            data-testid="filter-form">
+        <fieldset class="hc-popover__body" id="filter-status-fields" data-testid="filter-fields">
+          <label class="hc-checkbox-label">
+            <input class="hc-checkbox" type="checkbox" name="f-status" value="active" data-testid="cb-active">
+            Active
+          </label>
+          <label class="hc-checkbox-label">
+            <input class="hc-checkbox" type="checkbox" name="f-status" value="pending" data-testid="cb-pending">
+            Pending
+          </label>
+          <label class="hc-checkbox-label">
+            <input class="hc-checkbox" type="checkbox" name="f-status" value="failed" data-testid="cb-failed">
+            Failed
+          </label>
+        </fieldset>
+        <footer class="hc-popover__footer">
+          <button class="hc-button" type="submit" data-variant="primary"
+                  data-testid="apply">Apply</button>
+        </footer>
+      </form>
+    </div>
+  </main>
+</body>
+</html>

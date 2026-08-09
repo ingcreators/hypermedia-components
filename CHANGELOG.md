@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `datagrid-filter` — per-column filter entry for the
+  datagrid (`plans/hc-datagrid-enrichment-plan-en.md` §1.5). A
+  filter-popover off a header cell's trigger button GETs the grid URL
+  with namespaced `f-<col>` params; the server re-renders the grid
+  filtered (the trigger rides back inside the fragment, `data-filtered`
+  + an `aria-label` naming the active values) plus an OOB re-render of
+  the form's fieldset with matching checked states. Filters compose
+  across columns via server-rendered hidden `f-<col>` inputs. Zero new
+  JavaScript; machine-checked contract; live docs demo (en/ja).
+
 - **datagrid**: sticky aggregate footer and trailing frozen columns
   (`plans/hc-datagrid-enrichment-plan-en.md` §1.3). A
   `<tfoot class="hc-datagrid__foot">` pins to the bottom of the scroll

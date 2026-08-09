@@ -1,0 +1,125 @@
+---
+title: Datagrid filter
+description: Per-column filter entry for hc-datagrid — a popover form of namespaced f-<col> params GETs the grid URL, and the server re-renders the grid filtered with the trigger marked data-filtered.
+---
+
+import DatagridFilterDemo from '../../../components/recipe-demos/DatagridFilterDemo.astro';
+
+Per-column filtering, spreadsheet-style, kept hypermedia: a filter
+button in the header cell opens a
+[filter-popover](/hypermedia-components/recipes/filter-popover/) shell
+whose controls are namespaced **`f-<col>`**; **Apply** GETs the grid
+URL with repeated `f-status=` params, and the server re-renders the
+whole [datagrid](/hypermedia-components/components/datagrid/) filtered.
+No client-side filtering: one round trip, zero state drift, and
+print/export match the screen. Zero new JavaScript. Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add datagrid-filter
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-filter/contract.md).
+:::
+
+## Live demo
+
+Open **Filter** in the Status header, check a status or two, **Apply**
+— the server answers only the matching rows, the trigger comes back
+`data-filtered` (primary variant, `aria-label` naming the active
+values), and the popover's checked states follow out of band. Uncheck
+everything to see the absent-params branch bring the full list back.
+
+<DatagridFilterDemo />
+
+## The markup
+
+```html
+<div class="hc-datagrid" id="items-grid">
+  <!-- server-rendered: .hc-datagrid__scroll > table; the Status header
+       cell holds the filter trigger -->
+  <!--
+  <th class="hc-datagrid__headcell" scope="col">
+    Status
+    <button class="hc-button" data-variant="ghost" data-size="sm"
+            type="button" id="filter-status-trigger"
+            popovertarget="filter-status-popover"
+            aria-label="Filter Status">Filter</button>
+  </th>
+  -->
+</div>
+
+<div id="filter-status-popover" class="hc-popover" popover>
+  <form id="filter-status-form" action="/items" method="get"
+        data-hx-get="/items"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <fieldset class="hc-popover__body" id="filter-status-fields">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="f-status" value="active">
+        Active
+      </label>
+      <!-- …one checkbox per distinct value… -->
+    </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>
+```
+
+The form is the filter-popover shell —
+`data-hc-close-popover-on-success` (`installClosePopover()`,
+auto-installed) dismisses it on any 2xx. Every control shares the
+column's namespaced name (`f-status`), so Apply serializes repeated
+`f-status=` params, and the form targets the **grid wrapper**
+(`innerHTML` default) — the trigger's filtered state lives in the
+header, so header and rows must change together.
+
+## Server response contract
+
+`GET /items?f-status=active&…`:
+
+| Case | Response (200) |
+| --- | --- |
+| any `f-<col>` set | the grid fragment with only matching rows; the header trigger renders **`data-filtered`** with an `aria-label` naming the active values; plus an OOB `outerHTML` re-render of the form's **fieldset** with matching checked states (never the form — it carries `data-hc-close-popover-on-success` and must survive the request) |
+| empty/absent `f-<col>` | the unfiltered grid — an all-unchecked Apply serializes no params, so it lands here; the trigger renders plain |
+| unknown value | ignored (the server is the schema); nothing recognized falls back to unfiltered |
+
+**Filters compose across columns**: each column's form carries the
+*other* columns' active filters as server-rendered hidden `f-<col>`
+inputs, so applying one filter preserves the rest. The querystring is
+the whole filter state — name it with
+[saved-views](/hypermedia-components/recipes/saved-views/) for
+one-click recall, and page links keep their `f-<col>` params so
+[paging](/hypermedia-components/recipes/datagrid-pager/) preserves the
+filter.
+
+## Progressive enhancement
+
+The filter is a real GET form (`action` + `method="get"`): without
+JavaScript, Apply navigates to `/items?f-status=…` and the server
+renders the full page filtered. The grid itself is server-rendered
+HTML — filtering never depends on client JavaScript.
+
+## Accessibility
+
+- Native checkboxes with visible labels (`hc-checkbox-label`) — the
+  filter is a plain form; no menu semantics to fake.
+- The trigger's `aria-label` names the column and, when filtered, the
+  active values — the state is announced, not just tinted.
+- Closing the popover on success returns focus to the trigger button
+  (native popover behavior).
+
+## Related
+
+- [filter-popover](/hypermedia-components/recipes/filter-popover/) —
+  the shell this filter reuses.
+- [datagrid-columns](/hypermedia-components/recipes/datagrid-columns/) —
+  the same pattern for column choice (`cols=` params).
+- [saved-views](/hypermedia-components/recipes/saved-views/) — name the
+  resulting querystring for one-click recall.
+- [Datagrid](/hypermedia-components/components/datagrid/) — the
+  component's CSS API this recipe renders into.
