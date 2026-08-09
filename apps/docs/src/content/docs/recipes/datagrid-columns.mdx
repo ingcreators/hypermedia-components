@@ -28,7 +28,7 @@ Ships `recipe.html`, `expanded.html`, and the machine-checked
 ## Live demo
 
 Open **Columns**, uncheck a few, **Apply** — the server answers the
-grid with exactly those columns (in its canonical order) plus the
+grid with exactly those columns (in the submitted order) plus the
 chooser re-rendered out of band with matching checked states. Uncheck
 everything to see the absent-params branch bring the default set back.
 
@@ -78,13 +78,15 @@ out-of-band swap anchor for the re-rendered checked states.
 
 | Case | Response (200) |
 | --- | --- |
-| any `cols` set | the grid fragment with **exactly those columns, in the server's canonical order**, plus an OOB `outerHTML` re-render of the chooser **fieldset** with matching checked states (never the form — it carries `data-hc-close-popover-on-success` and must survive the request) |
+| any `cols` set | the grid fragment with **exactly those columns, in the submitted order** (the [datagrid-prefs](/hypermedia-components/recipes/datagrid-prefs/) upgrade), plus an OOB `outerHTML` re-render of the chooser **fieldset** with matching checked states (never the form — it carries `data-hc-close-popover-on-success` and must survive the request) |
 | empty/absent `cols` | the server's default column set — an all-unchecked Apply serializes no `cols` at all, so it lands here |
 | unknown col name | ignored (the server is the schema); nothing recognized falls back to the default set |
 
-The requested *set* wins; the requested *order* does not — reordering
-is the server's canonical order, and persisting the choice per user is
-the server's option. A CSV export needs no recipe either:
+The requested *set* wins — and, since the
+[datagrid-prefs](/hypermedia-components/recipes/datagrid-prefs/)
+upgrade, so does the submitted *sequence* (a sortable chooser
+serializes its DOM order). Persisting the choice per user is the
+server's option. A CSV export needs no recipe either:
 `<a href="/items.csv?cols=…">` reuses the same params, so the file
 matches the screen.
 

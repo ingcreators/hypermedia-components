@@ -37,10 +37,14 @@ const ITEMS = [
   { name: 'Legacy sync', status: 'Failed', owner: 'Mary', updated: '2026-07-28' },
 ];
 
-/** Requested columns → the canonical subset (default: all). */
+/** Requested columns → the known subset IN THE SUBMITTED ORDER
+ * (default: all, canonical order). The datagrid-prefs upgrade: a
+ * sortable chooser serializes its DOM order, and the server honors it. */
 function selectColumns(requested) {
-  const wanted = new Set(requested);
-  const selected = COLUMNS.filter((col) => wanted.has(col.key));
+  const byKey = new Map(COLUMNS.map((col) => [col.key, col]));
+  const selected = [...new Set(requested)]
+    .map((key) => byKey.get(key))
+    .filter(Boolean);
   return selected.length > 0 ? selected : COLUMNS;
 }
 
@@ -55,12 +59,19 @@ function selectColumns(requested) {
 // target).
 function fieldsHtml(selected, { oob = false } = {}) {
   const shown = new Set(selected.map((col) => col.key));
-  const boxes = COLUMNS.map(
+  // Chosen columns first, in their chosen order — the sortable chooser
+  // mirrors the grid, and checkbox serialization follows DOM order
+  // (the datagrid-prefs order upgrade).
+  const ordered = [
+    ...selected,
+    ...COLUMNS.filter((col) => !shown.has(col.key)),
+  ];
+  const boxes = ordered.map(
     (col) =>
-      `<label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" name="cols" value="${col.key}"${shown.has(col.key) ? ' checked' : ''}> ${escapeHtml(col.label)}</label>`,
+      `<label class="hc-checkbox-label"><button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button><input class="hc-checkbox" type="checkbox" name="cols" value="${col.key}"${shown.has(col.key) ? ' checked' : ''}> ${escapeHtml(col.label)}</label>`,
   ).join('\n  ');
   const oobAttr = oob ? ' data-hx-swap-oob="outerHTML"' : '';
-  return `<fieldset class="hc-popover__body" id="${FIELDS_ID}"${oobAttr}>
+  return `<fieldset class="hc-popover__body" id="${FIELDS_ID}" data-hc-sortable${oobAttr}>
   ${boxes}
   </fieldset>`;
 }

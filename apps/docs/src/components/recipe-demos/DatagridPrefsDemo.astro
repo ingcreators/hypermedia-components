@@ -1,0 +1,54 @@
+---
+/*
+ * Live demo for the datagrid-prefs recipe (widths wire). Drag the Name
+ * or Status column's resize grip: installDatagrid() mirrors the
+ * committed width into the hidden w-<col> inputs before dispatching
+ * hc:datagridcolumnresize, and the debounced form autosaves them — the
+ * status line shows what the server would persist per user (and render
+ * back as inline widths on later loads).
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-prefs`;
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid prefs demo">
+  <div class="hc-datagrid" id="datagrid-prefs-demo-grid" style="max-inline-size: 480px;">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-resizable data-col="name" scope="col" style="width: 180px;">Name</th>
+            <th class="hc-datagrid__headcell" data-resizable data-col="status" scope="col" style="width: 120px;">Status</th>
+            <th class="hc-datagrid__headcell" scope="col">Owner</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-col="name">Ingest pipeline</td>
+            <td class="hc-datagrid__cell" data-col="status">Active</td>
+            <td class="hc-datagrid__cell">Ada</td>
+          </tr>
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell" data-col="name">Billing export</td>
+            <td class="hc-datagrid__cell" data-col="status">Pending</td>
+            <td class="hc-datagrid__cell">Alan</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <form
+    action={`${api}/prefs/columns`}
+    method="post"
+    data-hx-post={`${api}/prefs/columns`}
+    data-hx-trigger="hc:datagridcolumnresize from:body delay:500ms"
+    data-hx-include="this"
+    data-hx-target="#datagrid-prefs-demo-status"
+    data-hx-swap="innerHTML">
+    <input type="hidden" name="w-name" data-hc-datagrid-width="name" />
+    <input type="hidden" name="w-status" data-hc-datagrid-width="status" />
+    <p id="datagrid-prefs-demo-status" role="status">Resize a column to save its width.</p>
+  </form>
+</DemoFrame>

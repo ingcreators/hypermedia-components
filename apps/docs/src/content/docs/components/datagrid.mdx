@@ -284,9 +284,15 @@ content-based width.
 ```
 
 On each change the grid dispatches **`hc:datagridcolumnresize`**
-(`detail: { col, width }`) — persist the width with htmx or `localStorage`
-and write it back as the column's cell widths on the next render. The grip
-is a keyboard-operable `role="separator"` with `aria-valuenow`; it is a
+(`detail: { col, width }`) — and, **before** dispatching, mirrors the
+committed width into any
+`input[data-hc-datagrid-width="<col>"]` (in the grid's closest `<form>`,
+else document-wide), so an event-triggered htmx request serializes the
+fresh value. The
+[datagrid-prefs recipe](/hypermedia-components/recipes/datagrid-prefs/)
+turns that into per-user persistence; the server renders remembered
+widths back as inline widths + `data-resized`. The grip is a
+keyboard-operable `role="separator"` with `aria-valuenow`; it is a
 JS-generated element with the class `hc-datagrid__resizer`, which you can
 restyle like any other part class.
 

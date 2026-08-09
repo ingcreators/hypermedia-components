@@ -1002,6 +1002,22 @@ describe('installDatagrid — column resize', () => {
     expect(onResize.mock.calls.at(-1)[0]).toMatchObject({ col: 'name', width: 40 });
   });
 
+  it('mirrors the committed width into declared prefs inputs before the event', () => {
+    document.body.innerHTML =
+      FIXTURE_RESIZE +
+      '<form id="prefs"><input type="hidden" name="w-name" data-hc-datagrid-width="name"></form>';
+    uninstall = installDatagrid();
+    let valueAtDispatch = null;
+    $('grid').addEventListener('hc:datagridcolumnresize', () => {
+      valueAtDispatch = document.querySelector('[data-hc-datagrid-width="name"]').value;
+    });
+    const handle = $('h-name').querySelector('.hc-datagrid__resizer');
+    press(handle, 'ArrowRight');
+    // jsdom widths are 0 → clamps to the 40px minimum.
+    expect(document.querySelector('[data-hc-datagrid-width="name"]').value).toBe('40');
+    expect(valueAtDispatch).toBe('40'); // fresh before htmx serializes
+  });
+
   it('does not duplicate handles on repeated install', () => {
     document.body.innerHTML = FIXTURE_RESIZE;
     installDatagrid();

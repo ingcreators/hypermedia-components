@@ -1,0 +1,52 @@
+<!doctype html>
+<!-- Fixture for the datagrid-prefs recipe (widths wire) — a resizable
+     grid + the mirrored-inputs autosave form against the serve.mjs
+     mock. Pins: the mirror happening before hc:datagridcolumnresize
+     (the debounced event-triggered POST serializes the fresh value)
+     and the status fragment answer. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid-prefs fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Datagrid prefs</h1>
+
+    <div class="hc-datagrid" data-testid="grid" style="max-inline-size: 480px;">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" data-resizable data-col="name"
+                  scope="col" style="width: 160px;" data-testid="h-name">Name</th>
+              <th class="hc-datagrid__headcell" scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <tr class="hc-datagrid__row">
+              <td class="hc-datagrid__cell" data-col="name">Ingest pipeline</td>
+              <td class="hc-datagrid__cell">Active</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <form action="/mock/datagrid-prefs/columns" method="post"
+          data-hx-post="/mock/datagrid-prefs/columns"
+          data-hx-trigger="hc:datagridcolumnresize from:body delay:100ms"
+          data-hx-include="this"
+          data-hx-target="#prefs-status" data-hx-swap="innerHTML"
+          data-testid="prefs-form">
+      <input type="hidden" name="w-name" data-hc-datagrid-width="name" data-testid="w-name">
+      <p id="prefs-status" role="status" data-testid="status">Resize a column to save its width.</p>
+    </form>
+  </main>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!-- Expanded state: the Name column was resized to 220px and saved.
+
+  installDatagrid() wrote 220 into the mirrored input BEFORE
+  dispatching hc:datagridcolumnresize; the debounced form POSTed
+  w-name=220&w-status=… and the server answered the status fragment.
+  On the NEXT full load the server renders the remembered width back
+  as an inline width + data-resized on the column's cells — the width
+  is a server-rendered fact, so print/export and other sessions agree
+  with the screen. -->
+<div class="hc-datagrid" id="items-grid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" data-resizable data-col="name"
+              scope="col" data-resized style="inline-size: 220px; max-inline-size: 220px;">Name</th>
+          <th class="hc-datagrid__headcell" data-resizable data-col="status"
+              scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell" data-col="name" data-resized
+              style="inline-size: 220px; max-inline-size: 220px;">Ingest pipeline</td>
+          <td class="hc-datagrid__cell" data-col="status">Active</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<form action="/prefs/columns" method="post"
+      data-hx-post="/prefs/columns"
+      data-hx-trigger="hc:datagridcolumnresize from:body delay:500ms"
+      data-hx-include="this"
+      data-hx-target="#prefs-status" data-hx-swap="innerHTML">
+  <input type="hidden" name="w-name" value="220" data-hc-datagrid-width="name">
+  <input type="hidden" name="w-status" data-hc-datagrid-width="status">
+  <div id="prefs-status" role="status" class="hc-visually-hidden">Saved</div>
+</form>

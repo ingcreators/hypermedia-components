@@ -38,7 +38,7 @@ describe('datagrid-columns demo API', () => {
     expect(body).not.toContain('value="updated" checked');
   });
 
-  it('renders the server canonical order regardless of the requested order', async () => {
+  it('renders the columns in the submitted order (datagrid-prefs upgrade)', async () => {
     const body = await (
       await call(datagridColumns, 'GET', '/items?cols=updated&cols=name')
     ).text();
@@ -46,7 +46,7 @@ describe('datagrid-columns demo API', () => {
     const updated = body.indexOf('scope="col">Updated</th>');
     expect(name).toBeGreaterThan(-1);
     expect(updated).toBeGreaterThan(-1);
-    expect(name).toBeLessThan(updated);
+    expect(updated).toBeLessThan(name); // submitted sequence wins
   });
 
   it('ignores unknown col names — the server is the schema', async () => {

@@ -1,0 +1,75 @@
+<!-- Short recommended usage.
+
+  Column preferences, persisted the hypermedia way. Two wires:
+
+  1. WIDTHS — installDatagrid() mirrors every committed column resize
+     into any input[data-hc-datagrid-width="<col>"] BEFORE dispatching
+     hc:datagridcolumnresize; a small form autosaves it (debounced
+     event trigger, data-hx-include="this"). The server persists and
+     answers a status fragment, and renders remembered widths back as
+     inline widths + data-resized on later loads — the width is a
+     server-rendered fact, not client state.
+
+  2. ORDER — the datagrid-columns chooser upgraded with
+     installSortable(): each label is a sortable item (checkbox
+     serialization follows DOM order), and the server treats the
+     submitted cols= sequence as the column ORDER (the upgraded
+     datagrid-columns contract). Zero custom JS; see contract.md. -->
+<div class="hc-datagrid" id="items-grid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" data-resizable data-col="name"
+              scope="col">Name</th>
+          <th class="hc-datagrid__headcell" data-resizable data-col="status"
+              scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell" data-col="name">Ingest pipeline</td>
+          <td class="hc-datagrid__cell" data-col="status">Active</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Widths: mirrored inputs + debounced autosave on the resize event. -->
+<form action="/prefs/columns" method="post"
+      data-hx-post="/prefs/columns"
+      data-hx-trigger="hc:datagridcolumnresize from:body delay:500ms"
+      data-hx-include="this"
+      data-hx-target="#prefs-status" data-hx-swap="innerHTML">
+  <input type="hidden" name="w-name" data-hc-datagrid-width="name">
+  <input type="hidden" name="w-status" data-hc-datagrid-width="status">
+  <div id="prefs-status" role="status" class="hc-visually-hidden"></div>
+</form>
+
+<!-- Order: the datagrid-columns chooser, sortable — the submitted cols=
+     sequence IS the column order (upgraded datagrid-columns contract). -->
+<div id="cols-popover" class="hc-popover" popover>
+  <form id="cols-chooser" action="/items" method="get"
+        data-hx-get="/items"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <fieldset class="hc-popover__body" id="cols-fields" data-hc-sortable>
+      <label class="hc-checkbox-label">
+        <button type="button" class="hc-button" data-variant="ghost"
+                data-hc-sortable-handle>⠿</button>
+        <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+        Name
+      </label>
+      <label class="hc-checkbox-label">
+        <button type="button" class="hc-button" data-variant="ghost"
+                data-hc-sortable-handle>⠿</button>
+        <input class="hc-checkbox" type="checkbox" name="cols" value="status" checked>
+        Status
+      </label>
+    </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>

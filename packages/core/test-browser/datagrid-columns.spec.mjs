@@ -59,6 +59,27 @@ test.describe('datagrid-columns recipe', () => {
     await expect(page.getByTestId('cb-owner')).toBeChecked();
   });
 
+  test('reordering the chooser reorders the grid (submitted order wins)', async ({ page }) => {
+    await page.getByTestId('open').click();
+    // Keyboard grammar: grab the Status handle, move it above Name, drop.
+    const handle = page.getByTestId('handle-status');
+    await handle.focus();
+    await page.keyboard.press('Space'); // grab
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('Space'); // drop
+    await page.getByTestId('apply').click();
+    await expect(page.getByTestId('grid').locator('.hc-datagrid__headcell')).toHaveText([
+      'Status',
+      'Name',
+      'Owner',
+      'Updated',
+    ]);
+    // The OOB chooser mirrors the new order too.
+    await page.getByTestId('open').click();
+    const first = page.getByTestId('chooser-fields').locator('label').first();
+    await expect(first).toContainText('Status');
+  });
+
   test('no axe violations, including with the chooser open', async ({ page }) => {
     await page.getByTestId('open').click();
     await expect(page.getByTestId('chooser')).toBeVisible();

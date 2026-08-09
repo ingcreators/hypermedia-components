@@ -1,0 +1,36 @@
+{
+  "detect": "form:has(input[data-hc-datagrid-width])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "width-inputs-named",
+      "level": "error",
+      "message": "Every mirrored width input needs a name (w-<col>) — the autosave serializes it.",
+      "attr": { "on": "input[data-hc-datagrid-width]", "name": "name", "assert": "present" }
+    },
+    {
+      "id": "saves-are-posts",
+      "level": "error",
+      "message": "Persisting a preference is a mutation — the prefs form POSTs (data-hx-post).",
+      "attr": { "on": "form", "name": "data-hx-post", "assert": "present" }
+    },
+    {
+      "id": "triggered-by-resize",
+      "level": "error",
+      "message": "Autosave rides the resize event: data-hx-trigger must listen for hc:datagridcolumnresize (debounced).",
+      "attr": { "on": "form", "name": "data-hx-trigger", "assert": "present", "matches": "hc:datagridcolumnresize" }
+    },
+    {
+      "id": "includes-self",
+      "level": "warn",
+      "message": "data-hx-include=\"this\" keeps the request to the mirrored inputs — the grid itself is not a form payload.",
+      "attr": { "on": "form", "name": "data-hx-include", "assert": "present", "value": "this" }
+    },
+    {
+      "id": "status-region",
+      "level": "warn",
+      "message": "Announce saves: target a role=\"status\" fragment.",
+      "exists": { "selector": "[role=\"status\"]" }
+    }
+  ]
+}

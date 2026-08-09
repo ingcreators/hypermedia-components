@@ -30,20 +30,24 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
       data-hx-get={`${api}/items`}
       data-hx-target="#datagrid-columns-demo-grid"
       data-hc-close-popover-on-success>
-      <fieldset class="hc-popover__body" id="datagrid-columns-demo-fields">
+      <fieldset class="hc-popover__body" id="datagrid-columns-demo-fields" data-hc-sortable>
       <label class="hc-checkbox-label">
+        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button>
         <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked />
         Name
       </label>
       <label class="hc-checkbox-label">
+        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button>
         <input class="hc-checkbox" type="checkbox" name="cols" value="status" checked />
         Status
       </label>
       <label class="hc-checkbox-label">
+        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button>
         <input class="hc-checkbox" type="checkbox" name="cols" value="owner" checked />
         Owner
       </label>
       <label class="hc-checkbox-label">
+        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button>
         <input class="hc-checkbox" type="checkbox" name="cols" value="updated" checked />
         Updated
       </label>
