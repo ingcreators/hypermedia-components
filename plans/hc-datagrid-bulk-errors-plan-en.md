@@ -1,7 +1,11 @@
 # datagrid-bulk-errors — execution semantics, refusal, and errors at scale
 
-Status: **plan approved 2026-08-09 — implementation PRs follow, one theme
-per PR, sequential (no stacking).**
+Status: **shipped in full 2026-08-09 — plan #506, fragment navigation +
+the error-tooltip carve-out #507, the recipe #508 (which also corrected
+the datagrid-bulk-actions selection-clearing rule). Assembly note worth
+keeping: the report rides a `<tbody>`-targeted response, so the OOB unit
+must be wrapped in `<template>` — otherwise the browser's table parsing
+foster-parents the `<div>` and mangles the nested report table.**
 
 Follow-up to [datagrid-edit-feedback](hc-datagrid-edit-feedback-plan-en.md)
 (#500–#504), which closed the feedback loop for editing **one cell**.

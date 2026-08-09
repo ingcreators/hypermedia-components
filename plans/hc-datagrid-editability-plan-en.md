@@ -1,7 +1,10 @@
 # datagrid-editability — telling the three cell states apart
 
-Status: **plan approved 2026-08-09 — implementation PRs follow, one theme
-per PR, sequential (no stacking).**
+Status: **shipped in full 2026-08-09 — plan #509, derived ARIA +
+affordance + the mid-edit swap fix #510 (themes 2 and 3 shipped
+together). Assembly note: grid-level `aria-readonly` belongs on the
+`<table>` (which carries `role="grid"`), never on the wrapper `<div>` —
+aria-* on a roleless element fails axe's `aria-allowed-attr`.**
 
 A user looking at a business grid needs to know three things about a
 cell before touching it: **can I edit this**, **must it have a value**,
