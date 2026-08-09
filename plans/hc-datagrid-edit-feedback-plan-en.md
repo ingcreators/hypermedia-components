@@ -63,7 +63,7 @@ what clears `data-pending` for free.
 ### 1.2 `datagrid-edit-errors` — the 422 wire (recipe, zero new JS)
 
 Persistence wiring on the row:
-`data-hx-patch="/items/:id" data-hx-trigger="hc:datagridedit from:this"
+`data-hx-patch="/items/:id" data-hx-trigger="hc:datagridedit"
 data-hx-vals='js:{ col: event.detail.col, value: event.detail.value }'
 data-hx-swap="outerHTML"` (the `js:` vals form is the component docs'
 existing blessing; the contract notes the hidden-input alternative for

@@ -22,6 +22,28 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `datagrid-edit-errors` — the 422 wire for datagrid
+  inline editing (`plans/hc-datagrid-edit-feedback-plan-en.md` §1.2).
+  Each row is its own record `<tbody>` carrying the persistence wiring
+  (`hc:datagridedit` → PATCH → `outerHTML`); `200` answers
+  the record with the row alone (server formatting confirms the
+  optimistic commit and clears `data-pending`), `422` answers the
+  record with the server's value restored, the cell marked
+  `data-invalid` + aria wiring, and the `__error-row` naming the
+  rejected input — one atomic swap unit, no stale error rows.
+  Machine-checked contract; live docs demo (en/ja).
+
+### Fixed
+
+- **datagrid**: `hc:datagridedit` now dispatches from the **edited
+  cell** (bubbling through row → record → grid) instead of the grid
+  element — per-record htmx wiring can finally hear only its own
+  edits; grid-, body- and document-level listeners are unaffected by
+  the bubble. Record-tbody swaps (the edit-errors contract's unit) now
+  trigger the structural rebuild too: the behavior additionally
+  observes the table's children, so swapped-in records get roles, the
+  navigation matrix, and editing wired without a full grid swap.
+
 - **datagrid**: inline-edit lifecycle states
   (`plans/hc-datagrid-edit-feedback-plan-en.md` §1.1). With
   `data-hc-datagrid-pending` on the grid wrapper, a changed commit

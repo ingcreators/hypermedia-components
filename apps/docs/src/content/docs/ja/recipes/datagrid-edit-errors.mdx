@@ -1,0 +1,119 @@
+---
+title: データグリッドの編集エラー
+description: データグリッドインライン編集の 422 ワイヤ — 各行が自分のレコード tbody なので、拒否は行＋エラーメッセージをアトミックに再描画し、成功は同じくアトミックにエラーを取り除きます。
+---
+
+import DatagridEditErrorsDemo from '../../../../components/recipe-demos/DatagridEditErrorsDemo.astro';
+
+[データグリッド](/hypermedia-components/ja/components/datagrid/)の
+インラインコミットは**楽観的**です — このレシピは、サーバーにしか
+判定できない値のためにそのフィードバックループを閉じます。各行は
+永続化ワイヤリングを運ぶ**レコード `<tbody>`** で、サーバーの応答は
+そのレコードを再描画します: `200` は行だけで確定、**`422`** は行
+(サーバーの値に復元、セルは `data-invalid`)*と*
+`.hc-datagrid__error-row` のメッセージを一緒に持ってきます — 1 つの
+アトミックなスワップ単位なので、古いエラーが取り残されることは
+ありません。
+[バージョニングポリシー](/hypermedia-components/ja/reference/versioning/)の
+対象です。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add datagrid-edit-errors
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`・`expanded.html` と機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-edit-errors/contract.md)が入ります。
+:::
+
+## ライブデモ
+
+**Price** セルをダブルクリック(またはフォーカスして
+<kbd>Enter</kbd>)し、`abc` をコミットしてください — セルは保存中
+状態を見せた後、エラーリングつきでサーバーの値に戻り、メッセージが
+拒否された入力を名指しします。0 より大きい数値をコミットすると
+`200` ブランチが確定してクリアします。
+
+<DatagridEditErrorsDemo />
+
+## マークアップ
+
+```html
+<div class="hc-datagrid" id="items-grid" data-hc-datagrid-pending>
+  <template data-datagrid-editor data-col="price">
+    <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+  </template>
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">…</thead>
+      <tbody class="hc-datagrid__record" id="item-1"
+             data-hx-patch="/items/1"
+             data-hx-trigger="hc:datagridedit"
+             data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+             data-hx-swap="outerHTML">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell" data-numeric data-editable
+              data-col="price" data-value="18">18.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+```
+
+`data-hc-datagrid-pending` はグリッドを保存中状態にオプトインします
+(再描画が届くまでセルに `data-pending` + `aria-busy`)。422 の
+スワップは一度だけグローバルに許可します —
+[field-errors](/hypermedia-components/ja/recipes/field-errors/) の
+許可スニペット:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+## サーバーレスポンス契約
+
+`PATCH /items/:id`(`col`、`value`):
+
+| ケース | レスポンス |
+| --- | --- |
+| 受理 | `200` + レコード `<tbody>` — 行のみ。セルは値の**サーバーによる整形**を表示。楽観的コミットを確定し、`data-pending` をクリアし、以前のエラー行があればアトミックに取り除きます |
+| 拒否 | **`422`** + レコード `<tbody>` — セルは**サーバーの現在値**に戻り、`data-invalid` + `aria-invalid` + `aria-describedby` 付き。続けて `role="alert"` のメッセージが**拒否された入力を名指しする** `__error-row` |
+| 未知の行 / 列 | `404` — 何もスワップしない。標準のエラートーストがカバー |
+
+レコード tbody がアトムです: 行とエラー行は常に一緒に移動します —
+OOB の帳簿づけなし、ステートレスなサーバー、そしてセルがサーバーの
+保証しない値を表示することはありません。
+
+## プログレッシブエンハンスメント
+
+インラインセル編集自体が JavaScript のエンハンスメントです。no-JS の
+経路は [inline-edit](/hypermedia-components/ja/recipes/inline-edit/)
+レシピのページレベルフォームです。グリッドはスクリプトなしでも描画・
+閲覧できます。
+
+## アクセシビリティ
+
+- メッセージは内側要素の `role="alert"` で読み上げられます(セルは
+  `gridcell` ロールを保持)。拒否されたセルは `aria-invalid` +
+  `aria-describedby` でリンクされます。
+- 保存中は 1 セルの `aria-busy` だけ — グリッドの残りは操作可能な
+  まま。エラー行はキーボードナビゲーションに入りません。
+- フォーカスはスワップを生き延び、<kbd>Enter</kbd> でその場で
+  再編集できます。
+
+## 関連
+
+- [データグリッド](/hypermedia-components/ja/components/datagrid/) —
+  このレシピが駆動する編集ライフサイクル状態(`data-pending`、
+  `data-invalid`、エラー行スロット)。
+- [field-errors](/hypermedia-components/ja/recipes/field-errors/) —
+  フォーム全体のための同じ 422 哲学。
+- [inline-edit](/hypermedia-components/ja/recipes/inline-edit/) —
+  単一フィールド click-to-edit の兄弟。

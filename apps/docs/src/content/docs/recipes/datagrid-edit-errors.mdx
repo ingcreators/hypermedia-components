@@ -1,0 +1,115 @@
+---
+title: Datagrid edit errors
+description: The 422 wire for datagrid inline editing — each row is its own record tbody, so a rejection re-renders row + error message atomically and success removes the error just as atomically.
+---
+
+import DatagridEditErrorsDemo from '../../../components/recipe-demos/DatagridEditErrorsDemo.astro';
+
+The [datagrid](/hypermedia-components/components/datagrid/)'s inline
+commit is **optimistic** — this recipe closes its feedback loop for
+values only the server can judge. Each row is its own
+**record `<tbody>`** carrying the persistence wiring; the server's
+answer re-renders that record: `200` confirms with the row alone,
+**`422`** brings the row (server value restored, cell marked
+`data-invalid`) *plus* the `.hc-datagrid__error-row` message — one
+atomic swap unit, so a stale error can never be stranded. Covered by
+the [versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add datagrid-edit-errors
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-edit-errors/contract.md).
+:::
+
+## Live demo
+
+Double-click a **Price** cell (or focus it and press <kbd>Enter</kbd>)
+and commit `abc` — the cell flashes the saving state, then snaps back
+to the server's value with the error ring, and the message names your
+rejected input. Commit a number greater than 0 to see the `200` branch
+confirm and clear it.
+
+<DatagridEditErrorsDemo />
+
+## The markup
+
+```html
+<div class="hc-datagrid" id="items-grid" data-hc-datagrid-pending>
+  <template data-datagrid-editor data-col="price">
+    <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+  </template>
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">…</thead>
+      <tbody class="hc-datagrid__record" id="item-1"
+             data-hx-patch="/items/1"
+             data-hx-trigger="hc:datagridedit"
+             data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+             data-hx-swap="outerHTML">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell" data-numeric data-editable
+              data-col="price" data-value="18">18.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+```
+
+`data-hc-datagrid-pending` opts the grid into the saving state
+(`data-pending` + `aria-busy` on the cell until the re-render lands).
+Allow 422 swaps once, globally — the
+[field-errors](/hypermedia-components/recipes/field-errors/) allowance:
+
+```js
+document.body.addEventListener('htmx:beforeSwap', (event) => {
+  if (event.detail.xhr.status === 422) {
+    event.detail.shouldSwap = true;
+    event.detail.isError = false;
+  }
+});
+```
+
+## Server response contract
+
+`PATCH /items/:id` (`col`, `value`):
+
+| Case | Response |
+| --- | --- |
+| accepted | `200` + the record `<tbody>` — the row alone, the cell showing the **server's formatting** of the value; confirms the optimistic commit, clears `data-pending`, and atomically removes any previous error row |
+| rejected | **`422`** + the record `<tbody>` — the cell back on the **server's current value**, `data-invalid` + `aria-invalid` + `aria-describedby`, followed by the `__error-row` whose `role="alert"` message **names the rejected input** |
+| unknown row / column | `404` — nothing swaps; the standard error toast covers it |
+
+The record tbody is the atom: row and error row always travel together
+— no OOB bookkeeping, stateless server, and the cell never shows a
+value the server has not vouched for.
+
+## Progressive enhancement
+
+Inline cell editing is itself a JavaScript enhancement; the no-JS path
+is the [inline-edit](/hypermedia-components/recipes/inline-edit/)
+recipe's page-level form. The grid renders and reads fine without any
+script.
+
+## Accessibility
+
+- The message announces via `role="alert"` on an inner element (the
+  cell keeps its `gridcell` role); the rejected cell is linked with
+  `aria-invalid` + `aria-describedby`.
+- Saving is `aria-busy` on one cell — the rest of the grid stays
+  operable; the error row stays out of keyboard navigation.
+- Focus survives the swap; <kbd>Enter</kbd> re-edits in place.
+
+## Related
+
+- [Datagrid](/hypermedia-components/components/datagrid/) — the edit
+  lifecycle states this recipe drives (`data-pending`, `data-invalid`,
+  the error-row slot).
+- [field-errors](/hypermedia-components/recipes/field-errors/) — the
+  same 422 philosophy for whole forms.
+- [inline-edit](/hypermedia-components/recipes/inline-edit/) — the
+  single-field click-to-edit sibling.

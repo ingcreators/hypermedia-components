@@ -840,8 +840,9 @@ pieces (the edit-feedback plan):
   it announces without stealing focus. Like the detail row, it stays
   out of keyboard navigation.
 
-The `datagrid-edit-errors` and `datagrid-edit-conflict` recipes carry
-the full 422 / 409 wire contracts.
+The [datagrid-edit-errors](/hypermedia-components/recipes/datagrid-edit-errors/)
+recipe carries the full 422 wire contract; `datagrid-edit-conflict`
+(409) follows it in the edit-feedback plan.
 
 ## Events
 
@@ -855,7 +856,7 @@ on the `.hc-datagrid` root except `hc:datagriddetailload`:
 | `hc:datagridcolumnresize` | `.hc-datagrid` | `{ col, width }` — the new width in px. |
 | `hc:datagridcopy` | `.hc-datagrid` | `{ text, rows, cols }` — cancelable; `preventDefault()` claims the clipboard write. |
 | `hc:datagridselectionchange` | `.hc-datagrid` | `{ selected, total }` — counted by record/row unit. |
-| `hc:datagridedit` | `.hc-datagrid` | `{ cell, col, value, label, oldValue }` — commit only, and only when the value changed. |
+| `hc:datagridedit` | the edited cell (bubbles through row / record / grid) | `{ cell, col, value, label, oldValue }` — commit only, and only when the value changed. |
 | `hc:datagridgrouptoggle` | `.hc-datagrid` | `{ row, expanded }` — the toggled `.hc-datagrid__grouprow`. |
 | `hc:datagridtreetoggle` | `.hc-datagrid` | `{ row, expanded }` — the toggled tree row. |
 | `hc:datagridtreeload` | the lazy tree `.hc-datagrid__row` | `{ row }` — first expand only (htmx loads via `data-hx-trigger`). |

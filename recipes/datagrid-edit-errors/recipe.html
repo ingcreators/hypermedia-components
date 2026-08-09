@@ -1,0 +1,50 @@
+<!-- Short recommended usage.
+
+  The 422 wire for datagrid inline editing. Each row is its own
+  <tbody class="hc-datagrid__record"> — the swap unit — carrying the
+  persistence wiring: hc:datagridedit → PATCH → outerHTML re-render.
+  200 answers the record with the row alone (server truth confirms the
+  optimistic commit and clears data-pending); 422 answers the record
+  with the SERVER's value in the cell, data-invalid + aria wiring on
+  it, and the __error-row message slot inside the same record — one
+  atomic unit, so the next re-render can never strand a stale error
+  row. The grid opts into data-hc-datagrid-pending for the saving
+  state. Allow 422 swaps once, globally (htmx:beforeSwap — see
+  contract.md). Zero custom JS beyond that snippet. -->
+<div class="hc-datagrid" id="items-grid" data-hc-datagrid-pending>
+  <template data-datagrid-editor data-col="price">
+    <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+  </template>
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col">Name</th>
+          <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__record" id="item-1"
+             data-hx-patch="/items/1"
+             data-hx-trigger="hc:datagridedit"
+             data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+             data-hx-swap="outerHTML">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Chai</td>
+          <td class="hc-datagrid__cell" data-numeric data-editable
+              data-col="price" data-value="18">18.00</td>
+        </tr>
+      </tbody>
+      <tbody class="hc-datagrid__record" id="item-2"
+             data-hx-patch="/items/2"
+             data-hx-trigger="hc:datagridedit"
+             data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+             data-hx-swap="outerHTML">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">Chang</td>
+          <td class="hc-datagrid__cell" data-numeric data-editable
+              data-col="price" data-value="19">19.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
