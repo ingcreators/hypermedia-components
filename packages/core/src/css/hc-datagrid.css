@@ -207,6 +207,15 @@
     );
   }
 
+  /* Range selection (Shift+Arrow / Shift+Click; installDatagrid sets
+     data-in-range) — same tint as row selection. */
+  .hc-datagrid__cell[data-in-range] {
+    background-image: linear-gradient(
+      var(--hc-datagrid-selected-bg),
+      var(--hc-datagrid-selected-bg)
+    );
+  }
+
   /* Column / cell highlight (e.g. the active column band). */
   .hc-datagrid__cell[data-highlight] {
     background-image: linear-gradient(

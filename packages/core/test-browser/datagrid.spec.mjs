@@ -157,6 +157,69 @@ test.describe('hc-datagrid — keyboard & selection (installDatagrid)', () => {
   });
 });
 
+test.describe('hc-datagrid — range selection & clipboard', () => {
+  test('Shift+Arrow paints a rectangular range; Escape clears it', async ({ page }) => {
+    await page.getByTestId('cell-Alpha-1').focus();
+    await page.keyboard.press('Shift+ArrowRight');
+    await page.keyboard.press('Shift+ArrowDown');
+    const inRange = page.locator('.hc-datagrid__cell[data-in-range]');
+    await expect(inRange).toHaveCount(4);
+    await page.keyboard.press('Escape');
+    await expect(inRange).toHaveCount(0);
+  });
+
+  test('a plain arrow clears the range', async ({ page }) => {
+    await page.getByTestId('cell-Alpha-1').focus();
+    await page.keyboard.press('Shift+ArrowRight');
+    const inRange = page.locator('.hc-datagrid__cell[data-in-range]');
+    await expect(inRange).toHaveCount(2);
+    await page.keyboard.press('ArrowDown');
+    await expect(inRange).toHaveCount(0);
+  });
+
+  test('Shift+Click extends the range to the clicked cell', async ({ page }) => {
+    await page.getByTestId('cell-Alpha-1').focus();
+    await page.getByTestId('cell-Beta-2').click({ modifiers: ['Shift'] });
+    const inRange = page.locator('.hc-datagrid__cell[data-in-range]');
+    await expect(inRange).toHaveCount(4);
+  });
+
+  test('Ctrl+C emits a cancelable hc:datagridcopy carrying the TSV', async ({ page }) => {
+    await page.evaluate(() => {
+      window.__copies = [];
+      document.querySelector('.hc-datagrid').addEventListener('hc:datagridcopy', (e) => {
+        e.preventDefault(); // claim the copy — no clipboard permission needed in CI
+        window.__copies.push(e.detail);
+      });
+    });
+    await page.getByTestId('cell-Alpha-1').focus();
+    await page.keyboard.press('Shift+ArrowDown');
+    await page.keyboard.press('Control+c');
+    const copies = await page.evaluate(() => window.__copies);
+    expect(copies.length).toBe(1);
+    expect(copies[0].rows).toBe(2);
+    expect(copies[0].cols).toBe(1);
+    expect(copies[0].text.split('\n').length).toBe(2);
+  });
+
+  test('Ctrl+A selects every row instead of the document', async ({ page }) => {
+    await page.getByTestId('cell-Alpha-1').focus();
+    await page.keyboard.press('Control+a');
+    await expect(page.getByTestId('row-1')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('row-14')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('axe finds no violations with an active range', async ({ page }) => {
+    await page.getByTestId('cell-Alpha-1').focus();
+    await page.keyboard.press('Shift+ArrowRight');
+    await page.keyboard.press('Shift+ArrowDown');
+    const results = await new AxeBuilder({ page })
+      .include('.hc-datagrid')
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
+});
+
 test.describe('hc-datagrid — inline editing (installDatagrid)', () => {
   test('double-click a text cell, edit, Enter commits + emits hc:datagridedit', async ({
     page,

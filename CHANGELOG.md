@@ -20,6 +20,19 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **datagrid**: spreadsheet-style range selection and clipboard copy
+  (`plans/hc-datagrid-enrichment-plan-en.md` §1.2). `Shift+Arrow` /
+  `Shift+Click` extend a rectangular cell range from the active cell
+  (cells carry `data-in-range`, painted with the selection tint;
+  `Escape` or any plain move clears it, as does an htmx row swap).
+  `Ctrl/Cmd+C` copies the range — or the active cell alone — as TSV
+  after a cancelable **`hc:datagridcopy`** (`{ text, rows, cols }`;
+  `preventDefault()` claims the clipboard write). `Ctrl/Cmd+A` selects
+  every row on the page through the select-all path instead of
+  selecting the document.
+
 ### Fixed
 
 - **datagrid**: type-to-edit is now IME-safe. Composition keystrokes on

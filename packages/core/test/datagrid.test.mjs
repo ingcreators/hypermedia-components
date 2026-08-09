@@ -352,6 +352,101 @@ describe('installDatagrid — inline editing', () => {
   });
 });
 
+describe('installDatagrid — range selection & copy', () => {
+  it('Shift+Arrow paints a rectangular data-in-range from the anchor', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const start = $('c-1-a');
+    start.focus();
+    press(start, 'ArrowRight', { shiftKey: true });
+    press(document.activeElement, 'ArrowDown', { shiftKey: true });
+    const inRange = [...document.querySelectorAll('[data-in-range]')].map((c) => c.id);
+    expect(inRange.sort()).toEqual(['c-1-a', 'c-1-b', 'c-2-a', 'c-2-b']);
+  });
+
+  it('a plain arrow or Escape clears the range', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const start = $('c-1-a');
+    start.focus();
+    press(start, 'ArrowRight', { shiftKey: true });
+    expect(document.querySelectorAll('[data-in-range]').length).toBe(2);
+    press(document.activeElement, 'ArrowLeft');
+    expect(document.querySelectorAll('[data-in-range]').length).toBe(0);
+
+    press(document.activeElement, 'ArrowRight', { shiftKey: true });
+    expect(document.querySelectorAll('[data-in-range]').length).toBe(2);
+    press(document.activeElement, 'Escape');
+    expect(document.querySelectorAll('[data-in-range]').length).toBe(0);
+  });
+
+  it('Ctrl+C copies the range as TSV via a cancelable hc:datagridcopy', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const onCopy = vi.fn();
+    $('grid').addEventListener('hc:datagridcopy', (e) => onCopy(e.detail));
+    const start = $('c-1-a');
+    start.focus();
+    press(start, 'ArrowRight', { shiftKey: true });
+    press(document.activeElement, 'ArrowDown', { shiftKey: true });
+    press(document.activeElement, 'c', { ctrlKey: true });
+    expect(onCopy).toHaveBeenCalledTimes(1);
+    expect(onCopy.mock.calls[0][0]).toMatchObject({
+      text: 'a1\tb1\na2\tb2',
+      rows: 2,
+      cols: 2,
+    });
+  });
+
+  it('Ctrl+C without a range copies the active cell alone', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const onCopy = vi.fn();
+    $('grid').addEventListener('hc:datagridcopy', (e) => onCopy(e.detail));
+    const cell = $('c-2-b');
+    cell.focus();
+    press(cell, 'c', { ctrlKey: true });
+    expect(onCopy.mock.calls[0][0]).toMatchObject({ text: 'b2', rows: 1, cols: 1 });
+  });
+
+  it('a spanning cell contributes its text once, at the first covered slot', () => {
+    document.body.innerHTML = FIXTURE_MULTI;
+    uninstall = installDatagrid();
+    const onCopy = vi.fn();
+    $('grid').addEventListener('hc:datagridcopy', (e) => onCopy(e.detail));
+    const lead = $('c-r1-lead'); // rowspan="2"
+    lead.focus();
+    press(lead, 'ArrowRight', { shiftKey: true });
+    press(document.activeElement, 'ArrowDown', { shiftKey: true });
+    press(document.activeElement, 'c', { ctrlKey: true });
+    // lead cell text is empty (checkbox only); its second slot stays empty
+    expect(onCopy.mock.calls[0][0].text).toBe('\tD0006\n\t12');
+  });
+
+  it('Shift+Click extends the range to the clicked cell', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const start = $('c-1-a');
+    start.focus();
+    $('c-2-b').dispatchEvent(
+      new MouseEvent('mousedown', { bubbles: true, cancelable: true, shiftKey: true }),
+    );
+    const inRange = [...document.querySelectorAll('[data-in-range]')].map((c) => c.id);
+    expect(inRange.sort()).toEqual(['c-1-a', 'c-1-b', 'c-2-a', 'c-2-b']);
+  });
+
+  it('Ctrl+A selects every row through the select-all path', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const cell = $('c-1-a');
+    cell.focus();
+    press(cell, 'a', { ctrlKey: true });
+    expect($('select-all').checked).toBe(true);
+    expect($('row-1').getAttribute('aria-selected')).toBe('true');
+    expect($('row-2').getAttribute('aria-selected')).toBe('true');
+  });
+});
+
 const FIXTURE_MULTI = `
   <div class="hc-datagrid" id="grid">
     <div class="hc-datagrid__scroll">
