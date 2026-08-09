@@ -132,6 +132,30 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **recipes**: the atomic branch of `datagrid-bulk-errors` now **marks
+  the blocked rows**. The rule was "never mark in the atomic branch —
+  nothing changed, so marking would lie", which conflated two different
+  claims: a *failure* would indeed be a lie, but `data-attention="error"`
+  says "this row cannot proceed", and that is a fact about the **row**,
+  equally true in the pre-flight, in the `409` refusal and after a
+  best-effort failure. It does not go stale when the selection changes
+  either ("already shipped" stays true whether or not the row is
+  ticked). Without it, the report's row links landed on a row that
+  looked like every other row. The pre-flight answers a report rather
+  than rows, so it carries the marks as `<template>`-wrapped
+  out-of-band row updates, rendered `checked` so the selection the user
+  is about to act on survives. Row **statuses** are still never changed
+  by the atomic branch. Documented alongside it: `data-attention` takes
+  its severity from what the row *needs* — `error` when something must
+  **change** (missing required value, invalid input, wrong state, no
+  permission), `warning` when someone must **decide** (a future ship
+  date) — not from when it was discovered, or the same unchanged row
+  would read `warning` before an action and `error` after it.
+
+- **recipes**: the bulk retry copy no longer says "The other 1 need a
+  change first" (missing singular).
+
+
 - **recipes**: a partial bulk failure now leaves the **retry set
   selected** (`plans/hc-datagrid-state-clarity-plan-en.md` PR-2). The
   `datagrid-bulk-errors` best-effort branch re-rendered every row

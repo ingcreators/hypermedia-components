@@ -60,7 +60,7 @@ describe('datagrid-bulk-errors demo API — best-effort', () => {
     expect(body).not.toContain('value="102" checked');
     // A partially-checked grid needs saying out loud.
     expect(body).toContain('<strong>1 can be retried</strong>');
-    expect(body).toContain('The other 1 need a change first.');
+    expect(body).toContain('The other 1 needs a change first.');
   });
 
   it('permanent-only failures leave nothing selected', async () => {
@@ -70,6 +70,15 @@ describe('datagrid-bulk-errors demo API — best-effort', () => {
     const body = await response.text();
     expect(body).not.toContain('checked');
     expect(body).not.toContain('can be retried');
+  });
+
+  it('the retry copy is singular for one row', async () => {
+    const body = await (
+      await call(bulkErrors, 'POST', '/bulk', {
+        body: form({ ids: ['104', '102'], action: 'archive' }),
+      })
+    ).text();
+    expect(body).toContain('The other 1 needs a change first.');
   });
 
   it('caps the named rows per reason and says how many are left', async () => {
@@ -94,11 +103,30 @@ describe('datagrid-bulk-errors demo API — atomic', () => {
     const body = await response.text();
     expect(body).toContain('<strong>2 of 3 rows are executable</strong>');
     expect(body).toContain('Already shipped');
-    // The escape hatch submits ONLY the executable ids.
+    // The escape hatch submits ONLY the executable ids. Assert on the
+    // form's hidden inputs: the response also carries the blocked rows
+    // as OOB updates, whose checkboxes share the `ids` name.
     expect(body).toContain('Exclude 1 and run 2');
-    expect(body).toContain('name="ids" value="101"');
-    expect(body).toContain('name="ids" value="103"');
-    expect(body).not.toContain('name="ids" value="102"');
+    expect(body).toContain('<input type="hidden" name="ids" value="101">');
+    expect(body).toContain('<input type="hidden" name="ids" value="103">');
+    expect(body).not.toContain('<input type="hidden" name="ids" value="102">');
+  });
+
+  it('pre-flight marks the blocked rows out of band', async () => {
+    const body = await (
+      await call(bulkErrors, 'GET', '/preflight?ids=101&ids=102&action=post')
+    ).text();
+    // Marked because the row cannot proceed — true before the action
+    // runs as much as after. Wrapped in <template>: a bare <tr> in a
+    // div-targeted response is dropped by the parser.
+    expect(body).toContain('<template>');
+    expect(body).toContain('id="bulk-errors-demo-row-102" data-attention="error" data-hx-swap-oob="outerHTML"');
+    // Nothing claims a failure: no status changed…
+    expect(body).toContain('Active');
+    // …and the executable row is not marked.
+    expect(body).not.toContain('id="bulk-errors-demo-row-101" data-attention');
+    // The selection the user is about to act on survives the OOB swap.
+    expect(body).toContain('value="102" checked');
   });
 
   it('pre-flight with nothing executable renders reasons and no submit', async () => {
@@ -118,9 +146,11 @@ describe('datagrid-bulk-errors demo API — atomic', () => {
     // Refusal framing, not partial completion.
     expect(body).toContain('<strong>Nothing was executed.</strong>');
     expect(body).not.toContain('succeeded');
-    // Rows unchanged (nothing Posted) and NOT marked.
+    // Rows unchanged: nothing Posted, so no FAILURE is claimed…
     expect(body).not.toContain('Posted');
-    expect(body).not.toContain('data-attention="error"');
+    // …but the blocked row is why nothing ran, and saying so is true.
+    expect(body).toContain('id="bulk-errors-demo-row-102" data-attention="error"');
+    expect(body).not.toContain('id="bulk-errors-demo-row-101" data-attention');
     // Selection preserved: both submitted ids come back checked.
     expect(body).toContain('value="101" checked');
     expect(body).toContain('value="102" checked');

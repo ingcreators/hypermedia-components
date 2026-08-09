@@ -119,6 +119,28 @@ test.describe('datagrid-bulk-errors — atomic', () => {
     await expect(page.getByTestId('status-102')).toContainText('Active');
   });
 
+  test('pre-flight marks the blocked rows so the report links land somewhere', async ({
+    page,
+  }) => {
+    await select(page, [101, 102, 104]);
+    await page.getByTestId('preflight').click();
+    await expect(page.getByTestId('preflight-summary')).toBeVisible();
+
+    // Marked because they cannot proceed — a fact about the ROW, true
+    // before the action runs as much as after. Nothing claims they
+    // failed: no status changed.
+    await expect(page.getByTestId('row-102')).toHaveAttribute('data-attention', 'error');
+    await expect(page.getByTestId('row-104')).toHaveAttribute('data-attention', 'error');
+    await expect(page.getByTestId('row-101')).not.toHaveAttribute('data-attention', /.*/);
+    await expect(page.getByTestId('status-102')).toContainText('Active');
+
+    // The OOB row updates must not disturb the selection the user is
+    // about to act on.
+    await expect(page.getByTestId('cb-102')).toBeChecked();
+    await expect(page.getByTestId('cb-104')).toBeChecked();
+    await expect(page.getByTestId('bar')).toBeVisible();
+  });
+
   test('pre-flight with nothing executable is a visible dead end', async ({ page }) => {
     await select(page, [102, 107]);
     await page.getByTestId('preflight').click();
@@ -131,9 +153,11 @@ test.describe('datagrid-bulk-errors — atomic', () => {
     await page.getByTestId('post-anyway').click();
 
     await expect(page.getByTestId('refusal')).toContainText('Nothing was executed');
-    // Nothing ran: no Posted, and no row marked (marking would lie).
+    // Nothing ran, so no status changed — claiming a FAILURE would lie.
     await expect(page.getByTestId('status-101')).toContainText('Active');
-    await expect(page.locator('[data-attention="error"]')).toHaveCount(0);
+    // But the blocked row is why nothing ran, and saying so is true.
+    await expect(page.getByTestId('row-102')).toHaveAttribute('data-attention', 'error');
+    await expect(page.getByTestId('row-101')).not.toHaveAttribute('data-attention', /.*/);
     // The hand-picked selection survives the refusal.
     await expect(page.getByTestId('cb-101')).toBeChecked();
     await expect(page.getByTestId('cb-102')).toBeChecked();
