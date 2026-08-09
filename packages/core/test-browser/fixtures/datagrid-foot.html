@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-datagrid footer + frozen-end fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="margin: 0; padding: 1rem;">
+  <!-- Constrained box so both axes scroll, exercising the sticky footer
+       (server-rendered aggregates) and the trailing frozen column. -->
+  <div class="hc-datagrid" data-testid="grid" style="--hc-datagrid-max-height: 200px; max-inline-size: 520px;">
+    <div class="hc-datagrid__scroll" data-testid="scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen data-frozen-edge
+                style="--hc-datagrid-left: 0; width: 72px;" scope="col" data-testid="head-item">Item</th>
+            <th class="hc-datagrid__headcell" scope="col" data-testid="head-q1">Q1</th>
+            <th class="hc-datagrid__headcell" scope="col">Q2</th>
+            <th class="hc-datagrid__headcell" scope="col">Q3</th>
+            <th class="hc-datagrid__headcell" scope="col">Q4</th>
+            <th class="hc-datagrid__headcell" data-frozen-end data-frozen-end-edge
+                style="width: 88px;" scope="col" data-testid="head-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="grid-body"></tbody>
+        <tfoot class="hc-datagrid__foot" data-testid="foot">
+          <tr data-testid="foot-subtotal-row">
+            <td class="hc-datagrid__cell" data-frozen
+                style="--hc-datagrid-left: 0; width: 72px;" data-testid="foot-subtotal-label">Subtotal</td>
+            <td class="hc-datagrid__cell" data-numeric>420</td>
+            <td class="hc-datagrid__cell" data-numeric>380</td>
+            <td class="hc-datagrid__cell" data-numeric>510</td>
+            <td class="hc-datagrid__cell" data-numeric>370</td>
+            <td class="hc-datagrid__cell" data-frozen-end data-frozen-end-edge></td>
+          </tr>
+          <tr data-testid="foot-total-row">
+            <td class="hc-datagrid__cell" data-frozen
+                style="--hc-datagrid-left: 0; width: 72px;" data-testid="foot-total-label">Total</td>
+            <td class="hc-datagrid__cell" data-numeric colspan="4" data-testid="foot-total-value">1,680</td>
+            <td class="hc-datagrid__cell" data-frozen-end data-frozen-end-edge data-testid="foot-total-actions"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // 14 rows so the body scrolls vertically; wide value cells force
+    // horizontal scroll. The Actions column is frozen to the trailing edge.
+    const body = document.getElementById('grid-body');
+    let html = '';
+    for (let r = 1; r <= 14; r += 1) {
+      html += '<tr class="hc-datagrid__row" data-testid="row-' + r + '">';
+      html += '<th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" '
+        + 'style="--hc-datagrid-left:0;width:72px;" data-testid="cell-item-' + r + '">Item ' + r + '</th>';
+      for (const q of ['Q1', 'Q2', 'Q3', 'Q4']) {
+        html += '<td class="hc-datagrid__cell" data-numeric data-testid="cell-' + q + '-' + r + '">'
+          + q + ' value for row ' + r + ' (wide content)</td>';
+      }
+      html += '<td class="hc-datagrid__cell" data-frozen-end data-frozen-end-edge '
+        + 'style="width:88px;" data-testid="cell-actions-' + r + '">'
+        + '<button type="button" class="hc-button" data-size="sm">Edit</button></td>';
+      html += '</tr>';
+    }
+    body.innerHTML = html;
+  </script>
+</body>
+</html>

@@ -352,6 +352,62 @@ describe('installDatagrid — inline editing', () => {
   });
 });
 
+const FIXTURE_FOOT = `
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" data-frozen scope="col">Item</th>
+            <th class="hc-datagrid__headcell" scope="col">Q1</th>
+            <th class="hc-datagrid__headcell" data-frozen-end data-frozen-end-edge scope="col" id="h-act">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body">
+          <tr class="hc-datagrid__row" id="fr-1">
+            <td class="hc-datagrid__cell" data-frozen id="c-item-1">A</td>
+            <td class="hc-datagrid__cell" id="c-q1-1">1</td>
+            <td class="hc-datagrid__cell" data-frozen-end data-frozen-end-edge id="c-act-1"><button type="button" class="hc-button">Edit</button></td>
+          </tr>
+        </tbody>
+        <tfoot class="hc-datagrid__foot" id="foot">
+          <tr id="foot-row">
+            <td class="hc-datagrid__cell" data-frozen id="foot-label">Total</td>
+            <td class="hc-datagrid__cell" id="foot-q1">1</td>
+            <td class="hc-datagrid__cell" data-frozen-end></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+`;
+
+describe('installDatagrid — sticky footer & frozen-end columns', () => {
+  it('footer rows get grid roles without joining the navigation matrix', () => {
+    document.body.innerHTML = FIXTURE_FOOT;
+    uninstall = installDatagrid();
+    expect($('foot-row').getAttribute('role')).toBe('row');
+    expect($('foot-q1').getAttribute('role')).toBe('gridcell');
+    // Not navigable: from the only body row, ArrowDown stays in the body.
+    const cell = $('c-q1-1');
+    cell.focus();
+    press(cell, 'ArrowDown');
+    expect($('foot-q1').hasAttribute('data-active')).toBe(false);
+    expect(cell.getAttribute('data-active')).toBe('');
+  });
+
+  it('measures frozen-end offsets, the footer level height, and scroll padding', () => {
+    document.body.innerHTML = FIXTURE_FOOT;
+    uninstall = installDatagrid();
+    expect($('c-act-1').style.getPropertyValue('--hc-datagrid-right')).toBe('0px');
+    expect($('h-act').style.getPropertyValue('--hc-datagrid-right')).toBe('0px');
+    expect($('grid').style.getPropertyValue('--hc-datagrid-foot-1-h')).toBe('0px');
+    const scroll = document.querySelector('.hc-datagrid__scroll');
+    expect(scroll.style.scrollPaddingBottom).toBe('0px');
+    expect(scroll.style.scrollPaddingRight).toBe('0px');
+  });
+});
+
 describe('installDatagrid — range selection & copy', () => {
   it('Shift+Arrow paints a rectangular data-in-range from the anchor', () => {
     document.body.innerHTML = FIXTURE;

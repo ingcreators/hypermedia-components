@@ -119,12 +119,60 @@ they can be set to the real rendered sizes:
 | `--hc-datagrid-head-1-h` | `.hc-datagrid` | Height of the group (1st) header row — the `top` offset of the 2nd row. |
 | `--hc-datagrid-head-2-h` | `.hc-datagrid` | Height of the sub (2nd) header row — added for the 3rd row's offset. |
 | `--hc-datagrid-left` | each frozen cell | The cell's `left` offset = total width of the frozen columns before it. |
+| `--hc-datagrid-foot-1-h` | `.hc-datagrid` | Height of the **last** footer row — the `bottom` offset of the row above it. |
+| `--hc-datagrid-right` | each `data-frozen-end` cell | The cell's trailing offset = total width of the frozen-end columns after it. |
 
 `installDatagrid()` **measures and sets these automatically** (and
 re-measures on resize). For a static, script-free grid, set them
 yourself: give the frozen columns fixed widths and set each frozen cell's
 `--hc-datagrid-left` to the cumulative width, and `--hc-datagrid-head-1-h`
 to the group-row height (as in the demo above).
+
+## Trailing frozen columns
+
+`data-frozen-end` is the mirror of `data-frozen`: the column sticks to
+the **trailing** edge of the viewport (right in LTR, left in RTL) while
+the middle columns scroll under it — the classic use is a row-actions
+column that must stay reachable. `data-frozen-end-edge` on the *first*
+frozen-end column casts the mirrored freeze line:
+
+```html
+<th class="hc-datagrid__headcell" data-frozen-end data-frozen-end-edge
+    scope="col">Actions</th>
+…
+<td class="hc-datagrid__cell" data-frozen-end data-frozen-end-edge>
+  <button class="hc-button" data-size="sm" type="button">Edit</button>
+</td>
+```
+
+The behavior measures each cell's `--hc-datagrid-right` (cumulative
+width of the frozen-end columns after it) and keeps it correct across
+column resizes and htmx swaps.
+
+## Aggregate footer
+
+A `<tfoot class="hc-datagrid__foot">` pins to the bottom of the scroll
+viewport, styled like the header band. **The server computes and renders
+the aggregates** — page-level or query-level, the cell text says which —
+and the CSS only pins them; nothing is summed client-side:
+
+```html
+<tfoot class="hc-datagrid__foot">
+  <tr>
+    <td class="hc-datagrid__cell" data-frozen>Total</td>
+    <td class="hc-datagrid__cell" data-numeric>1,680</td>
+    <td class="hc-datagrid__cell" data-frozen-end></td>
+  </tr>
+</tfoot>
+```
+
+Footer rows stack upward (e.g. a subtotal row above the total row);
+`installDatagrid()` measures `--hc-datagrid-foot-1-h` for the stacking
+offset. Footer cells take `data-frozen` / `data-frozen-end` /
+`data-numeric` like body cells, get grid-pattern roles, and stay out of
+keyboard navigation — aggregates are not editable stops. Re-render the
+`<tfoot>` alongside the rows (same fragment or an OOB swap) so the
+aggregates always match the page.
 
 ## Vertical headers
 
@@ -671,6 +719,8 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Feature | Attributes (where) | Needs |
 | --- | --- | --- |
 | Frozen columns | `data-frozen`, `data-frozen-edge` (head/body cells) | CSS — the behavior only automates the `--hc-datagrid-left` / header-height offsets. |
+| Trailing frozen columns | `data-frozen-end`, `data-frozen-end-edge` (head/body/foot cells) | CSS — the behavior only automates the `--hc-datagrid-right` offsets. |
+| Aggregate footer | `<tfoot class="hc-datagrid__foot">` (server-rendered) | CSS — the behavior only measures `--hc-datagrid-foot-1-h` and applies roles. |
 | Vertical headers | `data-orientation` — `vertical` / `sideways` (header cell) | CSS |
 | Column / cell highlight | `data-highlight` (cell) | CSS |
 | Numeric columns | `data-numeric` (head/body cells) | CSS |
@@ -735,9 +785,11 @@ seen in admin apps are just overrides):
 A few knobs are **not** token-backed — set them directly:
 
 ```text
---hc-datagrid-max-height     (default 70vh)
---hc-datagrid-truncate-max   (default 16rem — width of a .hc-datagrid__truncate cell)
---hc-datagrid-freeze-shadow  (frozen-column edge shadow; its direction flips per edge)
+--hc-datagrid-max-height         (default 70vh)
+--hc-datagrid-truncate-max       (default 16rem — width of a .hc-datagrid__truncate cell)
+--hc-datagrid-freeze-shadow      (frozen-column edge shadow; its direction flips per edge)
+--hc-datagrid-freeze-end-shadow  (the frozen-end mirror of the freeze shadow)
+--hc-datagrid-foot-shadow        (upward shadow cast by the sticky footer)
 ```
 
 </details>

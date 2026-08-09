@@ -120,12 +120,60 @@ import Demo from '../../../../components/Demo.astro';
 | `--hc-datagrid-head-1-h` | `.hc-datagrid` | グループ(1 段目)ヘッダー行の高さ — 2 段目の `top` オフセット。 |
 | `--hc-datagrid-head-2-h` | `.hc-datagrid` | サブ(2 段目)ヘッダー行の高さ — 3 段目のオフセットに加算。 |
 | `--hc-datagrid-left` | 各固定セル | セルの `left` オフセット = その前にある固定列の合計幅。 |
+| `--hc-datagrid-foot-1-h` | `.hc-datagrid` | **最後**のフッター行の高さ — その上の行の `bottom` オフセット。 |
+| `--hc-datagrid-right` | 各 `data-frozen-end` セル | セルの末尾側オフセット = その後ろにある末尾固定列の合計幅。 |
 
 `installDatagrid()` は**これらを自動で計測・設定**します(リサイズ時に
 再計測も)。静的でスクリプト不要のグリッドでは自分で設定してください:
 固定列に固定幅を与え、各固定セルの `--hc-datagrid-left` に累積幅を、
 `--hc-datagrid-head-1-h` にグループ行の高さを設定します(上のデモの
 とおり)。
+
+## 末尾側の固定列
+
+`data-frozen-end` は `data-frozen` の鏡像です: 列はビューポートの
+**末尾**側(LTR では右、RTL では左)に貼り付き、中間の列がその下を
+スクロールします — 定番の用途は、常に手が届く必要のある行アクション列
+です。*最初の*末尾固定列の `data-frozen-end-edge` が鏡像のフリーズ
+ラインを落とします:
+
+```html
+<th class="hc-datagrid__headcell" data-frozen-end data-frozen-end-edge
+    scope="col">Actions</th>
+…
+<td class="hc-datagrid__cell" data-frozen-end data-frozen-end-edge>
+  <button class="hc-button" data-size="sm" type="button">Edit</button>
+</td>
+```
+
+ビヘイビアは各セルの `--hc-datagrid-right`(そのセルの後ろにある
+末尾固定列の累積幅)を計測し、列リサイズや htmx スワップをまたいで
+正しく保ちます。
+
+## 集計フッター
+
+`<tfoot class="hc-datagrid__foot">` はスクロールビューポートの下端に
+貼り付き、ヘッダー帯と同じ見た目になります。**集計はサーバーが計算して
+描画します** — ページ単位かクエリ単位かはセルのテキストが語ります —
+CSS は貼り付けるだけで、クライアント側では何も合計しません:
+
+```html
+<tfoot class="hc-datagrid__foot">
+  <tr>
+    <td class="hc-datagrid__cell" data-frozen>Total</td>
+    <td class="hc-datagrid__cell" data-numeric>1,680</td>
+    <td class="hc-datagrid__cell" data-frozen-end></td>
+  </tr>
+</tfoot>
+```
+
+フッター行は上方向に積み重なります(例: 合計行の上に小計行)。
+`installDatagrid()` が積み重ねオフセット用に `--hc-datagrid-foot-1-h`
+を計測します。フッターセルはボディセルと同様に `data-frozen` /
+`data-frozen-end` / `data-numeric` を取り、グリッドパターンのロールを
+得ますが、キーボードナビゲーションには入りません — 集計は編集可能な
+ストップではないからです。集計が常にページと一致するよう、`<tfoot>` は
+行と一緒に再描画してください(同じフラグメント、または OOB スワップ)。
 
 ## 縦書きヘッダー
 
@@ -683,6 +731,8 @@ tabindex を適用し、スティッキーオフセットを計測し、選択�
 | 機能 | 属性(対象) | 必要なもの |
 | --- | --- | --- |
 | 固定列 | `data-frozen`、`data-frozen-edge`(ヘッダー / ボディのセル) | CSS — ビヘイビアは `--hc-datagrid-left` / ヘッダー高さのオフセットを自動化するだけです。 |
+| 末尾側の固定列 | `data-frozen-end`、`data-frozen-end-edge`(ヘッダー / ボディ / フッターのセル) | CSS — ビヘイビアは `--hc-datagrid-right` のオフセットを自動化するだけです。 |
+| 集計フッター | `<tfoot class="hc-datagrid__foot">`(サーバーが描画) | CSS — ビヘイビアは `--hc-datagrid-foot-1-h` の計測とロール付与のみ。 |
 | 縦書きヘッダー | `data-orientation` — `vertical` / `sideways`(ヘッダーセル) | CSS |
 | 列 / セルのハイライト | `data-highlight`(セル) | CSS |
 | 数値列 | `data-numeric`(ヘッダー / ボディのセル) | CSS |
@@ -748,9 +798,11 @@ component トークン(`component.tokens.json`)。共有のセマンティック
 いくつかのノブはトークン非対応です — 直接設定してください:
 
 ```text
---hc-datagrid-max-height     (default 70vh)
---hc-datagrid-truncate-max   (default 16rem — width of a .hc-datagrid__truncate cell)
---hc-datagrid-freeze-shadow  (frozen-column edge shadow; its direction flips per edge)
+--hc-datagrid-max-height         (default 70vh)
+--hc-datagrid-truncate-max       (default 16rem — width of a .hc-datagrid__truncate cell)
+--hc-datagrid-freeze-shadow      (frozen-column edge shadow; its direction flips per edge)
+--hc-datagrid-freeze-end-shadow  (the frozen-end mirror of the freeze shadow)
+--hc-datagrid-foot-shadow        (upward shadow cast by the sticky footer)
 ```
 
 </details>

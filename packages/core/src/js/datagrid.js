@@ -108,7 +108,7 @@ function buildMatrix(grid) {
   return out;
 }
 
-/** Measure header heights + frozen widths → sticky offset variables. */
+/** Measure header/footer heights + frozen widths → sticky offset variables. */
 function measure(grid) {
   const headTrs = ownedBy(grid, '.hc-datagrid__head > tr');
   let headTotal = 0;
@@ -119,29 +119,62 @@ function measure(grid) {
     headTotal += h;
   });
 
+  // Footer rows stack upward from the bottom edge — the LAST row's height
+  // is the sticky offset of the row above it.
+  const footTrs = ownedBy(grid, '.hc-datagrid__foot > tr');
+  let footTotal = 0;
+  footTrs.forEach((tr) => {
+    footTotal += tr.getBoundingClientRect().height;
+  });
+  if (footTrs.length) {
+    const h = footTrs[footTrs.length - 1].getBoundingClientRect().height;
+    grid.style.setProperty('--hc-datagrid-foot-1-h', `${h}px`);
+  }
+
   const ref = bodyRows(grid)[0];
   const offsets = [];
   let acc = 0;
+  const endOffsets = [];
+  let accEnd = 0;
   if (ref) {
     for (const c of [...ref.children].filter((c) => c.hasAttribute('data-frozen'))) {
       offsets.push(acc);
       acc += c.getBoundingClientRect().width;
     }
+    // Frozen-end offsets accumulate from the trailing edge inward.
+    const endCells = [...ref.children].filter((c) =>
+      c.hasAttribute('data-frozen-end'),
+    );
+    for (const c of endCells.reverse()) {
+      endOffsets.unshift(accEnd);
+      accEnd += c.getBoundingClientRect().width;
+    }
   }
   for (const row of ownedBy(
     grid,
-    '.hc-datagrid__head > tr, .hc-datagrid__body > tr, .hc-datagrid__record > tr',
+    '.hc-datagrid__head > tr, .hc-datagrid__body > tr, .hc-datagrid__record > tr, .hc-datagrid__foot > tr',
   )) {
     const frozen = [...row.children].filter((c) => c.hasAttribute('data-frozen'));
     frozen.forEach((c, i) => {
       if (offsets[i] != null) c.style.setProperty('--hc-datagrid-left', `${offsets[i]}px`);
+    });
+    const frozenEnd = [...row.children].filter((c) =>
+      c.hasAttribute('data-frozen-end'),
+    );
+    frozenEnd.forEach((c, i) => {
+      // Align from the end — a row's last frozen-end cell pairs with the
+      // reference row's last, so header rows with fewer cells still line up.
+      const j = endOffsets.length - frozenEnd.length + i;
+      if (endOffsets[j] != null) c.style.setProperty('--hc-datagrid-right', `${endOffsets[j]}px`);
     });
   }
 
   const scroll = grid.querySelector('.hc-datagrid__scroll');
   if (scroll) {
     scroll.style.scrollPaddingTop = `${headTotal}px`;
+    scroll.style.scrollPaddingBottom = `${footTotal}px`;
     scroll.style.scrollPaddingLeft = `${acc}px`;
+    scroll.style.scrollPaddingRight = `${accEnd}px`;
   }
 }
 
@@ -184,8 +217,18 @@ function attach(grid, detachers) {
 
   function applyRoles() {
     table.setAttribute('role', 'grid');
-    for (const r of ownedBy(grid, '.hc-datagrid__head > tr, .hc-datagrid__row')) {
+    for (const r of ownedBy(
+      grid,
+      '.hc-datagrid__head > tr, .hc-datagrid__row, .hc-datagrid__foot > tr',
+    )) {
       r.setAttribute('role', 'row');
+    }
+    // Footer cells sit outside the navigation matrix (aggregates are not
+    // navigable) but still need grid-pattern roles.
+    for (const cell of ownedBy(grid, '.hc-datagrid__foot .hc-datagrid__cell')) {
+      if (!cell.getAttribute('role')) {
+        cell.setAttribute('role', cell.tagName === 'TH' ? 'rowheader' : 'gridcell');
+      }
     }
     for (const h of ownedBy(grid, '.hc-datagrid__headcell')) {
       if (!h.getAttribute('role')) h.setAttribute('role', 'columnheader');

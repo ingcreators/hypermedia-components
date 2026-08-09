@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: sticky aggregate footer and trailing frozen columns
+  (`plans/hc-datagrid-enrichment-plan-en.md` §1.3). A
+  `<tfoot class="hc-datagrid__foot">` pins to the bottom of the scroll
+  viewport (multi-row footers stack via the measured
+  `--hc-datagrid-foot-1-h`), styled like the header band — the server
+  renders the aggregates, the CSS only pins them. `data-frozen-end` /
+  `data-frozen-end-edge` mirror `data-frozen` on the trailing edge
+  (RTL-aware, per-cell `--hc-datagrid-right` measured by the behavior;
+  new `--hc-datagrid-freeze-end-shadow` / `--hc-datagrid-foot-shadow`
+  knobs). Footer cells carry grid roles but stay out of keyboard
+  navigation.
+
 - **datagrid**: spreadsheet-style range selection and clipboard copy
   (`plans/hc-datagrid-enrichment-plan-en.md` §1.2). `Shift+Arrow` /
   `Shift+Click` extend a rectangular cell range from the active cell
