@@ -97,6 +97,21 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **recipes**: a partial bulk failure now leaves the **retry set
+  selected** (`plans/hc-datagrid-state-clarity-plan-en.md` PR-2). The
+  `datagrid-bulk-errors` best-effort branch re-rendered every row
+  unchecked, so the actions bar (which hides at zero) disappeared the
+  moment anything failed and the user had to hand-pick the failures out
+  of a full grid to try again — the very rows the server had just
+  identified. Failures the server judges **retryable** (transient: lock
+  held, upstream timeout, rate limit) now come back `checked`, so
+  pressing the same button retries exactly those; succeeded rows and
+  permanent failures (wrong state, not permitted, invalid data) come
+  back unchecked, because re-submitting either is pointless. The report
+  says which is which — a partially-checked grid reads as a bug
+  otherwise. Contract, recipe scaffolds, docs-site demo endpoint and
+  browser fixture all carry the rule.
+
 - **datagrid**: states no longer erase each other
   (`plans/hc-datagrid-state-clarity-plan-en.md` PR-1). Every state
   painted the same property — a `background-image` gradient on the cell

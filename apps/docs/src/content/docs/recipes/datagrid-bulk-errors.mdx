@@ -43,14 +43,31 @@ Two actions over one selection. **102 / 105 / 108** are "shipped" and
 | Failure response | `200` + rows reflecting what happened | **`409` / `422`** + rows **unchanged** |
 | Failed rows | marked `data-attention="error"` + reason | **not marked** — nothing changed |
 | Copy | "113 succeeded / 87 failed" | "**Nothing was executed** (2 rows do not qualify)" |
-| Selection | clears by construction | **preserved** — re-render checkboxes `checked` |
-| Recovery | filter to the failed rows, retry | fix, or exclude the blockers and re-run |
+| Selection | **the retry set stays selected** — retryable failures come back `checked` | **preserved** — re-render checkboxes `checked` |
+| Recovery | press the action again (it applies to the failures alone) | fix, or exclude the blockers and re-run |
 
 **Selection preservation is mandatory in the atomic branch.** The base
 recipe's "the selection clears by construction" holds only when the
 action *ran*; a refusal that also wipes 200 hand-picked rows is data
 loss the user cannot undo. The checkboxes are the selection truth, so
 rendering them `checked` is the entire fix.
+
+**A partial failure must leave the retry set selected.** Re-rendering
+every row unchecked hides the actions bar (it hides at zero) and makes
+the user hand-pick the failures out of a full grid — the very rows the
+server already identified. Render **retryable** failures `checked` and
+the retry is one press of the same button.
+
+Retryable is the server's judgement:
+
+| Failure | Checked after? | Why |
+| --- | --- | --- |
+| transient (lock held, upstream timeout, rate limit) | **yes** | the same request can succeed |
+| succeeded | no | nothing left to do |
+| permanent (wrong state, not permitted, invalid data) | no | re-submitting reproduces the error |
+
+Say so in the report when the two differ ("3 can be retried; 2 need a
+change first") — otherwise a partially-checked grid reads as a bug.
 
 ## Pre-flight beats reporting
 

@@ -35,14 +35,33 @@ and their copy is part of the contract.
 | Failure | `200` + rows **reflecting what happened** + report + `warning` toast | **`409`** (state conflict) or **`422`** (input) + rows **unchanged** + report + `error` toast |
 | Failed rows | marked `data-attention="error"`, reason via `aria-describedby` | **not marked** — nothing changed; marking would lie |
 | Copy | "113 succeeded / 87 failed" | "**Nothing was executed** (2 rows do not qualify)" |
-| Selection | clears by construction (fresh unchecked rows) | **preserved** — re-render the checkboxes `checked` |
-| Recovery | filter to the failed rows and retry | fix the blockers, or exclude them and re-run |
+| Selection | **the retry set stays selected** — re-render *retryable* failures `checked` | **preserved** — re-render the checkboxes `checked` |
+| Recovery | press the action again (it now applies to the failures alone) | fix the blockers, or exclude them and re-run |
 
 **Selection preservation is mandatory in the atomic branch.** The base
 recipe's "the selection clears by construction" holds only when the
 action ran. A refusal that also wipes 200 hand-picked rows is a data
 loss the user cannot undo. The checkboxes *are* the selection truth, so
 rendering them `checked` is the whole fix.
+
+**A partial failure must leave the retry set selected.** Re-rendering
+every row unchecked is what "the selection clears by construction"
+used to mean, and it is wrong the moment anything failed: the actions
+bar disappears (it hides at zero), and the user has to hand-pick the
+failures out of a full grid to try again — precisely the rows the
+server already knows. Render **retryable** failures `checked` and the
+retry is one press of the same button.
+
+Retryable is the server's judgement, not the client's:
+
+| Failure | Checked after? | Why |
+| --- | --- | --- |
+| transient (lock held, upstream timeout, rate limit) | **yes** | the same request can succeed |
+| succeeded | no | nothing left to do |
+| permanent (wrong state, not permitted, invalid data) | no | re-submitting reproduces the error; the fix is elsewhere |
+
+Say so in the report when the two differ ("3 can be retried; 2 need a
+change first") — otherwise a partially-checked grid reads as a bug.
 
 ## Pre-flight — `GET /products/bulk/preflight?ids=…&action=…`
 
@@ -155,6 +174,9 @@ pre-flight becomes an ordinary intermediate page.
   reason text plus the report entry.
 - The pre-flight's dead-end case renders the reasons instead of a
   disabled button with no explanation.
+- The retry set is visible, not remembered: the checkboxes that come
+  back `checked` *are* the state, so a screen-reader user hears the
+  same count in the actions bar that a sighted user sees highlighted.
 
 ## Notes
 
