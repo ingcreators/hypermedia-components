@@ -472,6 +472,16 @@
     opacity: 1;
   }
 
+  /* Multi-column sort: the behavior assigns data-sort-index (1…n) when
+     two or more columns are sorted — the ordinal rides after the arrow. */
+  .hc-datagrid__headcell[data-sortable][aria-sort="ascending"][data-sort-index]::after {
+    content: "↑" attr(data-sort-index);
+  }
+
+  .hc-datagrid__headcell[data-sortable][aria-sort="descending"][data-sort-index]::after {
+    content: "↓" attr(data-sort-index);
+  }
+
   .hc-datagrid__headcell[data-sortable][aria-sort="descending"]::after {
     content: "↓";
     opacity: 1;

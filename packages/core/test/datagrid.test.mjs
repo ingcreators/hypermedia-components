@@ -49,6 +49,12 @@ function click(el) {
   el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 }
 
+function shiftClick(el) {
+  el.dispatchEvent(
+    new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true }),
+  );
+}
+
 const $ = (id) => document.getElementById(id);
 
 beforeEach(() => {
@@ -789,7 +795,7 @@ describe('installDatagrid — sortable columns', () => {
     expect(a.getAttribute('aria-sort')).toBe('none');
   });
 
-  it('emits hc:datagridsort with the column + direction', () => {
+  it('emits hc:datagridsort with the column + direction + ordered sorts', () => {
     document.body.innerHTML = FIXTURE;
     const [a] = makeSortable();
     const grid = $('grid');
@@ -800,10 +806,69 @@ describe('installDatagrid — sortable columns', () => {
     click(a); // desc
     click(a); // none
     expect(details).toEqual([
-      { col: 'a', direction: 'asc' },
-      { col: 'a', direction: 'desc' },
-      { col: 'a', direction: null },
+      { col: 'a', direction: 'asc', sorts: [{ col: 'a', direction: 'asc' }] },
+      { col: 'a', direction: 'desc', sorts: [{ col: 'a', direction: 'desc' }] },
+      { col: 'a', direction: null, sorts: [] },
     ]);
+  });
+
+  it('Shift+Click appends a second sort column with 1…n ordinals', () => {
+    document.body.innerHTML = FIXTURE;
+    const [a, b] = makeSortable();
+    const details = [];
+    $('grid').addEventListener('hc:datagridsort', (e) => details.push(e.detail));
+    uninstall = installDatagrid();
+    click(a); // a asc (single — no ordinal)
+    expect(a.dataset.sortIndex).toBeUndefined();
+    shiftClick(b); // b joins the set
+    expect(a.getAttribute('aria-sort')).toBe('ascending');
+    expect(b.getAttribute('aria-sort')).toBe('ascending');
+    expect(a.dataset.sortIndex).toBe('1');
+    expect(b.dataset.sortIndex).toBe('2');
+    expect(details.at(-1)).toEqual({
+      col: 'b',
+      direction: 'asc',
+      sorts: [
+        { col: 'a', direction: 'asc' },
+        { col: 'b', direction: 'asc' },
+      ],
+    });
+    shiftClick(b); // b flips, keeps its position
+    expect(b.getAttribute('aria-sort')).toBe('descending');
+    expect(b.dataset.sortIndex).toBe('2');
+    expect(details.at(-1).sorts).toEqual([
+      { col: 'a', direction: 'asc' },
+      { col: 'b', direction: 'desc' },
+    ]);
+    shiftClick(b); // b leaves — a is single again, ordinal dropped
+    expect(b.getAttribute('aria-sort')).toBe('none');
+    expect(b.dataset.sortIndex).toBeUndefined();
+    expect(a.dataset.sortIndex).toBeUndefined();
+    expect(details.at(-1).sorts).toEqual([{ col: 'a', direction: 'asc' }]);
+  });
+
+  it('a plain click resets a multi-column sort to single-column', () => {
+    document.body.innerHTML = FIXTURE;
+    const [a, b] = makeSortable();
+    uninstall = installDatagrid();
+    click(a);
+    shiftClick(b);
+    click(b); // plain: b alone, cycled ascending → descending
+    expect(a.getAttribute('aria-sort')).toBe('none');
+    expect(b.getAttribute('aria-sort')).toBe('descending');
+    expect(a.dataset.sortIndex).toBeUndefined();
+    expect(b.dataset.sortIndex).toBeUndefined();
+  });
+
+  it('Shift+Enter on a focused header adds to the sort set', () => {
+    document.body.innerHTML = FIXTURE;
+    const [a, b] = makeSortable();
+    uninstall = installDatagrid();
+    press(a, 'Enter');
+    press(b, 'Enter', { shiftKey: true });
+    expect(a.getAttribute('aria-sort')).toBe('ascending');
+    expect(b.getAttribute('aria-sort')).toBe('ascending');
+    expect(b.dataset.sortIndex).toBe('2');
   });
 
   it('is single-column — sorting one clears the other', () => {

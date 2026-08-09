@@ -29,22 +29,44 @@ test.describe('datagrid sortable headers', () => {
     await expect(name).toHaveAttribute('aria-sort', 'none');
   });
 
-  test('emits hc:datagridsort with the column + direction', async ({ page }) => {
+  test('emits hc:datagridsort with the column + direction + sorts', async ({ page }) => {
     await page.getByTestId('h-price').click(); // asc
     await page.getByTestId('h-price').click(); // desc
     const sorts = await page.evaluate(() => window.__sorts);
     expect(sorts).toEqual([
-      { col: 'price', direction: 'asc' },
-      { col: 'price', direction: 'desc' },
+      { col: 'price', direction: 'asc', sorts: [{ col: 'price', direction: 'asc' }] },
+      { col: 'price', direction: 'desc', sorts: [{ col: 'price', direction: 'desc' }] },
     ]);
   });
 
-  test('is single-column — sorting one clears the other', async ({ page }) => {
+  test('a plain click is single-column — sorting one clears the other', async ({ page }) => {
     await page.getByTestId('h-name').click();
     await expect(page.getByTestId('h-name')).toHaveAttribute('aria-sort', 'ascending');
     await page.getByTestId('h-price').click();
     await expect(page.getByTestId('h-price')).toHaveAttribute('aria-sort', 'ascending');
     await expect(page.getByTestId('h-name')).toHaveAttribute('aria-sort', 'none');
+  });
+
+  test('Shift+Click appends a second sort column with ordinals in the indicator', async ({ page }) => {
+    const name = page.getByTestId('h-name');
+    const price = page.getByTestId('h-price');
+    await name.click();
+    await price.click({ modifiers: ['Shift'] });
+    await expect(name).toHaveAttribute('aria-sort', 'ascending');
+    await expect(price).toHaveAttribute('aria-sort', 'ascending');
+    await expect(name).toHaveAttribute('data-sort-index', '1');
+    await expect(price).toHaveAttribute('data-sort-index', '2');
+    expect(await indicator(name)).toContain('↑1');
+    expect(await indicator(price)).toContain('↑2');
+    const last = await page.evaluate(() => window.__sorts.at(-1));
+    expect(last.sorts).toEqual([
+      { col: 'name', direction: 'asc' },
+      { col: 'price', direction: 'asc' },
+    ]);
+    // Dropping back to one sorted column drops the ordinals.
+    await price.click({ modifiers: ['Shift'] }); // desc
+    await price.click({ modifiers: ['Shift'] }); // none
+    await expect(name).not.toHaveAttribute('data-sort-index', /.+/);
   });
 
   test('keyboard: focus + Enter sorts', async ({ page }) => {
