@@ -921,6 +921,16 @@ pieces (the edit-feedback plan):
   the error row's message too). The cell shows the **server's value**;
   the error row preserves what was submitted. Press `Enter` to re-edit
   — the editor is not reopened automatically.
+- **Markers never change the column width.** The table is sized by
+  `max-content` and cells do not wrap, so *any* inline addition to a
+  cell — a spinner, a badge, a "details" link — widens that column and
+  shifts the layout (measured: 76 px → 121 px for one small link), and
+  in a `data-resized` column it is clipped away instead. The grid's own
+  markers are therefore **absolutely positioned**: the saving spinner,
+  the rejected-cell corner flag, and the per-cell required `*` all sit
+  in the cell's padding gutter at zero layout cost. Follow the same
+  rule for your own markers, and keep explanatory links in the report
+  or a dedicated column rather than inside a data cell.
 - **`.hc-datagrid__error-row`** — the message slot: a server-rendered
   `<tr>` directly under the row with one `colspan`
   `.hc-datagrid__error` cell; put `role="alert"` on an inner element so

@@ -20,19 +20,6 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
-### Fixed
-
-- **docs / recipes**: English-facing surfaces are English again. The
-  `datagrid-bulk-errors` theme shipped its demo API, recipe scaffolds,
-  server contract, English docs page and browser mocks with Japanese
-  message text, so the shared live demo and the canonical English
-  source format answered in Japanese for every reader. Also cleaned
-  two older leaks — the `edit-conflict` and `autosave` expanded
-  scaffolds glossed their buttons in Japanese. Japanese remains where
-  it belongs: the `/ja/` docs mirror, the i18n message catalogs and
-  their examples, and the Japanese-specific features (kana
-  normalization, postal addresses, non-ASCII header escaping tests).
-
 ### Added
 
 - **datagrid**: editability states are now announced and afforded
@@ -109,6 +96,30 @@ Security    — security-relevant changes
   carries two meanings.
 
 ### Fixed
+
+- **datagrid**: cell state markers no longer change the column width.
+  The table is `max-content` sized and cells do not wrap, so the
+  saving spinner (shipped as an inline-block pseudo-element) widened
+  its whole column — measured at 76 px → 121 px for one small inline
+  addition — and would have been clipped away entirely in a
+  `data-resized` column. The spinner, the new rejected-cell corner
+  marker (`data-invalid`) and the per-cell required `*` are now
+  absolutely positioned in the cell's padding gutter at zero layout
+  cost, and the `datagrid-bulk-errors` recipe no longer puts an inline
+  "details" link inside a data cell (Back returns to the report, which
+  the row link already put in history). The rule is documented for
+  app-authored markers too.
+
+- **docs / recipes**: English-facing surfaces are English again. The
+  `datagrid-bulk-errors` theme shipped its demo API, recipe scaffolds,
+  server contract, English docs page and browser mocks with Japanese
+  message text, so the shared live demo and the canonical English
+  source format answered in Japanese for every reader. Also cleaned
+  two older leaks — the `edit-conflict` and `autosave` expanded
+  scaffolds glossed their buttons in Japanese. Japanese remains where
+  it belongs: the `/ja/` docs mirror, the i18n message catalogs and
+  their examples, and the Japanese-specific features (kana
+  normalization, postal addresses, non-ASCII header escaping tests).
 
 - **datagrid**: a row replaced **while its editor was open** (an SSE
   update, another user's change, a pager refresh) left the internal

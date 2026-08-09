@@ -46,9 +46,15 @@ function tooltipId(id) {
 
 function rowHtml(item, { failed = false, status = 'Active' } = {}) {
   const reason = failed ? blockedReason(item.id) : null;
-  const cellAttrs = reason ? ` aria-describedby="${tooltipId(item.id)}"` : '';
+  // data-invalid draws the corner marker (absolutely positioned, zero
+  // layout cost); the reason rides as a tooltip the cell points at. No
+  // inline "details" link: the table is max-content sized, so inline
+  // additions widen the column — Back returns to the report instead.
+  const cellAttrs = reason
+    ? ` data-invalid aria-describedby="${tooltipId(item.id)}"`
+    : '';
   const tip = reason
-    ? `<span class="hc-tooltip" id="${tooltipId(item.id)}">${escapeHtml(reason)}</span> <a href="#bulk-errors-demo-report">Details</a>`
+    ? `<span class="hc-tooltip" id="${tooltipId(item.id)}">${escapeHtml(reason)}</span>`
     : '';
   return `<tr class="hc-datagrid__row" id="bulk-errors-demo-row-${item.id}"${failed ? ' data-tone="error"' : ''}>
   <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${item.id}" aria-label="Select ${escapeHtml(item.name)}"></td>

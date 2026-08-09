@@ -90,10 +90,15 @@
                      name="ids" value="101" aria-label="Select Anvil">
             </td>
             <td class="hc-datagrid__cell">Anvil</td>
-            <td class="hc-datagrid__cell" aria-describedby="why-101">
+            <td class="hc-datagrid__cell" data-invalid aria-describedby="why-101">
               Active
-              <a href="#bulk-report">Details</a>
-              <!-- The tooltip lives INSIDE the cell: a <tbody> may only
+              <!-- No inline "details" link: the table is sized by
+                   max-content, so any inline addition widens the whole
+                   column (and a resized column would clip it instead).
+                   The corner marker is drawn by CSS at zero layout
+                   cost, the tooltip carries the reason, and Back
+                   returns to the report the user came from.
+                   The tooltip lives INSIDE the cell: a <tbody> may only
                    contain rows, and a hidden popover contributes no
                    layout. aria-describedby resolves it either way. -->
               <span class="hc-tooltip" id="why-101">Already shipped — cannot be changed</span>
