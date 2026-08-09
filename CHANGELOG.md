@@ -20,6 +20,15 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **datagrid**: type-to-edit is now IME-safe. Composition keystrokes on
+  an editable cell (`isComposing`, key `Process`, or keyCode 229) open
+  the editor *unseeded* and without `preventDefault()`, and a
+  `compositionstart` listener covers engines that fire it before any
+  usable keydown — CJK input is no longer swallowed by the cell or
+  corrupted into a raw latin seed character.
+
 ## [0.2.1] - 2026-08-08
 
 The business-app release: seven themes from the 2026-08-08

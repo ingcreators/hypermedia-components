@@ -607,6 +607,9 @@ escapes the grid's scroll clipping.)
 
 **Activation:** `Enter` / `F2` / double-click the active editable cell, or
 just start typing (the first character seeds the editor, Excel-style).
+Typing through an IME also works: composition keystrokes open the editor
+*unseeded* and hand the composition to the focused input, so CJK input is
+never swallowed by the cell.
 **Commit:** `Enter`, moving focus out of the cell, or — for a combobox —
 picking an option. **Cancel:** `Escape` (restores the original value).
 

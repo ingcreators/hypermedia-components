@@ -300,6 +300,56 @@ describe('installDatagrid — inline editing', () => {
     expect(input).toBeTruthy();
     expect(input.value).toBe('Z');
   });
+
+  it('an IME keydown (isComposing) opens the editor unseeded, without preventDefault', () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    const event = new KeyboardEvent('keydown', {
+      key: 'a',
+      isComposing: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    cell.dispatchEvent(event);
+    const input = cell.querySelector('input');
+    expect(input).toBeTruthy();
+    expect(input.value).toBe('Ada'); // the old label — never the raw latin key
+    expect(event.defaultPrevented).toBe(false); // the composition survives
+  });
+
+  it('an IME keydown (key "Process") opens the editor unseeded', () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    press(cell, 'Process');
+    const input = cell.querySelector('input');
+    expect(input).toBeTruthy();
+    expect(input.value).toBe('Ada');
+  });
+
+  it('compositionstart on the active cell opens the editor', () => {
+    document.body.innerHTML = FIXTURE_EDIT;
+    uninstall = installDatagrid();
+    const cell = $('c-name');
+    cell.focus();
+    cell.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+    const input = cell.querySelector('input');
+    expect(input).toBeTruthy();
+    expect(input.value).toBe('Ada');
+  });
+
+  it('compositionstart on a non-editable cell does nothing', () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    const cell = $('c-1-a');
+    cell.focus();
+    cell.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+    expect(cell.querySelector('input')).toBeNull();
+    expect(cell.hasAttribute('data-editing')).toBe(false);
+  });
 });
 
 const FIXTURE_MULTI = `
