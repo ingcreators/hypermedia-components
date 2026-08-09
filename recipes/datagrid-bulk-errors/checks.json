@@ -1,0 +1,36 @@
+{
+  "detect": "#bulk-report, [data-hx-get*=\"preflight\"]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "report-region-live",
+      "level": "error",
+      "message": "The report region must announce politely: aria-live=\"polite\" on #bulk-report (a result the user did not ask to be interrupted by).",
+      "attr": { "on": "#bulk-report", "name": "aria-live", "assert": "present", "value": "polite" }
+    },
+    {
+      "id": "rows-are-linkable",
+      "level": "error",
+      "message": "Report entries link to rows — every data row needs a stable id (id=\"row-<id>\").",
+      "attr": { "on": ".hc-datagrid__body > .hc-datagrid__row", "name": "id", "assert": "present" }
+    },
+    {
+      "id": "preflight-is-get",
+      "level": "warn",
+      "message": "Pre-flight only reports executability — it must not mutate: data-hx-get, never post.",
+      "attr": { "on": "[data-hx-get*=\"preflight\"]", "name": "data-hx-get", "assert": "present" }
+    },
+    {
+      "id": "preflight-carries-selection",
+      "level": "warn",
+      "message": "The pre-flight needs the selected ids: data-hx-include=\"closest form\" on the pre-flight trigger.",
+      "attr": { "on": "[data-hx-get*=\"preflight\"]", "name": "data-hx-include", "assert": "present" }
+    },
+    {
+      "id": "preflight-targets-report",
+      "level": "warn",
+      "message": "Answer the pre-flight into the report region: data-hx-target=\"#bulk-report\".",
+      "attr": { "on": "[data-hx-get*=\"preflight\"]", "name": "data-hx-target", "assert": "present", "matches": "bulk-report" }
+    }
+  ]
+}

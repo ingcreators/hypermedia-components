@@ -1,0 +1,93 @@
+<!doctype html>
+<!-- Fixture for the datagrid-bulk-errors recipe. Pins both execution
+     modes against the serve.mjs mock: best-effort (200, marked rows,
+     reason-grouped report, report→row jump) and atomic (pre-flight,
+     "exclude and run", and the 409 refusal that must leave the rows
+     unchanged AND the selection intact). 102 is "shipped", 107 is
+     "not yours". -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid-bulk-errors fixture</title>
+  <link rel="stylesheet" href="/hc.tokens.css">
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.body.addEventListener('htmx:beforeSwap', (event) => {
+        if ([409, 422].includes(event.detail.xhr.status)) {
+          event.detail.shouldSwap = true;
+          event.detail.isError = false;
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Datagrid bulk errors</h1>
+
+    <form method="post" action="/mock/bulk-errors/bulk">
+      <div id="bulk-report" data-testid="report" aria-live="polite"></div>
+
+      <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+           data-hc-datagrid-actions="#grid" hidden data-testid="bar">
+        <span data-hc-datagrid-count></span>
+        <button class="hc-button" type="submit" name="action" value="archive"
+                data-hx-post="/mock/bulk-errors/bulk"
+                data-hx-target="#rows" data-hx-swap="innerHTML"
+                data-hx-disabled-elt="this" data-testid="archive">Archive</button>
+        <button class="hc-button" type="button" data-variant="primary"
+                data-hx-get="/mock/bulk-errors/preflight?action=post"
+                data-hx-include="closest form"
+                data-hx-target="#bulk-report" data-hx-swap="innerHTML"
+                data-testid="preflight">Post…</button>
+        <button class="hc-button" type="submit" name="action" value="post"
+                data-hx-post="/mock/bulk-errors/bulk"
+                data-hx-target="#rows" data-hx-swap="innerHTML"
+                data-testid="post-anyway">Post anyway</button>
+      </div>
+
+      <div class="hc-datagrid" id="grid" data-testid="grid" style="--hc-datagrid-max-height: 220px;">
+        <div class="hc-datagrid__scroll">
+          <table class="hc-datagrid__table">
+            <thead class="hc-datagrid__head">
+              <tr>
+                <th class="hc-datagrid__headcell">
+                  <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+                </th>
+                <th class="hc-datagrid__headcell" scope="col">Product</th>
+                <th class="hc-datagrid__headcell" scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody class="hc-datagrid__body" id="rows">
+              <tr class="hc-datagrid__row" id="row-101" data-testid="row-101">
+                <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="101" aria-label="Select 101" data-testid="cb-101"></td>
+                <td class="hc-datagrid__cell">Product 101</td>
+                <td class="hc-datagrid__cell" data-testid="status-101">Active</td>
+              </tr>
+              <tr class="hc-datagrid__row" id="row-102" data-testid="row-102">
+                <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="102" aria-label="Select 102" data-testid="cb-102"></td>
+                <td class="hc-datagrid__cell">Product 102</td>
+                <td class="hc-datagrid__cell" data-testid="status-102">Active</td>
+              </tr>
+              <tr class="hc-datagrid__row" id="row-103" data-testid="row-103">
+                <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="103" aria-label="Select 103" data-testid="cb-103"></td>
+                <td class="hc-datagrid__cell">Product 103</td>
+                <td class="hc-datagrid__cell" data-testid="status-103">Active</td>
+              </tr>
+              <tr class="hc-datagrid__row" id="row-107" data-testid="row-107">
+                <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="107" aria-label="Select 107" data-testid="cb-107"></td>
+                <td class="hc-datagrid__cell">Product 107</td>
+                <td class="hc-datagrid__cell" data-testid="status-107">Active</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

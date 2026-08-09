@@ -27,6 +27,7 @@ import * as confirmAction from './recipes/confirm-action.mjs';
 import * as csvImport from './recipes/csv-import.mjs';
 import * as dataRegion from './recipes/data-region.mjs';
 import * as datagridBulkActions from './recipes/datagrid-bulk-actions.mjs';
+import * as datagridBulkErrors from './recipes/datagrid-bulk-errors.mjs';
 import * as datagridColumns from './recipes/datagrid-columns.mjs';
 import * as datagridEditConflict from './recipes/datagrid-edit-conflict.mjs';
 import * as datagridEditErrors from './recipes/datagrid-edit-errors.mjs';
@@ -65,6 +66,7 @@ const RECIPES = new Map([
   ['csv-import', csvImport],
   ['data-region', dataRegion],
   ['datagrid-bulk-actions', datagridBulkActions],
+  ['datagrid-bulk-errors', datagridBulkErrors],
   ['datagrid-columns', datagridColumns],
   ['datagrid-edit-conflict', datagridEditConflict],
   ['datagrid-edit-errors', datagridEditErrors],

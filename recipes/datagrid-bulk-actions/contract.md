@@ -96,6 +96,17 @@ re-derives selection from them (re-syncing the select-all checkbox and
 re-emitting `hc:datagridselectionchange`), so the selection clears and
 the bar hides **by construction** — no reset code anywhere.
 
+**This describes the best-effort branch — the action ran.** An action
+with **all-or-nothing** semantics answers a *refusal* instead
+(`409` / `422`, rows unchanged), and there the same mechanism becomes a
+hazard: clearing the selection throws away the user's hand-picked rows
+when nothing happened. Render the refusal's rows with their checkboxes
+**`checked`** — the checkboxes are the selection truth, so that is the
+whole fix. The
+[datagrid-bulk-errors](../datagrid-bulk-errors/) recipe documents both
+execution modes, the pre-flight that avoids the refusal in the first
+place, and how failures are reported at scale.
+
 ## Success (no JS) — `303` post/redirect/get
 
 ```text

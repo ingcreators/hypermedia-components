@@ -1,0 +1,143 @@
+---
+title: Datagrid bulk errors
+description: Bulk-action failures at scale — best-effort vs atomic execution as an explicit contract, failures grouped by reason instead of a toast, and every named row linked back into the grid.
+---
+
+import DatagridBulkErrorsDemo from '../../../components/recipe-demos/DatagridBulkErrorsDemo.astro';
+
+[datagrid-bulk-actions](/hypermedia-components/recipes/datagrid-bulk-actions/)
+runs one action over many rows. This recipe is what happens when some
+of them fail — and it starts by making the **execution semantics
+explicit**, because "3 archived, 1 failed" is the wrong sentence for an
+operation that rolled everything back. Covered by the
+[versioning policy](/hypermedia-components/reference/versioning/).
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add datagrid-bulk-errors
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-bulk-errors/contract.md).
+:::
+
+## Live demo
+
+Two actions over one selection. **102 / 105 / 108** are "shipped" and
+**107** is "not yours" — pick one of those together with a normal row:
+
+- **Archive** (best-effort) runs, then reports what happened: the
+  failed rows come back marked, the report groups them by reason, and
+  the retry is a filter link.
+- **Post to ledger** (atomic) pre-flights first and offers to exclude
+  the blockers; force it through with a blocked row and the server
+  **refuses** — rows unchanged, your selection still there.
+
+<DatagridBulkErrorsDemo />
+
+## Choose the semantics first
+
+| | **best-effort** | **atomic** |
+| --- | --- | --- |
+| Fits | independent items (archive, tag, notify) | invariants (postings, transfers, permissions) |
+| Failure response | `200` + rows reflecting what happened | **`409` / `422`** + rows **unchanged** |
+| Failed rows | marked `data-tone="error"` + reason | **not marked** — nothing changed |
+| Copy | "113 件成功 / 87 件失敗" | "**実行しませんでした**（2 件が条件を満たさないため）" |
+| Selection | clears by construction | **preserved** — re-render checkboxes `checked` |
+| Recovery | filter to the failed rows, retry | fix, or exclude the blockers and re-run |
+
+**Selection preservation is mandatory in the atomic branch.** The base
+recipe's "the selection clears by construction" holds only when the
+action *ran*; a refusal that also wipes 200 hand-picked rows is data
+loss the user cannot undo. The checkboxes are the selection truth, so
+rendering them `checked` is the entire fix.
+
+## Pre-flight beats reporting
+
+Atomic actions validate before they execute — the confirm step becomes
+an executability report:
+
+```text
+20 件のうち 18 件が実行可能、2 件は不可（理由: 締め済み）
+〔2 件を除いて 18 件を実行〕〔キャンセル〕
+```
+
+`GET /products/bulk/preflight?ids=…&action=…` answers that fragment.
+"Exclude and run" submits **only the executable ids** as
+server-rendered hidden inputs, so the atomic guarantee survives while
+the user still has a way forward. When nothing is executable the
+report says so and renders **no submit** — a dead end must be visible,
+not a disabled mystery.
+
+## The report
+
+One `aria-live="polite"` region above the grid, swapped out of band
+with the rows. It reuses the
+[csv-import](/hypermedia-components/recipes/csv-import/) validation
+report shape and follows three rules:
+
+1. **Group by reason**, not by row — at 87 failures the reason is the
+   actionable unit; a flat list is not reviewable.
+2. **Cap the inline detail** (10 named rows per reason is a good
+   default) and pair the cap with a full-list link (a page or a CSV —
+   an ordinary `<a href>`). An uncapped report of 10 000 failures is a
+   broken page.
+3. **Link every named row**: `#row-101` on this page,
+   `/products?focus=101#row-101` for a row on another page — failures
+   span pages, and the server knows which page holds the row.
+
+Clicking a row link scrolls it into view, marks it with `:target`, and
+[moves the grid's active cell](/hypermedia-components/components/datagrid/#fragment-navigation)
+so keyboard users arrive too. The row links back with
+`<a href="#bulk-report">詳細</a>`.
+
+For best-effort, the report also offers **"失敗した行だけに絞り込む"** —
+a plain filter URL (`?f-last-result=failed`) composing with
+[datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) /
+[saved-views](/hypermedia-components/recipes/saved-views/). Retrying is
+then the ordinary select-all → action loop, with no new client state.
+
+## Per-row detail
+
+A failed row's reason is rendered once as an
+[`hc-tooltip`](/hypermedia-components/components/tooltip/) inside the
+relevant cell, which points at it with `aria-describedby`. The grid
+suppresses its overflow tooltip on such cells, so one gesture carries
+one meaning. Tooltips are for inspecting a row you noticed — **never
+put a reason only in a tooltip**; the report is the reviewable surface,
+and touch, print and export have no hover.
+
+## Toast
+
+The toast is the headline, not the payload: counts plus a pointer to
+the report, and it **must not auto-dismiss while failures exist**
+(`warning` for best-effort, `error` for a refusal).
+
+## Progressive enhancement
+
+The base recipe's `303` post/redirect/get applies — render the same
+report at the top of the redirected page (the fragment links work
+natively, which is exactly why they are anchors), and the pre-flight
+becomes an ordinary intermediate page.
+
+## Accessibility
+
+- The report region announces politely; it never steals focus.
+- Row links move focus into the grid via the active cell — no silent
+  scroll-only jumps.
+- Failure is never colour alone: tone **plus** reason text **plus** the
+  report entry.
+- The pre-flight's dead-end case renders reasons instead of a disabled
+  button with no explanation.
+
+## Related
+
+- [datagrid-bulk-actions](/hypermedia-components/recipes/datagrid-bulk-actions/) —
+  the form shape this builds on.
+- [datagrid-edit-errors](/hypermedia-components/recipes/datagrid-edit-errors/) ·
+  [datagrid-edit-conflict](/hypermedia-components/recipes/datagrid-edit-conflict/) —
+  the same philosophy for a single cell.
+- [csv-import](/hypermedia-components/recipes/csv-import/) — the
+  validation-report shape the report generalizes.
+- [undo-delete](/hypermedia-components/recipes/undo-delete/) — for
+  reversible destructive work, a grace period beats a confirm dialog.

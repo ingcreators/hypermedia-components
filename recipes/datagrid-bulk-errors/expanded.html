@@ -1,0 +1,116 @@
+<!-- Expanded state: Archive ran over 200 rows (best-effort mode).
+
+  113 succeeded, 87 failed. The response swapped the rows (each failed
+  one marked data-tone="error", its cell pointing at the reason via
+  aria-describedby) and, out of band, this report — grouped BY REASON,
+  capped at 10 named rows per reason with the rest behind a count and
+  a full-list link. Each named row links to its id, so clicking scrolls
+  there, marks it with :target, and moves the grid's active cell to it.
+  "失敗した行だけに絞り込む" is an ordinary server filter URL, so the
+  retry is just the normal select-all → action loop on a filtered page.
+
+  The toast (not shown) carried the headline and, because failures
+  exist, does not auto-dismiss.
+
+  The atomic branch looks different — see contract.md: 409, rows
+  UNCHANGED, checkboxes KEPT, and the copy framed as refusal. -->
+<form method="post" action="/products/bulk">
+  <div id="bulk-report" aria-live="polite">
+    <div class="hc-alert" data-variant="warning" role="status">
+      <p><strong>113 件成功 / 87 件失敗</strong>（対象 200 件）</p>
+
+      <table class="hc-table" data-density="compact">
+        <thead>
+          <tr>
+            <th scope="col">理由</th>
+            <th scope="col" data-numeric>件数</th>
+            <th scope="col">対象（先頭 10 件）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">出荷済みのため変更できません</th>
+            <td data-numeric>62</td>
+            <td>
+              <a href="#row-101">101 Anvil</a>,
+              <a href="#row-118">118 Bracket</a>,
+              <a href="/products?focus=407#row-407">407 Caliper</a>
+              … <span>他 59 件</span>
+              <a href="/products/bulk/report/9f2c.csv">全件をCSVで取得</a>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">権限がありません</th>
+            <td data-numeric>25</td>
+            <td>
+              <a href="#row-140">140 Dowel</a>
+              … <span>他 24 件</span>
+              <a href="/products/bulk/report/9f2c.csv">全件をCSVで取得</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><a href="/products?f-last-result=failed">失敗した行だけに絞り込む</a></p>
+    </div>
+  </div>
+
+  <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+       data-hc-datagrid-actions="#grid" hidden>
+    <span data-hc-datagrid-count></span>
+    <button class="hc-button" type="submit" name="action" value="archive"
+            data-hx-post="/products/bulk"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Archive</button>
+    <button class="hc-button" type="button" data-variant="primary"
+            data-hx-get="/products/bulk/preflight?action=post"
+            data-hx-include="closest form"
+            data-hx-target="#bulk-report" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Post to ledger…</button>
+  </div>
+
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell">
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">Product</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="rows">
+          <!-- A failed row: marked, and its status cell points at the
+               reason (the grid suppresses its overflow tooltip here). -->
+          <tr class="hc-datagrid__row" id="row-101" data-tone="error">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox"
+                     name="ids" value="101" aria-label="Select Anvil">
+            </td>
+            <td class="hc-datagrid__cell">Anvil</td>
+            <td class="hc-datagrid__cell" aria-describedby="why-101">
+              Active
+              <a href="#bulk-report">詳細</a>
+              <!-- The tooltip lives INSIDE the cell: a <tbody> may only
+                   contain rows, and a hidden popover contributes no
+                   layout. aria-describedby resolves it either way. -->
+              <span class="hc-tooltip" id="why-101">出荷済みのため変更できません</span>
+            </td>
+          </tr>
+
+          <!-- A row that succeeded: no marking, new status. -->
+          <tr class="hc-datagrid__row" id="row-102">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox"
+                     name="ids" value="102" aria-label="Select Sprocket">
+            </td>
+            <td class="hc-datagrid__cell">Sprocket</td>
+            <td class="hc-datagrid__cell">Archived</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>

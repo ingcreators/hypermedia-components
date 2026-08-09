@@ -22,6 +22,28 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `datagrid-bulk-errors` — bulk-action failures at scale
+  (`plans/hc-datagrid-bulk-errors-plan-en.md`). Makes the **execution
+  semantics** an explicit contract choice: *best-effort* (`200`, rows
+  reflect what happened, failures marked with their reason, a
+  "filter to the failed rows" retry link) vs *atomic* (`409` / `422`,
+  rows **unchanged**, **selection preserved**, copy framed as refusal
+  rather than partial completion), with a **pre-flight** step that
+  reports executability before anything runs and offers to exclude the
+  blockers. Failures are reported in one `aria-live` region **grouped
+  by reason** with a hard cap plus a full-list escape hatch, and every
+  named row links back into the grid (`#row-<id>`, or
+  `?focus=<id>#row-<id>` for another page). Machine-checked contract;
+  live docs demo (en/ja).
+
+### Changed
+
+- **recipes**: the `datagrid-bulk-actions` contract's "the selection
+  clears by construction" is now scoped to the branch where the action
+  actually ran, with a carve-out for refusals — an all-or-nothing
+  refusal must re-render its rows with the checkboxes `checked`, or a
+  hand-picked selection is destroyed when nothing happened.
+
 - **datagrid**: fragment navigation and the error-tooltip carve-out
   (`plans/hc-datagrid-bulk-errors-plan-en.md` §1.4, §1.5). A link to a
   row (`#row-101` — a bulk-error report entry or a deep link) now moves

@@ -1404,6 +1404,125 @@ function handleDatagridEditConflict(req, res, url) {
   return true;
 }
 
+// Mock backend for the datagrid-bulk-errors recipe spec
+// (datagrid-bulk-errors.html). Eligibility is a pure function of the
+// id — 102 is "shipped", 107 is "not yours" — so the same selection
+// always yields the same answer. Two branches:
+//   POST /mock/bulk-errors/bulk  action=archive → best-effort 200
+//   GET  /mock/bulk-errors/preflight             → executability report
+//   POST /mock/bulk-errors/bulk  action=post     → atomic; a blocked id
+//        answers 409 with the rows UNCHANGED and the selection KEPT.
+const BE_IDS = [101, 102, 103, 107];
+
+function beReason(id) {
+  if (id === 102) return '出荷済みのため変更できません';
+  if (id === 107) return '権限がありません';
+  return null;
+}
+
+function beRow(id, { failed = false, status = 'Active', checked = false } = {}) {
+  const reason = failed ? beReason(id) : null;
+  const describe = reason ? ` aria-describedby="why-${id}"` : '';
+  const tip = reason
+    ? `<span class="hc-tooltip" id="why-${id}">${reason}</span> <a href="#bulk-report" data-testid="detail-${id}">詳細</a>`
+    : '';
+  return `<tr class="hc-datagrid__row" id="row-${id}" data-testid="row-${id}"${failed ? ' data-tone="error"' : ''}>
+  <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${id}"${checked ? ' checked' : ''} aria-label="Select ${id}" data-testid="cb-${id}"></td>
+  <td class="hc-datagrid__cell">Product ${id}</td>
+  <td class="hc-datagrid__cell"${describe} data-testid="status-${id}">${status} ${tip}</td>
+</tr>`;
+}
+
+function beReasonTable(blocked) {
+  const rows = [...blocked.entries()]
+    .map(([reason, ids]) => `<tr><th scope="row">${reason}</th><td data-numeric>${ids.length}</td><td>${ids
+      .map((id) => `<a href="#row-${id}" data-testid="jump-${id}">${id} Product ${id}</a>`)
+      .join(', ')}</td></tr>`)
+    .join('');
+  return `<table class="hc-table"><thead><tr><th scope="col">理由</th><th scope="col">件数</th><th scope="col">対象</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function beSplit(ids) {
+  const ok = [];
+  const blocked = new Map();
+  for (const id of ids) {
+    const reason = beReason(id);
+    if (!reason) { ok.push(id); continue; }
+    if (!blocked.has(reason)) blocked.set(reason, []);
+    blocked.get(reason).push(id);
+  }
+  return { ok, blocked };
+}
+
+// The main swap target is a <tbody>, so htmx parses the response in a
+// table context — a bare <div> OOB fragment is foster-parented and its
+// nested <table> mangled. Wrapping the OOB unit in <template> is the
+// blessed escape (see the recipe contract).
+function beReport(inner, { oob = false } = {}) {
+  const div = `<div id="bulk-report" data-testid="report" aria-live="polite"${oob ? ' data-hx-swap-oob="innerHTML"' : ''}>${inner}</div>`;
+  return oob ? `<template>${div}</template>` : div;
+}
+
+function handleBulkErrors(req, res, url) {
+  if (!url.pathname.startsWith('/mock/bulk-errors/')) return false;
+
+  if (url.pathname === '/mock/bulk-errors/preflight' && req.method === 'GET') {
+    req.resume();
+    const ids = url.searchParams.getAll('ids').map(Number).filter(Boolean);
+    const { ok, blocked } = beSplit(ids);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    if (blocked.size === 0) {
+      res.end(beReport(`<p data-testid="preflight-ok">${ok.length} 件を実行します。</p>`));
+      return true;
+    }
+    const excludeForm = ok.length
+      ? `<form data-hx-post="/mock/bulk-errors/bulk" data-hx-target="#rows" data-hx-swap="innerHTML"><input type="hidden" name="action" value="post">${ok
+          .map((id) => `<input type="hidden" name="ids" value="${id}">`)
+          .join('')}<button class="hc-button" type="submit" data-testid="exclude-run">${ids.length - ok.length} 件を除いて ${ok.length} 件を実行</button></form>`
+      : '<p data-testid="preflight-dead-end">実行できる行がありません。</p>';
+    res.end(beReport(`<p data-testid="preflight-summary">${ids.length} 件のうち ${ok.length} 件が実行可能</p>${beReasonTable(blocked)}${excludeForm}`));
+    return true;
+  }
+
+  if (url.pathname !== '/mock/bulk-errors/bulk' || req.method !== 'POST') return false;
+  let raw = '';
+  req.on('data', (chunk) => { raw += chunk; });
+  req.on('end', () => {
+    const params = new URLSearchParams(raw);
+    const ids = params.getAll('ids').map(Number).filter(Boolean);
+    const action = params.get('action') ?? 'archive';
+    const { ok, blocked } = beSplit(ids);
+    res.setHeader('Content-Type', MIME['.html']);
+
+    if (action === 'post') {
+      if (blocked.size > 0) {
+        // Refusal: unchanged rows, selection kept, refusal copy.
+        res.statusCode = 409;
+        res.end(`${BE_IDS.map((id) => beRow(id, { checked: ids.includes(id) })).join('\n')}
+${beReport(`<p data-testid="refusal"><strong>実行しませんでした。</strong></p>${beReasonTable(blocked)}`, { oob: true })}`);
+        return;
+      }
+      res.statusCode = 200;
+      res.end(`${BE_IDS.map((id) => beRow(id, { status: ids.includes(id) ? 'Posted' : 'Active' })).join('\n')}
+${beReport('<p data-testid="posted">計上しました。</p>', { oob: true })}`);
+      return;
+    }
+
+    res.statusCode = 200;
+    const rows = BE_IDS.map((id) => {
+      if (!ids.includes(id)) return beRow(id);
+      const failed = beReason(id) != null;
+      return beRow(id, { failed, status: failed ? 'Active' : 'Archived' });
+    }).join('\n');
+    const inner = blocked.size
+      ? `<p data-testid="summary">${ok.length} 件成功 / ${ids.length - ok.length} 件失敗</p>${beReasonTable(blocked)}<p><a href="/mock/bulk-errors/items?f-last-result=failed" data-testid="filter-failed">失敗した行だけに絞り込む</a></p>`
+      : `<p data-testid="summary">${ok.length} 件をアーカイブしました。</p>`;
+    res.end(`${rows}\n${beReport(inner, { oob: true })}`);
+  });
+  return true;
+}
+
 // Mock saved-views backend for the saved-views recipe spec
 // (saved-views.html): stateless, exactly like the docs demo — the strip
 // threads its own state (hidden view= inputs the save form includes;
@@ -1758,6 +1877,7 @@ function handleMock(req, res, url) {
   if (handleDatagridTree(req, res, url)) return true;
   if (handleDatagridEditErrors(req, res, url)) return true;
   if (handleDatagridEditConflict(req, res, url)) return true;
+  if (handleBulkErrors(req, res, url)) return true;
   if (handleChat(req, res, url)) return true;
   if (!url.pathname.startsWith('/mock/form/')) return handleBulk(req, res, url);
   // Drain the request body so the socket settles cleanly.
