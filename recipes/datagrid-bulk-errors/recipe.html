@@ -16,8 +16,10 @@
   Failed rows come back marked (data-attention="error") with their reason
   as an hc-tooltip the cell points at via aria-describedby; the grid
   suppresses its overflow tooltip on such cells so one hover carries
-  one meaning. See contract.md for both execution modes — the atomic
-  branch answers 409 with the rows UNCHANGED and the selection KEPT. -->
+  one meaning. Failures worth retrying come back CHECKED, so the
+  actions bar stays up and the next press applies to the retry set
+  alone. See contract.md for both execution modes — the atomic branch
+  answers 409 with the rows UNCHANGED and the selection KEPT. -->
 <form method="post" action="/products/bulk">
   <div id="bulk-report" aria-live="polite"></div>
 

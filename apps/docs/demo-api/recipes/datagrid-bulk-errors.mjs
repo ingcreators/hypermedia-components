@@ -29,22 +29,31 @@ const ITEMS = [101, 102, 103, 104, 105, 106, 107, 108].map((id) => ({
 /**
  * Why this row cannot be acted on — null means it can. Explicit sets
  * rather than a formula, so the demo's outcome is readable from here:
- * 102 / 105 / 108 are shipped, 107 is not yours.
+ * 102 / 105 / 108 are shipped, 107 is not yours, 104 is momentarily
+ * locked. Only the last of those is worth trying again, which is what
+ * decides whether the row comes back checked.
  */
 const SHIPPED = new Set([102, 105, 108]);
 const NOT_YOURS = new Set([107]);
+const LOCKED = new Set([104]);
 
 function blockedReason(id) {
   if (SHIPPED.has(id)) return 'Already shipped — cannot be changed';
   if (NOT_YOURS.has(id)) return 'Not permitted';
+  if (LOCKED.has(id)) return 'Locked by another job — try again';
   return null;
+}
+
+/** Retryable failures keep their checkbox, so one press retries them. */
+function isRetryable(id) {
+  return LOCKED.has(id);
 }
 
 function tooltipId(id) {
   return `bulk-errors-demo-why-${id}`;
 }
 
-function rowHtml(item, { failed = false, status = 'Active' } = {}) {
+function rowHtml(item, { failed = false, status = 'Active', checked = false } = {}) {
   const reason = failed ? blockedReason(item.id) : null;
   // data-invalid draws the corner marker (absolutely positioned, zero
   // layout cost); the reason rides as a tooltip the cell points at. No
@@ -57,7 +66,7 @@ function rowHtml(item, { failed = false, status = 'Active' } = {}) {
     ? `<span class="hc-tooltip" id="${tooltipId(item.id)}">${escapeHtml(reason)}</span>`
     : '';
   return `<tr class="hc-datagrid__row" id="bulk-errors-demo-row-${item.id}"${failed ? ' data-attention="error"' : ''}>
-  <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${item.id}" aria-label="Select ${escapeHtml(item.name)}"></td>
+  <td class="hc-datagrid__cell"><input type="checkbox" class="hc-checkbox" name="ids" value="${item.id}"${checked ? ' checked' : ''} aria-label="Select ${escapeHtml(item.name)}"></td>
   <td class="hc-datagrid__cell">${escapeHtml(item.name)}</td>
   <td class="hc-datagrid__cell"${cellAttrs}>${escapeHtml(status)} ${tip}</td>
 </tr>`;
@@ -167,12 +176,8 @@ export async function handle({ method, path, url, request }) {
   if (action === 'post') {
     if (blocked.size > 0) {
       // Refusal: rows UNCHANGED, checkboxes KEPT, refusal copy.
-      const rows = ITEMS.map(
-        (item) =>
-          rowHtml(item).replace(
-            `value="${item.id}"`,
-            `value="${item.id}"${ids.includes(item.id) ? ' checked' : ''}`,
-          ),
+      const rows = ITEMS.map((item) =>
+        rowHtml(item, { checked: ids.includes(item.id) }),
       ).join('\n');
       const blockedCount = ids.length - ok.length;
       return html(
@@ -201,10 +206,18 @@ ${bulkReport(`<p role="status">${ok.length} rows posted.</p>`, { oob: true })}`,
   }
 
   // ---- Best-effort ----------------------------------------------
+  // Retryable failures come back CHECKED: the actions bar stays up and
+  // the same button now applies to exactly the rows worth trying again.
+  // Succeeded rows and permanent failures come back unchecked —
+  // re-submitting either would be pointless.
   const rows = ITEMS.map((item) => {
     if (!ids.includes(item.id)) return rowHtml(item);
     const failed = blockedReason(item.id) != null;
-    return rowHtml(item, { failed, status: failed ? 'Active' : 'Archived' });
+    return rowHtml(item, {
+      failed,
+      status: failed ? 'Active' : 'Archived',
+      checked: failed && isRetryable(item.id),
+    });
   }).join('\n');
 
   if (blocked.size === 0) {
@@ -215,11 +228,21 @@ ${bulkReport(`<p role="status">${ok.length} rows archived.</p>`, { oob: true })}
     );
   }
   const failedCount = ids.length - ok.length;
+  const retryable = ids.filter((id) => blockedReason(id) && isRetryable(id));
+  // A partially-checked grid reads as a bug unless the report says why.
+  const retryLine = retryable.length
+    ? `<p><strong>${retryable.length} can be retried</strong> and ${retryable.length === 1 ? 'is' : 'are'} still selected — press <strong>Archive</strong> again to apply to ${retryable.length === 1 ? 'it' : 'those'} alone.${
+        failedCount > retryable.length
+          ? ` The other ${failedCount - retryable.length} need a change first.`
+          : ''
+      }</p>`
+    : '';
   return html(
     `${rows}
 ${bulkReport(`<div class="hc-alert" data-variant="warning" role="status">
   <p><strong>${ok.length} succeeded / ${failedCount} failed</strong> (of ${ids.length} selected)</p>
   ${reasonTableHtml(blocked)}
+  ${retryLine}
   <p><a href="${API}/items?f-last-result=failed">Filter to the failed rows</a></p>
 </div>`, { oob: true })}`,
     {

@@ -1412,12 +1412,19 @@ function handleDatagridEditConflict(req, res, url) {
 //   GET  /mock/bulk-errors/preflight             → executability report
 //   POST /mock/bulk-errors/bulk  action=post     → atomic; a blocked id
 //        answers 409 with the rows UNCHANGED and the selection KEPT.
-const BE_IDS = [101, 102, 103, 107];
+const BE_IDS = [101, 102, 103, 104, 107];
 
 function beReason(id) {
   if (id === 102) return 'Already shipped — cannot be changed';
   if (id === 107) return 'Not permitted';
+  if (id === 104) return 'Locked by another job — try again';
   return null;
+}
+
+// Only a transient failure is worth re-submitting, so only it comes
+// back checked — the retry set the user presses the button on again.
+function beRetryable(id) {
+  return id === 104;
 }
 
 function beRow(id, { failed = false, status = 'Active', checked = false } = {}) {
@@ -1515,7 +1522,11 @@ ${beReport('<p data-testid="posted">Posted.</p>', { oob: true })}`);
     const rows = BE_IDS.map((id) => {
       if (!ids.includes(id)) return beRow(id);
       const failed = beReason(id) != null;
-      return beRow(id, { failed, status: failed ? 'Active' : 'Archived' });
+      return beRow(id, {
+        failed,
+        status: failed ? 'Active' : 'Archived',
+        checked: failed && beRetryable(id),
+      });
     }).join('\n');
     const inner = blocked.size
       ? `<p data-testid="summary">${ok.length} succeeded / ${ids.length - ok.length} failed</p>${beReasonTable(blocked)}<p><a href="/mock/bulk-errors/items?f-last-result=failed" data-testid="filter-failed">Filter to the failed rows</a></p>`

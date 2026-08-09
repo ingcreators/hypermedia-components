@@ -33,6 +33,26 @@ test.describe('datagrid-bulk-errors — best-effort', () => {
     await expect(page.getByTestId('filter-failed')).toBeVisible();
   });
 
+  test('a partial failure leaves the retry set selected and the bar up', async ({
+    page,
+  }) => {
+    await select(page, [101, 104, 102]);
+    await page.getByTestId('archive').click();
+    await expect(page.getByTestId('summary')).toContainText('1 succeeded / 2 failed');
+
+    // 104 failed transiently — still selected, so the bar survives and
+    // the next press applies to it alone. Re-selecting failures by hand
+    // out of a full grid is exactly what this avoids.
+    await expect(page.getByTestId('cb-104')).toBeChecked();
+    await expect(page.getByTestId('cb-101')).not.toBeChecked(); // succeeded
+    await expect(page.getByTestId('cb-102')).not.toBeChecked(); // cannot succeed
+    await expect(page.getByTestId('bar')).toBeVisible();
+
+    // Pressing again really does retry only the retry set.
+    await page.getByTestId('archive').click();
+    await expect(page.getByTestId('summary')).toContainText('0 succeeded / 1 failed');
+  });
+
   test('a report entry jumps to its row and moves the active cell there', async ({ page }) => {
     await select(page, [101, 102]);
     await page.getByTestId('archive').click();

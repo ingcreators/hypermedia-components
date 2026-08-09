@@ -3,7 +3,8 @@ import * as bulkErrors from '../recipes/datagrid-bulk-errors.mjs';
 import { call, form } from './helpers.mjs';
 
 // Eligibility is a pure function of the id: 102 / 105 / 108 are
-// "shipped", 107 is "no permission", everything else is executable.
+// "shipped", 107 is "no permission", 104 is "locked by another job"
+// (the one retryable failure), everything else is executable.
 
 describe('datagrid-bulk-errors demo API — best-effort', () => {
   it('reports success and failure counts, groups by reason, marks failed rows', async () => {
@@ -44,6 +45,31 @@ describe('datagrid-bulk-errors demo API — best-effort', () => {
     expect(body).toContain('2 rows archived');
     expect(body).not.toContain('<table');
     expect(JSON.parse(response.headers.get('HX-Trigger'))['hc:toast'].variant).toBe('success');
+  });
+
+  it('a partial failure leaves the retry set — and only it — selected', async () => {
+    const response = await call(bulkErrors, 'POST', '/bulk', {
+      body: form({ ids: ['101', '104', '102'], action: 'archive' }),
+    });
+    const body = await response.text();
+    // 104 failed transiently: still selected, so one press retries it.
+    expect(body).toContain('value="104" checked');
+    // 101 succeeded and 102 cannot succeed — re-submitting either is
+    // pointless, so neither comes back checked.
+    expect(body).not.toContain('value="101" checked');
+    expect(body).not.toContain('value="102" checked');
+    // A partially-checked grid needs saying out loud.
+    expect(body).toContain('<strong>1 can be retried</strong>');
+    expect(body).toContain('The other 1 need a change first.');
+  });
+
+  it('permanent-only failures leave nothing selected', async () => {
+    const response = await call(bulkErrors, 'POST', '/bulk', {
+      body: form({ ids: ['101', '102', '107'], action: 'archive' }),
+    });
+    const body = await response.text();
+    expect(body).not.toContain('checked');
+    expect(body).not.toContain('can be retried');
   });
 
   it('caps the named rows per reason and says how many are left', async () => {

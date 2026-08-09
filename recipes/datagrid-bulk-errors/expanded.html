@@ -9,6 +9,12 @@
   "Filter to the failed rows" is an ordinary server filter URL, so the
   retry is just the normal select-all → action loop on a filtered page.
 
+  The RETRY SET stays selected: failures worth trying again come back
+  `checked` (row 103 below), so the actions bar stays up and pressing
+  Archive again applies to exactly those. Rows that succeeded, and
+  failures that cannot succeed without a change (101), come back
+  unchecked — re-submitting either would be pointless.
+
   The toast (not shown) carried the headline and, because failures
   exist, does not auto-dismiss.
 
@@ -113,6 +119,23 @@
             </td>
             <td class="hc-datagrid__cell">Sprocket</td>
             <td class="hc-datagrid__cell">Archived</td>
+          </tr>
+
+          <!-- A failure worth retrying: marked like any other failure,
+               but its checkbox comes back CHECKED. The actions bar
+               stays up (it hides at zero) and the next press of
+               Archive applies to the retry set alone — the user never
+               hand-picks the failures out of a full grid. -->
+          <tr class="hc-datagrid__row" id="row-103" data-attention="error">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox" checked
+                     name="ids" value="103" aria-label="Select Flange">
+            </td>
+            <td class="hc-datagrid__cell">Flange</td>
+            <td class="hc-datagrid__cell" data-invalid aria-describedby="why-103">
+              Active
+              <span class="hc-tooltip" id="why-103">Locked by another job — try again</span>
+            </td>
           </tr>
         </tbody>
       </table>
