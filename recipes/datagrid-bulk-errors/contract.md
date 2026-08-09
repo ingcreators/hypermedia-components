@@ -34,7 +34,7 @@ and their copy is part of the contract.
 | Success | `200` + rows + report + `success` toast | `200` + rows + `success` toast |
 | Failure | `200` + rows **reflecting what happened** + report + `warning` toast | **`409`** (state conflict) or **`422`** (input) + rows **unchanged** + report + `error` toast |
 | Failed rows | marked `data-tone="error"`, reason via `aria-describedby` | **not marked** — nothing changed; marking would lie |
-| Copy | "113 件成功 / 87 件失敗" | "**実行しませんでした**（2 件が条件を満たさないため）" |
+| Copy | "113 succeeded / 87 failed" | "**Nothing was executed** (2 rows do not qualify)" |
 | Selection | clears by construction (fresh unchecked rows) | **preserved** — re-render the checkboxes `checked` |
 | Recovery | filter to the failed rows and retry | fix the blockers, or exclude them and re-run |
 
@@ -51,8 +51,8 @@ error reporting.
 
 | Case | Response (200) |
 | --- | --- |
-| all executable | the confirm fragment: "20 件を実行します" + the submit that runs the action |
-| some blocked | the report fragment: "20 件のうち **18 件が実行可能**、2 件は不可（理由別）" + **two** affordances — a submit carrying **only the executable ids** (server-rendered hidden inputs) and cancel |
+| all executable | the confirm fragment: "20 rows will be executed" + the submit that runs the action |
+| some blocked | the report fragment: "**18 of 20 rows are executable**; 2 are blocked (by reason)" + **two** affordances — a submit carrying **only the executable ids** (server-rendered hidden inputs) and cancel |
 | none executable | the report with the reasons and **no submit** — a dead end must be visible, not a disabled mystery |
 
 "Exclude and run" keeps the atomic guarantee intact: the scope shrank
@@ -63,17 +63,17 @@ by explicit user consent before anything was attempted.
 One region, reused by every branch. Shape (the
 [csv-import](../csv-import/) validation report, generalized):
 
-- a **summary line** ("113 件成功 / 87 件失敗（対象 200 件）");
-- a real `<table>` **grouped by reason** — `理由 / 件数 / 対象` — with
+- a **summary line** ("113 succeeded / 87 failed, of 200 selected");
+- a real `<table>` **grouped by reason** — `Reason / Count / Rows` — with
   `scope` on the header cells and the reason as each row's
   `scope="row"` header. At scale the reason is the actionable unit; a
   flat list of 87 rows is not reviewable;
 - **a hard cap** on named rows per reason (10 is a good default),
-  then "他 N 件" **and a full-list link** (a page or a CSV — an
+  then "and N more" **and a full-list link** (a page or a CSV — an
   ordinary `<a href>`, no recipe needed). An uncapped report of 10 000
   failures is a broken page, so the cap and the escape hatch ship
   together;
-- best-effort only: **"失敗した行だけに絞り込む"** — a plain filter URL
+- best-effort only: **"Filter to the failed rows"** — a plain filter URL
   (`?f-last-result=failed`) composing with
   [datagrid-filter](../datagrid-filter/) /
   [saved-views](../saved-views/). Retrying is then the ordinary
@@ -100,7 +100,7 @@ escape applies to any non-row fragment riding a row response.
 ## Row links
 
 Each named row is an anchor whose text identifies the row
-(`101 Anvil` — never "こちら"):
+(`101 Anvil` — never "here"):
 
 | Where the row is | Link |
 | --- | --- |
@@ -110,7 +110,7 @@ Each named row is an anchor whose text identifies the row
 `installDatagrid()` moves the active cell to the landing row and
 focuses it, `:target` emphasises it, and the measured header offsets
 keep it clear of the sticky header. The row links back with
-`<a href="#bulk-report">詳細</a>`, so the trip closes in both
+`<a href="#bulk-report">Details</a>`, so the trip closes in both
 directions.
 
 ## Per-row detail

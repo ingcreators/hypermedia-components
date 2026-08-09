@@ -13,9 +13,9 @@ describe('datagrid-bulk-errors demo API — best-effort', () => {
     expect(response.status).toBe(200);
     const body = await response.text();
     // 101/103 archived; 102 shipped; 107 no permission.
-    expect(body).toContain('<strong>2 件成功 / 2 件失敗</strong>');
-    expect(body).toContain('出荷済みのため変更できません');
-    expect(body).toContain('権限がありません');
+    expect(body).toContain('<strong>2 succeeded / 2 failed</strong>');
+    expect(body).toContain('Already shipped');
+    expect(body).toContain('Not permitted');
     // Failed rows are marked and point at their reason.
     expect(body).toContain('id="bulk-errors-demo-row-102" data-tone="error"');
     expect(body).toContain('aria-describedby="bulk-errors-demo-why-102"');
@@ -33,7 +33,7 @@ describe('datagrid-bulk-errors demo API — best-effort', () => {
     });
     const trigger = JSON.parse(response.headers.get('HX-Trigger'));
     expect(trigger['hc:toast'].variant).toBe('warning');
-    expect(trigger['hc:toast'].message).toContain('1 件失敗');
+    expect(trigger['hc:toast'].message).toContain('1 failed');
   });
 
   it('full success answers a success toast and no reason table', async () => {
@@ -41,7 +41,7 @@ describe('datagrid-bulk-errors demo API — best-effort', () => {
       body: form({ ids: ['101', '103'], action: 'archive' }),
     });
     const body = await response.text();
-    expect(body).toContain('2 件をアーカイブしました');
+    expect(body).toContain('2 rows archived');
     expect(body).not.toContain('<table');
     expect(JSON.parse(response.headers.get('HX-Trigger'))['hc:toast'].variant).toBe('success');
   });
@@ -53,7 +53,7 @@ describe('datagrid-bulk-errors demo API — best-effort', () => {
     const body = await response.text();
     expect(body).toContain('bulk-errors-demo-row-102');
     // Only two shipped rows here, so no overflow marker yet.
-    expect(body).not.toContain('他 0 件');
+    expect(body).not.toContain('and 0 more');
   });
 });
 
@@ -66,10 +66,10 @@ describe('datagrid-bulk-errors demo API — atomic', () => {
     );
     expect(response.status).toBe(200);
     const body = await response.text();
-    expect(body).toContain('<strong>3 件のうち 2 件が実行可能</strong>');
-    expect(body).toContain('出荷済みのため変更できません');
+    expect(body).toContain('<strong>2 of 3 rows are executable</strong>');
+    expect(body).toContain('Already shipped');
     // The escape hatch submits ONLY the executable ids.
-    expect(body).toContain('1 件を除いて 2 件を実行');
+    expect(body).toContain('Exclude 1 and run 2');
     expect(body).toContain('name="ids" value="101"');
     expect(body).toContain('name="ids" value="103"');
     expect(body).not.toContain('name="ids" value="102"');
@@ -79,7 +79,7 @@ describe('datagrid-bulk-errors demo API — atomic', () => {
     const body = await (
       await call(bulkErrors, 'GET', '/preflight?ids=102&ids=105&action=post')
     ).text();
-    expect(body).toContain('実行できる行がありません');
+    expect(body).toContain('No executable rows');
     expect(body).not.toContain('<button');
   });
 
@@ -90,8 +90,8 @@ describe('datagrid-bulk-errors demo API — atomic', () => {
     expect(response.status).toBe(409);
     const body = await response.text();
     // Refusal framing, not partial completion.
-    expect(body).toContain('<strong>実行しませんでした。</strong>');
-    expect(body).not.toContain('件成功');
+    expect(body).toContain('<strong>Nothing was executed.</strong>');
+    expect(body).not.toContain('succeeded');
     // Rows unchanged (nothing Posted) and NOT marked.
     expect(body).not.toContain('Posted');
     expect(body).not.toContain('data-tone="error"');
@@ -109,6 +109,6 @@ describe('datagrid-bulk-errors demo API — atomic', () => {
     expect(response.status).toBe(200);
     const body = await response.text();
     expect(body).toContain('Posted');
-    expect(body).toContain('2 件を計上しました');
+    expect(body).toContain('2 rows posted');
   });
 });

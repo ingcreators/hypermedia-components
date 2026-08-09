@@ -20,6 +20,19 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **docs / recipes**: English-facing surfaces are English again. The
+  `datagrid-bulk-errors` theme shipped its demo API, recipe scaffolds,
+  server contract, English docs page and browser mocks with Japanese
+  message text, so the shared live demo and the canonical English
+  source format answered in Japanese for every reader. Also cleaned
+  two older leaks — the `edit-conflict` and `autosave` expanded
+  scaffolds glossed their buttons in Japanese. Japanese remains where
+  it belongs: the `/ja/` docs mirror, the i18n message catalogs and
+  their examples, and the Japanese-specific features (kana
+  normalization, postal addresses, non-ASCII header escaping tests).
+
 ### Added
 
 - **datagrid**: editability states are now announced and afforded

@@ -44,7 +44,7 @@ npx @hypermedia-components/cli validate page.html
 | 適する操作 | 独立した項目(アーカイブ、タグ付け、通知) | 不変条件のある操作(仕訳、振替、権限) |
 | 失敗時の応答 | `200` + 実際に起きたことを反映した行 | **`409` / `422`** + 行は**変更なし** |
 | 失敗行 | `data-tone="error"` と理由でマーク | **マークしない** — 何も変わっていない |
-| 文言 | 「113 件成功 / 87 件失敗」 | 「**実行しませんでした**（2 件が条件を満たさないため）」 |
+| 文言 | 「113 succeeded / 87 failed」 | 「**Nothing was executed**（2 件が条件を満たさない）」 |
 | 選択状態 | 構造的にクリアされる | **保持する** — チェックボックスを `checked` で再描画 |
 | リカバリー | 失敗行に絞り込んで再試行 | 原因を直す、または阻害行を除いて再実行 |
 
@@ -60,8 +60,8 @@ atomic なアクションは実行前に検証します — 確認ステップ�
 レポートになります:
 
 ```text
-20 件のうち 18 件が実行可能、2 件は不可（理由: 締め済み）
-〔2 件を除いて 18 件を実行〕〔キャンセル〕
+18 of 20 rows are executable; 2 are blocked (reason: period closed)
+[ Exclude 2 and run 18 ]  [ Cancel ]
 ```
 
 `GET /products/bulk/preflight?ids=…&action=…` がこのフラグメントを
@@ -90,9 +90,9 @@ atomic なアクションは実行前に検証します — 確認ステップ�
 行リンクをクリックすると行がスクロール表示され、`:target` でマークされ、
 [グリッドのアクティブセルが移動](/hypermedia-components/ja/components/datagrid/#フラグメントナビゲーション)
 するのでキーボード利用者も到達します。行からは
-`<a href="#bulk-report">詳細</a>` で戻れます。
+`<a href="#bulk-report">Details</a>` で戻れます。
 
-best-effort ではレポートに**「失敗した行だけに絞り込む」**も出します
+best-effort ではレポートに**「Filter to the failed rows」**も出します
 — ただのフィルタ URL（`?f-last-result=failed`）で、
 [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) /
 [saved-views](/hypermedia-components/ja/recipes/saved-views/) と合成

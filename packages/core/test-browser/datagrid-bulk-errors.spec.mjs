@@ -21,15 +21,15 @@ test.describe('datagrid-bulk-errors — best-effort', () => {
     await select(page, [101, 102, 107]);
     await page.getByTestId('archive').click();
 
-    await expect(page.getByTestId('summary')).toContainText('1 件成功 / 2 件失敗');
+    await expect(page.getByTestId('summary')).toContainText('1 succeeded / 2 failed');
     // What actually happened is what the rows show.
     await expect(page.getByTestId('status-101')).toContainText('Archived');
     await expect(page.getByTestId('row-102')).toHaveAttribute('data-tone', 'error');
     await expect(page.getByTestId('row-107')).toHaveAttribute('data-tone', 'error');
     await expect(page.getByTestId('row-101')).not.toHaveAttribute('data-tone', /.*/);
     // Both reasons are named, and the retry is a filter link.
-    await expect(page.getByTestId('report')).toContainText('出荷済みのため変更できません');
-    await expect(page.getByTestId('report')).toContainText('権限がありません');
+    await expect(page.getByTestId('report')).toContainText('Already shipped');
+    await expect(page.getByTestId('report')).toContainText('Not permitted');
     await expect(page.getByTestId('filter-failed')).toBeVisible();
   });
 
@@ -61,8 +61,8 @@ test.describe('datagrid-bulk-errors — atomic', () => {
   test('pre-flight reports executability and offers to exclude the blockers', async ({ page }) => {
     await select(page, [101, 102, 103]);
     await page.getByTestId('preflight').click();
-    await expect(page.getByTestId('preflight-summary')).toContainText('3 件のうち 2 件が実行可能');
-    await expect(page.getByTestId('exclude-run')).toContainText('1 件を除いて 2 件を実行');
+    await expect(page.getByTestId('preflight-summary')).toContainText('2 of 3 rows are executable');
+    await expect(page.getByTestId('exclude-run')).toContainText('Exclude 1 and run 2');
 
     await page.getByTestId('exclude-run').click();
     await expect(page.getByTestId('status-101')).toContainText('Posted');
@@ -81,7 +81,7 @@ test.describe('datagrid-bulk-errors — atomic', () => {
     await select(page, [101, 102]);
     await page.getByTestId('post-anyway').click();
 
-    await expect(page.getByTestId('refusal')).toContainText('実行しませんでした');
+    await expect(page.getByTestId('refusal')).toContainText('Nothing was executed');
     // Nothing ran: no Posted, and no row marked (marking would lie).
     await expect(page.getByTestId('status-101')).toContainText('Active');
     await expect(page.locator('[data-tone="error"]')).toHaveCount(0);
