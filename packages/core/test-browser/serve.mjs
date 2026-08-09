@@ -1289,46 +1289,106 @@ function handleDatagridTree(req, res, url) {
 // 422 with the server value restored + data-invalid + the __error-row
 // naming the rejected input. A short delay keeps the data-pending
 // state observable. Stateless: the "server value" is the fixture's.
-const DGE_ITEMS = { 1: { name: 'Chai', price: 18 }, 2: { name: 'Chang', price: 19 } };
+const DGE_ITEMS = {
+  1: { name: 'Chai', price: 18, ship: '2026-08-01' },
+  2: { name: 'Chang', price: 19, ship: '2026-08-03' },
+};
 
-function dgeRecord(id, price, invalid) {
+// Bound to (row, column, value): a confirmation obtained for one value
+// must never commit another. A real server issues a single-use nonce.
+function dgeToken(id, col, value) {
+  let h = 0;
+  for (const ch of `${id}:${col}:${value}`) h = (h * 31 + ch.codePointAt(0)) | 0;
+  return (h >>> 0).toString(36);
+}
+
+function dgeRecord(id, { price, ship, invalid = null, confirm = null } = {}) {
   const item = DGE_ITEMS[id];
-  const errorId = `item-${id}-error`;
+  const p = price ?? item.price;
+  const s = ship ?? item.ship;
+  const noteId = `item-${id}-error`;
   const invalidAttrs = invalid
-    ? ` data-invalid aria-invalid="true" aria-describedby="${errorId}"`
+    ? ` data-invalid aria-invalid="true" aria-describedby="${noteId}"`
     : '';
-  const errorRow = invalid
-    ? `\n  <tr class="hc-datagrid__error-row" data-testid="error-row"><td class="hc-datagrid__error" colspan="2"><span role="alert" id="${errorId}" data-testid="error-msg">${invalid}</span></td></tr>`
+  // Confirm-pending is NOT data-pending: nothing is in flight, the
+  // server is waiting on the user, and a spinner would say otherwise.
+  const shipAttrs = confirm
+    ? ` data-attention="warning" aria-describedby="${noteId}"`
     : '';
-  return `<tbody class="hc-datagrid__record" id="item-${id}" data-testid="record-${id}"
+  let noteRow = '';
+  if (invalid) {
+    noteRow = `\n  <tr class="hc-datagrid__error-row" data-testid="error-row"><td class="hc-datagrid__error" colspan="3"><span role="alert" id="${noteId}" data-testid="error-msg">${invalid}</span></td></tr>`;
+  } else if (confirm) {
+    const vals = JSON.stringify({ col: 'ship', value: confirm.value, confirm: confirm.token })
+      .replace(/"/g, '&quot;');
+    noteRow = `\n  <tr class="hc-datagrid__error-row" data-testid="confirm-row"><td class="hc-datagrid__error" data-tone="warning" colspan="3"><span role="alert" id="${noteId}" data-testid="confirm-msg">${confirm.message}</span>` +
+      `<button class="hc-button" type="button" data-testid="confirm-yes" data-hx-patch="/mock/datagrid-edit-errors/items/${id}" data-hx-vals="${vals}" data-hx-target="closest tbody" data-hx-swap="outerHTML">Confirm</button>` +
+      `<button class="hc-button" type="button" data-testid="confirm-no" data-hx-get="/mock/datagrid-edit-errors/items/${id}" data-hx-target="closest tbody" data-hx-swap="outerHTML">Cancel</button></td></tr>`;
+  }
+  return `<tbody class="hc-datagrid__record" id="item-${id}" data-testid="record-${id}"${confirm ? ' data-attention="warning"' : ''}
   data-hx-patch="/mock/datagrid-edit-errors/items/${id}"
   data-hx-trigger="hc:datagridedit"
   data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
   data-hx-swap="outerHTML">
   <tr class="hc-datagrid__row">
     <td class="hc-datagrid__cell">${item.name}</td>
-    <td class="hc-datagrid__cell" data-numeric data-editable data-col="price" data-value="${price}" data-testid="price-${id}"${invalidAttrs}>${price.toFixed(2)}</td>
-  </tr>${errorRow}
+    <td class="hc-datagrid__cell" data-numeric data-editable data-col="price" data-value="${p}" data-testid="price-${id}"${invalidAttrs}>${p.toFixed(2)}</td>
+    <td class="hc-datagrid__cell" data-editable data-col="ship" data-value="${s}" data-testid="ship-${id}"${shipAttrs}>${s}</td>
+  </tr>${noteRow}
 </tbody>`;
 }
 
 function handleDatagridEditErrors(req, res, url) {
   const m = url.pathname.match(/^\/mock\/datagrid-edit-errors\/items\/(\d+)$/);
-  if (!m || req.method !== 'PATCH') return false;
+  if (!m) return false;
+  const id = Number(m[1]);
+
+  // Cancel: the stored record, exactly as it was.
+  if (req.method === 'GET') {
+    req.resume();
+    res.statusCode = 200;
+    res.setHeader('Content-Type', MIME['.html']);
+    res.end(dgeRecord(id));
+    return true;
+  }
+  if (req.method !== 'PATCH') return false;
+
   let raw = '';
   req.on('data', (chunk) => { raw += chunk; });
   req.on('end', () => {
     setTimeout(() => {
-      const id = Number(m[1]);
-      const value = String(new URLSearchParams(raw).get('value') ?? '').trim();
-      const n = Number(value);
+      const params = new URLSearchParams(raw);
+      const col = params.get('col');
+      const value = String(params.get('value') ?? '').trim();
+      const confirm = params.get('confirm');
       res.setHeader('Content-Type', MIME['.html']);
+      res.statusCode = 200;
+
+      if (col === 'ship') {
+        const today = new Date().toISOString().slice(0, 10);
+        // Acceptable but unusual: 200, and the server asks. Not 422 —
+        // nothing is wrong with the value.
+        if (value > today && confirm !== dgeToken(id, 'ship', value)) {
+          res.end(dgeRecord(id, {
+            ship: value,
+            confirm: {
+              value,
+              token: dgeToken(id, 'ship', value),
+              message: `${value} is in the future. Confirm to ship on that date.`,
+            },
+          }));
+          return;
+        }
+        res.end(dgeRecord(id, { ship: value }));
+        return;
+      }
+
+      const n = Number(value);
       if (!Number.isFinite(n) || n <= 0) {
         res.statusCode = 422;
-        res.end(dgeRecord(id, DGE_ITEMS[id].price, `"${value}" is not a valid price — enter a number greater than 0.`));
+        res.end(dgeRecord(id, { invalid: `"${value}" is not a valid price — enter a number greater than 0.` }));
       } else {
-        res.statusCode = 200;
-        res.end(dgeRecord(id, n, null));
+        res.end(dgeRecord(id, { price: n }));
       }
     }, 150); // keep data-pending observable
   });

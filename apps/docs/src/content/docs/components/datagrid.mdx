@@ -1020,9 +1020,19 @@ pieces (the edit-feedback plan):
   it announces without stealing focus. Like the detail row, it stays
   out of keyboard navigation.
 
+- **`data-attention="warning"`** — the fourth outcome: the value is
+  acceptable but **unusual** (a ship date in the future, a discount
+  above policy), so the server answers `200` with the *proposed* value
+  in the cell and a `data-tone="warning"` message row offering Confirm
+  and Cancel. Nothing is committed yet. Do not use `data-pending` for
+  this: that state means "waiting for the server" and draws a spinner,
+  and here the server is waiting for the **user**.
+
 The [datagrid-edit-errors](/hypermedia-components/recipes/datagrid-edit-errors/)
 and [datagrid-edit-conflict](/hypermedia-components/recipes/datagrid-edit-conflict/)
-recipes carry the full 422 / 409 wire contracts.
+recipes carry the full 422 / 409 wire contracts, and the first also
+carries the confirmable-warning branch (including why the confirmation
+token must be bound to the value).
 
 ## Events
 

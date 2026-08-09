@@ -8,10 +8,20 @@
   __error-row inside the same record preserving the rejected input.
   The swap cleared data-pending. Enter on the cell re-edits; the next
   200 re-render answers the record with the row alone, which removes
-  the error row atomically. -->
+  the error row atomically.
+
+  item-2 shows the fourth branch at the same time: a ship date in the
+  future was committed, and the server answered 200 with the PROPOSED
+  value in the cell (data-attention="warning", NOT data-pending —
+  nothing is in flight; the server is waiting on the user) and a
+  warning row offering Confirm / Cancel. Confirm re-sends the same
+  value with the token bound to it; Cancel GETs the stored record. -->
 <div class="hc-datagrid" id="items-grid" data-hc-datagrid-pending>
   <template data-datagrid-editor data-col="price">
     <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+  </template>
+  <template data-datagrid-editor data-col="ship">
+    <input class="hc-input" type="date" aria-label="Ship date">
   </template>
   <div class="hc-datagrid__scroll">
     <table class="hc-datagrid__table">
@@ -19,6 +29,7 @@
         <tr>
           <th class="hc-datagrid__headcell" scope="col">Name</th>
           <th class="hc-datagrid__headcell" scope="col" data-numeric>Price</th>
+          <th class="hc-datagrid__headcell" scope="col">Ship date</th>
         </tr>
       </thead>
       <tbody class="hc-datagrid__record" id="item-1"
@@ -31,16 +42,18 @@
           <td class="hc-datagrid__cell" data-numeric data-editable
               data-col="price" data-value="18" data-invalid
               aria-invalid="true" aria-describedby="item-1-error">18.00</td>
+          <td class="hc-datagrid__cell" data-editable
+              data-col="ship" data-value="2026-08-01">2026-08-01</td>
         </tr>
         <tr class="hc-datagrid__error-row">
-          <td class="hc-datagrid__error" colspan="2">
+          <td class="hc-datagrid__error" colspan="3">
             <span role="alert" id="item-1-error">
               "abc" is not a number — Price must be a number greater than 0.
             </span>
           </td>
         </tr>
       </tbody>
-      <tbody class="hc-datagrid__record" id="item-2"
+      <tbody class="hc-datagrid__record" id="item-2" data-attention="warning"
              data-hx-patch="/items/2"
              data-hx-trigger="hc:datagridedit"
              data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
@@ -49,6 +62,30 @@
           <td class="hc-datagrid__cell">Chang</td>
           <td class="hc-datagrid__cell" data-numeric data-editable
               data-col="price" data-value="19">19.00</td>
+          <!-- The PROPOSED value, not the stored one: the user cannot
+               confirm what they cannot see. Marked as needing them,
+               not as saving. -->
+          <td class="hc-datagrid__cell" data-editable
+              data-col="ship" data-value="2027-01-01"
+              data-attention="warning"
+              aria-describedby="item-2-note">2027-01-01</td>
+        </tr>
+        <tr class="hc-datagrid__error-row">
+          <td class="hc-datagrid__error" data-tone="warning" colspan="3">
+            <span role="alert" id="item-2-note">
+              2027-01-01 is in the future. Confirm to ship Chang on that date.
+            </span>
+            <!-- Static vals, not js: — the value being confirmed is
+                 pinned at render time and cannot drift, and the token
+                 is bound to (row, column, value, version). -->
+            <button class="hc-button" data-size="sm" data-variant="primary" type="button"
+                    data-hx-patch="/items/2"
+                    data-hx-vals='{"col":"ship","value":"2027-01-01","confirm":"9f2c1a"}'
+                    data-hx-target="closest tbody" data-hx-swap="outerHTML">Confirm</button>
+            <button class="hc-button" data-size="sm" type="button"
+                    data-hx-get="/items/2"
+                    data-hx-target="closest tbody" data-hx-swap="outerHTML">Cancel</button>
+          </td>
         </tr>
       </tbody>
     </table>

@@ -22,6 +22,27 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `datagrid-edit-errors` gains a fourth outcome —
+  **confirmable warnings**
+  (`plans/hc-datagrid-state-clarity-plan-en.md` PR-4). The contract had
+  accepted / `422` rejected / `409` conflict, and business apps need
+  the case where the value is acceptable but **unusual** and only the
+  server knows it needs asking about: a ship date in the future, a
+  discount above policy. `422` would tell the user to change something
+  that needs no changing, and a client-side confirm cannot express a
+  rule discovered on the way in — so the branch is **`200`** (nothing
+  failed; the server is continuing the conversation, and no
+  `htmx:beforeSwap` allowance is needed) with the record re-rendered in
+  a *confirm-pending* state: the **proposed** value in the cell marked
+  `data-attention="warning"`, and a `data-tone="warning"` message row
+  with `role="alert"` offering Confirm and Cancel. Cancel is a plain
+  `GET` of the record — nothing was written. The confirmation token is
+  **bound to (row, column, value[, version])**, so a confirmation
+  obtained for one value cannot commit another or replay past the
+  `409` guard; the buttons carry static `data-hx-vals` (not `js:`), so
+  the value is pinned at render time and stays CSP-safe. Core adds the
+  cell-level warning marking the state uses.
+
 - **datagrid**: opt-in **zebra striping**
   (`plans/hc-datagrid-state-clarity-plan-en.md` PR-3). `data-hc-zebra`
   on the grid makes `installDatagrid()` assign `data-alt` to alternate

@@ -1028,10 +1028,19 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
   読み上げるため、`role="alert"` は内側の要素に付けてください。
   詳細行と同様、キーボードナビゲーションには入りません。
 
+- **`data-attention="warning"`** — 4 つ目の結果: 値としては受理可能
+  だが**異常**な場合(未来日の出荷日、規定を超える割引など)、サーバーは
+  `200` を返し、セルには*提案値*を、その下に `data-tone="warning"` の
+  メッセージ行(確認 / 取り消し)を描画します。まだ何もコミットされて
+  いません。これに `data-pending` を使わないでください。あの状態は
+  「サーバー待ち」を意味してスピナーを描きますが、ここで待っているのは
+  **ユーザー**です。
+
 422 / 409 の完全なワイヤ契約は
 [datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/) /
 [datagrid-edit-conflict](/hypermedia-components/ja/recipes/datagrid-edit-conflict/)
-レシピが担います。
+レシピが担います。前者は確認付き警告の分岐(確認トークンを値に束縛
+しなければならない理由を含む)も担います。
 
 ## イベント
 
