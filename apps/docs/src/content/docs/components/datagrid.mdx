@@ -747,6 +747,33 @@ of hundreds of cells without a tooltip per cell. The tooltip is a
 JS-generated element with the class `hc-datagrid__tooltip` and reuses
 the `--hc-tooltip-*` tokens.
 
+A cell that carries **its own message** — a server-rendered
+`data-invalid`, or an `aria-describedby` pointing at an
+[`hc-tooltip`](/hypermedia-components/components/tooltip/) — suppresses
+the overflow tooltip: two meanings on one hover would be a bug, and the
+error wins. Widen the column if the clipped text also has to be
+readable.
+
+## Fragment navigation
+
+A link to a row (`#row-101` — from a bulk-error report entry, or a deep
+link into a page) scrolls it into view natively, so browser history —
+and therefore **Back** — keeps working. Two things make the landing
+usable:
+
+- `installDatagrid()` moves the **active cell** to that row's first
+  cell and focuses it, so keyboard and screen-reader users arrive where
+  the eye does and can keep arrowing. It runs on load and on
+  `hashchange`; a hash naming nothing in this grid is ignored.
+- The row is emphasised with `:target` (persistent, not a flash) and
+  carries `scroll-margin-block-start` derived from the measured header
+  heights, so it does not land under the sticky header.
+
+Rows need stable `id`s for this — server-render them
+(`id="row-<id>"`); a row on **another page** is reached by a real URL
+(`/items?focus=101#row-101`), letting the server render the page that
+contains it.
+
 ## Inline editing
 
 Editing reuses existing HC form controls rather than a bespoke editor

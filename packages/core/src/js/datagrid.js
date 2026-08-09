@@ -1374,9 +1374,18 @@ function attach(grid, detachers) {
   function isClipped(el) {
     return el && grid.contains(el) && el.scrollWidth > el.clientWidth + 1;
   }
+  // A cell that carries its own message (an error tooltip wired through
+  // aria-describedby, or a server-rendered data-invalid) owns the
+  // hover/focus gesture — showing the overflow tip too would put two
+  // meanings on one interaction. Error wins; the clipped text stays
+  // readable by widening the column.
+  function ownsItsTip(cell) {
+    return !!cell?.matches?.('[data-invalid], [aria-describedby]');
+  }
   function onPointerOver(event) {
     if (!isOurs(event)) return;
     const el = event.target.closest?.('.hc-datagrid__truncate');
+    if (ownsItsTip(el?.closest?.('.hc-datagrid__cell'))) return;
     if (isClipped(el)) showTip(el);
   }
   function onPointerOut(event) {
@@ -1385,10 +1394,37 @@ function attach(grid, detachers) {
   function onTipFocusin(event) {
     if (!isOurs(event)) return;
     const cell = event.target.closest?.('.hc-datagrid__cell');
+    if (ownsItsTip(cell)) {
+      hideTip();
+      return;
+    }
     const el = cell?.querySelector?.(':scope > .hc-datagrid__truncate') ?? null;
     if (isClipped(el)) showTip(el);
     else hideTip();
   }
+
+  // ---- Fragment navigation (report → row) ----
+  // A link like `#row-101` (a bulk-error report entry, a deep link)
+  // scrolls the row into view for free — but scrolling alone strands
+  // keyboard and screen-reader users. When the hash names a row in
+  // THIS grid, move the active cell to its first cell and focus it, so
+  // arrow keys continue from where the user landed. `:target` supplies
+  // the visual emphasis (CSS); this supplies the focus.
+  function focusHashRow() {
+    const hash = grid.ownerDocument.defaultView?.location?.hash;
+    if (!hash || hash.length < 2) return;
+    let row;
+    try {
+      row = grid.querySelector(`${hash}.hc-datagrid__row`);
+    } catch {
+      return; // not a usable id selector
+    }
+    if (!row || row.closest('.hc-datagrid') !== grid || row.hidden) return;
+    const pos = locate(rowCells(row)[0]);
+    if (pos) setActive(pos.r, pos.c);
+  }
+
+  const onHashChange = () => focusHashRow();
 
   rebuild();
   initGroups();
@@ -1414,6 +1450,9 @@ function attach(grid, detachers) {
   grid.addEventListener('focusin', onTipFocusin);
   grid.addEventListener('focusout', hideTip);
   if (scrollEl) scrollEl.addEventListener('scroll', hideTip, { passive: true });
+  const view = grid.ownerDocument.defaultView;
+  if (view) view.addEventListener('hashchange', onHashChange);
+  focusHashRow(); // a deep link that arrived with the page
 
   let ro = null;
   if (typeof ResizeObserver !== 'undefined') {
@@ -1474,6 +1513,7 @@ function attach(grid, detachers) {
     grid.removeEventListener('focusin', onTipFocusin);
     grid.removeEventListener('focusout', hideTip);
     if (scrollEl) scrollEl.removeEventListener('scroll', hideTip);
+    if (view) view.removeEventListener('hashchange', onHashChange);
     tip.remove();
     for (const cleanup of resizerCleanups) cleanup();
     if (ro) ro.disconnect();
