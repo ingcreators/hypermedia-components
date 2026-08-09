@@ -56,8 +56,15 @@ test.describe('datagrid sortable headers', () => {
     await expect(price).toHaveAttribute('aria-sort', 'ascending');
     await expect(name).toHaveAttribute('data-sort-index', '1');
     await expect(price).toHaveAttribute('data-sort-index', '2');
-    expect(await indicator(name)).toContain('↑1');
-    expect(await indicator(price)).toContain('↑2');
+    // Chromium resolves attr() in getComputedStyle content; Firefox and
+    // WebKit return the unresolved specified value — accept both, the
+    // data-sort-index attribute assertions above pin the actual ordinal.
+    const c1 = await indicator(name);
+    const c2 = await indicator(price);
+    expect(c1).toContain('↑');
+    expect(c2).toContain('↑');
+    expect(c1.includes('↑1') || c1.includes('attr(data-sort-index)')).toBe(true);
+    expect(c2.includes('↑2') || c2.includes('attr(data-sort-index)')).toBe(true);
     const last = await page.evaluate(() => window.__sorts.at(-1));
     expect(last.sorts).toEqual([
       { col: 'name', direction: 'asc' },
