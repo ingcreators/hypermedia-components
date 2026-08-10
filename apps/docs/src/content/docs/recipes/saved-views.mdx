@@ -84,13 +84,84 @@ names the view.
 | `POST /views` (name + filter pairs) | `200` + the strip fragment, the new chip marked current (`aria-current="true"`) |
 | duplicate name | `422` + the strip with an inline field error (the [field-errors shape](/hypermedia-components/recipes/field-errors/#server-response-contract), `data-field="name"`) — swaps via the standard 422 allowance |
 | `GET /items?view=<name>` | the list fragment for `#results` with that view's filters applied, **plus an OOB `outerHTML` re-render of the filter form with the controls filled** — a view is never opaque |
+| `PUT /views/<name>` (the current filter pairs) | `200` + the strip — **update in place**, so a corrected view keeps its name and every shared link |
+| `POST /views/<name>/default` | `200` + the strip with that view marked default |
 | `DELETE /views/<name>` | `200` + the strip |
+| bare list URL with a default set | `303` to the default view's URL |
 
-The view's name is its key (URL-encoded in the `DELETE` path), and
-views are **per user** by definition — storage and limits are the
-server's business; the wire contract is the same. Because the applied
+The view's name is its key (URL-encoded in the path). Storage, limits
+and **scope** — personal, shared, default — are the server's business;
+the wire contract is the same either way. Because the applied
 querystring lands back in the controls, a view stays editable: apply,
 tweak a field, save under a new name.
+
+## Modified state
+
+Applying a view and then changing one condition is the commonest thing
+users do with saved views, and the least served: nothing said whether
+what you are looking at is still the view. The user either loses the
+tweak or trusts a saved version that is not on screen.
+
+The apply link names the view it came from (`&from-view=<name>`), so the
+server can compare the incoming conditions with the stored ones and mark
+the chip when they differ:
+
+```html
+<li class="hc-chip" data-modified>
+  <a href="…" aria-current="true">Overdue shipments</a>
+  <span class="hc-badge" data-variant="warning">Modified</span>
+  <button data-hx-put="/views/Overdue%20shipments" data-hx-include="#filters">Update</button>
+  <a href="/items?view=Overdue%20shipments">Reset</a>
+</li>
+```
+
+Compare **normalized** querystrings — same params, sorted — or the same
+question will look different depending on whether it arrived from the
+form or from a link.
+
+`PUT /views/<name>` updates **in place**, so correcting a view keeps its
+name and every link already shared. `422 duplicate` stays, but only for
+a genuinely new name that collides.
+
+## What a view captures
+
+A view is a question you want to ask again, not a place you were
+standing:
+
+| In | Out |
+| --- | --- |
+| filter conditions | page number |
+| sort (ordered, multi-column) | row selection |
+| column set / order, if the view pins them | scroll position |
+| page size, grouping | expanded rows |
+
+Page number is the dangerous one — "page 7 of yesterday's data" means
+nothing, and a shared link lands the recipient somewhere else.
+
+**Columns are a preference first.** A user's column choice follows them
+between screens, so it is stored per user rather than pushed into every
+URL. A view *may* pin a column set — "Shipping check" usually means the
+filters **and** the columns for that job — and when it does, applying it
+visibly changes the columns and offers a way back. Resolution order is
+always **URL → user preference → app default**, which is what makes a
+shared link beat a stored layout.
+
+## Scope, default, and re-authorisation
+
+- **Scope.** Views are not necessarily personal; a department standard
+  is the normal case. The server owns scope, the strip labels shared
+  views, and editing one is a distinct, visible action — offer "copy to
+  my views" rather than silently forking a colleague's.
+- **Default.** A bare list URL may `303` to the default view's URL, so
+  the address bar always shows the real conditions. A default must never
+  be a hidden filter.
+- **Re-authorisation.** A stored view can hold conditions the user has
+  since lost the right to run. Re-check on every apply and **fail
+  closed** (`403`, or re-ask) — quietly dropping the condition would
+  widen the result set, the one failure a business screen cannot afford.
+- **Ordering.** Comfortable at five views, unusable at thirty: pinned
+  and recently-used first, the rest behind a menu, and say when the
+  strip was capped.
 
 ## Progressive enhancement
 
