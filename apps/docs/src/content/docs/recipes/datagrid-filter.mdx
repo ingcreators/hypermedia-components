@@ -166,6 +166,57 @@ Either alone leaves the condition a guess — the wording without the date
 hides which rows are in; the date without the wording hides that it will
 move tomorrow.
 
+### Entering one
+
+Nobody types `@today-7d`. The expression is a **wire format**, not
+something to put in front of a user, so the control is a server-rendered
+list of presets whose option values *are* the expressions:
+
+```html
+<select class="hc-select" name="f-ship-from"
+        data-hx-get="/orders/filters/ship-from"
+        data-hx-target="closest .hc-field" data-hx-swap="outerHTML">
+  <option value="">Any</option>
+  <option value="@today">Today</option>
+  <option value="@week-start" selected>This week</option>
+  <option value="@today-7d">Last 7 days</option>
+  <option value="custom">Custom date…</option>
+</select>
+```
+
+The server renders the presets, because it knows which ones suit the
+column — "this quarter" belongs on a ledger date, not on a last-login
+stamp — and renders the applied one `selected`, so a saved view reopens
+showing **This week** rather than a raw expression.
+
+Presets cover the handful of answers people give most; they cannot cover
+"45 days ago". Custom therefore offers a **composer** — a number and a
+unit — whose controls are deliberately *not* named after the condition,
+so while it is open nothing claims `f-ship-from`: nothing has been
+chosen yet. **Use** asks the server to compose the expression, and the
+field returns as the ordinary select with the composed value added as a
+selected option, labelled `45 days ago`.
+
+The server composes because the canonical form of an expression is its
+business — the same reason it resolves them.
+
+:::danger[A relative expression never goes in a date input]
+An expression that is not one of the presets is still an expression.
+Render it as a **selected option**, not as
+`<input type="date" value="@today-45d">` — the browser shows an empty
+field there, and the condition is lost on the next submit. Only absolute
+ISO values belong in the date control.
+:::
+
+:::danger[Do not render both controls and hide one]
+Hidden controls **keep submitting**
+([conditional-fields](/hypermedia-components/recipes/conditional-fields/)),
+so a hidden date input next to a visible preset select would send
+`f-ship-from` twice and leave the server guessing. Choosing **Custom
+date…** therefore *re-renders* the field as a date input: one name, one
+control, always.
+:::
+
 :::caution[An unknown expression is an error]
 Answer `400`, or re-ask. Never fall back to the unfiltered list: a
 silently dropped condition shows the user *more* data than they asked

@@ -79,9 +79,93 @@ function fieldsHtml(selected, { oob = false } = {}) {
   </fieldset>`;
 }
 
+// The presets the server offers for THIS column. Option values are the
+// wire expressions; nobody types those. The server picks the list
+// because it knows which presets suit the column.
+const DUE_PRESETS = [
+  ['', 'Any'],
+  ['@today', 'Today'],
+  ['@week-start', 'This week'],
+  ['@month-start', 'This month'],
+  ['@today-7d', 'Last 7 days'],
+];
+
+const DUE_FIELD_ID = 'datagrid-filter-demo-due-field';
+
+/**
+ * The due-date control: a preset list, or a date input once the user
+ * picks "Custom date…". ONE control at a time — rendering both and
+ * hiding one would submit f-due-from twice, since hidden controls keep
+ * submitting.
+ */
+function dueFieldHtml(raw, { mode = null, oob = false, now = new Date() } = {}) {
+  const oobAttr = oob ? ' data-hx-swap-oob="outerHTML"' : '';
+  const known = DUE_PRESETS.some(([value]) => value === raw);
+  const relative = isRelative(raw);
+
+  // An ABSOLUTE date belongs in a date input. A relative expression
+  // never does — putting `@today-45d` in <input type="date"> makes the
+  // browser show an empty field, and the condition is lost on the next
+  // submit.
+  if (mode === 'date' || (!mode && raw && !relative)) {
+    return `<div class="hc-field" id="${DUE_FIELD_ID}"${oobAttr}>
+  <label class="hc-field__label" for="f-due-input">Due from</label>
+  <input class="hc-input" type="date" id="f-due-input" name="f-due-from" value="${escapeHtml(relative ? '' : raw)}">
+  ${backToPresets()}
+</div>`;
+  }
+
+  // The composer: any N, any unit. Its controls are NOT named
+  // f-due-from — while it is open the condition simply is not set yet,
+  // which is honest. "Use" asks the server to compose the expression
+  // and answers the field with it selected.
+  if (mode === 'relative') {
+    return `<div class="hc-field" id="${DUE_FIELD_ID}"${oobAttr}>
+  <span class="hc-field__label" id="f-due-rel-label">Due from</span>
+  <div class="hc-cluster" role="group" aria-labelledby="f-due-rel-label">
+    <input class="hc-input" type="number" min="1" name="due-n" value="7" aria-label="How many">
+    <select class="hc-select" name="due-unit" aria-label="Unit">
+      <option value="d">days</option>
+      <option value="w">weeks</option>
+      <option value="m">months</option>
+      <option value="y">years</option>
+    </select>
+    <span>ago</span>
+    <button class="hc-button" data-size="sm" type="button" data-hx-get="${API}/filters/due?compose=1" data-hx-include="closest .hc-field" data-hx-target="#${DUE_FIELD_ID}" data-hx-swap="outerHTML">Use</button>
+  </div>
+  ${backToPresets()}
+</div>`;
+  }
+
+  // Presets. A relative expression that is not one of them is added as
+  // a selected option, labelled by the server — so a composed
+  // expression round-trips readably instead of disappearing.
+  const extra =
+    relative && !known
+      ? `<option value="${escapeHtml(raw)}" selected>${escapeHtml(describeRelative(raw, { now }))}</option>`
+      : '';
+  const options = DUE_PRESETS.map(
+    ([value, label]) =>
+      `<option value="${value}"${value === raw ? ' selected' : ''}>${label}</option>`,
+  ).join('');
+  return `<div class="hc-field" id="${DUE_FIELD_ID}"${oobAttr}>
+  <label class="hc-field__label" for="f-due-select">Due from</label>
+  <select class="hc-select" id="f-due-select" name="f-due-from" data-hx-get="${API}/filters/due" data-hx-target="#${DUE_FIELD_ID}" data-hx-swap="outerHTML" data-hx-trigger="change[this.value.startsWith('custom')]">
+    ${options}${extra}
+    <option value="custom-relative">Custom — N days ago…</option>
+    <option value="custom-date">Custom — a date…</option>
+  </select>
+</div>`;
+}
+
+function backToPresets() {
+  return `<a class="hc-field__hint" href="${API}/items" data-hx-get="${API}/filters/due?preset=1" data-hx-target="#${DUE_FIELD_ID}" data-hx-swap="outerHTML">Use a preset instead</a>`;
+}
+
 function formHtml(selected) {
   return `<form action="${API}/items" method="get" data-hx-get="${API}/items" data-hx-target="#${GRID_ID}" data-hc-close-popover-on-success>
   ${fieldsHtml(selected)}
+  ${dueFieldHtml('')}
   <footer class="hc-popover__footer"><button class="hc-button" type="submit" data-variant="primary">Apply</button></footer>
 </form>`;
 }
@@ -181,6 +265,27 @@ function gridHtml(selected, { dueFrom = null, now = new Date() } = {}) {
 }
 
 export function handle({ method, path, url, request }) {
+  // Swapping the due control between presets and a date input is a
+  // re-render, not a second control: one name, one control, always.
+  if (method === 'GET' && path === '/filters/due') {
+    if (url.searchParams.get('preset') === '1') return html(dueFieldHtml(''));
+
+    // Compose N + unit into the one expression the wire carries. The
+    // server owns the canonical form, so the field comes back holding a
+    // single control whose value is the finished expression.
+    if (url.searchParams.get('compose') === '1') {
+      const n = Math.max(1, Number(url.searchParams.get('due-n') ?? 0) || 0);
+      const unit = String(url.searchParams.get('due-unit') ?? 'd');
+      const expression = `@today-${n}${'dwmy'.includes(unit) ? unit : 'd'}`;
+      return html(dueFieldHtml(expression));
+    }
+
+    const choice = url.searchParams.get('f-due-from');
+    return html(
+      dueFieldHtml('', { mode: choice === 'custom-date' ? 'date' : 'relative' }),
+    );
+  }
+
   if (method !== 'GET' || path !== '/items') return null;
 
   const selected = selectStatuses(url.searchParams.getAll('f-status'));
@@ -206,7 +311,8 @@ export function handle({ method, path, url, request }) {
     // in its header), plus the fieldset re-rendered out-of-band.
     return html(`${gridHtml(selected, { dueFrom, now })}
 ${fieldsHtml(selected, { oob: true })}
-${barHtml(selected, { oob: true, due: rawDue, now })}`);
+${barHtml(selected, { oob: true, due: rawDue, now })}
+${dueFieldHtml(rawDue ?? '', { oob: true })}`);
   }
 
   // No-JS fallback: the filter is a real GET form — a plain submit

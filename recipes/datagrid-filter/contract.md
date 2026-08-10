@@ -121,6 +121,82 @@ Either alone leaves the condition a guess — the wording without the date
 hides which rows are in, the date without the wording hides that it will
 move tomorrow.
 
+### Entering one
+
+Nobody types `@today-7d`. The expression is a **wire format**, not a
+thing to put in front of a user, so the control is a server-rendered
+list of presets whose option values *are* the expressions:
+
+```html
+<select class="hc-select" name="f-ship-from">
+  <option value="">Any</option>
+  <option value="@today">Today</option>
+  <option value="@week-start" selected>This week</option>
+  <option value="@month-start">This month</option>
+  <option value="@today-7d">Last 7 days</option>
+  <option value="custom">Custom date…</option>
+</select>
+```
+
+The server renders the presets because it knows which ones make sense
+for the column — "this quarter" belongs on a ledger date, not on a
+last-login stamp — and it renders the chosen one `selected`, so a saved
+view reopens showing the preset, not a raw expression.
+
+**Custom is a re-render, not a second control.** Choosing `custom`
+triggers a `data-hx-get` that answers the field as a date input:
+
+```html
+<select class="hc-select" name="f-ship-from"
+        data-hx-get="/orders/filters/ship-from" data-hx-target="closest .hc-field"
+        data-hx-swap="outerHTML">…</select>
+```
+
+Do **not** render both controls and hide one. Hidden controls keep
+submitting (see [conditional-fields](../conditional-fields/)), so the
+form would send `f-ship-from` twice and the server would have to guess
+which one the user meant. One name, one control, at all times.
+
+The round trip costs nothing a filter panel notices, and it keeps the
+whole thing working with no JavaScript at all: without htmx the select
+is a plain control and the server can offer a Custom option that
+submits the form.
+
+### Arbitrary offsets
+
+Presets cover the handful of answers people give most; they cannot cover
+"45 days ago". For that, Custom offers a **composer** — a number, a unit
+— whose controls are deliberately *not* named after the condition:
+
+```html
+<div class="hc-cluster" role="group" aria-labelledby="ship-from-label">
+  <input class="hc-input" type="number" min="1" name="ship-from-n" value="45">
+  <select class="hc-select" name="ship-from-unit">…d / w / m / y…</select>
+  <span>ago</span>
+  <button data-hx-get="/orders/filters/ship-from?compose=1"
+          data-hx-include="closest .hc-field">Use</button>
+</div>
+```
+
+While the composer is open the condition simply **is not set** — no
+control carries `f-ship-from` — which is honest: nothing has been chosen
+yet. Pressing **Use** asks the server to compose the expression, and the
+field comes back as the ordinary preset control with the composed value
+**added as a selected option**, labelled:
+
+```html
+<option value="@today-45d" selected>45 days ago</option>
+```
+
+The server composes, because the canonical form of the expression is its
+business — the same reason it resolves them.
+
+**A relative expression never goes in a date input.** An expression that
+is not one of the presets is still an expression: render it as a
+selected option, not as `<input type="date" value="@today-45d">`, where
+the browser shows an empty field and the condition is lost on the next
+submit. Only absolute ISO values belong in the date control.
+
 **An expression the server does not understand is an error.** Answer
 `400` (or re-ask); never fall back to the unfiltered list. This is the
 same rule as an expired condition set, for the same reason: a silently

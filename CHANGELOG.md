@@ -22,6 +22,26 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `datagrid-filter` documents (and demonstrates) **how a
+  relative date gets entered**. The expressions shipped as a wire
+  format with no affordance behind them — and nobody types
+  `@today-7d`. The control is a server-rendered list of presets whose
+  option values *are* the expressions, with the applied one rendered
+  `selected` so a saved view reopens showing "This week" rather than a
+  raw expression; the server owns the list because it knows which
+  presets suit the column. Choosing **Custom date…** *re-renders* the
+  field as a date input rather than revealing a hidden one: hidden
+  controls keep submitting, so a hidden date input beside a visible
+  preset select would send the param twice and leave the server
+  guessing. One name, one control, always. Arbitrary offsets ("45 days
+  ago") come from a **composer** — a number and a unit, deliberately not
+  named after the condition, so nothing claims it until something is
+  chosen — which the server composes into the expression and returns as
+  a labelled selected option. A relative expression is never put in a
+  date input: the browser shows an empty field there and the condition
+  is lost on the next submit.
+
+
 - **docs**: the `data-grid-page` template adopts the filter-UX work
   (`plans/hc-filter-ux-plan-en.md` item G). Its illustrative `hc-chip`
   strip becomes a real [`hc-filterbar`](#) whose chips open their own
