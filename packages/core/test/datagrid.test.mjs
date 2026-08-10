@@ -1611,3 +1611,64 @@ describe('installDatagrid — zebra striping', () => {
     expect(alt('g-tools')).toBe(false);
   });
 });
+
+describe('installDatagrid — sort mirrored into a form field', () => {
+  const SORT_FIXTURE = `
+    <form id="filters">
+      <input type="hidden" name="sort" id="sort-field" data-hc-datagrid-sort>
+      <div class="hc-datagrid" id="grid">
+        <div class="hc-datagrid__scroll">
+          <table class="hc-datagrid__table">
+            <thead class="hc-datagrid__head">
+              <tr>
+                <th class="hc-datagrid__headcell" id="h-name" data-sortable data-col="name" scope="col">Name</th>
+                <th class="hc-datagrid__headcell" id="h-price" data-sortable data-col="price" scope="col">Price</th>
+              </tr>
+            </thead>
+            <tbody class="hc-datagrid__body">
+              <tr class="hc-datagrid__row"><td class="hc-datagrid__cell">a</td><td class="hc-datagrid__cell">1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </form>`;
+
+  it('writes the ordered sort set before the event fires', () => {
+    document.body.innerHTML = SORT_FIXTURE;
+    uninstall = installDatagrid();
+    let seen = null;
+    // The value must already be there when a listener runs — an
+    // event-triggered request serializes the form at that moment.
+    document.addEventListener(
+      'hc:datagridsort',
+      () => {
+        seen = $('sort-field').value;
+      },
+      { once: true },
+    );
+    click($('h-name'));
+    expect(seen).toBe('name');
+    expect($('sort-field').value).toBe('name');
+  });
+
+  it('encodes direction and multi-column order', () => {
+    document.body.innerHTML = SORT_FIXTURE;
+    uninstall = installDatagrid();
+    click($('h-name')); // asc
+    click($('h-name')); // desc
+    expect($('sort-field').value).toBe('-name');
+
+    // Shift adds to the set; order is significant.
+    shiftClick($('h-price'));
+    expect($('sort-field').value).toBe('-name,price');
+  });
+
+  it('a grid with no sort input is unaffected', () => {
+    document.body.innerHTML = SORT_FIXTURE.replace(
+      '<input type="hidden" name="sort" id="sort-field" data-hc-datagrid-sort>',
+      '',
+    );
+    uninstall = installDatagrid();
+    expect(() => click($('h-name'))).not.toThrow();
+  });
+});

@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: sort now travels with the form, so it **survives an
+  Apply and is captured by a saved view**
+  (`plans/hc-filter-ux-plan-en.md` PR-4). `installDatagrid()` writes the
+  whole ordered sort set (`name,-price` — leading `-` for descending)
+  into every `input[data-hc-datagrid-sort]` in the grid's closest
+  `<form>` **before** dispatching `hc:datagridsort`, exactly as it
+  already does for column widths, so an event-triggered request
+  serializes the fresh value. Sort used to arrive from the grid's own
+  `data-hx-vals` wiring, outside the filter form — which meant filtering
+  could silently reset the order, and `saved-views` (which stores the
+  form's fields) saved a view that had forgotten how the list was
+  ordered. The docs also stop contradicting themselves: the page
+  documented `?sort=name,-price` and then wired a single-column
+  `{ sort, dir }` pair that cannot round-trip multi-column sorting.
+  Additive — a grid without the input behaves exactly as before.
 - **filterbar**: new component — the **applied-conditions bar** above a
   list (`plans/hc-filter-ux-plan-en.md` PR-1). Applied filters had no
   component: `hc-chip` is documented as presentational and `hc-chips`

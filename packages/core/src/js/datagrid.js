@@ -963,6 +963,19 @@ function attach(grid, detachers) {
     if (th.getAttribute('data-sortable') === 'client') {
       clientSort(th, direction);
     }
+    // Mirror the committed sort set into any declared input BEFORE
+    // dispatching, so an event-triggered htmx request serializes the
+    // fresh value — the same hook the width prefs use. It is what puts
+    // sort INSIDE the filter form: the sort then survives an Apply, and
+    // a saved view captures it, because both read the form's fields.
+    // Wire format: `name,-price` — ordered, leading `-` for descending.
+    const wire = sorts
+      .map((s) => (s.direction === 'desc' ? `-${s.col}` : s.col))
+      .join(',');
+    const scope = grid.closest('form') ?? grid.ownerDocument;
+    for (const input of scope.querySelectorAll('input[data-hc-datagrid-sort]')) {
+      input.value = wire;
+    }
     grid.dispatchEvent(
       new CustomEvent('hc:datagridsort', {
         bubbles: true,
