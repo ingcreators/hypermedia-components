@@ -68,11 +68,7 @@ const FILTERS = [
            Both minimums matter — see the stylesheet below. -->
       <div class="tpl-grid-page">
         <div class="hc-cluster" style="justify-content: space-between;">
-          <div class="hc-cluster">
-            <h2 style="margin: 0; font-size: var(--hc-font-size-lg);">Orders</h2>
-            <span class="hc-chip">Ship date: this month</span>
-            <span class="hc-chip">Carrier: Road</span>
-          </div>
+          <h2 style="margin: 0; font-size: var(--hc-font-size-lg);">Orders</h2>
           <button
             class="hc-button"
             type="button"
@@ -82,9 +78,47 @@ const FILTERS = [
           </button>
         </div>
 
+        <!-- The applied conditions: a control per condition, not decoration.
+             The relative one shows the expression AND what it resolved
+             to, and every remove link points at this URL minus that one
+             param. -->
+        <div class="hc-filterbar">
+          <ul class="hc-filterbar__list">
+            <li class="hc-filterbar__item">
+              <button class="hc-filterbar__chip" type="button" popovertarget="template-grid-filters">
+                <span class="hc-filterbar__label">Ship date</span>
+                <span class="hc-filterbar__op">from</span>
+                <span class="hc-filterbar__value">start of this week (2026-08-10)</span>
+              </button>
+              <a class="hc-filterbar__remove" href="#template-grid"
+                 aria-label="Remove Ship date filter">×</a>
+            </li>
+            <li class="hc-filterbar__item">
+              <button class="hc-filterbar__chip" type="button" popovertarget="template-grid-filters">
+                <span class="hc-filterbar__label">Buyer code</span>
+                <span class="hc-filterbar__op">is</span>
+                <span class="hc-filterbar__value">3 values</span>
+              </button>
+              <a class="hc-filterbar__remove" href="#template-grid"
+                 aria-label="Remove Buyer code filter">×</a>
+            </li>
+            <li class="hc-filterbar__item">
+              <button class="hc-filterbar__chip" type="button" popovertarget="template-grid-filters">
+                <span class="hc-filterbar__label">Carrier</span>
+                <span class="hc-filterbar__op">is</span>
+                <span class="hc-filterbar__value">Road</span>
+              </button>
+              <a class="hc-filterbar__remove" href="#template-grid"
+                 aria-label="Remove Carrier filter">×</a>
+            </li>
+          </ul>
+          <a class="hc-filterbar__clear" href="#template-grid">Clear all</a>
+        </div>
+
         <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
           <button class="hc-button" data-variant="ghost" type="button">Refresh</button>
-          <button class="hc-button" data-variant="ghost" type="button">Export</button>
+          <a class="hc-button" data-variant="ghost"
+             href="#template-grid?f-ship-from=@week-start&amp;f-carrier=road">Export 5,000 rows</a>
           <button class="hc-button" data-variant="ghost" type="button">Import</button>
           <hr role="separator" aria-orientation="vertical" />
           <div class="hc-button-group" role="group" aria-label="Approval">
@@ -167,8 +201,10 @@ const FILTERS = [
               <option value="overdue">Overdue shipments</option>
               <option value="unapproved">Awaiting approval</option>
             </select>
-            <button class="hc-button" data-size="sm" type="button">Save…</button>
-            <button class="hc-button" data-size="sm" type="reset">Clear</button>
+            <span class="hc-badge" data-variant="warning">Modified</span>
+            <button class="hc-button" data-size="sm" type="button">Update</button>
+            <button class="hc-button" data-size="sm" type="button">Save as new…</button>
+            <button class="hc-button" data-size="sm" type="reset">Reset</button>
           </div>
         </div>
       </div>
@@ -178,14 +214,20 @@ const FILTERS = [
           {FILTERS.map((f) => (
             <div class="hc-field">
               <label class="hc-field__label" for={`template-grid-f-${f.name}`}>{f.label}</label>
-              <div class="hc-input-group">
-                <input class="hc-input" type="text" id={`template-grid-f-${f.name}`} name={`f-${f.name}`} />
-                <select class="hc-select" name={`op-${f.name}`} aria-label={`${f.label} operator`}>
-                  <option value="eq">equals</option>
-                  <option value="contains">contains</option>
-                  <option value="starts">starts with</option>
-                </select>
-              </div>
+              {f.name === 'order' ? (
+                <textarea class="hc-input" id={`template-grid-f-${f.name}`}
+                          name={`f-${f.name}`} rows="3" data-hc-multi="lines"
+                          placeholder="One per line — paste a column from a spreadsheet"></textarea>
+              ) : (
+                <div class="hc-input-group">
+                  <input class="hc-input" type="text" id={`template-grid-f-${f.name}`} name={`f-${f.name}`} />
+                  <select class="hc-select" name={`op-${f.name}`} aria-label={`${f.label} operator`}>
+                    <option value="eq">equals</option>
+                    <option value="contains">contains</option>
+                    <option value="starts">starts with</option>
+                  </select>
+                </div>
+              )}
             </div>
           ))}
 

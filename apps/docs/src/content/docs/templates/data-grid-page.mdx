@@ -290,19 +290,42 @@ needs `flex: 1` and **both** minimums, including the selection `<form>`.
 Break the chain anywhere and that axis scrolls the page instead of the
 grid.
 
+## The condition bar is the read-out
+
+The strip under the title is not decoration: it is what the screen is
+currently filtered by, and each chip is the way to change that
+condition. One of them is **relative** — `start of this week
+(2026-08-10)` — showing the expression that was stored *and* the date it
+resolved to today, so the condition is never a guess and a saved view
+built on it is still right next week.
+
+Three consequences the template shows:
+
+- **Export carries the query.** The button says *Export 5,000 rows* and
+  its href holds the same conditions and columns — a download means
+  this question, not the rows on screen.
+- **Sort rides in the form** (`<input data-hc-datagrid-sort>`), so it
+  survives an Apply and a saved view captures it.
+- **A tweaked view says so.** The panel header shows **Modified** with
+  Update / Save as new / Reset, because applying a view and changing one
+  condition is the commonest thing users do with saved views.
+
 ## Wiring map
 
 | Region | Component | Server contract |
 | --- | --- | --- |
 | App frame | [`hc-shell`](/hypermedia-components/components/shell/) | — |
-| Applied conditions | [`hc-chip`](/hypermedia-components/components/chip/) | Links that drop one condition — plain URLs |
+| Applied conditions | [`hc-filterbar`](/hypermedia-components/components/filterbar/) | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) — one chip per condition, each opening its own editor; remove links drop one param |
 | Toolbar | [`hc-toolbar`](/hypermedia-components/components/toolbar/) + `installToolbar()` | — (one Tab stop, arrow keys within) |
 | Selection actions | `installDatagridActions()` | [datagrid-bulk-actions](/hypermedia-components/recipes/datagrid-bulk-actions/), and [datagrid-bulk-errors](/hypermedia-components/recipes/datagrid-bulk-errors/) for failures at scale |
 | Pager | [`hc-pagination`](/hypermedia-components/components/pagination/) | [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) |
 | Grid | [`hc-datagrid`](/hypermedia-components/components/datagrid/) | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) for `f-<col>` params |
 | Inline edits | `data-editable` + editor `<template>` | [datagrid-edit-errors](/hypermedia-components/recipes/datagrid-edit-errors/) (422 + confirmable warnings), [datagrid-edit-conflict](/hypermedia-components/recipes/datagrid-edit-conflict/) (409) |
 | Filter panel | [`hc-dialog`](/hypermedia-components/components/dialog/) + [`hc-grid`](/hypermedia-components/fundamentals/layout/) + [`hc-input-group`](/hypermedia-components/components/input-group/) | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) |
-| Saved conditions | the panel's `view` select | [saved-views](/hypermedia-components/recipes/saved-views/) |
+| Saved conditions | the panel's `view` select | [saved-views](/hypermedia-components/recipes/saved-views/) — including the **modified** state and update in place |
+| Multi-value entry | `<textarea data-hc-multi="lines">` | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) — pasted lists become repeated params |
+| Relative dates | condition values like `@week-start` | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) — stored as the expression, resolved by the server |
+| Export | a link carrying the current query | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) — same conditions, same columns, all pages |
 | Column set / widths | — | [datagrid-columns](/hypermedia-components/recipes/datagrid-columns/), [datagrid-prefs](/hypermedia-components/recipes/datagrid-prefs/) |
 
 ## Adapt it
