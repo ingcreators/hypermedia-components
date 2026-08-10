@@ -149,3 +149,40 @@ describe('datagrid-filter demo API — relative date conditions', () => {
     expect(body).toMatch(/f-status=active[^"]*"[^>]*aria-label="Remove Due filter"/);
   });
 });
+
+describe('datagrid-filter demo API — entering a relative date', () => {
+  it('offers presets whose values are the expressions', async () => {
+    const body = await (await call(datagridFilter, 'GET', '/items', { htmx: true })).text();
+    // Nobody types @today-7d: the option value is the wire format, the
+    // label is what a person reads.
+    expect(body).toContain('<option value="@today">Today</option>');
+    expect(body).toContain('<option value="@today-7d">Last 7 days</option>');
+    expect(body).toContain('<option value="custom">Custom date…</option>');
+  });
+
+  it('marks the applied preset selected, so a saved view reopens readable', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-due-from=@week-start', { htmx: true })
+    ).text();
+    expect(body).toContain('<option value="@week-start" selected>This week</option>');
+  });
+
+  it('custom is a re-render, and only ever one control carries the name', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/filters/due', { htmx: true })
+    ).text();
+    expect(body).toContain('type="date"');
+    // Hidden controls keep submitting, so the select must be GONE, not
+    // hidden — otherwise f-due-from would arrive twice.
+    expect(body).not.toContain('<select');
+    expect((body.match(/name="f-due-from"/g) ?? []).length).toBe(1);
+  });
+
+  it('an absolute date reopens in the date input, not as an unknown preset', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-due-from=2099-01-01', { htmx: true })
+    ).text();
+    expect(body).toContain('type="date"');
+    expect(body).toContain('value="2099-01-01"');
+  });
+});

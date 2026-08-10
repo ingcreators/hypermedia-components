@@ -79,9 +79,53 @@ function fieldsHtml(selected, { oob = false } = {}) {
   </fieldset>`;
 }
 
+// The presets the server offers for THIS column. Option values are the
+// wire expressions; nobody types those. The server picks the list
+// because it knows which presets suit the column.
+const DUE_PRESETS = [
+  ['', 'Any'],
+  ['@today', 'Today'],
+  ['@week-start', 'This week'],
+  ['@month-start', 'This month'],
+  ['@today-7d', 'Last 7 days'],
+];
+
+const DUE_FIELD_ID = 'datagrid-filter-demo-due-field';
+
+/**
+ * The due-date control: a preset list, or a date input once the user
+ * picks "Custom date…". ONE control at a time — rendering both and
+ * hiding one would submit f-due-from twice, since hidden controls keep
+ * submitting.
+ */
+function dueFieldHtml(raw, { custom = false, oob = false } = {}) {
+  const oobAttr = oob ? ' data-hx-swap-oob="outerHTML"' : '';
+  const known = DUE_PRESETS.some(([value]) => value === raw);
+  const showDate = custom || (raw && !known);
+  if (showDate) {
+    return `<div class="hc-field" id="${DUE_FIELD_ID}"${oobAttr}>
+  <label class="hc-field__label" for="f-due-input">Due from</label>
+  <input class="hc-input" type="date" id="f-due-input" name="f-due-from" value="${escapeHtml(known ? '' : raw)}">
+  <a class="hc-field__hint" href="${API}/items" data-hx-get="${API}/filters/due?preset=1" data-hx-target="#${DUE_FIELD_ID}" data-hx-swap="outerHTML">Use a preset instead</a>
+</div>`;
+  }
+  const options = DUE_PRESETS.map(
+    ([value, label]) =>
+      `<option value="${value}"${value === raw ? ' selected' : ''}>${label}</option>`,
+  ).join('');
+  return `<div class="hc-field" id="${DUE_FIELD_ID}"${oobAttr}>
+  <label class="hc-field__label" for="f-due-select">Due from</label>
+  <select class="hc-select" id="f-due-select" name="f-due-from" data-hx-get="${API}/filters/due" data-hx-target="#${DUE_FIELD_ID}" data-hx-swap="outerHTML" data-hx-trigger="change[this.value==='custom']">
+    ${options}
+    <option value="custom">Custom date…</option>
+  </select>
+</div>`;
+}
+
 function formHtml(selected) {
   return `<form action="${API}/items" method="get" data-hx-get="${API}/items" data-hx-target="#${GRID_ID}" data-hc-close-popover-on-success>
   ${fieldsHtml(selected)}
+  ${dueFieldHtml('')}
   <footer class="hc-popover__footer"><button class="hc-button" type="submit" data-variant="primary">Apply</button></footer>
 </form>`;
 }
@@ -181,6 +225,13 @@ function gridHtml(selected, { dueFrom = null, now = new Date() } = {}) {
 }
 
 export function handle({ method, path, url, request }) {
+  // Swapping the due control between presets and a date input is a
+  // re-render, not a second control: one name, one control, always.
+  if (method === 'GET' && path === '/filters/due') {
+    const wantsPreset = url.searchParams.get('preset') === '1';
+    return html(dueFieldHtml('', { custom: !wantsPreset }));
+  }
+
   if (method !== 'GET' || path !== '/items') return null;
 
   const selected = selectStatuses(url.searchParams.getAll('f-status'));
@@ -206,7 +257,8 @@ export function handle({ method, path, url, request }) {
     // in its header), plus the fieldset re-rendered out-of-band.
     return html(`${gridHtml(selected, { dueFrom, now })}
 ${fieldsHtml(selected, { oob: true })}
-${barHtml(selected, { oob: true, due: rawDue, now })}`);
+${barHtml(selected, { oob: true, due: rawDue, now })}
+${dueFieldHtml(rawDue ?? '', { oob: true })}`);
   }
 
   // No-JS fallback: the filter is a real GET form — a plain submit

@@ -121,6 +121,47 @@ Either alone leaves the condition a guess — the wording without the date
 hides which rows are in, the date without the wording hides that it will
 move tomorrow.
 
+### Entering one
+
+Nobody types `@today-7d`. The expression is a **wire format**, not a
+thing to put in front of a user, so the control is a server-rendered
+list of presets whose option values *are* the expressions:
+
+```html
+<select class="hc-select" name="f-ship-from">
+  <option value="">Any</option>
+  <option value="@today">Today</option>
+  <option value="@week-start" selected>This week</option>
+  <option value="@month-start">This month</option>
+  <option value="@today-7d">Last 7 days</option>
+  <option value="custom">Custom date…</option>
+</select>
+```
+
+The server renders the presets because it knows which ones make sense
+for the column — "this quarter" belongs on a ledger date, not on a
+last-login stamp — and it renders the chosen one `selected`, so a saved
+view reopens showing the preset, not a raw expression.
+
+**Custom is a re-render, not a second control.** Choosing `custom`
+triggers a `data-hx-get` that answers the field as a date input:
+
+```html
+<select class="hc-select" name="f-ship-from"
+        data-hx-get="/orders/filters/ship-from" data-hx-target="closest .hc-field"
+        data-hx-swap="outerHTML">…</select>
+```
+
+Do **not** render both controls and hide one. Hidden controls keep
+submitting (see [conditional-fields](../conditional-fields/)), so the
+form would send `f-ship-from` twice and the server would have to guess
+which one the user meant. One name, one control, at all times.
+
+The round trip costs nothing a filter panel notices, and it keeps the
+whole thing working with no JavaScript at all: without htmx the select
+is a plain control and the server can offer a Custom option that
+submits the form.
+
 **An expression the server does not understand is an error.** Answer
 `400` (or re-ask); never fall back to the unfiltered list. This is the
 same rule as an expired condition set, for the same reason: a silently

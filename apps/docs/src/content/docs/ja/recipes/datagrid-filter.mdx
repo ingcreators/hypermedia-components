@@ -168,6 +168,38 @@ no-JS 経路として残ります。
 どちらか一方では条件が推測になります。文言だけではどの行が入るのかが
 分からず、日付だけでは明日ずれることが分かりません。
 
+### どうやって入力するか
+
+`@today-7d` を手で打つ人はいません。式は**ワイヤ形式**であってユーザーに
+見せるものではないので、コントロールはサーバーが描画するプリセットの
+一覧で、**option の値が式そのもの**です。
+
+```html
+<select class="hc-select" name="f-ship-from"
+        data-hx-get="/orders/filters/ship-from"
+        data-hx-target="closest .hc-field" data-hx-swap="outerHTML">
+  <option value="">指定なし</option>
+  <option value="@today">今日</option>
+  <option value="@week-start" selected>今週</option>
+  <option value="@today-7d">過去 7 日</option>
+  <option value="custom">日付を指定…</option>
+</select>
+```
+
+プリセットをサーバーが描画するのは、その列にどれが適切かを知っているのが
+サーバーだからです（「今四半期」は伝票日付には合いますが、最終ログイン
+日時には合いません）。適用中のものを `selected` で描画するので、保存
+ビューを開き直したとき生の式ではなく**今週**と表示されます。
+
+:::danger[両方描画して片方を隠してはいけません]
+隠したコントロールも**送信され続けます**
+([conditional-fields](/hypermedia-components/ja/recipes/conditional-fields/))。
+プリセットの select の隣に日付入力を隠して置くと、`f-ship-from` が
+2 回送られ、サーバーはどちらの意図か推測することになります。
+**日付を指定…** を選んだときはフィールドを*再描画*してください。
+名前 1 つにつきコントロールは常に 1 つです。
+:::
+
 :::caution[知らない式はエラーです]
 `400` を返すか、入力を求め直してください。絞り込みなしの一覧に落とすのは
 禁止です。黙って落とされた条件は、ユーザーが求めた**以上の**データを
