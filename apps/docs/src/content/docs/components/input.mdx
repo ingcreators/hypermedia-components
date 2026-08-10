@@ -215,6 +215,45 @@ input fills the slots:
 Variable-width formats (Japanese landline numbers) have no fixed mask —
 leave those fields unmasked and normalize server-side.
 
+## Multi-value conditions
+
+Business screens often need to ask about a **list** of identifiers — a
+column of order numbers pasted out of a spreadsheet. A `<textarea>` is
+the right control for that (it takes a paste of any size), and
+`installMultiValue()` puts each line on the wire as its own value:
+
+```html
+<textarea class="hc-input" name="f-buyer" data-hc-multi="lines">ZAB001000000
+ZAB001000001
+ZAB001000002</textarea>
+```
+
+```text
+?f-buyer=ZAB001000000&f-buyer=ZAB001000001&f-buyer=ZAB001000002
+```
+
+The split happens on the **`formdata` event**, the same hook
+`installFormat()` uses — htmx's `new FormData(form)` and a native submit
+both fire it, so one listener covers both transports and nothing wraps
+the network. Values are trimmed and de-duplicated; `data-hc-multi="commas"`
+splits on commas too. A control emptied of everything contributes **no
+entry at all** — an empty condition is not a condition.
+
+Have the server accept the raw newline-joined value as well: without
+JavaScript the textarea submits exactly that, and splitting it
+server-side keeps the no-JS path working.
+
+:::note[Which control?]
+A textarea takes a paste of unknown size;
+[`hc-multicombobox`](/hypermedia-components/components/multicombobox/)
+is for choosing from a small known set with suggestions. Paste-ability
+versus discoverability.
+:::
+
+The [datagrid-filter recipe](/hypermedia-components/recipes/datagrid-filter/)
+documents what to do when the list outgrows a URL — a stored condition
+set addressed by id, which must never fail open.
+
 ## htmx usage
 
 `hc-input` works with htmx like any other input. The [live-search](/hypermedia-components/recipes/live-search/)

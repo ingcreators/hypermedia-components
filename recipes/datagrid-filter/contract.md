@@ -78,6 +78,57 @@ Name the condition to drop — the **newest** one, since it is what the
 user just did — and make it a link to the URL without it. The bar is
 right above, so the offer and the controls read as one thing.
 
+## Multi-value conditions
+
+A condition can hold many values — the wire already says so, since
+`f-<col>` repeats. What business users need is a way to *enter* them: a
+column of order numbers pasted out of a spreadsheet.
+
+```html
+<textarea class="hc-input" name="f-buyer" data-hc-multi="lines">ZAB001000000
+ZAB001000001
+ZAB001000002</textarea>
+```
+
+`installMultiValue()` splits each line into its own entry on the
+**`formdata` event**, so `f-buyer=…&f-buyer=…&f-buyer=…` reaches the
+server through htmx and a native submit alike. Values are trimmed and
+de-duplicated, and a control emptied of everything contributes no entry
+at all — an empty condition is not a condition.
+
+**Accept the raw value too.** Without JavaScript the textarea submits
+one entry containing newlines. That is a perfectly good request; split
+it server-side and the no-JS path stays honest.
+
+Pick the control by the job: a textarea takes a paste of unknown size,
+while [`hc-multicombobox`](../multicombobox/) is for choosing from a
+small known set with suggestions.
+
+The bar summarises what it cannot show — `Buyer code is 3 values` — and
+the chip's editor holds the list.
+
+### When the list outgrows a URL
+
+Repeats are fine into the low hundreds. Past that a querystring stops
+fitting through proxies and servers (~2 KB in the wild, 8 KB is a
+typical default), and the answer is not a longer URL but a **condition
+set**:
+
+| Step | Request |
+| --- | --- |
+| store | `POST /orders/condition-sets` with the values → `201` + an id |
+| filter | `GET /orders?f-buyer-set=<id>` |
+
+The id lives in the querystring, so sharing, bookmarking, paging and
+saved views keep working unchanged.
+
+**An unknown or expired set must not fail open.** Answer `404`, or
+re-ask for the list — never fall back to "no filter". Dropping a
+condition silently shows the user *more* data than they asked for,
+which in a business screen is a safety problem, not a cosmetic one. The
+same rule governs how long a set lives: long enough that a saved view
+using one still resolves, or the view must fail visibly.
+
 ## Filter rules
 
 - **Filters compose across columns**: each column's form carries the

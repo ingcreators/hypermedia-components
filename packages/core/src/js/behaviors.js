@@ -55,6 +55,7 @@ import { installShowWhen } from './show-when.js';
 import { installSortable } from './sortable.js';
 import { installFormat, installNormalize } from './format.js';
 import { installMask } from './mask.js';
+import { installMultiValue } from './multi-value.js';
 import { installDirtyGuard } from './dirty-guard.js';
 import { installSessionExpiry } from './session-expiry.js';
 import { installTime } from './time.js';
@@ -109,6 +110,7 @@ function init() {
   installFormat();
   installNormalize();
   installMask();
+  installMultiValue();
   installDirtyGuard();
   installSessionExpiry();
   installTime();
@@ -170,6 +172,7 @@ export {
   installShowWhen,
   installSortable,
   installFormat,
+  installMultiValue,
   installNormalize,
   installMask,
   installDirtyGuard,

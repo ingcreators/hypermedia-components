@@ -219,6 +219,46 @@ import Demo from '../../../../components/Demo.astro';
 可変長の形式(固定電話番号)には固定マスクがありません — そうした
 フィールドはマスクせず、サーバー側で正規化してください。
 
+## 複数値の条件
+
+業務画面では**一覧**に対して問い合わせたい場面が多くあります — 表計算
+から貼り付けた注文番号の列など。この用途には `<textarea>` が適して
+おり（どんな量の貼り付けも受けられます）、`installMultiValue()` が
+各行を個別の値としてワイヤに載せます。
+
+```html
+<textarea class="hc-input" name="f-buyer" data-hc-multi="lines">ZAB001000000
+ZAB001000001
+ZAB001000002</textarea>
+```
+
+```text
+?f-buyer=ZAB001000000&f-buyer=ZAB001000001&f-buyer=ZAB001000002
+```
+
+分割は **`formdata` イベント**で行います。`installFormat()` と同じ
+フックで、htmx の `new FormData(form)` もネイティブ送信も発火するため、
+リスナー 1 つで両方の経路をカバーでき、ネットワークには一切触れません。
+値はトリムされ重複は除かれます。`data-hc-multi="commas"` はカンマでも
+分割します。すべて空になったコントロールは**エントリを 1 つも送りません** —
+空の条件は条件ではないからです。
+
+サーバーは改行を含む生の値も受理してください。JavaScript がなければ
+textarea はまさにそれを送信するので、サーバー側で分割すれば no-JS 経路が
+そのまま生きます。
+
+:::note[どちらの部品を使うか]
+textarea は量の分からない貼り付けを受けるためのもの、
+[`hc-multicombobox`](/hypermedia-components/ja/components/multicombobox/)
+は候補付きで既知の小さな集合から選ぶためのものです。貼り付けやすさ対
+見つけやすさ、という軸で選んでください。
+:::
+
+一覧が URL に収まらなくなったときの扱いは
+[datagrid-filter レシピ](/hypermedia-components/ja/recipes/datagrid-filter/)
+にあります — id で参照する保存済みの条件セットで、これは決して
+fail open してはなりません。
+
 ## htmx での利用
 
 `hc-input` は他の入力と同様に htmx と組み合います。[live-search](/hypermedia-components/ja/recipes/live-search/)

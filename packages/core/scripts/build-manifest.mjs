@@ -48,6 +48,7 @@ const EXPLICIT_CLAIMS = {
   installFormat: 'platform', // numeric display formatting (input docs)
   installNormalize: 'platform', // IME fullwidth/kana normalization (input docs)
   installMask: 'postal-address',
+  installMultiValue: 'datagrid-filter', // pasted lists → repeated params
   installCsrfHeader: 'platform',
   installThemeToggle: 'platform',
   installNavCurrent: 'platform', // boosted-nav re-marking (shell docs)
