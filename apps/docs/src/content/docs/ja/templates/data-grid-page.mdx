@@ -34,29 +34,48 @@ import DataGridPageTemplateDemo from '../../../../components/template-demos/Data
 
 ## レイアウトの決まりごと
 
-効いているのは 4 つの宣言だけです。残りは普通のマークアップです。
-
 ```css
-/* hc-shell__main の中のページカラム */
+/* hc-shell__main をページカラムを収める行にする */
+.app-main {
+  display: flex;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+/* ページカラム: 固定の領域が並び、最後にグリッドが残りを取る */
 .page {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  min-block-size: 0;   /* ← これが要 */
+  min-block-size: 0;
+  min-inline-size: 0;
   gap: var(--hc-space-3);
 }
 
 .page > .hc-datagrid {
   flex: 1;
-  min-block-size: 0;   /* ← ここにも */
+  min-block-size: 0;
+  min-inline-size: 0;
+
   --hc-datagrid-max-height: 100%;
 }
 ```
 
-**効かせているのは `min-block-size: 0` です。**flex 子はデフォルトでは
-コンテンツより小さくなれないため、これがないとグリッドは全行が収まる
-高さまで伸び、カラムもそれに引きずられ、グリッドではなく*ページ*が
-スクロールします。症状は「ツールバーが流れていく」「ヘッダー行の固定が
-効かない」です。
+**2 つの最小値が両方とも要で、軸ごとに 1 つずつです。**flex 子は
+コンテンツより小さくなれず、データグリッドは両軸とも大きいからです —
+テーブルは `inline-size: max-content`、行数はサーバーが返しただけあり
+ます。
+
+- **`min-block-size: 0`** を落とすと、グリッドが全行の入る高さまで
+  伸びて*ページ*が縦にスクロールします。ツールバーが流れていき、
+  ヘッダー行の固定も効かなくなります。
+- **`min-inline-size: 0`** を落とすと、カラムがテーブルの幅まで広がり、
+  **横方向のスクロールポートが `hc-shell__main` になります**。右に
+  スクロールするとタイトルもツールバーも一緒に動く — グリッド自身の
+  スクロールポートが防ぐはずだった、まさにその状態です。
+
+後者は見落としやすい部類です。テーブルが画面幅を超えるまでは、
+見た目には何も問題がないからです。
 
 `--hc-datagrid-max-height` の既定値は `70vh` で、スクロールするページの
 **中に**置くグリッドにはそれが適切です。ページ**そのもの**になる
@@ -65,6 +84,22 @@ import DataGridPageTemplateDemo from '../../../../components/template-demos/Data
 `hc-shell` は自分の担当分を既に果たしています。`__main` は
 `overflow: auto` かつ `min-block-size: 0` なので、フレームがビュー
 ポートを押し広げることはありません。
+
+### シェルのブレークポイント以下では
+
+`60rem` 未満では `hc-shell` は意図的に普通のスクロールするページに
+変わります（`display: block`、`overflow: visible`）。高さ固定のアプリ
+フレームはスマートフォンでは正しい形ではないからです。するとグリッド
+の親に確定した高さがなくなるため `100%` は何も制限せず、全行が実寸で
+描画されてしまいます。ビューポート基準の上限に戻してください。
+
+```css
+@media (width <= 60rem) {
+  .page > .hc-datagrid {
+    --hc-datagrid-max-height: 70vh;
+  }
+}
+```
 
 ## ページの骨格
 
@@ -86,7 +121,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
       <a href="/customers">Customers</a>
     </nav>
 
-    <main class="hc-shell__main" style="display: flex; min-block-size: 0;">
+    <main class="hc-shell__main app-main">
       <div class="page">
         <!-- Title row: applied conditions as chips, filter panel trigger -->
         <div class="hc-cluster" style="justify-content: space-between;">
@@ -225,28 +260,37 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 ```css
 .page {
   display: flex;
-  flex-direction: column;
   flex: 1;
+  flex-direction: column;
   min-block-size: 0;
+  min-inline-size: 0;
   gap: var(--hc-space-3);
 }
 
 .page > form,
 .page > form > .hc-datagrid {
   display: flex;
-  flex-direction: column;
   flex: 1;
+  flex-direction: column;
   min-block-size: 0;
+  min-inline-size: 0;
 }
 
 .page > form > .hc-datagrid {
   --hc-datagrid-max-height: 100%;
 }
+
+@media (width <= 60rem) {
+  .page > form > .hc-datagrid {
+    --hc-datagrid-max-height: 70vh;
+  }
+}
 ```
 
-連鎖が重要です。カラムからグリッドまでの間にある要素はすべて
-`flex: 1; min-block-size: 0` を必要とします — 選択用の `<form>` も
-含めてです。どこかで連鎖が切れると、その時点でページがスクロールします。
+連鎖が重要です。ページカラムからグリッドまでの間にある要素はすべて
+`flex: 1` と**両方の**最小値を必要とします — 選択用の `<form>` も
+含めてです。どこかで連鎖が切れると、その軸はグリッドではなくページを
+スクロールさせます。
 
 ## 配線表
 

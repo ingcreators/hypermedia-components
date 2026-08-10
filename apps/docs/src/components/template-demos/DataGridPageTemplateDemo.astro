@@ -63,12 +63,10 @@ const FILTERS = [
       <a href="#template-grid">Customers</a>
     </nav>
 
-    <main class="hc-shell__main" style="display: flex; min-block-size: 0;">
+    <main class="hc-shell__main tpl-grid-main">
       <!-- The page column: fixed regions, then the grid taking the rest.
-           `min-block-size: 0` is what lets the grid shrink instead of
-           pushing the page taller. -->
-      <div
-        style="display: flex; flex-direction: column; flex: 1; min-block-size: 0; gap: var(--hc-space-3);">
+           Both minimums matter — see the stylesheet below. -->
+      <div class="tpl-grid-page">
         <div class="hc-cluster" style="justify-content: space-between;">
           <div class="hc-cluster">
             <h2 style="margin: 0; font-size: var(--hc-font-size-lg);">Orders</h2>
@@ -101,11 +99,7 @@ const FILTERS = [
           </div>
         </div>
 
-        <div
-          class="hc-datagrid"
-          id="template-grid"
-          data-hc-zebra
-          style="flex: 1; min-block-size: 0; --hc-datagrid-max-height: 100%;">
+        <div class="hc-datagrid tpl-grid" id="template-grid" data-hc-zebra>
           <div class="hc-datagrid__scroll">
             <table class="hc-datagrid__table">
               <thead class="hc-datagrid__head">
@@ -224,3 +218,45 @@ const FILTERS = [
     </form>
   </dialog>
 </DemoFrame>
+
+<style>
+  /* The page column inside hc-shell__main. BOTH minimums are needed:
+     a flex item will not shrink below its content on either axis, and
+     the datagrid's max-content table is very wide. Without
+     min-inline-size the column grows to the table's width and
+     hc-shell__main scrolls horizontally — carrying the toolbar and the
+     title with it, which is exactly what the grid's own scrollport is
+     supposed to prevent. */
+  .tpl-grid-main {
+    display: flex;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  .tpl-grid-page {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-block-size: 0;
+    min-inline-size: 0;
+    gap: var(--hc-space-3);
+  }
+
+  .tpl-grid {
+    flex: 1;
+    min-block-size: 0;
+    min-inline-size: 0;
+
+    --hc-datagrid-max-height: 100%;
+  }
+
+  /* Below hc-shell's own breakpoint the shell becomes an ordinary
+     scrolling page (display: block, overflow: visible) — by design. The
+     grid then has no definite parent height, so `100%` caps nothing and
+     it would render every row. Fall back to the viewport cap. */
+  @media (width <= 60rem) {
+    .tpl-grid {
+      --hc-datagrid-max-height: 70vh;
+    }
+  }
+</style>
