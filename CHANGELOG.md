@@ -22,6 +22,28 @@ Security    — security-relevant changes
 
 ### Added
 
+- **behaviors**: `installMultiValue()` — **one control, many values on
+  the wire** (`plans/hc-filter-ux-plan-en.md` item B). The filter wire
+  already took repeated `f-<col>` params; nothing let a user *enter*
+  them. `data-hc-multi="lines"` on a `<textarea>` (or `commas`) makes
+  each line its own entry, so a column of order numbers pasted out of a
+  spreadsheet becomes
+  `f-buyer=A&f-buyer=B&f-buyer=C`. The split happens on the **`formdata`
+  event** — the hook `installFormat()` already uses, which htmx's
+  `new FormData(form)` and a native submit both fire, so one listener
+  covers both transports and nothing wraps the network. Entries are
+  rebuilt **in place** rather than appended, so the same conditions
+  always serialize in the same order (a saved view compares
+  querystrings). Values are trimmed and de-duplicated, and a control
+  emptied of everything contributes no entry at all. Servers should
+  still accept the raw newline-joined value, which is what the no-JS
+  path sends. `datagrid-filter`'s contract gains the section, including
+  what to do when the list outgrows a URL: a stored **condition set**
+  addressed by id — which must answer `404` rather than fall back to
+  "no filter", since a silently dropped condition shows more data than
+  was asked for.
+
+
 - **recipes**: `datagrid-filter` gains the **applied-conditions bar**
   (`plans/hc-filter-ux-plan-en.md` item A). Column popovers are how a
   condition is *created*; they are a poor way to find one again — in a

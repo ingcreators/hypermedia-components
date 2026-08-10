@@ -1,0 +1,29 @@
+<!doctype html>
+<!-- Fixture for installMultiValue. jsdom does not fire `formdata` when
+     FormData is constructed, so the real-browser firing — for both
+     transports — is pinned here. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>multi-value fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Multi-value conditions</h1>
+    <form id="filters" action="/orders" method="get" data-testid="form">
+      <div class="hc-field">
+        <label class="hc-field__label" for="buyer">Buyer code</label>
+        <textarea class="hc-input" id="buyer" name="f-buyer" rows="4"
+                  data-hc-multi="lines" data-testid="buyer">ZAB001000000
+test1
+test2</textarea>
+      </div>
+      <input type="hidden" name="f-status" value="open">
+      <button class="hc-button" type="submit" data-testid="submit">Search</button>
+    </form>
+    <output id="out" data-testid="out"></output>
+  </main>
+</body>
+</html>
