@@ -132,6 +132,21 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **dialog**: a dialog taller than the viewport now scrolls its
+  **body**, not its header and footer. `.hc-dialog` had no column
+  layout and no scrolling body, so an over-tall dialog scrolled as a
+  whole under the browser's height cap — the title left the top of the
+  screen and the footer, where the primary action lives, left the
+  bottom (measured: at a 460 px viewport the Apply button sat at
+  `y = 604`). An open dialog is now a flex column with an `overflow:
+  auto` body, and the column passes through a form wrapping
+  header/body/footer — the usual shape when the footer's button submits
+  the body's fields, as in a filter panel. The rule is scoped to
+  `[open]`: an unscoped `display` would beat the UA's
+  `dialog:not([open]) { display: none }` and reveal every closed dialog.
+  Markup is unchanged.
+
+
 - **recipes**: the atomic branch of `datagrid-bulk-errors` now **marks
   the blocked rows**. The rule was "never mark in the atomic branch —
   nothing changed, so marking would lie", which conflated two different

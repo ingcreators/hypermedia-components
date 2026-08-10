@@ -60,10 +60,37 @@ import Demo from '../../../../components/Demo.astro';
 | `.hc-dialog`          | ルートの `<dialog>` 要素。              |
 | `.hc-dialog__header`  | タイトル行。下に区切り線。              |
 | `.hc-dialog__title`   | ヘッダー内の見出し。                    |
-| `.hc-dialog__body`    | メインのコンテンツ領域。                |
+| `.hc-dialog__body`    | メインのコンテンツ領域。ダイアログがビューポートより高いとき**スクロールする**のはここ。 |
 | `.hc-dialog__footer`  | アクション行。右寄せ、上に区切り線。    |
 
 パーツは慣習です — どれでも省略できます。
+
+### 背の高いダイアログ
+
+開いているダイアログはカラムなので、ビューポートより高い内容は
+**本文の中で**スクロールし、ヘッダーとフッターはその場に留まります。
+主要アクションはフッターにあるためこれが効きます — フィールドが十数個
+ある検索パネルでは、そうしないとボタンが画面外に押し出されます。
+
+3 つのパーツをまとめて 1 つのフォームで包んでも構いません。フッターの
+ボタンが本文のフィールドを送信する場合の通常の形です:
+
+```html
+<dialog class="hc-dialog" id="filters" aria-labelledby="filters-title">
+  <form method="get" action="/orders">
+    <div class="hc-dialog__header">
+      <h2 class="hc-dialog__title" id="filters-title">検索条件</h2>
+    </div>
+    <div class="hc-dialog__body">…多数のフィールド…</div>
+    <div class="hc-dialog__footer">
+      <button class="hc-button" type="submit" data-variant="primary">検索</button>
+    </div>
+  </form>
+</dialog>
+```
+
+横幅の広いパネルには `--hc-dialog-max-width` で余裕を与えてください。
+高さの上限はブラウザが持つので、指定は不要です。
 
 ## 開閉
 
