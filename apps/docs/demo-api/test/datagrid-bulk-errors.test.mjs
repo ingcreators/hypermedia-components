@@ -168,3 +168,73 @@ describe('datagrid-bulk-errors demo API — atomic', () => {
     expect(body).toContain('2 rows posted');
   });
 });
+
+describe('datagrid-bulk-errors demo API — acting on everything that matches', () => {
+  // The token pins the count the user was shown. The demo derives it
+  // from the conditions, so a token minted for one query never
+  // validates for another.
+  async function tokenFor(status) {
+    const body = await (
+      await call(bulkErrors, 'POST', '/bulk', {
+        body: form({ action: 'archive', scope: 'matching', 'f-status': status }),
+      })
+    ).text();
+    return /name="count-token" value="(ct_[a-z0-9]+)"/.exec(body)?.[1];
+  }
+
+  it('a first attempt without a valid token asks for confirmation with the count', async () => {
+    const response = await call(bulkErrors, 'POST', '/bulk', {
+      body: form({ action: 'archive', scope: 'matching', 'f-status': 'open' }),
+    });
+    expect(response.status).toBe(409);
+    const body = await response.text();
+    expect(body).toContain('The number of matching rows changed');
+    // The offer names the number it will act on.
+    expect(body).toMatch(/Archive all \d+ matching/);
+    // And it did NOT act.
+    expect(body).not.toContain('rows archived');
+  });
+
+  it('executes once the token matches the conditions it was minted for', async () => {
+    const token = await tokenFor('open');
+    expect(token).toBeTruthy();
+    const response = await call(bulkErrors, 'POST', '/bulk', {
+      body: form({
+        action: 'archive',
+        scope: 'matching',
+        'f-status': 'open',
+        'count-token': token,
+      }),
+    });
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    expect(body).toContain('rows archived');
+  });
+
+  it("a token from a different query does not authorise this one", async () => {
+    const token = await tokenFor('open');
+    const response = await call(bulkErrors, 'POST', '/bulk', {
+      body: form({
+        action: 'archive',
+        scope: 'matching',
+        'f-status': 'blocked',
+        'count-token': token,
+      }),
+    });
+    // Silently acting here would run the operation against a set the
+    // user never saw a count for.
+    expect(response.status).toBe(409);
+  });
+
+  it('refuses a request that names both ids and a query', async () => {
+    const response = await call(bulkErrors, 'POST', '/bulk', {
+      body: form({
+        action: 'archive',
+        scope: 'matching',
+        ids: ['101'],
+        'f-status': 'open',
+      }),
+    });
+    expect(response.status).toBe(400);
+  });
+});

@@ -137,6 +137,28 @@ function bulkReport(inner, { oob = false } = {}) {
   return oob ? `<template>${div}</template>` : div;
 }
 
+/**
+ * The count the user was shown, pinned. A real server signs or stores
+ * this; the demo derives it from the conditions so the same conditions
+ * always yield the same token — which is exactly the property that
+ * matters: a token from a DIFFERENT set of conditions must not validate.
+ */
+function countToken(conditions, count) {
+  let h = 0;
+  for (const ch of `${conditions}|${count}`) h = (h * 31 + ch.codePointAt(0)) | 0;
+  return `ct_${(h >>> 0).toString(36)}`;
+}
+
+/** Rows matching a query-scoped request. The demo's one condition is status. */
+function matching(status) {
+  if (!status) return ITEMS.map((i) => i.id);
+  // "open" is everything that is not blocked — enough to make the
+  // count-changes branch demonstrable.
+  return ITEMS.filter((i) => (status === 'open') === (blockedReason(i.id) == null)).map(
+    (i) => i.id,
+  );
+}
+
 export async function handle({ method, path, url, request }) {
   // ---- Atomic phase 1: pre-flight -------------------------------
   if (method === 'GET' && path === '/preflight') {
@@ -190,8 +212,47 @@ ${markedRows}`,
   if (method !== 'POST' || path !== '/bulk') return null;
 
   const form = await request.formData();
-  const ids = form.getAll('ids').map(Number).filter(Boolean);
+  const scope = String(form.get('scope') ?? 'ids');
+  let ids = form.getAll('ids').map(Number).filter(Boolean);
   const action = String(form.get('action') ?? 'archive');
+
+  if (scope === 'matching') {
+    // Acting on the QUERY rather than on a list of ids — the only shape
+    // that survives 4,873 rows. The two are mutually exclusive.
+    if (form.getAll('ids').length > 0) {
+      return html(
+        bulkReport(
+          '<p role="alert">A request may name ids or a query, never both.</p>',
+        ),
+        { status: 400 },
+      );
+    }
+    const status = String(form.get('f-status') ?? '');
+    const matched = matching(status);
+    const sent = String(form.get('count-token') ?? '');
+    const fresh = countToken(status, matched.length);
+
+    // The count is part of what the user agreed to. If it moved, the
+    // operation on offer is not the one they pressed — re-confirm
+    // rather than silently acting on the new set.
+    if (sent !== fresh) {
+      return html(
+        bulkReport(`<div class="hc-alert" data-variant="warning" role="alert">
+  <p><strong>The number of matching rows changed.</strong> ${matched.length} rows match now. Confirm again to act on them.</p>
+  <form data-hx-post="${API}/bulk" data-hx-target="#bulk-errors-demo-rows" data-hx-swap="innerHTML">
+    <input type="hidden" name="action" value="${escapeHtml(action)}">
+    <input type="hidden" name="scope" value="matching">
+    <input type="hidden" name="f-status" value="${escapeHtml(status)}">
+    <input type="hidden" name="count-token" value="${fresh}">
+    <button class="hc-button" data-variant="primary" type="submit">Archive all ${matched.length} matching</button>
+  </form>
+</div>`),
+        { status: 409 },
+      );
+    }
+    ids = matched;
+  }
+
   const { ok, blocked } = split(ids);
 
   // ---- Atomic phase 2 -------------------------------------------

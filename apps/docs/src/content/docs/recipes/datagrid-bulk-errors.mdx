@@ -98,6 +98,52 @@ Retryable is the server's judgement:
 Say so in the report when the two differ ("3 can be retried; 2 need a
 change first") — otherwise a partially-checked grid reads as a bug.
 
+## Acting on everything that matches
+
+Ticking rows stops working before the data does. When 4,873 rows match,
+the operation the user wants is "archive **all of them**" — and 4,873
+ids fit in neither a querystring nor a form post, let alone through a
+proxy.
+
+So the action may be expressed as **the query itself**:
+
+```html
+<form method="post" action="/products/bulk">
+  <input type="hidden" name="f-status" value="open">
+  <input type="hidden" name="f-ship-from" value="@week-start">
+  <input type="hidden" name="scope" value="matching">
+  <input type="hidden" name="count-token" value="ct_9f2c1a">
+  <button class="hc-button" type="submit" name="action" value="archive">
+    Archive all 4,873 matching
+  </button>
+</form>
+```
+
+`scope=matching` says *act on the query, not on `ids`*. The two are
+mutually exclusive — a request carrying both is a client bug worth a
+`400`.
+
+### The count is part of the confirmation
+
+"Archive all matching" is not safe to press blind, so the button **says
+the number** and the server re-counts before executing:
+
+| Case | Response |
+| --- | --- |
+| count matches the token | execute; report as usual |
+| count has changed | `409` + the old and new counts, and a button carrying a fresh token |
+| token missing or unknown | `409` — re-count and re-confirm |
+
+The token is what makes this honest. Without it, "archive all 4,873"
+executes against however many rows exist at execution time — a
+different operation from the one the user agreed to. Someone else's
+edit, or a relative date rolling over at midnight, is enough to move it.
+
+Two limits worth stating: a query-scoped action is **re-authorised**
+like any other (the conditions may include something the user may no
+longer read), and past some size it belongs in an async job with
+progress rather than a synchronous POST.
+
 ## Pre-flight beats reporting
 
 Atomic actions validate before they execute — the confirm step becomes
