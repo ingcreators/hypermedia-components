@@ -33,29 +33,48 @@ region's endpoint would implement.
 
 ## The layout rule
 
-Four declarations do the work. Everything else is ordinary markup:
-
 ```css
-/* The page column inside hc-shell__main */
+/* hc-shell__main becomes the row that holds the page column */
+.app-main {
+  display: flex;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+/* The page column: fixed regions, then the grid taking the rest */
 .page {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  min-block-size: 0;   /* ← the load-bearing one */
+  min-block-size: 0;
+  min-inline-size: 0;
   gap: var(--hc-space-3);
 }
 
 .page > .hc-datagrid {
   flex: 1;
-  min-block-size: 0;   /* ← and again here */
+  min-block-size: 0;
+  min-inline-size: 0;
+
   --hc-datagrid-max-height: 100%;
 }
 ```
 
-**`min-block-size: 0` is what makes it work.** A flex item will not
-shrink below its content by default, so without it the grid grows to fit
-all its rows, the column grows with it, and the *page* scrolls — chrome
-and all — instead of the grid. The symptom is a toolbar that scrolls
-away and a header row that unsticks.
+**Both minimums are load-bearing, one per axis.** A flex item will not
+shrink below its content, and a datagrid is oversized on both axes: its
+table is `inline-size: max-content` and it has as many rows as the page
+returned.
+
+- Miss **`min-block-size: 0`** and the grid grows to fit every row, so
+  the *page* scrolls vertically — the toolbar scrolls away and the
+  header row unsticks.
+- Miss **`min-inline-size: 0`** and the column grows to the table's
+  width, so `hc-shell__main` becomes the **horizontal** scrollport:
+  scrolling right drags the title and the toolbar along, which is
+  precisely what the grid's own scrollport exists to prevent.
+
+The second one is easy to miss because the page looks correct until the
+table is wider than the screen.
 
 `--hc-datagrid-max-height` defaults to `70vh`, which is right for a grid
 that sits **in** a scrolling page. Set it to `100%` for a grid that
@@ -63,6 +82,22 @@ that sits **in** a scrolling page. Set it to `100%` for a grid that
 
 `hc-shell` already does its half: `__main` is `overflow: auto` with
 `min-block-size: 0`, so the frame never pushes the viewport.
+
+### Below the shell's breakpoint
+
+Under `60rem` `hc-shell` deliberately becomes an ordinary scrolling page
+(`display: block`, `overflow: visible`) — a fixed-height app frame is
+the wrong shape on a phone. The grid then has no definite parent height,
+so `100%` caps nothing and it would render every row at full height.
+Restore a viewport cap:
+
+```css
+@media (width <= 60rem) {
+  .page > .hc-datagrid {
+    --hc-datagrid-max-height: 70vh;
+  }
+}
+```
 
 ## Page skeleton
 
@@ -84,7 +119,7 @@ grid is full before any JavaScript runs.
       <a href="/customers">Customers</a>
     </nav>
 
-    <main class="hc-shell__main" style="display: flex; min-block-size: 0;">
+    <main class="hc-shell__main app-main">
       <div class="page">
         <!-- Title row: applied conditions as chips, filter panel trigger -->
         <div class="hc-cluster" style="justify-content: space-between;">
@@ -223,28 +258,37 @@ grid is full before any JavaScript runs.
 ```css
 .page {
   display: flex;
-  flex-direction: column;
   flex: 1;
+  flex-direction: column;
   min-block-size: 0;
+  min-inline-size: 0;
   gap: var(--hc-space-3);
 }
 
 .page > form,
 .page > form > .hc-datagrid {
   display: flex;
-  flex-direction: column;
   flex: 1;
+  flex-direction: column;
   min-block-size: 0;
+  min-inline-size: 0;
 }
 
 .page > form > .hc-datagrid {
   --hc-datagrid-max-height: 100%;
 }
+
+@media (width <= 60rem) {
+  .page > form > .hc-datagrid {
+    --hc-datagrid-max-height: 70vh;
+  }
+}
 ```
 
-The chain matters: every ancestor between the column and the grid needs
-`flex: 1; min-block-size: 0`, including the selection `<form>`. Break the
-chain anywhere and the page scrolls instead.
+The chain matters: every element between the page column and the grid
+needs `flex: 1` and **both** minimums, including the selection `<form>`.
+Break the chain anywhere and that axis scrolls the page instead of the
+grid.
 
 ## Wiring map
 

@@ -1,0 +1,103 @@
+<!doctype html>
+<!-- Fixture for the full-height list-page composition documented in
+     templates/data-grid-page: an hc-shell frame whose grid takes the
+     remaining space so ONLY the grid scrolls — both axes — while the
+     title row and toolbar stay put.
+
+     It pins the two minimums that make it work. A flex item will not
+     shrink below its content on either axis, and the datagrid's table
+     is `max-content` wide, so without them the page column grows to the
+     table's size and hc-shell__main scrolls instead of the grid,
+     carrying the chrome with it. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>datagrid app page fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+  <style>
+    html, body { margin: 0; block-size: 100%; }
+
+    .app-main {
+      display: flex;
+      min-block-size: 0;
+      min-inline-size: 0;
+    }
+
+    .page {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-block-size: 0;
+      min-inline-size: 0;
+      gap: var(--hc-space-3);
+      padding: var(--hc-space-3);
+    }
+
+    .page > .hc-datagrid {
+      flex: 1;
+      min-block-size: 0;
+      min-inline-size: 0;
+
+      --hc-datagrid-max-height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="hc-shell" data-testid="shell">
+    <header class="hc-shell__header">Orders</header>
+    <nav class="hc-shell__sidebar" aria-label="Primary">
+      <a href="#grid">Orders</a>
+    </nav>
+    <main class="hc-shell__main app-main" data-testid="main">
+      <div class="page" data-testid="page">
+        <div class="hc-cluster">
+          <h1 style="margin:0">Orders</h1>
+          <span class="hc-chip">Carrier: Road</span>
+        </div>
+        <div class="hc-toolbar" role="toolbar" aria-label="Order actions" data-testid="toolbar">
+          <button class="hc-button" data-variant="ghost" type="button">Refresh</button>
+          <hr role="separator" aria-orientation="vertical">
+          <span data-hc-spacer="true"></span>
+          <span>4,901–4,940 of 5,000</span>
+        </div>
+
+        <div class="hc-datagrid" id="grid" data-testid="grid">
+          <div class="hc-datagrid__scroll" data-testid="scroll">
+            <table class="hc-datagrid__table">
+              <thead class="hc-datagrid__head">
+                <tr>
+                  <th class="hc-datagrid__headcell" data-frozen data-frozen-edge scope="col"
+                      data-testid="head-frozen"
+                      style="--hc-datagrid-left: 0; inline-size: 7rem;">Order</th>
+                </tr>
+              </thead>
+              <tbody class="hc-datagrid__body" id="rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    // Wide and long, so both axes really overflow the grid's viewport.
+    const COLS = 24;
+    const head = document.querySelector('.hc-datagrid__head > tr');
+    for (let c = 0; c < COLS; c += 1) {
+      const th = document.createElement('th');
+      th.className = 'hc-datagrid__headcell';
+      th.scope = 'col';
+      th.textContent = `Column ${c} with a long label`;
+      head.append(th);
+    }
+    document.getElementById('rows').innerHTML = Array.from({ length: 120 }, (_, r) => `
+      <tr class="hc-datagrid__row" id="row-${r}">
+        <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
+            style="--hc-datagrid-left: 0;">SO-${4901 + r}</th>
+        ${Array.from({ length: COLS }, (_, c) => `<td class="hc-datagrid__cell">value ${r}-${c}</td>`).join('')}
+      </tr>`).join('');
+  </script>
+</body>
+</html>

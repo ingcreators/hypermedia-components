@@ -145,6 +145,24 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **docs**: the `data-grid-page` template scrolled its **chrome
+  horizontally**. The layout rule documented `min-block-size: 0` — the
+  block-axis half of the trap — and missed its inline twin. A flex item
+  will not shrink below its content on *either* axis, and the datagrid's
+  table is `inline-size: max-content`, so the page column grew to the
+  table's width and `hc-shell__main` became the horizontal scrollport:
+  scrolling right dragged the title and the toolbar along, which is
+  exactly what the grid's own scrollport exists to prevent (measured:
+  542 px of overflow on `hc-shell__main` at a 1280 px viewport, and the
+  grid never scrolled horizontally at all). Both minimums are now
+  documented per axis, in the template and its demo. The template also
+  restores a `70vh` cap below `hc-shell`'s `60rem` breakpoint, where the
+  shell deliberately becomes an ordinary scrolling page and `100%` stops
+  capping anything — without it the grid rendered every row at full
+  height. A new `datagrid-app-page` browser fixture and spec pin the
+  composition on both axes; removing either minimum fails them.
+
+
 - **dialog**: a dialog taller than the viewport now scrolls its
   **body**, not its header and footer. `.hc-dialog` had no column
   layout and no scrolling body, so an over-tall dialog scrolled as a
