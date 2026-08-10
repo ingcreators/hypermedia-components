@@ -6,6 +6,11 @@
   of the filter form with the view's values filled — the querystring a
   view expands to is always visible in the controls.
 
+  The applied chip below is MODIFIED: the apply link named the view
+  (from-view=), so the server could compare the incoming conditions with
+  the stored ones and found them different. Update writes the current
+  conditions back under the same name; Reset re-applies the stored ones.
+
   Duplicate name: POST /views answers 422 (swapped via the standard
   beforeSwap allowance) with the strip plus a field-errors alert:
 
@@ -58,10 +63,25 @@
               data-hx-delete="/views/quarterly"
               data-hx-target="#views">×</button>
     </li>
-    <li class="hc-chip">
+    <!-- Applied, then one condition changed. The chip says so and
+         offers all three ways out — without this the user either loses
+         the tweak or trusts a view that is not what they see. Update
+         keeps the name (and any link already shared); Reset goes back
+         to what was stored. -->
+    <li class="hc-chip" data-modified>
       <a href="/items?view=active-beans" aria-current="true"
          data-hx-get="/items?view=active-beans"
          data-hx-target="#results">active-beans</a>
+      <span class="hc-badge" data-variant="warning">Modified</span>
+      <button class="hc-button" data-size="sm" type="button"
+              aria-label="Update view active-beans"
+              data-hx-put="/views/active-beans"
+              data-hx-include="#filters"
+              data-hx-target="#views">Update</button>
+      <a class="hc-button" data-size="sm" href="/items?view=active-beans"
+         aria-label="Reset view active-beans"
+         data-hx-get="/items?view=active-beans"
+         data-hx-target="#results">Reset</a>
       <button class="hc-button" data-size="sm" type="button"
               aria-label="Delete view active-beans"
               data-hx-delete="/views/active-beans"

@@ -59,7 +59,11 @@ describe('saved-views demo API', () => {
     expect(response.status).toBe(200);
     const body = await response.text();
     // The chip: apply link = the view's full querystring, marked current.
-    expect(body).toContain(`data-hx-get="${API}/items?q=beans&amp;status=active"`);
+    // The apply link names the view it came from — that is what lets a
+    // later request tell "this IS the view" from "this started as it".
+    expect(body).toContain(
+      `data-hx-get="${API}/items?q=beans&amp;status=active&amp;from-view=Quarterly"`,
+    );
     expect(body).toMatch(/aria-current="true"[^>]*>Quarterly<\/a>/);
     expect(body).toContain('aria-label="Delete view Quarterly"');
     // The threaded state: one hidden view= input for the next save.
@@ -141,5 +145,76 @@ describe('saved-views demo API', () => {
   it('ignores other paths and methods', async () => {
     expect(await call(savedViews, 'PUT', '/views')).toBeNull();
     expect(await call(savedViews, 'GET', '/other')).toBeNull();
+  });
+});
+
+describe('saved-views demo API — modified state and update in place', () => {
+  const view = (name, q, status) =>
+    `${name}|${new URLSearchParams({ q, status })}`;
+
+  it('applying a view unchanged does not mark it modified', async () => {
+    const body = await (
+      await call(
+        savedViews,
+        'GET',
+        `/items?q=beans&status=active&from-view=Quarterly&view=${encodeURIComponent(
+          view('Quarterly', 'beans', 'active'),
+        )}`,
+      )
+    ).text();
+    expect(body).not.toContain('data-modified');
+    expect(body).not.toContain('>Modified<');
+  });
+
+  it('changing one condition marks the view modified and offers the ways out', async () => {
+    const body = await (
+      await call(
+        savedViews,
+        'GET',
+        `/items?q=beans&status=pending&from-view=Quarterly&view=${encodeURIComponent(
+          view('Quarterly', 'beans', 'active'),
+        )}`,
+      )
+    ).text();
+    expect(body).toContain('data-modified');
+    expect(body).toContain('>Modified<');
+    // Update in place, and a way back to what was stored.
+    expect(body).toContain('aria-label="Update view Quarterly"');
+    expect(body).toContain('aria-label="Reset view Quarterly"');
+  });
+
+  it('compares normalized conditions, not raw querystrings', async () => {
+    // Same question, params in the other order — must NOT read as modified.
+    const body = await (
+      await call(
+        savedViews,
+        'GET',
+        `/items?status=active&q=beans&from-view=Quarterly&view=${encodeURIComponent(
+          view('Quarterly', 'beans', 'active'),
+        )}`,
+      )
+    ).text();
+    expect(body).not.toContain('data-modified');
+  });
+
+  it('PUT updates the view in place, keeping its name', async () => {
+    const body = await (
+      await call(savedViews, 'PUT', '/views/Quarterly', {
+        body: new URLSearchParams({
+          q: 'beans',
+          status: 'pending',
+          view: view('Quarterly', 'beans', 'active'),
+        }),
+      })
+    ).text();
+    expect(body).toContain('name="view" value="Quarterly|q=beans&amp;status=pending"');
+    expect(body).toContain('aria-current="true"');
+  });
+
+  it('PUT to a view that no longer exists 404s rather than creating one', async () => {
+    const response = await call(savedViews, 'PUT', '/views/Ghost', {
+      body: new URLSearchParams({ q: 'x', status: '' }),
+    });
+    expect(response.status).toBe(404);
   });
 });

@@ -22,6 +22,27 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `saved-views` gains a **modified state**, **update in
+  place**, and a persistence model (`plans/hc-filter-ux-plan-en.md`
+  item D). Applying a view and changing one condition is the commonest
+  thing users do with saved views and was the least served: nothing
+  said whether what you were looking at was still the view, so the user
+  either lost the tweak or trusted a saved version that was not on
+  screen. The apply link now names its view (`&from-view=<name>`), the
+  server compares **normalized** conditions (sorted params, so the same
+  question compares equal whether it arrived from the form or from a
+  link), and the chip renders `data-modified` with **Update** and
+  **Reset**. `PUT /views/<name>` updates in place, so correcting a view
+  keeps its name and every link already shared — previously the only
+  route was delete-and-recreate. The contract also writes down what a
+  view captures (filters, sort, pinned columns; **never** the page
+  number), that columns resolve **URL → user preference → app
+  default**, that scope may be shared rather than personal (so editing
+  a colleague's view is a visible act, not a side effect), that a
+  default view redirects with `303` so the address bar shows the real
+  conditions, and that applying **re-authorises and fails closed** —
+  quietly dropping a condition the user may no longer run would widen
+  the result set.
 - **recipes**: filter conditions accept **relative date expressions**
   (`plans/hc-filter-ux-plan-en.md` item C). A saved view is a stored
   querystring, so an absolute date makes the view *wrong tomorrow* —

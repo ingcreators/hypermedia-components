@@ -77,10 +77,28 @@ function viewsFromParams(values) {
   return values.map(unpack).filter(Boolean);
 }
 
-function chipHtml(view, others, { current = false } = {}) {
-  const applyQs = new URLSearchParams({ q: view.q, status: view.status });
+/**
+ * Normalized comparison key for a set of conditions. Two identical
+ * questions must compare equal even when one was assembled by the form
+ * and the other by an apply link, so the params are sorted.
+ */
+function conditionKey({ q, status }) {
+  const params = new URLSearchParams({ q: q ?? '', status: status ?? '' });
+  params.sort();
+  return params.toString();
+}
+
+function chipHtml(view, others, { current = false, modified = false } = {}) {
+  const applyQs = new URLSearchParams({
+    q: view.q,
+    status: view.status,
+    // The apply link names the view it came from, which is what lets
+    // the server tell "this IS the view" from "this started as it".
+    'from-view': view.name,
+  });
   // escapeHtml doubles as attribute-encoding for the URLs (& → &amp;).
   const applyUrl = escapeHtml(`${API}/items?${applyQs}`);
+  const resetUrl = applyUrl;
   const remaining = new URLSearchParams();
   for (const other of others) remaining.append('view', pack(other));
   const deleteQs = remaining.toString();
@@ -88,8 +106,18 @@ function chipHtml(view, others, { current = false } = {}) {
     `${API}/views/${encodeURIComponent(view.name)}${deleteQs ? `?${deleteQs}` : ''}`,
   );
   const currentAttr = current ? ' aria-current="true"' : '';
-  return `<li class="hc-chip">
-  <a href="${applyUrl}"${currentAttr} data-hx-get="${applyUrl}" data-hx-target="#${IDS.results}">${escapeHtml(view.name)}</a>
+  const putUrl = escapeHtml(`${API}/views/${encodeURIComponent(view.name)}`);
+  // Applied but no longer equal to what was stored: say so, and offer
+  // all three ways out. Silence here is what makes a user either lose
+  // the tweak or trust a view that is not what they are looking at.
+  const modifiedControls = modified
+    ? `
+  <span class="hc-badge" data-variant="warning">Modified</span>
+  <button class="hc-button" data-size="sm" type="button" data-hx-put="${putUrl}" data-hx-include="#${IDS.filters}, #${IDS.views}" data-hx-target="#${IDS.views}" aria-label="Update view ${escapeHtml(view.name)}">Update</button>
+  <a class="hc-button" data-size="sm" href="${resetUrl}" data-hx-get="${resetUrl}" data-hx-target="#${IDS.results}" aria-label="Reset view ${escapeHtml(view.name)}">Reset</a>`
+    : '';
+  return `<li class="hc-chip"${modified ? ' data-modified' : ''}>
+  <a href="${applyUrl}"${currentAttr} data-hx-get="${applyUrl}" data-hx-target="#${IDS.results}">${escapeHtml(view.name)}</a>${modifiedControls}
   <button class="hc-button" data-size="sm" type="button" aria-label="Delete view ${escapeHtml(view.name)}" data-hx-delete="${deleteUrl}" data-hx-target="#${IDS.views}">×</button>
 </li>`;
 }
@@ -98,9 +126,15 @@ function chipHtml(view, others, { current = false } = {}) {
  * The strip region's contents: one hidden view= input per chip (the
  * threaded state) + the chips list, or the empty-state line.
  */
-function stripFragment(views, { currentName = null, error = '' } = {}) {
+function stripFragment(
+  views,
+  { currentName = null, error = '', modifiedName = null, oob = false } = {},
+) {
   if (views.length === 0) {
-    return `${error}<p class="hc-field__message">No saved views yet — filter, then save the result under a name.</p>`;
+    const empty = `${error}<p class="hc-field__message">No saved views yet — filter, then save the result under a name.</p>`;
+    return oob
+      ? `<div id="${IDS.views}" data-hx-swap-oob="innerHTML">${empty}</div>`
+      : empty;
   }
   const hidden = views
     .map((view) => `<input type="hidden" name="view" value="${escapeHtml(pack(view))}">`)
@@ -110,14 +144,22 @@ function stripFragment(views, { currentName = null, error = '' } = {}) {
       chipHtml(
         view,
         views.filter((other) => other !== view),
-        { current: view.name === currentName },
+        {
+          current: view.name === currentName,
+          modified: view.name === modifiedName,
+        },
       ),
     )
     .join('\n');
-  return `${error}${hidden}
+  const body = `${error}${hidden}
 <ul class="hc-chips">
 ${chips}
 </ul>`;
+  // The strip re-renders out of band when an /items response carries it
+  // (applying a view is the moment the modified state changes).
+  return oob
+    ? `<div id="${IDS.views}" data-hx-swap-oob="innerHTML">${body}</div>`
+    : body;
 }
 
 function errorAlert(code, detail) {
@@ -173,13 +215,28 @@ export async function handle({ method, path, url, request }) {
   if (method === 'GET' && path === '/items') {
     const q = url.searchParams.get('q') ?? '';
     const status = url.searchParams.get('status') ?? '';
+    const fromView = url.searchParams.get('from-view');
+    const views = viewsFromParams(url.searchParams.getAll('view').map(String));
     const fragment = itemsFragment(q, status);
+
+    // Applied but no longer equal to what was stored → modified. The
+    // comparison is on NORMALIZED keys, so the same question compares
+    // equal whether it arrived from the form or from an apply link.
+    const applied = views.find((view) => view.name === fromView) ?? null;
+    const modifiedName =
+      applied && conditionKey(applied) !== conditionKey({ q, status })
+        ? applied.name
+        : null;
 
     if (isHtmx(request)) {
       // The list for #results, plus the filter form re-rendered
-      // out-of-band with the values filled — a view is never opaque.
+      // out-of-band with the values filled — a view is never opaque —
+      // plus the strip when it has something to say about the view.
+      const strip = views.length
+        ? `\n${stripFragment(views, { currentName: fromView, modifiedName, oob: true })}`
+        : '';
       return html(`${fragment}
-${filterFormHtml(q, status, { oob: true })}`);
+${filterFormHtml(q, status, { oob: true })}${strip}`);
     }
 
     // No-JS fallback: apply links are real hrefs and the filter form
@@ -212,6 +269,26 @@ ${filterFormHtml(q, status, { oob: true })}`);
     // No-JS: a real app would 303 back to the list; the stateless demo
     // answers a readable page with the updated strip.
     return page('View saved', fragment);
+  }
+
+  // Update in place: the view is corrected, not deleted and recreated,
+  // so its name (and any link anyone has shared) survives.
+  const putMatch = method === 'PUT' && path.match(/^\/views\/([^/]+)$/);
+  if (putMatch) {
+    const name = decodeURIComponent(putMatch[1]);
+    const data = await request.formData();
+    const q = String(data.get('q') ?? '');
+    const status = String(data.get('status') ?? '');
+    const views = viewsFromParams(data.getAll('view').map(String));
+    if (!views.some((view) => view.name === name)) {
+      return html(errorAlert('unknown', 'that view no longer exists'), {
+        status: 404,
+      });
+    }
+    const updated = views.map((view) =>
+      view.name === name ? { name, q, status } : view,
+    );
+    return html(stripFragment(updated, { currentName: name }));
   }
 
   const deleteMatch = method === 'DELETE' && path.match(/^\/views\/([^/]+)$/);
