@@ -177,6 +177,43 @@ which in a business screen is a safety problem, not a cosmetic one. The
 same rule governs how long a set lives: long enough that a saved view
 using one still resolves, or the view must fail visibly.
 
+## Export inherits the conditions
+
+In a business screen "download" means *this question, these columns,
+every page* — not the forty rows currently on screen. So the export link
+is **the same query in another representation**, and the server renders
+its href with the conditions already on it:
+
+```html
+<a class="hc-button" href="/orders.csv?f-status=open&f-ship-from=@week-start&cols=order&cols=customer&sort=-ship">
+  Export 4,873 rows
+</a>
+```
+
+Three rules make it behave:
+
+- **The server renders the href, not the client.** Only the server knows
+  the canonical form of the conditions — including any relative
+  expression, which must travel as the expression so the export means
+  the same thing the screen means.
+- **Columns come along.** An export whose columns differ from the screen
+  is a support ticket. Send the effective `cols=` set, resolved the same
+  way the grid resolved it (URL → user preference → default).
+- **Say how many rows.** The label carries the count, for the same
+  reason the bulk button does: an export is a commitment, and the number
+  is the only thing that distinguishes "this page" from "everything".
+
+Page number is the one param the export drops — an export is the whole
+answer, never page 7 of it.
+
+**Large exports are a job, not a download.** Past the point where a
+request would time out, answer `202` with a pointer to the job rather
+than a truncated file; a silently truncated export is a wrong answer
+that looks like a right one. The
+[bulk-errors](../datagrid-bulk-errors/) report shape and the
+[toast](../toast/) recipe already cover telling the user when it is
+ready.
+
 ## Filter rules
 
 - **Filters compose across columns**: each column's form carries the

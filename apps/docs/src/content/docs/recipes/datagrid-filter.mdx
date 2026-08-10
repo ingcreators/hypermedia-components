@@ -186,6 +186,37 @@ user just did:
 </p>
 ```
 
+## Export inherits the conditions
+
+In a business screen "download" means *this question, these columns,
+every page* — not the forty rows on screen. The export link is **the
+same query in another representation**, with the conditions already on
+its href:
+
+```html
+<a class="hc-button"
+   href="/orders.csv?f-status=open&f-ship-from=@week-start&cols=order&cols=customer&sort=-ship">
+  Export 4,873 rows
+</a>
+```
+
+- **The server renders the href.** Only it knows the canonical form of
+  the conditions — including a relative expression, which must travel
+  *as the expression* so the export means what the screen means.
+- **Columns come along**, resolved the way the grid resolved them
+  (URL → user preference → default). An export whose columns differ
+  from the screen is a support ticket.
+- **The label says how many rows.** An export is a commitment, and the
+  number is what distinguishes "this page" from "everything".
+- **Page number is dropped** — an export is the whole answer, never
+  page 7 of it.
+
+:::caution[Large exports are a job, not a download]
+Past the point where a request would time out, answer `202` with a
+pointer to the job. A silently truncated export is a wrong answer that
+looks like a right one.
+:::
+
 ## Progressive enhancement
 
 The filter is a real GET form (`action` + `method="get"`): without
