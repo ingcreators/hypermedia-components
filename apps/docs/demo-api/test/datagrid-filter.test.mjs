@@ -100,3 +100,52 @@ describe('datagrid-filter demo API — the applied-conditions bar', () => {
     expect(body).toContain('hc-filterbar__item');
   });
 });
+
+describe('datagrid-filter demo API — relative date conditions', () => {
+  it('resolves a relative expression and shows both forms in the bar', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-due-from=@today', { htmx: true })
+    ).text();
+    // The chip carries the wording AND the date it resolved to — either
+    // alone leaves the condition a guess.
+    expect(body).toMatch(/hc-filterbar__value">today \(\d{4}-\d{2}-\d{2}\)/);
+    // Overdue rows are gone; today's and later remain.
+    expect(body).not.toContain('Ingest pipeline'); // due 3 days ago
+    expect(body).toContain('Nightly backup'); // due today
+  });
+
+  it('takes an absolute date unchanged', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-due-from=2099-01-01', { htmx: true })
+    ).text();
+    expect(body).toContain('hc-filterbar__value">2099-01-01<');
+    // Nothing is due that far out.
+    expect(body).not.toContain('Legacy sync');
+  });
+
+  it('refuses an expression it does not understand rather than failing open', async () => {
+    const response = await call(
+      datagridFilter,
+      'GET',
+      '/items?f-due-from=@next-fiscal-quarter',
+      { htmx: true },
+    );
+    expect(response.status).toBe(400);
+    const body = await response.text();
+    expect(body).toContain('Unknown date expression');
+    // Crucially: it did not answer with the unfiltered list.
+    expect(body).not.toContain('Legacy sync');
+  });
+
+  it('a remove control drops only its own condition', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-status=active&f-due-from=@today', {
+        htmx: true,
+      })
+    ).text();
+    // Removing Status keeps the due condition, and vice versa.
+    expect(body).toContain('f-due-from=%40today" data-hx-get');
+    expect(body).toMatch(/aria-label="Remove Status filter"/);
+    expect(body).toMatch(/f-status=active[^"]*"[^>]*aria-label="Remove Due filter"/);
+  });
+});

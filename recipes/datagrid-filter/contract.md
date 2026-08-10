@@ -78,6 +78,54 @@ Name the condition to drop — the **newest** one, since it is what the
 user just did — and make it a link to the URL without it. The bar is
 right above, so the offer and the controls read as one thing.
 
+## Relative dates
+
+A saved view is a stored querystring. Put an absolute date in it and the
+view is **wrong tomorrow**: "shipping this week" saved on Monday means
+last week by the following Monday — and time is what a large share of
+the views a business actually saves are about. So a condition value may
+be an **expression**, and the expression is what gets stored:
+
+```text
+?f-ship-from=@week-start&f-ship-to=@week-end
+?f-ordered-from=@today-7d
+```
+
+| Form | Meaning |
+| --- | --- |
+| `@today` | today |
+| `@week-start` / `@week-end` | the current week's bounds |
+| `@month-start` / `@month-end` | …month |
+| `@quarter-start` / `@quarter-end` | …quarter |
+| `@year-start` / `@year-end` | …year |
+| `@<anchor>±<n><d\|w\|m\|y>` | offset from an anchor — `@today-7d`, `@month-start-1m` |
+
+**The server resolves, never the client.** Resolving in the browser puts
+the browser's clock and timezone into the answer, and two colleagues
+opening the same view would see different rows. Resolve every condition
+in one request against **one** instant, or a request made at midnight
+can straddle two days.
+
+**Absolute values stay ISO.** `2026-08-01`, never `01/08/2026` — a
+locale-formatted date in a stored view means different days to different
+colleagues. Localize on the way *out* (`<time data-hc-time>`), never on
+the wire.
+
+**The bar shows both.** The expression in words and what it resolved to:
+
+```html
+<span class="hc-filterbar__value">start of this week (2026-08-10)</span>
+```
+
+Either alone leaves the condition a guess — the wording without the date
+hides which rows are in, the date without the wording hides that it will
+move tomorrow.
+
+**An expression the server does not understand is an error.** Answer
+`400` (or re-ask); never fall back to the unfiltered list. This is the
+same rule as an expired condition set, for the same reason: a silently
+dropped condition shows the user *more* data than they asked for.
+
 ## Multi-value conditions
 
 A condition can hold many values — the wire already says so, since

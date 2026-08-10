@@ -125,6 +125,53 @@ stays the no-JS path.
 Every entry point writes the same params — the column popover, a chip's
 editor and a hand-typed URL are three doors into one wire.
 
+## Relative dates
+
+A saved view is a stored querystring. Put an absolute date in it and the
+view is **wrong tomorrow** — "shipping this week" saved on Monday means
+last week by the following Monday, and time is what a large share of the
+views a business actually saves are about.
+
+So a condition value may be an **expression**, and the expression is
+what gets stored:
+
+```text
+?f-ship-from=@week-start&f-ship-to=@week-end
+?f-ordered-from=@today-7d
+```
+
+`@today`, `@week-start` / `@week-end`, `@month-start` / `@month-end`,
+`@quarter-*`, `@year-*`, and offsets from any anchor —
+`@today-7d`, `@month-start-1m` (`d` / `w` / `m` / `y`).
+
+**The server resolves, never the client.** Resolving in the browser puts
+the browser's clock and timezone into the answer, and two colleagues
+opening the same view would see different rows. Resolve every condition
+in a request against **one** instant, or a request made near midnight
+can straddle two days.
+
+**Absolute values stay ISO** — `2026-08-01`, never `01/08/2026`. A
+locale-formatted date in a stored view means different days to different
+colleagues; localize on the way *out* with
+[`<time data-hc-time>`](/hypermedia-components/fundamentals/i18n/), never
+on the wire.
+
+**The bar shows both forms:**
+
+```html
+<span class="hc-filterbar__value">start of this week (2026-08-10)</span>
+```
+
+Either alone leaves the condition a guess — the wording without the date
+hides which rows are in; the date without the wording hides that it will
+move tomorrow.
+
+:::caution[An unknown expression is an error]
+Answer `400`, or re-ask. Never fall back to the unfiltered list: a
+silently dropped condition shows the user *more* data than they asked
+for. Same rule, same reason, as an expired condition set.
+:::
+
 ## Empty results
 
 A list filtered to nothing is a dead end, and the more conditions are

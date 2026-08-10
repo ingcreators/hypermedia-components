@@ -22,6 +22,26 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: filter conditions accept **relative date expressions**
+  (`plans/hc-filter-ux-plan-en.md` item C). A saved view is a stored
+  querystring, so an absolute date makes the view *wrong tomorrow* —
+  "shipping this week" saved on Monday means last week by the following
+  Monday, and time is what a large share of real saved views are about.
+  Condition values may now be `@today`, `@week-start` / `@week-end`,
+  `@month-*`, `@quarter-*`, `@year-*`, or an offset from any anchor
+  (`@today-7d`, `@month-start-1m`), and the **expression** is what gets
+  stored. The server resolves — never the client, whose clock and
+  timezone would leak into the answer — against **one** instant per
+  request, so a request near midnight cannot straddle two days.
+  Absolute values stay ISO on the wire (`2026-08-01`, never
+  `01/08/2026`, which means different days to different colleagues);
+  localize on the way out. The applied-conditions bar shows **both**
+  forms — `start of this week (2026-08-10)` — because the wording alone
+  hides which rows are in, and the date alone hides that it will move.
+  An expression the server does not understand answers **`400`**, never
+  the unfiltered list.
+
+
 - **behaviors**: `installMultiValue()` — **one control, many values on
   the wire** (`plans/hc-filter-ux-plan-en.md` item B). The filter wire
   already took repeated `f-<col>` params; nothing let a user *enter*
