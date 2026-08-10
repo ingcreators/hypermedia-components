@@ -1,0 +1,226 @@
+---
+/*
+ * Live preview for the data-grid page template — the layout every
+ * business list screen wants: an hc-shell app frame, a page header,
+ * a toolbar, and a datagrid that takes the remaining height so ONLY
+ * the grid scrolls, under sticky multi-level headers and frozen
+ * columns, with a filter panel in a dialog.
+ *
+ * Deliberately server-free: this preview is about the LAYOUT (what
+ * scrolls, what stays), so the rows are static and the filter panel
+ * does not round-trip. The wiring map on the page names the recipe
+ * contracts each region's endpoint would implement.
+ *
+ * Ids are prefixed template-grid- because nothing here is a demo-API
+ * fragment target.
+ */
+import DemoFrame from '../recipe-demos/DemoFrame.astro';
+
+const COLUMNS = [
+  { key: 'ordered', label: 'Ordered on', group: 'Order' },
+  { key: 'customer', label: 'Customer', group: 'Order' },
+  { key: 'item', label: 'Item', group: 'Order' },
+  { key: 'ship', label: 'Ship date', group: 'Shipment' },
+  { key: 'carrier', label: 'Carrier', group: 'Shipment' },
+  { key: 'qty', label: 'Quantity', group: 'Shipment', numeric: true },
+  { key: 'amount', label: 'Amount', group: 'Shipment', numeric: true },
+];
+
+const CUSTOMERS = ['Northwind', 'Contoso', 'Fabrikam', 'Adventure Works'];
+const CARRIERS = ['Road', 'Air', 'Sea'];
+const ROWS = Array.from({ length: 40 }, (_, i) => ({
+  id: 4901 + i,
+  ordered: `2026-07-${String((i % 28) + 1).padStart(2, '0')}`,
+  customer: CUSTOMERS[i % CUSTOMERS.length],
+  item: `Bearing assembly ${1000 + i}`,
+  ship: `2026-08-${String((i % 28) + 1).padStart(2, '0')}`,
+  carrier: CARRIERS[i % CARRIERS.length],
+  qty: (i % 9) * 12 + 6,
+  amount: ((i % 9) * 12 + 6) * 145,
+}));
+
+const FILTERS = [
+  { name: 'order', label: 'Order number' },
+  { name: 'customer', label: 'Customer' },
+  { name: 'item', label: 'Item code' },
+  { name: 'carrier', label: 'Carrier' },
+  { name: 'ship-to', label: 'Ship-to' },
+  { name: 'buyer', label: 'Buyer' },
+];
+---
+
+<DemoFrame label="Data grid page template">
+  <div
+    class="hc-shell"
+    style="block-size: 36rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
+    <header class="hc-shell__header">
+      <strong>Order desk</strong>
+    </header>
+
+    <nav class="hc-shell__sidebar" aria-label="Primary">
+      <a href="#template-grid" aria-current="page">Orders</a>
+      <a href="#template-grid">Shipments</a>
+      <a href="#template-grid">Customers</a>
+    </nav>
+
+    <main class="hc-shell__main" style="display: flex; min-block-size: 0;">
+      <!-- The page column: fixed regions, then the grid taking the rest.
+           `min-block-size: 0` is what lets the grid shrink instead of
+           pushing the page taller. -->
+      <div
+        style="display: flex; flex-direction: column; flex: 1; min-block-size: 0; gap: var(--hc-space-3);">
+        <div class="hc-cluster" style="justify-content: space-between;">
+          <div class="hc-cluster">
+            <h2 style="margin: 0; font-size: var(--hc-font-size-lg);">Orders</h2>
+            <span class="hc-chip">Ship date: this month</span>
+            <span class="hc-chip">Carrier: Road</span>
+          </div>
+          <button
+            class="hc-button"
+            type="button"
+            data-variant="secondary"
+            onclick="document.getElementById('template-grid-filters').showModal()">
+            Filters…
+          </button>
+        </div>
+
+        <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
+          <button class="hc-button" data-variant="ghost" type="button">Refresh</button>
+          <button class="hc-button" data-variant="ghost" type="button">Export</button>
+          <button class="hc-button" data-variant="ghost" type="button">Import</button>
+          <hr role="separator" aria-orientation="vertical" />
+          <div class="hc-button-group" role="group" aria-label="Approval">
+            <button class="hc-button" data-variant="ghost" type="button">Approve</button>
+            <button class="hc-button" data-variant="ghost" type="button">Reject</button>
+          </div>
+          <span data-hc-spacer="true"></span>
+          <span aria-live="polite">4,901–4,940 of 5,000</span>
+          <div class="hc-button-group" role="group" aria-label="Pages">
+            <button class="hc-button" data-size="sm" type="button" aria-label="Previous page">‹</button>
+            <button class="hc-button" data-size="sm" type="button" aria-label="Next page">›</button>
+          </div>
+        </div>
+
+        <div
+          class="hc-datagrid"
+          id="template-grid"
+          data-hc-zebra
+          style="flex: 1; min-block-size: 0; --hc-datagrid-max-height: 100%;">
+          <div class="hc-datagrid__scroll">
+            <table class="hc-datagrid__table">
+              <thead class="hc-datagrid__head">
+                <tr>
+                  <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col"
+                      style="--hc-datagrid-left: 0; inline-size: 2.5rem;">
+                    <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+                  </th>
+                  <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col"
+                      style="--hc-datagrid-left: 2.5rem; inline-size: 6rem;">Order</th>
+                  <th class="hc-datagrid__headcell" colspan="3">Order</th>
+                  <th class="hc-datagrid__headcell" colspan="4">Shipment</th>
+                </tr>
+                <tr>
+                  {COLUMNS.map((col) => (
+                    <th
+                      class="hc-datagrid__headcell"
+                      scope="col"
+                      data-numeric={col.numeric ? '' : undefined}>{col.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody class="hc-datagrid__body">
+                {ROWS.map((row) => (
+                  <tr class="hc-datagrid__row" id={`template-grid-row-${row.id}`}>
+                    <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left: 0;">
+                      <input type="checkbox" class="hc-checkbox" name="ids" value={row.id}
+                             aria-label={`Select order ${row.id}`} />
+                    </td>
+                    <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
+                        style="--hc-datagrid-left: 2.5rem;">SO-{row.id}</th>
+                    <td class="hc-datagrid__cell">{row.ordered}</td>
+                    <td class="hc-datagrid__cell">{row.customer}</td>
+                    <td class="hc-datagrid__cell">{row.item}</td>
+                    <td class="hc-datagrid__cell" data-editable data-col="ship" data-value={row.ship}>{row.ship}</td>
+                    <td class="hc-datagrid__cell">{row.carrier}</td>
+                    <td class="hc-datagrid__cell" data-numeric>{row.qty}</td>
+                    <td class="hc-datagrid__cell" data-numeric>{row.amount.toLocaleString('en-US')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- The filter panel. One form wraps header, body and footer, so the
+       footer's Search button submits the body's fields; the body is what
+       scrolls when the panel outgrows the viewport. -->
+  <dialog
+    class="hc-dialog"
+    id="template-grid-filters"
+    aria-labelledby="template-grid-filters-title"
+    style="--hc-dialog-max-width: 52rem;">
+    <form method="get" action="#template-grid">
+      <div class="hc-dialog__header">
+        <div class="hc-cluster" style="justify-content: space-between;">
+          <h2 class="hc-dialog__title" id="template-grid-filters-title">Filters</h2>
+          <div class="hc-cluster">
+            <label class="hc-field__label" for="template-grid-saved">Saved</label>
+            <select class="hc-select" id="template-grid-saved" name="view">
+              <option value="">—</option>
+              <option value="overdue">Overdue shipments</option>
+              <option value="unapproved">Awaiting approval</option>
+            </select>
+            <button class="hc-button" data-size="sm" type="button">Save…</button>
+            <button class="hc-button" data-size="sm" type="reset">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hc-dialog__body">
+        <div class="hc-grid" style="--hc-grid-min: 18rem;">
+          {FILTERS.map((f) => (
+            <div class="hc-field">
+              <label class="hc-field__label" for={`template-grid-f-${f.name}`}>{f.label}</label>
+              <div class="hc-input-group">
+                <input class="hc-input" type="text" id={`template-grid-f-${f.name}`} name={`f-${f.name}`} />
+                <select class="hc-select" name={`op-${f.name}`} aria-label={`${f.label} operator`}>
+                  <option value="eq">equals</option>
+                  <option value="contains">contains</option>
+                  <option value="starts">starts with</option>
+                </select>
+              </div>
+            </div>
+          ))}
+
+          <div class="hc-field">
+            <span class="hc-field__label" id="template-grid-ship-label">Ship date</span>
+            <div class="hc-cluster" role="group" aria-labelledby="template-grid-ship-label">
+              <input class="hc-input" type="date" name="f-ship-from" aria-label="Ship date from" />
+              <span aria-hidden="true">–</span>
+              <input class="hc-input" type="date" name="f-ship-to" aria-label="Ship date to" />
+            </div>
+          </div>
+
+          <div class="hc-field">
+            <label class="hc-field__label" for="template-grid-f-status">Status</label>
+            <select class="hc-select" id="template-grid-f-status" name="f-status">
+              <option value="">All</option>
+              <option value="open">Open</option>
+              <option value="shipped">Shipped</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="hc-dialog__footer">
+        <button class="hc-button" type="button"
+                onclick="this.closest('dialog').close()">Cancel</button>
+        <button class="hc-button" data-variant="primary" type="submit">Search</button>
+      </div>
+    </form>
+  </dialog>
+</DemoFrame>

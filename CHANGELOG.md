@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **docs**: a fourth page template — **Data grid page**
+  (`templates/data-grid-page`). The business list screen: an `hc-shell`
+  frame whose grid takes the remaining height so **only the grid
+  scrolls** (both axes) under sticky multi-level headers and frozen
+  columns, with a toolbar whose trailing group is pushed by
+  `data-hc-spacer`, and filter input in a dialog. Documents the trap
+  that makes or breaks the layout — every element between the page
+  column and the grid needs `flex: 1; min-block-size: 0`, and the grid
+  needs `--hc-datagrid-max-height: 100%`; miss one and the *page*
+  scrolls instead, taking the toolbar with it. Includes a wiring map
+  from each region to the recipe contract its endpoint implements.
+
+
 - **recipes**: `datagrid-edit-errors` gains a fourth outcome —
   **confirmable warnings**
   (`plans/hc-datagrid-state-clarity-plan-en.md` PR-4). The contract had
