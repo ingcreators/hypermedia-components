@@ -393,13 +393,41 @@ any htmx swap restores the server's order, which is correct. The
 instruction event still fires for observers. Bare `data-sortable`
 stays server-instructed.
 
-Wire it to htmx by reloading the rows with the sort params — e.g. put
-`data-hx-get`, `data-hx-trigger="hc:datagridsort"` and
-`data-hx-vals='js:{ sort: event.detail.col, dir: event.detail.direction }'`
-on the `<tbody>` (see the
-[Datagrid pager recipe](/hypermedia-components/recipes/datagrid-pager/)). Render
-each header with the current `aria-sort` (and `data-sort-index` when
-multi-sorted) so the indicator survives the swap.
+### Wiring sort to the server
+
+Put the sort in a **form field** and let the form carry it:
+
+```html
+<form id="filters" data-hx-get="/orders" data-hx-target="#rows"
+      data-hx-trigger="submit, hc:datagridsort from:body">
+  <input type="hidden" name="sort" data-hc-datagrid-sort>
+  …the filter controls…
+</form>
+```
+
+`installDatagrid()` writes the **whole ordered sort set** into every
+`input[data-hc-datagrid-sort]` in the grid's closest `<form>` (or the
+document) **before** dispatching `hc:datagridsort` — the same hook the
+[column-width prefs](/hypermedia-components/recipes/datagrid-prefs/) use
+— so an event-triggered request serializes the fresh value.
+
+Two things fall out of putting sort in the form rather than in
+`data-hx-vals`:
+
+- **the sort survives an Apply** — filtering re-submits the same form,
+  so it no longer silently resets the order;
+- **a saved view captures it**, because
+  [saved views](/hypermedia-components/recipes/saved-views/) store the
+  form's fields. A view that forgets how the list was ordered is only
+  half a view.
+
+Render each header with the current `aria-sort` (and `data-sort-index`
+when multi-sorted) so the indicator survives the swap.
+
+If you would rather not add the field, `detail.sorts` is still there for
+`data-hx-vals` — but build the same `sort=name,-price` string from it,
+not a single-column `sort` + `dir` pair, or multi-column sorting cannot
+round-trip.
 
 ## Numeric columns
 
@@ -1128,6 +1156,7 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Zebra striping | `data-hc-zebra` (grid) — or server-rendered `data-alt` (row) | `installDatagrid()` for the dynamic cases; CSS alone if the server assigns `data-alt` |
 | Column resize | `data-resizable` + `data-col` (header) · matching `data-col` (body cells) | `installDatagrid()` |
 | Sortable columns | `data-sortable` + `data-col` (header) — the value `"client"` sorts the rendered page in the DOM | `installDatagrid()` |
+| Sort → the wire | `<input data-hc-datagrid-sort>` in the grid's form — receives the ordered `sort=name,-price` set before `hc:datagridsort` fires | `installDatagrid()` |
 | Grouped rows | `.hc-datagrid__grouprow` + `data-group-level` (heading row) · `aria-expanded` (heading cell, start collapsed with `"false"`) | `installDatagrid()` |
 | Tree rows | `aria-level` (every row) · `aria-expanded` + `data-hc-datagrid-tree` toggle (expandable row) · `data-lazy` + htmx wiring (lazy row) | `installDatagrid()` |
 | Expandable row detail | `data-hc-datagrid-toggle` (button) · `data-expanded` (record `<tbody>`, start open) · `data-lazy` (detail cell) | `installDatagrid()` |

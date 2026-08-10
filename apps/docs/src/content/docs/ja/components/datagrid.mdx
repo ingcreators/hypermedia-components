@@ -394,14 +394,40 @@ htmx スワップはサーバーの順序を復元します — それが正し�
 指示イベントは引き続きオブザーバー向けに発火します。素の
 `data-sortable` はサーバー指示のままです。
 
-htmx とつなぐには、ソートパラメータつきで行を再読み込みします — 例:
-`<tbody>` に `data-hx-get`、`data-hx-trigger="hc:datagridsort"`、
-`data-hx-vals='js:{ sort: event.detail.col, dir: event.detail.direction }'`
-を置きます(
-[datagrid-pager レシピ](/hypermedia-components/ja/recipes/datagrid-pager/)を
-参照)。インジケーターがスワップ後も残るよう、各ヘッダーは現在の
+### ソートをサーバーへつなぐ
+
+ソートは**フォームのフィールド**に入れ、フォームに運ばせます。
+
+```html
+<form id="filters" data-hx-get="/orders" data-hx-target="#rows"
+      data-hx-trigger="submit, hc:datagridsort from:body">
+  <input type="hidden" name="sort" data-hc-datagrid-sort>
+  …フィルタのコントロール…
+</form>
+```
+
+`installDatagrid()` は `hc:datagridsort` を発火する**前に**、グリッドの
+最も近い `<form>`(なければドキュメント)内のすべての
+`input[data-hc-datagrid-sort]` へ**順序つきのソートセット全体**を書き
+込みます — [列幅の環境設定](/hypermedia-components/ja/recipes/datagrid-prefs/)
+と同じ仕組みです。イベント起点のリクエストは必ず最新値を載せます。
+
+`data-hx-vals` ではなくフォームに入れることで、2 つが自然に手に入ります。
+
+- **フィルタの Apply でソートが維持されます** — 絞り込みは同じフォームを
+  再送信するので、順序が黙ってリセットされることがなくなります。
+- **保存ビューがソートを含みます**。[saved-views](/hypermedia-components/ja/recipes/saved-views/)
+  はフォームのフィールドを保存するからです。並び順を忘れるビューは、
+  ビューとして半分しか機能していません。
+
+インジケーターがスワップ後も残るよう、各ヘッダーは現在の
 `aria-sort`(複数列ソート時は `data-sort-index` も)つきで描画して
 ください。
+
+フィールドを足したくない場合、`detail.sorts` は従来どおり
+`data-hx-vals` から使えます。ただし単一列の `sort` + `dir` の組では
+なく、そこから同じ `sort=name,-price` の文字列を組み立ててください。
+そうしないと複数列ソートが往復できません。
 
 ## 数値列
 
@@ -1134,6 +1160,7 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
 | ゼブラ縞 | `data-hc-zebra`(グリッド) — またはサーバーが描画する `data-alt`(行) | 動的なケースでは `installDatagrid()`。サーバーが `data-alt` を付けるなら CSS だけ |
 | 列のリサイズ | `data-resizable` + `data-col`(ヘッダー)· 同じ `data-col`(ボディセル) | `installDatagrid()` |
 | ソート可能な列 | `data-sortable` + `data-col`(ヘッダー)— 値 `"client"` は描画済みページを DOM 内でソート | `installDatagrid()` |
+| ソート → ワイヤ | グリッドのフォーム内の `<input data-hc-datagrid-sort>` — `hc:datagridsort` の発火前に順序つき `sort=name,-price` を受け取る | `installDatagrid()` |
 | グループ化された行 | `.hc-datagrid__grouprow` + `data-group-level`(見出し行)· `aria-expanded`(見出しセル。`"false"` で折りたたみ開始) | `installDatagrid()` |
 | ツリー行 | `aria-level`(全行)· `aria-expanded` + `data-hc-datagrid-tree` トグル(展開可能な行)· `data-lazy` + htmx ワイヤリング(遅延行) | `installDatagrid()` |
 | 展開可能な行詳細 | `data-hc-datagrid-toggle`(ボタン)· `data-expanded`(レコード `<tbody>`、開いた状態で開始)· `data-lazy`(詳細セル) | `installDatagrid()` |
