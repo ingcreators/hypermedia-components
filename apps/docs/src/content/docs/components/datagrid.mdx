@@ -128,6 +128,52 @@ yourself: give the frozen columns fixed widths and set each frozen cell's
 `--hc-datagrid-left` to the cumulative width, and `--hc-datagrid-head-1-h`
 to the group-row height (as in the demo above).
 
+## The scroll area
+
+The grid has **one scroll container**, `.hc-datagrid__scroll`, and it
+holds the whole table — header, body and footer. The header does not
+move because its **cells** are `position: sticky`, not because it sits
+outside the scroller.
+
+That is worth knowing for two reasons.
+
+**Sticky lives on the cells, not on the row.** Measuring
+`.hc-datagrid__head > tr` while the grid scrolls shows it moving; the
+`.hc-datagrid__headcell` boxes are the ones that hold still. A test that
+asserts on the row will report a bug that is not there.
+
+**The vertical scrollbar spans the header too.** Since the scrollport
+starts at the top of the grid, the browser draws its scrollbar down the
+full height — alongside the header row, not only beside the data. Making
+the bar start below the header means putting the header and the body in
+**separate scroll containers**, i.e. two tables, and that costs three
+things this component gets for free:
+
+- **column alignment** — one table lets the browser size header and body
+  columns together; two tables must be width-synced by script, on every
+  swap, resize and column drag;
+- **horizontal scroll sync** — the header has to follow the body's
+  `scrollLeft` on every frame;
+- **one accessible grid** — `role="grid"` derives its row/column
+  relationships from a single table. Split it and every cell needs
+  explicit `aria-colindex` / `aria-rowindex` to say what the markup used
+  to say by itself.
+
+The trade is rarely worth it. If the goal is to quiet the scrollbar
+rather than to move it, ask for a slimmer one — this also drops the
+stepper arrows that make a classic Windows scrollbar look heavy next to
+the header:
+
+```css
+.hc-datagrid__scroll {
+  scrollbar-width: thin;
+  /* optional: scrollbar-color: <thumb> <track>; */
+}
+```
+
+It is not a default because scrollbar styling is a house-style decision,
+and thin bars are harder to grab on touch.
+
 ## Trailing frozen columns
 
 `data-frozen-end` is the mirror of `data-frozen`: the column sticks to

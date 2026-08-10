@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **docs**: the datagrid page documents **the scroll area**. The grid has
+  one scroll container holding header, body and footer, and the header
+  holds still because its *cells* are sticky — so the vertical scrollbar
+  necessarily runs alongside the header, not only beside the data.
+  Records what a data-only scrollbar would cost (two tables, scripted
+  column-width and horizontal-scroll sync, and explicit
+  `aria-colindex` / `aria-rowindex` in place of the single accessible
+  table `role="grid"` derives for free), and the cheap alternative when
+  the goal is a quieter bar rather than a shorter one
+  (`scrollbar-width: thin`, deliberately not a default). Also notes that
+  sticky lives on the header **cells**, not the row — measuring the row
+  reports a bug that is not there.
+
+
 - **docs**: a fourth page template — **Data grid page**
   (`templates/data-grid-page`). The business list screen: an `hc-shell`
   frame whose grid takes the remaining height so **only the grid
