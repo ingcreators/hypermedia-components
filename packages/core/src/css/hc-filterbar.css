@@ -1,0 +1,148 @@
+/* hc-filterbar — the applied-conditions bar above a list or a grid.
+ *
+ *   <div class="hc-filterbar">
+ *     <ul class="hc-filterbar__list">
+ *       <li class="hc-filterbar__item">
+ *         <button class="hc-filterbar__chip" type="button" popovertarget="f-buyer-pop">
+ *           <span class="hc-filterbar__label">Buyer code</span>
+ *           <span class="hc-filterbar__op">is</span>
+ *           <span class="hc-filterbar__value">3 values</span>
+ *         </button>
+ *         <a class="hc-filterbar__remove" href="/orders?f-ship=2026-08"
+ *            aria-label="Remove Buyer code filter">×</a>
+ *       </li>
+ *     </ul>
+ *     <a class="hc-filterbar__clear" href="/orders">Clear all</a>
+ *   </div>
+ *
+ * The interactive sibling of hc-chip, which stays presentational. Every
+ * chip here is a CONTROL: it opens the editor for its own condition
+ * (a popover — see the filter-popover recipe), and the remove control
+ * next to it is a real link to the same URL minus that condition, so
+ * dropping a filter works without JavaScript and lands in history like
+ * any other navigation.
+ *
+ * ONE LINE, and it scrolls. Conditions accumulate sideways in a
+ * business screen; wrapping pushes the data down the page and reflows
+ * it every time a condition is added. Chips therefore do not shrink —
+ * the bar scrolls instead — and the clear-all control is pinned to the
+ * trailing edge so it never scrolls out of reach.
+ *
+ * The server owns the text. Only it knows a field's label, which
+ * operator was used, and how many values a condition holds — so a
+ * multi-value condition arrives summarised ("3 values"), never as three
+ * chips and never as a 200-character one.
+ */
+@layer hc.components {
+  .hc-filterbar {
+    display: flex;
+    align-items: center;
+    gap: var(--hc-filterbar-gap);
+    min-inline-size: 0;
+  }
+
+  /* The scrolling part. A real list, so it announces as "list, N items";
+     `min-inline-size: 0` lets it shrink inside the flex row instead of
+     pushing the bar (and its container) wide. */
+  .hc-filterbar__list {
+    display: flex;
+    flex: 1;
+    gap: var(--hc-filterbar-gap);
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    list-style: none;
+    scrollbar-width: thin;
+  }
+
+  .hc-filterbar__item {
+    display: flex;
+    flex-shrink: 0; /* the bar scrolls; chips keep their shape */
+    align-items: stretch;
+  }
+
+  .hc-filterbar__chip,
+  .hc-filterbar__remove {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hc-space-1);
+    padding-block: var(--hc-filterbar-padding-y);
+    padding-inline: var(--hc-filterbar-padding-x);
+    border: 1px solid var(--hc-filterbar-border);
+    background: var(--hc-filterbar-bg);
+    color: var(--hc-filterbar-fg);
+    font: inherit;
+    font-size: var(--hc-filterbar-font-size);
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* The pair reads as one token: the chip carries the leading round
+     edge, the remove control the trailing one, and they share a border
+     down the middle. */
+  .hc-filterbar__chip {
+    border-start-start-radius: var(--hc-filterbar-radius);
+    border-end-start-radius: var(--hc-filterbar-radius);
+    white-space: nowrap;
+  }
+
+  .hc-filterbar__remove {
+    border-start-end-radius: var(--hc-filterbar-radius);
+    border-end-end-radius: var(--hc-filterbar-radius);
+    border-inline-start: none;
+    color: var(--hc-filterbar-op-fg);
+  }
+
+  /* A chip with no remove control (a condition the screen enforces, e.g.
+     "my orders") keeps both ends round. */
+  .hc-filterbar__item > .hc-filterbar__chip:only-child {
+    border-radius: var(--hc-filterbar-radius);
+  }
+
+  .hc-filterbar__chip:hover,
+  .hc-filterbar__remove:hover {
+    background: var(--hc-filterbar-hover-bg);
+  }
+
+  .hc-filterbar__chip:focus-visible,
+  .hc-filterbar__remove:focus-visible,
+  .hc-filterbar__clear:focus-visible {
+    outline: 2px solid var(--hc-color-focus-ring);
+    outline-offset: 1px;
+  }
+
+  /* The operator is the quiet part: the eye should land on the field and
+     its value, not on "is" / "contains". */
+  .hc-filterbar__op {
+    color: var(--hc-filterbar-op-fg);
+  }
+
+  .hc-filterbar__label {
+    font-weight: var(--hc-font-weight-medium);
+  }
+
+  /* A long single value truncates INSIDE the chip; the full text stays
+     in the editor the chip opens. Without this one pasted description
+     could take the whole bar. */
+  .hc-filterbar__value {
+    overflow: hidden;
+    max-inline-size: var(--hc-filterbar-value-max);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Pinned: clearing everything must not require scrolling to the end of
+     the thing you want to clear. */
+  .hc-filterbar__clear {
+    flex-shrink: 0;
+    color: var(--hc-filterbar-op-fg);
+    font-size: var(--hc-filterbar-font-size);
+  }
+
+  /* No conditions: the bar collapses rather than leaving an empty rail. */
+  .hc-filterbar:not(:has(.hc-filterbar__item)) {
+    display: none;
+  }
+}

@@ -1902,6 +1902,52 @@
       "$value": "{semantic.space.2}"
     }
   },
+  "filterbar": {
+    "bg": {
+      "$type": "color",
+      "$value": "{semantic.color.surface}"
+    },
+    "fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text}"
+    },
+    "op-fg": {
+      "$type": "color",
+      "$value": "{semantic.color.text-muted}"
+    },
+    "border": {
+      "$type": "color",
+      "$value": "{semantic.color.border}"
+    },
+    "hover-bg": {
+      "$type": "color",
+      "$value": "{semantic.color.muted-bg}"
+    },
+    "radius": {
+      "$type": "dimension",
+      "$value": "999px"
+    },
+    "padding-x": {
+      "$type": "dimension",
+      "$value": "{semantic.space.3}"
+    },
+    "padding-y": {
+      "$type": "dimension",
+      "$value": "{primitive.space.1}"
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{semantic.font.size-sm}"
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
+    },
+    "value-max": {
+      "$type": "dimension",
+      "$value": "12rem"
+    }
+  },
   "chart": {
     "height": {
       "$type": "dimension",

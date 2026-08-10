@@ -65,6 +65,7 @@ const COMPONENTS = [
   'hc-avatar.css',
   'hc-badge.css',
   'hc-chip.css',
+  'hc-filterbar.css',
   'hc-item.css',
   'hc-timeline.css',
   'hc-chat.css',

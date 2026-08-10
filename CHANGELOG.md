@@ -22,6 +22,26 @@ Security    — security-relevant changes
 
 ### Added
 
+- **filterbar**: new component — the **applied-conditions bar** above a
+  list (`plans/hc-filter-ux-plan-en.md` PR-1). Applied filters had no
+  component: `hc-chip` is documented as presentational and `hc-chips`
+  wraps, while a condition bar is one line that **scrolls** and whose
+  chips are *controls*. Each `.hc-filterbar__chip` is a
+  `<button popovertarget>` that opens the editor for its own condition
+  — reachable even when that column is scrolled out of the grid, and
+  available for conditions that are not columns at all — and
+  `.hc-filterbar__remove` is a real `<a href>` to the same URL minus
+  that condition, so dropping a filter works without JavaScript, is
+  shareable, and **Back** puts it back. Chips do not shrink (the bar
+  scrolls instead) and `.hc-filterbar__clear` is pinned to the trailing
+  edge, because clearing everything must not require first scrolling to
+  the end of what you want to clear. The server owns the chip's text —
+  label, operator and value — so a multi-value condition arrives
+  summarised ("3 values") rather than as three chips or one 200-character
+  one, and a long single value truncates at `--hc-filterbar-value-max`
+  with the full text in the editor. New `filterbar.*` tokens.
+
+
 - **docs**: the datagrid page documents **the scroll area**. The grid has
   one scroll container holding header, body and footer, and the header
   holds still because its *cells* are sticky — so the vertical scrollbar

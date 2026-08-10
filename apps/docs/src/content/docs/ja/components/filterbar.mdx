@@ -1,0 +1,168 @@
+---
+title: フィルタバー
+description: 一覧の上に出る「適用中の条件」バー — 1行で横スクロールし、チップは自分の条件のエディタを開き、削除はその条件を除いた URL への実リンク。
+---
+
+import Demo from '../../../../components/Demo.astro';
+
+`hc-filterbar` は**いま一覧が何で絞り込まれているか**を示し、その場で
+変更させます。各チップは自分の条件のエディタを開き、隣のコントロールは
+その条件を外します。
+
+[`hc-chip`](/hypermedia-components/ja/components/chip/) の対話版に当たる
+兄弟で、`hc-chip` の方は装飾用のままです。分けているのは意図的で、
+どのピルが*レコードについての事実*で、どれが*クエリを操作するコント
+ロール*なのかを一目で区別できるようにするためです。
+
+## 基本の HTML
+
+<Demo previewClass="hc-preview--col">
+  <div class="hc-filterbar">
+    <ul class="hc-filterbar__list">
+      <li class="hc-filterbar__item">
+        <button class="hc-filterbar__chip" type="button" popovertarget="fb-demo-buyer">
+          <span class="hc-filterbar__label">Buyer code</span>
+          <span class="hc-filterbar__op">is</span>
+          <span class="hc-filterbar__value">3 values</span>
+        </button>
+        <a class="hc-filterbar__remove" href="#fb-demo" aria-label="Remove Buyer code filter">×</a>
+      </li>
+      <li class="hc-filterbar__item">
+        <button class="hc-filterbar__chip" type="button" popovertarget="fb-demo-ship">
+          <span class="hc-filterbar__label">Ship date</span>
+          <span class="hc-filterbar__op">from</span>
+          <span class="hc-filterbar__value">2026-08-01</span>
+        </button>
+        <a class="hc-filterbar__remove" href="#fb-demo" aria-label="Remove Ship date filter">×</a>
+      </li>
+      <li class="hc-filterbar__item">
+        <button class="hc-filterbar__chip" type="button" popovertarget="fb-demo-status">
+          <span class="hc-filterbar__label">Status</span>
+          <span class="hc-filterbar__op">is</span>
+          <span class="hc-filterbar__value">Open</span>
+        </button>
+        <a class="hc-filterbar__remove" href="#fb-demo" aria-label="Remove Status filter">×</a>
+      </li>
+    </ul>
+    <a class="hc-filterbar__clear" href="#fb-demo">Clear all</a>
+  </div>
+
+  <div class="hc-popover" popover id="fb-demo-buyer">
+    <p>The editor for this one condition.</p>
+  </div>
+  <div class="hc-popover" popover id="fb-demo-ship">
+    <p>The editor for this one condition.</p>
+  </div>
+  <div class="hc-popover" popover id="fb-demo-status">
+    <p>The editor for this one condition.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-filterbar">
+    <ul class="hc-filterbar__list">
+      <li class="hc-filterbar__item">
+        <!-- The chip is the trigger for this condition's editor -->
+        <button class="hc-filterbar__chip" type="button" popovertarget="edit-buyer">
+          <span class="hc-filterbar__label">Buyer code</span>
+          <span class="hc-filterbar__op">is</span>
+          <span class="hc-filterbar__value">3 values</span>
+        </button>
+        <!-- …and remove is a real link to the URL without it -->
+        <a class="hc-filterbar__remove"
+           href="/orders?f-ship-from=2026-08-01"
+           aria-label="Remove Buyer code filter">×</a>
+      </li>
+    </ul>
+    <a class="hc-filterbar__clear" href="/orders">Clear all</a>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## パーツ
+
+| パーツ | 用途 |
+| --- | --- |
+| `.hc-filterbar` | 行のラッパー。条件が 0 件のとき畳まれます。 |
+| `.hc-filterbar__list` | スクロールする `<ul>` — 「リスト、N 項目」と読み上げられます。 |
+| `.hc-filterbar__item` | 1 条件。チップと、必要なら削除コントロール。 |
+| `.hc-filterbar__chip` | その条件のエディタを開く `<button>`。 |
+| `.hc-filterbar__label` | 項目名。 |
+| `.hc-filterbar__op` | 演算子。意図的に控えめ。 |
+| `.hc-filterbar__value` | 値。`--hc-filterbar-value-max` を超えると省略されます。 |
+| `.hc-filterbar__remove` | この条件を**除いた**同じ URL へのリンク。 |
+| `.hc-filterbar__clear` | 絞り込みなしの URL へのリンク。末尾側に固定されます。 |
+
+## 1 行で、スクロールする
+
+条件は横に積み上がります。折り返すバーはデータを下へ押しやり、条件を
+足すたび外すたびに再配置するので、読んでいる最中に一覧が動きます。
+ここではチップは縮まず、代わりにバーがスクロールします。そして
+**「すべて解除」は固定**です。解除したい対象の末尾まで先にスクロール
+しないと解除できない、というのはおかしいからです。
+
+## 表示テキストはサーバーのもの
+
+項目のラベル、使われた演算子、条件が値をいくつ持つか — 知っているのは
+サーバーだけです。したがってチップの 3 パーツはサーバーが描画し、
+複数値の条件は**要約**として届きます。
+
+```html
+<span class="hc-filterbar__value">3 values</span>
+```
+
+チップを 3 つ並べることも、貼り付けられた 200 件のコードをチップに
+詰め込むこともしません。全件はチップが開くエディタの中にあります。
+
+## 削除はナビゲーション
+
+`__remove` と `__clear` はボタンではなく `<a href>` です。条件を外す
+ことは別の URL なので、JavaScript なしでも動き、共有でき、**戻る**で
+条件が戻ります。`data-hx-get` を足せばその場で結果を差し替えられます —
+href は no-JS 経路として残ります。
+
+画面が強制している条件（たとえば「担当者は自分」）は、削除コントロール
+を描画しなければよく、チップは両端が丸いままになります。
+
+## アクセシビリティ
+
+- バーは実際のリストなので、件数が読み上げられます。
+- 削除コントロールは必ず**条件を名指し**します（「Remove Buyer code
+  filter」）。素の × にはしません。
+- 各チップは `<button popovertarget>` なので、キーボードでエディタが
+  開き、Escape で閉じます — ブラウザ標準のポップオーバー挙動です。
+- 省略は見た目だけで、エディタには全文が入っています。
+
+## テーマ用トークン
+
+| トークンパス | 用途 |
+| --- | --- |
+| `filterbar.bg` / `-fg` / `-border` | チップの面。 |
+| `filterbar.hover-bg` | チップと削除のホバー。 |
+| `filterbar.op-fg` | 控えめな部分 — 演算子、削除、すべて解除。 |
+| `filterbar.radius` / `-padding-x` / `-padding-y` / `-gap` | 形と間隔。 |
+| `filterbar.font-size` | チップの文字サイズ。 |
+| `filterbar.value-max` | 長い値を省略する位置。 |
+
+## CSS 変数
+
+<details>
+<summary>生成される CSS 変数を表示</summary>
+
+```text
+--hc-filterbar-bg | -fg | -border | -hover-bg | -op-fg
+--hc-filterbar-radius | -padding-x | -padding-y | -gap
+--hc-filterbar-font-size | -value-max
+```
+
+</details>
+
+## 関連
+
+- [チップ](/hypermedia-components/ja/components/chip/) — 装飾用の兄弟。
+- [datagrid-filter レシピ](/hypermedia-components/ja/recipes/datagrid-filter/) — バーが編集する `f-<col>` のワイヤ。
+- [filter-popover レシピ](/hypermedia-components/ja/recipes/filter-popover/) — 各チップが開くエディタの器。
+- [saved-views レシピ](/hypermedia-components/ja/recipes/saved-views/) — 条件セットに名前を付ける。
