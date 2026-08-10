@@ -1,0 +1,93 @@
+<!doctype html>
+<!-- Fixture for hc-filterbar — the applied-conditions bar. Pins the two
+     things that make it different from a chip list: it stays on ONE
+     line and scrolls instead of wrapping, and every chip is a control
+     (a popover trigger) with a real link next to it that drops just
+     that condition. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hc-filterbar fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem; max-inline-size: 40rem;">
+    <h1>Applied conditions</h1>
+
+    <div class="hc-filterbar" data-testid="bar">
+      <ul class="hc-filterbar__list" data-testid="list">
+        <li class="hc-filterbar__item">
+          <button class="hc-filterbar__chip" type="button" data-testid="chip-buyer"
+                  popovertarget="pop-buyer">
+            <span class="hc-filterbar__label">Buyer code</span>
+            <span class="hc-filterbar__op">is</span>
+            <span class="hc-filterbar__value" data-testid="value-buyer">3 values</span>
+          </button>
+          <a class="hc-filterbar__remove" data-testid="remove-buyer"
+             href="/orders?f-ship-from=2026-08-01" aria-label="Remove Buyer code filter">×</a>
+        </li>
+        <li class="hc-filterbar__item">
+          <button class="hc-filterbar__chip" type="button" popovertarget="pop-ship">
+            <span class="hc-filterbar__label">Ship date</span>
+            <span class="hc-filterbar__op">from</span>
+            <span class="hc-filterbar__value">2026-08-01</span>
+          </button>
+          <a class="hc-filterbar__remove" href="/orders?f-buyer=A"
+             aria-label="Remove Ship date filter">×</a>
+        </li>
+        <li class="hc-filterbar__item">
+          <button class="hc-filterbar__chip" type="button" popovertarget="pop-note">
+            <span class="hc-filterbar__label">Note</span>
+            <span class="hc-filterbar__op">contains</span>
+            <span class="hc-filterbar__value" data-testid="value-long">a very long pasted value that must not be allowed to take the whole bar</span>
+          </button>
+          <a class="hc-filterbar__remove" href="/orders" aria-label="Remove Note filter">×</a>
+        </li>
+        <li class="hc-filterbar__item">
+          <button class="hc-filterbar__chip" type="button" popovertarget="pop-status">
+            <span class="hc-filterbar__label">Status</span>
+            <span class="hc-filterbar__op">is</span>
+            <span class="hc-filterbar__value">Open</span>
+          </button>
+          <a class="hc-filterbar__remove" href="/orders" aria-label="Remove Status filter">×</a>
+        </li>
+        <!-- Enforced by the screen: no remove control. -->
+        <li class="hc-filterbar__item">
+          <button class="hc-filterbar__chip" type="button" data-testid="chip-locked"
+                  popovertarget="pop-mine">
+            <span class="hc-filterbar__label">Owner</span>
+            <span class="hc-filterbar__op">is</span>
+            <span class="hc-filterbar__value">me</span>
+          </button>
+        </li>
+      </ul>
+      <a class="hc-filterbar__clear" data-testid="clear" href="/orders">Clear all</a>
+    </div>
+
+    <!-- One editor per condition; the chip is its trigger. -->
+    <div class="hc-popover" popover id="pop-buyer" data-testid="pop-buyer">
+      <form method="get" action="/orders">
+        <div class="hc-field">
+          <label class="hc-field__label" for="e-buyer">Buyer code</label>
+          <textarea class="hc-input" id="e-buyer" name="f-buyer" rows="4">ZAB001000000
+test1
+test2</textarea>
+        </div>
+        <button class="hc-button" data-variant="primary" type="submit">Apply</button>
+      </form>
+    </div>
+    <div class="hc-popover" popover id="pop-ship"><p>Ship date editor</p></div>
+    <div class="hc-popover" popover id="pop-note"><p>Note editor</p></div>
+    <div class="hc-popover" popover id="pop-status"><p>Status editor</p></div>
+    <div class="hc-popover" popover id="pop-mine"><p>Owner editor</p></div>
+
+    <h2>Empty</h2>
+    <div class="hc-filterbar" data-testid="empty-bar">
+      <ul class="hc-filterbar__list"></ul>
+      <a class="hc-filterbar__clear" href="/orders">Clear all</a>
+    </div>
+  </main>
+</body>
+</html>

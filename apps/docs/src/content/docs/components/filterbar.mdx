@@ -1,0 +1,169 @@
+---
+title: Filter bar
+description: The applied-conditions bar above a list — one scrolling line whose chips open their own editor and whose remove controls are real links to the URL without that condition.
+---
+
+import Demo from '../../../components/Demo.astro';
+
+`hc-filterbar` shows **what the list is currently filtered by**, and lets
+the user change it there: each chip opens the editor for its own
+condition, and the control next to it drops that condition.
+
+It is the interactive sibling of [`hc-chip`](/hypermedia-components/components/chip/),
+which stays presentational. Keeping them apart is deliberate — a reader
+should be able to tell at a glance which pills are *facts about a
+record* and which are *controls on a query*.
+
+## Basic HTML
+
+<Demo previewClass="hc-preview--col">
+  <div class="hc-filterbar">
+    <ul class="hc-filterbar__list">
+      <li class="hc-filterbar__item">
+        <button class="hc-filterbar__chip" type="button" popovertarget="fb-demo-buyer">
+          <span class="hc-filterbar__label">Buyer code</span>
+          <span class="hc-filterbar__op">is</span>
+          <span class="hc-filterbar__value">3 values</span>
+        </button>
+        <a class="hc-filterbar__remove" href="#fb-demo" aria-label="Remove Buyer code filter">×</a>
+      </li>
+      <li class="hc-filterbar__item">
+        <button class="hc-filterbar__chip" type="button" popovertarget="fb-demo-ship">
+          <span class="hc-filterbar__label">Ship date</span>
+          <span class="hc-filterbar__op">from</span>
+          <span class="hc-filterbar__value">2026-08-01</span>
+        </button>
+        <a class="hc-filterbar__remove" href="#fb-demo" aria-label="Remove Ship date filter">×</a>
+      </li>
+      <li class="hc-filterbar__item">
+        <button class="hc-filterbar__chip" type="button" popovertarget="fb-demo-status">
+          <span class="hc-filterbar__label">Status</span>
+          <span class="hc-filterbar__op">is</span>
+          <span class="hc-filterbar__value">Open</span>
+        </button>
+        <a class="hc-filterbar__remove" href="#fb-demo" aria-label="Remove Status filter">×</a>
+      </li>
+    </ul>
+    <a class="hc-filterbar__clear" href="#fb-demo">Clear all</a>
+  </div>
+
+  <div class="hc-popover" popover id="fb-demo-buyer">
+    <p>The editor for this one condition.</p>
+  </div>
+  <div class="hc-popover" popover id="fb-demo-ship">
+    <p>The editor for this one condition.</p>
+  </div>
+  <div class="hc-popover" popover id="fb-demo-status">
+    <p>The editor for this one condition.</p>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-filterbar">
+    <ul class="hc-filterbar__list">
+      <li class="hc-filterbar__item">
+        <!-- The chip is the trigger for this condition's editor -->
+        <button class="hc-filterbar__chip" type="button" popovertarget="edit-buyer">
+          <span class="hc-filterbar__label">Buyer code</span>
+          <span class="hc-filterbar__op">is</span>
+          <span class="hc-filterbar__value">3 values</span>
+        </button>
+        <!-- …and remove is a real link to the URL without it -->
+        <a class="hc-filterbar__remove"
+           href="/orders?f-ship-from=2026-08-01"
+           aria-label="Remove Buyer code filter">×</a>
+      </li>
+    </ul>
+    <a class="hc-filterbar__clear" href="/orders">Clear all</a>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+## Parts
+
+| Part | Purpose |
+| --- | --- |
+| `.hc-filterbar` | Row wrapper. Collapses when there are no conditions. |
+| `.hc-filterbar__list` | The scrolling `<ul>` — announces as "list, N items". |
+| `.hc-filterbar__item` | One condition: its chip, and optionally its remove control. |
+| `.hc-filterbar__chip` | The `<button>` that opens this condition's editor. |
+| `.hc-filterbar__label` | The field name. |
+| `.hc-filterbar__op` | The operator — deliberately quiet. |
+| `.hc-filterbar__value` | The value, truncated past `--hc-filterbar-value-max`. |
+| `.hc-filterbar__remove` | Link to the same URL **minus** this condition. |
+| `.hc-filterbar__clear` | Link to the unfiltered URL. Pinned to the trailing edge. |
+
+## One line, and it scrolls
+
+Conditions accumulate sideways. A wrapping bar pushes the data down the
+page and reflows it every time a condition is added or dropped, so the
+list moves under the reader's eyes. Here the chips never shrink and the
+bar scrolls instead — and **Clear all is pinned**, because clearing
+everything must not require first scrolling to the end of the thing you
+want to clear.
+
+## The server owns the text
+
+Only the server knows a field's label, which operator was used, and how
+many values a condition holds. So it renders the chip's three parts, and
+a multi-value condition arrives **summarised**:
+
+```html
+<span class="hc-filterbar__value">3 values</span>
+```
+
+Never three chips, and never a chip carrying 200 pasted codes. The full
+list lives in the editor the chip opens.
+
+## Removing is navigation
+
+`__remove` and `__clear` are `<a href>`, not buttons: dropping a
+condition is a different URL, so it works without JavaScript, it is
+shareable, and **Back** puts the condition back. Add `data-hx-get` to
+swap the results in place — the href stays the no-JS path.
+
+A condition the screen enforces (say, "owner is me") simply renders
+without a remove control; the chip keeps both ends round.
+
+## Accessibility
+
+- The bar is a real list, so its size is announced.
+- Every remove control **names its condition** ("Remove Buyer code
+  filter") rather than being a bare ×.
+- Each chip is a `<button popovertarget>`, so the editor opens from the
+  keyboard and Escape closes it — the browser's own popover behavior.
+- Truncation is visual only; the editor holds the full value.
+
+## Theming tokens
+
+| Token path | Purpose |
+| --- | --- |
+| `filterbar.bg` / `-fg` / `-border` | Chip surface. |
+| `filterbar.hover-bg` | Chip and remove hover. |
+| `filterbar.op-fg` | The quiet parts — operator, remove, clear. |
+| `filterbar.radius` / `-padding-x` / `-padding-y` / `-gap` | Shape and rhythm. |
+| `filterbar.font-size` | Chip text size. |
+| `filterbar.value-max` | Where a long value truncates. |
+
+## CSS variables
+
+<details>
+<summary>Show the generated CSS variables</summary>
+
+```text
+--hc-filterbar-bg | -fg | -border | -hover-bg | -op-fg
+--hc-filterbar-radius | -padding-x | -padding-y | -gap
+--hc-filterbar-font-size | -value-max
+```
+
+</details>
+
+## Related
+
+- [Chip](/hypermedia-components/components/chip/) — the presentational sibling.
+- [Datagrid filter recipe](/hypermedia-components/recipes/datagrid-filter/) — the `f-<col>` wire the bar edits.
+- [Filter popover recipe](/hypermedia-components/recipes/filter-popover/) — the editor shell each chip opens.
+- [Saved views recipe](/hypermedia-components/recipes/saved-views/) — naming a set of conditions.
