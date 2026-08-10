@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `datagrid-filter` documents that **export inherits the
+  conditions** (`plans/hc-filter-ux-plan-en.md` item F). In a business
+  screen "download" means *this question, these columns, every page* —
+  not the forty rows on screen — so the export link is the same query
+  in another representation, with its href rendered **by the server**
+  (only it knows the canonical form of the conditions, and a relative
+  expression must travel as the expression so the export means what the
+  screen means). Columns come along, resolved the way the grid resolved
+  them; the label carries the row count, because an export is a
+  commitment and the number is what separates "this page" from
+  "everything"; and the page number is the one param dropped. Past the
+  point where a request would time out, answer `202` with a job pointer
+  — a silently truncated export is a wrong answer that looks like a
+  right one.
 - **recipes**: `datagrid-bulk-errors` can act on **everything that
   matches**, not only on ticked ids (`plans/hc-filter-ux-plan-en.md`
   item E). Ticking rows stops working before the data does: when 4,873
