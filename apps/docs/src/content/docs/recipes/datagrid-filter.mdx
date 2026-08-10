@@ -97,6 +97,48 @@ one-click recall, and page links keep their `f-<col>` params so
 [paging](/hypermedia-components/recipes/datagrid-pager/) preserves the
 filter.
 
+## The applied-conditions bar
+
+Column popovers are how a condition is **created**; they are a poor way
+to find one again. In a wide grid the column may be scrolled out of
+view, and plenty of conditions do not belong to a column at all — so the
+response also renders an
+[`hc-filterbar`](/hypermedia-components/components/filterbar/): the
+read-out of the whole querystring, and its edit surface.
+
+| Element | What the server renders |
+| --- | --- |
+| one `.hc-filterbar__item` per applied condition | in the order the user added them if you track it, otherwise column order |
+| `__label` / `__op` / `__value` | the field's label, the operator, and the value **summarised** — `3 values` for a multi-value condition |
+| the chip's `popovertarget` | an editor holding **only that condition**, pre-filled, submitting the same `f-<col>` names |
+| `__remove` `href` | the current URL **minus that one param** |
+| `__clear` `href` | the URL with no `f-` params — sort, columns and page size stay |
+
+The bar rides with the grid fragment, so one response updates rows,
+header triggers and bar together.
+
+**Removing is navigation.** `__remove` and `__clear` are real links, so
+dropping a condition works without JavaScript, is shareable, and
+**Back puts it back**. Add `data-hx-get` to swap in place; the `href`
+stays the no-JS path.
+
+Every entry point writes the same params — the column popover, a chip's
+editor and a hand-typed URL are three doors into one wire.
+
+## Empty results
+
+A list filtered to nothing is a dead end, and the more conditions are
+applied the less obvious which one is at fault. Answer the empty grid
+with the way out — name the **newest** condition, since it is what the
+user just did:
+
+```html
+<p role="status">
+  No orders match these 4 conditions.
+  <a href="/orders?f-ship-from=2026-08-01&f-status=open">Drop “Buyer code”</a>
+</p>
+```
+
 ## Progressive enhancement
 
 The filter is a real GET form (`action` + `method="get"`): without

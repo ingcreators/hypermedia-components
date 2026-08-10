@@ -74,6 +74,40 @@ function formHtml(selected) {
 </form>`;
 }
 
+const BAR_ID = 'datagrid-filter-demo-conditions';
+
+/**
+ * The applied-conditions bar. One item per condition — here there is
+ * only one column, so at most one — with the value SUMMARISED once more
+ * than one status is selected, and a remove link pointing at the URL
+ * without `f-status`. The bar rides out of band because the demo's
+ * layout puts it above the grid wrapper rather than inside it.
+ */
+function barHtml(selected, { oob = false } = {}) {
+  const labels = STATUSES.filter((s) => selected.includes(s.key)).map((s) => s.label);
+  const oobAttr = oob ? ' data-hx-swap-oob="outerHTML"' : '';
+  if (labels.length === 0) {
+    // Empty: the component collapses, but the element must still come
+    // back so the next filtered response has something to replace.
+    return `<div class="hc-filterbar" id="${BAR_ID}"${oobAttr}><ul class="hc-filterbar__list"></ul></div>`;
+  }
+  const value = labels.length === 1 ? labels[0] : `${labels.length} values`;
+  const clearHref = `${API}/items`;
+  return `<div class="hc-filterbar" id="${BAR_ID}"${oobAttr}>
+  <ul class="hc-filterbar__list">
+    <li class="hc-filterbar__item">
+      <button class="hc-filterbar__chip" type="button" popovertarget="${POPOVER_ID}">
+        <span class="hc-filterbar__label">Status</span>
+        <span class="hc-filterbar__op">is</span>
+        <span class="hc-filterbar__value">${escapeHtml(value)}</span>
+      </button>
+      <a class="hc-filterbar__remove" href="${clearHref}" data-hx-get="${clearHref}" data-hx-target="#${GRID_ID}" aria-label="Remove Status filter">×</a>
+    </li>
+  </ul>
+  <a class="hc-filterbar__clear" href="${clearHref}" data-hx-get="${clearHref}" data-hx-target="#${GRID_ID}">Clear all</a>
+</div>`;
+}
+
 /** The grid wrapper's innerHTML: scroll + table, rows filtered. */
 function gridHtml(selected) {
   const statusLabel = new Map(STATUSES.map((s) => [s.key, s.label]));
@@ -110,7 +144,8 @@ export function handle({ method, path, url, request }) {
     // The grid for the wrapper's innerHTML (the filtered trigger rides
     // in its header), plus the fieldset re-rendered out-of-band.
     return html(`${gridHtml(selected)}
-${fieldsHtml(selected, { oob: true })}`);
+${fieldsHtml(selected, { oob: true })}
+${barHtml(selected, { oob: true })}`);
   }
 
   // No-JS fallback: the filter is a real GET form — a plain submit
@@ -126,7 +161,8 @@ ${fieldsHtml(selected, { oob: true })}`);
     .join('\n');
   return page(
     'Datagrid filter demo',
-    `${formHtml(selected)}
+    `${barHtml(selected)}
+${formHtml(selected)}
 <table>
   <thead><tr><th>Name</th><th>Status</th><th>Owner</th></tr></thead>
   <tbody>${bodyRows}</tbody>
