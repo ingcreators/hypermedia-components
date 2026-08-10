@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **docs**: the `data-grid-page` template adopts the filter-UX work
+  (`plans/hc-filter-ux-plan-en.md` item G). Its illustrative `hc-chip`
+  strip becomes a real [`hc-filterbar`](#) whose chips open their own
+  editors and whose remove links drop one param each; one condition is
+  **relative**, showing the stored expression *and* what it resolved to
+  (`start of this week (2026-08-10)`); the filter panel takes a pasted
+  list through `data-hc-multi="lines"`, carries sort in a hidden
+  `data-hc-datagrid-sort` field so a saved view captures it, and shows
+  the **Modified** state with Update / Save as new / Reset. Export
+  became a link carrying the current query and row count rather than a
+  bare button. The wiring map gains a row per new contract.
+
+
 - **recipes**: `datagrid-filter` documents that **export inherits the
   conditions** (`plans/hc-filter-ux-plan-en.md` item F). In a business
   screen "download" means *this question, these columns, every page* —

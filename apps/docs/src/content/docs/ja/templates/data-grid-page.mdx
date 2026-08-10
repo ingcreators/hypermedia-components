@@ -292,19 +292,41 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 含めてです。どこかで連鎖が切れると、その軸はグリッドではなくページを
 スクロールさせます。
 
+## 条件バーは画面の読み出し
+
+タイトルの下の帯は装飾ではありません。**いま何で絞り込まれているか**で
+あり、各チップがその条件を変える手段です。1 つは**相対条件**で、
+`start of this week (2026-08-10)` のように保存された式と今日の解決値の
+両方を表示します。条件が推測にならず、それを使った保存ビューが来週も
+正しいままである理由です。
+
+テンプレートが示す帰結が 3 つあります。
+
+- **エクスポートがクエリを持ち歩きます。**ボタンは *Export 5,000 rows*
+  と件数を述べ、href には同じ条件と列が載ります。ダウンロードは画面の
+  行ではなくこの問いを意味します。
+- **ソートはフォームに乗ります**（`<input data-hc-datagrid-sort>`）。
+  Apply でも維持され、保存ビューにも含まれます。
+- **調整したビューはそう言います。**パネル冒頭に **Modified** と
+  更新 / 別名で保存 / 元に戻す が出ます。ビューを適用してから条件を
+  1 つ変えるのは、保存ビューで最もよく行われる操作だからです。
+
 ## 配線表
 
 | リージョン | コンポーネント | サーバー契約 |
 | --- | --- | --- |
 | アプリフレーム | [`hc-shell`](/hypermedia-components/ja/components/shell/) | — |
-| 適用中の条件 | [`hc-chip`](/hypermedia-components/ja/components/chip/) | 条件を 1 つ外すリンク — ただの URL |
+| 適用中の条件 | [`hc-filterbar`](/hypermedia-components/ja/components/filterbar/) | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 条件 1 つにつきチップ 1 つ。各チップが自分のエディタを開き、削除リンクは 1 パラメータだけ落とす |
 | ツールバー | [`hc-toolbar`](/hypermedia-components/ja/components/toolbar/) + `installToolbar()` | —（Tab ストップ 1 つ、中は矢印キー） |
 | 選択時のアクション | `installDatagridActions()` | [datagrid-bulk-actions](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)、大量失敗時は [datagrid-bulk-errors](/hypermedia-components/ja/recipes/datagrid-bulk-errors/) |
 | ページャ | [`hc-pagination`](/hypermedia-components/ja/components/pagination/) | [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) |
 | グリッド | [`hc-datagrid`](/hypermedia-components/ja/components/datagrid/) | `f-<col>` パラメータは [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) |
 | インライン編集 | `data-editable` + エディタ `<template>` | [datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/)（422 と確認付き警告）、[datagrid-edit-conflict](/hypermedia-components/ja/recipes/datagrid-edit-conflict/)（409） |
 | 検索パネル | [`hc-dialog`](/hypermedia-components/ja/components/dialog/) + [`hc-grid`](/hypermedia-components/ja/fundamentals/layout/) + [`hc-input-group`](/hypermedia-components/ja/components/input-group/) | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) |
-| 条件の保存 | パネルの `view` セレクト | [saved-views](/hypermedia-components/ja/recipes/saved-views/) |
+| 条件の保存 | パネルの `view` セレクト | [saved-views](/hypermedia-components/ja/recipes/saved-views/) — 変更済み状態とその場更新を含む |
+| 複数値の入力 | `<textarea data-hc-multi="lines">` | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 貼り付けた一覧が繰り返しパラメータになる |
+| 相対日付 | `@week-start` のような条件値 | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 式のまま保存し、サーバーが解決 |
+| エクスポート | 現在のクエリを持つリンク | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 同じ条件・同じ列・全ページ |
 | 列の構成・幅 | — | [datagrid-columns](/hypermedia-components/ja/recipes/datagrid-columns/)、[datagrid-prefs](/hypermedia-components/ja/recipes/datagrid-prefs/) |
 
 ## 応用
