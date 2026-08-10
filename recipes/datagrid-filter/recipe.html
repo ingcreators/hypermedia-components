@@ -8,7 +8,31 @@
   (with an aria-label naming the active filter) — plus, out of band, the
   form's fieldset with matching checked states. Filters for other
   columns compose as server-rendered hidden f-<col> inputs.
+  The applied-conditions bar above the grid is the read-out of the whole
+  querystring and its edit surface: each chip opens an editor for its
+  own condition (reachable even when that column is scrolled away), and
+  each remove control is a real link to the URL without that one param.
   Zero custom JS; see contract.md. -->
+<!-- Server-rendered from the querystring: one item per applied
+     condition. Absent when nothing is filtered. -->
+<div class="hc-filterbar" id="items-conditions">
+  <ul class="hc-filterbar__list">
+    <li class="hc-filterbar__item">
+      <button class="hc-filterbar__chip" type="button"
+              popovertarget="filter-status-popover">
+        <span class="hc-filterbar__label">Status</span>
+        <span class="hc-filterbar__op">is</span>
+        <span class="hc-filterbar__value">Active</span>
+      </button>
+      <a class="hc-filterbar__remove" href="/items"
+         data-hx-get="/items" data-hx-target="#items-grid"
+         aria-label="Remove Status filter">×</a>
+    </li>
+  </ul>
+  <a class="hc-filterbar__clear" href="/items"
+     data-hx-get="/items" data-hx-target="#items-grid">Clear all</a>
+</div>
+
 <div class="hc-datagrid" id="items-grid">
   <div class="hc-datagrid__scroll">
     <table class="hc-datagrid__table">

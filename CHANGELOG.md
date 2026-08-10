@@ -22,6 +22,23 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `datagrid-filter` gains the **applied-conditions bar**
+  (`plans/hc-filter-ux-plan-en.md` item A). Column popovers are how a
+  condition is *created*; they are a poor way to find one again — in a
+  wide grid the column may be scrolled out of view, and plenty of
+  conditions do not belong to a column at all. The response now also
+  renders an `hc-filterbar`: one item per applied condition, each chip
+  opening an editor for **only that condition**, each remove control a
+  real link to the current URL minus that one param (so it works
+  without JavaScript, is shareable, and Back puts the condition back).
+  Values arrive **summarised** — `2 values`, not one chip per value —
+  because only the server knows the label, the operator and the count.
+  The contract also gains the **empty-result** rule: answer a
+  filtered-to-nothing list with a link that drops the *newest*
+  condition, since that is what the user just did. `checks.json`
+  enforces that remove controls are links and name their condition.
+
+
 - **datagrid**: sort now travels with the form, so it **survives an
   Apply and is captured by a saved view**
   (`plans/hc-filter-ux-plan-en.md` PR-4). `installDatagrid()` writes the

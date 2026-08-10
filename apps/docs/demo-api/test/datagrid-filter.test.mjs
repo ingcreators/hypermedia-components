@@ -63,3 +63,40 @@ describe('datagrid-filter demo API', () => {
     expect(body).not.toContain('Ingest pipeline');
   });
 });
+
+describe('datagrid-filter demo API — the applied-conditions bar', () => {
+  it('renders one condition, with a remove link to the unfiltered URL', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-status=active', { htmx: true })
+    ).text();
+    expect(body).toContain('class="hc-filterbar"');
+    expect(body).toContain('<span class="hc-filterbar__value">Active</span>');
+    // Removing is navigation: a real href, and it names the condition.
+    expect(body).toContain('aria-label="Remove Status filter"');
+    expect(body).toMatch(/hc-filterbar__remove" href="[^"]*\/items"/);
+  });
+
+  it('summarises rather than listing when a condition holds several values', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-status=active&f-status=pending', {
+        htmx: true,
+      })
+    ).text();
+    expect(body).toContain('<span class="hc-filterbar__value">2 values</span>');
+    // One chip, not one per value.
+    expect(body.match(/hc-filterbar__item/g)).toHaveLength(1);
+  });
+
+  it('comes back empty when nothing is filtered', async () => {
+    const body = await (await call(datagridFilter, 'GET', '/items', { htmx: true })).text();
+    expect(body).toContain('class="hc-filterbar"');
+    expect(body).not.toContain('hc-filterbar__item');
+  });
+
+  it('the no-JS page carries the bar too', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-status=failed', { htmx: false })
+    ).text();
+    expect(body).toContain('hc-filterbar__item');
+  });
+});

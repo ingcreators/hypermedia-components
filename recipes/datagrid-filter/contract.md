@@ -32,6 +32,52 @@ Purpose: per-column filter entry for hc-datagrid — a filter-popover off a head
 | empty/absent `f-<col>` | the unfiltered grid — an all-unchecked Apply serializes no `f-status` at all, so it lands here; the trigger renders without `data-filtered` |
 | unknown value | ignored (the server is the schema); if nothing recognized remains, the unfiltered grid |
 
+## The applied-conditions bar
+
+Column popovers are how a condition is *created*; they are a poor way to
+find one again. In a wide grid the column may be scrolled out of view,
+and plenty of conditions do not belong to a column at all. So the
+response also renders an **`hc-filterbar`** — the read-out of the whole
+querystring, and its edit surface.
+
+| Element | What the server renders |
+| --- | --- |
+| one `.hc-filterbar__item` per applied condition | in the order the user added them, if you track it; otherwise the column order |
+| `__label` / `__op` / `__value` | the field's label, the operator used, and the value **summarised** — `3 values` for a multi-value condition, never three chips and never the whole list |
+| the chip's `popovertarget` | an editor holding **only that condition**, pre-filled, submitting the same `f-<col>` names as the column popover |
+| `__remove` `href` | the current URL **minus that one param**, everything else intact |
+| `__clear` `href` | the URL with no `f-` params (sort, columns and page size stay) |
+
+The bar rides with the grid fragment, so one response updates rows,
+header triggers and bar together. Give it a stable id and swap it out of
+band if your layout puts it outside the grid wrapper.
+
+**The server owns the text.** Only it knows the label, the operator and
+how many values a condition holds — the client never composes this
+string.
+
+**Removing is navigation.** `__remove` and `__clear` are real links to
+real URLs, so dropping a condition works without JavaScript, is
+shareable, and **Back puts it back**. Add `data-hx-get` to swap in
+place; the `href` stays the no-JS path.
+
+## Empty results
+
+A list filtered to nothing is a dead end, and the more conditions are
+applied the less obvious which one is at fault. Answer the empty grid
+with the way out:
+
+```html
+<p role="status">
+  No orders match these 4 conditions.
+  <a href="/orders?f-ship-from=2026-08-01&f-status=open">Drop “Buyer code”</a>
+</p>
+```
+
+Name the condition to drop — the **newest** one, since it is what the
+user just did — and make it a link to the URL without it. The bar is
+right above, so the offer and the controls read as one thing.
+
 ## Filter rules
 
 - **Filters compose across columns**: each column's form carries the
@@ -50,6 +96,9 @@ Purpose: per-column filter entry for hc-datagrid — a filter-popover off a head
   `aria-label` carries the same information for assistive tech.
 - Sorting and paging params ride along untouched — the filter form only
   owns its `f-<col>` names.
+- **Every entry point writes the same params.** The column popover, a
+  bar chip's editor and a hand-typed URL are three doors into one wire;
+  there is no second filter format to keep in step.
 
 ## Progressive enhancement (no JS)
 

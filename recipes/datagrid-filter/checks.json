@@ -6,37 +6,102 @@
       "id": "filter-params-namespaced",
       "level": "error",
       "message": "Filter controls are namespaced per column — every control's name starts with f- (e.g. f-status).",
-      "attr": { "on": "input[type=\"checkbox\"]", "name": "name", "assert": "present", "matches": "^f-" }
+      "attr": {
+        "on": "input[type=\"checkbox\"]",
+        "name": "name",
+        "assert": "present",
+        "matches": "^f-"
+      }
     },
     {
       "id": "apply-is-get",
       "level": "error",
       "message": "Filtering is idempotent navigation — the filter form GETs the grid URL (data-hx-get), never posts.",
-      "attr": { "on": "form", "name": "data-hx-get", "assert": "present" }
+      "attr": {
+        "on": "form",
+        "name": "data-hx-get",
+        "assert": "present"
+      }
     },
     {
       "id": "target-declared",
       "level": "error",
       "message": "The filter must declare where the grid lives: data-hx-target on the form.",
-      "attr": { "on": "form", "name": "data-hx-target", "assert": "present" }
+      "attr": {
+        "on": "form",
+        "name": "data-hx-target",
+        "assert": "present"
+      }
     },
     {
       "id": "grid-target-resolves",
       "level": "error",
       "message": "data-hx-target must resolve to the grid element the server re-renders.",
-      "resolves": { "on": "form", "name": "data-hx-target" }
+      "resolves": {
+        "on": "form",
+        "name": "data-hx-target"
+      }
     },
     {
       "id": "targets-grid-wrapper",
       "level": "warn",
       "message": "Target the datagrid wrapper by id (e.g. #items-grid) — the trigger's filtered state lives in the header, so the whole grid (header + rows) must re-render together.",
-      "attr": { "on": "form", "name": "data-hx-target", "assert": "present", "matches": "^#" }
+      "attr": {
+        "on": "form",
+        "name": "data-hx-target",
+        "assert": "present",
+        "matches": "^#"
+      }
     },
     {
       "id": "nojs-get",
       "level": "warn",
       "message": "Keep action + method=\"get\" on the filter form so Apply works without JavaScript.",
-      "attr": { "on": "form", "name": "action", "assert": "present" }
+      "attr": {
+        "on": "form",
+        "name": "action",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "bar-remove-is-a-link",
+      "level": "error",
+      "message": "Dropping a condition is navigation: .hc-filterbar__remove must be an <a href> to the URL without that param, so it works without JavaScript and Back puts the condition back.",
+      "attr": {
+        "on": ".hc-filterbar__remove",
+        "name": "href",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "bar-remove-is-named",
+      "level": "error",
+      "message": "A remove control must name its condition (aria-label=\"Remove Status filter\"), never a bare ×.",
+      "attr": {
+        "on": ".hc-filterbar__remove",
+        "name": "aria-label",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "bar-chip-opens-an-editor",
+      "level": "warn",
+      "message": "Each condition chip should open the editor for its own condition: popovertarget on .hc-filterbar__chip.",
+      "attr": {
+        "on": ".hc-filterbar__chip",
+        "name": "popovertarget",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "bar-clear-is-a-link",
+      "level": "warn",
+      "message": "Clear all is navigation too: .hc-filterbar__clear needs an href to the unfiltered URL.",
+      "attr": {
+        "on": ".hc-filterbar__clear",
+        "name": "href",
+        "assert": "present"
+      }
     }
   ]
 }

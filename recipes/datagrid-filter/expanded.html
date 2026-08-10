@@ -7,7 +7,29 @@
   a glance. The same response carried the form's fieldset out of band
   (same id, checked states matching the request). Unchecking everything
   sends no f-status at all — the absent-params branch — and the
-  unfiltered grid comes back with the plain trigger. -->
+  unfiltered grid comes back with the plain trigger.
+
+  The bar came back with it, now holding the applied condition: the chip
+  opens the same editor the column trigger does, and the remove link
+  points at the URL without f-status — which is simply /items here. -->
+<div class="hc-filterbar" id="items-conditions">
+  <ul class="hc-filterbar__list">
+    <li class="hc-filterbar__item">
+      <button class="hc-filterbar__chip" type="button"
+              popovertarget="filter-status-popover">
+        <span class="hc-filterbar__label">Status</span>
+        <span class="hc-filterbar__op">is</span>
+        <span class="hc-filterbar__value">Active</span>
+      </button>
+      <a class="hc-filterbar__remove" href="/items"
+         data-hx-get="/items" data-hx-target="#items-grid"
+         aria-label="Remove Status filter">×</a>
+    </li>
+  </ul>
+  <a class="hc-filterbar__clear" href="/items"
+     data-hx-get="/items" data-hx-target="#items-grid">Clear all</a>
+</div>
+
 <div class="hc-datagrid" id="items-grid">
   <div class="hc-datagrid__scroll">
     <table class="hc-datagrid__table">
