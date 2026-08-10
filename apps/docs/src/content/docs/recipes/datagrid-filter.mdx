@@ -189,6 +189,25 @@ column — "this quarter" belongs on a ledger date, not on a last-login
 stamp — and renders the applied one `selected`, so a saved view reopens
 showing **This week** rather than a raw expression.
 
+Presets cover the handful of answers people give most; they cannot cover
+"45 days ago". Custom therefore offers a **composer** — a number and a
+unit — whose controls are deliberately *not* named after the condition,
+so while it is open nothing claims `f-ship-from`: nothing has been
+chosen yet. **Use** asks the server to compose the expression, and the
+field returns as the ordinary select with the composed value added as a
+selected option, labelled `45 days ago`.
+
+The server composes because the canonical form of an expression is its
+business — the same reason it resolves them.
+
+:::danger[A relative expression never goes in a date input]
+An expression that is not one of the presets is still an expression.
+Render it as a **selected option**, not as
+`<input type="date" value="@today-45d">` — the browser shows an empty
+field there, and the condition is lost on the next submit. Only absolute
+ISO values belong in the date control.
+:::
+
 :::danger[Do not render both controls and hide one]
 Hidden controls **keep submitting**
 ([conditional-fields](/hypermedia-components/recipes/conditional-fields/)),

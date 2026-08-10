@@ -33,7 +33,13 @@ Security    — security-relevant changes
   field as a date input rather than revealing a hidden one: hidden
   controls keep submitting, so a hidden date input beside a visible
   preset select would send the param twice and leave the server
-  guessing. One name, one control, always.
+  guessing. One name, one control, always. Arbitrary offsets ("45 days
+  ago") come from a **composer** — a number and a unit, deliberately not
+  named after the condition, so nothing claims it until something is
+  chosen — which the server composes into the expression and returns as
+  a labelled selected option. A relative expression is never put in a
+  date input: the browser shows an empty field there and the condition
+  is lost on the next submit.
 
 
 - **docs**: the `data-grid-page` template adopts the filter-UX work

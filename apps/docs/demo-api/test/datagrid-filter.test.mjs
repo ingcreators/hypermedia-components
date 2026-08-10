@@ -157,7 +157,8 @@ describe('datagrid-filter demo API — entering a relative date', () => {
     // label is what a person reads.
     expect(body).toContain('<option value="@today">Today</option>');
     expect(body).toContain('<option value="@today-7d">Last 7 days</option>');
-    expect(body).toContain('<option value="custom">Custom date…</option>');
+    expect(body).toContain('<option value="custom-relative">Custom — N days ago…</option>');
+    expect(body).toContain('<option value="custom-date">Custom — a date…</option>');
   });
 
   it('marks the applied preset selected, so a saved view reopens readable', async () => {
@@ -169,7 +170,9 @@ describe('datagrid-filter demo API — entering a relative date', () => {
 
   it('custom is a re-render, and only ever one control carries the name', async () => {
     const body = await (
-      await call(datagridFilter, 'GET', '/filters/due', { htmx: true })
+      await call(datagridFilter, 'GET', '/filters/due?f-due-from=custom-date', {
+        htmx: true,
+      })
     ).text();
     expect(body).toContain('type="date"');
     // Hidden controls keep submitting, so the select must be GONE, not
@@ -184,5 +187,45 @@ describe('datagrid-filter demo API — entering a relative date', () => {
     ).text();
     expect(body).toContain('type="date"');
     expect(body).toContain('value="2099-01-01"');
+  });
+});
+
+describe('datagrid-filter demo API — arbitrary offsets', () => {
+  it('composes N + unit into one expression, server-side', async () => {
+    const body = await (
+      await call(
+        datagridFilter,
+        'GET',
+        '/filters/due?compose=1&due-n=45&due-unit=d',
+        { htmx: true },
+      )
+    ).text();
+    // One control, holding the finished expression, labelled readably.
+    expect(body).toContain('<option value="@today-45d" selected>45 days ago');
+    expect((body.match(/name="f-due-from"/g) ?? []).length).toBe(1);
+  });
+
+  it('a composed expression survives a round trip instead of vanishing', async () => {
+    // The bug this replaced: a relative expression that is not a preset
+    // landed in <input type="date">, where the browser shows nothing and
+    // the condition is lost on the next submit.
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-due-from=@today-45d', {
+        htmx: true,
+      })
+    ).text();
+    expect(body).toContain('<option value="@today-45d" selected>');
+    expect(body).not.toContain('type="date"');
+  });
+
+  it('the composer does not name the condition while it is being built', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/filters/due?f-due-from=custom-relative', {
+        htmx: true,
+      })
+    ).text();
+    expect(body).toContain('name="due-n"');
+    // Nothing is chosen yet, so nothing claims the condition's name.
+    expect(body).not.toContain('name="f-due-from"');
   });
 });

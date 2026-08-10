@@ -162,6 +162,41 @@ whole thing working with no JavaScript at all: without htmx the select
 is a plain control and the server can offer a Custom option that
 submits the form.
 
+### Arbitrary offsets
+
+Presets cover the handful of answers people give most; they cannot cover
+"45 days ago". For that, Custom offers a **composer** — a number, a unit
+— whose controls are deliberately *not* named after the condition:
+
+```html
+<div class="hc-cluster" role="group" aria-labelledby="ship-from-label">
+  <input class="hc-input" type="number" min="1" name="ship-from-n" value="45">
+  <select class="hc-select" name="ship-from-unit">…d / w / m / y…</select>
+  <span>ago</span>
+  <button data-hx-get="/orders/filters/ship-from?compose=1"
+          data-hx-include="closest .hc-field">Use</button>
+</div>
+```
+
+While the composer is open the condition simply **is not set** — no
+control carries `f-ship-from` — which is honest: nothing has been chosen
+yet. Pressing **Use** asks the server to compose the expression, and the
+field comes back as the ordinary preset control with the composed value
+**added as a selected option**, labelled:
+
+```html
+<option value="@today-45d" selected>45 days ago</option>
+```
+
+The server composes, because the canonical form of the expression is its
+business — the same reason it resolves them.
+
+**A relative expression never goes in a date input.** An expression that
+is not one of the presets is still an expression: render it as a
+selected option, not as `<input type="date" value="@today-45d">`, where
+the browser shows an empty field and the condition is lost on the next
+submit. Only absolute ISO values belong in the date control.
+
 **An expression the server does not understand is an error.** Answer
 `400` (or re-ask); never fall back to the unfiltered list. This is the
 same rule as an expired condition set, for the same reason: a silently
