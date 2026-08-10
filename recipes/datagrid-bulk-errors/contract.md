@@ -99,6 +99,67 @@ Retryable is the server's judgement, not the client's:
 Say so in the report when the two differ ("3 can be retried; 2 need a
 change first") — otherwise a partially-checked grid reads as a bug.
 
+## Acting on everything that matches
+
+Ticking rows stops working before the data does. When 4,873 rows match,
+the operation the user wants is "archive **all of them**" — and 4,873
+ids fit in neither a querystring nor a form post, let alone through a
+proxy.
+
+So the action may be expressed as **the query itself**. The client sends
+the conditions it is looking at instead of a list of ids:
+
+```html
+<form method="post" action="/products/bulk">
+  <!-- The conditions currently applied, server-rendered. Exactly the
+       ones the filter bar is showing. -->
+  <input type="hidden" name="f-status" value="open">
+  <input type="hidden" name="f-ship-from" value="@week-start">
+  <input type="hidden" name="scope" value="matching">
+  <input type="hidden" name="count-token" value="ct_9f2c1a">
+  <button class="hc-button" type="submit" name="action" value="archive">
+    Archive all 4,873 matching
+  </button>
+</form>
+```
+
+| Field | Meaning |
+| --- | --- |
+| `scope=matching` | act on the query, not on `ids` — the two are mutually exclusive, and a request carrying both is a client bug worth a `400` |
+| the `f-*` params | the conditions, in exactly the form the list URL uses |
+| `count-token` | pins the count the user was shown |
+
+### The count is part of the confirmation
+
+"Archive all matching" is not a safe thing to press blind, so the button
+**says the number** and the server re-counts before executing. If the
+count has moved — someone else's edit, a relative date that rolled over
+at midnight — do not silently act on the new set:
+
+| Case | Response |
+| --- | --- |
+| count matches the token | execute; report as usual |
+| count has changed | **`409`** + the report saying the old and new counts, and a button carrying a fresh token |
+| token missing or unknown | `409` — re-count and re-confirm; never fall back to acting on whatever matches now |
+
+The token is what makes this honest. Without it "archive all 4,873"
+executes against however many rows exist at execution time, which is a
+different operation from the one the user agreed to.
+
+### Everything else is unchanged
+
+Pre-flight, best-effort vs atomic, the reason-grouped report and the
+retry rules all apply as written — the only thing that changed is how
+the set was named. A query-scoped run cannot mark individual rows
+`checked` on the way back, so its report leans on the filter link
+("filter to the failed rows") rather than on selection.
+
+Two limits worth stating out loud: a query-scoped action must be
+**re-authorised** like any other (the conditions may include something
+the user may no longer read), and above some size it belongs in an
+async job with progress rather than a synchronous POST — the same
+boundary the base recipe already names.
+
 ## Pre-flight — `GET /products/bulk/preflight?ids=…&action=…`
 
 Atomic actions validate before they execute; error prevention beats

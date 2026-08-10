@@ -22,6 +22,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `datagrid-bulk-errors` can act on **everything that
+  matches**, not only on ticked ids (`plans/hc-filter-ux-plan-en.md`
+  item E). Ticking rows stops working before the data does: when 4,873
+  rows match, the wanted operation is "archive all of them", and 4,873
+  ids fit in neither a querystring nor a form post. A request may now
+  carry `scope=matching` plus the conditions themselves — the same
+  `f-*` params the list URL uses — and the two shapes are mutually
+  exclusive (`400` if both). The count is part of the confirmation: the
+  button says the number, the server re-counts, and a **`count-token`**
+  pins the count the user was shown. If it has moved — someone else's
+  edit, a relative date rolling over at midnight — the answer is `409`
+  with the old and new counts and a fresh token, never a silent run
+  against a different set. Without the token, "archive all 4,873"
+  executes against however many rows exist at execution time, which is
+  a different operation from the one the user agreed to.
 - **recipes**: `saved-views` gains a **modified state**, **update in
   place**, and a persistence model (`plans/hc-filter-ux-plan-en.md`
   item D). Applying a view and changing one condition is the commonest
