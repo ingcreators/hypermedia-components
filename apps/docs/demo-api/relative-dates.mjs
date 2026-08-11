@@ -35,7 +35,11 @@ const ANCHORS = new Set([
   'year-end',
 ]);
 
-const OFFSET = /^(today|week-start|month-start|year-start)([+-])(\d+)([dwmy])$/;
+// Any anchor may take an offset. Period anchors (…-start / …-end) shift
+// the reference date FIRST and take the boundary after — "the end of the
+// month a month back" is a different thing from "the end of this month,
+// minus a month", and only the first one is what anybody means.
+const OFFSET = /^([a-z-]+)([+-])(\d+)([dwmy])$/;
 
 function iso(date) {
   return date.toISOString().slice(0, 10);
@@ -86,9 +90,16 @@ function addUnits(date, sign, amount, unit) {
   const y = date.getUTCFullYear();
   const m = date.getUTCMonth();
   const d = date.getUTCDate();
-  if (unit === 'm') return utc(y, m + n, d);
-  if (unit === 'y') return utc(y + n, m, d);
-  return utc(y, m, d + n * UNIT_DAYS[unit]);
+  if (unit === 'd' || unit === 'w') return utc(y, m, d + n * UNIT_DAYS[unit]);
+
+  // Months and years CLAMP to the last day of the target month. Letting
+  // the Date constructor roll over turns "a month before 31 March" into
+  // 3 March — a filter that silently includes a month it was never
+  // asked for.
+  const targetY = unit === 'y' ? y + n : y;
+  const targetM = unit === 'y' ? m : m + n;
+  const lastDay = utc(targetY, targetM + 1, 0).getUTCDate();
+  return utc(targetY, targetM, Math.min(d, lastDay));
 }
 
 /** True for values the server must resolve rather than take literally. */
@@ -118,9 +129,22 @@ export function resolveRelative(value, { now = new Date(), weekStartsOn = 1 } = 
   const m = OFFSET.exec(body);
   if (!m) return null;
   const [, anchor, sign, amount, unit] = m;
-  const base = anchorDate(anchor, now, weekStartsOn);
-  if (!base) return null;
-  return iso(addUnits(base, sign, Number(amount), unit));
+  if (!ANCHORS.has(anchor)) return null;
+
+  if (anchor === 'today') {
+    return iso(addUnits(anchorDate('today', now, weekStartsOn), sign, Number(amount), unit));
+  }
+  // A period anchor: move the reference date, then take the boundary of
+  // the period it lands in. `@month-end-1m` is last month's end, and it
+  // stays correct in February.
+  const shifted = addUnits(
+    utc(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    sign,
+    Number(amount),
+    unit,
+  );
+  const date = anchorDate(anchor, shifted, weekStartsOn);
+  return date ? iso(date) : null;
 }
 
 /** Human wording for the bar — the expression is not for reading raw. */
@@ -149,9 +173,18 @@ export function describeRelative(value, options) {
   if (known) return `${known} (${resolved})`;
   const m = OFFSET.exec(value.slice(1));
   if (!m) return `${value} (${resolved})`;
-  const [, , sign, amount, unit] = m;
+  const [, anchor, sign, amount, unit] = m;
   const units = { d: 'day', w: 'week', m: 'month', y: 'year' }[unit];
   const plural = Number(amount) === 1 ? units : `${units}s`;
   const when = sign === '-' ? 'ago' : 'ahead';
-  return `${amount} ${plural} ${when} (${resolved})`;
+  if (anchor === 'today') return `${amount} ${plural} ${when} (${resolved})`;
+  const period = anchor.replace('-start', '').replace('-end', '');
+  const edge = anchor.endsWith('-end') ? 'end' : 'start';
+  const near =
+    Number(amount) === 1 && unit === period[0]
+      ? sign === '-'
+        ? `last ${period}`
+        : `next ${period}`
+      : `the ${period} ${amount} ${plural} ${when}`;
+  return `${edge} of ${near} (${resolved})`;
 }

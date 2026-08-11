@@ -98,7 +98,17 @@ be an **expression**, and the expression is what gets stored:
 | `@month-start` / `@month-end` | …month |
 | `@quarter-start` / `@quarter-end` | …quarter |
 | `@year-start` / `@year-end` | …year |
-| `@<anchor>±<n><d\|w\|m\|y>` | offset from an anchor — `@today-7d`, `@month-start-1m` |
+| `@<anchor>±<n><d\|w\|m\|y>` | offset from an anchor — `@today-7d`, `@month-end-1m` (end of last month) |
+
+An offset on a **period** anchor shifts the period and then takes the
+boundary: `@month-end-1m` is *the end of the month a month back*, not
+*this month's end minus a month*. Only the first is what anybody means,
+and only the first stays correct in February.
+
+Month and year arithmetic **clamps**: a month before 31 March is 28
+February, never 3 March. Rolling over would silently widen the filter by
+a month — and a filter that quietly returns more than it was asked for
+is the failure this contract exists to prevent.
 
 **The server resolves, never the client.** Resolving in the browser puts
 the browser's clock and timezone into the answer, and two colleagues
