@@ -336,6 +336,21 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **recipes**: relative date expressions handle **period offsets** and
+  stop overflowing. `@month-end-1m` — "end of last month", the phrase a
+  business user actually reaches for — was rejected outright: offsets
+  were only parsed from `today` and the `-start` anchors. Offsets now
+  work from any anchor, and on a *period* anchor they shift the period
+  and then take the boundary, so `@month-end-1m` is the end of the month
+  a month back rather than this month's end minus a month — the same
+  thing in August, not in March. Month and year arithmetic also
+  **clamps** instead of rolling over: `@today-1m` evaluated on 31 March
+  answered **3 March**, so a filter asking for "the last month" quietly
+  covered a month it was never asked for. It now answers 28 February
+  (29 February in a leap year), and `@today-1y` on 29 February answers
+  28 February. Two presets are added for the common case.
+
+
 - **docs**: the `data-grid-page` template scrolled its **chrome
   horizontally**. The layout rule documented `min-block-size: 0` — the
   block-axis half of the trap — and missed its inline twin. A flex item

@@ -141,8 +141,14 @@ what gets stored:
 ```
 
 `@today`, `@week-start` / `@week-end`, `@month-start` / `@month-end`,
-`@quarter-*`, `@year-*`, and offsets from any anchor —
-`@today-7d`, `@month-start-1m` (`d` / `w` / `m` / `y`).
+`@quarter-*`, `@year-*`, plus offsets from **any** anchor —
+`@today-7d`, `@month-end-1m` (end of last month), in `d` / `w` / `m` / `y`.
+
+An offset on a *period* anchor shifts the period and then takes the
+boundary: `@month-end-1m` is *the end of the month a month back*, not
+*this month's end minus a month*. Month and year arithmetic **clamps** —
+a month before 31 March is 28 February, never 3 March, because rolling
+over would silently widen the filter by a month.
 
 **The server resolves, never the client.** Resolving in the browser puts
 the browser's clock and timezone into the answer, and two colleagues

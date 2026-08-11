@@ -88,6 +88,8 @@ const DUE_PRESETS = [
   ['@week-start', 'This week'],
   ['@month-start', 'This month'],
   ['@today-7d', 'Last 7 days'],
+  ['@month-start-1m', 'Start of last month'],
+  ['@month-end-1m', 'End of last month'],
 ];
 
 const DUE_FIELD_ID = 'datagrid-filter-demo-due-field';
