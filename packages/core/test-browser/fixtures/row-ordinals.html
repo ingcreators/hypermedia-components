@@ -17,6 +17,20 @@
 <body>
   <main style="padding:1rem">
     <h1>Orders</h1>
+
+    <!-- The O(1) summary doubles as the navigator: server-rendered
+         counter, and prev / next as REAL fragment links naming the
+         failing rows by id. installDatagrid() lands the active cell on
+         the row a fragment names, so "next error" is focus movement
+         with no client state and no new JavaScript. -->
+    <div class="hc-alert" data-variant="warning" role="status">
+      <p class="hc-alert__body">
+        <strong>2 of 3 rows could not be updated.</strong>
+        <a href="#row-4901" data-testid="prev-error">Previous</a>
+        <span data-testid="counter">Error 2 of 2 — row 177</span>
+        <a href="#row-4903" data-testid="next-error">Next</a>
+      </p>
+    </div>
     <div class="hc-datagrid" id="grid" data-testid="grid" data-row-total="5000">
       <div class="hc-datagrid__scroll">
         <table class="hc-datagrid__table" data-testid="table">
@@ -28,12 +42,12 @@
             </tr>
           </thead>
           <tbody class="hc-datagrid__body" data-testid="body">
-            <tr class="hc-datagrid__row" id="row-4901" data-row-no="137">
+            <tr class="hc-datagrid__row" id="row-4901" data-row-no="137" data-attention="error">
               <td class="hc-datagrid__cell" data-numeric>137</td>
               <th class="hc-datagrid__cell" scope="row">SO-4901</th>
               <td class="hc-datagrid__cell">Northwind</td>
             </tr>
-            <tr class="hc-datagrid__row" id="row-4902" data-row-no="138">
+            <tr class="hc-datagrid__row" id="row-4902" data-row-no="138" data-attention="error">
               <td class="hc-datagrid__cell" data-numeric>138</td>
               <th class="hc-datagrid__cell" scope="row">SO-4902</th>
               <td class="hc-datagrid__cell">Contoso</td>
@@ -51,7 +65,7 @@
     // sit in the result set.
     document.querySelector('[data-testid="next-page"]').addEventListener('click', () => {
       document.querySelector('.hc-datagrid__body').innerHTML = `
-        <tr class="hc-datagrid__row" id="row-4903" data-row-no="177">
+        <tr class="hc-datagrid__row" id="row-4903" data-row-no="177" data-attention="error">
           <td class="hc-datagrid__cell" data-numeric>177</td>
           <th class="hc-datagrid__cell" scope="row">SO-4903</th>
           <td class="hc-datagrid__cell">Fabrikam</td>

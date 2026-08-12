@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: the bulk-error summary is also the **navigator**.
+  Twelve failures scattered through five thousand rows is a queue, so
+  the O(1) line carries `Previous · Error 3 of 12 — row 137 · Next` as
+  **real `#row-<id>` fragment links** with a server-rendered counter:
+  Back works, the keyboard works, `installDatagrid()` lands the *active
+  cell* on the row a fragment names, and there is no client state to
+  drift from the panel. Rows are named by **id** and the ordinal is
+  *shown* beside it, because ordinals move when the sort or the
+  conditions change and ids do not. A **Go to row** control
+  (`?goto=137`) covers the number somebody read out loud — the server
+  resolves the ordinal to the page that contains it, since only it
+  knows where row 137 currently is.
+
 - **recipes**: `row-detail` gains the **walks**, with a live demo. Two
   sequences, one shape: the **result set** (`seq=list` — the server
   resolves neighbours by re-running the list query, so *Next* crosses a

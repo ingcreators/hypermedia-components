@@ -195,6 +195,14 @@ const FILTERS = [
              style="--hc-alert-padding-block: var(--hc-space-2);">
           <p class="hc-alert__body" style="margin: 0;">
             <strong>12 of 40 rows could not be updated.</strong>
+            {/* Real fragment links naming the failing rows by id, with a
+                server-rendered counter between them. installDatagrid()
+                lands the ACTIVE CELL on the row a fragment names, so
+                "next error" is focus movement with no client state —
+                and Back still works. */}
+            <a href="#template-grid-row-4903">Previous</a>
+            <span>Error 1 of 12 — row 3</span>
+            <a href="#template-grid-row-4907">Next</a> ·
             <a href="#template-grid">Show only failed (12)</a> ·
             <a href="#template-grid">Review reasons</a>
           </p>
@@ -321,6 +329,16 @@ const FILTERS = [
               action sends, answered with an ordered snapshot. */}
           <button class="hc-button" data-variant="ghost" type="button">Open selected (3)</button>
           <span data-hc-spacer="true"></span>
+          {/* Somebody read a number out loud. The server resolves the
+              ordinal to the page that contains it and the row anchor,
+              because only it knows where row 137 currently is. */}
+          <form class="hc-cluster" action="#template-grid" method="get"
+                style="--hc-cluster-gap: var(--hc-space-1);">
+            <label class="hc-field__label" for="template-grid-goto">Go to row</label>
+            <input class="hc-input" data-size="sm" type="number" min="1" max="5000"
+                   id="template-grid-goto" name="goto" inputmode="numeric"
+                   style="inline-size: 6rem;" />
+          </form>
           <span aria-live="polite">4,901–4,940 of 5,000</span>
           <div class="hc-button-group" role="group" aria-label="Pages">
             <button class="hc-button" data-size="sm" type="button" aria-label="Previous page">‹</button>
@@ -328,7 +346,11 @@ const FILTERS = [
           </div>
         </div>
 
-        <div class="hc-datagrid tpl-grid" id="template-grid" data-hc-zebra>
+        {/* data-row-total is the RESULT SET, not the page: it is what
+            makes aria-rowcount honest and what "row 137 of 5,000"
+            means. */}
+        <div class="hc-datagrid tpl-grid" id="template-grid" data-hc-zebra
+             data-row-total="5000">
           <div class="hc-datagrid__scroll">
             <table class="hc-datagrid__table">
               <thead class="hc-datagrid__head">
@@ -356,6 +378,7 @@ const FILTERS = [
                   <tr
                     class="hc-datagrid__row"
                     id={`template-grid-row-${row.id}`}
+                    data-row-no={row.id - 4900}
                     data-attention={row.id === 4903 || row.id === 4907 ? 'error' : undefined}>
                     <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left: 0;">
                       <input type="checkbox" class="hc-checkbox" name="ids" value={row.id}

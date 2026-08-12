@@ -131,6 +131,22 @@ function toastHeader(message, variant) {
 // table context: a bare <div> OOB fragment gets foster-parented and its
 // nested <table> mangled. <template> is htmx's blessed escape for
 // exactly this (contract.md, "Riding along with a tbody swap").
+/**
+ * The moves, in the summary line. Twelve failures scattered through a
+ * long list is a queue, so the O(1) line carries prev / next as REAL
+ * fragment links naming rows by id — installDatagrid() lands the active
+ * cell on the row a fragment names, so this is focus movement with no
+ * client state. The counter is server-rendered from the same list the
+ * report groups, so the two cannot drift.
+ */
+function navigatorHtml(ids) {
+  const failed = ids.filter((id) => blockedReason(id) != null);
+  if (failed.length < 2) return '';
+  const first = failed[0];
+  const second = failed[1];
+  return ` <a href="#bulk-errors-demo-row-${first}">Previous</a> <span>Error 1 of ${failed.length} — row ${first}</span> <a href="#bulk-errors-demo-row-${second}">Next</a>`;
+}
+
 function bulkReport(inner, { oob = false } = {}) {
   const oobAttr = oob ? ' data-hx-swap-oob="innerHTML"' : '';
   const div = `<div id="bulk-errors-demo-report" aria-live="polite"${oobAttr}>${inner}</div>`;
@@ -332,7 +348,7 @@ ${bulkReport(`<p role="status">${ok.length} rows archived.</p>`, { oob: true })}
   return html(
     `${rows}
 ${bulkReport(`<div class="hc-alert" data-variant="warning" role="status">
-  <p><strong>${ok.length} succeeded / ${failedCount} failed</strong> (of ${ids.length} selected)</p>
+  <p><strong>${ok.length} succeeded / ${failedCount} failed</strong> (of ${ids.length} selected)${navigatorHtml(ids)}</p>
   ${reasonTableHtml(blocked)}
   ${retryLine}
   <p><a href="${API}/items?f-last-result=failed">Filter to the failed rows</a></p>

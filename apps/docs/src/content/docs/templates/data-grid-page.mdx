@@ -506,6 +506,22 @@ So the chrome carries **one line**:
 }
 ```
 
+The line also carries the **moves**, because twelve failures scattered
+through five thousand rows is a queue:
+
+```html
+<a href="#row-4903">Previous</a>
+<span>Error 3 of 12 — row 137</span>
+<a href="#row-5012">Next</a>
+```
+
+Real fragment links naming rows by **id**, with the ordinal *shown*
+beside them — `installDatagrid()` lands the active cell on the row a
+fragment names, so "next error" is focus movement with no client state,
+and Back still works. A **Go to row** control in the toolbar
+(`?goto=137`) covers the number somebody read out loud; the server
+resolves it to the page that contains it.
+
 The detail lives where growth is already handled: the failing rows
 carry `data-attention="error"` and their own message row (they scroll,
 because they *are* the data), and the grouped breakdown opens in a
