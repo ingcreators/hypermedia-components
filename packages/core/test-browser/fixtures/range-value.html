@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- Fixture for installRangeValue. jsdom does not fire `formdata` when
+     FormData is constructed, so the real-browser firing — for both
+     transports — is pinned here, along with the native refusal of a
+     reversed range (the browser must block the submit, so htmx never
+     issues the request). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>range-value fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem">
+    <h1>Range conditions</h1>
+    <form id="filters" action="/orders" method="get" data-testid="form">
+      <input type="hidden" name="f-status" value="open">
+
+      <!-- The pair carries real names: without JavaScript they submit
+           as f-ship-from / f-ship-to, which is a perfectly good
+           request. With it, they leave as one f-ship=A..B. -->
+      <div class="hc-field">
+        <span class="hc-field__label" id="ship-label">Ship date</span>
+        <div class="hc-cluster" role="group" aria-labelledby="ship-label"
+             data-hc-range="f-ship">
+          <input class="hc-input" type="date" name="f-ship-from"
+                 data-testid="from" aria-label="Ship date from" value="2026-07-01">
+          <span aria-hidden="true">–</span>
+          <input class="hc-input" type="date" name="f-ship-to"
+                 data-testid="to" aria-label="Ship date to" value="2026-07-31">
+        </div>
+      </div>
+
+      <input type="hidden" name="f-carrier" value="road">
+      <button class="hc-button" type="submit" data-testid="submit">Search</button>
+    </form>
+  </main>
+</body>
+</html>

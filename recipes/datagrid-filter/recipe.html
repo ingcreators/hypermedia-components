@@ -84,6 +84,19 @@
         Failed
       </label>
     </fieldset>
+    <!-- A date condition is a PERIOD, so it travels as one param:
+         f-due=A..B. The pair carries real names, which is what submits
+         without JavaScript; installRangeValue() joins them on the
+         formdata event. Servers accept both shapes. -->
+    <div class="hc-field">
+      <span class="hc-field__label" id="f-due-label">Due</span>
+      <div class="hc-cluster" role="group" aria-labelledby="f-due-label"
+           data-hc-range="f-due">
+        <input class="hc-input" type="date" name="f-due-from" aria-label="Due from">
+        <span aria-hidden="true">–</span>
+        <input class="hc-input" type="date" name="f-due-to" aria-label="Due to">
+      </div>
+    </div>
     <footer class="hc-popover__footer">
       <button class="hc-button" type="submit" data-variant="primary">Apply</button>
     </footer>

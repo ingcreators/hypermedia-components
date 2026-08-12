@@ -16,7 +16,15 @@
 // inputs in each form (contract.md, Filter rules).
 
 import { DOCS_BASE, escapeHtml, html, isHtmx, page } from '../html.mjs';
-import { describeRelative, isRelative, resolveRelative } from '../relative-dates.mjs';
+import { isRelative } from '../relative-dates.mjs';
+import {
+  describeRange,
+  labelRange,
+  joinRangeValue,
+  rangeFromParams,
+  resolveRange,
+  splitRangeValue,
+} from '../ranges.mjs';
 
 const API = `${DOCS_BASE}/api/recipes/datagrid-filter`;
 const GRID_ID = 'datagrid-filter-demo-grid';
@@ -80,51 +88,62 @@ function fieldsHtml(selected, { oob = false } = {}) {
 }
 
 // The presets the server offers for THIS column. Option values are the
-// wire expressions; nobody types those. The server picks the list
-// because it knows which presets suit the column.
+// wire expressions — RANGES, because a date filter is a period and a
+// preset has to set both ends from one control. Nobody types those; the
+// server picks the list because it knows which periods suit the column.
 const DUE_PRESETS = [
   ['', 'Any'],
-  ['@today', 'Today'],
-  ['@week-start', 'This week'],
-  ['@month-start', 'This month'],
-  ['@today-7d', 'Last 7 days'],
-  ['@month-start-1m', 'Start of last month'],
-  ['@month-end-1m', 'End of last month'],
+  ['@today..@today', 'Today'],
+  ['@today..', 'Today or later'],
+  ['@week-start..@week-end', 'This week'],
+  ['@month-start..@month-end', 'This month'],
+  ['@month-start-1m..@month-end-1m', 'Last month'],
+  ['@today-7d..@today', 'Last 7 days'],
 ];
 
 const DUE_FIELD_ID = 'datagrid-filter-demo-due-field';
 
 /**
- * The due-date control: a preset list, or a date input once the user
- * picks "Custom date…". ONE control at a time — rendering both and
- * hiding one would submit f-due-from twice, since hidden controls keep
- * submitting.
+ * The due-date control: a preset list, a pair of date inputs once the
+ * user picks "Custom dates…", or the offset composer. ONE control at a
+ * time — rendering both and hiding one would submit the condition
+ * twice, since hidden controls keep submitting.
  */
 function dueFieldHtml(raw, { mode = null, oob = false, now = new Date() } = {}) {
   const oobAttr = oob ? ' data-hx-swap-oob="outerHTML"' : '';
   const known = DUE_PRESETS.some(([value]) => value === raw);
-  const relative = isRelative(raw);
+  const { from, to } = splitRangeValue(raw);
+  const absolute = (end) => (isRelative(end) ? '' : end);
+  const anyRelative = isRelative(from) || isRelative(to);
 
-  // An ABSOLUTE date belongs in a date input. A relative expression
-  // never does — putting `@today-45d` in <input type="date"> makes the
-  // browser show an empty field, and the condition is lost on the next
-  // submit.
-  if (mode === 'date' || (!mode && raw && !relative)) {
+  // ABSOLUTE ends belong in date inputs. A relative expression never
+  // does — putting `@today-45d` in <input type="date"> makes the browser
+  // show an empty field, and the condition is lost on the next submit.
+  //
+  // The pair carries real names, so without JavaScript it submits as
+  // f-due-from / f-due-to; installRangeValue() joins it into one
+  // f-due=A..B when the behavior is there. The server takes both.
+  if (mode === 'dates' || (!mode && raw && !anyRelative)) {
     return `<div class="hc-field" id="${DUE_FIELD_ID}"${oobAttr}>
-  <label class="hc-field__label" for="f-due-input">Due from</label>
-  <input class="hc-input" type="date" id="f-due-input" name="f-due-from" value="${escapeHtml(relative ? '' : raw)}">
+  <span class="hc-field__label" id="f-due-range-label">Due</span>
+  <div class="hc-cluster" role="group" aria-labelledby="f-due-range-label" data-hc-range="f-due">
+    <input class="hc-input" type="date" name="f-due-from" aria-label="Due from" value="${escapeHtml(absolute(from))}">
+    <span aria-hidden="true">–</span>
+    <input class="hc-input" type="date" name="f-due-to" aria-label="Due to" value="${escapeHtml(absolute(to))}">
+  </div>
   ${backToPresets()}
 </div>`;
   }
 
-  // The composer: any N, any unit. Its controls are NOT named
-  // f-due-from — while it is open the condition simply is not set yet,
-  // which is honest. "Use" asks the server to compose the expression
-  // and answers the field with it selected.
+  // The composer: any N, any unit. Its controls are NOT named f-due —
+  // while it is open the condition simply is not set yet, which is
+  // honest. "Use" asks the server to compose the expression and answers
+  // the field with it selected.
   if (mode === 'relative') {
     return `<div class="hc-field" id="${DUE_FIELD_ID}"${oobAttr}>
-  <span class="hc-field__label" id="f-due-rel-label">Due from</span>
+  <span class="hc-field__label" id="f-due-rel-label">Due</span>
   <div class="hc-cluster" role="group" aria-labelledby="f-due-rel-label">
+    <span>the last</span>
     <input class="hc-input" type="number" min="1" name="due-n" value="7" aria-label="How many">
     <select class="hc-select" name="due-unit" aria-label="Unit">
       <option value="d">days</option>
@@ -132,30 +151,29 @@ function dueFieldHtml(raw, { mode = null, oob = false, now = new Date() } = {}) 
       <option value="m">months</option>
       <option value="y">years</option>
     </select>
-    <span>ago</span>
     <button class="hc-button" data-size="sm" type="button" data-hx-get="${API}/filters/due?compose=1" data-hx-include="closest .hc-field" data-hx-target="#${DUE_FIELD_ID}" data-hx-swap="outerHTML">Use</button>
   </div>
   ${backToPresets()}
 </div>`;
   }
 
-  // Presets. A relative expression that is not one of them is added as
-  // a selected option, labelled by the server — so a composed
-  // expression round-trips readably instead of disappearing.
+  // Presets. A range that is not one of them is added as a selected
+  // option, labelled by the server — so a composed expression (or a
+  // mixed range) round-trips readably instead of disappearing.
   const extra =
-    relative && !known
-      ? `<option value="${escapeHtml(raw)}" selected>${escapeHtml(describeRelative(raw, { now }))}</option>`
+    raw && !known
+      ? `<option value="${escapeHtml(raw)}" selected>${escapeHtml(labelRange(raw, { now }))}</option>`
       : '';
   const options = DUE_PRESETS.map(
     ([value, label]) =>
       `<option value="${value}"${value === raw ? ' selected' : ''}>${label}</option>`,
   ).join('');
   return `<div class="hc-field" id="${DUE_FIELD_ID}"${oobAttr}>
-  <label class="hc-field__label" for="f-due-select">Due from</label>
-  <select class="hc-select" id="f-due-select" name="f-due-from" data-hx-get="${API}/filters/due" data-hx-target="#${DUE_FIELD_ID}" data-hx-swap="outerHTML" data-hx-trigger="change[this.value.startsWith('custom')]">
+  <label class="hc-field__label" for="f-due-select">Due</label>
+  <select class="hc-select" id="f-due-select" name="f-due" data-hx-get="${API}/filters/due" data-hx-target="#${DUE_FIELD_ID}" data-hx-swap="outerHTML" data-hx-trigger="change[this.value.startsWith('custom')]">
     ${options}${extra}
-    <option value="custom-relative">Custom — N days ago…</option>
-    <option value="custom-date">Custom — a date…</option>
+    <option value="custom-relative">Custom — the last N days…</option>
+    <option value="custom-dates">Custom — between two dates…</option>
   </select>
 </div>`;
 }
@@ -185,7 +203,7 @@ const BAR_ID = 'datagrid-filter-demo-conditions';
 function hrefWithout(drop, selected, due) {
   const params = new URLSearchParams();
   if (drop !== 'f-status') for (const s of selected) params.append('f-status', s);
-  if (drop !== 'f-due-from' && due) params.set('f-due-from', due);
+  if (drop !== 'f-due' && due) params.set('f-due', due);
   const qs = params.toString();
   return qs ? `${API}/items?${qs}` : `${API}/items`;
 }
@@ -208,17 +226,19 @@ function barHtml(selected, { oob = false, due = null, now = new Date() } = {}) {
     );
   }
   if (due) {
-    // The expression is what was stored; the resolved date is what
-    // reassures. Showing only one of the two is how a relative
-    // condition becomes a guess.
+    // ONE chip for what the user thinks of as one condition — a period.
+    // The expression is what was stored; the resolved dates are what
+    // reassure. Showing only one of the two is how a relative condition
+    // becomes a guess.
+    const range = describeRange(due, { now });
     items.push(
       `<li class="hc-filterbar__item">
       <button class="hc-filterbar__chip" type="button" popovertarget="${POPOVER_ID}">
         <span class="hc-filterbar__label">Due</span>
-        <span class="hc-filterbar__op">from</span>
-        <span class="hc-filterbar__value">${escapeHtml(describeRelative(due, { now }))}</span>
+        <span class="hc-filterbar__op">${escapeHtml(range.op)}</span>
+        <span class="hc-filterbar__value">${escapeHtml(range.value)}</span>
       </button>
-      <a class="hc-filterbar__remove" href="${hrefWithout('f-due-from', selected, due)}" data-hx-get="${hrefWithout('f-due-from', selected, due)}" data-hx-target="#${GRID_ID}" aria-label="Remove Due filter">×</a>
+      <a class="hc-filterbar__remove" href="${hrefWithout('f-due', selected, due)}" data-hx-get="${hrefWithout('f-due', selected, due)}" data-hx-target="#${GRID_ID}" aria-label="Remove Due filter">×</a>
     </li>`,
     );
   }
@@ -236,14 +256,21 @@ function barHtml(selected, { oob = false, due = null, now = new Date() } = {}) {
 </div>`;
 }
 
+/** Rows matching every condition in the request. */
+function matching(selected, { due = null, now = new Date() } = {}) {
+  return ITEMS.filter((item) => {
+    if (selected.length > 0 && !selected.includes(item.status)) return false;
+    const date = dueDate(item, now);
+    if (due?.from && date < due.from) return false;
+    if (due?.to && date > due.to) return false;
+    return true;
+  });
+}
+
 /** The grid wrapper's innerHTML: scroll + table, rows filtered. */
-function gridHtml(selected, { dueFrom = null, now = new Date() } = {}) {
+function gridHtml(selected, { due = null, now = new Date() } = {}) {
   const statusLabel = new Map(STATUSES.map((s) => [s.key, s.label]));
-  const rows = ITEMS.filter(
-    (item) =>
-      (selected.length === 0 || selected.includes(item.status)) &&
-      (dueFrom == null || dueDate(item, now) >= dueFrom),
-  )
+  const rows = matching(selected, { due, now })
     .map(
       (item) =>
         `<tr class="hc-datagrid__row"><td class="hc-datagrid__cell">${escapeHtml(item.name)}</td><td class="hc-datagrid__cell">${escapeHtml(statusLabel.get(item.status))}</td><td class="hc-datagrid__cell">${escapeHtml(item.owner)}</td><td class="hc-datagrid__cell">${dueDate(item, now)}</td></tr>`,
@@ -267,24 +294,25 @@ function gridHtml(selected, { dueFrom = null, now = new Date() } = {}) {
 }
 
 export function handle({ method, path, url, request }) {
-  // Swapping the due control between presets and a date input is a
-  // re-render, not a second control: one name, one control, always.
+  // Swapping the due control between presets, date inputs and the
+  // composer is a re-render, not a second control: one name, one
+  // control, always.
   if (method === 'GET' && path === '/filters/due') {
     if (url.searchParams.get('preset') === '1') return html(dueFieldHtml(''));
 
-    // Compose N + unit into the one expression the wire carries. The
-    // server owns the canonical form, so the field comes back holding a
-    // single control whose value is the finished expression.
+    // Compose N + unit into the one range the wire carries. The server
+    // owns the canonical form, so the field comes back holding a single
+    // control whose value is the finished expression.
     if (url.searchParams.get('compose') === '1') {
       const n = Math.max(1, Number(url.searchParams.get('due-n') ?? 0) || 0);
       const unit = String(url.searchParams.get('due-unit') ?? 'd');
-      const expression = `@today-${n}${'dwmy'.includes(unit) ? unit : 'd'}`;
+      const expression = `@today-${n}${'dwmy'.includes(unit) ? unit : 'd'}..@today`;
       return html(dueFieldHtml(expression));
     }
 
-    const choice = url.searchParams.get('f-due-from');
+    const choice = url.searchParams.get('f-due');
     return html(
-      dueFieldHtml('', { mode: choice === 'custom-date' ? 'date' : 'relative' }),
+      dueFieldHtml('', { mode: choice === 'custom-dates' ? 'dates' : 'relative' }),
     );
   }
 
@@ -295,15 +323,32 @@ export function handle({ method, path, url, request }) {
   // One "now" for the whole request, so every condition in it resolves
   // against the same instant.
   const now = new Date();
-  const rawDue = url.searchParams.get('f-due-from');
-  const dueFrom = rawDue ? resolveRelative(rawDue, { now }) : null;
+
+  // The range arrives as one param, or as the -from / -to pair the two
+  // date inputs submit when installRangeValue() never ran. Both are the
+  // same condition; canonicalise to `A..B` so everything downstream —
+  // the chip, the remove link, a saved view's comparison — sees one
+  // shape.
+  const rawDue = rangeFromParams(url.searchParams, 'f-due');
+  const due = rawDue ? resolveRange(rawDue, { now }) : null;
 
   // FAIL CLOSED. An expression the server does not understand is an
   // error, never "no filter" — silently dropping a condition shows the
   // user more data than they asked for.
-  if (rawDue && dueFrom == null) {
+  if (due?.error) {
     return html(
-      `<div class="hc-alert" data-variant="error" role="alert"><p><strong>Unknown date expression</strong> ${escapeHtml(rawDue)}. Nothing was filtered out — this request was refused rather than answered with more rows than you asked for.</p></div>`,
+      `<div class="hc-alert" data-variant="error" role="alert"><p><strong>Unknown date expression</strong> ${escapeHtml(due.error)}. Nothing was filtered out — this request was refused rather than answered with more rows than you asked for.</p></div>`,
+      { status: 400 },
+    );
+  }
+
+  // A reversed range is REFUSED, never swapped. Running a different
+  // condition from the one written is the failure this whole pattern
+  // exists to prevent — and the client's native refusal can be bypassed
+  // by anyone who types the URL.
+  if (due?.from && due?.to && due.from > due.to) {
+    return html(
+      `<div class="hc-alert" data-variant="error" role="alert"><p><strong>The range ends before it starts</strong> — ${escapeHtml(joinRangeValue(due.from, due.to))}. Nothing was answered: swapping the ends would run a condition nobody asked for.</p></div>`,
       { status: 400 },
     );
   }
@@ -311,20 +356,16 @@ export function handle({ method, path, url, request }) {
   if (isHtmx(request)) {
     // The grid for the wrapper's innerHTML (the filtered trigger rides
     // in its header), plus the fieldset re-rendered out-of-band.
-    return html(`${gridHtml(selected, { dueFrom, now })}
+    return html(`${gridHtml(selected, { due, now })}
 ${fieldsHtml(selected, { oob: true })}
 ${barHtml(selected, { oob: true, due: rawDue, now })}
-${dueFieldHtml(rawDue ?? '', { oob: true })}`);
+${dueFieldHtml(rawDue, { oob: true, now })}`);
   }
 
   // No-JS fallback: the filter is a real GET form — a plain submit
   // navigates here, so answer with a usable page (same filter).
   const statusLabel = new Map(STATUSES.map((s) => [s.key, s.label]));
-  const bodyRows = ITEMS.filter(
-    (item) =>
-      (selected.length === 0 || selected.includes(item.status)) &&
-      (dueFrom == null || dueDate(item, now) >= dueFrom),
-  )
+  const bodyRows = matching(selected, { due, now })
     .map(
       (item) =>
         `<tr><td>${escapeHtml(item.name)}</td><td>${escapeHtml(statusLabel.get(item.status))}</td><td>${escapeHtml(item.owner)}</td><td>${dueDate(item, now)}</td></tr>`,

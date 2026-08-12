@@ -87,8 +87,8 @@ the views a business actually saves are about. So a condition value may
 be an **expression**, and the expression is what gets stored:
 
 ```text
-?f-ship-from=@week-start&f-ship-to=@week-end
-?f-ordered-from=@today-7d
+?f-ship=@week-start..@week-end
+?f-ordered=@today-7d..@today
 ```
 
 | Form | Meaning |
@@ -211,6 +211,52 @@ submit. Only absolute ISO values belong in the date control.
 `400` (or re-ask); never fall back to the unfiltered list. This is the
 same rule as an expired condition set, for the same reason: a silently
 dropped condition shows the user *more* data than they asked for.
+
+## Date ranges
+
+A date filter is a **period**, and a period is one condition: one chip
+in the bar, one thing to remove, one value a saved view stores. The wire
+carries it as **one param**:
+
+```text
+?f-ship=2026-07-01..2026-07-31            absolute
+?f-ship=@month-start-1m..@month-end-1m    relative, both ends
+?f-ship=@month-start-1m..2026-07-15       mixed — normal in practice
+?f-ship=@month-start..                    open ended
+```
+
+Not `f-ship-from` + `f-ship-to`, because a **preset has to set both ends
+from one control**: expressing "last month" across two params needs a
+hidden input, and hidden controls keep submitting. Each end resolves on
+its own, so a mixed range needs no special case.
+
+The editing control is a pair of date inputs carrying **real names**, so
+the no-JS path still submits a usable request:
+
+```html
+<div class="hc-cluster" role="group" aria-labelledby="ship-label"
+     data-hc-range="f-ship">
+  <input class="hc-input" type="date" name="f-ship-from" aria-label="Ship date from">
+  <span aria-hidden="true">–</span>
+  <input class="hc-input" type="date" name="f-ship-to" aria-label="Ship date to">
+</div>
+```
+
+`installRangeValue()` joins the pair into `f-ship=A..B` on the
+`formdata` event, so editing either end costs no round trip.
+
+**Servers accept both shapes** — the single range param and the
+`-from` / `-to` pair — and canonicalise to `A..B`, so the chip, the
+remove link, and a saved view's comparison all see one shape. An empty
+pair contributes no param; an open end stays open.
+
+**`from > to` is refused, never swapped.** Reordering the ends runs a
+different condition from the one written. The behavior sets a native
+validity message so the browser blocks the submit; the server answers
+`400` as well, because anyone can type a URL.
+
+**`+` is a space in a querystring** — `@today+30d` arrives as
+`@today 30d`. Build links with `URLSearchParams`.
 
 ## Multi-value conditions
 

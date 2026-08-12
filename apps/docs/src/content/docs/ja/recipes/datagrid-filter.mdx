@@ -139,8 +139,8 @@ no-JS 経路として残ります。
 そこで条件の値には**式**を許し、保存されるのは式そのものにします。
 
 ```text
-?f-ship-from=@week-start&f-ship-to=@week-end
-?f-ordered-from=@today-7d
+?f-ship=@week-start..@week-end
+?f-ordered=@today-7d..@today
 ```
 
 `@today`、`@week-start` / `@week-end`、`@month-start` / `@month-end`、
@@ -184,14 +184,14 @@ no-JS 経路として残ります。
 一覧で、**option の値が式そのもの**です。
 
 ```html
-<select class="hc-select" name="f-ship-from"
-        data-hx-get="/orders/filters/ship-from"
+<select class="hc-select" name="f-ship"
+        data-hx-get="/orders/filters/ship"
         data-hx-target="closest .hc-field" data-hx-swap="outerHTML">
   <option value="">指定なし</option>
-  <option value="@today">今日</option>
-  <option value="@week-start" selected>今週</option>
-  <option value="@today-7d">過去 7 日</option>
-  <option value="custom">日付を指定…</option>
+  <option value="@today..@today">今日</option>
+  <option value="@week-start..@week-end" selected>今週</option>
+  <option value="@today-7d..@today">過去 7 日</option>
+  <option value="custom-dates">期間を指定…</option>
 </select>
 ```
 
@@ -203,7 +203,7 @@ no-JS 経路として残ります。
 プリセットは「よく使う答え」しか持てず、「45 日前」は表現できません。
 そこで「日付を指定…」側に**コンポーザ**（数値＋単位）を用意します。
 その入力欄には条件の名前を**あえて付けません**。開いている間は
-`f-ship-from` を名乗るコントロールが存在せず、まだ何も選ばれていない、
+`f-ship` を名乗るコントロールが存在せず、まだ何も選ばれていない、
 という状態が正直に表現されます。**Use** を押すとサーバーが式を組み立て、
 フィールドは通常の select に戻り、組み立てた値が `45 days ago` という
 ラベル付きの selected な option として加わります。
@@ -221,9 +221,9 @@ no-JS 経路として残ります。
 :::danger[両方描画して片方を隠してはいけません]
 隠したコントロールも**送信され続けます**
 ([conditional-fields](/hypermedia-components/ja/recipes/conditional-fields/))。
-プリセットの select の隣に日付入力を隠して置くと、`f-ship-from` が
+プリセットの select の隣に日付入力を隠して置くと、`f-ship` が
 2 回送られ、サーバーはどちらの意図か推測することになります。
-**日付を指定…** を選んだときはフィールドを*再描画*してください。
+**期間を指定…** を選んだときはフィールドを*再描画*してください。
 名前 1 つにつきコントロールは常に 1 つです。
 :::
 
@@ -231,6 +231,63 @@ no-JS 経路として残ります。
 `400` を返すか、入力を求め直してください。絞り込みなしの一覧に落とすのは
 禁止です。黙って落とされた条件は、ユーザーが求めた**以上の**データを
 見せます。期限切れの条件セットと同じ規則、同じ理由です。
+:::
+
+## 日付の範囲
+
+日付の絞り込みは**期間**であり、期間は 1 つの条件です。バーのチップは
+1 つ、外す操作も 1 つ、保存ビューが持つ値も 1 つ。だからワイヤも
+パラメータ 1 つで運びます。
+
+```text
+?f-ship=2026-07-01..2026-07-31            絶対
+?f-ship=@month-start-1m..@month-end-1m    相対（両端）
+?f-ship=@month-start-1m..2026-07-15       混在 — 実務ではこれが普通
+?f-ship=@month-start..                    片側開き
+```
+
+`f-ship-from` ＋ `f-ship-to` にしないのは、**プリセットが 1 つの
+コントロールで両端を決められなければならない**からです。「先月」は
+1 回の選択であり、2 パラメータで表そうとすると隠しフィールドが要り、
+隠したコントロールは送信され続けます。名前 1 つにコントロール 1 つ、
+プリセットとカスタムの切り替えと同じ規則です。
+
+両端はそれぞれ独立に解決されるので、混在の範囲に特別扱いは要りません。
+
+### コントロールは 2 つ、パラメータは 1 つ
+
+絶対日付の両端は 2 つの日付入力に置きます。JavaScript が無い経路でも
+そのまま送信できるよう、**実際の name** を持たせます。
+
+```html
+<div class="hc-cluster" role="group" aria-labelledby="ship-label"
+     data-hc-range="f-ship">
+  <input class="hc-input" type="date" name="f-ship-from" aria-label="Ship date from">
+  <span aria-hidden="true">–</span>
+  <input class="hc-input" type="date" name="f-ship-to" aria-label="Ship date to">
+</div>
+```
+
+`installRangeValue()` が `formdata` イベント — htmx もネイティブ送信も
+発火させるフック — でこの 2 つを `f-ship=A..B` に束ねます。どちらの端を
+直しても往復は発生せず、バーのチップは 1 つのままです。
+**サーバーは両方の形を受け付けます**。ビヘイビアが動かなかった経路では
+ペアが届くからです。
+
+両端が空なら**パラメータ自体を送りません**。片側だけ空ならそのまま
+片側開き（`A..`、`..B`）です。
+
+:::danger[`from > to` は入れ替えず拒否します]
+端を黙って並べ替えるのは、*書かれたものと違う条件を実行する*ことです。
+このパターンが防ごうとしている失敗そのものです。ビヘイビアは 2 つ目の
+コントロールにネイティブの検証メッセージを立てるので、ブラウザが送信を
+止め、htmx はリクエストを発行しません。URL は誰でも打てるので、
+**サーバーも `400` で拒否します**。
+:::
+
+:::caution[クエリストリングの `+` は空白です]
+`@today+30d` は `@today 30d` として届きます。リンクは文字列連結ではなく
+`URLSearchParams` で組み立ててください。
 :::
 
 ## 結果が 0 件のとき

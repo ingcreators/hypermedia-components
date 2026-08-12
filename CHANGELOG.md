@@ -22,6 +22,26 @@ Security    — security-relevant changes
 
 ### Added
 
+- **behaviors**: `installRangeValue()` / `data-hc-range` — **two
+  controls, one range param on the wire**. A date filter is a *period*,
+  and a period is one condition: one chip in the applied-conditions bar,
+  one thing to remove, one value a saved view stores. So the wire
+  carries `?f-ship=2026-07-01..2026-07-31`, not `f-ship-from` +
+  `f-ship-to` — the two-param shape cannot let a **preset set both ends
+  from one control** without a hidden input, and hidden controls keep
+  submitting. Each end resolves on its own, so relative
+  (`@month-start-1m..@month-end-1m`), **mixed**
+  (`@month-start-1m..2026-07-15`) and open-ended (`@month-start..`)
+  ranges all work without a special case. The pair of date inputs keeps
+  **real names**, so the no-JS path submits a usable request and servers
+  accept both shapes; the behavior joins them on the `formdata` event —
+  the hook htmx and a native submit both fire — so editing either end
+  costs no round trip. **`from > to` is refused, never swapped**: a
+  native validity message blocks the submit (and the demo API answers
+  `400`, because anyone can type a URL). The `datagrid-filter` demo's
+  due-date condition is now a range with period presets, an absolute
+  branch, and the offset composer.
+
 - **docs**: **saved views move out of the filter dialog and onto the
   screen**. A list screen is asked four questions — what am I looking
   at, narrowed how, in what order, showing which columns — and each

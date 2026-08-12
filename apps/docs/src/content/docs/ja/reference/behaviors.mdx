@@ -3,7 +3,7 @@ title: ビヘイビア
 description: すべての installXxx() ビヘイビア — 何を担い、ゼロ設定バンドルが自動インストールするかの一覧。
 ---
 
-キットは 54 個の小さなビヘイビアを出荷しています。すべて冪等で
+キットは 55 個の小さなビヘイビアを出荷しています。すべて冪等で
 アンインストーラを返し、`installChart()` ただ 1 つの例外を除いて、
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリが
 **自動インストール**します(htmx でスワップされた内容も拾います)。
@@ -38,6 +38,7 @@ installToast();
 | `installNormalize()` | 確定時の IME 全角/かな正規化 — [入力](/hypermedia-components/ja/components/input/#ime-正規化)。 | `data-hc-normalize` | — | ✓ |
 | `installMask()` | 宣言的な固定形式マスク(`postal-jp`、`#`/`a`/`A`/`*` パターン) — [入力](/hypermedia-components/ja/components/input/#入力マスク)。 | `data-hc-mask`、`data-hc-mask-submit` | — | ✓ |
 | `installMultiValue()` | 1 つのコントロールから複数値をワイヤへ — 貼り付けた識別子の一覧が繰り返しパラメータになる([input](/hypermedia-components/ja/components/input/#複数値の条件))。 | `data-hc-multi`(`lines` / `commas`) | — | ✓ |
+| `installRangeValue()` | コントロール 2 つを 1 つの範囲パラメータへ — 日付の期間が `f-ship=A..B` として送られる([datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/#日付の範囲))。 | `data-hc-range`、`data-hc-range-from`、`data-hc-range-to` | — | ✓ |
 | `installDirtyGuard()` | 未保存変更ガード — [unsaved-changes レシピ](/hypermedia-components/ja/recipes/unsaved-changes/)。 | `data-hc-dirty-guard`(状態: `data-dirty`) | `hc:dirtychange` | ✓ |
 | `installSessionExpiry()` | 401 → ログインダイアログ → リクエスト再実行 — [session-expiry レシピ](/hypermedia-components/ja/recipes/session-expiry/)。 | `data-hc-session-expiry` | `hc:sessionrenewed` を消費 | ✓ |
 | `installTime()` | クライアント側の `<time>` ローカライズ(相対 / 絶対) — [i18n](/hypermedia-components/ja/fundamentals/i18n/#ローカライズされたタイムスタンプ)。 | `data-hc-time`、`data-hc-time-style` | — | ✓ |
