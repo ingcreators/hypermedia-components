@@ -22,6 +22,18 @@ Security    — security-relevant changes
 
 ### Added
 
+- **docs**: the data-grid page template gets a **columns entry point**.
+  The [`datagrid-columns`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-columns/contract.md)
+  recipe already existed and the wiring map already named it — what the
+  screen lacked was a way in, so the chooser was unreachable. A toolbar
+  control opens it, with the count in the label (`Columns (7 of 12)`),
+  because a grid missing the column you are looking for is
+  indistinguishable from a grid whose data is missing. The template also
+  now states the rule the recipe assumes: a column set is a
+  **preference**, not a condition — it follows the user between screens,
+  so resolution is **URL → user preference → app default**, which is what
+  keeps a shared link authoritative.
+
 - **recipes**: **`datagrid-sort`** — the sort set as a control, plus
   `installSortList()` / `data-hc-sort-list`. Header clicks are the fast
   path and stay; what they cannot do is answer *what the current sort

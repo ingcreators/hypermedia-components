@@ -185,6 +185,13 @@ grid is full before any JavaScript runs.
                   id="sort-trigger" popovertarget="sort-panel">
             Sort (2): Ship date ↓, Order ↑
           </button>
+          <!-- The columns entry point. See recipes/datagrid-columns:
+               a chooser form GETs the grid with repeated cols= params,
+               in the order the rows were dragged into. -->
+          <button class="hc-button" data-variant="ghost" type="button"
+                  id="columns-trigger" popovertarget="columns-panel">
+            Columns (7 of 12)
+          </button>
           <button class="hc-button" data-variant="ghost" type="button"
                   data-hx-get="/orders/rows" data-hx-target="#order-rows">Refresh</button>
           <a class="hc-button" data-variant="ghost" href="/orders.csv">Export</a>
@@ -380,6 +387,35 @@ button: a native reset restores the values the server rendered, which
 *are* the modified state, so the control that promised to undo the tweak
 was the one control guaranteed not to.
 
+## Sort and columns are toolbar controls
+
+The other two of the four questions — *in what order* and *showing
+which columns* — get a control each, next to the filter entry point:
+
+- **Sort** says the whole set in its label (`Sort (2): Ship date ↓,
+  Order ↑`) and opens the ordered, reorderable list — see
+  [datagrid-sort](/hypermedia-components/recipes/datagrid-sort/) for why
+  headers alone cannot answer it.
+- **Columns** opens the
+  [chooser](/hypermedia-components/recipes/datagrid-columns/). The
+  recipe already existed; what the screen lacked was a way in. The
+  count rides in the label (`Columns (7 of 12)`), because a grid
+  missing the column you are looking for is indistinguishable from a
+  grid whose data is missing.
+
+**A column set is a preference, not a condition.** It follows a user
+between screens and devices, so it is stored per user rather than
+retyped into every URL — while a link that names columns still wins,
+which is what makes sharing work:
+
+```text
+URL → user preference → app default
+```
+
+A saved view **may** pin a column set ("Shipping check" usually means
+the filters *and* the columns for that job); when it does, applying it
+visibly changes the columns and offers the way back.
+
 ## The condition bar is the read-out
 
 The strip under the title is not decoration: it is what the screen is
@@ -419,7 +455,7 @@ Three consequences the template shows:
 | Multi-value entry | `<textarea data-hc-multi="lines">` | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) — pasted lists become repeated params |
 | Relative dates | condition values like `@week-start` | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) — stored as the expression, resolved by the server |
 | Export | a link carrying the current query | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) — same conditions, same columns, all pages |
-| Column set / widths | — | [datagrid-columns](/hypermedia-components/recipes/datagrid-columns/), [datagrid-prefs](/hypermedia-components/recipes/datagrid-prefs/) |
+| Column set / widths | a toolbar control opening the chooser | [datagrid-columns](/hypermedia-components/recipes/datagrid-columns/) — repeated `cols=` params, in the dragged order — and [datagrid-prefs](/hypermedia-components/recipes/datagrid-prefs/) for widths |
 
 ## Adapt it
 
