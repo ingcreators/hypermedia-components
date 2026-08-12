@@ -131,6 +131,32 @@ import '@hypermedia-components/core/css/utilities';   // this layer
 ときは、(`grid-template-columns` を自分で設定して)`auto-fill` を
 `auto-fit` に替えてください。
 
+### フォーム向け: `data-align="start"` と `data-span="full"`
+
+高さの揃ったカードには既定の stretch が合います。フォームには合いま
+せん。1 行の入力の隣に 3 行のテキストエリアがあると、隣が縦長の空箱に
+引き伸ばされます。2 つのオプトインで解決します。
+
+```html
+<div class="hc-grid" data-align="start" style="--hc-grid-min: 18rem;">
+  <div class="hc-field">…</div>
+
+  <!-- トラック数によらず 1 行を占有する -->
+  <div class="hc-field" data-span="full">
+    <label class="hc-field__label" for="notes">Notes</label>
+    <textarea class="hc-input" id="notes" rows="3"></textarea>
+  </div>
+</div>
+```
+
+- **`data-align="start"`**（グリッド側）— アイテムは伸びずに行の上端に
+  揃います。高さの揃ったカードもこのグリッドの主な用途なので、
+  オプトインです。
+- **`data-span="full"`**（アイテム側）— 1 行を占有します。`auto-fill`
+  では*どのアイテムが隣り合うか*が幅で変わるため、同じ行を共有しては
+  困るもの（テキストエリア、日付範囲、ラジオ群）は、特定の幅でしか
+  成立しない組み合わせに頼らず自分で宣言します。
+
 ## `.hc-container` — 中央寄せのコンテンツ領域
 
 最大行長とインラインパディングを持つ中央寄せカラム。ノブ:

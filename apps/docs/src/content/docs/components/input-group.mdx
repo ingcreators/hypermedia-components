@@ -70,6 +70,29 @@ The inner `<input>` and `<button>` are ordinary elements, so htmx wiring
   </Fragment>
 </Demo>
 
+## A select inside the group: the quiet operator
+
+A `<select>` in the group gives up its chrome the same way the input
+does, so the pair reads as **one control with one ring** — the shape a
+filter panel's *value + operator* wants:
+
+```html
+<div class="hc-input-group">
+  <input class="hc-input" type="text" id="f-order" name="f-order">
+  <select class="hc-select" data-quiet name="op-order"
+          aria-label="Order number operator">
+    <option value="eq">equals</option>
+    <option value="contains">contains</option>
+  </select>
+</div>
+```
+
+`data-quiet` drops the select's **voice**, not its function: same hit
+area, same keyboard, muted colour and a smaller size. Use it when the
+control carries the default nearly every row uses — an operator rendered
+at the value's weight doubles the cost of scanning a panel for what is
+actually set.
+
 ## Password reveal (opt-in behavior)
 
 A trailing button can toggle a password field's visibility. This is the one

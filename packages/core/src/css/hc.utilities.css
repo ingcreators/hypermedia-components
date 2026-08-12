@@ -46,6 +46,23 @@
     gap: var(--hc-grid-gap, var(--hc-space-4));
   }
 
+  /* Opt-in: items align to the TOP of their row instead of stretching.
+     A three-row textarea beside a one-line input otherwise stretches its
+     neighbour into a tall empty box — right for cards of equal height,
+     wrong for a form. Opt-in because equal-height cards are the other
+     common use of this grid. */
+  .hc-grid[data-align="start"] > * {
+    align-self: start;
+  }
+
+  /* A row of its own, whatever the track count. `auto-fill` means which
+     items pair up changes with width, so anything that must not share a
+     row (a textarea, a range, a group of radios) says so itself rather
+     than depending on a particular pairing. */
+  .hc-grid > [data-span="full"] {
+    grid-column: 1 / -1;
+  }
+
   /* Centred content well with a max line length and inline padding. */
   .hc-container {
     max-inline-size: var(--hc-container-max, 72rem);

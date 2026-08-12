@@ -71,6 +71,29 @@ import Demo from '../../../../components/Demo.astro';
   </Fragment>
 </Demo>
 
+## グループ内の select: 控えめな演算子
+
+グループ内の `<select>` は input と同じように自前の装飾を手放すので、
+2 つで**枠 1 つ・フォーカスリング 1 つのコントロール**として読めます。
+検索パネルの*値＋演算子*が欲しい形です。
+
+```html
+<div class="hc-input-group">
+  <input class="hc-input" type="text" id="f-order" name="f-order">
+  <select class="hc-select" data-quiet name="op-order"
+          aria-label="Order number operator">
+    <option value="eq">equals</option>
+    <option value="contains">contains</option>
+  </select>
+</div>
+```
+
+`data-quiet` が落とすのは**声の大きさ**であって機能ではありません。
+当たり判定もキーボード操作もそのままで、色が抑えられ、サイズが 1 つ
+小さくなります。ほとんどの行が既定値のまま使うコントロールに付けて
+ください。演算子を値と同じ強さで描くと、「何が設定されているか」を
+パネルから探す手間が倍になります。
+
 ## パスワードの表示切り替え(オプトインのビヘイビア)
 
 後置のボタンでパスワードフィールドの可視性を切り替えられます。これが

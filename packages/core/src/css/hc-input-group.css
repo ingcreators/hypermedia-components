@@ -12,6 +12,11 @@
  * Distinct from hc-field (label + help text) — this is the control's inner
  * composition. Works with htmx (the inner <input>/<button> carry data-hx-*).
  *
+ * A <select> inside the group (a filter panel's operator, a unit) gives
+ * up its chrome too. Mark it `data-quiet` when it carries the default
+ * nearly every row uses — an operator rendered at the value's weight
+ * doubles the cost of scanning a panel for what is actually set.
+ *
  * Mostly CSS. The optional password-reveal button is an opt-in behavior —
  * see installPasswordToggle (data-hc-password-toggle).
  */
@@ -77,6 +82,31 @@
     border-radius: 0;
   }
 
+  /* A <select> inside the group gives up its chrome the same way the
+   * input does, so the pair reads as ONE control with one ring. */
+  .hc-input-group > .hc-select {
+    flex: 0 0 auto;
+    inline-size: auto;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .hc-input-group > .hc-select:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  /* An OPERATOR is secondary. `equals` is what nearly every row uses,
+   * so rendering it at the value's weight doubles the cost of scanning
+   * a panel for what is actually set. It stays a full control — same
+   * hit area, same keyboard — and only its voice drops. */
+  .hc-input-group > .hc-select[data-quiet] {
+    color: var(--hc-input-group-addon-fg);
+    font-size: var(--hc-font-size-sm);
+  }
+
   /* Hairline divider between an edge piece (addon / button) and the field. */
   .hc-input-group > .hc-input-addon:first-child,
   .hc-input-group > .hc-button:first-child {
@@ -84,7 +114,8 @@
   }
 
   .hc-input-group > .hc-input-addon:last-child,
-  .hc-input-group > .hc-button:last-child {
+  .hc-input-group > .hc-button:last-child,
+  .hc-input-group > .hc-select:last-child {
     border-inline-start: 1px solid var(--hc-input-group-divider);
   }
 }

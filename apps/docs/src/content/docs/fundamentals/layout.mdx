@@ -128,6 +128,33 @@ Swap `auto-fill` for `auto-fit` (by setting
 `grid-template-columns` yourself) when you want a few items to stretch
 and fill the row instead of leaving empty tracks.
 
+### Forms: `data-align="start"` and `data-span="full"`
+
+Equal-height cards want the default stretch. A form does not: a
+three-row textarea beside a one-line input stretches its neighbour into
+a tall empty box. Two opt-ins cover it:
+
+```html
+<div class="hc-grid" data-align="start" style="--hc-grid-min: 18rem;">
+  <div class="hc-field">…</div>
+
+  <!-- A row of its own, whatever the track count. -->
+  <div class="hc-field" data-span="full">
+    <label class="hc-field__label" for="notes">Notes</label>
+    <textarea class="hc-input" id="notes" rows="3"></textarea>
+  </div>
+</div>
+```
+
+- **`data-align="start"`** on the grid — items align to the top of their
+  row instead of stretching. Opt-in, because equal-height cards are the
+  other common use of this grid.
+- **`data-span="full"`** on an item — it takes the whole row. `auto-fill`
+  means *which* items pair up changes with width, so anything that must
+  not share a row (a textarea, a date range, a radio group) says so
+  itself rather than depending on a pairing that only holds at one
+  width.
+
 ## `.hc-container` — centred content well
 
 A centred column with a maximum line length and inline padding. Knobs:
