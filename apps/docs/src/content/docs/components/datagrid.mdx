@@ -916,6 +916,47 @@ the overflow tooltip: two meanings on one hover would be a bug, and the
 error wins. Widen the column if the clipped text also has to be
 readable.
 
+## Row ordinals — `data-row-no`
+
+A business grid is discussed out loud: *"row 137 is the one that
+failed."* The record id is right for the system and wrong for the
+sentence, so the grid can carry a **position** as well.
+
+The **server** numbers the result set; the behavior derives the ARIA
+numbers, which count DOM rows *including* header rows:
+
+```html
+<div class="hc-datagrid" data-row-total="5000">
+  …
+  <tr class="hc-datagrid__row" id="row-4901" data-row-no="137">
+    <td class="hc-datagrid__cell" data-numeric>137</td>
+    <th class="hc-datagrid__cell" scope="row"><a href="/orders/4901">SO-4901</a></th>
+```
+
+`installDatagrid()` writes `aria-rowcount` on the table and
+`aria-rowindex` on the header rows and every numbered row, adding the
+header offset for you. Getting that offset wrong is an off-by-header
+nobody notices without a screen reader, which is why the server is
+never asked for it.
+
+Two rules keep the number honest:
+
+- **The ordinal is a locator; the id is the identity.** Ordinals move
+  the moment the sort or the conditions change, so anything *stored* —
+  a bulk-error report, a saved link — names the id and merely *displays*
+  the ordinal: `SO-4901 (row 137)`.
+- **It counts the result set, not the page.** Row 12 of page 2 is row
+  52. Without `aria-rowcount` / `aria-rowindex` a paged grid announces
+  "row 3 of 40" on page four, which is simply false; with them the
+  announcement matches what the screen says.
+
+`data-row-total` omitted means **unknown** — the table gets
+`aria-rowcount="-1"`, the honest answer while an
+[infinite grid](/hypermedia-components/recipes/datagrid-infinite/) is
+still loading. A row without `data-row-no` (a group header, a
+client-inserted tree child) is left unnumbered rather than given a
+position it does not have.
+
 ## Fragment navigation
 
 A link to a row (`#row-101` — from a bulk-error report entry, or a deep
@@ -1152,6 +1193,7 @@ works with the stylesheet alone or needs `installDatagrid()`:
 | Vertical headers | `data-orientation` — `vertical` / `sideways` (header cell) | CSS |
 | Column / cell highlight | `data-highlight` (cell) | CSS |
 | Numeric columns | `data-numeric` (head/body cells) | CSS |
+| Row ordinals | `data-row-no` (row), `data-row-total` (grid) | `installDatagrid()` — derives `aria-rowindex` / `aria-rowcount`, header offset included. |
 | Conditional formatting | `data-tone` — `info` / `success` / `warning` / `error` (cell / row / record) | CSS |
 | Zebra striping | `data-hc-zebra` (grid) — or server-rendered `data-alt` (row) | `installDatagrid()` for the dynamic cases; CSS alone if the server assigns `data-alt` |
 | Column resize | `data-resizable` + `data-col` (header) · matching `data-col` (body cells) | `installDatagrid()` |

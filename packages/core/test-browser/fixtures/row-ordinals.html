@@ -1,0 +1,62 @@
+<!doctype html>
+<!-- Fixture for row ordinals. The server numbers the RESULT SET
+     (data-row-no on the row, data-row-total on the grid); the behavior
+     derives the ARIA numbers, which count DOM rows including headers.
+
+     Pinned in a browser because the interesting part is what happens
+     after a SWAP — the next page must renumber, and an assistive
+     technology reading "row 3 of 40" on page four is the bug this
+     exists to fix. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>row ordinals fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem">
+    <h1>Orders</h1>
+    <div class="hc-datagrid" id="grid" data-testid="grid" data-row-total="5000">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table" data-testid="table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col" data-numeric>#</th>
+              <th class="hc-datagrid__headcell" scope="col">Order</th>
+              <th class="hc-datagrid__headcell" scope="col">Customer</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body" data-testid="body">
+            <tr class="hc-datagrid__row" id="row-4901" data-row-no="137">
+              <td class="hc-datagrid__cell" data-numeric>137</td>
+              <th class="hc-datagrid__cell" scope="row">SO-4901</th>
+              <td class="hc-datagrid__cell">Northwind</td>
+            </tr>
+            <tr class="hc-datagrid__row" id="row-4902" data-row-no="138">
+              <td class="hc-datagrid__cell" data-numeric>138</td>
+              <th class="hc-datagrid__cell" scope="row">SO-4902</th>
+              <td class="hc-datagrid__cell">Contoso</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <button class="hc-button" type="button" data-testid="next-page">Next page</button>
+  </main>
+
+  <script type="module">
+    // What a paged response does: replace the rows, and say where they
+    // sit in the result set.
+    document.querySelector('[data-testid="next-page"]').addEventListener('click', () => {
+      document.querySelector('.hc-datagrid__body').innerHTML = `
+        <tr class="hc-datagrid__row" id="row-4903" data-row-no="177">
+          <td class="hc-datagrid__cell" data-numeric>177</td>
+          <th class="hc-datagrid__cell" scope="row">SO-4903</th>
+          <td class="hc-datagrid__cell">Fabrikam</td>
+        </tr>`;
+    });
+  </script>
+</body>
+</html>

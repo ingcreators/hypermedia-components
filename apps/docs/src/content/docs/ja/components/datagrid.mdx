@@ -917,6 +917,44 @@ severity は**行が何を必要としているか**で選びます。いつ判�
 抑制します。1 つのホバーに 2 つの意味が乗るのは不具合であり、エラーが
 勝ちます。クリップされたテキストも読ませたい場合は列を広げてください。
 
+## 行の序数 — `data-row-no`
+
+業務のグリッドは口頭で語られます。「**137行目**が落ちたやつ」。レコード
+ID はシステムには正しく、その文には合いません。そこでグリッドは
+**位置**も持てるようにします。
+
+番号を振るのは**サーバー**（結果セット上の位置）で、ビヘイビアは ARIA
+の番号を導出します。ARIA が数えるのはヘッダー行を**含む** DOM の行です。
+
+```html
+<div class="hc-datagrid" data-row-total="5000">
+  …
+  <tr class="hc-datagrid__row" id="row-4901" data-row-no="137">
+    <td class="hc-datagrid__cell" data-numeric>137</td>
+    <th class="hc-datagrid__cell" scope="row"><a href="/orders/4901">SO-4901</a></th>
+```
+
+`installDatagrid()` が table に `aria-rowcount` を、ヘッダー行と番号付き
+の各行に `aria-rowindex` を書きます。ヘッダー分のオフセットもこちらで
+足します。ここを間違えるのはスクリーンリーダー無しでは誰も気付かない
+ずれなので、サーバーには要求しません。
+
+番号を正直に保つ規則が 2 つあります。
+
+- **序数は所在、ID が同一性。**ソートや条件が変われば序数は動くので、
+  *保存されるもの*（一括エラーのレポート、共有リンク）が名指しするのは
+  ID で、序数は*表示するだけ*です — `SO-4901 (row 137)`。
+- **数えるのは結果セットで、ページではありません。**2 ページ目の 12 行目
+  は 52 行目です。`aria-rowcount` / `aria-rowindex` が無いページ送り
+  グリッドは、4 ページ目で「40 行中 3 行目」と読み上げます。単純に嘘です。
+
+`data-row-total` を省略すると**不明**の意味になり、table には
+`aria-rowcount="-1"` が入ります。まだ読み込み途中の
+[無限グリッド](/hypermedia-components/ja/recipes/datagrid-infinite/)
+にとってはそれが正直な答えです。`data-row-no` の無い行（グループ見出し、
+クライアントが挿入したツリーの子）は、持っていない位置を与えられるより
+番号なしのままにします。
+
 ## フラグメントナビゲーション
 
 行へのリンク(`#row-101` — 一括エラーレポートの項目や、ページへの
@@ -1156,6 +1194,7 @@ API です — テンプレートの入力に `required`、`pattern`、`min` / `
 | 縦書きヘッダー | `data-orientation` — `vertical` / `sideways`(ヘッダーセル) | CSS |
 | 列 / セルのハイライト | `data-highlight`(セル) | CSS |
 | 数値列 | `data-numeric`(ヘッダー / ボディのセル) | CSS |
+| 行の序数 | `data-row-no`(行)、`data-row-total`(グリッド) | `installDatagrid()` — `aria-rowindex` / `aria-rowcount` を導出（ヘッダー分のオフセット込み）。 |
 | 条件付き書式 | `data-tone` — `info` / `success` / `warning` / `error`(セル / 行 / レコード) | CSS |
 | ゼブラ縞 | `data-hc-zebra`(グリッド) — またはサーバーが描画する `data-alt`(行) | 動的なケースでは `installDatagrid()`。サーバーが `data-alt` を付けるなら CSS だけ |
 | 列のリサイズ | `data-resizable` + `data-col`(ヘッダー)· 同じ `data-col`(ボディセル) | `installDatagrid()` |

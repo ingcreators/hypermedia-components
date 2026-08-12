@@ -22,6 +22,25 @@ Security    — security-relevant changes
 
 ### Added
 
+- **datagrid**: **row ordinals** — `data-row-no` on a row and
+  `data-row-total` on the grid, from which `installDatagrid()` derives
+  `aria-rowindex` and `aria-rowcount`. A business grid is discussed out
+  loud ("row 137 is the one that failed") and the record id is right
+  for the system but wrong for the sentence. The ARIA numbers count DOM
+  rows *including* header rows while a server counts matching records,
+  so the offset is derived here rather than asked of every server —
+  getting it wrong is an off-by-header nobody notices without a screen
+  reader. It also fixes a lie the kit has been telling: without these
+  attributes a paged grid announces "row 3 of 40" on page four. Two
+  rules keep the number honest — **the ordinal is a locator, the id is
+  the identity** (ordinals move when the sort or the conditions change,
+  so anything stored names the id and merely displays the ordinal), and
+  **it counts the result set, not the page**. An omitted
+  `data-row-total` means unknown (`aria-rowcount="-1"`, the honest
+  answer for an infinite grid mid-load), and a row the server did not
+  number is left unnumbered rather than given a position it does not
+  have.
+
 - **recipes**: `saved-views` — **saving asks three things, not one**.
   A dialog that asks only for a name pushes the other two decisions onto
   whoever notices later, so the save form now carries **scope**

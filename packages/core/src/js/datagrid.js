@@ -230,6 +230,46 @@ function attach(grid, detachers) {
     all.indeterminate = checked > 0 && checked < boxes.length;
   }
 
+  // ---- Row ordinals ----
+  //
+  // A business grid is discussed out loud — "row 137 is the one that
+  // failed" — and a paged grid tells a screen reader "row 3 of 40" on
+  // page four, which is a lie. Both are fixed by the same numbers.
+  //
+  // The SERVER numbers the result set (`data-row-no` on the row, the
+  // 1-based position among all matching rows; `data-row-total` on the
+  // grid). ARIA counts DOM rows *including header rows*, so the offset
+  // is derived here rather than asked of every server — getting it
+  // wrong is an off-by-header nobody notices without a screen reader.
+  //
+  // A row without `data-row-no` is left alone: rows the server did not
+  // number (client-inserted tree children, group headers) must not be
+  // given a position they do not have.
+  function applyRowOrdinals() {
+    const headRows = ownedBy(grid, '.hc-datagrid__head > tr');
+    const numbered = ownedBy(grid, '.hc-datagrid__row[data-row-no]');
+    if (numbered.length === 0) {
+      table.removeAttribute('aria-rowcount');
+      return;
+    }
+    // aria-rowcount is the whole RESULT SET, not the page — that is the
+    // point of it. `-1` is ARIA's "total unknown", which is the honest
+    // answer for an infinite grid that has not reached the end.
+    const total = Number(grid.getAttribute('data-row-total'));
+    table.setAttribute(
+      'aria-rowcount',
+      Number.isFinite(total) && grid.hasAttribute('data-row-total')
+        ? String(total + headRows.length)
+        : '-1',
+    );
+    headRows.forEach((r, i) => r.setAttribute('aria-rowindex', String(i + 1)));
+    for (const row of numbered) {
+      const no = Number(row.getAttribute('data-row-no'));
+      if (!Number.isFinite(no)) continue;
+      row.setAttribute('aria-rowindex', String(no + headRows.length));
+    }
+  }
+
   function applyRoles() {
     // Tree rows (aria-level + aria-expanded) make it a treegrid — the
     // role under which those row attributes are valid.
@@ -260,6 +300,7 @@ function attach(grid, detachers) {
     for (const h of ownedBy(grid, '.hc-datagrid__headcell')) {
       if (!h.getAttribute('role')) h.setAttribute('role', 'columnheader');
     }
+    applyRowOrdinals();
     // Editability is a per-CELL fact (a row's state can lock it), and
     // `gridcell` supports both attributes — so derive them from what
     // the author already wrote and never overwrite a server-rendered
