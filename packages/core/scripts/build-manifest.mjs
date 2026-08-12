@@ -51,6 +51,7 @@ const EXPLICIT_CLAIMS = {
   installMultiValue: 'datagrid-filter', // pasted lists → repeated params
   installRangeValue: 'platform', // range condition wire shaping (datagrid-filter docs)
   installSortList: 'datagrid-sort', // the sort control's ordered keys → one param
+  installRowLink: 'row-detail', // Enter follows the row's primary link
   installCsrfHeader: 'platform',
   installThemeToggle: 'platform',
   installNavCurrent: 'platform', // boosted-nav re-marking (shell docs)

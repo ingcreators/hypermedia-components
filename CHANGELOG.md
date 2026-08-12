@@ -22,6 +22,29 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: **`row-detail`** + `installRowLink()` /
+  `data-hc-row-link` — the most-used interaction on a business list,
+  and the one every app reinvents: *open this record, work on it, come
+  back, open the next one*. The link is an ordinary `<a href>` in the
+  row's **identity** cell, so middle-click, ⌘-click, copy-address,
+  Back, the keyboard and the no-JS path all work without any of them
+  being re-implemented; the behavior adds only what an anchor cannot do
+  itself, **Enter anywhere on the row**. Editing wins where it applies
+  (the datagrid cancels the event before opening an editor), a control
+  that owns its Enter keeps it, and a modifier means the user asked for
+  something else. **The row is deliberately not one big link** — the
+  datagrid ships text selection, range selection and TSV copy, and a
+  stretched anchor eats all three. Coming back is the part everyone
+  drops: the list URL already carries the conditions, sort, columns and
+  page, so the detail's *Back to list* is that URL plus `#row-<id>`,
+  which `installDatagrid()` lands the active cell on. After a save the
+  detail **`303`**s there instead, because a restored snapshot shows
+  the data as it was before the user's own edit. The contract also
+  covers the peek rendering (canonical href kept), and walking a
+  sequence — the result set (`seq=list`) or **the selection** (an
+  ordered snapshot token, a tombstone step for a record that vanished,
+  `410` and fail-closed on expiry).
+
 - **datagrid**: **row ordinals** — `data-row-no` on a row and
   `data-row-total` on the grid, from which `installDatagrid()` derives
   `aria-rowindex` and `aria-rowcount`. A business grid is discussed out

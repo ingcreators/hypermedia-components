@@ -1,0 +1,140 @@
+---
+title: Row detail
+description: Open the record a row is about, work on it, and come back to the same list — same conditions, same sort, same page, and the row you left from still under the cursor.
+---
+
+The most-used interaction on a business list, and the one every app
+reinvents: **open this record, work on it, come back, open the next
+one.** Most reinventions lose the same three things — the middle-click,
+the Back button, and the place in the list.
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add row-detail
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/row-detail/contract.md).
+:::
+
+## The link is a real link, in the identity cell
+
+```html
+<tr class="hc-datagrid__row" id="row-4903" data-row-no="137">
+  <td class="hc-datagrid__cell">
+    <input class="hc-checkbox" type="checkbox" name="ids" value="4903"
+           aria-label="Select order SO-4903">
+  </td>
+  <th class="hc-datagrid__cell" scope="row">
+    <a href="/orders/4903" data-hc-row-link>SO-4903</a>
+  </th>
+```
+
+The **identity** column carries it — the thing the row *is*, not a verb
+appended to it. Being an ordinary anchor buys middle-click, ⌘-click,
+copy-address, Back, the keyboard and the no-JS path; a click handler
+re-implements all of that badly.
+
+`installRowLink()` adds the only thing an anchor cannot do by itself:
+**Enter anywhere on the row**, which is what a grid user expects after
+arrowing to it. Editing wins where it applies (the datagrid cancels the
+event before opening an editor), a control that owns its Enter keeps
+it, and a modifier means the user asked for something else.
+
+:::danger[Do not stretch the link over the row]
+The `::after`-overlay trick is right for a card and wrong here: the
+datagrid ships text selection, range selection and TSV copy, and a
+transparent anchor over the cells eats all three. A row-sized target
+also has nowhere to put the checkbox or the inline editor.
+
+For pointer users on wide rows, add a trailing chevron link in a narrow
+last column — same href, an `aria-label` naming the record.
+:::
+
+## Coming back is the part everyone drops
+
+The list URL already carries the conditions, the sort, the columns and
+the page. What Back cannot restore is **which row** — so the detail's
+*Back to list* is that URL plus `#row-<id>`:
+
+```text
+/orders?f-ship=@week-start..&sort=-ship,order&page=4#row-4903
+```
+
+[`installDatagrid()`](/hypermedia-components/components/datagrid/#fragment-navigation)
+lands the **active cell** there and scrolls the grid's own scrollport,
+so the keyboard user arrives where the eye does.
+
+| State | Restored by |
+| --- | --- |
+| conditions, sort, columns, page | the list URL |
+| which row | `#row-<id>` |
+| selection ticks | only when the trip started from a selection |
+| scroll offset | nothing, deliberately — focus beats a pixel offset, which points at a different row after any insert |
+| an in-progress edit | nothing — [unsaved changes](/hypermedia-components/recipes/unsaved-changes/) warns before leaving |
+
+The detail needs to *know* that URL: either the app knows the canonical
+list, or the link carries `?from=<encoded url>` — **validated
+server-side** (same origin, known route) before being echoed into a
+link, because an unvalidated `from` is an open redirect.
+
+## Returning fresh beats returning identical
+
+| Case | Return |
+| --- | --- |
+| nothing changed | **Back** — the browser's own history is the cheapest correct restore |
+| something was saved | **`303`** to the list URL + `#row-<id>` |
+
+The redirect is not ceremony. A restored snapshot shows the data as it
+was *before the user's own edit* — the one stale value they are
+guaranteed to notice — and the pager totals go with it.
+
+:::caution[Boosted links reintroduce the staleness]
+htmx restores a boosted page from its history snapshot. Either leave
+row links unboosted (a real navigation, and Back is perfect), or set
+`hx-history="false"` on the list so a restore re-fetches.
+:::
+
+## Peek or page: one URL, two renderings
+
+```html
+<a href="/orders/4903" data-hc-row-link
+   data-hx-get="/orders/4903?peek=1"
+   data-hx-target="#record-dialog"
+   data-hx-swap="innerHTML">SO-4903</a>
+```
+
+The `href` stays canonical, so JavaScript failing means a full page and
+not a dead row. The overlay is the
+[remote-dialog](/hypermedia-components/recipes/remote-dialog/) recipe,
+and it **contains a link to the full page** — a peek that traps you is
+worse than no peek.
+
+## Walking a sequence
+
+Opening one record is half the job; business work is a queue. The
+detail carries prev / next, and the sequence is whatever the user was
+looking at:
+
+| Sequence | Wire |
+| --- | --- |
+| the **result set** (default) | `?seq=list&i=<ordinal>` — the server resolves neighbours by re-running the list query, so "next" crosses a page boundary without the client knowing pages exist |
+| the **selection** | "Open selected (12)" submits the `ids` checkboxes → `POST /orders/selections` → `303` with a token |
+
+The token names an **ordered snapshot** and the screen says so
+(*Record 3 of 12 selected at 14:32*). A missing record is a **tombstone
+step**, not a wall — aborting at the first gap makes the feature
+untrustworthy exactly when data is moving — and an expired token
+**fails closed** (`410` + a link back), never a silent fallback to
+walking everything.
+
+## Related
+
+- [Datagrid](/hypermedia-components/components/datagrid/) — row
+  ordinals, fragment navigation, the active cell
+- [Datagrid bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/) —
+  where the selection comes from
+- [Remote dialog](/hypermedia-components/recipes/remote-dialog/) — the
+  peek rendering
+- [Data grid page](/hypermedia-components/templates/data-grid-page/) —
+  the screen this happens on

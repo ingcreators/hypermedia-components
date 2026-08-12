@@ -1,0 +1,55 @@
+<!doctype html>
+<!-- Fixture for installRowLink. The row's identity cell holds a real
+     <a href>, so the browser already gives middle-click, ⌘-click and
+     Back; what is pinned here is the part that needs the behavior —
+     Enter anywhere on the row — and the parts that must NOT be taken:
+     an editable cell (the datagrid opens its editor), a control that
+     owns its own Enter, and any modifier. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>row-link fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem">
+    <h1>Orders</h1>
+    <div class="hc-datagrid" id="grid" data-row-total="5000">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell" scope="col">Order</th>
+              <th class="hc-datagrid__headcell" scope="col">Customer</th>
+              <th class="hc-datagrid__headcell" scope="col">Ship date</th>
+              <th class="hc-datagrid__headcell" scope="col">Approve</th>
+            </tr>
+          </thead>
+          <tbody class="hc-datagrid__body">
+            <tr class="hc-datagrid__row" id="row-4903" data-row-no="137">
+              <th class="hc-datagrid__cell" scope="row">
+                <a href="/orders/4903" data-hc-row-link data-testid="link">SO-4903</a>
+              </th>
+              <td class="hc-datagrid__cell" data-testid="plain">Northwind</td>
+              <td class="hc-datagrid__cell" data-editable data-col="ship"
+                  data-testid="editable" data-value="2026-08-14">2026-08-14</td>
+              <td class="hc-datagrid__cell">
+                <button class="hc-button" data-size="sm" type="button"
+                        data-testid="approve">Approve</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- The editor template lives INSIDE the grid — that is where
+           installDatagrid() looks for it, and "editable" means the pair
+           (data-editable + a template for that column). -->
+      <template data-datagrid-editor data-col="ship">
+        <input class="hc-input" type="date" name="ship">
+      </template>
+    </div>
+  </main>
+</body>
+</html>

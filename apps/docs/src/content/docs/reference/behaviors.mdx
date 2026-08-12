@@ -3,7 +3,7 @@ title: Behaviors
 description: Every installXxx() behavior — what it powers and whether the zero-config bundle auto-installs it.
 ---
 
-The kit ships 56 small behaviors. All of them are idempotent, return an
+The kit ships 57 small behaviors. All of them are idempotent, return an
 uninstaller, and — with the single exception of `installChart()` — are
 **auto-installed** by the zero-config
 `@hypermedia-components/core/behaviors` entry, which also picks up
@@ -41,6 +41,7 @@ the behavior dispatches; "—" means none.
 | `installMultiValue()` | One control, many values on the wire — a pasted list of identifiers becomes repeated params ([input](/hypermedia-components/components/input/#multi-value-conditions)). | `data-hc-multi` (`lines` / `commas`) | — | ✓ |
 | `installRangeValue()` | Two controls, one range param on the wire — a date period leaves as `f-ship=A..B` ([datagrid-filter](/hypermedia-components/recipes/datagrid-filter/#date-ranges)). | `data-hc-range`, `data-hc-range-from`, `data-hc-range-to` | — | ✓ |
 | `installSortList()` | The sort control's ordered keys as one param — `sort=-ship,order` ([datagrid-sort](/hypermedia-components/recipes/datagrid-sort/)). | `data-hc-sort-list`, `data-hc-sort-key`, `data-hc-sort-dir-prefix` | — | ✓ |
+| `installRowLink()` | Enter opens the record a row is about — the identity cell's link ([row-detail](/hypermedia-components/recipes/row-detail/)). | `data-hc-row-link` | — | ✓ |
 | `installDirtyGuard()` | Unsaved-changes guard — the [unsaved-changes recipe](/hypermedia-components/recipes/unsaved-changes/). | `data-hc-dirty-guard` (state: `data-dirty`) | `hc:dirtychange` | ✓ |
 | `installSessionExpiry()` | 401 → login dialog → request replay — the [session-expiry recipe](/hypermedia-components/recipes/session-expiry/). | `data-hc-session-expiry` | consumes `hc:sessionrenewed` | ✓ |
 | `installTime()` | Client-side `<time>` localization (relative / absolute) — [i18n](/hypermedia-components/fundamentals/i18n/#localized-timestamps). | `data-hc-time`, `data-hc-time-style` | — | ✓ |
