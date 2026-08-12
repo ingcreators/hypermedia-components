@@ -1,0 +1,194 @@
+---
+title: Datagrid sort
+description: The sort set as a control — a toolbar button that says what the current sort is and opens an ordered, reorderable list of keys, including keys on columns that are not on screen.
+---
+
+import DatagridSortDemo from '../../../components/recipe-demos/DatagridSortDemo.astro';
+
+Header clicks are the fast path for sorting and they stay. What they
+cannot do is answer **what the current sort set is** — so this recipe
+gives sort the same treatment
+[conditions](/hypermedia-components/recipes/datagrid-filter/) got: one
+surface that is both the read-out and the editor. The trigger's label
+*is* the read-out, rendered by the server from the applied set; the
+panel is an ordered list you can reorder, flip, extend and trim. The
+wire is unchanged (`?sort=-ship,order`), so a
+[saved view](/hypermedia-components/recipes/saved-views/) captures the
+sort like any other part of the question.
+
+:::tip[Scaffold]
+```sh
+npx @hypermedia-components/cli add datagrid-sort
+npx @hypermedia-components/cli validate page.html
+```
+Ships `recipe.html`, `expanded.html`, and the machine-checked
+[server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-sort/contract.md).
+:::
+
+## Live demo
+
+Open the sort button: drag a key, or focus a handle and press
+<kbd>Space</kbd> then <kbd>↓</kbd> then <kbd>Space</kbd>. Flip a
+direction, remove a key, or add **Warehouse** — a column the grid does
+not even show, which is exactly the case a header click cannot serve.
+**Apply** answers the sorted grid, and the trigger and panel come back
+out of band, so the two surfaces cannot drift.
+
+<DatagridSortDemo />
+
+## Why a control and not just headers
+
+| The header can | The header cannot |
+| --- | --- |
+| sort by the column you can see, in one click | say what the whole set is, in order |
+| flip a direction | let you re-order the keys without re-clicking in sequence |
+| — | sort by a column that is scrolled out of view or not shown at all |
+| — | teach anyone that **Shift-click** adds a second key |
+
+With thirty columns the sorted one is usually off-screen, so `aria-sort`
+and `data-sort-index` are answering a question nobody can see.
+
+## The markup
+
+```html
+<button class="hc-button" type="button" id="sort-trigger" popovertarget="sort-panel">
+  Sort (2): Ship date ↓, Order ↑
+</button>
+
+<div class="hc-popover" id="sort-panel" popover aria-labelledby="sort-trigger">
+  <form action="/orders" method="get"
+        data-hx-get="/orders"
+        data-hx-include="#filters"
+        data-hx-target="#orders"
+        data-hc-close-popover-on-success>
+    <!-- The server owns this region; add and remove answer it. It opts
+         OUT of the close-on-success glue, so editing the sort does not
+         dismiss the panel being edited. -->
+    <div class="hc-popover__body" id="sort-keys"
+         data-hc-close-popover-on-success="false">
+      <ul class="hc-stack" data-hc-sortable data-hc-sort-list="sort">
+        <li class="hc-item" data-hc-sortable-id="ship" data-hc-sort-key="ship">
+          <button class="hc-button" data-variant="ghost" type="button"
+                  data-hc-sortable-handle aria-label="Reorder Ship date">⠿</button>
+          <span class="hc-item__title">Ship date</span>
+          <select class="hc-select" name="dir-ship" aria-label="Ship date direction">
+            <option value="asc">Ascending</option>
+            <option value="desc" selected>Descending</option>
+          </select>
+          <button class="hc-button" data-variant="ghost" data-size="sm" type="submit"
+                  name="drop" value="ship" formaction="/orders/sort"
+                  data-hx-get="/orders/sort?drop=ship"
+                  data-hx-include="closest form"
+                  data-hx-target="#sort-keys" data-hx-swap="outerHTML"
+                  aria-label="Remove Ship date from the sort">Remove</button>
+        </li>
+        <!-- …one row per key, in order… -->
+      </ul>
+    </div>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" data-variant="primary" type="submit">Apply</button>
+    </footer>
+  </form>
+</div>
+```
+
+**The order of the rows is the order of the keys.** Nothing duplicates
+that state: [`installSortable()`](/hypermedia-components/recipes/sortable/)
+reorders the nodes (pointer **and** keyboard), and that is the model.
+
+## The wire
+
+```text
+?sort=-ship,order        ship date descending, then order ascending
+```
+
+`installSortList()` joins the ordered rows into that one param on the
+`formdata` event — the hook htmx and a native submit both fire — in the
+position the first of them held, so the same sort serializes identically
+whether or not the behavior ran. That is what lets a saved view compare
+querystrings to decide whether it has been modified.
+
+It is the same format the grid's own header sorting mirrors into
+`input[data-hc-datagrid-sort]`. One format, two surfaces.
+
+:::note[Without JavaScript the per-key controls are the wire]
+Form entries arrive in **DOM order**, so a native submit sends
+`?dir-ship=desc&dir-order=asc` — the keys, their directions *and* their
+order. Servers accept both shapes and canonicalise to `sort=`. That is
+why each row's direction control is named after its key instead of
+sharing one name.
+:::
+
+An **empty list sends no `sort` param at all** — no sort is not a sort,
+and the server's default ordering returns.
+
+## Server response contract
+
+| Case | Response |
+| --- | --- |
+| `GET /orders?sort=-ship,order&<conditions>` | `200` + the sorted grid, header cells carrying the matching `aria-sort` / `data-sort-index`, plus OOB re-renders of the trigger and the panel region |
+| `GET /orders/sort?add=<col>` | `200` + the panel region with that key appended, the column gone from the add list |
+| `GET /orders/sort?drop=<col>` | `200` + the panel region without that key, the column offered again |
+| an unknown or unsortable key | ignore **that key**, keep the rest — never `500`, never silently sort by something else |
+| no `sort` at all | the default ordering, and the trigger says so (`Sort: default`) |
+
+Add and remove are **server round trips** because which columns are
+available is the server's knowledge — it changes with permissions, with
+the column set, and with the data. The client never invents a row.
+
+## The two surfaces never disagree
+
+Both render from the same server-side sort set. A header click marks the
+instruction and mirrors the wire into `input[data-hc-datagrid-sort]`;
+the response returns the sorted page **and** the re-rendered trigger and
+panel. Never render the panel from client state — if the two can drift,
+the read-out is worthless.
+
+## Sort belongs to the question
+
+- A **saved view captures it**: "overdue shipments, oldest first" is one
+  question.
+- Paging does not change it, and **changing the sort resets to page 1** —
+  page 7 of a different ordering is a different set of rows.
+- Sorting happens on the **whole result set**, server-side. Client-side
+  sorting of the loaded page reorders forty rows out of five thousand
+  and looks exactly like the real thing. (The datagrid's
+  `data-sortable="client"` opt-in exists for small, fully-loaded tables;
+  it is not this.)
+- **Ties must break deterministically** — append the primary key as a
+  final, invisible key — or paging a low-cardinality sort repeats and
+  drops rows between requests.
+
+## Progressive enhancement
+
+The panel is a plain `<form method="get">`: Apply navigates, the per-key
+controls carry the order, and Remove / Add are submit buttons with
+`formaction`. Reordering by drag needs `installSortable()`, so keep a
+no-JS route to the same result (remove and re-add in the order wanted,
+or a per-row "move up" submit). Header links (`?sort=…`) remain the
+zero-JS fast path.
+
+## Accessibility
+
+- Each handle is a real `<button>` whose accessible name includes the
+  column ("Reorder Ship date") — it is the **keyboard** interface:
+  <kbd>Space</kbd> grabs, arrows move, <kbd>Space</kbd> drops,
+  <kbd>Esc</kbd> cancels.
+- Direction controls are labelled per key ("Ship date direction"), so
+  the label still says what it means out of context.
+- Remove buttons name their key.
+- Committed reorders announce through the shared `role="status"` region
+  (i18n keys `sortable.*`).
+- The grid keeps `aria-sort` on its header cells — that is what a screen
+  reader reads on the table itself.
+
+## Related
+
+- [Datagrid](/hypermedia-components/components/datagrid/) — `aria-sort`,
+  `data-sort-index`, and the header-click fast path
+- [Sortable](/hypermedia-components/recipes/sortable/) — the reordering
+  behavior this list is built on
+- [Datagrid filter](/hypermedia-components/recipes/datagrid-filter/) —
+  the conditions the sort rides with
+- [Saved views](/hypermedia-components/recipes/saved-views/) — where a
+  sort set is stored with its question

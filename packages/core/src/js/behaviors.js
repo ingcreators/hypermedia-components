@@ -57,6 +57,7 @@ import { installFormat, installNormalize } from './format.js';
 import { installMask } from './mask.js';
 import { installMultiValue } from './multi-value.js';
 import { installRangeValue } from './range-value.js';
+import { installSortList } from './sort-list.js';
 import { installDirtyGuard } from './dirty-guard.js';
 import { installSessionExpiry } from './session-expiry.js';
 import { installTime } from './time.js';
@@ -113,6 +114,7 @@ function init() {
   installMask();
   installMultiValue();
   installRangeValue();
+  installSortList();
   installDirtyGuard();
   installSessionExpiry();
   installTime();
@@ -176,6 +178,7 @@ export {
   installFormat,
   installMultiValue,
   installRangeValue,
+  installSortList,
   installNormalize,
   installMask,
   installDirtyGuard,

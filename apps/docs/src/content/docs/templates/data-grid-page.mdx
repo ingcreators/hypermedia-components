@@ -179,6 +179,12 @@ grid is full before any JavaScript runs.
         <!-- Toolbar: left actions, separator, grouped actions, then the
              pager pushed to the trailing edge by the spacer. -->
         <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
+          <!-- Sort is a read-out first: the sorted column is usually
+               scrolled out of view. See recipes/datagrid-sort. -->
+          <button class="hc-button" data-variant="secondary" type="button"
+                  id="sort-trigger" popovertarget="sort-panel">
+            Sort (2): Ship date ↓, Order ↑
+          </button>
           <button class="hc-button" data-variant="ghost" type="button"
                   data-hx-get="/orders/rows" data-hx-target="#order-rows">Refresh</button>
           <a class="hc-button" data-variant="ghost" href="/orders.csv">Export</a>
@@ -403,6 +409,7 @@ Three consequences the template shows:
 | App frame | [`hc-shell`](/hypermedia-components/components/shell/) | — |
 | Applied conditions | [`hc-filterbar`](/hypermedia-components/components/filterbar/) | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) — one chip per condition, each opening its own editor; remove links drop one param |
 | Toolbar | [`hc-toolbar`](/hypermedia-components/components/toolbar/) + `installToolbar()` | — (one Tab stop, arrow keys within) |
+| Sort | a toolbar control + `installSortList()` | [datagrid-sort](/hypermedia-components/recipes/datagrid-sort/) — the trigger says the whole set, the panel reorders it (`sort=-ship,order`) |
 | Selection actions | `installDatagridActions()` | [datagrid-bulk-actions](/hypermedia-components/recipes/datagrid-bulk-actions/), and [datagrid-bulk-errors](/hypermedia-components/recipes/datagrid-bulk-errors/) for failures at scale |
 | Pager | [`hc-pagination`](/hypermedia-components/components/pagination/) | [datagrid-pager](/hypermedia-components/recipes/datagrid-pager/) |
 | Grid | [`hc-datagrid`](/hypermedia-components/components/datagrid/) | [datagrid-filter](/hypermedia-components/recipes/datagrid-filter/) for `f-<col>` params |

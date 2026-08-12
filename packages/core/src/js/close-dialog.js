@@ -5,6 +5,9 @@
 //   - After an htmx request succeeds the behavior finds the closest
 //     <dialog> ancestor of the requesting element and calls close().
 //   - On failure the dialog stays open so the user can see the error.
+//   - The nearest carrier wins: an inner region carrying
+//     `data-hc-close-dialog-on-success="false"` opts its own requests
+//     out, so a panel that edits itself stays open while Apply closes it.
 //
 // installCloseDialog() returns an `uninstall` function. Idempotent.
 
@@ -13,14 +16,19 @@ const INSTALL_KEY = '__hcCloseDialogUninstall';
 function onAfterRequest(event) {
   const target = event.target;
   if (!target || typeof target.matches !== 'function') return;
-  if (!target.closest('[data-hc-close-dialog-on-success]')) return;
+  const carrier = target.closest('[data-hc-close-dialog-on-success]');
+  if (!carrier) return;
+
+  // The NEAREST carrier wins, so a region inside the dialog can opt out
+  // with `="false"` — a panel that edits itself (add / remove a sort
+  // key, a column) must not be dismissed by its own round trips.
+  if (carrier.getAttribute('data-hc-close-dialog-on-success') === 'false') return;
 
   const detail = event.detail || {};
   // htmx sets `successful` to true for 2xx responses.
   if (detail.successful !== true) return;
 
-  const opener = target.closest('[data-hc-close-dialog-on-success]');
-  const dialog = opener.closest('dialog');
+  const dialog = carrier.closest('dialog');
   if (dialog && typeof dialog.close === 'function') {
     dialog.close();
   }

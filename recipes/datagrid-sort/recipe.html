@@ -1,0 +1,115 @@
+<!-- Short recommended usage.
+
+  The sort control: a toolbar button that says what the current sort set
+  IS, and opens the editor for it. Header clicks stay the fast path —
+  what they cannot do is answer "what is the sort set", let anyone
+  re-order the keys, or sort by a column that is not on screen.
+
+  The list's ORDER IS THE SORT ORDER (installSortable reorders it,
+  pointer + keyboard). Each row names its own direction control, so a
+  no-JS submit carries both the keys and their order; installSortList
+  joins them into one `sort=-ship,order` param. Zero custom JS. -->
+<button class="hc-button" data-variant="ghost" type="button"
+        id="sort-trigger" popovertarget="sort-panel">
+  Sort (2): Ship date ↓, Order ↑
+</button>
+
+<div class="hc-popover" id="sort-panel" popover aria-labelledby="sort-trigger">
+  <form id="sort-form" action="/orders" method="get"
+        data-hx-get="/orders"
+        data-hx-include="#filters"
+        data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <!-- The server owns this region: add and remove answer it. -->
+    <div class="hc-popover__body" id="sort-keys"
+         data-hc-close-popover-on-success="false">
+      <ul class="hc-stack" data-hc-sortable data-hc-sort-list="sort">
+        <li class="hc-item" data-hc-sortable-id="ship" data-hc-sort-key="ship">
+          <button class="hc-button" data-variant="ghost" type="button"
+                  data-hc-sortable-handle aria-label="Reorder Ship date">⠿</button>
+          <span class="hc-item__title">Ship date</span>
+          <select class="hc-select" name="dir-ship" aria-label="Ship date direction">
+            <option value="asc">Ascending</option>
+            <option value="desc" selected>Descending</option>
+          </select>
+          <button class="hc-button" data-variant="ghost" data-size="sm" type="submit"
+                  name="drop" value="ship" formaction="/orders/sort"
+                  data-hx-get="/orders/sort?drop=ship"
+                  data-hx-include="closest form"
+                  data-hx-target="#sort-keys"
+                  data-hx-swap="outerHTML"
+                  aria-label="Remove Ship date from the sort">Remove</button>
+        </li>
+        <li class="hc-item" data-hc-sortable-id="order" data-hc-sort-key="order">
+          <button class="hc-button" data-variant="ghost" type="button"
+                  data-hc-sortable-handle aria-label="Reorder Order">⠿</button>
+          <span class="hc-item__title">Order</span>
+          <select class="hc-select" name="dir-order" aria-label="Order direction">
+            <option value="asc" selected>Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+          <button class="hc-button" data-variant="ghost" data-size="sm" type="submit"
+                  name="drop" value="order" formaction="/orders/sort"
+                  data-hx-include="closest form"
+                  data-hx-target="#sort-keys"
+                  data-hx-swap="outerHTML"
+                  data-hx-get="/orders/sort?drop=order"
+                  aria-label="Remove Order from the sort">Remove</button>
+        </li>
+      </ul>
+
+      <!-- Every column, including the ones not on screen — a sort key on
+           a hidden column has no header to click. -->
+      <div class="hc-field">
+        <label class="hc-field__label" for="sort-add">Add a column</label>
+        <select class="hc-select" id="sort-add" name="add">
+          <option value="">Choose…</option>
+          <option value="customer">Customer</option>
+          <option value="amount">Amount</option>
+          <option value="warehouse">Warehouse (not shown)</option>
+        </select>
+        <!-- One path for both: htmx answers #sort-keys, a native submit
+             answers the same URL as a page. Choosing then pressing Add
+             also avoids the arrow-key-fires-change trap a select with
+             data-hx-trigger="change" sets for keyboard users. -->
+        <button class="hc-button" data-size="sm" type="submit"
+                formaction="/orders/sort"
+                data-hx-get="/orders/sort"
+                data-hx-include="closest form"
+                data-hx-target="#sort-keys"
+                data-hx-swap="outerHTML">Add</button>
+      </div>
+    </div>
+
+    <footer class="hc-popover__footer">
+      <button class="hc-button" data-variant="primary" type="submit">Apply</button>
+    </footer>
+  </form>
+</div>
+
+<!-- The grid the sort applies to. The server returns the sorted page —
+     the client only ever describes the instruction. Header cells stay
+     the fast path (aria-sort + data-sort-index say what is applied);
+     this panel is the read-out and the editor for the whole set. -->
+<div class="hc-datagrid" id="items-grid">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" data-sortable data-col="order" scope="col"
+              aria-sort="ascending" data-sort-index="2">Order</th>
+          <th class="hc-datagrid__headcell" data-sortable data-col="customer" scope="col">Customer</th>
+          <th class="hc-datagrid__headcell" data-sortable data-col="ship" scope="col"
+              aria-sort="descending" data-sort-index="1">Ship date</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row">
+          <td class="hc-datagrid__cell">SO-4901</td>
+          <td class="hc-datagrid__cell">Northwind</td>
+          <td class="hc-datagrid__cell">2026-08-14</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

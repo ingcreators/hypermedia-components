@@ -76,4 +76,27 @@ describe('installCloseDialog', () => {
     fireAfterRequest(document.getElementById('f'));
     expect(document.getElementById('d').hasAttribute('open')).toBe(true);
   });
+
+  it('an inner region can opt out with ="false", so a self-editing panel stays open', () => {
+    document.body.innerHTML = `
+      <dialog id="d2">
+        <form id="f2" data-hc-close-dialog-on-success>
+          <div id="keys" data-hc-close-dialog-on-success="false">
+            <button id="add" type="button">Add</button>
+          </div>
+          <button id="apply" type="submit">Apply</button>
+        </form>
+      </dialog>
+    `;
+    const dialog = document.getElementById('d2');
+    dialog.showModal();
+    uninstall = installCloseDialog();
+
+    fireAfterRequest(document.getElementById('add'));
+    expect(dialog.hasAttribute('open')).toBe(true);
+
+    // Apply still closes it — the NEAREST carrier is the form.
+    fireAfterRequest(document.getElementById('f2'));
+    expect(dialog.hasAttribute('open')).toBe(false);
+  });
 });

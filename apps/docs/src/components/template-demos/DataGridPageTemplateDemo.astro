@@ -176,6 +176,59 @@ const FILTERS = [
         </div>
 
         <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
+          <!-- The sort control is a read-out first: with thirty columns
+               the sorted one is usually scrolled out of view, so the
+               header's aria-sort answers a question nobody can see.
+               Header clicks stay the fast path. -->
+          <button class="hc-button" data-variant="secondary" type="button"
+                  id="template-grid-sort-trigger"
+                  popovertarget="template-grid-sort">
+            Sort (2): Ship date ↓, Order ↑
+          </button>
+          <div class="hc-popover" id="template-grid-sort" popover
+               aria-labelledby="template-grid-sort-trigger">
+            <form action="#template-grid" method="get">
+              <div class="hc-popover__body"
+                   data-hc-close-popover-on-success="false">
+                <ul class="hc-stack" data-hc-sortable data-hc-sort-list="sort">
+                  <li class="hc-item" data-hc-sortable-id="ship" data-hc-sort-key="ship">
+                    <button class="hc-button" data-variant="ghost" data-size="sm"
+                            type="button" data-hc-sortable-handle
+                            aria-label="Reorder Ship date">⠿</button>
+                    <span class="hc-item__title">Ship date</span>
+                    <select class="hc-select" data-size="sm" name="dir-ship"
+                            aria-label="Ship date direction">
+                      <option value="asc">Ascending</option>
+                      <option value="desc" selected>Descending</option>
+                    </select>
+                  </li>
+                  <li class="hc-item" data-hc-sortable-id="order" data-hc-sort-key="order">
+                    <button class="hc-button" data-variant="ghost" data-size="sm"
+                            type="button" data-hc-sortable-handle
+                            aria-label="Reorder Order">⠿</button>
+                    <span class="hc-item__title">Order</span>
+                    <select class="hc-select" data-size="sm" name="dir-order"
+                            aria-label="Order direction">
+                      <option value="asc" selected>Ascending</option>
+                      <option value="desc">Descending</option>
+                    </select>
+                  </li>
+                </ul>
+                <div class="hc-field">
+                  <label class="hc-field__label" for="template-grid-sort-add">Add a column</label>
+                  <select class="hc-select" id="template-grid-sort-add" name="add">
+                    <option value="">Choose…</option>
+                    <option value="customer">Customer</option>
+                    <option value="amount">Amount</option>
+                    <option value="warehouse">Warehouse (not shown)</option>
+                  </select>
+                </div>
+              </div>
+              <footer class="hc-popover__footer">
+                <button class="hc-button" data-variant="primary" type="submit">Apply</button>
+              </footer>
+            </form>
+          </div>
           <button class="hc-button" data-variant="ghost" type="button">Refresh</button>
           <a class="hc-button" data-variant="ghost"
              href="#template-grid?f-ship-from=@week-start&amp;f-carrier=road">Export 5,000 rows</a>

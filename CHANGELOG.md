@@ -22,6 +22,27 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: **`datagrid-sort`** — the sort set as a control, plus
+  `installSortList()` / `data-hc-sort-list`. Header clicks are the fast
+  path and stay; what they cannot do is answer *what the current sort
+  set is*. Shift-click for multi-sort is undiscoverable, with thirty
+  columns the sorted one is usually scrolled out of view, a key on a
+  hidden column has no header at all, and re-ordering keys means
+  re-clicking headers in the right sequence. So sort gets what the
+  conditions got: one surface that is both the read-out (the trigger's
+  label *is* the applied set, server-rendered) and the editor (an
+  ordered list reordered by `installSortable()`, pointer **and**
+  keyboard, with per-key direction, remove, and an **Add a column**
+  list that includes columns the grid is not showing). **The order of
+  the rows is the order of the keys** — nothing duplicates that state.
+  `installSortList()` joins the rows into the unchanged
+  `?sort=-ship,order` wire on the `formdata` event, in place, so a
+  saved view's querystring comparison still works; without JavaScript
+  the per-key `dir-<col>` controls carry the keys, directions **and**
+  order, because form entries arrive in DOM order. Add and remove are
+  server round trips, because which columns are available is the
+  server's knowledge.
+
 - **behaviors**: `installRangeValue()` / `data-hc-range` — **two
   controls, one range param on the wire**. A date filter is a *period*,
   and a period is one condition: one chip in the applied-conditions bar,
@@ -371,6 +392,18 @@ Security    — security-relevant changes
   carries two meanings.
 
 ### Fixed
+
+- **tests**: the session-expiry dialog's axe scan emulates reduced
+  motion (the #342 pattern) — it could sample the dialog mid-transition
+  and report a colour-contrast violation that is gone once it settles.
+
+- **behaviors**: `data-hc-close-popover-on-success` /
+  `data-hc-close-dialog-on-success` gained a **nearest-carrier opt-out**
+  (`="false"`). A panel that edits itself — a sort control adding a key,
+  a column chooser — issues successful requests from inside the carrier,
+  and every one of them dismissed the panel the user was still working
+  in. The nearest carrier now wins, so an inner region can opt its own
+  round trips out while Apply still closes the panel.
 
 - **docs**: two defects in the data-grid page template's filter panel.
   Its **Reset** was `<button type="reset">`, which restores the values

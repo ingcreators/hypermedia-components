@@ -1,0 +1,64 @@
+{
+  "detect": "[data-hc-sort-list]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "keys-are-rows",
+      "level": "error",
+      "message": "Each sort key is a row carrying data-hc-sort-key — the ORDER of the rows is the order of the keys.",
+      "exists": { "selector": "[data-hc-sort-list] [data-hc-sort-key]" }
+    },
+    {
+      "id": "reorderable",
+      "level": "error",
+      "message": "The list must be reorderable: data-hc-sortable on the container (installSortable) plus a data-hc-sortable-handle in every row — dragging is not the only interface, the handle is also the keyboard one.",
+      "attr": {
+        "on": "[data-hc-sort-list]",
+        "name": "data-hc-sortable",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "handles-present",
+      "level": "error",
+      "message": "Every row needs a data-hc-sortable-handle button — it is the keyboard interface (Space grabs, arrows move).",
+      "exists": { "selector": "[data-hc-sort-key] [data-hc-sortable-handle]" }
+    },
+    {
+      "id": "per-key-direction",
+      "level": "warn",
+      "message": "Name each direction control after its key (dir-<key>), so a no-JS submit carries the keys IN ORDER — one shared name would lose which direction belongs to which key.",
+      "exists": { "selector": "[data-hc-sort-key] select[name^=\"dir-\"], [data-hc-sort-key] input[name^=\"dir-\"]" }
+    },
+    {
+      "id": "apply-is-get",
+      "level": "error",
+      "message": "Sorting is idempotent navigation — the panel GETs the list URL (data-hx-get), never posts.",
+      "attr": { "on": "form", "name": "data-hx-get", "assert": "present" }
+    },
+    {
+      "id": "target-declared",
+      "level": "error",
+      "message": "The sorted page replaces the grid — declare data-hx-target on the form.",
+      "attr": { "on": "form", "name": "data-hx-target", "assert": "present" }
+    },
+    {
+      "id": "grid-target-resolves",
+      "level": "error",
+      "message": "data-hx-target must resolve to the grid element the server re-renders.",
+      "resolves": { "on": "form", "name": "data-hx-target" }
+    },
+    {
+      "id": "nojs-get",
+      "level": "warn",
+      "message": "Keep action + method=\"get\" on the panel form so Apply works without JavaScript.",
+      "attr": { "on": "form", "name": "action", "assert": "present" }
+    },
+    {
+      "id": "conditions-ride-along",
+      "level": "warn",
+      "message": "Include the filter form (data-hx-include) so applying a sort keeps the conditions — a sort that silently drops the filters answers a different question.",
+      "attr": { "on": "form", "name": "data-hx-include", "assert": "present" }
+    }
+  ]
+}

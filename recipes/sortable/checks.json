@@ -34,9 +34,9 @@
     {
       "id": "persisting-needs-inputs",
       "level": "warn",
-      "message": "persisting the order needs a hidden input per item (name=\"order[]\") so the new DOM order serializes into the request. (warn: apps reading the hc:sortchange event detail instead may omit them)",
+      "message": "persisting the order needs a per-item control whose ORDER is what serializes — a hidden input per item (name=\"order[]\"), or a named control per item like the sort control's dir-<key> selects. (warn: apps reading the hc:sortchange event detail instead may omit them)",
       "exists": {
-        "selector": "input[type=\"hidden\"]",
+        "selector": "input[type=\"hidden\"], [data-hc-sortable] select[name], [data-hc-sortable] input[name]",
         "min": 1
       }
     }

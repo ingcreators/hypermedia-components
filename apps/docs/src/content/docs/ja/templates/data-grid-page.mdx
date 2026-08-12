@@ -181,6 +181,12 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
         <!-- Toolbar: left actions, separator, grouped actions, then the
              pager pushed to the trailing edge by the spacer. -->
         <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
+          <!-- Sort is a read-out first: the sorted column is usually
+               scrolled out of view. See recipes/datagrid-sort. -->
+          <button class="hc-button" data-variant="secondary" type="button"
+                  id="sort-trigger" popovertarget="sort-panel">
+            Sort (2): Ship date ↓, Order ↑
+          </button>
           <button class="hc-button" data-variant="ghost" type="button"
                   data-hx-get="/orders/rows" data-hx-target="#order-rows">Refresh</button>
           <a class="hc-button" data-variant="ghost" href="/orders.csv">Export</a>
@@ -403,6 +409,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 | アプリフレーム | [`hc-shell`](/hypermedia-components/ja/components/shell/) | — |
 | 適用中の条件 | [`hc-filterbar`](/hypermedia-components/ja/components/filterbar/) | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 条件 1 つにつきチップ 1 つ。各チップが自分のエディタを開き、削除リンクは 1 パラメータだけ落とす |
 | ツールバー | [`hc-toolbar`](/hypermedia-components/ja/components/toolbar/) + `installToolbar()` | —（Tab ストップ 1 つ、中は矢印キー） |
+| ソート | ツールバーのコントロール + `installSortList()` | [datagrid-sort](/hypermedia-components/ja/recipes/datagrid-sort/) — トリガーが集合全体を述べ、パネルが並べ替える（`sort=-ship,order`） |
 | 選択時のアクション | `installDatagridActions()` | [datagrid-bulk-actions](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)、大量失敗時は [datagrid-bulk-errors](/hypermedia-components/ja/recipes/datagrid-bulk-errors/) |
 | ページャ | [`hc-pagination`](/hypermedia-components/ja/components/pagination/) | [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) |
 | グリッド | [`hc-datagrid`](/hypermedia-components/ja/components/datagrid/) | `f-<col>` パラメータは [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) |
