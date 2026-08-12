@@ -299,7 +299,9 @@ grid is full before any JavaScript runs.
 
         <!-- Navigation under the data it moves through. -->
         <div class="hc-toolbar" role="toolbar" aria-label="Rows">
+          <!-- Where you ARE at the start, where you GO at the end. -->
           <span aria-live="polite">4,901–4,940 of 5,000</span>
+          <span data-hc-spacer="true"></span>
           <nav class="hc-pagination" aria-label="Pages">
             <a class="hc-pagination__item" data-hc-rel="prev" href="/orders?page=122">Previous</a>
             <a class="hc-pagination__item" data-hc-rel="next" href="/orders?page=124">Next</a>
@@ -430,6 +432,15 @@ the moment they share a strip. Each kind gets one home, chosen by
 | acts on the **data** | Refresh, Import, Export | the toolbar |
 | acts on the **selection** | Approve, Reject, Open selected | a bar that appears when rows are ticked |
 | **moves** through the data | pager, Go to row | under the grid, where the movement happens |
+
+**Within the navigation strip, position carries meaning too**: *where
+you are* (`4,901–4,940 of 5,000`) sits at the **start**, because it is
+a read-out and the frozen identity column it refers to is on that side;
+*where you go* (the pager) sits at the **end**, for two reasons that
+are about hands rather than taste — after scrolling the grid the
+pointer is already at the trailing edge, where the scrollbar lives, and
+**Next** is pressed far more often than anything else on the strip.
+Logical properties, so RTL swaps both without a second rule.
 
 Two of those are worth stating plainly:
 

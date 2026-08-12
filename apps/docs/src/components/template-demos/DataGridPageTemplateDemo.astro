@@ -424,11 +424,14 @@ const FILTERS = [
         {/* Navigation sits under the data it moves through — still
             fixed chrome, and out of the way of the actions. */}
         <div class="hc-toolbar" role="toolbar" aria-label="Rows">
+          {/* Where you ARE goes at the start — it is a read-out, and
+              the frozen identity column it refers to is on that side.
+              Where you GO goes at the end: after scrolling the grid the
+              pointer is already at the trailing edge (the scrollbar
+              lives there), and "Next" is pressed far more often than
+              anything else on this strip. Logical properties, so RTL
+              swaps both for free. */}
           <span aria-live="polite">4,901–4,940 of 5,000</span>
-          <nav class="hc-pagination" aria-label="Pages">
-            <a class="hc-pagination__item" data-hc-rel="prev" href="#template-grid">Previous</a>
-            <a class="hc-pagination__item" data-hc-rel="next" href="#template-grid">Next</a>
-          </nav>
           <span data-hc-spacer="true"></span>
           {/* Somebody read a number out loud. The server resolves the
               ordinal to the page that contains it and the row anchor,
@@ -440,6 +443,10 @@ const FILTERS = [
                    id="template-grid-goto" name="goto" inputmode="numeric"
                    style="inline-size: 6rem;" />
           </form>
+          <nav class="hc-pagination" aria-label="Pages">
+            <a class="hc-pagination__item" data-hc-rel="prev" href="#template-grid">Previous</a>
+            <a class="hc-pagination__item" data-hc-rel="next" href="#template-grid">Next</a>
+          </nav>
         </div>
       </div>
     </main>

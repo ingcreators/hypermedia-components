@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **docs**: in the data-grid template's navigation strip, *where you
+  are* stays at the start and *where you go* moves to the **end**. Two
+  reasons about hands rather than taste: after scrolling the grid the
+  pointer is already at the trailing edge, where the scrollbar lives,
+  and **Next** is pressed far more often than anything else on the
+  strip. The count keeps the start because it is a read-out and the
+  frozen identity column it refers to is on that side. Logical
+  properties, so RTL swaps both without a second rule.
+
 - **docs**: the data-grid page template **groups its controls by what
   they change**, because one strip holding four kinds of control reads
   as clutter however tidy each one is. Filters, Sort and Columns now

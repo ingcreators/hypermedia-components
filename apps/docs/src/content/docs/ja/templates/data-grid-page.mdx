@@ -303,7 +303,9 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 
         <!-- Navigation under the data it moves through. -->
         <div class="hc-toolbar" role="toolbar" aria-label="Rows">
+          <!-- Where you ARE at the start, where you GO at the end. -->
           <span aria-live="polite">4,901–4,940 of 5,000</span>
+          <span data-hc-spacer="true"></span>
           <nav class="hc-pagination" aria-label="Pages">
             <a class="hc-pagination__item" data-hc-rel="prev" href="/orders?page=122">Previous</a>
             <a class="hc-pagination__item" data-hc-rel="next" href="/orders?page=124">Next</a>
@@ -434,6 +436,14 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 | **データ**に対する操作 | Refresh、Import、Export | ツールバー |
 | **選択**に対する操作 | Approve、Reject、選択した件を開く | 行がチェックされたとき現れるバー |
 | データの中を**移動する** | ページャ、行番号へ移動 | グリッドの下（移動が起きる場所） |
+
+**移動用の帯の中でも位置は意味を持ちます。***いまどこにいるか*
+（`4,901–4,940 of 5,000`）は**先頭**に置きます。読み出しであり、それが
+指している固定の同一性列も同じ側にあるからです。*どこへ行くか*（ページャ）
+は**末尾**に置きます。理由は好みではなく手の動きで、グリッドをスクロール
+した直後のポインタは既に末尾側の縁（スクロールバーのある側）にあり、
+**Next** はこの帯の中で最も多く押されるからです。論理プロパティなので、
+RTL では両方が自動で入れ替わります。
 
 このうち 2 つは明記する価値があります。
 
