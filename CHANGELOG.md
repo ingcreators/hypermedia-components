@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **docs**: the data-grid page template gets a **full-size preview** at
+  its own URL. The template is about a screen that takes the whole
+  viewport — chrome fixed, the grid taking the rest — and showing it
+  inside a documentation column is a picture of the idea rather than
+  the idea; at 36rem tall next to a 9rem sidebar it was simply too
+  small to read. The embedded demo is taller now, and *Open the
+  full-size preview* leads to a plain, chrome-free route where the
+  template owns the screen. One markup source serves both: the demo
+  component takes a `standalone` prop and swaps its wrapper.
+
 - **layout**: **`.hc-fill`** — take the remaining space of a flex
   column and let the children scroll. The composition every full-height
   app screen needs, previously written as a structural rule in the

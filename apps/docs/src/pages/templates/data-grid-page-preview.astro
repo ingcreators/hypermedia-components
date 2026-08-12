@@ -1,0 +1,58 @@
+---
+/*
+ * Standalone, chrome-free preview of the data-grid page template.
+ *
+ * The template is about a screen that takes the whole viewport: the
+ * chrome stays put and the grid takes what is left. Shown inside a
+ * documentation column it is a picture of the idea, not the idea — so
+ * it also gets a page of its own, at the size it is actually about.
+ *
+ * A plain Astro page, not a Starlight one: no sidebar, no header, no
+ * content column. The core stylesheet and the behaviors bundle are
+ * imported here the way Starlight's customCss / Head override do it
+ * for the rest of the site.
+ */
+import '@hypermedia-components/core/css';
+import DataGridPageTemplateDemo from '../../components/template-demos/DataGridPageTemplateDemo.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data grid page — full-size preview | Hypermedia Components</title>
+    <meta
+      name="description"
+      content="The data-grid page template at the size it is about: chrome fixed, only the grid scrolling." />
+    <meta name="robots" content="noindex" />
+    <script>
+      import '@hypermedia-components/core/behaviors';
+    </script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        block-size: 100%;
+        background: var(--hc-color-bg);
+        color: var(--hc-color-text);
+        font-family: var(--hc-font-family-sans);
+      }
+
+      /* One line of chrome of our own: enough to get back, and small
+         enough that the template still owns the viewport. */
+      .preview-bar {
+        position: fixed;
+        inset-block-start: var(--hc-space-2);
+        inset-inline-end: var(--hc-space-2);
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="hc-button preview-bar" data-size="sm" data-variant="secondary"
+       href={`${base}/templates/data-grid-page/`}>↩ Back to the template page</a>
+    <DataGridPageTemplateDemo standalone />
+  </body>
+</html>
