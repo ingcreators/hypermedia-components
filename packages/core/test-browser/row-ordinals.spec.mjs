@@ -46,6 +46,37 @@ test.describe('row ordinals', () => {
     expect(pair.announced - pair.headerRows).toBe(Number(pair.shown));
   });
 
+
+  test('a prev / next error link moves the ACTIVE CELL, not just the scroll', async ({
+    page,
+  }) => {
+    // This is the whole mechanism behind "go to the next error": a real
+    // fragment link, and installDatagrid()'s focusHashRow() landing the
+    // active cell on the row it names — Back works, the keyboard works,
+    // and no client state is involved.
+    await page.getByTestId('prev-error').click();
+    await expect(page).toHaveURL(/#row-4901$/);
+    const landed = await page.evaluate(() => {
+      const active = document.activeElement;
+      return {
+        row: active?.closest('.hc-datagrid__row')?.id,
+        isCell: active?.classList.contains('hc-datagrid__cell'),
+      };
+    });
+    expect(landed).toEqual({ row: 'row-4901', isCell: true });
+  });
+
+  test('the failing rows say so themselves', async ({ page }) => {
+    const marked = await page.evaluate(() =>
+      [...document.querySelectorAll('.hc-datagrid__row[data-attention="error"]')].map(
+        (r) => r.id,
+      ),
+    );
+    // The report is a NAVIGATOR; the rows are where the state lives, and
+    // they scroll with the data because they are the data.
+    expect(marked).toEqual(['row-4901', 'row-4902']);
+  });
+
   test('no axe violations', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();

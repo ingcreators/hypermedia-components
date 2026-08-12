@@ -199,6 +199,34 @@ atomic なアクションは実行前に検証します — 確認ステップ�
 全選択→アクションのループになります。200 件失敗したときに成立する形は
 これだけです。
 
+### 要約はナビゲータでもある
+
+5,000 行に散った 12 件の失敗は待ち行列です。だから要約が移動手段も
+持ちます — O(1) のままで。
+
+```html
+<p class="hc-alert__body">
+  <strong>12 of 40 rows could not be updated.</strong>
+  <a href="#row-4903">Previous</a>
+  <span>Error 3 of 12 — row 137</span>
+  <a href="#row-5012">Next</a> ·
+  <a href="/orders?f-last-result=failed">Show only failed (12)</a>
+</p>
+```
+
+本物のフラグメントリンクなので Back もキーボードも効きます。
+[`installDatagrid()`](/hypermedia-components/ja/components/datagrid/#フラグメントナビゲーション)
+がフラグメントの指す行に**アクティブセル**を着地させます。カウンタと
+2 つの href はレポートと同じ失敗リストからサーバーが描画するので、行と
+パネルがずれることはありません。
+
+行を名指しするのは **ID**、隣に
+[序数](/hypermedia-components/ja/components/datagrid/#行の序数--data-row-no)
+を*表示*します。「137 行目」は失敗を語るときの言い方ですが、序数は
+ソートや条件で動き、ID は動きません。**行番号へ移動**（`?goto=137`）は
+口頭で伝えられた番号のためのもので、137 行目が今どこにあるかを知って
+いるのはサーバーだけなので、解決もサーバーが行います。
+
 :::caution[それでも領域は制限する]
 規則は破られ、サーバーは想定より多く返します。そこで領域には
 `max-block-size: min(25vh, 12rem); overflow: auto` を与えます。従来

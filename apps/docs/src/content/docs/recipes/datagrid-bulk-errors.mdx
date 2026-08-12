@@ -197,6 +197,35 @@ Two surfaces, chosen by one question: *is there work in the grid?*
 after which retrying is the ordinary select-all → action loop. At two
 hundred failures it is the only shape that works.
 
+### The summary is also the navigator
+
+Twelve failures scattered through five thousand rows is a queue, so the
+summary carries the moves — and stays O(1) doing it:
+
+```html
+<p class="hc-alert__body">
+  <strong>12 of 40 rows could not be updated.</strong>
+  <a href="#row-4903">Previous</a>
+  <span>Error 3 of 12 — row 137</span>
+  <a href="#row-5012">Next</a> ·
+  <a href="/orders?f-last-result=failed">Show only failed (12)</a>
+</p>
+```
+
+Real fragment links, so Back works and the keyboard works;
+[`installDatagrid()`](/hypermedia-components/components/datagrid/#fragment-navigation)
+lands the **active cell** on the row a fragment names. The counter and
+both hrefs are server-rendered from the same failure list the report
+shows, so the line and the panel cannot drift.
+
+Name rows by **id** and *show* the
+[ordinal](/hypermedia-components/components/datagrid/#row-ordinals--data-row-no)
+next to it — `row 137` is how a failure gets discussed, but ordinals
+move when the sort or the conditions change and ids do not. A **Go to
+row** control (`?goto=137`) covers the number somebody read out loud;
+the server resolves it to the page that contains it, because only the
+server knows where row 137 currently is.
+
 :::caution[Bound the region anyway]
 Rules get missed and servers render more than expected, so the region
 carries `max-block-size: min(25vh, 12rem); overflow: auto`. A page that

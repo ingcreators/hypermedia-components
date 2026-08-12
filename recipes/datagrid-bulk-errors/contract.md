@@ -216,6 +216,38 @@ into the report: a real filter URL composing with
 select-all → action loop. At two hundred failures it is the only shape
 that works.
 
+### The summary is also the navigator
+
+Twelve failures scattered through five thousand rows is a *queue*, so
+the summary carries the moves — and stays O(1) doing it:
+
+```html
+<p class="hc-alert__body">
+  <strong>12 of 40 rows could not be updated.</strong>
+  <a href="#row-4903">Previous</a>
+  <span>Error 3 of 12 — row 137</span>
+  <a href="#row-5012">Next</a> ·
+  <a href="/orders?f-last-result=failed">Show only failed (12)</a>
+</p>
+```
+
+- They are **real `<a href="#row-<id>">` links**, so Back works, the
+  keyboard works, and no JavaScript is required to move.
+  `installDatagrid()` lands the **active cell** on the row a fragment
+  names, which is the focus move the user wanted.
+- The counter and both hrefs are **server-rendered** from the same
+  failure list the report shows, so the line and the panel cannot
+  drift, and there is no client state to lose on a swap.
+- Name rows by **id**, and show the ordinal
+  ([`data-row-no`](../../apps/docs/src/content/docs/components/datagrid.mdx))
+  beside it: `row 137` is how the failure gets discussed, but the
+  ordinal moves when the sort or the conditions change and the id does
+  not.
+- A **Go to row** control (a number input submitting `?goto=137`)
+  covers the number somebody read out loud. The **server** resolves the
+  ordinal to the page that contains it and answers with the row anchor
+  — only it knows where row 137 currently is.
+
 ### The grouped breakdown → a docked panel
 
 The reason table opens beside the grid, not above it: a side panel

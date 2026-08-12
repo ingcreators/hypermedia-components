@@ -238,3 +238,30 @@ describe('datagrid-bulk-errors demo API — acting on everything that matches', 
     expect(response.status).toBe(400);
   });
 });
+
+describe('datagrid-bulk-errors demo API — the summary is the navigator', () => {
+  it('carries prev / next as real fragment links, with a counter', async () => {
+    const body = await (
+      await call(bulkErrors, 'POST', '/bulk', {
+        htmx: true,
+        body: form({ action: 'archive', ids: ['101', '102', '104', '105'] }),
+      })
+    ).text();
+    // Real hrefs naming rows by ID: Back works, the keyboard works, and
+    // installDatagrid lands the active cell on the row a fragment names.
+    expect(body).toMatch(/href="#bulk-errors-demo-row-\d+">Previous</);
+    expect(body).toMatch(/href="#bulk-errors-demo-row-\d+">Next</);
+    expect(body).toMatch(/Error 1 of \d+ — row \d+/);
+  });
+
+  it('says nothing about moving when there is nowhere to move', async () => {
+    const body = await (
+      await call(bulkErrors, 'POST', '/bulk', {
+        htmx: true,
+        body: form({ action: 'archive', ids: ['101'] }),
+      })
+    ).text();
+    expect(body).not.toContain('>Next<');
+  });
+});
+
