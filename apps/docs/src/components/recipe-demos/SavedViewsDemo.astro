@@ -48,6 +48,28 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/saved-vi
       <label class="hc-field__label" for="saved-views-demo-name">View name</label>
       <input class="hc-input" id="saved-views-demo-name" name="name" required />
     </div>
+
+    {/* Naming is not the only decision at save time. Scope, because a
+        department standard is the normal case and silently forking a
+        colleague's view is an accident; default, because a screen that
+        opens on the wrong question wastes a step every single day. */}
+    <fieldset class="hc-field">
+      <legend class="hc-field__label">Who can see it</legend>
+      <label class="hc-radio-label">
+        <input class="hc-radio" type="radio" name="scope" value="personal" checked />
+        Only me
+      </label>
+      <label class="hc-radio-label">
+        <input class="hc-radio" type="radio" name="scope" value="shared" />
+        My team
+      </label>
+    </fieldset>
+
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="default" value="1" />
+      Open this screen on it
+    </label>
+
     <button class="hc-button" data-variant="primary" type="submit">Save view</button>
   </form>
 

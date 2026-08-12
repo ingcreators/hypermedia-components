@@ -167,6 +167,50 @@ current 印付きでストリップに入ります。チップをクリックす
 [データグリッドページのテンプレート](/hypermedia-components/ja/templates/data-grid-page/)
 にあります。
 
+## 保存時に訊くことは 3 つ
+
+名前だけを訊くダイアログは、残り 2 つの決定を「後で気付いた人」に押し
+付けます。
+
+| 項目 | ここで訊く理由 |
+| --- | --- |
+| **名前** | ビューのキー。`view=` と `DELETE` のパスに URL エンコードして載る |
+| **スコープ**（個人 / 共有） | 部門標準は業務ソフトでは普通のケースで、同僚のビューを黙って分岐させるのは事故 |
+| **既定** | 画面が違う問いで開くと毎日 1 手無駄になる。素の一覧 URL はここへ `303` するので、アドレスバーには実際の条件が出る |
+
+```html
+<fieldset class="hc-field">
+  <legend class="hc-field__label">Who can see it</legend>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="scope" value="personal" checked>
+    Only me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="scope" value="shared">
+    My team
+  </label>
+</fieldset>
+
+<label class="hc-checkbox-label">
+  <input class="hc-checkbox" type="checkbox" name="default" value="1">
+  Open this screen on it
+</label>
+```
+
+- **既定は多くても 1 つ。**2 つの問いで開く画面に既定はありません。新しい
+  既定を保存したら古い方は外れます。
+- **スコープと既定は条件ではありません。**`PUT /views/<name>` が直すのは
+  ビューが*訊いていること*であって、黙って持ち主を変えたり既定を移したり
+  してはいけません。
+- **共有ビューには印を付けます。**他人の標準を編集するのは目に見える別の
+  操作にして、分岐ではなく「自分のビューにコピー」を提供します。
+
+**Copy link は Save の隣に置きます。**ビューは URL そのものだからです。
+[`data-hc-copy-text`](/hypermedia-components/ja/recipes/copy/) が適用 URL
+をクリップボードに載せます。共有オブジェクトは要りません。「あの一覧
+送って」の大半はリンクで足ります。*共有*ビューは、会話より長生きする
+標準のために取っておきましょう。
+
 ## ビューが捉えるもの
 
 ビューは「また尋ねたい問い」であって「立っていた場所」ではありません。

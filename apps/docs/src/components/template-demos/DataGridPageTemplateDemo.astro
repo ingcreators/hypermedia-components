@@ -380,7 +380,8 @@ const FILTERS = [
           <h2 class="hc-dialog__title" id="template-grid-filters-title">Filters</h2>
           <div class="hc-cluster">
             <button class="hc-button" data-size="sm" type="button">Update</button>
-            <button class="hc-button" data-size="sm" type="button">Save as new…</button>
+            <button class="hc-button" data-size="sm" type="button"
+                    onclick="document.getElementById('template-grid-save-view').showModal()">Save as new…</button>
           </div>
         </div>
       </div>
@@ -450,6 +451,63 @@ const FILTERS = [
       <div class="hc-dialog__footer">
         <button class="hc-button" type="submit" formmethod="dialog">Cancel</button>
         <button class="hc-button" data-variant="primary" type="submit">Apply</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Saving asks three things, not one. Scope, because a department
+       standard is the normal case and silently forking a colleague's
+       view is an accident; default, because a screen that opens on the
+       wrong question wastes a step every day (the bare list URL then
+       303s here, so the address bar still shows the real conditions).
+       Copy link sits beside Save because a view IS a URL. -->
+  <dialog class="hc-dialog" id="template-grid-save-view"
+          aria-labelledby="template-grid-save-view-title"
+          style="--hc-dialog-max-width: 28rem;">
+    <form method="post" action="/views">
+      <div class="hc-dialog__header">
+        <h2 class="hc-dialog__title" id="template-grid-save-view-title">Save view</h2>
+      </div>
+
+      <div class="hc-dialog__body">
+        <div class="hc-stack">
+          <div class="hc-field">
+            <label class="hc-field__label" for="template-grid-view-name">Name</label>
+            <input class="hc-input" id="template-grid-view-name" name="name"
+                   value="Overdue shipments — Northwind" required />
+          </div>
+
+          <fieldset class="hc-field">
+            <legend class="hc-field__label">Who can see it</legend>
+            <label class="hc-radio-label">
+              <input class="hc-radio" type="radio" name="scope" value="personal" checked />
+              Only me
+            </label>
+            <label class="hc-radio-label">
+              <input class="hc-radio" type="radio" name="scope" value="shared" />
+              My team
+            </label>
+          </fieldset>
+
+          <label class="hc-checkbox-label">
+            <input class="hc-checkbox" type="checkbox" name="default" value="1" />
+            Open this screen on it
+          </label>
+
+          <p class="hc-field__hint">
+            Captures the conditions, the sort and the column set — not the
+            page you are on.
+          </p>
+        </div>
+      </div>
+
+      <div class="hc-dialog__footer">
+        <button class="hc-button" data-variant="ghost" type="button"
+                style="margin-inline-end: auto;"
+                data-hc-copy-text="https://orders.example.com/orders?f-ship=@week-start..&amp;f-carrier=road&amp;sort=-ship,order"
+                aria-label="Copy a link to these conditions">Copy link</button>
+        <button class="hc-button" type="submit" formmethod="dialog">Cancel</button>
+        <button class="hc-button" data-variant="primary" type="submit">Save</button>
       </div>
     </form>
   </dialog>

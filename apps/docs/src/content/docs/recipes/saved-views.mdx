@@ -166,6 +166,50 @@ whose **button label is the applied view's name**:
 The [data grid page template](/hypermedia-components/templates/data-grid-page/)
 shows it in place.
 
+## Saving asks three things
+
+A dialog that asks only for a name pushes the other two decisions onto
+whoever notices later:
+
+| Field | Why it is asked here |
+| --- | --- |
+| **name** | the view's key — URL-encoded in `view=` and in the `DELETE` path |
+| **scope** — personal / shared | a department standard is the normal case, and silently forking a colleague's view is an accident |
+| **default** | a screen that opens on the wrong question wastes a step every day; the bare list URL then `303`s to it, so the address bar still shows the real conditions |
+
+```html
+<fieldset class="hc-field">
+  <legend class="hc-field__label">Who can see it</legend>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="scope" value="personal" checked>
+    Only me
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="scope" value="shared">
+    My team
+  </label>
+</fieldset>
+
+<label class="hc-checkbox-label">
+  <input class="hc-checkbox" type="checkbox" name="default" value="1">
+  Open this screen on it
+</label>
+```
+
+- **At most one default** — a screen that opens on two questions has
+  none; saving a new default clears the old.
+- **Scope and default are not conditions.** `PUT /views/<name>` corrects
+  what the view *asks*, and must never silently re-home it or move the
+  default.
+- **Shared views are labelled** in the strip, and editing one is a
+  distinct, visible act — offer "copy to my views" instead of forking.
+
+**Copy link sits beside Save**, because a view *is* a URL:
+[`data-hc-copy-text`](/hypermedia-components/recipes/copy/) puts the
+apply URL on the clipboard, no shared object involved. Most "can you
+send me that list?" moments are a link, not a new object; reserve
+*shared* views for standards that outlive a conversation.
+
 ## What a view captures
 
 A view is a question you want to ask again, not a place you were

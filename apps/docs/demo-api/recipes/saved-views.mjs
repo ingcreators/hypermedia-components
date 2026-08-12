@@ -56,9 +56,17 @@ const ITEMS = [
   { name: 'Beans forecast', status: 'active' },
 ];
 
-/** One threaded view= value: `<name>|<querystring>`. */
+/** One threaded view= value: `<name>|<querystring>`.
+ *
+ * Scope and default ride in the packed querystring, not in the apply
+ * link: they are facts ABOUT the view, not part of the question it
+ * asks. A shared view and a personal one with the same conditions are
+ * the same query and a different object. */
 function pack(view) {
-  return `${view.name}|${new URLSearchParams({ q: view.q, status: view.status })}`;
+  const packed = new URLSearchParams({ q: view.q, status: view.status });
+  if (view.scope === 'shared') packed.set('scope', 'shared');
+  if (view.isDefault) packed.set('default', '1');
+  return `${view.name}|${packed}`;
 }
 
 /** Parse a threaded view= value (null when malformed). */
@@ -70,6 +78,8 @@ function unpack(value) {
     name: value.slice(0, split),
     q: pairs.get('q') ?? '',
     status: pairs.get('status') ?? '',
+    scope: pairs.get('scope') === 'shared' ? 'shared' : 'personal',
+    isDefault: pairs.get('default') === '1',
   };
 }
 
@@ -116,8 +126,25 @@ function chipHtml(view, others, { current = false, modified = false } = {}) {
   <button class="hc-button" data-size="sm" type="button" data-hx-put="${putUrl}" data-hx-include="#${IDS.filters}, #${IDS.views}" data-hx-target="#${IDS.views}" aria-label="Update view ${escapeHtml(view.name)}">Update</button>
   <a class="hc-button" data-size="sm" href="${resetUrl}" data-hx-get="${resetUrl}" data-hx-target="#${IDS.results}" aria-label="Reset view ${escapeHtml(view.name)}">Reset</a>`
     : '';
-  return `<li class="hc-chip"${modified ? ' data-modified' : ''}>
-  <a href="${applyUrl}"${currentAttr} data-hx-get="${applyUrl}" data-hx-target="#${IDS.results}">${escapeHtml(view.name)}</a>${modifiedControls}
+  // A shared view is LABELLED, because editing somebody else's team
+  // standard must be a visible act rather than something that happens
+  // because a colleague pressed Update.
+  const scopeLabel =
+    view.scope === 'shared'
+      ? ' <span class="hc-badge" data-variant="info">Shared</span>'
+      : '';
+  // The default redirects the bare list URL (303), so it is never a
+  // hidden filter — the address bar shows the real conditions.
+  const defaultLabel = view.isDefault
+    ? ' <span class="hc-badge">Default</span>'
+    : '';
+  // A view IS a URL, so sharing one costs nothing and needs no shared
+  // object at all. Reserve shared views for standards that outlive a
+  // conversation.
+  const copy = `<button class="hc-button" data-size="sm" type="button" data-hc-copy-text="${applyUrl}" aria-label="Copy link to ${escapeHtml(view.name)}">Copy link</button>`;
+  return `<li class="hc-chip"${modified ? ' data-modified' : ''}${view.scope === 'shared' ? ' data-scope="shared"' : ''}${view.isDefault ? ' data-default' : ''}>
+  <a href="${applyUrl}"${currentAttr} data-hx-get="${applyUrl}" data-hx-target="#${IDS.results}">${escapeHtml(view.name)}</a>${scopeLabel}${defaultLabel}${modifiedControls}
+  ${copy}
   <button class="hc-button" data-size="sm" type="button" aria-label="Delete view ${escapeHtml(view.name)}" data-hx-delete="${deleteUrl}" data-hx-target="#${IDS.views}">×</button>
 </li>`;
 }
@@ -249,6 +276,8 @@ ${filterFormHtml(q, status, { oob: true })}${strip}`);
     const name = String(data.get('name') ?? '').trim();
     const q = String(data.get('q') ?? '');
     const status = String(data.get('status') ?? '');
+    const scope = String(data.get('scope') ?? 'personal') === 'shared' ? 'shared' : 'personal';
+    const isDefault = data.get('default') != null;
     const views = viewsFromParams(data.getAll('view').map(String));
 
     let error = null;
@@ -263,7 +292,12 @@ ${filterFormHtml(q, status, { oob: true })}${strip}`);
       return page('View not saved', fragment, { status: 422 });
     }
 
-    const saved = [...views, { name, q, status }];
+    // One default at most: a screen that opens on two different
+    // questions has no default at all.
+    const existing = isDefault
+      ? views.map((view) => ({ ...view, isDefault: false }))
+      : views;
+    const saved = [...existing, { name, q, status, scope, isDefault }];
     const fragment = stripFragment(saved, { currentName: name });
     if (isHtmx(request)) return html(fragment);
     // No-JS: a real app would 303 back to the list; the stateless demo
@@ -285,8 +319,11 @@ ${filterFormHtml(q, status, { oob: true })}${strip}`);
         status: 404,
       });
     }
+    // Update in place corrects the CONDITIONS. Scope and default are
+    // not conditions, so pressing Update never silently re-homes a view
+    // or steals the default from another one.
     const updated = views.map((view) =>
-      view.name === name ? { name, q, status } : view,
+      view.name === name ? { ...view, name, q, status } : view,
     );
     return html(stripFragment(updated, { currentName: name }));
   }
