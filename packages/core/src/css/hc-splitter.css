@@ -6,6 +6,9 @@
  * single `--hc-splitter-pos` custom property (the primary pane's size,
  * a percentage).
  *
+ * A pane carrying `data-collapsed` shrinks to its content (a rail with
+ * the toggle that reopens it) and gives its space to the other pane.
+ *
  *   <div class="hc-splitter" data-orientation="horizontal" style="block-size:16rem">
  *     <div class="hc-splitter__panel">A</div>
  *     <div class="hc-splitter__handle" role="separator" tabindex="0"
@@ -41,6 +44,29 @@
   /* Secondary pane fills the rest. */
   .hc-splitter__panel:last-of-type {
     flex: 1 1 0;
+  }
+
+  /* A pane may COLLAPSE to its own content — a rail holding the toggle
+   * that brings it back. The collapsed pane keeps a presence (an empty
+   * gutter is a dead end: users who close a panel must be able to find
+   * it again), and its sibling takes the freed space instead of leaving
+   * a hole, which a fixed `--hc-splitter-pos` basis would otherwise do.
+   *
+   * The state belongs to whoever owns the pane's content — a server
+   * rendering the region can set it on the fragment it already sends. */
+  .hc-splitter__panel[data-collapsed] {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  .hc-splitter:has(> .hc-splitter__panel[data-collapsed])
+    > .hc-splitter__panel:not([data-collapsed]) {
+    flex: 1 1 auto;
+  }
+
+  /* Nothing to drag when one side is collapsed. */
+  .hc-splitter:has(> .hc-splitter__panel[data-collapsed]) > .hc-splitter__handle {
+    display: none;
   }
 
   .hc-splitter__handle {

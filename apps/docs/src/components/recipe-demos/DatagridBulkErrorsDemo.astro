@@ -14,7 +14,8 @@
  *
  * The report is split the way the contract says: the chrome carries a
  * ONE-LINE summary (constant height, whatever N is) and the grouped
- * breakdown opens in a panel DOCKED beside the grid — a side panel
+ * breakdown lives in a panel DOCKED beside the grid — collapsed to a
+ * rail until asked for — a side panel
  * spends horizontal space, which a full-height list page has, rather
  * than vertical space, which it does not. Both are live at once, which
  * is the whole point: click a reason, watch the rows behind it.
@@ -101,8 +102,13 @@ const rows = [101, 102, 103, 104, 105, 106, 107, 108];
         tabindex="0"
         aria-label="Resize the error panel"></div>
 
-      <div class="hc-splitter__panel hc-scroll-area" id="bulk-errors-demo-detail" hidden>
-        <p class="hc-field__message">No failures to review.</p>
+      <!-- Collapsed to a rail, which is the default state: an empty
+           panel taxes every day for a rare event, and a panel that
+           vanishes when closed is a dead end. The rail carries the
+           count and the way back in. -->
+      <div class="hc-splitter__panel" id="bulk-errors-demo-detail" data-collapsed>
+        <button class="hc-button" data-size="sm" data-variant="ghost" type="button"
+                disabled aria-label="Show why rows failed">Reasons</button>
       </div>
     </div>
   </form>

@@ -1,61 +1,42 @@
 import { test, expect } from '@playwright/test';
 
-// data-collapsible: double-click / Enter on the handle toggles the primary
-// pane between collapsed (0%) and its last open size. data-persist mirrors
-// the position into localStorage so it survives a reload.
+// A collapsed pane must not leave a hole (the fixed --hc-splitter-pos
+// basis would), and must not leave the user without a way back.
+
 test.beforeEach(async ({ page }) => {
-  await page.goto('/splitter-collapse.html');
+  await page.goto('/splitter-collapse.html', { waitUntil: 'domcontentloaded' });
 });
 
-const primaryWidth = async (page) =>
-  (await page.getByTestId('sp-primary').boundingBox()).width;
-
-test.describe('hc-splitter collapse', () => {
-  test('double-click collapses the primary pane and restores it', async ({ page }) => {
-    const sp = page.getByTestId('sp');
-    const handle = page.getByTestId('sp-handle');
-    const open = await primaryWidth(page);
-    expect(open).toBeGreaterThan(0);
-
-    await handle.dblclick();
-    await expect(sp).toHaveAttribute('data-collapsed', '');
-    expect(await primaryWidth(page)).toBeLessThan(open / 2);
-
-    await handle.dblclick();
-    await expect(sp).not.toHaveAttribute('data-collapsed', '');
-    expect(await primaryWidth(page)).toBeGreaterThan(open / 2);
+const widths = (page) =>
+  page.evaluate(() => {
+    const w = (sel) =>
+      Math.round(document.querySelector(`[data-testid="${sel}"]`).getBoundingClientRect().width);
+    return { splitter: w('splitter'), main: w('main'), side: w('side') };
   });
 
-  test('Enter on the handle toggles collapse', async ({ page }) => {
-    const sp = page.getByTestId('sp');
-    await page.getByTestId('sp-handle').focus();
-
-    await page.keyboard.press('Enter');
-    await expect(sp).toHaveAttribute('data-collapsed', '');
-
-    await page.keyboard.press('Enter');
-    await expect(sp).not.toHaveAttribute('data-collapsed', '');
-  });
-});
-
-test.describe('hc-splitter persistence', () => {
-  test('restores the resized position from localStorage after reload', async ({ page }) => {
-    const handle = page.getByTestId('sp-handle');
-    await handle.focus();
-    await page.keyboard.press('ArrowRight'); // 50 → 55
-    await expect(handle).toHaveAttribute('aria-valuenow', '55');
-
-    await page.reload();
-
-    await expect(page.getByTestId('sp-handle')).toHaveAttribute('aria-valuenow', '55');
+test.describe('a collapsed splitter pane', () => {
+  test('shrinks to its rail and gives the space to its sibling', async ({ page }) => {
+    const { splitter, main, side } = await widths(page);
+    expect(side).toBeLessThan(200); // the rail, not a panel
+    // No hole: the two panes still account for the splitter's width.
+    expect(main + side).toBeGreaterThan(splitter - 8);
   });
 
-  test('restores a collapsed state after reload', async ({ page }) => {
-    await page.getByTestId('sp-handle').dblclick();
-    await expect(page.getByTestId('sp')).toHaveAttribute('data-collapsed', '');
+  test('the way back is still on screen', async ({ page }) => {
+    await expect(page.getByTestId('rail')).toBeVisible();
+  });
 
-    await page.reload();
+  test('there is nothing to drag while it is collapsed', async ({ page }) => {
+    await expect(page.getByTestId('handle')).toBeHidden();
+    await page.getByTestId('expand').click();
+    await expect(page.getByTestId('handle')).toBeVisible();
+  });
 
-    await expect(page.getByTestId('sp')).toHaveAttribute('data-collapsed', '');
+  test('expanding gives the pane real width back', async ({ page }) => {
+    const before = await widths(page);
+    await page.getByTestId('expand').click();
+    const after = await widths(page);
+    expect(after.side).toBeGreaterThan(before.side + 100);
+    expect(after.main).toBeLessThan(before.main);
   });
 });

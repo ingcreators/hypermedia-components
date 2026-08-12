@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- **components**: `hc-splitter` panes can **collapse to a rail** —
+  `data-collapsed` gives a pane its content's size, hands the freed
+  space to its sibling (a fixed `--hc-splitter-pos` basis would leave a
+  hole) and hides the drag handle, since there is nothing to drag. The
+  state belongs to whoever owns the pane's content, so a server
+  re-rendering that region sets it on the fragment it already sends —
+  no client state, and the two panes cannot disagree. **Collapse to a
+  rail, not to nothing**: a panel that disappears when closed is a dead
+  end for the person who closed it. The `datagrid-bulk-errors` docked
+  panel adopts it: collapsed is the **default**, the rail carries the
+  count (`Reasons (5)`), and **the response does not open it** — the
+  summary already said what happened, and giving away the grid's width
+  is the reader's decision. A screen whose job *is* triage may start
+  open; whether it is open is workspace state, remembered per user
+  rather than in the URL.
+
 - **docs**: the `datagrid-bulk-errors` demo now **shows the docked
   panel** the contract describes, instead of only describing it. The
   chrome keeps one line — count, prev / next, *Show only failed* — and

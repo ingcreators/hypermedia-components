@@ -186,6 +186,15 @@ Two surfaces, chosen by one question: *is there work in the grid?*
 | the grouped breakdown | a **docked panel** (`hc-splitter`) beside the grid — a side panel spends *horizontal* space, which this layout has |
 | **atomic** — nothing was applied | a **modal dialog**: there is no work in the grid, and the user owes a decision. Blocking *is* the message |
 
+**Collapsed is the default, and collapsed still shows** — a rail with
+the count (`Reasons (5)`) and the way back in. An always-open panel
+taxes every screen every day for a rare event; a panel that vanishes
+when closed is a dead end. And the **response does not open it**: the
+summary already said what happened, and giving away the grid's width is
+the reader's decision. A screen whose job *is* triage may start open —
+that is a property of the screen, not of the report. Whether it is open
+is **workspace state**: remember it per user, not in the URL.
+
 ```html
 <div id="bulk-report" aria-live="polite">
   <div class="hc-alert" data-variant="warning" role="status">
