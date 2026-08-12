@@ -78,6 +78,7 @@ const FILES = [
   ['src/js/format.js',        'format.js'],
   ['src/js/mask.js',          'mask.js'],
   ['src/js/multi-value.js',   'multi-value.js'],
+  ['src/js/range-value.js',   'range-value.js'],
   ['src/js/dirty-guard.js',   'dirty-guard.js'],
   ['src/js/session-expiry.js', 'session-expiry.js'],
   ['src/js/time.js',          'time.js'],

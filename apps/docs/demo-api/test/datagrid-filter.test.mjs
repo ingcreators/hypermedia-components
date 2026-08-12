@@ -104,7 +104,7 @@ describe('datagrid-filter demo API — the applied-conditions bar', () => {
 describe('datagrid-filter demo API — relative date conditions', () => {
   it('resolves a relative expression and shows both forms in the bar', async () => {
     const body = await (
-      await call(datagridFilter, 'GET', '/items?f-due-from=@today', { htmx: true })
+      await call(datagridFilter, 'GET', '/items?f-due=@today..', { htmx: true })
     ).text();
     // The chip carries the wording AND the date it resolved to — either
     // alone leaves the condition a guess.
@@ -116,7 +116,7 @@ describe('datagrid-filter demo API — relative date conditions', () => {
 
   it('takes an absolute date unchanged', async () => {
     const body = await (
-      await call(datagridFilter, 'GET', '/items?f-due-from=2099-01-01', { htmx: true })
+      await call(datagridFilter, 'GET', '/items?f-due=2099-01-01..', { htmx: true })
     ).text();
     expect(body).toContain('hc-filterbar__value">2099-01-01<');
     // Nothing is due that far out.
@@ -127,7 +127,7 @@ describe('datagrid-filter demo API — relative date conditions', () => {
     const response = await call(
       datagridFilter,
       'GET',
-      '/items?f-due-from=@next-fiscal-quarter',
+      '/items?f-due=@next-fiscal-quarter..',
       { htmx: true },
     );
     expect(response.status).toBe(400);
@@ -139,12 +139,12 @@ describe('datagrid-filter demo API — relative date conditions', () => {
 
   it('a remove control drops only its own condition', async () => {
     const body = await (
-      await call(datagridFilter, 'GET', '/items?f-status=active&f-due-from=@today', {
+      await call(datagridFilter, 'GET', '/items?f-status=active&f-due=@today..', {
         htmx: true,
       })
     ).text();
     // Removing Status keeps the due condition, and vice versa.
-    expect(body).toContain('f-due-from=%40today" data-hx-get');
+    expect(body).toContain('f-due=%40today.." data-hx-get');
     expect(body).toMatch(/aria-label="Remove Status filter"/);
     expect(body).toMatch(/f-status=active[^"]*"[^>]*aria-label="Remove Due filter"/);
   });
@@ -155,38 +155,53 @@ describe('datagrid-filter demo API — entering a relative date', () => {
     const body = await (await call(datagridFilter, 'GET', '/items', { htmx: true })).text();
     // Nobody types @today-7d: the option value is the wire format, the
     // label is what a person reads.
-    expect(body).toContain('<option value="@today">Today</option>');
-    expect(body).toContain('<option value="@today-7d">Last 7 days</option>');
-    expect(body).toContain('<option value="custom-relative">Custom — N days ago…</option>');
-    expect(body).toContain('<option value="custom-date">Custom — a date…</option>');
+    expect(body).toContain('<option value="@today..@today">Today</option>');
+    expect(body).toContain('<option value="@today-7d..@today">Last 7 days</option>');
+    expect(body).toContain(
+      '<option value="custom-relative">Custom — the last N days…</option>',
+    );
+    expect(body).toContain(
+      '<option value="custom-dates">Custom — between two dates…</option>',
+    );
   });
 
   it('marks the applied preset selected, so a saved view reopens readable', async () => {
     const body = await (
-      await call(datagridFilter, 'GET', '/items?f-due-from=@week-start', { htmx: true })
+      await call(datagridFilter, 'GET', '/items?f-due=@week-start..@week-end', {
+        htmx: true,
+      })
     ).text();
-    expect(body).toContain('<option value="@week-start" selected>This week</option>');
+    expect(body).toContain(
+      '<option value="@week-start..@week-end" selected>This week</option>',
+    );
   });
 
   it('custom is a re-render, and only ever one control carries the name', async () => {
     const body = await (
-      await call(datagridFilter, 'GET', '/filters/due?f-due-from=custom-date', {
+      await call(datagridFilter, 'GET', '/filters/due?f-due=custom-dates', {
         htmx: true,
       })
     ).text();
     expect(body).toContain('type="date"');
     // Hidden controls keep submitting, so the select must be GONE, not
-    // hidden — otherwise f-due-from would arrive twice.
+    // hidden — otherwise the condition would arrive twice.
     expect(body).not.toContain('<select');
+    // The pair is the no-JS wire; installRangeValue joins it into one
+    // f-due=A..B when it is there.
+    expect(body).toContain('data-hc-range="f-due"');
     expect((body.match(/name="f-due-from"/g) ?? []).length).toBe(1);
+    expect((body.match(/name="f-due-to"/g) ?? []).length).toBe(1);
   });
 
-  it('an absolute date reopens in the date input, not as an unknown preset', async () => {
+  it('absolute dates reopen in the date inputs, not as an unknown preset', async () => {
     const body = await (
-      await call(datagridFilter, 'GET', '/items?f-due-from=2099-01-01', { htmx: true })
+      await call(datagridFilter, 'GET', '/items?f-due=2099-01-01..2099-12-31', {
+        htmx: true,
+      })
     ).text();
     expect(body).toContain('type="date"');
     expect(body).toContain('value="2099-01-01"');
+    expect(body).toContain('value="2099-12-31"');
   });
 });
 
@@ -200,9 +215,9 @@ describe('datagrid-filter demo API — arbitrary offsets', () => {
         { htmx: true },
       )
     ).text();
-    // One control, holding the finished expression, labelled readably.
-    expect(body).toContain('<option value="@today-45d" selected>45 days ago');
-    expect((body.match(/name="f-due-from"/g) ?? []).length).toBe(1);
+    // One control, holding the finished range, labelled readably.
+    expect(body).toContain('<option value="@today-45d..@today" selected>45 days ago');
+    expect((body.match(/name="f-due"/g) ?? []).length).toBe(1);
   });
 
   it('a composed expression survives a round trip instead of vanishing', async () => {
@@ -210,22 +225,95 @@ describe('datagrid-filter demo API — arbitrary offsets', () => {
     // landed in <input type="date">, where the browser shows nothing and
     // the condition is lost on the next submit.
     const body = await (
-      await call(datagridFilter, 'GET', '/items?f-due-from=@today-45d', {
+      await call(datagridFilter, 'GET', '/items?f-due=@today-45d..@today', {
         htmx: true,
       })
     ).text();
-    expect(body).toContain('<option value="@today-45d" selected>');
+    expect(body).toContain('<option value="@today-45d..@today" selected>');
     expect(body).not.toContain('type="date"');
   });
 
   it('the composer does not name the condition while it is being built', async () => {
     const body = await (
-      await call(datagridFilter, 'GET', '/filters/due?f-due-from=custom-relative', {
+      await call(datagridFilter, 'GET', '/filters/due?f-due=custom-relative', {
         htmx: true,
       })
     ).text();
     expect(body).toContain('name="due-n"');
     // Nothing is chosen yet, so nothing claims the condition's name.
-    expect(body).not.toContain('name="f-due-from"');
+    expect(body).not.toContain('name="f-due"');
+  });
+});
+
+describe('datagrid-filter demo API — range conditions', () => {
+  it('reads both ends and keeps the period in ONE chip', async () => {
+    const body = await (
+      // `+` is a space in a querystring, so an offset that adds must be
+      // encoded — the demo's own links go through URLSearchParams.
+      await call(datagridFilter, 'GET', '/items?f-due=@today..@today%2B30d', {
+        htmx: true,
+      })
+    ).text();
+    expect(body).toContain('hc-filterbar__op">between');
+    expect(body).toMatch(/hc-filterbar__value">today \(\d{4}-\d{2}-\d{2}\) – /);
+    // One condition, one chip, one remove link.
+    expect((body.match(/aria-label="Remove Due filter"/g) ?? []).length).toBe(1);
+  });
+
+  it('accepts the -from / -to pair, which is what the no-JS path sends', async () => {
+    const withPair = await (
+      await call(
+        datagridFilter,
+        'GET',
+        '/items?f-status=active&f-due-from=2026-01-01&f-due-to=2099-12-31',
+        { htmx: true },
+      )
+    ).text();
+    const withRange = await (
+      await call(
+        datagridFilter,
+        'GET',
+        '/items?f-status=active&f-due=2026-01-01..2099-12-31',
+        { htmx: true },
+      )
+    ).text();
+    // Same condition, so the same answer — and the pair is canonicalised
+    // to `A..B`, which is what the other chip's remove link carries.
+    expect(withPair).toBe(withRange);
+    expect(withPair).toContain('f-due=2026-01-01..2099-12-31');
+  });
+
+  it('an open end filters only on the end that is set', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-due=..2099-12-31', { htmx: true })
+    ).text();
+    expect(body).toContain('hc-filterbar__op">until');
+    // Nothing is due after 2099, so every row survives.
+    expect(body).toContain('Ingest pipeline');
+    expect(body).toContain('Legacy sync');
+  });
+
+  it('a mixed range resolves each end on its own', async () => {
+    const body = await (
+      await call(datagridFilter, 'GET', '/items?f-due=@month-start-1m..2099-12-31', {
+        htmx: true,
+      })
+    ).text();
+    expect(body).toContain('hc-filterbar__op">between');
+    expect(body).toContain('2099-12-31');
+  });
+
+  it('refuses a reversed range rather than swapping it', async () => {
+    const response = await call(
+      datagridFilter,
+      'GET',
+      '/items?f-due=2099-12-31..2026-01-01',
+      { htmx: true },
+    );
+    expect(response.status).toBe(400);
+    const body = await response.text();
+    expect(body).toContain('ends before it starts');
+    // It did not answer with the rows the swapped range would match.
+    expect(body).not.toContain('Legacy sync');
   });
 });

@@ -49,6 +49,7 @@ const EXPLICIT_CLAIMS = {
   installNormalize: 'platform', // IME fullwidth/kana normalization (input docs)
   installMask: 'postal-address',
   installMultiValue: 'datagrid-filter', // pasted lists → repeated params
+  installRangeValue: 'platform', // range condition wire shaping (datagrid-filter docs)
   installCsrfHeader: 'platform',
   installThemeToggle: 'platform',
   installNavCurrent: 'platform', // boosted-nav re-marking (shell docs)

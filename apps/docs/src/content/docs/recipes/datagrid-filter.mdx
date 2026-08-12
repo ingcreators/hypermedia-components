@@ -136,8 +136,8 @@ So a condition value may be an **expression**, and the expression is
 what gets stored:
 
 ```text
-?f-ship-from=@week-start&f-ship-to=@week-end
-?f-ordered-from=@today-7d
+?f-ship=@week-start..@week-end
+?f-ordered=@today-7d..@today
 ```
 
 `@today`, `@week-start` / `@week-end`, `@month-start` / `@month-end`,
@@ -179,14 +179,14 @@ something to put in front of a user, so the control is a server-rendered
 list of presets whose option values *are* the expressions:
 
 ```html
-<select class="hc-select" name="f-ship-from"
-        data-hx-get="/orders/filters/ship-from"
+<select class="hc-select" name="f-ship"
+        data-hx-get="/orders/filters/ship"
         data-hx-target="closest .hc-field" data-hx-swap="outerHTML">
   <option value="">Any</option>
-  <option value="@today">Today</option>
-  <option value="@week-start" selected>This week</option>
-  <option value="@today-7d">Last 7 days</option>
-  <option value="custom">Custom date…</option>
+  <option value="@today..@today">Today</option>
+  <option value="@week-start..@week-end" selected>This week</option>
+  <option value="@today-7d..@today">Last 7 days</option>
+  <option value="custom-dates">Custom — between two dates…</option>
 </select>
 ```
 
@@ -218,15 +218,75 @@ ISO values belong in the date control.
 Hidden controls **keep submitting**
 ([conditional-fields](/hypermedia-components/recipes/conditional-fields/)),
 so a hidden date input next to a visible preset select would send
-`f-ship-from` twice and leave the server guessing. Choosing **Custom
-date…** therefore *re-renders* the field as a date input: one name, one
-control, always.
+`f-ship` twice and leave the server guessing. Choosing **Custom —
+between two dates…** therefore *re-renders* the field as the pair of
+date inputs: one name, one control, always.
 :::
 
 :::caution[An unknown expression is an error]
 Answer `400`, or re-ask. Never fall back to the unfiltered list: a
 silently dropped condition shows the user *more* data than they asked
 for. Same rule, same reason, as an expired condition set.
+:::
+
+## Date ranges
+
+A date filter is a **period**, and a period is one condition: one chip
+in the bar, one thing to remove, one value a saved view stores. So the
+wire carries it as one param:
+
+```text
+?f-ship=2026-07-01..2026-07-31            absolute
+?f-ship=@month-start-1m..@month-end-1m    relative, both ends
+?f-ship=@month-start-1m..2026-07-15       mixed — normal in practice
+?f-ship=@month-start..                    open ended
+```
+
+Not `f-ship-from` + `f-ship-to`, because a **preset must set both ends
+from one control**. "Last month" is a single choice; expressing it
+across two params needs a hidden input, and hidden controls keep
+submitting. One name, one control — the same rule that governs the
+preset / custom swap above.
+
+Each end resolves on its own, so a mixed range needs no special case:
+users pick "since the start of last month" and then pin the other end to
+a date they care about, and that is the normal shape of a real query.
+
+### The two controls, one param
+
+Absolute ends belong in two date inputs, and those inputs carry **real
+names** so the no-JS path still submits a usable request:
+
+```html
+<div class="hc-cluster" role="group" aria-labelledby="ship-label"
+     data-hc-range="f-ship">
+  <input class="hc-input" type="date" name="f-ship-from" aria-label="Ship date from">
+  <span aria-hidden="true">–</span>
+  <input class="hc-input" type="date" name="f-ship-to" aria-label="Ship date to">
+</div>
+```
+
+`installRangeValue()` joins the pair into `f-ship=A..B` on the
+`formdata` event — the hook htmx and a native submit both fire — so
+editing either end costs no round trip and the bar keeps showing one
+chip. **Servers accept both shapes**: the pair is what arrives when the
+behavior never ran.
+
+An empty pair contributes **no param at all**; an open end stays open
+(`A..`, `..B`).
+
+:::danger[`from > to` is refused, never swapped]
+Silently reordering the ends runs a *different condition from the one
+written*, which is the failure this whole pattern exists to prevent. The
+behavior sets a native validity message on the second control, so the
+browser blocks the submit and htmx never issues a request — and the
+**server refuses too** (`400`), because anyone can type a URL.
+:::
+
+:::caution[`+` is a space in a querystring]
+`@today+30d` arrives as `@today 30d`. Build links with
+`URLSearchParams` (which encodes it as `%2B`) rather than by string
+concatenation.
 :::
 
 ## Empty results

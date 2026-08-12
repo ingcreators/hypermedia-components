@@ -45,6 +45,7 @@ describe('manifest.json', () => {
       'installNavCurrent',
       'installFormat',
       'installNormalize',
+      'installRangeValue',
       'installTime',
     ]);
     const unclaimed = installs.filter((n) => !claimed.has(n));
