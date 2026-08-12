@@ -113,6 +113,53 @@ under the user is not one.
 - **An expired token fails closed** — `410` and a link back to the list
   — never a silent fallback to walking everything.
 
+### Where the walk goes — not the bottom
+
+Prev / next belong in the record's **header**, beside its identity and
+the way back to the list. They are not pagination of the content below
+them, and treating them like it costs the user the thing they came for:
+
+- The decision to move on is usually made **before** reading to the
+  bottom — glance, judge, next. A control that requires scrolling to
+  reach turns a two-second judgement into a scroll each time.
+- The detail body scrolls, so a bottom control either **scrolls away**
+  (useless exactly when the queue is long) or needs a second fixed
+  strip — chrome bought for a rarely-reached position.
+- After a save the `303` lands the user at the top; the next move
+  should be where they already are.
+
+A long detail may repeat prev / next at the bottom as a **secondary**
+copy. Both copies are the same links — no state, nothing to keep in
+sync — and the header one stays primary.
+
+Within the header:
+
+```text
+← Back to list        …record identity…        1 / 15,129  ‹  ›
+```
+
+the **exit** goes at the start — where a person looks to get out — and
+the **walk** (position, then prev / next) at the end, where the pointer
+already is and where moving on is the frequent act. It is the
+arrangement every mail client has already taught users, and the same
+rule the list's navigation strip follows.
+
+### A grid inside a detail pages itself
+
+A detail screen often holds grids of its own (lines, shipments,
+history), and each pages **directly under itself**, in its own strip —
+never in a page-level footer:
+
+- A page-level pager on a screen with three grids cannot say **which
+  grid it pages**. The list template's rule ("navigation under the data
+  it moves through") is about *that* data, not about the page.
+- Only the grid that carries [`hc-fill`](../../apps/docs/src/content/docs/fundamentals/layout.mdx)
+  takes the remaining height; the others keep their own caps, and each
+  keeps its own pager, count and empty state.
+
+So the bottom of a detail screen carries **its actions** (Save,
+Cancel), not navigation.
+
 ## Endpoints
 
 | Case | Response |

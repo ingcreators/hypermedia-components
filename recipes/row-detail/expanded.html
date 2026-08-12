@@ -58,16 +58,18 @@
      the list URL it arrived with, plus the row anchor. -->
 <article class="hc-card">
   <header class="hc-cluster" style="justify-content: space-between;">
+    <a class="hc-button" data-variant="ghost" href="/orders?page=4#row-4903">← Back to list</a>
     <h1>SO-4903</h1>
+    <!-- The EXIT at the start, the WALK at the end: "1 / 15,129 ‹ ›" is
+         where every mail client puts it, for the same reason the list's
+         pager sits at the trailing edge — that is where the hand is,
+         and moving on is the frequent act. -->
     <div class="hc-cluster">
-      <!-- Walking the sequence the user was looking at. The server
-           resolves neighbours by re-running the list query, so "next"
-           crosses a page boundary without the client knowing pages
-           exist. -->
-      <a class="hc-button" data-size="sm" href="/orders/4902?seq=list&amp;i=136">Previous</a>
       <span>Record 137 of 5,000</span>
-      <a class="hc-button" data-size="sm" href="/orders/4904?seq=list&amp;i=138">Next</a>
-      <a class="hc-button" data-variant="ghost" href="/orders?page=4#row-4903">Back to list</a>
+      <a class="hc-button" data-size="sm" href="/orders/4902?seq=list&amp;i=136"
+         aria-label="Previous record">‹</a>
+      <a class="hc-button" data-size="sm" href="/orders/4904?seq=list&amp;i=138"
+         aria-label="Next record">›</a>
     </div>
   </header>
   <!-- Saving redirects (303) to the same URL, so the row shows its new

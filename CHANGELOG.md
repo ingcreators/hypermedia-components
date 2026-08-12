@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **recipes**: `row-detail` states **where a detail screen's navigation
+  goes**, since the list template's "navigation under the data" rule
+  reads as "put a pager at the bottom" if left unqualified. Prev / next
+  belong in the record's **header**: the decision to move on is usually
+  made before reading to the bottom, a bottom control on a scrolling
+  body either scrolls away or buys a second fixed strip, and the `303`
+  after a save lands the user at the top anyway. A long detail may
+  repeat them below as a secondary copy — same links, no state. And a
+  **grid inside a detail pages itself**, directly under itself: a
+  page-level pager on a screen with three grids cannot say which grid
+  it pages. The bottom of a detail carries its **actions**, not
+  navigation. Within the header the arrangement is the one every mail
+  client already taught users — **the exit at the start, the walk
+  (`1 / 15,129 ‹ ›`) at the end** — the same rule the list's navigation
+  strip follows.
+
 - **docs**: in the data-grid template's navigation strip, *where you
   are* stays at the start and *where you go* moves to the **end**. Two
   reasons about hands rather than taste: after scrolling the grid the

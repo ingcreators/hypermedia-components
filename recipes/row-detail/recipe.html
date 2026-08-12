@@ -52,9 +52,12 @@
 <!-- The detail screen (server-rendered at /orders/4903). Back carries
      the list URL it arrived with, plus the row anchor. -->
 <article class="hc-card">
-  <header class="hc-cluster" style="justify-content: space-between;">
+  <!-- The exit at the start, the record's identity next to it. A walk
+       (Record 3 of 12 ‹ ›) goes at the END of this row — see
+       expanded.html. -->
+  <header class="hc-cluster">
+    <a class="hc-button" data-variant="ghost" href="/orders?page=4#row-4903">← Back to list</a>
     <h1>SO-4903</h1>
-    <a class="hc-button" data-variant="ghost" href="/orders?page=4#row-4903">Back to list</a>
   </header>
   <!-- Saving redirects (303) to the same URL, so the row shows its new
        values and the pager totals are true — a restored snapshot would
