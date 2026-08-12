@@ -37,6 +37,30 @@
     <label class="hc-field__label" for="view-name">View name</label>
     <input class="hc-input" id="view-name" name="name" required>
   </div>
+
+  <!-- Naming is not the only decision at save time. SCOPE, because a
+       department standard is the normal case in business software and
+       silently forking a colleague's view is an accident; DEFAULT,
+       because a screen that opens on the wrong question wastes a step
+       every day (the server then 303s the bare list URL to it, so the
+       address bar still shows the real conditions). -->
+  <fieldset class="hc-field">
+    <legend class="hc-field__label">Who can see it</legend>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="scope" value="personal" checked>
+      Only me
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="scope" value="shared">
+      My team
+    </label>
+  </fieldset>
+
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" name="default" value="1">
+    Open this screen on it
+  </label>
+
   <button class="hc-button" data-variant="primary" type="submit">Save view</button>
 </form>
 
@@ -48,6 +72,11 @@
       <a href="/items?view=quarterly"
          data-hx-get="/items?view=quarterly"
          data-hx-target="#results">quarterly</a>
+      <!-- A view IS a URL, so sharing one costs nothing. Reserve
+           shared views for standards that outlive a conversation. -->
+      <button class="hc-button" data-size="sm" type="button"
+              data-hc-copy-text="https://app.example.com/items?view=quarterly"
+              aria-label="Copy link to quarterly">Copy link</button>
       <button class="hc-button" data-size="sm" type="button"
               aria-label="Delete view quarterly"
               data-hx-delete="/views/quarterly"

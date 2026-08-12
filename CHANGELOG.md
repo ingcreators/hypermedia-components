@@ -22,6 +22,23 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `saved-views` — **saving asks three things, not one**.
+  A dialog that asks only for a name pushes the other two decisions onto
+  whoever notices later, so the save form now carries **scope**
+  (personal / shared — a department standard is the normal case in
+  business software, and silently forking a colleague's view is an
+  accident) and **default** (a screen that opens on the wrong question
+  wastes a step every day; the bare list URL then `303`s to it, so the
+  address bar still shows the real conditions). The server owns the
+  rules: **at most one default** — a screen that opens on two different
+  questions has none — and `PUT /views/<name>` corrects what a view
+  *asks* without ever re-homing it or moving the default, because scope
+  and default are not conditions. The strip labels shared and default
+  views, and every chip offers **Copy link**
+  (`data-hc-copy-text`), because a view *is* a URL: sharing one costs
+  nothing and needs no shared object at all. The data-grid page
+  template's *Save as new…* now opens the dialog it always implied.
+
 - **components**: the filter panel's typography, as reusable API. A
   panel is read far more often than it is filled in, so `hc-grid` gains
   **`data-align="start"`** (items align to the top of their row instead

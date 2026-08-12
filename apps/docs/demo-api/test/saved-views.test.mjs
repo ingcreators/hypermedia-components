@@ -218,3 +218,89 @@ describe('saved-views demo API — modified state and update in place', () => {
     expect(response.status).toBe(404);
   });
 });
+
+describe('saved-views demo API — scope, default, and sharing', () => {
+  // The strip's hidden inputs are HTML-escaped; a browser hands htmx the
+  // decoded value, so decode here too.
+  const threaded = (html) =>
+    [...html.matchAll(/name="view" value="([^"]+)"/g)].map((m) =>
+      m[1].replaceAll('&amp;', '&'),
+    );
+  const save = (body) =>
+    call(savedViews, 'POST', '/views', { htmx: true, body: new URLSearchParams(body) });
+
+  it('a shared view says so, and a personal one does not', async () => {
+    const shared = await (
+      await save({ name: 'Team standard', q: 'beans', status: 'active', scope: 'shared' })
+    ).text();
+    expect(shared).toContain('data-scope="shared"');
+    expect(shared).toContain('>Shared<');
+
+    const personal = await (
+      await save({ name: 'Mine', q: 'beans', status: 'active', scope: 'personal' })
+    ).text();
+    expect(personal).not.toContain('data-scope="shared"');
+  });
+
+  it('the default is marked — it is never a hidden filter', async () => {
+    const body = await (
+      await save({ name: 'Daily', q: '', status: 'active', default: '1' })
+    ).text();
+    expect(body).toContain('data-default');
+    expect(body).toContain('>Default<');
+  });
+
+  it('at most one default: saving a new one clears the old', async () => {
+    const first = await (
+      await save({ name: 'Old default', q: '', status: 'active', default: '1' })
+    ).text();
+    const views = threaded(first);
+    const body = await (
+      await save({
+        name: 'New default',
+        q: '',
+        status: 'pending',
+        default: '1',
+        view: views,
+      })
+    ).text();
+    // A screen that opens on two different questions has no default.
+    expect((body.match(/>Default</g) ?? []).length).toBe(1);
+    expect(body).toMatch(/New default<\/a>[^]*?>Default</);
+  });
+
+  it('every view offers a link to itself — a view IS a URL', async () => {
+    const body = await (await save({ name: 'Quarterly', q: 'q', status: '' })).text();
+    expect(body).toContain('data-hc-copy-text=');
+    expect(body).toContain('aria-label="Copy link to Quarterly"');
+  });
+
+  it('Update corrects the conditions and leaves scope and default alone', async () => {
+    const saved = await (
+      await save({
+        name: 'Team standard',
+        q: 'beans',
+        status: 'active',
+        scope: 'shared',
+        default: '1',
+      })
+    ).text();
+    const views = threaded(saved);
+
+    const updated = await (
+      await call(savedViews, 'PUT', '/views/Team%20standard', {
+        htmx: true,
+        body: new URLSearchParams([
+          ['q', 'forecast'],
+          ['status', 'pending'],
+          ...views.map((v) => ['view', v]),
+        ]),
+      })
+    ).text();
+    // Pressing Update must never silently re-home a view or steal the
+    // default: those are not conditions.
+    expect(updated).toContain('data-scope="shared"');
+    expect(updated).toContain('data-default');
+    expect(updated).toContain('q=forecast');
+  });
+});

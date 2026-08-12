@@ -79,6 +79,65 @@ plus a tweak, *are* the modified state. The one control that promised to
 undo the tweak would be the one guaranteed not to. Point it at the
 view's own URL and let the apply response fill the form.
 
+## Saving
+
+Naming is not the only decision at save time, and a dialog that asks
+only for a name pushes the other two onto whoever notices later:
+
+| Field | Why it is asked here |
+| --- | --- |
+| **name** | the view's key — URL-encoded in the `view=` param and the `DELETE` path |
+| **scope** — personal / shared | a department standard is the normal case in business software, and silently forking a colleague's view is an accident |
+| **default** | a screen that opens on the wrong question wastes a step every day; the bare list URL then **`303`**s to this view, so the address bar still shows the real conditions |
+
+```html
+<form method="post" action="/views" data-hx-post="/views"
+      data-hx-include="#filters" data-hx-target="#views">
+  <div class="hc-field">
+    <label class="hc-field__label" for="view-name">View name</label>
+    <input class="hc-input" id="view-name" name="name" required>
+  </div>
+
+  <fieldset class="hc-field">
+    <legend class="hc-field__label">Who can see it</legend>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="scope" value="personal" checked>
+      Only me
+    </label>
+    <label class="hc-radio-label">
+      <input class="hc-radio" type="radio" name="scope" value="shared">
+      My team
+    </label>
+  </fieldset>
+
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" name="default" value="1">
+    Open this screen on it
+  </label>
+
+  <button class="hc-button" data-variant="primary" type="submit">Save view</button>
+</form>
+```
+
+Rules the server owns:
+
+- **At most one default.** A screen that opens on two different
+  questions has no default at all; saving a new default clears the old.
+- **Scope and default are not conditions.** `PUT /views/<name>` corrects
+  what the view *asks*; it must never silently re-home a view or move
+  the default. Changing those is its own action.
+- **Shared views are labelled in the strip** (`data-scope="shared"`),
+  and editing one is a distinct, visible act. Offer "copy to my views"
+  rather than forking a colleague's standard by accident.
+- **Default belongs to the person**, not the view: two colleagues may
+  each open the screen on a different one.
+
+**Copy link sits beside Save.** A view *is* a URL, so sharing one costs
+nothing and needs no shared object at all —
+[`data-hc-copy-text`](../copy/) puts the apply URL on the clipboard.
+Reserve *shared* views for standards that outlive a conversation; most
+"can you send me that list?" moments are a link, not a new object.
+
 ## What a view captures
 
 A view is a question you want to ask again, not a place you were
