@@ -161,6 +161,50 @@ the user still has a way forward. When nothing is executable the
 report says so and renders **no submit** — a dead end must be visible,
 not a disabled mystery.
 
+## Where the report goes
+
+On the [full-height list page](/hypermedia-components/templates/data-grid-page/)
+the chrome is fixed and the grid takes what is left. A report region
+whose height grows with the number of reasons therefore squeezes the
+grid to nothing — on the exact screen whose rows it is telling the user
+to go and fix.
+
+> **The chrome is O(1).** Anything whose height grows with the data
+> lives in the scrolling area, or in an overlay — never in the chrome.
+
+Two surfaces, chosen by one question: *is there work in the grid?*
+
+| Semantics | Surface |
+| --- | --- |
+| **best-effort** — some rows changed | a **one-line summary** in the chrome, the failing rows carrying `data-attention="error"` and their own message, and **Show only failed (N)** |
+| the grouped breakdown | a **docked panel** (`hc-splitter`) beside the grid — a side panel spends *horizontal* space, which this layout has |
+| **atomic** — nothing was applied | a **modal dialog**: there is no work in the grid, and the user owes a decision. Blocking *is* the message |
+
+```html
+<div id="bulk-report" aria-live="polite">
+  <div class="hc-alert" data-variant="warning" role="status">
+    <p class="hc-alert__body">
+      <strong>12 of 40 rows could not be updated.</strong>
+      <a href="/orders?f-last-result=failed">Show only failed (12)</a> ·
+      <a href="/orders/bulk/report">Review reasons</a>
+    </p>
+  </div>
+</div>
+```
+
+**Show only failed is the important affordance**: it turns the grid
+*into* the report, composing with the conditions bar and saved views,
+after which retrying is the ordinary select-all → action loop. At two
+hundred failures it is the only shape that works.
+
+:::caution[Bound the region anyway]
+Rules get missed and servers render more than expected, so the region
+carries `max-block-size: min(25vh, 12rem); overflow: auto`. A page that
+still renders the full report then scrolls it inside its own box
+instead of eating the grid — and the data never gets less room than the
+diagnostics.
+:::
+
 ## The report
 
 One `aria-live="polite"` region above the grid, swapped out of band

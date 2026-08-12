@@ -186,6 +186,20 @@ const FILTERS = [
           <a class="hc-filterbar__clear" href="#template-grid">Clear all</a>
         </div>
 
+        <!-- A bulk action that failed. The CHROME carries one line —
+             constant height, whatever N is — because the chrome is what
+             the grid's height is subtracted from. The rows carry the
+             detail (they scroll, because they ARE the data), and the
+             grouped breakdown opens in a docked panel. -->
+        <div class="hc-alert" data-variant="warning" role="status"
+             style="--hc-alert-padding-block: var(--hc-space-2);">
+          <p class="hc-alert__body" style="margin: 0;">
+            <strong>12 of 40 rows could not be updated.</strong>
+            <a href="#template-grid">Show only failed (12)</a> ·
+            <a href="#template-grid">Review reasons</a>
+          </p>
+        </div>
+
         <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
           <!-- The sort control is a read-out first: with thirty columns
                the sorted one is usually scrolled out of view, so the
@@ -336,7 +350,10 @@ const FILTERS = [
               </thead>
               <tbody class="hc-datagrid__body">
                 {ROWS.map((row) => (
-                  <tr class="hc-datagrid__row" id={`template-grid-row-${row.id}`}>
+                  <tr
+                    class="hc-datagrid__row"
+                    id={`template-grid-row-${row.id}`}
+                    data-attention={row.id === 4903 || row.id === 4907 ? 'error' : undefined}>
                     <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left: 0;">
                       <input type="checkbox" class="hc-checkbox" name="ids" value={row.id}
                              aria-label={`Select order ${row.id}`} />

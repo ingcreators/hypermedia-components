@@ -470,6 +470,52 @@ chevrons, and the count in the label rather than a badge
 (`Filters (3)`). See
 [icons](/hypermedia-components/fundamentals/icons/#where-icons-belong-on-a-business-screen).
 
+## The chrome is O(1)
+
+The layout rule has a corollary that is easy to miss until a bulk
+action fails in fifteen different ways:
+
+> **Anything whose height grows with the data lives in the scrolling
+> area, or in an overlay — never in the chrome.**
+
+The chrome is what the grid's height is subtracted from. A
+[bulk-error report](/hypermedia-components/recipes/datagrid-bulk-errors/)
+rendered above the grid is `O(number of reasons)`, so on a laptop it
+squeezes the grid to nothing — hiding exactly the rows it is telling
+the user to go and fix.
+
+So the chrome carries **one line**:
+
+```html
+<div id="bulk-report" aria-live="polite">
+  <div class="hc-alert" data-variant="warning" role="status">
+    <p class="hc-alert__body">
+      <strong>12 of 40 rows could not be updated.</strong>
+      <a href="/orders?f-last-result=failed">Show only failed (12)</a> ·
+      <a href="/orders/bulk/report">Review reasons</a>
+    </p>
+  </div>
+</div>
+```
+
+```css
+/* The backstop: unbounded server content, bounded region. */
+#bulk-report {
+  max-block-size: min(25vh, 12rem);
+  overflow: auto;
+}
+```
+
+The detail lives where growth is already handled: the failing rows
+carry `data-attention="error"` and their own message row (they scroll,
+because they *are* the data), and the grouped breakdown opens in a
+**docked panel** beside the grid — a side panel spends horizontal
+space, which this layout has. A modal is right only when nothing was
+applied and the user owes a decision.
+
+The same rule governs anything else a server fills: a validation
+summary, an import preview, a "3 filters could not be applied" notice.
+
 ## Wiring map
 
 | Region | Component | Server contract |
