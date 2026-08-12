@@ -523,6 +523,7 @@ URL → ユーザー設定 → アプリ既定
 | ページャ | [`hc-pagination`](/hypermedia-components/ja/components/pagination/) | [datagrid-pager](/hypermedia-components/ja/recipes/datagrid-pager/) |
 | グリッド | [`hc-datagrid`](/hypermedia-components/ja/components/datagrid/) | `f-<col>` パラメータは [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) |
 | インライン編集 | `data-editable` + エディタ `<template>` | [datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/)（422 と確認付き警告）、[datagrid-edit-conflict](/hypermedia-components/ja/recipes/datagrid-edit-conflict/)（409） |
+| 行 → 詳細 | 同一性の列の `<a href>` + `installRowLink()` | [row-detail](/hypermedia-components/ja/recipes/row-detail/) — 「一覧に戻る」はこの URL ＋ `#row-<id>`。**選択した N 件を開く**は順序付きスナップショットを辿る |
 | 検索パネル | [`hc-dialog`](/hypermedia-components/ja/components/dialog/) + [`hc-grid`](/hypermedia-components/ja/fundamentals/layout/) + [`hc-input-group`](/hypermedia-components/ja/components/input-group/) | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) |
 | 保存ビュー | タイトル横の [`hc-menu`](/hypermedia-components/ja/components/menu/) ＋ パネルの Update / Save as new… | [saved-views](/hypermedia-components/ja/recipes/saved-views/) — 適用は GET リンク、`PUT /views/<name>` がその場更新、**変更済み**の比較はサーバーの仕事 |
 | 複数値の入力 | `<textarea data-hc-multi="lines">` | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 貼り付けた一覧が繰り返しパラメータになる |

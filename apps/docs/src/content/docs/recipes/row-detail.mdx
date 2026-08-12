@@ -3,6 +3,8 @@ title: Row detail
 description: Open the record a row is about, work on it, and come back to the same list — same conditions, same sort, same page, and the row you left from still under the cursor.
 ---
 
+import RowDetailDemo from '../../../components/recipe-demos/RowDetailDemo.astro';
+
 The most-used interaction on a business list, and the one every app
 reinvents: **open this record, work on it, come back, open the next
 one.** Most reinventions lose the same three things — the middle-click,
@@ -16,6 +18,21 @@ npx @hypermedia-components/cli validate page.html
 Ships `recipe.html`, `expanded.html`, and the machine-checked
 [server contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/row-detail/contract.md).
 :::
+
+## Live demo
+
+Open a record from its identity cell, then walk with **Previous** /
+**Next** — the sequence is the result set, and the server resolves
+neighbours by re-running the list query, so Next crosses the page
+boundary between rows 3 and 4 without the client knowing pages exist.
+
+Now tick a few rows and press **Open selected**: the same shape, a
+different sequence. Include **SO-4999** — a record that no longer
+exists — to see the tombstone step that keeps Next working, and edit
+the `seq=` token in the record's links to see an unreadable snapshot
+fail closed instead of quietly walking everything.
+
+<RowDetailDemo />
 
 ## The link is a real link, in the identity cell
 

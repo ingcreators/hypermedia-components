@@ -3,6 +3,8 @@ title: 行から詳細へ
 description: 行が指すレコードを開き、作業し、同じ一覧に戻る — 同じ条件、同じソート、同じページ、そして離れた行にカーソルが残ったまま。
 ---
 
+import RowDetailDemo from '../../../../components/recipe-demos/RowDetailDemo.astro';
+
 業務の一覧で最もよく使われ、どのアプリでも作り直される操作です。
 **このレコードを開き、作業し、戻り、次を開く。**作り直されたものの
 多くは同じ 3 つを失います — 中クリック、Back ボタン、そして一覧での
@@ -17,6 +19,19 @@ npx @hypermedia-components/cli validate page.html
 [サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/row-detail/contract.md)
 が入ります。
 :::
+
+## ライブデモ
+
+同一性の列からレコードを開き、**Previous** / **Next** で辿ってください。
+並びは結果セットで、前後はサーバーが一覧クエリを再実行して解決するので、
+3 行目と 4 行目の間のページ境界をクライアントに意識させずに越えます。
+
+次に数行チェックして **Open selected** を押してください。形は同じ、並びが
+違います。存在しないレコード **SO-4999** を含めると、Next を生かしたまま
+の墓標ステップが見られます。レコードのリンクの `seq=` トークンを壊せば、
+黙って全件歩行に広がるのではなく fail closed になることも確認できます。
+
+<RowDetailDemo />
 
 ## リンクは本物のリンク、同一性の列に
 
