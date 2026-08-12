@@ -463,6 +463,26 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **docs**: a bulk-error report could **squeeze the grid to nothing**
+  on the full-height list page. The chrome is fixed and the grid takes
+  what is left, while the report's height is `O(number of failure
+  reasons)` — so an action that failed in fifteen ways hid exactly the
+  rows it was telling the user to go and fix. The template now states
+  the corollary of its own layout rule — **the chrome is O(1)**;
+  anything that grows with the data lives in the scrolling area or an
+  overlay — and carries a **one-line summary** with *Show only failed
+  (N)*, with the failing rows marked `data-attention="error"`. The
+  `datagrid-bulk-errors` contract picks the surface by one question,
+  *is there work in the grid?*: best-effort → the summary plus the rows
+  (and the filter, which turns the grid **into** the report); the
+  grouped breakdown → a **docked panel** beside the grid, because a
+  side panel spends horizontal space, which this layout has; atomic →
+  a **modal**, where blocking is the message. The region is bounded as
+  a backstop (`max-block-size: min(25vh, 12rem); overflow: auto`), so
+  even a full report scrolls inside its own box and the data never gets
+  less room than the diagnostics.
+
+
 - **tests**: the session-expiry dialog's axe scan emulates reduced
   motion (the #342 pattern) — it could sample the dialog mid-transition
   and report a colour-contrast violation that is gone once it settles.

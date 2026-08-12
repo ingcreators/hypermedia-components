@@ -466,6 +466,51 @@ URL → ユーザー設定 → アプリ既定
 [アイコン](/hypermedia-components/ja/fundamentals/icons/#業務画面でアイコンをどこに置くか)
 を参照してください。
 
+## クロームは O(1)
+
+レイアウトの決まりごとには系があります。一括操作が 15 通りの理由で
+失敗するまで、たいてい見落とされます。
+
+> **データ量に応じて高さが伸びるものは、スクロール領域かオーバーレイに
+> 置く。クロームには置かない。**
+
+クロームはグリッドの高さが差し引かれる相手です。グリッドの上に描いた
+[一括エラーのレポート](/hypermedia-components/ja/recipes/datagrid-bulk-errors/)
+は `O(理由の数)` なので、ノート PC ではグリッドをゼロまで潰します —
+しかも「直しに行け」と言っている当の行を隠して。
+
+そこでクロームが持つのは**1 行**です。
+
+```html
+<div id="bulk-report" aria-live="polite">
+  <div class="hc-alert" data-variant="warning" role="status">
+    <p class="hc-alert__body">
+      <strong>12 of 40 rows could not be updated.</strong>
+      <a href="/orders?f-last-result=failed">Show only failed (12)</a> ·
+      <a href="/orders/bulk/report">Review reasons</a>
+    </p>
+  </div>
+</div>
+```
+
+```css
+/* 保険：サーバーの内容は無制限、領域は有限。 */
+#bulk-report {
+  max-block-size: min(25vh, 12rem);
+  overflow: auto;
+}
+```
+
+詳細は、伸びることが既に扱われている場所に置きます。失敗した行は
+`data-attention="error"` と自分のメッセージ行を持ち（データ*そのもの*
+なのでスクロールします）、理由別の内訳はグリッドの横の**ドッキング
+パネル**で開きます — サイドパネルが使うのは横の空間で、このレイアウトに
+余っているのは横です。モーダルが正しいのは、何も適用されておらず、
+ユーザーが判断を返す番のときだけです。
+
+同じ規則は、サーバーが埋める他のものにも当てはまります。検証の要約、
+取り込みのプレビュー、「3 件の条件が適用できませんでした」の通知。
+
 ## 配線表
 
 | リージョン | コンポーネント | サーバー契約 |

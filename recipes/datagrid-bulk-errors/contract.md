@@ -12,10 +12,14 @@ unchanged. This one adds what happens when things go wrong.
   bar; `name="ids"` checkboxes; unnamed select-all).
 - **Rows carry a stable `id`** (`row-<id>`) — the report links to them,
   and `installDatagrid()` moves the active cell to the landing row.
-- A **report region** above the grid:
+- A **summary region** above the grid:
   `<div id="bulk-report" aria-live="polite">`, filled by the response
   (out of band alongside the rows, or as the direct target for the
-  pre-flight).
+  pre-flight). **It is bounded** —
+  `max-block-size: min(25vh, 12rem); overflow: auto` — because the
+  chrome is what a full-height grid's height is subtracted from. See
+  *Where the report goes* below; the bound is the backstop, not the
+  design.
 - Atomic actions additionally declare the **pre-flight**: a
   `type="button"` carrying `data-hx-get="…/preflight?action=…"`,
   `data-hx-include="closest form"` (the selected ids), targeting the
@@ -173,6 +177,70 @@ error reporting.
 
 "Exclude and run" keeps the atomic guarantee intact: the scope shrank
 by explicit user consent before anything was attempted.
+
+## Where the report goes
+
+On a [full-height list page](../../apps/docs/src/content/docs/templates/data-grid-page.mdx)
+the chrome is fixed and the grid takes what is left, so a region whose
+height grows with the number of failure reasons squeezes the grid to
+nothing — on the exact screen whose rows the report is telling the user
+to go and fix.
+
+> **The chrome is O(1).** Anything whose height grows with the data
+> lives in the scrolling area, or in an overlay — never in the chrome.
+
+Two surfaces, chosen by one question — *is there work in the grid?*
+
+### Best-effort → a one-line summary, and the rows carry the truth
+
+```html
+<div id="bulk-report" aria-live="polite">
+  <div class="hc-alert" data-variant="warning" role="status">
+    <p class="hc-alert__body">
+      <strong>12 of 40 rows could not be updated.</strong>
+      <a href="/orders?f-last-result=failed">Show only failed (12)</a> ·
+      <a href="/orders/bulk/report">Review reasons</a>
+    </p>
+  </div>
+</div>
+```
+
+One line, whatever N is. The failing rows already say so themselves
+(`data-attention="error"` plus their message row), and those scroll —
+because they *are* the data.
+
+**"Show only failed" is the important affordance.** It turns the grid
+into the report: a real filter URL composing with
+[datagrid-filter](../datagrid-filter/) and
+[saved-views](../saved-views/), after which retrying is the ordinary
+select-all → action loop. At two hundred failures it is the only shape
+that works.
+
+### The grouped breakdown → a docked panel
+
+The reason table opens beside the grid, not above it: a side panel
+spends **horizontal** space, which this layout has.
+
+```html
+<div class="hc-splitter" data-orientation="horizontal">
+  <div class="hc-splitter__panel"><!-- the grid --></div>
+  <div class="hc-splitter__handle" role="separator" tabindex="0"
+       aria-label="Resize the error panel"></div>
+  <div class="hc-splitter__panel" id="bulk-report-detail"><!-- the report --></div>
+</div>
+```
+
+Both are live at once, which is the whole job: click a reason, watch
+the rows behind it filter or focus. A **modal** drawer would reproduce
+the original defect in a different axis — the panel pointing at rows
+the user must dismiss it to reach.
+
+### Atomic → a modal dialog is correct
+
+Nothing was applied. There is no work in the grid, and the user owes a
+decision: run the executable subset, or cancel. Blocking *is* the
+message, and the pre-flight fragment already answers exactly that. The
+same holds for the `409` count-changed refusal.
 
 ## The report fragment
 
