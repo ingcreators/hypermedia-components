@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- **layout**: **`.hc-fill`** — take the remaining space of a flex
+  column and let the children scroll. The composition every full-height
+  app screen needs, previously written as a structural rule in the
+  data-grid template (`.page > form > .hc-datagrid`), which was wrong
+  twice: **a page may hold several grids** — a detail screen stacks a
+  header grid, a lines grid and a history grid, and only one of them
+  should take the remaining height — and a descendant rule **stops
+  matching the day someone wraps the grid in a `<div>`**, silently,
+  with the symptom (the page scrolls instead of the grid) showing up
+  nowhere near the change. It carries both minimums, one per axis, and
+  goes on every element between the column and the filling region,
+  including a wrapping `<form>`. On an `hc-datagrid` it also switches
+  `--hc-datagrid-max-height` from the default `70vh` — right for a grid
+  *inside* a scrolling page — to `100%`, right for a grid that **is**
+  the page.
+
 - **components**: `hc-splitter` panes can **collapse to a rail** —
   `data-collapsed` gives a pane its content's size, hands the freed
   space to its sibling (a fixed `--hc-splitter-pos` basis would leave a

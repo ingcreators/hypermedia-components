@@ -63,6 +63,30 @@
     grid-column: 1 / -1;
   }
 
+  /* Take the remaining space of a flex column, and let the CHILDREN
+     scroll instead of the page. The composition every full-height app
+     screen needs — a page column, then one region that fills what the
+     chrome leaves — and the one that is easiest to get wrong: a flex
+     item will not shrink below its content on either axis, so BOTH
+     minimums are load-bearing.
+       - miss `min-block-size` and the region grows to fit its content,
+         so the PAGE scrolls and the fixed chrome scrolls away;
+       - miss `min-inline-size` and a wide child (a max-content table)
+         makes an ancestor the horizontal scrollport, dragging the
+         chrome sideways with it.
+     Put it on EVERY element between the column and the filling region,
+     including a wrapping <form>. It is a class rather than a
+     descendant rule on purpose: a page with three grids fills with the
+     one that says so, and inserting a wrapper does not silently break
+     the chain. */
+  .hc-fill {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
   /* Centred content well with a max line length and inline padding. */
   .hc-container {
     max-inline-size: var(--hc-container-max, 72rem);

@@ -349,7 +349,7 @@ const FILTERS = [
         {/* data-row-total is the RESULT SET, not the page: it is what
             makes aria-rowcount honest and what "row 137 of 5,000"
             means. */}
-        <div class="hc-datagrid tpl-grid" id="template-grid" data-hc-zebra
+        <div class="hc-datagrid hc-fill tpl-grid" id="template-grid" data-hc-zebra
              data-row-total="5000">
           <div class="hc-datagrid__scroll">
             <table class="hc-datagrid__table">
@@ -585,13 +585,9 @@ const FILTERS = [
     gap: var(--hc-space-3);
   }
 
-  .tpl-grid {
-    flex: 1;
-    min-block-size: 0;
-    min-inline-size: 0;
-
-    --hc-datagrid-max-height: 100%;
-  }
+  /* .hc-fill does the filling and the max-height; this is only the
+     sub-breakpoint fallback, where the shell stops being a fixed frame
+     and a filling grid has no parent height to measure against. */
 
   /* Below hc-shell's own breakpoint the shell becomes an ordinary
      scrolling page (display: block, overflow: visible) — by design. The

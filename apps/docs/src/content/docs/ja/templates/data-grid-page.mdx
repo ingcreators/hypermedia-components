@@ -36,6 +36,17 @@ import DataGridPageTemplateDemo from '../../../../components/template-demos/Data
 
 ## レイアウトの決まりごと
 
+```html
+<main class="hc-shell__main app-main">
+  <div class="page">
+    …タイトル・条件・ツールバー…
+    <form class="hc-fill" id="order-selection">
+      <div class="hc-datagrid hc-fill" id="orders">…</div>
+    </form>
+  </div>
+</main>
+```
+
 ```css
 /* hc-shell__main をページカラムを収める行にする */
 .app-main {
@@ -44,7 +55,7 @@ import DataGridPageTemplateDemo from '../../../../components/template-demos/Data
   min-inline-size: 0;
 }
 
-/* ページカラム: 固定の領域が並び、最後にグリッドが残りを取る */
+/* ページカラム：固定の領域が並び、残りは「埋める」と言った要素が取る */
 .page {
   display: flex;
   flex: 1;
@@ -53,15 +64,24 @@ import DataGridPageTemplateDemo from '../../../../components/template-demos/Data
   min-inline-size: 0;
   gap: var(--hc-space-3);
 }
-
-.page > .hc-datagrid {
-  flex: 1;
-  min-block-size: 0;
-  min-inline-size: 0;
-
-  --hc-datagrid-max-height: 100%;
-}
 ```
+
+**`.hc-fill` はカラムとグリッドの間にあるすべての要素に付けます** —
+包んでいる `<form>` も含めてです — そしてグリッド自身にも付けます。
+グリッドに付いたときは `--hc-datagrid-max-height` を既定の `70vh` から
+`100%` に切り替えます。
+
+**子孫セレクタではなくクラス**にしているのは意図的です。
+
+- **1 ページに複数のグリッドが載り得ます。**詳細画面ではヘッダ・明細・
+  履歴のグリッドが積み重なります。残りの高さを取ってよいのは「そう
+  言った」1 つだけで、他は自分の上限を保つべきです。
+  `.page > form > .hc-datagrid` のような規則は、構造がたまたま一致した
+  グリッドを埋めてしまいます。
+- **構造は変わります。**枠線を付けるためにグリッドを `<div>` で包んだ
+  瞬間、子孫規則は当たらなくなります。しかも静かに、そして症状
+  （グリッドではなくページがスクロールする）は変更箇所と離れた場所に
+  出ます。
 
 **2 つの最小値が両方とも要で、軸ごとに 1 つずつです。**flex 子は
 コンテンツより小さくなれず、データグリッドは両軸とも大きいからです —
@@ -213,8 +233,8 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
         </div>
 
         <!-- The grid takes the rest. One form so checked ids serialize. -->
-        <form id="order-selection" method="post" action="/orders/bulk">
-          <div class="hc-datagrid" id="orders" data-hc-zebra data-hc-datagrid-pending>
+        <form class="hc-fill" id="order-selection" method="post" action="/orders/bulk">
+          <div class="hc-datagrid hc-fill" id="orders" data-hc-zebra data-hc-datagrid-pending>
             <div class="hc-datagrid__scroll">
               <table class="hc-datagrid__table">
                 <thead class="hc-datagrid__head">
@@ -336,30 +356,18 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
   gap: var(--hc-space-3);
 }
 
-.page > form,
-.page > form > .hc-datagrid {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-block-size: 0;
-  min-inline-size: 0;
-}
-
-.page > form > .hc-datagrid {
-  --hc-datagrid-max-height: 100%;
-}
-
+/* hc-shell のブレークポイント以下ではシェルが普通のスクロールページに
+   なるので、埋めるグリッドには測る相手の高さが無くなります。 */
 @media (width <= 60rem) {
-  .page > form > .hc-datagrid {
+  .hc-datagrid.hc-fill {
     --hc-datagrid-max-height: 70vh;
   }
 }
 ```
 
-連鎖が重要です。ページカラムからグリッドまでの間にある要素はすべて
-`flex: 1` と**両方の**最小値を必要とします — 選択用の `<form>` も
-含めてです。どこかで連鎖が切れると、その軸はグリッドではなくページを
-スクロールさせます。
+連鎖が重要です。ページカラムからグリッドまでの間にある要素は**すべて**
+`hc-fill` を持ちます — 選択用の `<form>` も含めてです。1 つでも欠けると、
+その軸はグリッドではなくページをスクロールさせます。
 
 ## ビューはパネルではなく画面に置く
 
