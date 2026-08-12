@@ -1672,3 +1672,86 @@ describe('installDatagrid — sort mirrored into a form field', () => {
     expect(() => click($('h-name'))).not.toThrow();
   });
 });
+
+describe('row ordinals', () => {
+  const GRID = (attrs = '', rows = '') => `
+    <div class="hc-datagrid" id="g" ${attrs}>
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr><th class="hc-datagrid__headcell" scope="col">Order</th></tr>
+          </thead>
+          <tbody class="hc-datagrid__body">${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  const ROWS = `
+    <tr class="hc-datagrid__row" data-row-no="137"><td class="hc-datagrid__cell">a</td></tr>
+    <tr class="hc-datagrid__row" data-row-no="138"><td class="hc-datagrid__cell">b</td></tr>`;
+
+  it('counts the RESULT SET, offset by the header rows', () => {
+    document.body.innerHTML = GRID('data-row-total="5000"', ROWS);
+    uninstall = installDatagrid();
+    const table = document.querySelector('.hc-datagrid__table');
+    // ARIA counts DOM rows including headers; the server counts matching
+    // records. One header row here, so 5000 + 1.
+    expect(table.getAttribute('aria-rowcount')).toBe('5001');
+    const rows = [...document.querySelectorAll('.hc-datagrid__row')];
+    expect(rows.map((r) => r.getAttribute('aria-rowindex'))).toEqual(['138', '139']);
+    expect(
+      document.querySelector('.hc-datagrid__head > tr').getAttribute('aria-rowindex'),
+    ).toBe('1');
+  });
+
+  it('an unknown total is -1, not a guess', () => {
+    // The honest answer while an infinite grid is still loading.
+    document.body.innerHTML = GRID('', ROWS);
+    uninstall = installDatagrid();
+    expect(
+      document.querySelector('.hc-datagrid__table').getAttribute('aria-rowcount'),
+    ).toBe('-1');
+  });
+
+  it('leaves an unnumbered grid alone', () => {
+    document.body.innerHTML = GRID(
+      'data-row-total="5000"',
+      `<tr class="hc-datagrid__row"><td class="hc-datagrid__cell">a</td></tr>`,
+    );
+    uninstall = installDatagrid();
+    const table = document.querySelector('.hc-datagrid__table');
+    expect(table.hasAttribute('aria-rowcount')).toBe(false);
+    expect(
+      document.querySelector('.hc-datagrid__row').hasAttribute('aria-rowindex'),
+    ).toBe(false);
+  });
+
+  it('does not number a row the server did not number', () => {
+    // Client-inserted tree children and group headers have no position
+    // in the result set; inventing one is worse than leaving it out.
+    document.body.innerHTML = GRID(
+      'data-row-total="9"',
+      `${ROWS}<tr class="hc-datagrid__row" id="extra"><td class="hc-datagrid__cell">c</td></tr>`,
+    );
+    uninstall = installDatagrid();
+    expect(document.getElementById('extra').hasAttribute('aria-rowindex')).toBe(false);
+  });
+
+  it('re-derives after a swap', () => {
+    document.body.innerHTML = GRID('data-row-total="5000"', ROWS);
+    uninstall = installDatagrid();
+    const body = document.querySelector('.hc-datagrid__body');
+    body.innerHTML = `<tr class="hc-datagrid__row" data-row-no="1"><td class="hc-datagrid__cell">z</td></tr>`;
+    document.querySelector('.hc-datagrid').setAttribute('data-row-total', '3');
+    // The observer rebuilds on the next microtask in the real DOM; call
+    // the public entry point again, which is what a swap effectively does.
+    uninstall();
+    uninstall = installDatagrid();
+    expect(
+      document.querySelector('.hc-datagrid__table').getAttribute('aria-rowcount'),
+    ).toBe('4');
+    expect(
+      document.querySelector('.hc-datagrid__row').getAttribute('aria-rowindex'),
+    ).toBe('2');
+  });
+});
+
