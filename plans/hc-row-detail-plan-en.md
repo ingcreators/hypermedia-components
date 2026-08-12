@@ -82,6 +82,48 @@ Never reconstruct the list from memory of "the last search". A user
 with two tabs open has two lists, and shared state gets one of them
 wrong.
 
+### What actually comes back, and what does not
+
+Everything that is *the question* is already in the URL, so it returns
+by construction:
+
+| State | Restored by | Notes |
+| --- | --- | --- |
+| conditions, sort, column set, page | the list URL | this is what the whole programme put there |
+| **which row** | `#row-<id>` | `focusHashRow()` sets the active cell, and `setActive()` already calls `scrollIntoView({block: 'nearest'})` — which scrolls **the grid's own scrollport**, not the window |
+| **selection ticks** | `?sel=<token>` on the back link | only when the detail was opened *from* a selection (below). Otherwise selection is transient by design |
+| scroll offset | *deliberately not* | focus on the row beats a pixel offset: after an insert or a delete the same offset points at a different row |
+| expanded groups / tree rows | *nothing yet* | today expansion is client-side only. A handful belongs in the URL (`expand=4903,4911`); "always expand to level 2" is a preference, not a URL |
+| an in-progress inline edit | *never* | `installDirtyGuard()` warns before leaving instead |
+
+**Selection survives the trip when it was the reason for the trip.** If
+the user ticked twelve rows and opened one, the back link carries the
+same token the walk uses, and the server re-renders those checkboxes
+checked. Nothing is stored on the client, and the list is still a URL
+somebody else can open — they just get it unticked.
+
+### Returning fresh beats returning identical
+
+There are two return paths and they are not the same trip:
+
+- **Nothing changed → Back.** The browser's own history (bfcache where
+  it applies) is the cheapest possible restore, and it is correct
+  because nothing moved.
+- **Something was saved → `303` to the list URL + `#row-<id>`.** The
+  classic post/redirect/get, and the reason to prefer it over Back is
+  truth: the row you just edited must show its new values, and the
+  totals in the pager must be right. A restored snapshot shows the data
+  as it was before your own edit — the one stale value the user is
+  guaranteed to notice.
+
+:::caution
+If row links are **boosted**, htmx restores the list from its history
+snapshot, which reintroduces exactly that staleness. Either leave row
+links unboosted (a real navigation, and Back is perfect), or mark the
+list `hx-history="false"` so a restore re-fetches instead of replaying
+a snapshot.
+:::
+
 ## 3. Peek or page: one URL, two renderings
 
 A "peek" (open the record without leaving the list) is a **rendering**
@@ -182,4 +224,5 @@ changing what it puts in `seq=`.
 | 3 | The peek rendering (`?peek=1` + remote-dialog, canonical href kept, "open full page" inside) |
 | 4 | Walking the **result set**: `seq=list` + `i=<ordinal>`, neighbours resolved by re-running the query, page boundaries invisible |
 | 5 | Walking the **selection**: `POST /orders/selections` → `303` with a token, snapshot semantics, tombstone step, `410` on expiry, "Open selected (N)" in the toolbar |
-| 6 | Template + demo adoption, and a browser spec: Enter opens, middle-click still works, Back lands on the row, next crosses a page boundary |
+| 6 | The return trip: the state table, the selection token round trip (checkboxes re-checked server-side), `303` + `#row-<id>` after a save, and the boosted-history caveat |
+| 7 | Template + demo adoption, and a browser spec: Enter opens, middle-click still works, Back lands on the row **inside the grid's scrollport**, next crosses a page boundary |
