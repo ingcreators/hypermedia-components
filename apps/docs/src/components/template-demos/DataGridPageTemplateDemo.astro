@@ -149,82 +149,22 @@ const FILTERS = [
               <a class="hc-menu__item" role="menuitem" href="#template-grid">Manage views…</a>
             </div>
           </div>
-          <button
-            class="hc-button"
-            type="button"
-            data-variant="secondary"
-            onclick="document.getElementById('template-grid-filters').showModal()">
-            <svg class="hc-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linejoin="round">
-              <path d="M3 5h18l-7 8v6l-4 2v-8z" />
-            </svg>
-            Filters (3)
-          </button>
-        </div>
-
-        <!-- The applied conditions: a control per condition, not decoration.
-             The relative one shows the expression AND what it resolved
-             to, and every remove link points at this URL minus that one
-             param. -->
-        <div class="hc-filterbar">
-          <ul class="hc-filterbar__list">
-            <li class="hc-filterbar__item">
-              <button class="hc-filterbar__chip" type="button"
-                      onclick="document.getElementById('template-grid-filters').showModal()">
-                <span class="hc-filterbar__label">Ship date</span>
-                <span class="hc-filterbar__op">from</span>
-                <span class="hc-filterbar__value">start of this week (2026-08-10)</span>
-              </button>
-              <a class="hc-filterbar__remove" href="#template-grid"
-                 aria-label="Remove Ship date filter">×</a>
-            </li>
-            <li class="hc-filterbar__item">
-              <button class="hc-filterbar__chip" type="button"
-                      onclick="document.getElementById('template-grid-filters').showModal()">
-                <span class="hc-filterbar__label">Buyer code</span>
-                <span class="hc-filterbar__op">is</span>
-                <span class="hc-filterbar__value">3 values</span>
-              </button>
-              <a class="hc-filterbar__remove" href="#template-grid"
-                 aria-label="Remove Buyer code filter">×</a>
-            </li>
-            <li class="hc-filterbar__item">
-              <button class="hc-filterbar__chip" type="button"
-                      onclick="document.getElementById('template-grid-filters').showModal()">
-                <span class="hc-filterbar__label">Carrier</span>
-                <span class="hc-filterbar__op">is</span>
-                <span class="hc-filterbar__value">Road</span>
-              </button>
-              <a class="hc-filterbar__remove" href="#template-grid"
-                 aria-label="Remove Carrier filter">×</a>
-            </li>
-          </ul>
-          <a class="hc-filterbar__clear" href="#template-grid">Clear all</a>
-        </div>
-
-        <!-- A bulk action that failed. The CHROME carries one line —
-             constant height, whatever N is — because the chrome is what
-             the grid's height is subtracted from. The rows carry the
-             detail (they scroll, because they ARE the data), and the
-             grouped breakdown opens in a docked panel. -->
-        <div class="hc-alert" data-variant="warning" role="status"
-             style="--hc-alert-padding-block: var(--hc-space-2);">
-          <p class="hc-alert__body" style="margin: 0;">
-            <strong>12 of 40 rows could not be updated.</strong>
-            {/* Real fragment links naming the failing rows by id, with a
-                server-rendered counter between them. installDatagrid()
-                lands the ACTIVE CELL on the row a fragment names, so
-                "next error" is focus movement with no client state —
-                and Back still works. */}
-            <a href="#template-grid-row-4903">Previous</a>
-            <span>Error 1 of 12 — row 3</span>
-            <a href="#template-grid-row-4907">Next</a> ·
-            <a href="#template-grid">Show only failed (12)</a> ·
-            <a href="#template-grid">Review reasons</a>
-          </p>
-        </div>
-
-        <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
+          {/* The three controls that shape the ANSWER — narrowed how,
+              in what order, which columns — sit together, because that
+              is the question they are all part of. Actions on the data
+              are a different verb and live in the toolbar below. */}
+          <div class="hc-cluster">
+            <button
+              class="hc-button"
+              type="button"
+              data-variant="secondary"
+              onclick="document.getElementById('template-grid-filters').showModal()">
+              <svg class="hc-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                <path d="M3 5h18l-7 8v6l-4 2v-8z" />
+              </svg>
+              Filters (3)
+            </button>
           <!-- The sort control is a read-out first: with thirty columns
                the sorted one is usually scrolled out of view, so the
                header's aria-sort answers a question nobody can see.
@@ -332,34 +272,93 @@ const FILTERS = [
               </footer>
             </form>
           </div>
+          </div>
+        </div>
+
+        <!-- The applied conditions: a control per condition, not decoration.
+             The relative one shows the expression AND what it resolved
+             to, and every remove link points at this URL minus that one
+             param. -->
+        <div class="hc-filterbar">
+          <ul class="hc-filterbar__list">
+            <li class="hc-filterbar__item">
+              <button class="hc-filterbar__chip" type="button"
+                      onclick="document.getElementById('template-grid-filters').showModal()">
+                <span class="hc-filterbar__label">Ship date</span>
+                <span class="hc-filterbar__op">from</span>
+                <span class="hc-filterbar__value">start of this week (2026-08-10)</span>
+              </button>
+              <a class="hc-filterbar__remove" href="#template-grid"
+                 aria-label="Remove Ship date filter">×</a>
+            </li>
+            <li class="hc-filterbar__item">
+              <button class="hc-filterbar__chip" type="button"
+                      onclick="document.getElementById('template-grid-filters').showModal()">
+                <span class="hc-filterbar__label">Buyer code</span>
+                <span class="hc-filterbar__op">is</span>
+                <span class="hc-filterbar__value">3 values</span>
+              </button>
+              <a class="hc-filterbar__remove" href="#template-grid"
+                 aria-label="Remove Buyer code filter">×</a>
+            </li>
+            <li class="hc-filterbar__item">
+              <button class="hc-filterbar__chip" type="button"
+                      onclick="document.getElementById('template-grid-filters').showModal()">
+                <span class="hc-filterbar__label">Carrier</span>
+                <span class="hc-filterbar__op">is</span>
+                <span class="hc-filterbar__value">Road</span>
+              </button>
+              <a class="hc-filterbar__remove" href="#template-grid"
+                 aria-label="Remove Carrier filter">×</a>
+            </li>
+          </ul>
+          <a class="hc-filterbar__clear" href="#template-grid">Clear all</a>
+        </div>
+
+        <!-- A bulk action that failed. The CHROME carries one line —
+             constant height, whatever N is — because the chrome is what
+             the grid's height is subtracted from. The rows carry the
+             detail (they scroll, because they ARE the data), and the
+             grouped breakdown opens in a docked panel. -->
+        <div class="hc-alert" data-variant="warning" role="status"
+             style="--hc-alert-padding-block: var(--hc-space-2);">
+          <p class="hc-alert__body" style="margin: 0;">
+            <strong>12 of 40 rows could not be updated.</strong>
+            {/* Real fragment links naming the failing rows by id, with a
+                server-rendered counter between them. installDatagrid()
+                lands the ACTIVE CELL on the row a fragment names, so
+                "next error" is focus movement with no client state —
+                and Back still works. */}
+            <a href="#template-grid-row-4903">Previous</a>
+            <span>Error 1 of 12 — row 3</span>
+            <a href="#template-grid-row-4907">Next</a> ·
+            <a href="#template-grid">Show only failed (12)</a> ·
+            <a href="#template-grid">Review reasons</a>
+          </p>
+        </div>
+
+        <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
           <button class="hc-button" data-variant="ghost" type="button">Refresh</button>
+          <button class="hc-button" data-variant="ghost" type="button">Import</button>
           <a class="hc-button" data-variant="ghost"
              href="#template-grid?f-ship-from=@week-start&amp;f-carrier=road">Export 5,000 rows</a>
-          <button class="hc-button" data-variant="ghost" type="button">Import</button>
-          <hr role="separator" aria-orientation="vertical" />
+        </div>
+
+        {/* Selection-scoped actions live in their own bar, which
+            installDatagridActions() reveals when rows are ticked and
+            hides when they are not. Keeping Approve / Reject in the
+            toolbar means every user reads them all day for the minutes
+            they apply — and a disabled button explains nothing. */}
+        <div class="hc-toolbar" role="toolbar" aria-label="Selected orders"
+             data-hc-datagrid-actions="#template-grid" hidden>
+          <strong data-hc-datagrid-count></strong>
           <div class="hc-button-group" role="group" aria-label="Approval">
             <button class="hc-button" data-variant="ghost" type="button">Approve</button>
             <button class="hc-button" data-variant="ghost" type="button">Reject</button>
           </div>
           {/* Walk only the ticked rows: the same ids every other bulk
               action sends, answered with an ordered snapshot. */}
-          <button class="hc-button" data-variant="ghost" type="button">Open selected (3)</button>
-          <span data-hc-spacer="true"></span>
-          {/* Somebody read a number out loud. The server resolves the
-              ordinal to the page that contains it and the row anchor,
-              because only it knows where row 137 currently is. */}
-          <form class="hc-cluster" action="#template-grid" method="get"
-                style="--hc-cluster-gap: var(--hc-space-1);">
-            <label class="hc-field__label" for="template-grid-goto">Go to row</label>
-            <input class="hc-input" data-size="sm" type="number" min="1" max="5000"
-                   id="template-grid-goto" name="goto" inputmode="numeric"
-                   style="inline-size: 6rem;" />
-          </form>
-          <span aria-live="polite">4,901–4,940 of 5,000</span>
-          <div class="hc-button-group" role="group" aria-label="Pages">
-            <button class="hc-button" data-size="sm" type="button" aria-label="Previous page">‹</button>
-            <button class="hc-button" data-size="sm" type="button" aria-label="Next page">›</button>
-          </div>
+          <button class="hc-button" data-variant="ghost" type="button">Open selected</button>
         </div>
 
         {/* data-row-total is the RESULT SET, not the page: it is what
@@ -420,6 +419,27 @@ const FILTERS = [
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Navigation sits under the data it moves through — still
+            fixed chrome, and out of the way of the actions. */}
+        <div class="hc-toolbar" role="toolbar" aria-label="Rows">
+          <span aria-live="polite">4,901–4,940 of 5,000</span>
+          <nav class="hc-pagination" aria-label="Pages">
+            <a class="hc-pagination__item" data-hc-rel="prev" href="#template-grid">Previous</a>
+            <a class="hc-pagination__item" data-hc-rel="next" href="#template-grid">Next</a>
+          </nav>
+          <span data-hc-spacer="true"></span>
+          {/* Somebody read a number out loud. The server resolves the
+              ordinal to the page that contains it and the row anchor,
+              because only it knows where row 137 currently is. */}
+          <form class="hc-cluster" action="#template-grid" method="get"
+                style="--hc-cluster-gap: var(--hc-space-1);">
+            <label class="hc-field__label" for="template-grid-goto">Go to row</label>
+            <input class="hc-input" data-size="sm" type="number" min="1" max="5000"
+                   id="template-grid-goto" name="goto" inputmode="numeric"
+                   style="inline-size: 6rem;" />
+          </form>
         </div>
       </div>
     </main>

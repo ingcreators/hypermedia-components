@@ -211,8 +211,9 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
           <a class="hc-filterbar__clear" href="/orders">Clear all</a>
         </div>
 
-        <!-- Toolbar: left actions, separator, grouped actions, then the
-             pager pushed to the trailing edge by the spacer. -->
+        <!-- Toolbar: actions on the DATA only. Selection-scoped
+             actions are in their own bar below; navigation is under
+             the grid. -->
         <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
           <!-- Sort is a read-out first: the sorted column is usually
                scrolled out of view. See recipes/datagrid-sort. -->
@@ -231,18 +232,19 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
                   data-hx-get="/orders/rows" data-hx-target="#order-rows">Refresh</button>
           <a class="hc-button" data-variant="ghost" href="/orders.csv">Export</a>
           <hr role="separator" aria-orientation="vertical">
+        </div>
+
+        <!-- Selection-scoped actions: installDatagridActions() reveals
+             this bar when rows are ticked and hides it again. -->
+        <div class="hc-toolbar" role="toolbar" aria-label="Selected orders"
+             data-hc-datagrid-actions="#orders" hidden>
+          <strong data-hc-datagrid-count></strong>
           <div class="hc-button-group" role="group" aria-label="Approval">
             <button class="hc-button" data-variant="ghost" type="submit"
                     form="order-selection" name="action" value="approve">Approve</button>
             <button class="hc-button" data-variant="ghost" type="submit"
                     form="order-selection" name="action" value="reject">Reject</button>
           </div>
-          <span data-hc-spacer="true"></span>
-          <span aria-live="polite">4,901–4,940 of 5,000</span>
-          <nav class="hc-pagination" aria-label="Pages">
-            <a class="hc-pagination__item" data-hc-rel="prev" href="/orders?page=122">Previous</a>
-            <a class="hc-pagination__item" data-hc-rel="next" href="/orders?page=124">Next</a>
-          </nav>
         </div>
 
         <!-- The grid takes the rest. One form so checked ids serialize. -->
@@ -298,6 +300,15 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
             </div>
           </div>
         </form>
+
+        <!-- Navigation under the data it moves through. -->
+        <div class="hc-toolbar" role="toolbar" aria-label="Rows">
+          <span aria-live="polite">4,901–4,940 of 5,000</span>
+          <nav class="hc-pagination" aria-label="Pages">
+            <a class="hc-pagination__item" data-hc-rel="prev" href="/orders?page=122">Previous</a>
+            <a class="hc-pagination__item" data-hc-rel="next" href="/orders?page=124">Next</a>
+          </nav>
+        </div>
       </div>
     </main>
   </div>
@@ -410,7 +421,32 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 つまり*変更後の状態そのもの*なので、取り消しを約束したコントロールだけが
 取り消せない、という状態になっていました。
 
-## ソートと列はツールバーのコントロール
+## どのコントロールをどこに置くか
+
+一覧画面には 4 種類のコントロールが集まります。同じ帯を共有した瞬間、
+それらは「ごちゃごちゃ」として読まれます。**何を変えるか**で家を 1 つ
+ずつ与えます。
+
+| 種類 | 例 | 置き場所 |
+| --- | --- | --- |
+| **答え**の形を変える | ビュー、Filters、Sort、Columns | タイトルの横。属しているビューの隣 |
+| 答えを**読み出す** | 条件チップ、件数 | その下の専用行 |
+| **データ**に対する操作 | Refresh、Import、Export | ツールバー |
+| **選択**に対する操作 | Approve、Reject、選択した件を開く | 行がチェックされたとき現れるバー |
+| データの中を**移動する** | ページャ、行番号へ移動 | グリッドの下（移動が起きる場所） |
+
+このうち 2 つは明記する価値があります。
+
+- **選択操作はツールバーに置きません。**Approve と Reject が効くのは
+  選択が存在する数分だけで、残りの時間はただ読まれ続けます。
+  `installDatagridActions()` は行がチェックされたときにバーを出し、
+  外れたら隠します。**現れるバーの方が、灰色になるボタンより良い合図**
+  です。無効化されたボタンは何も説明しません。
+- **Filters・Sort・Columns は 1 つの群です。**同じ問い（*いま何を見て
+  いるか*）に答えるので、Filters だけタイトル横・Sort と Columns は
+  ツールバー、と分けると実際以上に画面が混雑して見えます。
+
+## ソートと列にも専用のコントロール
 
 4 つの問いの残り 2 つ — *どの順か*、*どの列か* — にも、フィルタの入口の
 隣にコントロールを 1 つずつ与えます。

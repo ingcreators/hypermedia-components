@@ -20,6 +20,22 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Changed
+
+- **docs**: the data-grid page template **groups its controls by what
+  they change**, because one strip holding four kinds of control reads
+  as clutter however tidy each one is. Filters, Sort and Columns now
+  sit together beside the title — they answer the same question, *what
+  am I looking at*, and splitting them made the screen look busier than
+  it was. The toolbar keeps only actions on the **data** (Refresh,
+  Import, Export). **Selection-scoped actions moved to their own bar**,
+  revealed by `installDatagridActions()` when rows are ticked: Approve
+  and Reject apply for the minutes a selection exists and were being
+  read all day for the rest of the time — and a bar that appears is a
+  better cue than a button that greys out, because a disabled button
+  explains nothing. Navigation (the pager, *Go to row*) moved **under
+  the grid**, where the movement happens.
+
 ### Added
 
 - **docs**: the data-grid page template gets a **full-size preview** at
