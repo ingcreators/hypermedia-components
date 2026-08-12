@@ -147,6 +147,30 @@ function navigatorHtml(ids) {
   return ` <a href="#bulk-errors-demo-row-${first}">Previous</a> <span>Error 1 of ${failed.length} — row ${first}</span> <a href="#bulk-errors-demo-row-${second}">Next</a>`;
 }
 
+const DETAIL_ID = 'bulk-errors-demo-detail';
+
+/**
+ * The grouped breakdown, DOCKED beside the grid rather than stacked
+ * above it: a side panel spends horizontal space, which a full-height
+ * list page has, and both stay live — click a reason and watch the
+ * rows behind it. Empty means collapsed, so a screen with nothing to
+ * report looks like a screen with nothing to report.
+ */
+function detailPanel(inner, { oob = false } = {}) {
+  const oobAttr = oob ? ' data-hx-swap-oob="outerHTML"' : '';
+  const body = inner
+    ? `<div class="hc-cluster" style="justify-content: space-between;">
+    <strong>Why they failed</strong>
+    <button class="hc-button" data-size="sm" data-variant="ghost" type="button" data-hx-get="${API}/report?close=1" data-hx-target="#${DETAIL_ID}" data-hx-swap="outerHTML">Hide</button>
+  </div>
+  ${inner}`
+    : '<p class="hc-field__message">No failures to review.</p>';
+  const div = `<div class="hc-splitter__panel hc-scroll-area" id="${DETAIL_ID}"${inner ? '' : ' hidden'}${oobAttr}>${body}</div>`;
+  // A <div> riding a <tbody>-targeted response is foster-parented by
+  // the table parser; <template> is the documented escape.
+  return oob ? `<template>${div}</template>` : div;
+}
+
 function bulkReport(inner, { oob = false } = {}) {
   const oobAttr = oob ? ' data-hx-swap-oob="innerHTML"' : '';
   const div = `<div id="bulk-errors-demo-report" aria-live="polite"${oobAttr}>${inner}</div>`;
@@ -176,6 +200,15 @@ function matching(status) {
 }
 
 export async function handle({ method, path, url, request }) {
+  // The docked panel is a REGION the server owns: hiding it is a
+  // response, not client state, so the two surfaces cannot disagree.
+  if (method === 'GET' && path === '/report') {
+    if (url.searchParams.get('close') === '1') return html(detailPanel(''));
+    const ids = url.searchParams.getAll('ids').map(Number).filter(Boolean);
+    const { blocked } = split(ids);
+    return html(detailPanel(blocked.size ? reasonTableHtml(blocked) : ''));
+  }
+
   // ---- Atomic phase 1: pre-flight -------------------------------
   if (method === 'GET' && path === '/preflight') {
     const ids = url.searchParams.getAll('ids').map(Number).filter(Boolean);
@@ -348,11 +381,10 @@ ${bulkReport(`<p role="status">${ok.length} rows archived.</p>`, { oob: true })}
   return html(
     `${rows}
 ${bulkReport(`<div class="hc-alert" data-variant="warning" role="status">
-  <p><strong>${ok.length} succeeded / ${failedCount} failed</strong> (of ${ids.length} selected)${navigatorHtml(ids)}</p>
-  ${reasonTableHtml(blocked)}
+  <p><strong>${ok.length} succeeded / ${failedCount} failed</strong> (of ${ids.length} selected)${navigatorHtml(ids)} · <a href="${API}/items?f-last-result=failed">Show only failed</a></p>
   ${retryLine}
-  <p><a href="${API}/items?f-last-result=failed">Filter to the failed rows</a></p>
-</div>`, { oob: true })}`,
+</div>`, { oob: true })}
+${detailPanel(reasonTableHtml(blocked), { oob: true })}`,
     {
       headers: toastHeader(
         `${ok.length} succeeded / ${failedCount} failed`,

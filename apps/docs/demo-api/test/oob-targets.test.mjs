@@ -39,6 +39,16 @@ const REGIONS = [
     ids: ['saved-views-demo-filters', 'saved-views-demo-views', 'saved-views-demo-results'],
   },
   {
+    name: 'datagrid-bulk-errors',
+    module: 'datagrid-bulk-errors.mjs',
+    demo: 'DatagridBulkErrorsDemo.astro',
+    ids: [
+      'bulk-errors-demo-rows',
+      'bulk-errors-demo-report', // the O(1) summary in the chrome
+      'bulk-errors-demo-detail', // the docked, grouped breakdown
+    ],
+  },
+  {
     name: 'row-detail',
     module: 'row-detail.mjs',
     demo: 'RowDetailDemo.astro',
