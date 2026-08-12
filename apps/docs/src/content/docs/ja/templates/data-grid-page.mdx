@@ -187,6 +187,13 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
                   id="sort-trigger" popovertarget="sort-panel">
             Sort (2): Ship date ↓, Order ↑
           </button>
+          <!-- The columns entry point. See recipes/datagrid-columns:
+               a chooser form GETs the grid with repeated cols= params,
+               in the order the rows were dragged into. -->
+          <button class="hc-button" data-variant="ghost" type="button"
+                  id="columns-trigger" popovertarget="columns-panel">
+            Columns (7 of 12)
+          </button>
           <button class="hc-button" data-variant="ghost" type="button"
                   data-hx-get="/orders/rows" data-hx-target="#order-rows">Refresh</button>
           <a class="hc-button" data-variant="ghost" href="/orders.csv">Export</a>
@@ -382,6 +389,32 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 つまり*変更後の状態そのもの*なので、取り消しを約束したコントロールだけが
 取り消せない、という状態になっていました。
 
+## ソートと列はツールバーのコントロール
+
+4 つの問いの残り 2 つ — *どの順か*、*どの列か* — にも、フィルタの入口の
+隣にコントロールを 1 つずつ与えます。
+
+- **Sort** はラベルで集合全体を述べ（`Sort (2): Ship date ↓, Order ↑`）、
+  並べ替え可能な順序付きリストを開きます。ヘッダーだけでは答えられない
+  理由は [datagrid-sort](/hypermedia-components/ja/recipes/datagrid-sort/)
+  にあります。
+- **Columns** は[チューザー](/hypermedia-components/ja/recipes/datagrid-columns/)
+  を開きます。レシピは既にありました。無かったのは画面側の入口です。
+  件数はラベルに載せます（`Columns (7 of 12)`）。探している列が無い
+  グリッドは、データが無いグリッドと見分けが付かないからです。
+
+**列構成は条件ではなく設定です。**画面や端末をまたいでユーザーに付いて
+回るので、URL に毎回書かせるのではなくユーザー単位で保存します。ただし
+列を名指しするリンクは常に勝ちます。共有が機能するのはそのためです。
+
+```text
+URL → ユーザー設定 → アプリ既定
+```
+
+保存ビューは列構成を**固定してもよい**（「出荷チェック」は普通、条件
+*と*その仕事のための列を意味します）。固定した場合は、適用したときに
+列が目に見えて変わり、戻る道も示します。
+
 ## 条件バーは画面の読み出し
 
 タイトルの下の帯は装飾ではありません。**いま何で絞り込まれているか**で
@@ -419,7 +452,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 | 複数値の入力 | `<textarea data-hc-multi="lines">` | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 貼り付けた一覧が繰り返しパラメータになる |
 | 相対日付 | `@week-start` のような条件値 | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 式のまま保存し、サーバーが解決 |
 | エクスポート | 現在のクエリを持つリンク | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 同じ条件・同じ列・全ページ |
-| 列の構成・幅 | — | [datagrid-columns](/hypermedia-components/ja/recipes/datagrid-columns/)、[datagrid-prefs](/hypermedia-components/ja/recipes/datagrid-prefs/) |
+| 列の構成・幅 | ツールバーのコントロールがチューザーを開く | [datagrid-columns](/hypermedia-components/ja/recipes/datagrid-columns/) — `cols=` の繰り返し（ドラッグした順序のまま）。幅は [datagrid-prefs](/hypermedia-components/ja/recipes/datagrid-prefs/) |
 
 ## 応用
 

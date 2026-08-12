@@ -229,6 +229,48 @@ const FILTERS = [
               </footer>
             </form>
           </div>
+          <!-- The columns entry point. Without one the chooser exists
+               and nobody can reach it — and a column set is a
+               PREFERENCE (it follows the user between screens), so it
+               is resolved URL → user preference → app default. -->
+          <button class="hc-button" data-variant="ghost" type="button"
+                  id="template-grid-columns-trigger"
+                  popovertarget="template-grid-columns">
+            Columns (7 of 12)
+          </button>
+          <div class="hc-popover" id="template-grid-columns" popover
+               aria-labelledby="template-grid-columns-trigger">
+            <form action="#template-grid" method="get">
+              <fieldset class="hc-popover__body" data-hc-sortable>
+                <legend class="hc-field__label">Shown columns</legend>
+                <label class="hc-checkbox-label">
+                  <button class="hc-button" data-variant="ghost" data-size="sm"
+                          type="button" data-hc-sortable-handle
+                          aria-label="Reorder Ordered on">⠿</button>
+                  <input class="hc-checkbox" type="checkbox" name="cols" value="ordered" checked />
+                  Ordered on
+                </label>
+                <label class="hc-checkbox-label">
+                  <button class="hc-button" data-variant="ghost" data-size="sm"
+                          type="button" data-hc-sortable-handle
+                          aria-label="Reorder Customer">⠿</button>
+                  <input class="hc-checkbox" type="checkbox" name="cols" value="customer" checked />
+                  Customer
+                </label>
+                <label class="hc-checkbox-label">
+                  <button class="hc-button" data-variant="ghost" data-size="sm"
+                          type="button" data-hc-sortable-handle
+                          aria-label="Reorder Warehouse">⠿</button>
+                  <input class="hc-checkbox" type="checkbox" name="cols" value="warehouse" />
+                  Warehouse
+                </label>
+                <!-- …one row per column, the order serializing with it… -->
+              </fieldset>
+              <footer class="hc-popover__footer">
+                <button class="hc-button" data-variant="primary" type="submit">Apply</button>
+              </footer>
+            </form>
+          </div>
           <button class="hc-button" data-variant="ghost" type="button">Refresh</button>
           <a class="hc-button" data-variant="ghost"
              href="#template-grid?f-ship-from=@week-start&amp;f-carrier=road">Export 5,000 rows</a>
