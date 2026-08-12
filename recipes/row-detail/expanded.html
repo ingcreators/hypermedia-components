@@ -1,0 +1,83 @@
+<!-- Expanded state: the detail screen reached from row 137, and the
+  list it will go back to.
+
+  The link carried the list URL (?from=), the detail's Back to list is
+  that URL plus #row-4903, and installDatagrid() lands the ACTIVE CELL
+  on that row — so the keyboard user arrives where the eye does.
+
+  Row → detail, and back again. The link is an ordinary <a href> in the
+  row's IDENTITY cell — the thing the row IS — so middle-click and
+  ⌘-click open a tab, right-click copies the address, Back returns, and
+  none of it needs JavaScript. installRowLink() adds the one thing an
+  anchor cannot do by itself: Enter anywhere on the row.
+
+  The row is deliberately NOT one big link: the datagrid ships text
+  selection, range selection and TSV copy, and a stretched anchor eats
+  all three.
+
+  Coming back is the part everyone drops. The list URL already carries
+  the conditions, the sort, the columns and the page; what Back cannot
+  restore is WHICH ROW — so the detail's back link is that URL plus
+  #row-<id>, which installDatagrid() lands the active cell on. -->
+<div class="hc-datagrid" id="items-grid" data-row-total="5000">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">
+        <tr>
+          <th class="hc-datagrid__headcell" scope="col" data-numeric>#</th>
+          <th class="hc-datagrid__headcell" scope="col">Order</th>
+          <th class="hc-datagrid__headcell" scope="col">Customer</th>
+          <th class="hc-datagrid__headcell" scope="col">Ship date</th>
+        </tr>
+      </thead>
+      <tbody class="hc-datagrid__body">
+        <tr class="hc-datagrid__row" id="row-4903" data-row-no="137">
+          <td class="hc-datagrid__cell" data-numeric>137</td>
+          <th class="hc-datagrid__cell" scope="row">
+            <!-- The identity cell carries the link. One link per row is
+                 marked: a row with several must say which is the record. -->
+            <a href="/orders/4903?from=%2Forders%3Fpage%3D4" data-hc-row-link>SO-4903</a>
+          </th>
+          <td class="hc-datagrid__cell">Northwind</td>
+          <td class="hc-datagrid__cell">2026-08-14</td>
+        </tr>
+        <tr class="hc-datagrid__row" id="row-4904" data-row-no="138">
+          <td class="hc-datagrid__cell" data-numeric>138</td>
+          <th class="hc-datagrid__cell" scope="row">
+            <a href="/orders/4904?from=%2Forders%3Fpage%3D4" data-hc-row-link>SO-4904</a>
+          </th>
+          <td class="hc-datagrid__cell">Contoso</td>
+          <td class="hc-datagrid__cell">2026-08-02</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- The detail screen (server-rendered at /orders/4903). Back carries
+     the list URL it arrived with, plus the row anchor. -->
+<article class="hc-card">
+  <header class="hc-cluster" style="justify-content: space-between;">
+    <h1>SO-4903</h1>
+    <div class="hc-cluster">
+      <!-- Walking the sequence the user was looking at. The server
+           resolves neighbours by re-running the list query, so "next"
+           crosses a page boundary without the client knowing pages
+           exist. -->
+      <a class="hc-button" data-size="sm" href="/orders/4902?seq=list&amp;i=136">Previous</a>
+      <span>Record 137 of 5,000</span>
+      <a class="hc-button" data-size="sm" href="/orders/4904?seq=list&amp;i=138">Next</a>
+      <a class="hc-button" data-variant="ghost" href="/orders?page=4#row-4903">Back to list</a>
+    </div>
+  </header>
+  <!-- Saving redirects (303) to the same URL, so the row shows its new
+       values and the pager totals are true — a restored snapshot would
+       show the data as it was before this very edit. -->
+  <form method="post" action="/orders/4903">
+    <div class="hc-field">
+      <label class="hc-field__label" for="ship">Ship date</label>
+      <input class="hc-input" type="date" id="ship" name="ship" value="2026-08-14">
+    </div>
+    <button class="hc-button" data-variant="primary" type="submit">Save</button>
+  </form>
+</article>

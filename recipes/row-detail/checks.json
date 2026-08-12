@@ -1,0 +1,34 @@
+{
+  "detect": "a[data-hc-row-link]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "real-href",
+      "level": "error",
+      "message": "The row link must be a real <a href>. Middle-click, ⌘-click, copy-address, Back and the no-JS path all come from the href; a click handler re-implements them badly.",
+      "attr": {
+        "on": "a[data-hc-row-link]",
+        "name": "href",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "one-primary-per-row",
+      "level": "warn",
+      "message": "Mark the record link with data-hc-row-link. A row with several links must say which one Enter opens; guessing \"the first\" turns a column reorder into a behavior change.",
+      "exists": {
+        "selector": "a[data-hc-row-link]",
+        "min": 1
+      }
+    },
+    {
+      "id": "rows-are-addressable",
+      "level": "warn",
+      "message": "The link must sit in a row with a stable id (id=\"row-<id>\") — the detail's Back link returns to the list URL plus #row-<id>, and installDatagrid() lands the active cell there.",
+      "closest": {
+        "on": "a[data-hc-row-link]",
+        "selector": ".hc-datagrid__row[id]"
+      }
+    }
+  ]
+}
