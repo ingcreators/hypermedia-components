@@ -24,6 +24,8 @@ import DataGridPageTemplateDemo from '../../../../components/template-demos/Data
 グリッドをスクロールしてみてください。ツールバーとヘッダー行はその場に
 留まり、先頭 2 列も留まり、ページ自体は動きません。**Filters…** を開いて
 パネルをスクロールすると、本文だけが動き、Search は押せる位置に残ります。
+タイトルの横のメニューが、いま適用されている保存ビューの名前を述べます
+— ビューの切り替えは画面から 1 操作です。
 
 :::note[レイアウトの実演であって、通信はしません]
 このプレビューは意図的にサーバーを使いません — 何がスクロールし、何が
@@ -123,15 +125,57 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 
     <main class="hc-shell__main app-main">
       <div class="page">
-        <!-- Title row: applied conditions as chips, filter panel trigger -->
+        <!-- Identity row: the heading names the screen, the menu names
+             the saved view currently applied. -->
         <div class="hc-cluster" style="justify-content: space-between;">
           <div class="hc-cluster">
             <h1>Orders</h1>
-            <a class="hc-chip" href="/orders?f-ship-from=2026-08-01">Ship date: this month</a>
-            <a class="hc-chip" href="/orders?f-carrier=road">Carrier: Road</a>
+            <button class="hc-button" data-variant="ghost" type="button"
+                    id="view-trigger" popovertarget="views">
+              <span>Overdue shipments</span>
+              <span class="hc-badge" data-variant="warning">Modified</span>
+              <span aria-hidden="true">▾</span>
+            </button>
+            <div class="hc-menu" id="views" popover role="menu"
+                 aria-labelledby="view-trigger">
+              <div role="group" aria-labelledby="views-pinned">
+                <span class="hc-menu__label" id="views-pinned">Pinned</span>
+                <a class="hc-menu__item" role="menuitemradio" aria-checked="true"
+                   href="/orders?view=overdue">Overdue shipments</a>
+                <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+                   href="/orders?view=unapproved">Awaiting approval</a>
+              </div>
+              <hr class="hc-menu__separator">
+              <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+                 href="/orders">Show everything</a>
+              <hr class="hc-menu__separator">
+              <!-- Discarding a tweak is a link back to the view's own
+                   URL — a form reset would restore the modified state. -->
+              <a class="hc-menu__item" role="menuitem"
+                 href="/orders?view=overdue">Reset to saved conditions</a>
+              <a class="hc-menu__item" role="menuitem" href="/views">Manage views…</a>
+            </div>
           </div>
           <button class="hc-button" data-variant="secondary" type="button"
                   onclick="document.getElementById('filters').showModal()">Filters…</button>
+        </div>
+
+        <!-- Applied conditions: one chip per condition, each opening the
+             panel; each remove link is this URL minus that one param. -->
+        <div class="hc-filterbar">
+          <ul class="hc-filterbar__list">
+            <li class="hc-filterbar__item">
+              <button class="hc-filterbar__chip" type="button"
+                      onclick="document.getElementById('filters').showModal()">
+                <span class="hc-filterbar__label">Ship date</span>
+                <span class="hc-filterbar__op">from</span>
+                <span class="hc-filterbar__value">start of this week (2026-08-10)</span>
+              </button>
+              <a class="hc-filterbar__remove" href="/orders?f-carrier=road"
+                 aria-label="Remove Ship date filter">×</a>
+            </li>
+          </ul>
+          <a class="hc-filterbar__clear" href="/orders">Clear all</a>
         </div>
 
         <!-- Toolbar: left actions, separator, grouped actions, then the
@@ -217,8 +261,20 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
   <dialog class="hc-dialog" id="filters" aria-labelledby="filters-title"
           style="--hc-dialog-max-width: 52rem;">
     <form method="get" action="/orders">
+      <!-- The panel edits conditions and closes the composition by
+           naming it. Recall lives on the screen, not in here. -->
       <div class="hc-dialog__header">
-        <h2 class="hc-dialog__title" id="filters-title">Filters</h2>
+        <div class="hc-cluster" style="justify-content: space-between;">
+          <h2 class="hc-dialog__title" id="filters-title">Filters</h2>
+          <div class="hc-cluster">
+            <button class="hc-button" data-size="sm" type="button"
+                    data-hx-put="/views/Overdue%20shipments"
+                    data-hx-include="closest form"
+                    data-hx-target="#views">Update</button>
+            <!-- Opens the save dialog: name, scope, make default. -->
+            <button class="hc-button" data-size="sm" type="button">Save as new…</button>
+          </div>
+        </div>
       </div>
 
       <div class="hc-dialog__body">
@@ -292,6 +348,34 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 含めてです。どこかで連鎖が切れると、その軸はグリッドではなくページを
 スクロールさせます。
 
+## ビューはパネルではなく画面に置く
+
+一覧画面が答える問いは 4 つ — *いま何を見ているか*、*どう絞ったか*、
+*どの順か*、*どの列か* — で、それぞれに置き場所を 1 つだけ与えると最も
+読みやすくなります。1 つ目はタイトルの横で、**ラベルが適用中のビュー名
+そのもの**であるメニューが答えます。
+
+- 保存ビューは**名前の付いた URL** です。つまり呼び出しはフィルタ編集
+  ではなくナビゲーションであり、ブックマークは「アドレスバーを編集する
+  ダイアログ」の中には置きません。パネルの奥に置くと、画面で最も頻度の
+  高い操作が 4 手になります。
+- 項目は **`role="menuitemradio"`** です。適用されているビューは常に
+  1 つで、**Show everything** がその「どれでもない」選択肢 — 既定ビュー
+  が素の URL をリダイレクトしているときの戻り道になります。
+- 同時に本物の `<a href>` なので、ビューはブックマークでき、中クリックで
+  開け、JavaScript なしでも動きます。
+- ピン留め、次に最近使った順、最後に **Manage views…**。チームが 2〜3 個
+  に標準化しているならチップやタブでも構いませんが、30 個になっても壊れ
+  ない形はメニューです。
+
+パネルに残すのは条件を組み立てる**終端の操作** — **Update** と
+**Save as new…** — だけです。これで Undo が離れた場所に 2 つ並ぶことが
+なくなり、Cancel 1 つになります。そして「元に戻す」が
+`type="reset"` ボタンではなく**ビュー自身の URL へのリンク**である理由も
+ここにあります。ネイティブのリセットが戻すのはサーバーが描画した値、
+つまり*変更後の状態そのもの*なので、取り消しを約束したコントロールだけが
+取り消せない、という状態になっていました。
+
 ## 条件バーは画面の読み出し
 
 タイトルの下の帯は装飾ではありません。**いま何で絞り込まれているか**で
@@ -307,9 +391,10 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
   行ではなくこの問いを意味します。
 - **ソートはフォームに乗ります**（`<input data-hc-datagrid-sort>`）。
   Apply でも維持され、保存ビューにも含まれます。
-- **調整したビューはそう言います。**パネル冒頭に **Modified** と
-  更新 / 別名で保存 / 元に戻す が出ます。ビューを適用してから条件を
-  1 つ変えるのは、保存ビューで最もよく行われる操作だからです。
+- **調整したビューはそう言います。**ビューメニューのラベルが
+  **Modified** バッジを持ちます。ビューを適用してから条件を 1 つ変える
+  のは保存ビューで最もよく行われる操作であり、バッジが正直でいられるの
+  は比較の起きる場所 — 比較対象の名前の隣 — だけだからです。
 
 ## 配線表
 
@@ -323,7 +408,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 | グリッド | [`hc-datagrid`](/hypermedia-components/ja/components/datagrid/) | `f-<col>` パラメータは [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) |
 | インライン編集 | `data-editable` + エディタ `<template>` | [datagrid-edit-errors](/hypermedia-components/ja/recipes/datagrid-edit-errors/)（422 と確認付き警告）、[datagrid-edit-conflict](/hypermedia-components/ja/recipes/datagrid-edit-conflict/)（409） |
 | 検索パネル | [`hc-dialog`](/hypermedia-components/ja/components/dialog/) + [`hc-grid`](/hypermedia-components/ja/fundamentals/layout/) + [`hc-input-group`](/hypermedia-components/ja/components/input-group/) | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) |
-| 条件の保存 | パネルの `view` セレクト | [saved-views](/hypermedia-components/ja/recipes/saved-views/) — 変更済み状態とその場更新を含む |
+| 保存ビュー | タイトル横の [`hc-menu`](/hypermedia-components/ja/components/menu/) ＋ パネルの Update / Save as new… | [saved-views](/hypermedia-components/ja/recipes/saved-views/) — 適用は GET リンク、`PUT /views/<name>` がその場更新、**変更済み**の比較はサーバーの仕事 |
 | 複数値の入力 | `<textarea data-hc-multi="lines">` | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 貼り付けた一覧が繰り返しパラメータになる |
 | 相対日付 | `@week-start` のような条件値 | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 式のまま保存し、サーバーが解決 |
 | エクスポート | 現在のクエリを持つリンク | [datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/) — 同じ条件・同じ列・全ページ |

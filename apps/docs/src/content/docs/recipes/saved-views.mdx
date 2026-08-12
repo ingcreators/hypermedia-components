@@ -123,6 +123,49 @@ form or from a link.
 name and every link already shared. `422 duplicate` stays, but only for
 a genuinely new name that collides.
 
+**Reset is a link, never `<button type="reset">`.** A native reset
+restores the values the server rendered into the controls — which, after
+an apply plus a tweak, *are* the modified state. Point it at the view's
+own URL and let the apply response fill the form.
+
+## Where recall lives
+
+Recall belongs **on the screen**, not inside the filter editor. A view
+is a named URL, so applying one is navigation; behind a dialog it costs
+four interactions for the screen's most frequent act, and it mixes a
+"go there" verb into a "build a condition" surface. Naming what you
+built is the terminal step of composing, so **saving** stays with the
+editor while **recall** sits beside the screen title.
+
+The chips strip above is the small-set shape. Past a handful of views,
+render the same links as an [`hc-menu`](/hypermedia-components/components/menu/)
+whose **button label is the applied view's name**:
+
+```html
+<button class="hc-button" id="view-trigger" popovertarget="views" type="button">
+  <span>Overdue shipments</span>
+  <span class="hc-badge" data-variant="warning">Modified</span>
+</button>
+
+<div class="hc-menu" id="views" popover role="menu" aria-labelledby="view-trigger">
+  <a class="hc-menu__item" role="menuitemradio" aria-checked="true"
+     href="/items?view=overdue">Overdue shipments</a>
+  <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+     href="/items">Show everything</a>
+</div>
+```
+
+- **`menuitemradio`**, because exactly one view is applied at a time,
+  with **Show everything** as the none-of-them option — the way back
+  when a default view redirected the bare list URL.
+- Still real `<a href>`s: bookmarkable, middle-clickable, no-JS.
+- The server renders the menu, so it owns pinned / recent order and
+  which item carries `aria-checked="true"` — the call it already makes
+  for the strip.
+
+The [data grid page template](/hypermedia-components/templates/data-grid-page/)
+shows it in place.
+
 ## What a view captures
 
 A view is a question you want to ask again, not a place you were

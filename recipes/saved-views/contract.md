@@ -73,6 +73,12 @@ Compare **normalized** querystrings — same params, sorted, repeated
 values in a stable order — or two identical questions will look
 different because one was assembled by a form and the other by a link.
 
+**Reset is a link, never a form reset.** `<button type="reset">` restores
+the values the server rendered into the controls — which, after an apply
+plus a tweak, *are* the modified state. The one control that promised to
+undo the tweak would be the one guaranteed not to. Point it at the
+view's own URL and let the apply response fill the form.
+
 ## What a view captures
 
 A view is a question you want to ask again, not a place you were
@@ -121,6 +127,41 @@ A strip is comfortable at five views and unusable at thirty. Render
 **pinned and recently-used first**, cap the strip, and put the rest
 behind a menu. The cap is the server's call, and it should say what it
 did rather than silently truncating.
+
+## Where recall lives
+
+Recall belongs **on the screen**, not inside the filter editor. A view
+is a named URL, so applying one is navigation; putting it behind a
+dialog costs four interactions for the screen's most frequent act, and
+mixes a "go there" verb into a "build a condition" surface. Naming what
+you built is the terminal step of composing, so **saving** stays with
+the editor while **recall** sits next to the screen title.
+
+The strip above is the small-set shape. Past a handful of views, render
+the same links as an `hc-menu` whose **button label is the applied
+view's name** — the identity question answered without extra chrome:
+
+```html
+<button class="hc-button" id="view-trigger" popovertarget="views" type="button">
+  <span>Overdue shipments</span>
+  <span class="hc-badge" data-variant="warning">Modified</span>
+</button>
+
+<div class="hc-menu" id="views" popover role="menu" aria-labelledby="view-trigger">
+  <a class="hc-menu__item" role="menuitemradio" aria-checked="true"
+     href="/items?view=overdue">Overdue shipments</a>
+  <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+     href="/items">Show everything</a>
+</div>
+```
+
+- **`menuitemradio`**, because exactly one view is applied at a time,
+  with **Show everything** as the none-of-them option — the way back
+  when a default view redirected the bare list URL.
+- Still real `<a href>`s: bookmarkable, middle-clickable, no-JS.
+- The server renders the menu, so it decides pinned / recent order and
+  which item carries `aria-checked="true"` — the same call it already
+  makes for the strip.
 
 ## Progressive enhancement (no JS)
 
