@@ -39,7 +39,14 @@ export default defineConfig({
       // in both locales, so those links resolve. Translated pages that
       // arrive later simply take the fallback's place.
       plugins: [
-        starlightLinksValidator({ exclude: ['#*'], errorOnFallbackPages: false }),
+        // The full-size template preview is a plain Astro route
+        // (src/pages/), not a Starlight content page, so the validator
+        // cannot see it — it is checked by the docs build itself, which
+        // fails if the route stops emitting.
+        starlightLinksValidator({
+          exclude: ['#*', '/hypermedia-components/templates/data-grid-page-preview/'],
+          errorOnFallbackPages: false,
+        }),
         // /llms.txt, /llms-full.txt, /llms-small.txt for AI coding
         // agents. The markup IS the wire contract here, so a model
         // holding these files can emit working HC + htmx fragments

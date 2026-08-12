@@ -23,6 +23,24 @@
  */
 import DemoFrame from '../recipe-demos/DemoFrame.astro';
 
+interface Props {
+  /** Render at viewport height, without the demo card — the standalone
+   * preview page. A full-height business screen shown inside a narrow
+   * documentation column is a picture of the idea, not the idea. */
+  standalone?: boolean;
+}
+
+const { standalone = false } = Astro.props;
+// Astro resolves a dynamic tag from a variable, so the markup below is
+// written once and hosted two ways.
+const Frame = standalone ? 'div' : DemoFrame;
+const frameProps = standalone
+  ? { class: 'tpl-grid-standalone' }
+  : { class: 'hc-preview--col', label: 'Data grid page template' };
+const shellStyle = standalone
+  ? 'block-size: 100dvh; --hc-shell-sidebar-width: 12rem; --hc-shell-pad: var(--hc-space-3);'
+  : 'block-size: 40rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);';
+
 const COLUMNS = [
   { key: 'ordered', label: 'Ordered on', group: 'Order' },
   { key: 'customer', label: 'Customer', group: 'Order' },
@@ -56,10 +74,8 @@ const FILTERS = [
 ];
 ---
 
-<DemoFrame label="Data grid page template">
-  <div
-    class="hc-shell"
-    style="block-size: 36rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);">
+<Frame {...frameProps}>
+  <div class="hc-shell" style={shellStyle}>
     <header class="hc-shell__header">
       <strong>Order desk</strong>
     </header>
@@ -560,9 +576,14 @@ const FILTERS = [
       </div>
     </form>
   </dialog>
-</DemoFrame>
+</Frame>
 
 <style>
+  .tpl-grid-standalone {
+    display: block;
+    inline-size: 100%;
+  }
+
   /* The page column inside hc-shell__main. BOTH minimums are needed:
      a flex item will not shrink below its content on either axis, and
      the datagrid's max-content table is very wide. Without
