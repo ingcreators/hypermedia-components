@@ -1,0 +1,33 @@
+---
+/*
+ * Live demo for the row-detail recipe. The list's identity cells hold
+ * real <a href>s (enhanced with data-hx-get so the record lands beside
+ * the list instead of replacing the page), each carrying the list URL
+ * it came from and its ordinal.
+ *
+ * Two walks share one shape: the RESULT SET (seq=list — the server
+ * re-runs the query, so Next crosses a page boundary) and the
+ * SELECTION (tick rows, "Open selected" posts the ids and answers an
+ * ordered snapshot). Selection 4901 + 4999 + 4906 shows the tombstone
+ * step, because 4999 does not exist.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/row-detail`;
+---
+
+<DemoFrame class="hc-preview--col" label="Row detail demo">
+  <div
+    id="row-detail-demo-list"
+    data-hx-get={`${api}/items?page=1`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+
+  <div id="row-detail-demo-record" aria-live="polite">
+    <p class="hc-field__message">
+      Open a record — or tick a few rows and press <strong>Open selected</strong>
+      to walk just those.
+    </p>
+  </div>
+</DemoFrame>

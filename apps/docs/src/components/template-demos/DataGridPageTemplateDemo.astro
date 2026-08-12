@@ -317,6 +317,9 @@ const FILTERS = [
             <button class="hc-button" data-variant="ghost" type="button">Approve</button>
             <button class="hc-button" data-variant="ghost" type="button">Reject</button>
           </div>
+          {/* Walk only the ticked rows: the same ids every other bulk
+              action sends, answered with an ordered snapshot. */}
+          <button class="hc-button" data-variant="ghost" type="button">Open selected (3)</button>
           <span data-hc-spacer="true"></span>
           <span aria-live="polite">4,901–4,940 of 5,000</span>
           <div class="hc-button-group" role="group" aria-label="Pages">
@@ -358,8 +361,14 @@ const FILTERS = [
                       <input type="checkbox" class="hc-checkbox" name="ids" value={row.id}
                              aria-label={`Select order ${row.id}`} />
                     </td>
+                    {/* The identity cell holds the record link: a real
+                        <a href>, so middle-click, ⌘-click, Back and the
+                        no-JS path all work. installRowLink() adds Enter
+                        anywhere on the row. */}
                     <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
-                        style="--hc-datagrid-left: 2.5rem;">SO-{row.id}</th>
+                        style="--hc-datagrid-left: 2.5rem;">
+                      <a href="#template-grid" data-hc-row-link>SO-{row.id}</a>
+                    </th>
                     <td class="hc-datagrid__cell">{row.ordered}</td>
                     <td class="hc-datagrid__cell">{row.customer}</td>
                     <td class="hc-datagrid__cell">{row.item}</td>

@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Added
 
+- **recipes**: `row-detail` gains the **walks**, with a live demo. Two
+  sequences, one shape: the **result set** (`seq=list` — the server
+  resolves neighbours by re-running the list query, so *Next* crosses a
+  page boundary without the client knowing pages exist) and the
+  **selection** — tick rows, *Open selected (N)* posts the same `ids`
+  every other bulk action sends, and the answer is a **`303`** to the
+  first record of an **ordered snapshot**. A record that vanished
+  mid-walk is a **tombstone step** with *Next* still working, because
+  aborting at the first gap makes the feature untrustworthy exactly
+  when data is moving; an unreadable or expired snapshot **fails
+  closed** (`410` + a way back), never a silent fallback to walking
+  everything. The data-grid page template adopts the identity-cell link
+  and *Open selected*.
+
 - **recipes**: **`row-detail`** + `installRowLink()` /
   `data-hc-row-link` — the most-used interaction on a business list,
   and the one every app reinvents: *open this record, work on it, come
