@@ -130,13 +130,16 @@ function walkHtml({ prev, next, position, total, label, seq, from }) {
   const href = (id) =>
     `${API}/items/${id}?${new URLSearchParams({ seq, i: String(id === prev ? position - 1 : position + 1), ...(from ? { from } : {}) })}`;
   const back = from ? decodeURIComponent(from) : listUrl(1);
+  // The EXIT goes at the start — that is where a person looks to get
+  // out — and the WALK at the end, where the pointer already is and
+  // where every mail client puts "1 / 15,129 ‹ ›".
   return `<div class="hc-cluster" style="justify-content: space-between;">
+  <a class="hc-button" data-variant="ghost" href="${escapeHtml(back)}">← Back to list</a>
   <div class="hc-cluster">
-    ${prev ? `<a class="hc-button" data-size="sm" href="${escapeHtml(href(prev))}" data-hx-get="${escapeHtml(href(prev))}" data-hx-target="#${RECORD_ID}" data-hx-swap="innerHTML">Previous</a>` : '<span class="hc-button" data-size="sm" aria-disabled="true">Previous</span>'}
     <span>${escapeHtml(label)}</span>
-    ${next ? `<a class="hc-button" data-size="sm" href="${escapeHtml(href(next))}" data-hx-get="${escapeHtml(href(next))}" data-hx-target="#${RECORD_ID}" data-hx-swap="innerHTML">Next</a>` : '<span class="hc-button" data-size="sm" aria-disabled="true">Next</span>'}
+    ${prev ? `<a class="hc-button" data-size="sm" href="${escapeHtml(href(prev))}" data-hx-get="${escapeHtml(href(prev))}" data-hx-target="#${RECORD_ID}" data-hx-swap="innerHTML" aria-label="Previous record">‹</a>` : '<span class="hc-button" data-size="sm" aria-disabled="true" aria-label="Previous record">‹</span>'}
+    ${next ? `<a class="hc-button" data-size="sm" href="${escapeHtml(href(next))}" data-hx-get="${escapeHtml(href(next))}" data-hx-target="#${RECORD_ID}" data-hx-swap="innerHTML" aria-label="Next record">›</a>` : '<span class="hc-button" data-size="sm" aria-disabled="true" aria-label="Next record">›</span>'}
   </div>
-  <a class="hc-button" data-variant="ghost" href="${escapeHtml(back)}">Back to list</a>
 </div>`;
 }
 
