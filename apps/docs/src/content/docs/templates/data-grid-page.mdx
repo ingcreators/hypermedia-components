@@ -35,6 +35,17 @@ region's endpoint would implement.
 
 ## The layout rule
 
+```html
+<main class="hc-shell__main app-main">
+  <div class="page">
+    …title, conditions, toolbar…
+    <form class="hc-fill" id="order-selection">
+      <div class="hc-datagrid hc-fill" id="orders">…</div>
+    </form>
+  </div>
+</main>
+```
+
 ```css
 /* hc-shell__main becomes the row that holds the page column */
 .app-main {
@@ -43,7 +54,7 @@ region's endpoint would implement.
   min-inline-size: 0;
 }
 
-/* The page column: fixed regions, then the grid taking the rest */
+/* The page column: fixed regions, then whatever says it fills */
 .page {
   display: flex;
   flex: 1;
@@ -52,15 +63,22 @@ region's endpoint would implement.
   min-inline-size: 0;
   gap: var(--hc-space-3);
 }
-
-.page > .hc-datagrid {
-  flex: 1;
-  min-block-size: 0;
-  min-inline-size: 0;
-
-  --hc-datagrid-max-height: 100%;
-}
 ```
+
+**`.hc-fill` goes on every element between the column and the grid** —
+including the wrapping `<form>` — and on the grid itself, where it also
+switches `--hc-datagrid-max-height` from the default `70vh` to `100%`.
+
+It is a **class, not a descendant rule**, on purpose:
+
+- **A page may hold several grids.** A detail screen stacks a header
+  grid, a lines grid and a history grid; only the one that says so may
+  take the remaining height, and the others keep their own caps. A rule
+  like `.page > form > .hc-datagrid` fills whichever grid the structure
+  happens to match.
+- **Structure changes.** Wrap the grid in a `<div>` for a border and a
+  descendant rule stops matching — silently, and the symptom (the page
+  scrolls instead of the grid) shows up nowhere near the change.
 
 **Both minimums are load-bearing, one per axis.** A flex item will not
 shrink below its content, and a datagrid is oversized on both axes: its
@@ -211,8 +229,8 @@ grid is full before any JavaScript runs.
         </div>
 
         <!-- The grid takes the rest. One form so checked ids serialize. -->
-        <form id="order-selection" method="post" action="/orders/bulk">
-          <div class="hc-datagrid" id="orders" data-hc-zebra data-hc-datagrid-pending>
+        <form class="hc-fill" id="order-selection" method="post" action="/orders/bulk">
+          <div class="hc-datagrid hc-fill" id="orders" data-hc-zebra data-hc-datagrid-pending>
             <div class="hc-datagrid__scroll">
               <table class="hc-datagrid__table">
                 <thead class="hc-datagrid__head">
@@ -334,30 +352,18 @@ grid is full before any JavaScript runs.
   gap: var(--hc-space-3);
 }
 
-.page > form,
-.page > form > .hc-datagrid {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-block-size: 0;
-  min-inline-size: 0;
-}
-
-.page > form > .hc-datagrid {
-  --hc-datagrid-max-height: 100%;
-}
-
+/* Below hc-shell's breakpoint the shell is an ordinary scrolling page,
+   so a filling grid has no definite parent height to measure against. */
 @media (width <= 60rem) {
-  .page > form > .hc-datagrid {
+  .hc-datagrid.hc-fill {
     --hc-datagrid-max-height: 70vh;
   }
 }
 ```
 
-The chain matters: every element between the page column and the grid
-needs `flex: 1` and **both** minimums, including the selection `<form>`.
-Break the chain anywhere and that axis scrolls the page instead of the
-grid.
+The chain matters: **every** element between the page column and the
+grid carries `hc-fill`, including the selection `<form>`. Miss one and
+that axis scrolls the page instead of the grid.
 
 ## Views belong on the screen, not in the panel
 

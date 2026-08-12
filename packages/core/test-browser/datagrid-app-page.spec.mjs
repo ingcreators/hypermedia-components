@@ -75,4 +75,34 @@ test.describe('full-height list page', () => {
     // cell must not move on either.
     expect(await head()).toEqual(before);
   });
+
+  test('only the grid that says so fills — a second grid keeps its own cap', async ({
+    page,
+  }) => {
+    // A detail screen stacks several grids. The filling one is the one
+    // carrying .hc-fill, not "the one the selector happened to match".
+    const heights = await page.evaluate(() => {
+      const h = (id) => Math.round(document.getElementById(id).getBoundingClientRect().height);
+      return { filling: h('grid'), other: h('grid2') };
+    });
+    expect(heights.other).toBeLessThan(120); // its own 6rem cap
+    expect(heights.filling).toBeGreaterThan(heights.other * 2);
+  });
+
+  test('the chain is classes, not structure', async ({ page }) => {
+    // Inserting a wrapper must not silently break the composition: the
+    // rule is on the elements, so the page still does not scroll.
+    await page.evaluate(() => {
+      const grid = document.getElementById('grid');
+      const wrapper = document.createElement('div');
+      wrapper.className = 'hc-fill';
+      grid.parentElement.insertBefore(wrapper, grid);
+      wrapper.append(grid);
+    });
+    const overflow = await page.evaluate(() => {
+      const doc = document.documentElement;
+      return { x: doc.scrollWidth - doc.clientWidth, y: doc.scrollHeight - doc.clientHeight };
+    });
+    expect(overflow).toEqual({ x: 0, y: 0 });
+  });
 });

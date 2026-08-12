@@ -109,6 +109,15 @@
     text-align: end;
   }
 
+  /* A grid told to fill its parent measures against THAT, not the
+   * viewport: `--hc-datagrid-max-height` defaults to 70vh, which is
+   * right for a grid inside a scrolling page and wrong for a grid that
+   * IS the page. Opt-in, so the many grids that simply sit in a page
+   * keep the viewport cap. */
+  .hc-datagrid.hc-fill {
+    --hc-datagrid-max-height: 100%;
+  }
+
   /* ---- Sticky multi-level header ---- */
   .hc-datagrid__headcell {
     position: sticky;

@@ -35,13 +35,13 @@
       padding: var(--hc-space-3);
     }
 
-    .page > .hc-datagrid {
-      flex: 1;
-      min-block-size: 0;
-      min-inline-size: 0;
-
-      --hc-datagrid-max-height: 100%;
+    /* The second grid is an ordinary one: a cap of its own, no filling. */
+    #grid2 {
+      --hc-datagrid-max-height: 6rem;
     }
+
+    /* Nothing structural here any more: .hc-fill on the element that
+       should fill, and the second grid below is left alone. */
   </style>
 </head>
 <body>
@@ -63,7 +63,7 @@
           <span>4,901–4,940 of 5,000</span>
         </div>
 
-        <div class="hc-datagrid" id="grid" data-testid="grid">
+        <div class="hc-datagrid hc-fill" id="grid" data-testid="grid">
           <div class="hc-datagrid__scroll" data-testid="scroll">
             <table class="hc-datagrid__table">
               <thead class="hc-datagrid__head">
@@ -74,6 +74,22 @@
                 </tr>
               </thead>
               <tbody class="hc-datagrid__body" id="rows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- A second grid in the same page column, deliberately NOT
+             filling: a detail screen stacks several, and only the one
+             that says so may take the remaining height. -->
+        <div class="hc-datagrid" id="grid2" data-testid="grid2">
+          <div class="hc-datagrid__scroll">
+            <table class="hc-datagrid__table">
+              <thead class="hc-datagrid__head">
+                <tr><th class="hc-datagrid__headcell" scope="col">Lines</th></tr>
+              </thead>
+              <tbody class="hc-datagrid__body">
+                <tr class="hc-datagrid__row"><td class="hc-datagrid__cell">one</td></tr>
+              </tbody>
             </table>
           </div>
         </div>

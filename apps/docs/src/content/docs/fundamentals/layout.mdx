@@ -195,6 +195,46 @@ collapses there too, with no viewport media query. Knobs:
   </Fragment>
 </Demo>
 
+## `.hc-fill` — take the remaining space
+
+The composition every full-height app screen needs, and the one easiest
+to get wrong: a page column of fixed regions, then **one** region that
+takes what is left and lets its own children scroll.
+
+```html
+<div class="page">          <!-- flex column, both minimums 0 -->
+  …title, toolbar…
+  <form class="hc-fill">    <!-- every element on the path -->
+    <div class="hc-datagrid hc-fill">…</div>
+  </form>
+</div>
+```
+
+`.hc-fill` is `display: flex; flex: 1; flex-direction: column` **plus
+both minimums** — and both are load-bearing, one per axis:
+
+- miss `min-block-size: 0` and the region grows to fit its content, so
+  the **page** scrolls and the fixed chrome scrolls away;
+- miss `min-inline-size: 0` and a wide child (a `max-content` table)
+  makes an ancestor the **horizontal** scrollport, dragging the chrome
+  sideways.
+
+Put it on **every element between the column and the filling region**,
+including a wrapping `<form>`. On an
+[`hc-datagrid`](/hypermedia-components/components/datagrid/) it also
+switches `--hc-datagrid-max-height` from the default `70vh` — right for
+a grid *inside* a scrolling page — to `100%`, right for a grid that
+**is** the page.
+
+:::tip[Why a class and not `.page > form > .hc-datagrid`]
+A page may hold several grids: a detail screen stacks a header grid, a
+lines grid and a history grid, and only one of them should take the
+remaining height. A structural rule fills whichever grid the markup
+happens to match, and stops matching the day someone wraps the grid in
+a `<div>` — silently, with the symptom showing up nowhere near the
+change.
+:::
+
 ## `.hc-sr-only` — visually hidden
 
 Content available to assistive technology but removed from the visual
