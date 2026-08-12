@@ -67,8 +67,65 @@ const FILTERS = [
       <!-- The page column: fixed regions, then the grid taking the rest.
            Both minimums matter — see the stylesheet below. -->
       <div class="tpl-grid-page">
+        <!-- Identity row. The heading names the SCREEN; the menu beside
+             it names what is currently being looked at — the applied
+             saved view — because that is the question a list screen is
+             asked first and most often. Recall is navigation (a view is
+             a named URL), so it lives here rather than three clicks deep
+             inside the filter dialog. -->
         <div class="hc-cluster" style="justify-content: space-between;">
-          <h2 style="margin: 0; font-size: var(--hc-font-size-lg);">Orders</h2>
+          <div class="hc-cluster">
+            <h2 style="margin: 0; font-size: var(--hc-font-size-lg);">Orders</h2>
+            <button
+              class="hc-button"
+              data-variant="ghost"
+              type="button"
+              id="template-grid-view-trigger"
+              popovertarget="template-grid-views">
+              <span>Overdue shipments</span>
+              <span class="hc-badge" data-variant="warning">Modified</span>
+              <span aria-hidden="true">▾</span>
+            </button>
+
+            <!-- Views are a radio set: exactly one is applied, and
+                 "Show everything" is the none-of-them option — the way
+                 back when a default view redirected the bare URL. Every
+                 item is a real link, so views stay bookmarkable and
+                 middle-clickable. -->
+            <div
+              class="hc-menu"
+              id="template-grid-views"
+              popover
+              role="menu"
+              aria-labelledby="template-grid-view-trigger">
+              <div role="group" aria-labelledby="template-grid-views-pinned">
+                <span class="hc-menu__label" id="template-grid-views-pinned">Pinned</span>
+                <a class="hc-menu__item" role="menuitemradio" aria-checked="true"
+                   href="#template-grid">Overdue shipments</a>
+                <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+                   href="#template-grid">Awaiting approval</a>
+                <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+                   href="#template-grid">Air freight — shared</a>
+              </div>
+              <hr class="hc-menu__separator" />
+              <div role="group" aria-labelledby="template-grid-views-recent">
+                <span class="hc-menu__label" id="template-grid-views-recent">Recent</span>
+                <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+                   href="#template-grid">Northwind backorders</a>
+              </div>
+              <hr class="hc-menu__separator" />
+              <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+                 href="#template-grid">Show everything</a>
+              <hr class="hc-menu__separator" />
+              <!-- Discarding a tweak is a NAVIGATION back to the view's
+                   own URL — never a form reset, which would restore the
+                   fields the server rendered, i.e. the modified state. -->
+              <a class="hc-menu__item" role="menuitem" href="#template-grid">
+                Reset to saved conditions
+              </a>
+              <a class="hc-menu__item" role="menuitem" href="#template-grid">Manage views…</a>
+            </div>
+          </div>
           <button
             class="hc-button"
             type="button"
@@ -85,7 +142,8 @@ const FILTERS = [
         <div class="hc-filterbar">
           <ul class="hc-filterbar__list">
             <li class="hc-filterbar__item">
-              <button class="hc-filterbar__chip" type="button" popovertarget="template-grid-filters">
+              <button class="hc-filterbar__chip" type="button"
+                      onclick="document.getElementById('template-grid-filters').showModal()">
                 <span class="hc-filterbar__label">Ship date</span>
                 <span class="hc-filterbar__op">from</span>
                 <span class="hc-filterbar__value">start of this week (2026-08-10)</span>
@@ -94,7 +152,8 @@ const FILTERS = [
                  aria-label="Remove Ship date filter">×</a>
             </li>
             <li class="hc-filterbar__item">
-              <button class="hc-filterbar__chip" type="button" popovertarget="template-grid-filters">
+              <button class="hc-filterbar__chip" type="button"
+                      onclick="document.getElementById('template-grid-filters').showModal()">
                 <span class="hc-filterbar__label">Buyer code</span>
                 <span class="hc-filterbar__op">is</span>
                 <span class="hc-filterbar__value">3 values</span>
@@ -103,7 +162,8 @@ const FILTERS = [
                  aria-label="Remove Buyer code filter">×</a>
             </li>
             <li class="hc-filterbar__item">
-              <button class="hc-filterbar__chip" type="button" popovertarget="template-grid-filters">
+              <button class="hc-filterbar__chip" type="button"
+                      onclick="document.getElementById('template-grid-filters').showModal()">
                 <span class="hc-filterbar__label">Carrier</span>
                 <span class="hc-filterbar__op">is</span>
                 <span class="hc-filterbar__value">Road</span>
@@ -191,20 +251,18 @@ const FILTERS = [
     aria-labelledby="template-grid-filters-title"
     style="--hc-dialog-max-width: 52rem;">
     <form method="get" action="#template-grid">
+      <!-- The panel edits conditions and closes the composition by
+           naming it. Recall left for the identity row above: switching
+           views is navigation, and it was costing four interactions
+           behind this dialog. What stays is the pair of terminal
+           actions — and only those, so there is one undo (Cancel) and
+           not two. -->
       <div class="hc-dialog__header">
         <div class="hc-cluster" style="justify-content: space-between;">
           <h2 class="hc-dialog__title" id="template-grid-filters-title">Filters</h2>
           <div class="hc-cluster">
-            <label class="hc-field__label" for="template-grid-saved">Saved</label>
-            <select class="hc-select" id="template-grid-saved" name="view">
-              <option value="">—</option>
-              <option value="overdue">Overdue shipments</option>
-              <option value="unapproved">Awaiting approval</option>
-            </select>
-            <span class="hc-badge" data-variant="warning">Modified</span>
             <button class="hc-button" data-size="sm" type="button">Update</button>
             <button class="hc-button" data-size="sm" type="button">Save as new…</button>
-            <button class="hc-button" data-size="sm" type="reset">Reset</button>
           </div>
         </div>
       </div>

@@ -122,6 +122,51 @@ current 印付きでストリップに入ります。チップをクリックす
 残るので、既に共有されたリンクも生き続けます。`422 duplicate` は残り
 ますが、本当に新規の名前が衝突した場合だけです。
 
+**「元に戻す」はリンクであって `<button type="reset">` ではありません。**
+ネイティブのリセットが戻すのはサーバーがコントロールに描画した値 —
+つまり適用後に手を入れた*変更済みの状態そのもの*です。ビュー自身の URL
+を指し、適用レスポンスにフォームを埋めさせてください。
+
+## 呼び出しはどこに置くか
+
+呼び出しは**画面側**に置きます。フィルタのエディタの中ではありません。
+ビューは名前の付いた URL なので、適用はナビゲーションです。ダイアログの
+奥に置くと画面で最も頻度の高い操作が 4 手になり、「そこへ行く」動詞が
+「条件を組み立てる」面に混ざります。組み立てたものに名前を付けるのは
+組み立ての終端なので、**保存**はエディタに残し、**呼び出し**は画面
+タイトルの隣に置きます。
+
+上のチップの帯は少数向けの形です。ビューが数個を超えたら、同じリンクを
+[`hc-menu`](/hypermedia-components/ja/components/menu/) として描画し、
+**ボタンのラベルを適用中のビュー名そのもの**にします。
+
+```html
+<button class="hc-button" id="view-trigger" popovertarget="views" type="button">
+  <span>Overdue shipments</span>
+  <span class="hc-badge" data-variant="warning">Modified</span>
+</button>
+
+<div class="hc-menu" id="views" popover role="menu" aria-labelledby="view-trigger">
+  <a class="hc-menu__item" role="menuitemradio" aria-checked="true"
+     href="/items?view=overdue">Overdue shipments</a>
+  <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+     href="/items">Show everything</a>
+</div>
+```
+
+- **`menuitemradio`** です。適用されているビューは常に 1 つで、
+  **Show everything** がその「どれでもない」選択肢 — 既定ビューが素の
+  URL をリダイレクトしているときの戻り道になります。
+- 中身は本物の `<a href>` のままです。ブックマークでき、中クリックで開け、
+  JavaScript なしでも動きます。
+- メニューを描画するのはサーバーなので、ピン留めや最近使った順、どの項目
+  が `aria-checked="true"` を持つかもサーバーが決めます — 帯のときと同じ
+  判断です。
+
+実際に置いた例は
+[データグリッドページのテンプレート](/hypermedia-components/ja/templates/data-grid-page/)
+にあります。
+
 ## ビューが捉えるもの
 
 ビューは「また尋ねたい問い」であって「立っていた場所」ではありません。

@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- **docs**: **saved views move out of the filter dialog and onto the
+  screen**. A list screen is asked four questions — what am I looking
+  at, narrowed how, in what order, showing which columns — and each
+  reads best with exactly one home; the first is answered beside the
+  title by an `hc-menu` whose label *is* the applied view's name.
+  Recall was costing four interactions for the screen's most frequent
+  act, and a view is a **named URL**, which makes recall navigation
+  rather than filter editing. Items are `role="menuitemradio"` (exactly
+  one view is applied, with **Show everything** as the none-of-them
+  option) and still real `<a href>`s, so views stay bookmarkable,
+  middle-clickable and no-JS. The panel keeps only the terminal actions
+  of composing a condition set, **Update** and **Save as new…**, which
+  also leaves one undo instead of two. The `saved-views` contract and
+  recipe page document the menu shape beside the chips strip, and the
+  data-grid page template shows it in place.
+
 - **recipes**: `datagrid-filter` documents (and demonstrates) **how a
   relative date gets entered**. The expressions shipped as a wire
   format with no affordance behind them — and nobody types
@@ -335,6 +351,19 @@ Security    — security-relevant changes
   carries two meanings.
 
 ### Fixed
+
+- **docs**: two defects in the data-grid page template's filter panel.
+  Its **Reset** was `<button type="reset">`, which restores the values
+  the server rendered into the controls — after an apply plus a tweak,
+  *the modified state*: the one control promising to undo the tweak was
+  the one guaranteed not to. It is now a link to the view's own URL, as
+  the `saved-views` contract now says explicitly. The **Modified** badge
+  also rendered unconditionally next to a `view` select showing "—";
+  it now lives on the view menu's label, where the comparison it reports
+  actually happens. The condition chips carried
+  `popovertarget="…-filters"` pointing at a `<dialog>` with no `popover`
+  attribute, so clicking a chip did nothing at all — they open the panel
+  now.
 
 - **recipes**: relative date expressions handle **period offsets** and
   stop overflowing. `@month-end-1m` — "end of last month", the phrase a

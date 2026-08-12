@@ -1,0 +1,87 @@
+<!doctype html>
+<!-- Fixture for the saved-views RECALL surface documented in the
+     saved-views recipe and the data-grid page template: the menu that
+     sits beside the screen title and names the view currently applied.
+
+     What it pins is the semantics, not the drawing. A view is a named
+     URL, so every item is a real link; exactly one view is applied, so
+     the items are `menuitemradio` with a single checked one and a
+     "Show everything" none-of-them option; and discarding a tweak is a
+     link back to the view's own URL — never `<button type="reset">`,
+     which would restore the values the server rendered, i.e. the
+     modified state itself. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>saved views menu fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main class="hc-stack" style="padding:1rem; max-inline-size: 48rem;">
+    <div class="hc-cluster">
+      <h1 style="margin:0">Orders</h1>
+
+      <button class="hc-button" data-variant="ghost" type="button"
+              id="view-trigger" data-testid="trigger" popovertarget="views">
+        <span>Overdue shipments</span>
+        <span class="hc-badge" data-variant="warning">Modified</span>
+        <span aria-hidden="true">▾</span>
+      </button>
+
+      <div class="hc-menu" id="views" data-testid="menu" popover role="menu"
+           aria-labelledby="view-trigger">
+        <div role="group" aria-labelledby="views-pinned">
+          <span class="hc-menu__label" id="views-pinned">Pinned</span>
+          <a class="hc-menu__item" role="menuitemradio" aria-checked="true"
+             href="/orders?view=overdue">Overdue shipments</a>
+          <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+             href="/orders?view=unapproved">Awaiting approval</a>
+        </div>
+        <hr class="hc-menu__separator">
+        <div role="group" aria-labelledby="views-recent">
+          <span class="hc-menu__label" id="views-recent">Recent</span>
+          <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+             href="/orders?view=backorders">Northwind backorders</a>
+        </div>
+        <hr class="hc-menu__separator">
+        <a class="hc-menu__item" role="menuitemradio" aria-checked="false"
+           data-testid="everything" href="/orders">Show everything</a>
+        <hr class="hc-menu__separator">
+        <a class="hc-menu__item" role="menuitem" data-testid="reset"
+           href="/orders?view=overdue">Reset to saved conditions</a>
+        <a class="hc-menu__item" role="menuitem" href="/views">Manage views…</a>
+      </div>
+    </div>
+
+    <!-- The editor keeps only the terminal actions of composing a
+         condition set. One undo (Cancel), not two. -->
+    <dialog class="hc-dialog" id="filters" data-testid="panel"
+            aria-labelledby="filters-title">
+      <form method="get" action="/orders">
+        <div class="hc-dialog__header">
+          <div class="hc-cluster" style="justify-content: space-between;">
+            <h2 class="hc-dialog__title" id="filters-title">Filters</h2>
+            <div class="hc-cluster">
+              <button class="hc-button" data-size="sm" type="button">Update</button>
+              <button class="hc-button" data-size="sm" type="button">Save as new…</button>
+            </div>
+          </div>
+        </div>
+        <div class="hc-dialog__body">
+          <div class="hc-field">
+            <label class="hc-field__label" for="f-buyer">Buyer code</label>
+            <input class="hc-input" id="f-buyer" name="f-buyer" type="text" value="A-100">
+          </div>
+        </div>
+        <div class="hc-dialog__footer">
+          <button class="hc-button" type="submit" data-testid="cancel"
+                  formmethod="dialog">Cancel</button>
+          <button class="hc-button" data-variant="primary" type="submit">Apply</button>
+        </div>
+      </form>
+    </dialog>
+  </main>
+</body>
+</html>
