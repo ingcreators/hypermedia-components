@@ -22,6 +22,28 @@ Security    — security-relevant changes
 
 ### Added
 
+- **components**: the filter panel's typography, as reusable API. A
+  panel is read far more often than it is filled in, so `hc-grid` gains
+  **`data-align="start"`** (items align to the top of their row instead
+  of stretching — a three-row textarea stops inflating its neighbour
+  into a tall empty box) and **`data-span="full"`** (an item takes a
+  whole row; `auto-fill` means *which* items pair up changes with
+  width, so nothing may depend on a pairing that holds at one width).
+  `hc-field` gains **`data-applied`**, marking a set condition with a
+  dot — a scanning aid, since the announcement is the conditions bar
+  above the data — with `--hc-field-applied-marker-color` / `-size`.
+  `hc-input-group` now strips a nested `<select>`'s chrome, so *value +
+  operator* reads as one control with one ring, and **`data-quiet`**
+  drops that select's voice (not its hit area or its keyboard) for the
+  operator nearly every row leaves at its default. The data-grid page
+  template adopts all four, settles on **one vocabulary (Apply)**, and
+  makes Cancel a native `formmethod="dialog"` submit instead of inline
+  JS. `fundamentals/icons` gains the policy the screen follows: icon +
+  label unless the meaning is universal, icon-only for close / overflow
+  / pager chevrons, counts in the label rather than a badge, and **a
+  gear is not a columns icon** — it reads as screen settings and
+  collides with them.
+
 - **docs**: the data-grid page template gets a **columns entry point**.
   The [`datagrid-columns`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-columns/contract.md)
   recipe already existed and the wiring map already named it — what the

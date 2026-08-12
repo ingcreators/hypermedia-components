@@ -1706,6 +1706,14 @@
     "invalid-message-color": {
       "$type": "color",
       "$value": "{semantic.color.error}"
+    },
+    "applied-marker-color": {
+      "$type": "color",
+      "$value": "{semantic.color.action.primary.bg}"
+    },
+    "applied-marker-size": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
     }
   },
   "spinner": {

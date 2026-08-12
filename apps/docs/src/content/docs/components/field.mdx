@@ -126,6 +126,25 @@ so the reader can still tell the advice from the problem:
   </Fragment>
 </Demo>
 
+## Applied conditions: `data-applied`
+
+In a filter panel with eight rows, "what is currently set" is otherwise
+answerable only by reading all eight. `data-applied` on the field marks
+its label with a dot:
+
+```html
+<div class="hc-field" data-applied>
+  <label class="hc-field__label" for="f-buyer">Buyer code</label>
+  <input class="hc-input" id="f-buyer" name="f-buyer" value="A-100">
+</div>
+```
+
+The dot is a **scanning aid, not the announcement** — the applied
+conditions are already a list of controls above the data (see
+[datagrid-filter](/hypermedia-components/recipes/datagrid-filter/)),
+which is what a screen reader reads. Colour and size come from
+`--hc-field-applied-marker-color` / `--hc-field-applied-marker-size`.
+
 ## Composing a form
 
 A complete form needs nothing beyond kit classes — no app CSS for

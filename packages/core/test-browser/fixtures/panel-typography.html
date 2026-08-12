@@ -1,0 +1,46 @@
+<!doctype html>
+<!-- Fixture for the filter-panel layout opt-ins: hc-grid's
+     data-align="start" and data-span="full", hc-field's data-applied
+     marker, and the quiet operator select inside an hc-input-group.
+
+     These are geometry claims, so they are pinned in a real browser
+     rather than asserted about the stylesheet text. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>panel typography fixture</title>
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body>
+  <main style="padding:1rem; max-inline-size: 44rem;">
+    <h1>Filters</h1>
+    <form>
+      <div class="hc-grid" data-align="start" data-testid="grid"
+           style="--hc-grid-min: 18rem;">
+        <div class="hc-field" data-testid="short">
+          <label class="hc-field__label" for="f-order">Order number</label>
+          <div class="hc-input-group" data-testid="group">
+            <input class="hc-input" type="text" id="f-order" name="f-order">
+            <select class="hc-select" data-quiet name="op-order"
+                    data-testid="op" aria-label="Order number operator">
+              <option value="eq">equals</option>
+              <option value="contains">contains</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hc-field" data-applied data-testid="applied">
+          <label class="hc-field__label" for="f-buyer" data-testid="applied-label">Buyer code</label>
+          <input class="hc-input" type="text" id="f-buyer" name="f-buyer" value="A-100">
+        </div>
+
+        <div class="hc-field" data-span="full" data-testid="full">
+          <label class="hc-field__label" for="f-notes">Notes</label>
+          <textarea class="hc-input" id="f-notes" name="f-notes" rows="4"></textarea>
+        </div>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

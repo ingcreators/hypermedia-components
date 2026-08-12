@@ -126,6 +126,26 @@ import Demo from '../../../../components/Demo.astro';
   </Fragment>
 </Demo>
 
+## 適用中の条件: `data-applied`
+
+行が 8 つある検索パネルでは、「いま何が設定されているか」は 8 行すべて
+読まないと分かりません。フィールドに `data-applied` を付けると、ラベルに
+点が付きます。
+
+```html
+<div class="hc-field" data-applied>
+  <label class="hc-field__label" for="f-buyer">Buyer code</label>
+  <input class="hc-input" id="f-buyer" name="f-buyer" value="A-100">
+</div>
+```
+
+点は**走査の補助であって通知ではありません**。適用中の条件はデータの
+上にコントロールの一覧として既に出ており
+（[datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/)）、
+スクリーンリーダーが読むのはそちらです。色とサイズは
+`--hc-field-applied-marker-color` / `--hc-field-applied-marker-size`
+です。
+
 ## フォームを組み立てる
 
 完全なフォームに必要なのはキットのクラスだけです — ラベルのレイアウト、

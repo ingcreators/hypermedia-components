@@ -438,6 +438,38 @@ Three consequences the template shows:
   only truthful where the comparison happens, next to the name it is
   comparing against.
 
+## The panel's typography
+
+A filter panel is read far more often than it is filled in, so it is
+laid out for scanning:
+
+- **Labels stay above their control.** Faster to scan and to complete,
+  and robust to label length — "Buyer" and 発注者コード differ by a
+  factor no fixed label column absorbs.
+- **Fields align to the top of their row** (`hc-grid` +
+  `data-align="start"`), so a three-row textarea stops stretching its
+  neighbour into a tall empty box.
+- **Anything multi-line takes a whole row** (`data-span="full"`).
+  `hc-grid` is `auto-fit`, so which fields pair up changes with width;
+  nothing may depend on a particular pairing.
+- **The operator is secondary** (`data-quiet` on the select inside the
+  input group). `equals` is what nearly every row uses; rendering it at
+  the value's weight doubles the cost of finding what is actually set.
+- **Applied fields are marked** (`data-applied` on the field), so "what
+  is currently set" is answerable at a glance rather than by reading
+  eight rows. The dot is a scanning aid — the announcement is the
+  conditions bar above the data.
+- **One vocabulary: Apply.** Not Search here and Apply in the sort
+  panel.
+- **Cancel is `formmethod="dialog"`** — a native dialog submit, no
+  inline JS, in a kit that advertises CSP-safety.
+
+Icons follow the same rule the rest of the screen does: **icon + label**
+for anything not universal, icon-only for close / overflow / pager
+chevrons, and the count in the label rather than a badge
+(`Filters (3)`). See
+[icons](/hypermedia-components/fundamentals/icons/#where-icons-belong-on-a-business-screen).
+
 ## Wiring map
 
 | Region | Component | Server contract |

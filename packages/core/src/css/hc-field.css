@@ -38,6 +38,25 @@
     line-height: 1.4;
   }
 
+  /* An APPLIED condition says so where it is edited, not only in the
+   * bar above the grid. With eight rows in a filter panel, "what is
+   * currently set" is otherwise answerable only by reading all eight.
+   *
+   * The dot is a scanning aid, not the announcement: the applied
+   * conditions are already a list of controls above the data (see the
+   * datagrid-filter recipe), which is what a screen reader reads. */
+  .hc-field[data-applied] > .hc-field__label::after,
+  .hc-field[data-applied] > .hc-field__legend::after {
+    content: "";
+    display: inline-block;
+    inline-size: var(--hc-field-applied-marker-size);
+    block-size: var(--hc-field-applied-marker-size);
+    margin-inline-start: var(--hc-field-gap);
+    border-radius: 50%;
+    background: var(--hc-field-applied-marker-color);
+    vertical-align: baseline;
+  }
+
   .hc-field__message {
     margin: 0;
     color: var(--hc-field-message-color);
