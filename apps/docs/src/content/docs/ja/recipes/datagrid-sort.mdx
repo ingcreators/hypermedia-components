@@ -1,0 +1,195 @@
+---
+title: データグリッドの並び替え
+description: ソート集合をコントロールにする — 適用中の並び順を述べるツールバーのボタンが、順序付きで並べ替え可能なキーの一覧を開く。画面に出ていない列のキーも扱える。
+---
+
+import DatagridSortDemo from '../../../../components/recipe-demos/DatagridSortDemo.astro';
+
+ヘッダーのクリックは並び替えの速い経路であり、これからも残ります。
+できないのは、**いまのソート集合が何かを答えること**です。そこでこの
+レシピは、[条件](/hypermedia-components/ja/recipes/datagrid-filter/)に
+対して行ったのと同じ扱いをソートにも与えます。読み出しと編集を兼ねる
+面を 1 つ用意する、ということです。トリガーのラベルがそのまま読み出し
+（サーバーが適用中の集合から描画します）で、パネルは並べ替え・反転・
+追加・削除ができる順序付きリストです。ワイヤは変わらず
+`?sort=-ship,order` なので、
+[保存ビュー](/hypermedia-components/ja/recipes/saved-views/)は問いの
+他の部分と同じようにソートも捉えます。
+
+:::tip[スキャフォールド]
+```sh
+npx @hypermedia-components/cli add datagrid-sort
+npx @hypermedia-components/cli validate page.html
+```
+`recipe.html`、`expanded.html`、機械検査される
+[サーバー契約](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-sort/contract.md)
+が入ります。
+:::
+
+## ライブデモ
+
+ソートボタンを開いてください。キーをドラッグするか、ハンドルに
+フォーカスして <kbd>Space</kbd> → <kbd>↓</kbd> → <kbd>Space</kbd> です。
+方向を反転させ、キーを外し、**Warehouse** を追加してみてください —
+グリッドが表示すらしていない列であり、ヘッダークリックでは扱えない
+ケースそのものです。**Apply** はソート済みのグリッドを返し、トリガーと
+パネルは out-of-band で戻ってくるので、2 つの面がずれることはありません。
+
+<DatagridSortDemo />
+
+## なぜヘッダーだけでは足りないのか
+
+| ヘッダーができること | ヘッダーにできないこと |
+| --- | --- |
+| 見えている列を 1 クリックで並び替える | 集合全体を順序込みで述べる |
+| 方向を反転する | 押し直さずにキーの順序を入れ替える |
+| — | 画面外の列や、表示していない列で並び替える |
+| — | **Shift+クリック**で 2 つ目のキーが足せると気付かせる |
+
+列が 30 あればソート中の列はたいてい画面外にあり、`aria-sort` と
+`data-sort-index` は誰にも見えない場所で答えていることになります。
+
+## マークアップ
+
+```html
+<button class="hc-button" type="button" id="sort-trigger" popovertarget="sort-panel">
+  Sort (2): Ship date ↓, Order ↑
+</button>
+
+<div class="hc-popover" id="sort-panel" popover aria-labelledby="sort-trigger">
+  <form action="/orders" method="get"
+        data-hx-get="/orders"
+        data-hx-include="#filters"
+        data-hx-target="#orders"
+        data-hc-close-popover-on-success>
+    <!-- この領域はサーバーの持ち物です（追加と削除がここを返します）。
+         close-on-success のグルーからは**降りて**いるので、ソートを
+         編集しても編集中のパネルが閉じることはありません。 -->
+    <div class="hc-popover__body" id="sort-keys"
+         data-hc-close-popover-on-success="false">
+      <ul class="hc-stack" data-hc-sortable data-hc-sort-list="sort">
+        <li class="hc-item" data-hc-sortable-id="ship" data-hc-sort-key="ship">
+          <button class="hc-button" data-variant="ghost" type="button"
+                  data-hc-sortable-handle aria-label="Reorder Ship date">⠿</button>
+          <span class="hc-item__title">Ship date</span>
+          <select class="hc-select" name="dir-ship" aria-label="Ship date direction">
+            <option value="asc">Ascending</option>
+            <option value="desc" selected>Descending</option>
+          </select>
+          <button class="hc-button" data-variant="ghost" data-size="sm" type="submit"
+                  name="drop" value="ship" formaction="/orders/sort"
+                  data-hx-get="/orders/sort?drop=ship"
+                  data-hx-include="closest form"
+                  data-hx-target="#sort-keys" data-hx-swap="outerHTML"
+                  aria-label="Remove Ship date from the sort">Remove</button>
+        </li>
+        <!-- …キー 1 つにつき 1 行、順序どおりに… -->
+      </ul>
+    </div>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" data-variant="primary" type="submit">Apply</button>
+    </footer>
+  </form>
+</div>
+```
+
+**行の順序がキーの順序です。**その状態を二重に持つものはありません。
+[`installSortable()`](/hypermedia-components/ja/recipes/sortable/) が
+ノードを並べ替え（ポインタ**と**キーボードの両方）、それがモデルです。
+
+## ワイヤ
+
+```text
+?sort=-ship,order        出荷日の降順、次に受注番号の昇順
+```
+
+`installSortList()` が `formdata` イベント — htmx もネイティブ送信も
+発火させるフック — で順序付きの行を 1 つのパラメータに束ねます。位置は
+最初の行が占めていた場所なので、ビヘイビアが動いたかどうかで同じソートの
+直列化結果が変わりません。保存ビューがクエリストリングを比較して
+「変更済み」を判定できるのはそのためです。
+
+これはグリッド自身のヘッダーソートが
+`input[data-hc-datagrid-sort]` にミラーする形式と同じです。形式は 1 つ、
+面は 2 つ。
+
+:::note[JavaScript が無いときはキーごとのコントロールがワイヤです]
+フォームのエントリは **DOM 順**で届くので、ネイティブ送信は
+`?dir-ship=desc&dir-order=asc` を送ります。キー・方向・そして順序が
+すべて載っています。サーバーは両方の形を受け付け、`sort=` に正規化して
+ください。各行の方向コントロールに名前を共有させず、キー名を付けるのは
+このためです。
+:::
+
+**空のリストは `sort` パラメータを送りません** — ソートが無いことは
+ソートではないので、サーバーの既定の並びが戻ります。
+
+## サーバーレスポンス契約
+
+| ケース | レスポンス |
+| --- | --- |
+| `GET /orders?sort=-ship,order&<条件>` | `200` ＋ ソート済みグリッド。ヘッダーセルは対応する `aria-sort` / `data-sort-index` を持ち、トリガーとパネル領域が OOB で付く |
+| `GET /orders/sort?add=<col>` | `200` ＋ そのキーを末尾に足したパネル領域（追加リストからは消える） |
+| `GET /orders/sort?drop=<col>` | `200` ＋ そのキーを外したパネル領域（列は追加リストに戻る） |
+| 未知・ソート不可のキー | **そのキーだけ**無視し、残りは活かす。`500` にしない。黙って別の列で並べ替えない |
+| `sort` が無い | 既定の並び。トリガーもそう述べる（`Sort: default`） |
+
+追加と削除が**サーバー往復**なのは、どの列が使えるかがサーバーの知識だ
+からです（権限、列構成、データで変わります）。クライアントが行を
+発明することはありません。
+
+## 2 つの面はずれない
+
+どちらも同じサーバー側のソート集合から描画されます。ヘッダークリックは
+指示をマークして `input[data-hc-datagrid-sort]` にワイヤをミラーし、
+レスポンスがソート済みのページ**と**再描画されたトリガー・パネルを
+返します。パネルをクライアント状態から描画しないでください。ずれ得る
+読み出しには価値がありません。
+
+## ソートは問いに属する
+
+- **保存ビューが捉えます。**「遅延中の出荷、古い順」で 1 つの問いです。
+- ページングでは変わらず、**ソートを変えたら 1 ページ目に戻します** —
+  並びが違う 7 ページ目は別の行の集合です。
+- 並び替えは**結果セット全体**に対してサーバーが行います。読み込み済みの
+  ページだけをクライアントで並べ替えるのは、5,000 行のうち 40 行を
+  並べ替えて本物そっくりに見せる行為です（グリッドの
+  `data-sortable="client"` は小さく全件読み込み済みの表のための
+  オプトインで、これとは別物です）。
+- **同値は決定的に割ってください** — 主キーを最後の見えないキーとして
+  足します。さもないとカーディナリティの低いソートでページングすると、
+  行の重複と欠落が起きます。
+
+## プログレッシブエンハンスメント
+
+パネルはただの `<form method="get">` です。Apply は画面遷移し、キーごとの
+コントロールが順序を運び、Remove / Add は `formaction` 付きの submit
+ボタンです。ドラッグでの並べ替えには `installSortable()` が要るので、
+同じ結果に届く JS 無しの道（外して欲しい順に足し直す、行ごとの
+「上へ」submit など）を残してください。ヘッダーのリンク（`?sort=…`）は
+JS ゼロの速い経路のままです。
+
+## アクセシビリティ
+
+- ハンドルは本物の `<button>` で、アクセシブル名に列名が入ります
+  （"Reorder Ship date"）。これは**キーボードの操作面**です —
+  <kbd>Space</kbd> で掴み、矢印で動かし、<kbd>Space</kbd> で置き、
+  <kbd>Esc</kbd> で取り消します。
+- 方向コントロールはキーごとにラベル付け（"Ship date direction"）。
+  文脈から切り離して読み上げても意味が通ります。
+- Remove ボタンは対象のキーを名乗ります。
+- 確定した並べ替えは共有の `role="status"` 領域で通知されます
+  （i18n キー `sortable.*`）。
+- グリッド側はヘッダーセルの `aria-sort` を保ちます。表そのものを読む
+  スクリーンリーダーが読むのはそれです。
+
+## 関連
+
+- [データグリッド](/hypermedia-components/ja/components/datagrid/) —
+  `aria-sort`、`data-sort-index`、ヘッダークリックの速い経路
+- [並べ替え](/hypermedia-components/ja/recipes/sortable/) — このリストが
+  乗っている並べ替えビヘイビア
+- [データグリッドのフィルタ](/hypermedia-components/ja/recipes/datagrid-filter/) —
+  ソートが一緒に運ばれる条件
+- [保存ビュー](/hypermedia-components/ja/recipes/saved-views/) —
+  ソート集合が問いと一緒に保存される場所

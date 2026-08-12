@@ -5,6 +5,10 @@
 //   - After an htmx request succeeds the behavior finds the closest
 //     [popover] ancestor and calls hidePopover().
 //   - On failure the popover stays open.
+//   - The nearest carrier wins: an inner region carrying
+//     `data-hc-close-popover-on-success="false"` opts its own requests
+//     out, so a panel that edits itself (add / remove a sort key, a
+//     column) stays open while its Apply still closes it.
 //
 // installClosePopover() returns an `uninstall` function. Idempotent.
 
@@ -15,6 +19,12 @@ function onAfterRequest(event) {
   if (!target || typeof target.matches !== 'function') return;
   const opener = target.closest('[data-hc-close-popover-on-success]');
   if (!opener) return;
+
+  // The NEAREST carrier wins, so a region inside the panel can opt out
+  // with `="false"`. Panels that edit themselves need this: a sort or
+  // column list whose add / remove round trips succeed would otherwise
+  // dismiss the panel the user is still working in.
+  if (opener.getAttribute('data-hc-close-popover-on-success') === 'false') return;
 
   const detail = event.detail || {};
   if (detail.successful !== true) return;

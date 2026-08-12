@@ -47,6 +47,7 @@ import * as liveSearch from './recipes/live-search.mjs';
 import * as multiStepForm from './recipes/multi-step-form.mjs';
 import * as mutatingForm from './recipes/mutating-form.mjs';
 import * as postalAddress from './recipes/postal-address.mjs';
+import * as datagridSort from './recipes/datagrid-sort.mjs';
 import * as savedViews from './recipes/saved-views.mjs';
 import * as sessionExpiry from './recipes/session-expiry.mjs';
 import * as remoteDialog from './recipes/remote-dialog.mjs';
@@ -86,6 +87,7 @@ const RECIPES = new Map([
   ['multi-step-form', multiStepForm],
   ['mutating-form', mutatingForm],
   ['postal-address', postalAddress],
+  ['datagrid-sort', datagridSort],
   ['saved-views', savedViews],
   ['session-expiry', sessionExpiry],
   ['remote-dialog', remoteDialog],

@@ -77,4 +77,29 @@ describe('installClosePopover', () => {
     fireAfterRequest(document.getElementById('f'));
     expect(document.getElementById('p').hidePopover).not.toHaveBeenCalled();
   });
+
+  it('an inner region can opt out with ="false", so a self-editing panel stays open', () => {
+    // A sort or column panel edits itself: its add / remove round trips
+    // succeed, and without this the panel would dismiss itself while
+    // the user is still working in it.
+    document.body.innerHTML = `
+      <div id="p2" popover>
+        <form id="f2" data-hc-close-popover-on-success>
+          <div id="keys" data-hc-close-popover-on-success="false">
+            <button id="add" type="button">Add</button>
+          </div>
+          <button id="apply" type="submit">Apply</button>
+        </form>
+      </div>
+    `;
+    polyfillPopover(document.getElementById('p2'));
+    uninstall = installClosePopover();
+
+    fireAfterRequest(document.getElementById('add'));
+    expect(document.getElementById('p2').hidePopover).not.toHaveBeenCalled();
+
+    // Apply still closes it — the NEAREST carrier is the form.
+    fireAfterRequest(document.getElementById('f2'));
+    expect(document.getElementById('p2').hidePopover).toHaveBeenCalled();
+  });
 });

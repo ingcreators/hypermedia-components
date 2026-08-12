@@ -48,6 +48,10 @@ test.describe('session-expiry recipe', () => {
   });
 
   test('no axe violations with the login dialog open', async ({ page }) => {
+    // Dialog-open axe scans emulate reduced motion (#342): otherwise the
+    // colour-contrast check can sample the dialog mid-transition and
+    // report a violation that does not exist once it settles.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.getByTestId('approve').click();
     await expect(page.locator('#error-dialog dialog')).toBeVisible();
     const { violations } = await new AxeBuilder({ page })

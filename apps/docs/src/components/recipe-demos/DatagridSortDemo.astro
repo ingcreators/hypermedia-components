@@ -1,0 +1,63 @@
+---
+/*
+ * Live demo for the datagrid-sort recipe. The trigger IS the read-out —
+ * the server renders its label from the applied set — and the panel is
+ * the editor: reorder the keys (drag, or focus a handle and use Space +
+ * arrows), flip a direction, remove one, or add a column the grid does
+ * not even show.
+ *
+ * Everything here is server-rendered. The panel region and the trigger
+ * arrive out-of-band with every sorted page, so the two surfaces cannot
+ * drift; installSortList() only joins the ordered rows into one
+ * `sort=-ship,order` param on the way out.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-sort`;
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid sort demo">
+  <!-- Both are replaced out-of-band by every response; these are just
+       the first paint, before the grid's `load` request answers. -->
+  <button
+    class="hc-button"
+    type="button"
+    id="datagrid-sort-demo-trigger"
+    popovertarget="datagrid-sort-demo-panel">
+    Sort: default
+  </button>
+
+  <div
+    id="datagrid-sort-demo-panel"
+    class="hc-popover"
+    popover
+    aria-labelledby="datagrid-sort-demo-trigger">
+    <form
+      action={`${api}/items`}
+      method="get"
+      data-hx-get={`${api}/items`}
+      data-hx-target="#datagrid-sort-demo-grid"
+      data-hc-close-popover-on-success>
+      <!-- The server owns this region: Add and Remove answer it, and it
+           opts out of the close-on-success glue so editing the sort does
+           not dismiss the panel being edited. -->
+      <div
+        class="hc-popover__body"
+        id="datagrid-sort-demo-keys"
+        data-hc-close-popover-on-success="false">
+        <p class="hc-field__hint">Loading…</p>
+      </div>
+      <footer class="hc-popover__footer">
+        <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+      </footer>
+    </form>
+  </div>
+
+  <div
+    class="hc-datagrid"
+    id="datagrid-sort-demo-grid"
+    data-hx-get={`${api}/items?sort=-ship,order`}
+    data-hx-trigger="load"
+    data-hx-swap="innerHTML">
+  </div>
+</DemoFrame>

@@ -50,6 +50,7 @@ const EXPLICIT_CLAIMS = {
   installMask: 'postal-address',
   installMultiValue: 'datagrid-filter', // pasted lists → repeated params
   installRangeValue: 'platform', // range condition wire shaping (datagrid-filter docs)
+  installSortList: 'datagrid-sort', // the sort control's ordered keys → one param
   installCsrfHeader: 'platform',
   installThemeToggle: 'platform',
   installNavCurrent: 'platform', // boosted-nav re-marking (shell docs)

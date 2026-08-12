@@ -53,6 +53,7 @@ export { installSortable } from './sortable.js';
 export { installFormat, installNormalize } from './format.js';
 export { installMultiValue } from './multi-value.js';
 export { installRangeValue } from './range-value.js';
+export { installSortList } from './sort-list.js';
 export { installMask } from './mask.js';
 export { installDirtyGuard } from './dirty-guard.js';
 export { installSessionExpiry } from './session-expiry.js';
