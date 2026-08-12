@@ -8,6 +8,11 @@
  * fragment (the trigger rides in its header, data-filtered when
  * active) plus an out-of-band re-render of the fieldset with matching
  * checked states — no client-side filtering.
+ *
+ * The regions the response fills OUT OF BAND must exist here or the
+ * swap lands nowhere and the feature is invisible: the applied
+ * conditions bar (#…-conditions) and the due-date control
+ * (#…-due-field), which is where relative dates are entered.
  */
 import DemoFrame from './DemoFrame.astro';
 
@@ -15,6 +20,13 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
 ---
 
 <DemoFrame class="hc-preview--col" label="Datagrid filter demo">
+  <!-- Applied conditions. Empty until a filter is applied; the
+       component collapses on its own, and the element must survive so
+       the next response has something to replace. -->
+  <div class="hc-filterbar" id="datagrid-filter-demo-conditions">
+    <ul class="hc-filterbar__list"></ul>
+  </div>
+
   <div
     class="hc-datagrid"
     id="datagrid-filter-demo-grid"
@@ -44,6 +56,20 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
           Failed
         </label>
       </fieldset>
+
+      <!-- The due-date condition: a server-rendered preset list whose
+           option values ARE the relative expressions (@today-7d,
+           @month-start-1m..@month-end-1m …), swapping to a date-range
+           pair or the offset composer when the user asks for one. The
+           server replaces this whole element (outerHTML) on every
+           answer. -->
+      <div class="hc-field" id="datagrid-filter-demo-due-field">
+        <label class="hc-field__label" for="f-due-select">Due</label>
+        <select class="hc-select" id="f-due-select" name="f-due">
+          <option value="">Any</option>
+        </select>
+      </div>
+
       <footer class="hc-popover__footer">
         <button class="hc-button" type="submit" data-variant="primary">Apply</button>
       </footer>

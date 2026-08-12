@@ -513,6 +513,17 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **docs**: the `datagrid-filter` live demo was **missing two of the
+  regions its own responses fill**, so both landed nowhere: the
+  applied-conditions bar and the due-date control — which is where
+  relative dates (`@today-7d`, `@month-start-1m..@month-end-1m`, the
+  preset list, the offset composer) are entered. An out-of-band swap
+  with no target does not fail loudly: htmx drops the fragment, the
+  page renders, and the feature is simply invisible. Both regions exist
+  now, and a test checks the demo pages against the regions their APIs
+  answer — from both ends, so the list cannot drift into fiction.
+
+
 - **docs**: a bulk-error report could **squeeze the grid to nothing**
   on the full-height list page. The chrome is fixed and the grid takes
   what is left, while the report's height is `O(number of failure
