@@ -98,6 +98,102 @@ fragment:
 The same is true of the `409` count-changed refusal: it is a decision,
 not a work list.
 
+## One surface, and it is docked — not modal
+
+Standardising on **one** place for "what went wrong" is right: operators
+rotate, and a surface that moves depending on the failure mode is
+learned twice. The catch is modality.
+
+`hc-drawer` today is `showModal()` only — backdrop, focus trap, the grid
+inert behind it. For a best-effort failure that reproduces the original
+defect in a different axis: the panel points at rows the user cannot
+reach without dismissing the panel.
+
+So the common surface is a **docked side panel**: the same drawer
+language, laid out *in* the page rather than over it.
+
+```html
+<div class="hc-splitter" data-orientation="horizontal">
+  <div class="hc-splitter__panel"><!-- the grid --></div>
+  <div class="hc-splitter__handle" role="separator" tabindex="0"
+       aria-label="Resize the error panel"></div>
+  <div class="hc-splitter__panel" id="bulk-report"><!-- the report --></div>
+</div>
+```
+
+- The grid loses **width**, which this layout has, not height, which it
+  does not — and it keeps its own scrollport, so the report can be as
+  long as it likes.
+- Both are live at once: click a reason, the rows behind it filter or
+  focus, and the user watches it happen. That is the whole job.
+- `installSplitter()` already ships the handle, the ARIA and the
+  keyboard resize; the panel collapses when there is nothing to report.
+- Below the shell's breakpoint the split stacks and the panel becomes
+  an overlay — on a phone there is no width to give.
+
+**The modal stays for atomic only**, where blocking *is* the message:
+nothing was applied, and the user owes a decision before anything can
+happen. Two surfaces, chosen by one question — "is there work in the
+grid?" — not by taste.
+
+## Rows get a number, and the number is a locator
+
+A business grid is discussed out loud and over the phone: "row 137 is
+the one that failed". Today the screen has no such handle — only the
+record id, which is right for the system and wrong for the sentence.
+
+Add an ordinal column, with two rules that keep it honest:
+
+- **The ordinal is a locator; the id is the identity.** Ordinals change
+  the moment the sort or the conditions change, so a report that *names*
+  an ordinal goes stale between rendering and reading. The report names
+  the id and *displays* the ordinal: `SO-4903 (row 137)`.
+- **The ordinal counts the result set, not the page.** Row 12 of page 2
+  is row 52; a number that restarts every page is worse than no number.
+
+The standards mapping is exact, and the grid is already `role="grid"`:
+
+```html
+<table class="hc-datagrid__table" aria-rowcount="5000">
+  …
+  <tr class="hc-datagrid__row" id="row-4903" aria-rowindex="137">
+    <th class="hc-datagrid__cell" data-row-no scope="row">137</th>
+```
+
+`aria-rowcount` / `aria-rowindex` are what a screen reader needs on a
+**paged** grid — without them it announces "row 3 of 40" on page four,
+which is a lie the kit has been telling. The visible column is the same
+fact, rendered.
+
+## Moving from error to error
+
+With numbers on screen, the summary line becomes a navigator — and it
+stays O(1) however many rows failed:
+
+```html
+<p class="hc-alert__body">
+  <strong>12 of 40 rows could not be updated.</strong>
+  <a class="hc-button" data-size="sm" href="#row-4903">Previous</a>
+  <span>Error 3 of 12 — row 137</span>
+  <a class="hc-button" data-size="sm" href="#row-5012">Next</a>
+  · <a href="/orders?f-last-result=failed">Show only failed</a>
+</p>
+```
+
+- They are **real `<a href="#row-<id>">` links**, so Back works, the
+  keyboard works, and no JavaScript is required to move. `installDatagrid()`
+  already lands the active cell on the row a fragment names
+  (`focusHashRow()`), which is exactly the focus move being asked for.
+- The counter and the two hrefs are **server-rendered** from the same
+  failure list the report shows — no client state, and no drift between
+  the panel and the line.
+- A **Go to row** control (a number input submitting `?goto=137`)
+  covers the "somebody read me a number" case; the server resolves the
+  ordinal to the page and the anchor, because only it knows where row
+  137 currently is.
+- Failed rows already carry `data-attention="error"`, so the landing row
+  is visibly the right one.
+
 ## The backstop
 
 Rules get missed, and a server can always render something taller than
@@ -120,13 +216,18 @@ server fills.
 | # | Content |
 | --- | --- |
 | 1 | The rule in the template (`chrome is O(1)`), the bounded `#bulk-report` region, and the one-line summary + row marks in the demo |
-| 2 | `datagrid-bulk-errors`: the three surfaces by semantics (summary / drawer / dialog), the "show only failed" filter promoted to the primary affordance, and the height rule in *Required client markup* |
-| 3 | A regression spec: with 15 reasons rendered, the grid still has usable height and the page itself does not scroll |
+| 2 | The **docked** report panel (`hc-splitter` beside the grid, collapsing when empty, overlaying below the breakpoint) — the common surface |
+| 3 | `datagrid-bulk-errors`: two surfaces by semantics (docked panel for best-effort, modal for atomic), "show only failed" promoted to the primary affordance, and the height rule in *Required client markup* |
+| 4 | Row ordinals: `aria-rowcount` / `aria-rowindex` on the paged grid + the optional `data-row-no` column, with the locator-vs-identity rule |
+| 5 | Error-to-error navigation: server-rendered prev / next `#row-<id>` links + the counter in the summary line, and a **Go to row** control |
+| 6 | A regression spec: with 15 reasons rendered, the grid still has usable height and the page itself does not scroll; the prev/next links move the active cell |
 
 ## Out of scope
 
-- A new component. The drawer, alert, filterbar and datagrid states all
-  exist; this is composition and a rule.
+- A new component. The splitter, drawer, alert, filterbar and datagrid
+  states all exist; this is composition and a rule.
+- Client-side ordinals. The server knows the sort, the conditions and
+  the page; the browser knows forty rows out of five thousand.
 - Client-side pagination of the report. The cap plus the full-list link
   already covers it.
 - Changing the report's *content* contract (grouped by reason, capped,
