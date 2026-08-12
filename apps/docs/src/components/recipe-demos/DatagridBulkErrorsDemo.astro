@@ -11,6 +11,13 @@
  *
  * 102 / 105 / 108 are "shipped" and 107 is "not yours" — select one of
  * those with a normal row to see each branch.
+ *
+ * The report is split the way the contract says: the chrome carries a
+ * ONE-LINE summary (constant height, whatever N is) and the grouped
+ * breakdown opens in a panel DOCKED beside the grid — a side panel
+ * spends horizontal space, which a full-height list page has, rather
+ * than vertical space, which it does not. Both are live at once, which
+ * is the whole point: click a reason, watch the rows behind it.
  */
 import DemoFrame from './DemoFrame.astro';
 
@@ -49,6 +56,11 @@ const rows = [101, 102, 103, 104, 105, 106, 107, 108];
         data-hx-disabled-elt="this">Post to ledger…（atomic）</button>
     </div>
 
+    <!-- Grid + docked panel. installSplitter() wires the handle, the
+         ARIA values and the keyboard resize; the panel starts collapsed
+         and the server unhides it with the report. -->
+    <div class="hc-splitter" data-orientation="horizontal" style="block-size: 280px;">
+      <div class="hc-splitter__panel">
     <div class="hc-datagrid" id="bulk-errors-demo-grid" style="--hc-datagrid-max-height: 260px;">
       <div class="hc-datagrid__scroll">
         <table class="hc-datagrid__table">
@@ -79,6 +91,18 @@ const rows = [101, 102, 103, 104, 105, 106, 107, 108];
             ))}
           </tbody>
         </table>
+      </div>
+    </div>
+      </div>
+
+      <div
+        class="hc-splitter__handle"
+        role="separator"
+        tabindex="0"
+        aria-label="Resize the error panel"></div>
+
+      <div class="hc-splitter__panel hc-scroll-area" id="bulk-errors-demo-detail" hidden>
+        <p class="hc-field__message">No failures to review.</p>
       </div>
     </div>
   </form>

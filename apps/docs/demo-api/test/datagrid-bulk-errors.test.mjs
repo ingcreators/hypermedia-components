@@ -265,3 +265,46 @@ describe('datagrid-bulk-errors demo API — the summary is the navigator', () =>
   });
 });
 
+describe('datagrid-bulk-errors demo API — the docked panel', () => {
+  it('best-effort splits the report: one line in the chrome, the table beside the grid', async () => {
+    const body = await (
+      await call(bulkErrors, 'POST', '/bulk', {
+        htmx: true,
+        body: form({ action: 'archive', ids: ['101', '102', '104', '105'] }),
+      })
+    ).text();
+    // The chrome's line stays O(1): a count, the moves, and the filter.
+    expect(body).toContain('succeeded /');
+    expect(body).toContain('Show only failed');
+    // …and the grouped table rides to the DOCKED panel instead.
+    expect(body).toContain('id="bulk-errors-demo-detail"');
+    expect(body).toContain('hc-splitter__panel');
+    const summary = body.slice(body.indexOf('id="bulk-errors-demo-report"'));
+    expect(summary.slice(0, summary.indexOf('bulk-errors-demo-detail'))).not.toContain(
+      '<table',
+    );
+  });
+
+  it('the panel is a server-owned region: hiding it is a response', async () => {
+    const closed = await (
+      await call(bulkErrors, 'GET', '/report?close=1', { htmx: true })
+    ).text();
+    expect(closed).toContain('hidden');
+    expect(closed).not.toContain('<table');
+
+    const open = await (
+      await call(bulkErrors, 'GET', '/report?ids=102&ids=105', { htmx: true })
+    ).text();
+    expect(open).toContain('<table');
+    expect(open).not.toContain(' hidden');
+  });
+
+  it('nothing to report collapses the panel rather than showing an empty one', async () => {
+    const body = await (
+      await call(bulkErrors, 'GET', '/report?ids=101&ids=103', { htmx: true })
+    ).text();
+    expect(body).toContain('hidden');
+    expect(body).toContain('No failures to review');
+  });
+});
+

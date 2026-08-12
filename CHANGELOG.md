@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- **docs**: the `datagrid-bulk-errors` demo now **shows the docked
+  panel** the contract describes, instead of only describing it. The
+  chrome keeps one line — count, prev / next, *Show only failed* — and
+  the grouped breakdown rides to an `hc-splitter` panel beside the
+  grid, resizable by pointer or keyboard, collapsing when there is
+  nothing to report. The panel is a **server-owned region**: hiding it
+  is a response (`GET /report?close=1`), not client state, so the two
+  surfaces cannot disagree.
+
 - **recipes**: the bulk-error summary is also the **navigator**.
   Twelve failures scattered through five thousand rows is a queue, so
   the O(1) line carries `Previous · Error 3 of 12 — row 137 · Next` as
