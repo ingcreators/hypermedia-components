@@ -178,6 +178,26 @@ splitter.addEventListener('hc:splitterchange', (e) => {
 
 さらなるパターン: [Hyperscript → コンポーネントイベントへの反応](/hypermedia-components/ja/integrations/hyperscript/#コンポーネントイベントへの反応)。
 
+## ペインを畳む
+
+ペインは自分の中身の幅まで畳めます — 戻すためのコントロールを持つ
+**レール**になります。
+
+```html
+<div class="hc-splitter__panel" data-collapsed>
+  <button class="hc-button" data-size="sm" type="button">Reasons (5)</button>
+</div>
+```
+
+`data-collapsed` はペインを中身のサイズにし、空いた分を反対側のペインに
+渡し、ドラッグハンドルを隠します（掴むものが無いからです）。この状態は
+ペインの中身を持っている側のものなので、その領域を再描画するサーバーは、
+すでに送っているフラグメントに付けるだけで済みます。クライアント状態は
+無く、2 つのペインが食い違うこともありません。
+
+**畳む先はレールであって、無ではありません。**閉じたら消えるパネルは
+行き止まりです。閉じた本人が二度と見つけられません。
+
 ## アクセシビリティ
 
 - ハンドルは `role="separator"` + `tabindex="0"` で、

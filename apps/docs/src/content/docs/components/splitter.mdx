@@ -171,6 +171,27 @@ key shape):
 
 More patterns: [Hyperscript → Reacting to component events](/hypermedia-components/integrations/hyperscript/#reacting-to-component-events).
 
+## Collapsing a pane
+
+A pane can collapse to its own content — a **rail** holding the control
+that brings it back:
+
+```html
+<div class="hc-splitter__panel" data-collapsed>
+  <button class="hc-button" data-size="sm" type="button">Reasons (5)</button>
+</div>
+```
+
+`data-collapsed` gives the pane its content's size, hands the freed
+space to its sibling, and hides the drag handle (there is nothing to
+drag). The state belongs to whoever owns the pane's content, so a
+server re-rendering that region can set it on the fragment it already
+sends — no client state, and the two panes cannot disagree.
+
+**Collapse to a rail, not to nothing.** A panel that disappears when
+closed is a dead end: the user who closed it has no way to find it
+again.
+
 ## Accessibility
 
 - The handle is `role="separator"` + `tabindex="0"` with

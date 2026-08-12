@@ -266,17 +266,15 @@ describe('datagrid-bulk-errors demo API — the summary is the navigator', () =>
 });
 
 describe('datagrid-bulk-errors demo API — the docked panel', () => {
-  it('best-effort splits the report: one line in the chrome, the table beside the grid', async () => {
+  it('best-effort splits the report: one line in the chrome, the rest beside the grid', async () => {
     const body = await (
       await call(bulkErrors, 'POST', '/bulk', {
         htmx: true,
         body: form({ action: 'archive', ids: ['101', '102', '104', '105'] }),
       })
     ).text();
-    // The chrome's line stays O(1): a count, the moves, and the filter.
     expect(body).toContain('succeeded /');
     expect(body).toContain('Show only failed');
-    // …and the grouped table rides to the DOCKED panel instead.
     expect(body).toContain('id="bulk-errors-demo-detail"');
     expect(body).toContain('hc-splitter__panel');
     const summary = body.slice(body.indexOf('id="bulk-errors-demo-report"'));
@@ -285,26 +283,52 @@ describe('datagrid-bulk-errors demo API — the docked panel', () => {
     );
   });
 
-  it('the panel is a server-owned region: hiding it is a response', async () => {
-    const closed = await (
-      await call(bulkErrors, 'GET', '/report?close=1', { htmx: true })
+  it('the panel stays COLLAPSED after a failure — opening it is the user’s call', async () => {
+    // The response narrows nothing: the summary already said what
+    // happened, and giving the grid's width away is a decision the
+    // person reading the rows gets to make.
+    const body = await (
+      await call(bulkErrors, 'POST', '/bulk', {
+        htmx: true,
+        body: form({ action: 'archive', ids: ['101', '102', '104', '105'] }),
+      })
     ).text();
-    expect(closed).toContain('hidden');
-    expect(closed).not.toContain('<table');
+    expect(body).toContain('data-collapsed');
+    expect(body).not.toContain('Why they failed');
+  });
 
+  it('the collapsed rail carries the count and the way back in', async () => {
+    const body = await (
+      await call(bulkErrors, 'POST', '/bulk', {
+        htmx: true,
+        body: form({ action: 'archive', ids: ['101', '102', '105'] }),
+      })
+    ).text();
+    expect(body).toMatch(/Reasons \(\d+\)/);
+    expect(body).toContain('report?open=1');
+  });
+
+  it('opening and hiding are both responses — the region is the server’s', async () => {
     const open = await (
-      await call(bulkErrors, 'GET', '/report?ids=102&ids=105', { htmx: true })
+      await call(bulkErrors, 'GET', '/report?open=1&ids=102&ids=105', { htmx: true })
     ).text();
     expect(open).toContain('<table');
-    expect(open).not.toContain(' hidden');
+    expect(open).not.toContain('data-collapsed');
+
+    const closed = await (
+      await call(bulkErrors, 'GET', '/report?close=1&ids=102&ids=105', { htmx: true })
+    ).text();
+    expect(closed).toContain('data-collapsed');
+    // …and closing does NOT lose the count, so the panel is findable.
+    expect(closed).toMatch(/Reasons \(\d+\)/);
   });
 
-  it('nothing to report collapses the panel rather than showing an empty one', async () => {
+  it('nothing to report leaves a disabled rail, not a mystery', async () => {
     const body = await (
-      await call(bulkErrors, 'GET', '/report?ids=101&ids=103', { htmx: true })
+      await call(bulkErrors, 'GET', '/report?open=1&ids=101&ids=103', { htmx: true })
     ).text();
-    expect(body).toContain('hidden');
-    expect(body).toContain('No failures to review');
+    expect(body).toContain('data-collapsed');
+    expect(body).toContain('disabled');
+    expect(body).not.toContain('<table');
   });
 });
-

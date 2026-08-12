@@ -267,6 +267,18 @@ the rows behind it filter or focus. A **modal** drawer would reproduce
 the original defect in a different axis — the panel pointing at rows
 the user must dismiss it to reach.
 
+**Collapsed is the default, and collapsed still shows.** A panel that is
+always open taxes every screen, every day, for something that happens
+rarely; a panel that disappears when closed is a dead end. So it
+collapses to a **rail carrying the count** (`Reasons (5)`) and the way
+back in, and **the response does not open it**: the summary already
+said what happened, and giving away the grid's width is a decision for
+the person reading the rows. A screen whose *job* is triage may start
+open — that is a property of the screen, not of the report.
+
+Whether it is open is **workspace state**: remember it per user, not in
+the URL (see the filter UX plan's state rule).
+
 ### Atomic → a modal dialog is correct
 
 Nothing was applied. There is no work in the grid, and the user owes a

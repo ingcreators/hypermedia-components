@@ -156,18 +156,35 @@ const DETAIL_ID = 'bulk-errors-demo-detail';
  * rows behind it. Empty means collapsed, so a screen with nothing to
  * report looks like a screen with nothing to report.
  */
-function detailPanel(inner, { oob = false } = {}) {
+function detailPanel(inner, { oob = false, open = false, count = 0 } = {}) {
   const oobAttr = oob ? ' data-hx-swap-oob="outerHTML"' : '';
-  const body = inner
-    ? `<div class="hc-cluster" style="justify-content: space-between;">
+  const reopen = `${API}/report?open=1`;
+  // COLLAPSED IS THE DEFAULT, and collapsed still shows: a rail with
+  // the count and the way back. An empty panel taxes every day for a
+  // rare event; a panel that vanishes when closed is a dead end.
+  if (!open) {
+    return wrap(
+      `<div class="hc-splitter__panel" id="${DETAIL_ID}" data-collapsed${oobAttr}>
+  <button class="hc-button" data-size="sm" data-variant="${count ? 'secondary' : 'ghost'}" type="button" data-hx-get="${reopen}" data-hx-include="closest form" data-hx-target="#${DETAIL_ID}" data-hx-swap="outerHTML"${count ? '' : ' disabled'} aria-label="Show why rows failed">Reasons${count ? ` (${count})` : ''}</button>
+</div>`,
+      oob,
+    );
+  }
+  return wrap(
+    `<div class="hc-splitter__panel hc-scroll-area" id="${DETAIL_ID}"${oobAttr}>
+  <div class="hc-cluster" style="justify-content: space-between;">
     <strong>Why they failed</strong>
-    <button class="hc-button" data-size="sm" data-variant="ghost" type="button" data-hx-get="${API}/report?close=1" data-hx-target="#${DETAIL_ID}" data-hx-swap="outerHTML">Hide</button>
+    <button class="hc-button" data-size="sm" data-variant="ghost" type="button" data-hx-get="${API}/report?close=1" data-hx-include="closest form" data-hx-target="#${DETAIL_ID}" data-hx-swap="outerHTML">Hide</button>
   </div>
-  ${inner}`
-    : '<p class="hc-field__message">No failures to review.</p>';
-  const div = `<div class="hc-splitter__panel hc-scroll-area" id="${DETAIL_ID}"${inner ? '' : ' hidden'}${oobAttr}>${body}</div>`;
-  // A <div> riding a <tbody>-targeted response is foster-parented by
-  // the table parser; <template> is the documented escape.
+  ${inner}
+</div>`,
+    oob,
+  );
+}
+
+// A <div> riding a <tbody>-targeted response is foster-parented by the
+// table parser; <template> is the documented escape.
+function wrap(div, oob) {
   return oob ? `<template>${div}</template>` : div;
 }
 
@@ -203,10 +220,15 @@ export async function handle({ method, path, url, request }) {
   // The docked panel is a REGION the server owns: hiding it is a
   // response, not client state, so the two surfaces cannot disagree.
   if (method === 'GET' && path === '/report') {
-    if (url.searchParams.get('close') === '1') return html(detailPanel(''));
     const ids = url.searchParams.getAll('ids').map(Number).filter(Boolean);
     const { blocked } = split(ids);
-    return html(detailPanel(blocked.size ? reasonTableHtml(blocked) : ''));
+    const count = [...blocked.values()].reduce((n, rows) => n + rows.length, 0);
+    // Closing is a response, not client state, so the rail comes back
+    // carrying the count — the way in is never lost.
+    if (url.searchParams.get('close') === '1') return html(detailPanel('', { count }));
+    return html(
+      detailPanel(count ? reasonTableHtml(blocked) : '', { open: count > 0, count }),
+    );
   }
 
   // ---- Atomic phase 1: pre-flight -------------------------------
@@ -384,7 +406,7 @@ ${bulkReport(`<div class="hc-alert" data-variant="warning" role="status">
   <p><strong>${ok.length} succeeded / ${failedCount} failed</strong> (of ${ids.length} selected)${navigatorHtml(ids)} · <a href="${API}/items?f-last-result=failed">Show only failed</a></p>
   ${retryLine}
 </div>`, { oob: true })}
-${detailPanel(reasonTableHtml(blocked), { oob: true })}`,
+${detailPanel(reasonTableHtml(blocked), { oob: true, count: failedCount })}`,
     {
       headers: toastHeader(
         `${ok.length} succeeded / ${failedCount} failed`,
