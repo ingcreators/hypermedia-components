@@ -207,8 +207,9 @@ grid is full before any JavaScript runs.
           <a class="hc-filterbar__clear" href="/orders">Clear all</a>
         </div>
 
-        <!-- Toolbar: left actions, separator, grouped actions, then the
-             pager pushed to the trailing edge by the spacer. -->
+        <!-- Toolbar: actions on the DATA only. Selection-scoped
+             actions are in their own bar below; navigation is under
+             the grid. -->
         <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
           <!-- Sort is a read-out first: the sorted column is usually
                scrolled out of view. See recipes/datagrid-sort. -->
@@ -227,18 +228,19 @@ grid is full before any JavaScript runs.
                   data-hx-get="/orders/rows" data-hx-target="#order-rows">Refresh</button>
           <a class="hc-button" data-variant="ghost" href="/orders.csv">Export</a>
           <hr role="separator" aria-orientation="vertical">
+        </div>
+
+        <!-- Selection-scoped actions: installDatagridActions() reveals
+             this bar when rows are ticked and hides it again. -->
+        <div class="hc-toolbar" role="toolbar" aria-label="Selected orders"
+             data-hc-datagrid-actions="#orders" hidden>
+          <strong data-hc-datagrid-count></strong>
           <div class="hc-button-group" role="group" aria-label="Approval">
             <button class="hc-button" data-variant="ghost" type="submit"
                     form="order-selection" name="action" value="approve">Approve</button>
             <button class="hc-button" data-variant="ghost" type="submit"
                     form="order-selection" name="action" value="reject">Reject</button>
           </div>
-          <span data-hc-spacer="true"></span>
-          <span aria-live="polite">4,901–4,940 of 5,000</span>
-          <nav class="hc-pagination" aria-label="Pages">
-            <a class="hc-pagination__item" data-hc-rel="prev" href="/orders?page=122">Previous</a>
-            <a class="hc-pagination__item" data-hc-rel="next" href="/orders?page=124">Next</a>
-          </nav>
         </div>
 
         <!-- The grid takes the rest. One form so checked ids serialize. -->
@@ -294,6 +296,15 @@ grid is full before any JavaScript runs.
             </div>
           </div>
         </form>
+
+        <!-- Navigation under the data it moves through. -->
+        <div class="hc-toolbar" role="toolbar" aria-label="Rows">
+          <span aria-live="polite">4,901–4,940 of 5,000</span>
+          <nav class="hc-pagination" aria-label="Pages">
+            <a class="hc-pagination__item" data-hc-rel="prev" href="/orders?page=122">Previous</a>
+            <a class="hc-pagination__item" data-hc-rel="next" href="/orders?page=124">Next</a>
+          </nav>
+        </div>
       </div>
     </main>
   </div>
@@ -406,7 +417,34 @@ button: a native reset restores the values the server rendered, which
 *are* the modified state, so the control that promised to undo the tweak
 was the one control guaranteed not to.
 
-## Sort and columns are toolbar controls
+## Where each control goes
+
+Four kinds of control end up on a list screen, and they read as clutter
+the moment they share a strip. Each kind gets one home, chosen by
+**what it changes**:
+
+| Kind | Examples | Home |
+| --- | --- | --- |
+| shapes the **answer** | view, Filters, Sort, Columns | beside the title, next to the view they belong to |
+| **reads out** the answer | the conditions chips, the result count | its own line under them |
+| acts on the **data** | Refresh, Import, Export | the toolbar |
+| acts on the **selection** | Approve, Reject, Open selected | a bar that appears when rows are ticked |
+| **moves** through the data | pager, Go to row | under the grid, where the movement happens |
+
+Two of those are worth stating plainly:
+
+- **Selection actions do not belong in the toolbar.** Approve and
+  Reject apply for the minutes a selection exists, and sit there being
+  read all day for the rest of the time. `installDatagridActions()`
+  reveals a bar when rows are ticked and hides it again — and a bar
+  that appears is a better cue than a button that greys out, because a
+  disabled button explains nothing.
+- **Filters, Sort and Columns are one group.** They answer the same
+  question — *what am I looking at* — so splitting them (a Filters
+  button by the title, Sort and Columns down in the toolbar) makes the
+  screen look busier than it is.
+
+## Sort and columns get controls of their own
 
 The other two of the four questions — *in what order* and *showing
 which columns* — get a control each, next to the filter entry point:
