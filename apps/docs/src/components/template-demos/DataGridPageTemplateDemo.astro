@@ -31,6 +31,12 @@ interface Props {
 }
 
 const { standalone = false } = Astro.props;
+// The screen is SERVER-DRIVEN: the grid, the conditions bar, the pager,
+// the failure summary and the docked panel are all fragments the demo
+// API answers. What stays static here is chrome the demo does not
+// implement (the views menu, the sort and columns panels) — marked
+// where it appears.
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/data-grid-page`;
 // Astro resolves a dynamic tag from a variable, so the markup below is
 // written once and hosted two ways.
 const Frame = standalone ? 'div' : DemoFrame;
@@ -279,63 +285,16 @@ const FILTERS = [
              The relative one shows the expression AND what it resolved
              to, and every remove link points at this URL minus that one
              param. -->
-        <div class="hc-filterbar">
-          <ul class="hc-filterbar__list">
-            <li class="hc-filterbar__item">
-              <button class="hc-filterbar__chip" type="button"
-                      onclick="document.getElementById('template-grid-filters').showModal()">
-                <span class="hc-filterbar__label">Ship date</span>
-                <span class="hc-filterbar__op">from</span>
-                <span class="hc-filterbar__value">start of this week (2026-08-10)</span>
-              </button>
-              <a class="hc-filterbar__remove" href="#template-grid"
-                 aria-label="Remove Ship date filter">×</a>
-            </li>
-            <li class="hc-filterbar__item">
-              <button class="hc-filterbar__chip" type="button"
-                      onclick="document.getElementById('template-grid-filters').showModal()">
-                <span class="hc-filterbar__label">Buyer code</span>
-                <span class="hc-filterbar__op">is</span>
-                <span class="hc-filterbar__value">3 values</span>
-              </button>
-              <a class="hc-filterbar__remove" href="#template-grid"
-                 aria-label="Remove Buyer code filter">×</a>
-            </li>
-            <li class="hc-filterbar__item">
-              <button class="hc-filterbar__chip" type="button"
-                      onclick="document.getElementById('template-grid-filters').showModal()">
-                <span class="hc-filterbar__label">Carrier</span>
-                <span class="hc-filterbar__op">is</span>
-                <span class="hc-filterbar__value">Road</span>
-              </button>
-              <a class="hc-filterbar__remove" href="#template-grid"
-                 aria-label="Remove Carrier filter">×</a>
-            </li>
-          </ul>
-          <a class="hc-filterbar__clear" href="#template-grid">Clear all</a>
+        {/* Filled out of band by every answer: one chip per applied
+            condition, each removable, plus Clear all. */}
+        <div class="hc-filterbar" id="template-grid-conditions">
+          <ul class="hc-filterbar__list"></ul>
         </div>
 
-        <!-- A bulk action that failed. The CHROME carries one line —
-             constant height, whatever N is — because the chrome is what
-             the grid's height is subtracted from. The rows carry the
-             detail (they scroll, because they ARE the data), and the
-             grouped breakdown opens in a docked panel. -->
-        <div class="hc-alert" data-variant="warning" role="status"
-             style="--hc-alert-padding-block: var(--hc-space-2);">
-          <p class="hc-alert__body" style="margin: 0;">
-            <strong>12 of 40 rows could not be updated.</strong>
-            {/* Real fragment links naming the failing rows by id, with a
-                server-rendered counter between them. installDatagrid()
-                lands the ACTIVE CELL on the row a fragment names, so
-                "next error" is focus movement with no client state —
-                and Back still works. */}
-            <a href="#template-grid-row-4903">Previous</a>
-            <span>Error 1 of 12 — row 3</span>
-            <a href="#template-grid-row-4907">Next</a> ·
-            <a href="#template-grid">Show only failed (12)</a> ·
-            <a href="#template-grid">Review reasons</a>
-          </p>
-        </div>
+        {/* The chrome's ONE line: the count, the moves between failed
+            rows, and the failed-only filter. Empty until something
+            fails. */}
+        <div id="template-grid-summary" aria-live="polite"></div>
 
         <div class="hc-toolbar" role="toolbar" aria-label="Order actions">
           <button class="hc-button" data-variant="ghost" type="button">Refresh</button>
@@ -353,8 +312,18 @@ const FILTERS = [
              data-hc-datagrid-actions="#template-grid" hidden>
           <strong data-hc-datagrid-count></strong>
           <div class="hc-button-group" role="group" aria-label="Approval">
-            <button class="hc-button" data-variant="ghost" type="button">Approve</button>
-            <button class="hc-button" data-variant="ghost" type="button">Reject</button>
+            <button class="hc-button" data-variant="ghost" type="button"
+                    data-hx-post={`${api}/bulk`}
+                    data-hx-include="#template-grid-selection"
+                    data-hx-target="#template-grid-rows"
+                    data-hx-swap="innerHTML"
+                    data-hx-disabled-elt="this">Approve</button>
+            <button class="hc-button" data-variant="ghost" type="button"
+                    data-hx-post={`${api}/bulk`}
+                    data-hx-include="#template-grid-selection"
+                    data-hx-target="#template-grid-rows"
+                    data-hx-swap="innerHTML"
+                    data-hx-disabled-elt="this">Reject</button>
           </div>
           {/* Walk only the ticked rows: the same ids every other bulk
               action sends, answered with an ordered snapshot. */}
@@ -363,67 +332,68 @@ const FILTERS = [
 
         {/* data-row-total is the RESULT SET, not the page: it is what
             makes aria-rowcount honest and what "row 137 of 5,000"
-            means. */}
-        <div class="hc-datagrid hc-fill tpl-grid" id="template-grid" data-hc-zebra
-             data-row-total="5000">
-          <div class="hc-datagrid__scroll">
-            <table class="hc-datagrid__table">
-              <thead class="hc-datagrid__head">
-                <tr>
-                  <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col"
-                      style="--hc-datagrid-left: 0; inline-size: 2.5rem;">
-                    <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
-                  </th>
-                  <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col"
-                      style="--hc-datagrid-left: 2.5rem; inline-size: 6rem;">Order</th>
-                  <th class="hc-datagrid__headcell" colspan="3">Order</th>
-                  <th class="hc-datagrid__headcell" colspan="4">Shipment</th>
-                </tr>
-                <tr>
-                  {COLUMNS.map((col) => (
-                    <th
-                      class="hc-datagrid__headcell"
-                      scope="col"
-                      data-numeric={col.numeric ? '' : undefined}>{col.label}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody class="hc-datagrid__body">
-                {ROWS.map((row) => (
-                  <tr
-                    class="hc-datagrid__row"
-                    id={`template-grid-row-${row.id}`}
-                    data-row-no={row.id - 4900}
-                    data-attention={row.id === 4903 || row.id === 4907 ? 'error' : undefined}>
-                    <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left: 0;">
-                      <input type="checkbox" class="hc-checkbox" name="ids" value={row.id}
-                             aria-label={`Select order ${row.id}`} />
-                    </td>
-                    {/* The identity cell holds the record link: a real
-                        <a href>, so middle-click, ⌘-click, Back and the
-                        no-JS path all work. installRowLink() adds Enter
-                        anywhere on the row. */}
-                    <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row"
-                        style="--hc-datagrid-left: 2.5rem;">
-                      <a href="#template-grid" data-hc-row-link>SO-{row.id}</a>
-                    </th>
-                    <td class="hc-datagrid__cell">{row.ordered}</td>
-                    <td class="hc-datagrid__cell">{row.customer}</td>
-                    <td class="hc-datagrid__cell">{row.item}</td>
-                    <td class="hc-datagrid__cell" data-editable data-col="ship" data-value={row.ship}>{row.ship}</td>
-                    <td class="hc-datagrid__cell">{row.carrier}</td>
-                    <td class="hc-datagrid__cell" data-numeric>{row.qty}</td>
-                    <td class="hc-datagrid__cell" data-numeric>{row.amount.toLocaleString('en-US')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            means. The rows themselves come from the server — this is a
+            working screen, not a picture of one. */}
+        {/* One form around the grid, so the ticked ids serialize for
+            every bulk action — the same shape datagrid-bulk-actions
+            documents. */}
+        <form class="hc-fill" id="template-grid-selection">
+        <div class="hc-splitter hc-fill" data-orientation="horizontal">
+          <div class="hc-splitter__panel hc-fill">
+            <div class="hc-datagrid hc-fill tpl-grid" id="template-grid" data-hc-zebra
+                 data-row-total="24">
+              <div class="hc-datagrid__scroll">
+                <table class="hc-datagrid__table">
+                  <thead class="hc-datagrid__head">
+                    <tr>
+                      <th class="hc-datagrid__headcell" data-frozen rowspan="2" scope="col"
+                          style="--hc-datagrid-left: 0; inline-size: 2.5rem;">
+                        <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+                      </th>
+                      <th class="hc-datagrid__headcell" data-frozen data-frozen-edge rowspan="2" scope="col"
+                          style="--hc-datagrid-left: 2.5rem; inline-size: 6rem;">Order</th>
+                      <th class="hc-datagrid__headcell" colspan="3">Order</th>
+                      <th class="hc-datagrid__headcell" colspan="3">Shipment</th>
+                    </tr>
+                    <tr>
+                      <th class="hc-datagrid__headcell" data-sortable data-col="ordered" scope="col">Ordered on</th>
+                      <th class="hc-datagrid__headcell" data-sortable data-col="customer" scope="col">Customer</th>
+                      <th class="hc-datagrid__headcell" scope="col">Item</th>
+                      <th class="hc-datagrid__headcell" data-sortable data-col="ship" scope="col"
+                          aria-sort="descending">Ship date</th>
+                      <th class="hc-datagrid__headcell" scope="col"
+                          data-orientation="vertical">Carrier service level</th>
+                      <th class="hc-datagrid__headcell" data-sortable data-col="amount" scope="col" data-numeric>Amount</th>
+                    </tr>
+                  </thead>
+                  {/* One request on load fills the rows and, out of band,
+                      the conditions bar, the pager, the summary and the
+                      docked panel. */}
+                  <tbody class="hc-datagrid__body" id="template-grid-rows"
+                         data-hx-get={`${api}/items`}
+                         data-hx-trigger="load"
+                         data-hx-swap="innerHTML"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="hc-splitter__handle" role="separator" tabindex="0"
+               aria-label="Resize the error panel"></div>
+
+          {/* Collapsed to a rail until there is something to read, and
+              opening it is the user's call. */}
+          <div class="hc-splitter__panel" id="template-grid-panel" data-collapsed>
+            <button class="hc-button" data-size="sm" data-variant="ghost" type="button"
+                    disabled aria-label="Show why rows failed">Reasons</button>
           </div>
         </div>
 
+        </form>
+
         {/* Navigation sits under the data it moves through — still
             fixed chrome, and out of the way of the actions. */}
-        <div class="hc-toolbar" role="toolbar" aria-label="Rows">
+        <div class="hc-toolbar" role="toolbar" aria-label="Rows" id="template-grid-pager">
           {/* Where you ARE goes at the start — it is a read-out, and
               the frozen identity column it refers to is on that side.
               Where you GO goes at the end: after scrolling the grid the
@@ -452,6 +422,11 @@ const FILTERS = [
     </main>
   </div>
 
+  {/* The record opens here as a peek — the row's href stays the
+      canonical page. installRemoteDialog() shows it once the fragment
+      lands. */}
+  <div id="template-grid-record" data-hc-remote-dialog-root></div>
+
   <!-- The filter panel. One form wraps header, body and footer, so the
        footer's Search button submits the body's fields; the body is what
        scrolls when the panel outgrows the viewport. -->
@@ -460,7 +435,11 @@ const FILTERS = [
     id="template-grid-filters"
     aria-labelledby="template-grid-filters-title"
     style="--hc-dialog-max-width: 52rem;">
-    <form method="get" action="#template-grid">
+    <form method="get" action={`${api}/items`}
+          data-hx-get={`${api}/items`}
+          data-hx-target="#template-grid-rows"
+          data-hx-swap="innerHTML"
+          data-hc-close-dialog-on-success>
       <!-- The panel edits conditions and closes the composition by
            naming it. Recall left for the identity row above: switching
            views is navigation, and it was costing four interactions

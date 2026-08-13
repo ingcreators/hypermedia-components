@@ -49,6 +49,19 @@ const REGIONS = [
     ],
   },
   {
+    name: 'data-grid-page',
+    module: 'data-grid-page.mjs',
+    demo: '../template-demos/DataGridPageTemplateDemo.astro',
+    ids: [
+      'template-grid-rows',
+      'template-grid-conditions',
+      'template-grid-summary',
+      'template-grid-panel',
+      'template-grid-pager',
+      'template-grid-record',
+    ],
+  },
+  {
     name: 'row-detail',
     module: 'row-detail.mjs',
     demo: 'RowDetailDemo.astro',
@@ -58,7 +71,9 @@ const REGIONS = [
 
 describe.each(REGIONS)('$name demo regions', ({ module, demo, ids }) => {
   const api = read('demo-api', 'recipes', module);
-  const page = read('src', 'components', 'recipe-demos', demo);
+  // A demo may live in another folder; the path is relative to
+  // recipe-demos so one list can cover both.
+  const page = read('src', 'components', 'recipe-demos', ...demo.split('/'));
 
   it('the demo page owns every region the response fills', () => {
     const missing = ids.filter((id) => !page.includes(`"${id}"`));
