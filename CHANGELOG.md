@@ -63,6 +63,21 @@ Security    — security-relevant changes
 
 ### Added
 
+- **docs**: the **data-grid page template works now**. Its rows,
+  conditions bar, pager, failure summary and docked panel are answered
+  by the docs demo API, so the contracts can be watched meeting each
+  other instead of being described one page at a time: filter and
+  remove a chip, sort (paging stays stable because ties break on the
+  primary key), open a record from its identity cell — the peek carries
+  the exit at the start and `n / 24 ‹ ›` at the end, and **Next crosses
+  the page boundary** because the server re-runs the query — save and
+  see the row behind update out of band, then tick rows and press
+  Approve to watch some fail: rows marked, one line of chrome with the
+  moves and *Show only failed*, and the breakdown waiting in the docked
+  panel's rail. The full-size preview is the same screen with the
+  viewport to itself.
+
+
 - **docs**: the data-grid page template gets a **full-size preview** at
   its own URL. The template is about a screen that takes the whole
   viewport — chrome fixed, the grid taking the rest — and showing it

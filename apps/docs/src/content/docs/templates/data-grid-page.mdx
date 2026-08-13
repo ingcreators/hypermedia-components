@@ -39,11 +39,26 @@ scroll the panel: its body scrolls while Search stays reachable. The
 menu beside the title names the saved view currently applied — switching
 views is one interaction, from the screen.
 
-:::note[Layout, not round trips]
-This preview is deliberately server-free — it demonstrates what scrolls
-and what stays. The rows are static and the filter panel does not
-submit. The [wiring map](#wiring-map) below names the contract each
-region's endpoint would implement.
+:::tip[It works — try breaking something]
+The rows, the conditions bar, the pager, the failure summary and the
+docked panel are all **answered by a server** (the docs Worker's demo
+API), so the contracts can be seen meeting each other:
+
+- **Filter** by status or customer, then remove a chip — the bar and
+  the pager follow.
+- **Sort** by clicking a header; paging stays stable because the server
+  breaks ties on the primary key.
+- **Open a record** from its identity cell: the peek carries the exit at
+  the start and `n / 24 ‹ ›` at the end, and **Next crosses the page
+  boundary** because the server re-runs the query. Save, and the row
+  behind updates out of band.
+- **Tick rows and press Approve.** Some cannot be — already shipped,
+  closed period — so the rows come back marked, the chrome keeps one
+  line with the moves and *Show only failed*, and the breakdown waits
+  in the docked panel's rail.
+
+What is still static is the chrome this demo does not implement: the
+views menu, the sort panel and the columns chooser.
 :::
 
 ## The layout rule
