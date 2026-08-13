@@ -130,13 +130,15 @@ describe('data-grid-page demo API — two renderings of one record', () => {
     const body = await (await call(app, 'GET', '/items', { htmx: true })).text();
     // Attribute-encoded in the markup; compare them as URLs.
     const unescape = (v) => v.replaceAll('&amp;', '&');
-    const href = unescape(body.match(/<a href="([^"]*items\/\d+[^"]*)" data-hc-row-link/)[1]);
+    const href = unescape(body.match(/<a href="([^"]+)" data-hc-row-link/)[1]);
     const peek = unescape(body.match(/data-hx-get="([^"]*items\/\d+[^"]*)"/)[1]);
-    // The href is what a middle-click, a shared link or a JS-less
-    // browser follows; the peek is layered on top of it.
+    // The href is the record's OWN ROUTE — what a middle-click, a
+    // shared link or a JS-less browser follows. The peek is the same
+    // resource asked for as a fragment.
+    expect(href).toContain('/templates/data-grid-page-record/');
     expect(href).not.toContain('peek=1');
+    expect(peek).toContain('/api/recipes/data-grid-page/items/');
     expect(peek).toContain('peek=1');
-    expect(peek.startsWith(href)).toBe(true);
   });
 
   it('the bare URL answers a full page, not a dialog', async () => {
