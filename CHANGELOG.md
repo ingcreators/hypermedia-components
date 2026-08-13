@@ -620,6 +620,17 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **docs**: the template's **full-size preview showed no data**. The
+  page is a plain Astro route, not a Starlight one, so it never got the
+  `DemoFrame` that loads htmx for every other live demo — leaving every
+  `data-hx-*` attribute on the screen inert: the grid's `load` request
+  never fired, the rows stayed empty and the chrome kept its
+  placeholder text. It loads htmx now (with the same 401 / 409 / 422
+  swap allowance the recipe contracts document) and the two docs
+  stylesheets Starlight applies through `customCss`, so the shell's own
+  chrome stops rendering raw.
+
+
 - **docs**: the `datagrid-filter` live demo was **missing two of the
   regions its own responses fill**, so both landed nowhere: the
   applied-conditions bar and the due-date control — which is where
