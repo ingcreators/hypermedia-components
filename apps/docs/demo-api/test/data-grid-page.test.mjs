@@ -132,6 +132,11 @@ describe('data-grid-page demo API — two renderings of one record', () => {
     const unescape = (v) => v.replaceAll('&amp;', '&');
     const href = unescape(body.match(/<a href="([^"]+)" data-hc-row-link/)[1]);
     const peek = unescape(body.match(/data-hx-get="([^"]*items\/\d+[^"]*)"/)[1]);
+    // …and they are on DIFFERENT controls. An anchor carrying
+    // data-hx-get never navigates — htmx takes the click — so the row's
+    // name would only ever peek, whatever its href said.
+    expect(body).toMatch(/<a href="[^"]+" data-hc-row-link>/);
+    expect(body).toMatch(/<button[^>]*data-hx-get="[^"]*peek=1"[^>]*aria-label="Peek at SO-\d+"/);
     // The href is the record's OWN ROUTE — what a middle-click, a
     // shared link or a JS-less browser follows. The peek is the same
     // resource asked for as a fragment.

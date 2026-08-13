@@ -36,6 +36,11 @@ eats all three. For pointer users on wide rows, add a trailing chevron
 link in a narrow last column — same href, an `aria-label` naming the
 record.
 
+**One anchor cannot be both.** An `<a href>` carrying `data-hx-get`
+never navigates — htmx takes the click — so a row whose name links to
+the page *and* peeks is a peek-only row with a decorative href. Give
+the peek its own control and leave the name a plain link.
+
 ## Coming back
 
 | State | Restored by |
