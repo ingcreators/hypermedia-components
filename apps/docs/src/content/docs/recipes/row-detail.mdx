@@ -136,8 +136,24 @@ a URL:
 | Shape | When | Why |
 | --- | --- | --- |
 | **a page** (default) | the record has fields, sub-grids, its own actions; the user is *in* it | it is the only rendering that can be shared, bookmarked, opened in a second tab, or reached without JavaScript |
+| **a docked pane** (split) | the work is *comparing* record and list, over and over (triage, matching) | both stay live; nothing is hidden behind an overlay |
 | **a peek** (modal) | glance and go — check one field, approve, close — on a **short** record | keeps the list's place. The moment it needs to scroll, or grows tabs or a sub-grid, it wanted to be a page |
-| **a docked pane** | the work is *comparing* record and list, over and over (triage, matching) | both stay live; nothing is hidden behind an overlay |
+
+**A modal is the least common of the three in business software, and
+that is not an accident.** Opening a record replaces the screen in
+Gmail; SAP Fiori splits list and record into columns; Salesforce and
+ServiceNow give the record a page. Modals in those products are for
+**short, self-contained tasks** — create one thing, confirm, edit a
+field — not for "the record", because a record is where the work
+happens and work needs room, a URL and its own error surfaces.
+
+The failure mode to avoid is specific: **a modal with no URL.** If the
+address bar still says *list* while the user is looking at a record,
+then Back closes something they did not open, the link they send a
+colleague is the wrong screen, and refreshing loses their place. A
+modal that pushes a URL and restores itself from one is a legitimate
+rendering; a modal that does not is a dead end wearing a detail
+screen's clothes.
 
 Two rules keep the peek honest, and both are failures if broken:
 

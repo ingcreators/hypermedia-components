@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **docs**: `row-detail` ranks the three renderings the way business
+  software actually does, and says why. Opening a record **replaces the
+  screen** in Gmail, **splits it into columns** in SAP Fiori, and is a
+  **page** in Salesforce and ServiceNow; modals in those products are
+  for short, self-contained tasks — create one thing, confirm, edit a
+  field — not for the record, because a record is where the work
+  happens and work needs room, a URL and its own error surfaces. The
+  failure mode is named too: **a modal with no URL**, where Back closes
+  something the user never opened, the link they send a colleague is
+  the wrong screen, and a refresh loses their place. The template says
+  plainly that it peeks because a documentation page is a single route
+  — the row's `href` beside it is the real page.
+
+
 - **recipes**: `row-detail` states **where a detail screen's navigation
   goes**, since the list template's "navigation under the data" rule
   reads as "put a pager at the bottom" if left unqualified. Prev / next

@@ -48,10 +48,14 @@ API), so the contracts can be seen meeting each other:
   the pager follow.
 - **Sort** by clicking a header; paging stays stable because the server
   breaks ties on the primary key.
-- **Open a record** from its identity cell: the peek carries the exit at
-  the start and `n / 24 ‹ ›` at the end, and **Next crosses the page
-  boundary** because the server re-runs the query. Save, and the row
-  behind updates out of band.
+- **Open a record** from its identity cell. It opens as a *peek* here,
+  because a documentation page is a single route — in a real app this
+  click is a **navigation** (Gmail replaces the screen; Fiori splits it;
+  Salesforce gives the record a page), and the row's `href` beside it is
+  that page. Either way the header carries the exit at the start and
+  `n / 24 ‹ ›` at the end, **Next crosses the page boundary** because the
+  server re-runs the query, and saving updates the row behind out of
+  band.
 - **Tick rows and press Approve.** Some cannot be — already shipped,
   closed period — so the rows come back marked, the chrome keeps one
   line with the moves and *Show only failed*, and the breakdown waits
