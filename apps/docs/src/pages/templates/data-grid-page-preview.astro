@@ -13,6 +13,10 @@
  * for the rest of the site.
  */
 import '@hypermedia-components/core/css';
+// The same two sheets Starlight loads through customCss — without them
+// the shell's own chrome (sidebar links, preview canvas) renders raw.
+import '../../styles/custom.css';
+import '../../styles/preview.css';
 import DataGridPageTemplateDemo from '../../components/template-demos/DataGridPageTemplateDemo.astro';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -29,6 +33,23 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <meta name="robots" content="noindex" />
     <script>
       import '@hypermedia-components/core/behaviors';
+      // The screen is server-driven, so it needs htmx as much as the
+      // recipe demos do. DemoFrame loads it for those; this page has no
+      // DemoFrame, and without this line every data-hx-* attribute on
+      // the template is inert — the grid stays empty and the chrome
+      // shows its placeholder text, which is exactly what shipped.
+      import htmx from 'htmx.org';
+      window.htmx = htmx;
+
+      // The same 422 / 409 / 401 allowance the recipe contracts
+      // document and DemoFrame installs.
+      document.body.addEventListener('htmx:beforeSwap', (event) => {
+        const detail = event.detail;
+        if ([401, 409, 422].includes(detail?.xhr?.status)) {
+          detail.shouldSwap = true;
+          detail.isError = false;
+        }
+      });
     </script>
     <style>
       html,
