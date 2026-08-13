@@ -15,6 +15,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>datagrid app page fixture</title>
   <link rel="stylesheet" href="/hc.css">
+  <!-- Opt-in print sheet, the way an app loads it. On paper the grid's
+       scrollport must un-cap, or the rows it was hiding are simply gone
+       with nothing to say so. -->
+  <link rel="stylesheet" href="/hc.print.css" media="print">
   <script type="module" src="/hc.behaviors.js"></script>
   <style>
     html, body { margin: 0; block-size: 100%; }

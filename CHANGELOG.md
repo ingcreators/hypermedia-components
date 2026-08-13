@@ -91,6 +91,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- **docs**: the template says **when a fixed-height grid is the right
+  shape** — and when letting the page scroll is. It is the operational
+  pattern (Fiori list reports, Salesforce list views, ServiceNow, AG
+  Grid, Ant Design's `scroll.y`) and it needs four things to be true:
+  the screen is an app frame, there is a fallback under the breakpoint,
+  print un-caps the scrollport, and the rows are paged rather than
+  infinite. If any is false, page scroll plus a sticky header buys most
+  of the benefit for none of the cost.
+
+
 - **docs**: the **data-grid page template works now**. Its rows,
   conditions bar, pager, failure summary and docked panel are answered
   by the docs demo API, so the contracts can be watched meeting each
@@ -647,6 +657,17 @@ Security    — security-relevant changes
   carries two meanings.
 
 ### Fixed
+
+- **print**: a fixed-height datagrid **printed only the rows that
+  happened to be visible**. The print sheet reset the wrapper, but the
+  cap lives on the scrollport (`.hc-datagrid__scroll`), and
+  `max-height: none` on a parent does not reach it — nor does the
+  physical property override the logical `max-block-size` the component
+  sets. On paper there is no scrolling, so whatever the cap hid was
+  simply missing with nothing to say so. The scrollport now un-caps in
+  print, pinned by a spec that checks the computed style under both
+  media.
+
 
 - **docs**: in the working template, clicking a row **still opened the
   modal** — the record's name carried both an `href` and a
