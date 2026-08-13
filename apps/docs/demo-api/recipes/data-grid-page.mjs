@@ -9,10 +9,11 @@
 //       bar, the pager and the summary line (cleared — a new answer
 //       has no failures yet)
 //   GET  /items/<id>?peek=1&from=<list qs>&i=<ordinal>
-//     → the record as a <dialog> (the peek rendering; the row's href
-//       stays the canonical page), carrying Back at the start and the
-//       walk at the end, with neighbours resolved by RE-RUNNING the
-//       list query — so Next crosses a page boundary
+//     → the record as a <dialog> — the PEEK, asked for by its own
+//       control. The row's name is a plain link to the record's page,
+//       because an anchor carrying data-hx-get never navigates: htmx
+//       takes the click, and "the href is canonical" becomes a claim
+//       nobody can act on
 //   POST /items/<id>  (ship)
 //     → the edited row out of band + the dialog closes: the list
 //       behind it is true again without a reload
@@ -148,17 +149,18 @@ function rowHtml(order, { ordinal, q, failed = null }) {
   const peek = `${API}/items/${order.id}?from=${from}&i=${ordinal}&peek=1`;
   const attention = failed ? ' data-attention="error"' : '';
   const errorRow = failed
-    ? `\n<tr class="hc-datagrid__error-row" id="row-error-${order.id}"><td class="hc-datagrid__error" colspan="8"><span role="alert">${escapeHtml(failed)}</span></td></tr>`
+    ? `\n<tr class="hc-datagrid__error-row" id="row-error-${order.id}"><td class="hc-datagrid__error" colspan="9"><span role="alert">${escapeHtml(failed)}</span></td></tr>`
     : '';
   return `<tr class="hc-datagrid__row" id="template-grid-row-${order.id}" data-row-no="${ordinal}"${attention}>
   <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left: 0;"><input type="checkbox" class="hc-checkbox" name="ids" value="${order.id}" aria-label="Select order SO-${order.id}"></td>
-  <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left: 2.5rem;"><a href="${escapeHtml(href)}" data-hc-row-link data-hx-get="${escapeHtml(peek)}" data-hx-target="#${IDS.record}" data-hx-swap="innerHTML">SO-${order.id}</a></th>
+  <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left: 2.5rem;"><a href="${escapeHtml(href)}" data-hc-row-link>SO-${order.id}</a></th>
   <td class="hc-datagrid__cell">${order.ordered}</td>
   <td class="hc-datagrid__cell">${escapeHtml(order.customer)}</td>
   <td class="hc-datagrid__cell">${escapeHtml(order.item)}</td>
   <td class="hc-datagrid__cell">${order.ship}</td>
   <td class="hc-datagrid__cell">${escapeHtml(order.carrier)}</td>
   <td class="hc-datagrid__cell" data-numeric>${order.amount.toLocaleString('en-US')}</td>
+  <td class="hc-datagrid__cell"><button class="hc-button" data-size="sm" data-variant="ghost" type="button" data-hx-get="${escapeHtml(peek)}" data-hx-target="#${IDS.record}" data-hx-swap="innerHTML" aria-label="Peek at SO-${order.id}">⤢</button></td>
 </tr>${errorRow}`;
 }
 
@@ -167,7 +169,7 @@ function rowsHtml(q, { failures = new Map() } = {}) {
   const start = (q.pageNo - 1) * PAGE_SIZE;
   const slice = rows.slice(start, start + PAGE_SIZE);
   if (slice.length === 0) {
-    return `<tr class="hc-datagrid__row"><td class="hc-datagrid__cell" colspan="8">No orders match these conditions. <a href="${API}/items">Clear all</a></td></tr>`;
+    return `<tr class="hc-datagrid__row"><td class="hc-datagrid__cell" colspan="9">No orders match these conditions. <a href="${API}/items">Clear all</a></td></tr>`;
   }
   return slice
     .map((order) =>

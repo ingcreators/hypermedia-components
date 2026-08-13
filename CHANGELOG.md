@@ -648,6 +648,17 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **docs**: in the working template, clicking a row **still opened the
+  modal** — the record's name carried both an `href` and a
+  `data-hx-get`, and htmx takes the click, so the real navigation added
+  alongside it was reachable only by middle-click. The peek now has
+  **its own control** (a button in a trailing column) and the record's
+  name is a plain link, so a click navigates. The rule is in the
+  `row-detail` contract and docs now, because the markup looks correct
+  either way: *one anchor cannot be both* — an `href` under a
+  `data-hx-get` is a claim nobody can act on.
+
+
 - **docs**: the working template opened records **only as a modal**,
   which contradicted the `row-detail` contract it is meant to
   demonstrate: a record reachable only through a dialog cannot be

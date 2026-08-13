@@ -68,6 +68,19 @@ For pointer users on wide rows, add a trailing chevron link in a narrow
 last column — same href, an `aria-label` naming the record.
 :::
 
+:::danger[One anchor cannot be both]
+```html
+<!-- Looks right, behaves as a modal-only row: -->
+<a href="/orders/4903" data-hx-get="/orders/4903?peek=1" …>SO-4903</a>
+```
+htmx takes the click, so the `href` is only reachable by middle-click —
+"the canonical URL is right there" becomes a claim nobody can act on,
+and the screen teaches *records live in modals* after all.
+
+Give the peek **its own control** (a small button in a trailing
+column), and leave the record's name a plain link.
+:::
+
 ## Coming back is the part everyone drops
 
 The list URL already carries the conditions, the sort, the columns and

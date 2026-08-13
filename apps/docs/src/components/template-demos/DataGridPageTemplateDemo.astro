@@ -364,6 +364,12 @@ const FILTERS = [
                       <th class="hc-datagrid__headcell" scope="col"
                           data-orientation="vertical">Carrier service level</th>
                       <th class="hc-datagrid__headcell" data-sortable data-col="amount" scope="col" data-numeric>Amount</th>
+                      {/* The peek has a control of its own: the record's
+                          NAME is a link, and a link carrying
+                          data-hx-get would never navigate. */}
+                      <th class="hc-datagrid__headcell" scope="col">
+                        <span class="hc-sr-only">Peek</span>
+                      </th>
                     </tr>
                   </thead>
                   {/* One request on load fills the rows and, out of band,
@@ -422,12 +428,12 @@ const FILTERS = [
     </main>
   </div>
 
-  {/* The row's href is the record's OWN PAGE (a prerendered route), so
-      a click navigates the way business software does — Gmail replaces
-      the screen, Fiori splits it, Salesforce gives the record a page.
-      This dialog is the peek layered on top with data-hx-get, for the
-      glance-and-go case; installRemoteDialog() shows it once the
-      fragment lands, and it carries a link to the page. */}
+  {/* Clicking the record's name NAVIGATES to its own page — what
+      business software does. The ⤢ button in the last column asks for
+      the same record as a peek, and installRemoteDialog() shows it once
+      the fragment lands; it carries a link to the page. Both cannot
+      live on one anchor: htmx takes the click, and the href becomes a
+      claim nobody can act on. */}
   <div id="template-grid-record" data-hc-remote-dialog-root></div>
 
   <!-- The filter panel. One form wraps header, body and footer, so the
