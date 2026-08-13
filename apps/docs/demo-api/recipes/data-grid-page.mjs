@@ -30,6 +30,11 @@
 import { DOCS_BASE, escapeHtml, html, isHtmx, page } from '../html.mjs';
 
 const API = `${DOCS_BASE}/api/recipes/data-grid-page`;
+// The record has a page of its own — a real second URL, prerendered by
+// Astro — and that is what a row link points at. The peek is layered on
+// top with data-hx-get; without this the demo would be teaching
+// "records live in modals", which the recipe says they do not.
+const RECORD_ROUTE = `${DOCS_BASE}/templates/data-grid-page-record`;
 const IDS = {
   grid: 'template-grid',
   rows: 'template-grid-rows',
@@ -49,8 +54,10 @@ const STATUSES = [
   ['closed', 'Closed'],
 ];
 
-/** 24 orders — enough for three pages, so paging is real. */
-const ORDERS = Array.from({ length: 24 }, (_, i) => ({
+/** 24 orders — enough for three pages, so paging is real. Exported so
+ * the static record route is built from the SAME data: two renderings
+ * of one resource must not disagree about what the resource is. */
+export const ORDERS = Array.from({ length: 24 }, (_, i) => ({
   id: 4901 + i,
   ordered: `2026-07-${String((i % 28) + 1).padStart(2, '0')}`,
   customer: CUSTOMERS[i % CUSTOMERS.length],
@@ -137,8 +144,8 @@ function rowHtml(order, { ordinal, q, failed = null }) {
   // The href is the record's own PAGE — bookmarkable, middle-clickable,
   // and what a browser with no JavaScript follows. The peek is the
   // enhancement layered on top of it, never a replacement.
-  const href = `${API}/items/${order.id}?from=${from}&i=${ordinal}`;
-  const peek = `${href}&peek=1`;
+  const href = `${RECORD_ROUTE}/${order.id}/?from=${from}&i=${ordinal}`;
+  const peek = `${API}/items/${order.id}?from=${from}&i=${ordinal}&peek=1`;
   const attention = failed ? ' data-attention="error"' : '';
   const errorRow = failed
     ? `\n<tr class="hc-datagrid__error-row" id="row-error-${order.id}"><td class="hc-datagrid__error" colspan="8"><span role="alert">${escapeHtml(failed)}</span></td></tr>`
@@ -297,7 +304,7 @@ function recordHtml(order, { q, ordinal }) {
       <button class="hc-button" data-variant="ghost" type="button" onclick="this.closest('dialog').close()">← Back to list</button>
       <h2 class="hc-dialog__title" id="template-grid-record-title">SO-${order.id}</h2>
       <div class="hc-cluster">
-        <a class="hc-button" data-size="sm" data-variant="ghost" href="${API}/items/${order.id}?from=${from}&i=${ordinal}">Open full page ↗</a>
+        <a class="hc-button" data-size="sm" data-variant="ghost" href="${RECORD_ROUTE}/${order.id}/?from=${from}&i=${ordinal}">Open full page ↗</a>
         <span>${index + 1} / ${rows.length}</span>
         ${step(prev, index, '‹', 'Previous record')}
         ${step(next, index + 2, '›', 'Next record')}

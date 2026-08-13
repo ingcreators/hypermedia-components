@@ -1,0 +1,119 @@
+---
+/*
+ * The record's own page — a real second URL, prerendered per order.
+ *
+ * The template's row links point HERE, so clicking a row is a
+ * navigation, the way it is in Gmail, Fiori and Salesforce. The peek
+ * dialog is the enhancement layered on top of this href, not a
+ * replacement for it: this page is what a middle-click, a shared link,
+ * a refresh and a browser without JavaScript all get.
+ *
+ * Back to list carries the list query it arrived with plus #row-<id>,
+ * so the list comes back as it was with the row under the cursor.
+ */
+import '@hypermedia-components/core/css';
+import '../../../styles/custom.css';
+import '../../../styles/preview.css';
+import { ORDERS } from '../../../../demo-api/recipes/data-grid-page.mjs';
+
+export function getStaticPaths() {
+  return ORDERS.map((order) => ({ params: { id: String(order.id) }, props: { order } }));
+}
+
+const { order } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const from = Astro.url.searchParams.get('from') ?? '';
+const ordinal = Astro.url.searchParams.get('i') ?? '';
+const index = ORDERS.findIndex((o) => o.id === order.id);
+const prev = index > 0 ? ORDERS[index - 1] : null;
+const next = index < ORDERS.length - 1 ? ORDERS[index + 1] : null;
+const record = (o: { id: number }) =>
+  `${base}/templates/data-grid-page-record/${o.id}/?from=${encodeURIComponent(from)}`;
+// The list URL it came from, plus the row anchor: everything the list
+// needs to look the way it did — conditions, sort, page — is in the
+// query, and the anchor is what installDatagrid() lands the active cell on.
+const backToList = `${base}/templates/data-grid-page-preview/${from ? `?${from}` : ''}#template-grid-row-${order.id}`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SO-{order.id} — Data grid page | Hypermedia Components</title>
+    <meta name="robots" content="noindex" />
+    <script>
+      import '@hypermedia-components/core/behaviors';
+    </script>
+    <style>
+      body {
+        margin: 0;
+        padding: var(--hc-space-4);
+        background: var(--hc-color-bg);
+        color: var(--hc-color-text);
+        font-family: var(--hc-font-family-sans);
+      }
+      .record {
+        max-inline-size: 48rem;
+        margin-inline: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="record hc-stack">
+      {/* Exit at the start, walk at the end — the arrangement every mail
+          client already taught people. */}
+      <header class="hc-cluster" style="justify-content: space-between;">
+        <a class="hc-button" data-variant="ghost" href={backToList}>← Back to list</a>
+        <h1 style="margin: 0; font-size: var(--hc-font-size-lg);">SO-{order.id}</h1>
+        <div class="hc-cluster">
+          <span>{ordinal || index + 1} / {ORDERS.length}</span>
+          {prev ? (
+            <a class="hc-button" data-size="sm" href={record(prev)} aria-label="Previous record">‹</a>
+          ) : (
+            <span class="hc-button" data-size="sm" aria-disabled="true" aria-label="Previous record">‹</span>
+          )}
+          {next ? (
+            <a class="hc-button" data-size="sm" href={record(next)} aria-label="Next record">›</a>
+          ) : (
+            <span class="hc-button" data-size="sm" aria-disabled="true" aria-label="Next record">›</span>
+          )}
+        </div>
+      </header>
+
+      <div class="hc-card hc-stack">
+        <div class="hc-grid" data-align="start" style="--hc-grid-min: 14rem;">
+          <div class="hc-field">
+            <span class="hc-field__label">Customer</span>
+            <p>{order.customer}</p>
+          </div>
+          <div class="hc-field">
+            <span class="hc-field__label">Item</span>
+            <p>{order.item}</p>
+          </div>
+          <div class="hc-field">
+            <span class="hc-field__label">Ordered on</span>
+            <p>{order.ordered}</p>
+          </div>
+          <div class="hc-field">
+            <span class="hc-field__label">Ship date</span>
+            <p>{order.ship}</p>
+          </div>
+          <div class="hc-field">
+            <span class="hc-field__label">Carrier</span>
+            <p>{order.carrier}</p>
+          </div>
+          <div class="hc-field">
+            <span class="hc-field__label">Amount</span>
+            <p class="hc-numeric">{order.amount.toLocaleString('en-US')}</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="hc-field__hint">
+        This is the record's own URL. The peek dialog on the list is the
+        same resource, rendered for a glance — see the
+        <a href={`${base}/recipes/row-detail/`}>row-detail recipe</a>.
+      </p>
+    </article>
+  </body>
+</html>

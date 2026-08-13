@@ -22,7 +22,7 @@ import DataGridPageTemplateDemo from '../../components/template-demos/DataGridPa
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<html lang="en">
+<html lang="en" data-hc-base={base}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,6 +33,22 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <meta name="robots" content="noindex" />
     <script>
       import '@hypermedia-components/core/behaviors';
+
+      // Coming back from a record: the list URL carried its conditions,
+      // sort and page, so seed the grid's first request from them.
+      // Without this, Back would land on an honest URL showing the
+      // wrong answer — the exact defect the recipe warns about.
+      const search = location.search.replace(/^\?/, '');
+      if (search) {
+        const rows = document.getElementById('template-grid-rows');
+        const base = document.documentElement.dataset.hcBase ?? '';
+        if (rows) {
+          rows.setAttribute(
+            'data-hx-get',
+            `${base}/api/recipes/data-grid-page/items?${search}`,
+          );
+        }
+      }
       // The screen is server-driven, so it needs htmx as much as the
       // recipe demos do. DemoFrame loads it for those; this page has no
       // DemoFrame, and without this line every data-hx-* attribute on

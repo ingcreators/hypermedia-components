@@ -22,6 +22,20 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **docs**: in the working template, **a row click is now a real
+  navigation**. The record has its own prerendered URL
+  (`/templates/data-grid-page-record/<id>/`), built from the same data
+  the demo API serves, so a click behaves the way business software
+  does — Gmail replaces the screen, Fiori splits it, Salesforce gives
+  the record a page. *Back to list* carries the list query **and** the
+  row anchor, and the preview seeds its first request from that query,
+  so the list really does come back as it was with the row under the
+  cursor. The peek dialog stays as the enhancement layered on the same
+  href, with a link to the page inside it. The previous excuse — that a
+  documentation page is a single route — was only true until a second
+  route was written.
+
+
 - **docs**: `row-detail` ranks the three renderings the way business
   software actually does, and says why. Opening a record **replaces the
   screen** in Gmail, **splits it into columns** in SAP Fiori, and is a

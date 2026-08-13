@@ -422,13 +422,12 @@ const FILTERS = [
     </main>
   </div>
 
-  {/* The record opens here as a peek. The row's href beside it is the
-      REAL page, and that is what a business app normally does on click:
-      Gmail replaces the screen, Fiori splits it into columns,
-      Salesforce gives the record a page. The peek is what a
-      documentation page can host — it is one route — so treat it as the
-      demonstration of the enhancement, not as the recommendation.
-      installRemoteDialog() shows it once the fragment lands. */}
+  {/* The row's href is the record's OWN PAGE (a prerendered route), so
+      a click navigates the way business software does — Gmail replaces
+      the screen, Fiori splits it, Salesforce gives the record a page.
+      This dialog is the peek layered on top with data-hx-get, for the
+      glance-and-go case; installRemoteDialog() shows it once the
+      fragment lands, and it carries a link to the page. */}
   <div id="template-grid-record" data-hc-remote-dialog-root></div>
 
   <!-- The filter panel. One form wraps header, body and footer, so the
