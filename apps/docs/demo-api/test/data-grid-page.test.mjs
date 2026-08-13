@@ -124,3 +124,49 @@ describe('data-grid-page demo API — a bulk action that fails', () => {
     expect(closed).toContain('Reasons (1)');
   });
 });
+
+describe('data-grid-page demo API — two renderings of one record', () => {
+  it('the row link points at the record’s own PAGE, and peeks with ?peek=1', async () => {
+    const body = await (await call(app, 'GET', '/items', { htmx: true })).text();
+    // Attribute-encoded in the markup; compare them as URLs.
+    const unescape = (v) => v.replaceAll('&amp;', '&');
+    const href = unescape(body.match(/<a href="([^"]*items\/\d+[^"]*)" data-hc-row-link/)[1]);
+    const peek = unescape(body.match(/data-hx-get="([^"]*items\/\d+[^"]*)"/)[1]);
+    // The href is what a middle-click, a shared link or a JS-less
+    // browser follows; the peek is layered on top of it.
+    expect(href).not.toContain('peek=1');
+    expect(peek).toContain('peek=1');
+    expect(peek.startsWith(href)).toBe(true);
+  });
+
+  it('the bare URL answers a full page, not a dialog', async () => {
+    const response = await call(app, 'GET', '/items/4901?from=&i=1', { htmx: false });
+    const body = await response.text();
+    expect(body).toContain('<html');
+    expect(body).not.toContain('<dialog');
+    expect(body).toContain('Back to list');
+    expect(body).toContain('#template-grid-row-4901'); // returns to the row
+  });
+
+  it('the peek carries the way out to that page — a peek that traps is worse than none', async () => {
+    const body = await (
+      await call(app, 'GET', '/items/4901?peek=1&from=&i=1', { htmx: true })
+    ).text();
+    expect(body).toContain('<dialog');
+    expect(body).toContain('Open full page');
+  });
+
+  it('both renderings agree about the walk', async () => {
+    const dialog = await (
+      await call(app, 'GET', '/items/4902?peek=1&from=sort%3Dorder&i=2', { htmx: true })
+    ).text();
+    const full = await (
+      await call(app, 'GET', '/items/4902?from=sort%3Dorder&i=2', { htmx: false })
+    ).text();
+    for (const body of [dialog, full]) {
+      expect(body).toContain('2 / 24');
+      expect(body).toContain('aria-label="Previous record"');
+    }
+  });
+});
+

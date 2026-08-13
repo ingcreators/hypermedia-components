@@ -134,14 +134,18 @@ function matching(q) {
 
 function rowHtml(order, { ordinal, q, failed = null }) {
   const from = encodeURIComponent(queryString(q));
-  const peek = `${API}/items/${order.id}?peek=1&from=${from}&i=${ordinal}`;
+  // The href is the record's own PAGE — bookmarkable, middle-clickable,
+  // and what a browser with no JavaScript follows. The peek is the
+  // enhancement layered on top of it, never a replacement.
+  const href = `${API}/items/${order.id}?from=${from}&i=${ordinal}`;
+  const peek = `${href}&peek=1`;
   const attention = failed ? ' data-attention="error"' : '';
   const errorRow = failed
     ? `\n<tr class="hc-datagrid__error-row" id="row-error-${order.id}"><td class="hc-datagrid__error" colspan="8"><span role="alert">${escapeHtml(failed)}</span></td></tr>`
     : '';
   return `<tr class="hc-datagrid__row" id="template-grid-row-${order.id}" data-row-no="${ordinal}"${attention}>
   <td class="hc-datagrid__cell" data-frozen style="--hc-datagrid-left: 0;"><input type="checkbox" class="hc-checkbox" name="ids" value="${order.id}" aria-label="Select order SO-${order.id}"></td>
-  <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left: 2.5rem;"><a href="${escapeHtml(peek)}" data-hc-row-link data-hx-get="${escapeHtml(peek)}" data-hx-target="#${IDS.record}" data-hx-swap="innerHTML">SO-${order.id}</a></th>
+  <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row" style="--hc-datagrid-left: 2.5rem;"><a href="${escapeHtml(href)}" data-hc-row-link data-hx-get="${escapeHtml(peek)}" data-hx-target="#${IDS.record}" data-hx-swap="innerHTML">SO-${order.id}</a></th>
   <td class="hc-datagrid__cell">${order.ordered}</td>
   <td class="hc-datagrid__cell">${escapeHtml(order.customer)}</td>
   <td class="hc-datagrid__cell">${escapeHtml(order.item)}</td>
@@ -293,6 +297,7 @@ function recordHtml(order, { q, ordinal }) {
       <button class="hc-button" data-variant="ghost" type="button" onclick="this.closest('dialog').close()">← Back to list</button>
       <h2 class="hc-dialog__title" id="template-grid-record-title">SO-${order.id}</h2>
       <div class="hc-cluster">
+        <a class="hc-button" data-size="sm" data-variant="ghost" href="${API}/items/${order.id}?from=${from}&i=${ordinal}">Open full page ↗</a>
         <span>${index + 1} / ${rows.length}</span>
         ${step(prev, index, '‹', 'Previous record')}
         ${step(next, index + 2, '›', 'Next record')}
@@ -316,6 +321,42 @@ function recordHtml(order, { q, ordinal }) {
     </footer>
   </form>
 </dialog>`;
+}
+
+/** The record's own page: the same header arrangement as the peek —
+ * exit at the start, walk at the end — without the dialog around it. */
+function recordPageHtml(order, { q, ordinal }) {
+  const rows = matching(q);
+  const index = rows.findIndex((o) => o.id === order.id);
+  const prev = index > 0 ? rows[index - 1] : null;
+  const next = index >= 0 && index < rows.length - 1 ? rows[index + 1] : null;
+  const from = encodeURIComponent(queryString(q));
+  const href = (o, i) => `${API}/items/${o.id}?from=${from}&i=${i}`;
+  const step = (o, i, text, label) =>
+    o
+      ? `<a class="hc-button" data-size="sm" href="${escapeHtml(href(o, i))}" aria-label="${label}">${text}</a>`
+      : `<span class="hc-button" data-size="sm" aria-disabled="true" aria-label="${label}">${text}</span>`;
+  // Back carries the list query AND the row anchor, so the list comes
+  // back as it was with the row the user left from under the cursor.
+  const back = `${API}/items?${queryString(q)}#template-grid-row-${order.id}`;
+  return `<article class="hc-card">
+  <header class="hc-cluster" style="justify-content: space-between;">
+    <a class="hc-button" data-variant="ghost" href="${escapeHtml(back)}">← Back to list</a>
+    <h2 style="margin:0">SO-${order.id}</h2>
+    <div class="hc-cluster">
+      <span>${index + 1} / ${rows.length}</span>
+      ${step(prev, index, '‹', 'Previous record')}
+      ${step(next, index + 2, '›', 'Next record')}
+    </div>
+  </header>
+  <dl>
+    <dt>Customer</dt><dd>${escapeHtml(order.customer)}</dd>
+    <dt>Item</dt><dd>${escapeHtml(order.item)}</dd>
+    <dt>Ship date</dt><dd>${order.ship}</dd>
+    <dt>Amount</dt><dd>${order.amount.toLocaleString('en-US')}</dd>
+    <dt>Row</dt><dd>${ordinal} of ${rows.length}</dd>
+  </dl>
+</article>`;
 }
 
 // ---- the handler -----------------------------------------------------
@@ -346,14 +387,20 @@ ${panelHtml({ oob: true })}`);
     return html(panelHtml({ failures, open }));
   }
 
-  const peek = method === 'GET' && path.match(/^\/items\/(\d+)$/);
-  if (peek) {
-    const order = byId.get(Number(peek[1]));
+  const record = method === 'GET' && path.match(/^\/items\/(\d+)$/);
+  if (record) {
+    const order = byId.get(Number(record[1]));
     if (!order) return html('<p>No such order.</p>', { status: 404 });
-    const from = new URLSearchParams(url.searchParams.get('from') ?? '');
-    const listQuery = readQuery(from);
+    const listQuery = readQuery(new URLSearchParams(url.searchParams.get('from') ?? ''));
     const ordinal = Number(url.searchParams.get('i') ?? 1);
-    return html(recordHtml(order, { q: listQuery, ordinal }));
+    // TWO RENDERINGS OF ONE RESOURCE. `?peek=1` is the dialog the list
+    // asks for; the bare URL is the record's own page, which is what
+    // the row's href points at and what a browser with no JavaScript
+    // (or a middle-click, or a shared link) gets.
+    if (url.searchParams.get('peek') === '1') {
+      return html(recordHtml(order, { q: listQuery, ordinal }));
+    }
+    return page(`SO-${order.id}`, recordPageHtml(order, { q: listQuery, ordinal }));
   }
 
   const save = method === 'POST' && path.match(/^\/items\/(\d+)$/);
