@@ -127,6 +127,26 @@ not a dead row. The overlay is the
 and it **contains a link to the full page** — a peek that traps you is
 worse than no peek.
 
+### Page, peek, or docked pane
+
+A modal is not the answer to "where does the detail go" — it is one of
+three, and the **page is the default**, because it is the only one with
+a URL:
+
+| Shape | When | Why |
+| --- | --- | --- |
+| **a page** (default) | the record has fields, sub-grids, its own actions; the user is *in* it | it is the only rendering that can be shared, bookmarked, opened in a second tab, or reached without JavaScript |
+| **a peek** (modal) | glance and go — check one field, approve, close — on a **short** record | keeps the list's place. The moment it needs to scroll, or grows tabs or a sub-grid, it wanted to be a page |
+| **a docked pane** | the work is *comparing* record and list, over and over (triage, matching) | both stay live; nothing is hidden behind an overlay |
+
+Two rules keep the peek honest, and both are failures if broken:
+
+- **The row's `href` is the page**, and the peek is layered on top of
+  it with `data-hx-get`. A record reachable only through a dialog
+  cannot be linked, which is the thing colleagues ask for most.
+- **The peek contains a link to the page.** A peek that traps you is
+  worse than no peek.
+
 ## Walking a sequence
 
 Opening one record is half the job; business work is a queue. The

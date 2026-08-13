@@ -620,6 +620,20 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **docs**: the working template opened records **only as a modal**,
+  which contradicted the `row-detail` contract it is meant to
+  demonstrate: a record reachable only through a dialog cannot be
+  linked, bookmarked or opened in a second tab, and the peek was
+  missing the *Open full page* link the contract requires — a peek that
+  traps you is worse than no peek. The row's `href` is now the
+  **record's own page**, which the demo API answers as a real page
+  (Back carrying the list query and the row anchor); the dialog is the
+  enhancement layered on top with `data-hx-get`, and it carries the way
+  out. The recipe now also states plainly when each of the three shapes
+  is right — page (default), peek (glance and go, short records), or a
+  docked pane (when the work is comparing record and list).
+
+
 - **docs**: the template's **full-size preview showed no data**. The
   page is a plain Astro route, not a Starlight one, so it never got the
   `DemoFrame` that loads htmx for every other live demo — leaving every
