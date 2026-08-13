@@ -88,6 +88,17 @@
       overflow: visible;
     }
 
+    /* The cap lives on the SCROLLPORT, not on the grid — resetting the
+     * wrapper left `.hc-datagrid__scroll` capped, so a fixed-height grid
+     * printed only the rows that happened to be visible. `max-block-size`
+     * as well as `max-height`: the logical property is what the
+     * component sets, and the physical one does not override it. */
+    .hc-datagrid__scroll {
+      max-height: none;
+      max-block-size: none;
+      overflow: visible;
+    }
+
     .hc-datagrid__head {
       position: static;
     }

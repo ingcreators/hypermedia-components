@@ -66,6 +66,41 @@ What is still static is the chrome this demo does not implement: the
 views menu, the sort panel and the columns chooser.
 :::
 
+## Fixed height, or let the page scroll?
+
+Both ship in this kit, and the fixed-height grid is not automatically
+the better one. It is the **operational** shape: SAP Fiori's list
+report, Salesforce list views, ServiceNow lists, AG Grid, Ant Design's
+`scroll.y` — back-office screens converge on it because the header, the
+toolbar and the pager must stay put while somebody works a queue for an
+hour.
+
+Page scroll is the **content** shape, and the default everywhere else:
+GitHub, Jira's backlog, Linear, every mobile view. It costs nothing to
+build, and the browser's own behaviours — Find, scroll restoration on
+Back, the address bar hiding on phones — keep working.
+
+Choose fixed height only when all four hold:
+
+1. **The screen is an app frame.** The page itself must not scroll, or
+   you have two scrollbars and a grid that moves while you read it.
+   That is what `hc-shell` + [`hc-fill`](/hypermedia-components/fundamentals/layout/#hc-fill--take-the-remaining-space)
+   are for.
+2. **There is a fallback under the breakpoint.** `hc-shell` becomes an
+   ordinary scrolling page below `60rem`, because a fixed frame on a
+   phone leaves the data a few rows tall.
+3. **Print un-caps the scrollport.** On paper there is no scrolling:
+   whatever the cap hides is missing, with nothing to say so. The
+   opt-in [print sheet](/hypermedia-components/fundamentals/print/)
+   does this — load it.
+4. **The rows are paged, not infinite.** A capped viewport over an
+   endless list needs virtualisation to stay honest about position; a
+   page and a count do not.
+
+If any of those is false, let the page scroll and keep
+`--hc-datagrid-max-height` at its `70vh` default: a sticky header alone
+already buys most of the benefit.
+
 ## The layout rule
 
 ```html
