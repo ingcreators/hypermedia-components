@@ -122,6 +122,7 @@ export default defineConfig({
             { slug: 'fundamentals/accessibility' },
             { slug: 'fundamentals/print' },
             { slug: 'fundamentals/errors' },
+          { slug: 'fundamentals/audit-trail' },
             { slug: 'fundamentals/writing' },
             { slug: 'fundamentals/motion' },
             { slug: 'fundamentals/icons' },

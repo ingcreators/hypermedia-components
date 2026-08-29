@@ -1,0 +1,114 @@
+---
+title: 監査証跡
+description: 誰が・何を・いつ変えたか — 他のレシピが暗黙に前提してきた追記専用の書き込み側契約と、それを見せる hc-timeline の読み取り側。
+---
+
+このキットのすべての変更系契約 —
+[ワークフロー遷移](/hypermedia-components/ja/recipes/workflow-actions/)、
+[インライン編集](/hypermedia-components/ja/recipes/inline-edit/)、
+[一括操作](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) —
+はコミットの瞬間にひとつの問いに答えます。監査証跡は、その問いが
+発せられたことの記録です。コンポーネントではなく
+([`hc-timeline`](/hypermedia-components/ja/components/timeline/)は
+出荷済み)、単一のエンドポイントでもない(そう装えるレシピは
+ありません): これはドクトリンなので、ここに置きます。
+
+## 行
+
+コミットされた変更 1 件につき、追記される行は 1 つ:
+
+| カラム | 規則 |
+| --- | --- |
+| `actor` | **セッションから。フォームからは決して取らない** — 「誰が操作したか」のブラウザの主張は証拠になりません |
+| `verb` | ドメインの動詞(`approve`、`price-change`、`import`)— HTTP メソッドではない |
+| `entity`、`entity_id` | 何が変わったか |
+| `at` | サーバの時計 — クライアントの時計は表示用([ローカライズされたタイムスタンプ](/hypermedia-components/ja/fundamentals/i18n/#ローカライズされたタイムスタンプ))であって記録ではない |
+| `request_id` | ログとエントリを突き合わせる |
+| `summary` | サーバが描画する一文 — 証跡は人間が読むもの |
+| `before` → `after` | 変わったフィールドのみ。大きなペイロードは構造化データで持ち、要求時に diff として描画 |
+
+## いつ書くか — 出荷済み契約への対応表
+
+書き込みポイントはレシピが既に定義しているコミットポイントその
+ものです。そこから重要な規則が導かれます: **コミットが
+exactly-once だから、証跡も exactly-once。**
+
+- [ワークフロー遷移](/hypermedia-components/ja/recipes/workflow-actions/)は
+  1 エントリを書く。`409` の敗者は**何も書かない** — 何も変えて
+  いないからです。
+- [インライン編集](/hypermedia-components/ja/recipes/inline-edit/)や
+  [データグリッド編集](/hypermedia-components/ja/recipes/datagrid-edit-errors/)の
+  コミットは 1 エントリ。`422` は何も書かない。
+- [一括操作](/hypermedia-components/ja/recipes/datagrid-bulk-errors/)は
+  変更された行ごとに 1 エントリ、**プラスバッチに 1 エントリ**
+  (バッチのエントリが件数を持つ —
+  [CSV インポート](/hypermedia-components/ja/recipes/csv-import/)の
+  レポートと同型)。
+- [削除の取り消し](/hypermedia-components/ja/recipes/undo-delete/)は
+  削除**と**復元の両方を書く — undo は 2 つ目の変更であって、
+  1 つ目の抹消ではありません。
+- [冪等キー](/hypermedia-components/ja/recipes/idempotency-key/)の
+  **リプレイは 2 つ目のエントリを書かない** — リプレイされた
+  レスポンスはストレージから来たもので、二度コミットされたものは
+  何もありません。
+
+## 追記専用
+
+`UPDATE` なし、`DELETE` なし。訂正は「訂正である」と summary が
+語る新しいエントリです。間違ったエントリは残ります — 「私たちは
+かつて X と信じていた」も記録の一部だからです。保持期間は宣言
+ポリシー(冪等キーの TTL 方針のアーカイブ時間スケール版)—
+失効はポリシーによる掃除であって、編集では決してありません。
+
+## 読み取り側
+
+[`hc-timeline`](/hypermedia-components/ja/components/timeline/)が
+表示契約です — サーバ描画、新しい順、警告(`return`・`reject`)や
+失敗を表すアイテムには `data-variant`:
+
+```html
+<ol class="hc-timeline">
+  <li class="hc-timeline__item" data-variant="success">
+    <span class="hc-timeline__marker" aria-hidden="true"></span>
+    <div class="hc-timeline__content">
+      <time class="hc-timeline__time" datetime="2026-08-29T09:14:00Z"
+            data-hc-time>2026-08-29 09:14</time>
+      <p class="hc-timeline__title">Tanaka approved purchase request REQ-58214</p>
+      <p class="hc-timeline__description">Amount ¥48,000 · request j_8f3k2</p>
+    </div>
+  </li>
+  …
+</ol>
+```
+
+- `<time datetime>` + `data-hc-time` でローカライズされた相対日時
+  ([`installTime()`](/hypermedia-components/ja/fundamentals/i18n/#ローカライズされたタイムスタンプ))。
+  ワイヤ上は ISO のままです。
+- レコードページでは
+  [レイジーパネル](/hypermedia-components/ja/recipes/lazy-panel/)で
+  読み込む — ほとんどの訪問は証跡を開きません。開かれないものに
+  コストを払わない。
+- ページングは `data-hx-swap="beforeend"` の「さらに読み込む」
+  ([timeline コンポーネントの htmx セクション](/hypermedia-components/ja/components/timeline/#htmx-での利用))。
+- グリッドでは証跡は
+  [行から詳細へ](/hypermedia-components/ja/recipes/row-detail/)の
+  素材です — レコードのページがその履歴を所有します。
+- 大きな `before` → `after` ペイロードは要求時に
+  [`hc-code` の unified diff](/hypermedia-components/ja/components/code/#unified-diff)
+  として描画 — タイムラインのエントリはリンクするだけで、
+  インラインには決して展開しません。
+
+## 意図的にやらないこと
+
+- **クライアント側のイベント捕捉はしない。** サーバは自分が
+  *コミットした*ものから証跡を書きます。ブラウザが*起きたと主張
+  する*ものからではありません — クライアントイベントから組み立てた
+  証跡は願望であって記録ではない。
+- **undo はしない。**
+  [削除の取り消し](/hypermedia-components/ja/recipes/undo-delete/)は
+  契約、証跡は記録です。証跡を読んで状態を再構築するのはイベント
+  ソーシング — 別のアーキテクチャであり、意図的にスコープ外です。
+- **自明を超える PII 助言はしない**: 証跡もデータです。保持
+  ポリシーは他のテーブルと同様に適用されます。「追記専用」は削除
+  法制の適用除外ではなく、個人データはエンティティ側に置き証跡は
+  それを参照するよう行を設計する理由です。
