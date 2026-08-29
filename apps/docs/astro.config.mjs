@@ -112,6 +112,7 @@ export default defineConfig({
           // Explicit reading order (the index's suggested path), not the
           // alphabetical order autogenerate would produce.
           label: 'Fundamentals', translations: { ja: '基礎' },
+          collapsed: true,
           items: [
             { slug: 'fundamentals' },
             { slug: 'fundamentals/naming' },
@@ -135,10 +136,12 @@ export default defineConfig({
           // list, so the sidebar is scannable. Every component lives under
           // exactly one category; `Overview` links the gallery index.
           label: 'Components', translations: { ja: 'コンポーネント' },
+          collapsed: true,
           items: [
             { label: 'Overview', translations: { ja: '概要' }, slug: 'components' },
             {
               label: 'Actions', translations: { ja: 'アクション' },
+              collapsed: true,
               items: [
                 'components/button',
                 'components/button-group',
@@ -150,6 +153,7 @@ export default defineConfig({
             },
             {
               label: 'Forms', translations: { ja: 'フォーム' },
+              collapsed: true,
               items: [
                 'components/field',
                 'components/input',
@@ -172,6 +176,7 @@ export default defineConfig({
             },
             {
               label: 'Navigation', translations: { ja: 'ナビゲーション' },
+              collapsed: true,
               items: [
                 'components/breadcrumb',
                 'components/toc',
@@ -187,6 +192,7 @@ export default defineConfig({
             },
             {
               label: 'Overlays', translations: { ja: 'オーバーレイ' },
+              collapsed: true,
               items: [
                 'components/dialog',
                 'components/drawer',
@@ -197,6 +203,7 @@ export default defineConfig({
             },
             {
               label: 'Data display', translations: { ja: 'データ表示' },
+              collapsed: true,
               items: [
                 'components/table',
                 'components/code',
@@ -217,6 +224,7 @@ export default defineConfig({
             },
             {
               label: 'Feedback', translations: { ja: 'フィードバック' },
+              collapsed: true,
               items: [
                 'components/alert',
                 'components/toast',
@@ -229,6 +237,7 @@ export default defineConfig({
             },
             {
               label: 'Layout', translations: { ja: 'レイアウト' },
+              collapsed: true,
               items: [
                 'components/aspect',
                 'components/scroll-area',
@@ -245,6 +254,7 @@ export default defineConfig({
           // order (overview → the two templates), Components-style
           // `Overview` entry for the index.
           label: 'Templates', translations: { ja: 'テンプレート' },
+          collapsed: true,
           items: [
             { label: 'Overview', translations: { ja: '概要' }, slug: 'templates' },
             'templates/settings',
@@ -262,10 +272,12 @@ export default defineConfig({
           // deliberate single-entry group (distinct domain, same
           // modelling as the index).
           label: 'Recipes', translations: { ja: 'レシピ' },
+          collapsed: true,
           items: [
             { label: 'Overview', translations: { ja: '概要' }, slug: 'recipes' },
             {
               label: 'Forms', translations: { ja: 'フォーム' },
+              collapsed: true,
               items: [
                 'recipes/mutating-form',
                 'recipes/field-errors',
@@ -281,6 +293,7 @@ export default defineConfig({
             },
             {
               label: 'Form safety', translations: { ja: 'フォーム保全' },
+              collapsed: true,
               items: [
                 'recipes/unsaved-changes',
                 'recipes/autosave',
@@ -292,6 +305,7 @@ export default defineConfig({
             },
             {
               label: 'Actions', translations: { ja: 'アクション' },
+              collapsed: true,
               items: [
                 'recipes/request-action',
                 'recipes/confirm-action',
@@ -302,6 +316,7 @@ export default defineConfig({
             },
             {
               label: 'Business flows', translations: { ja: '業務フロー' },
+              collapsed: true,
               items: [
                 'recipes/line-items',
                 'recipes/workflow-actions',
@@ -311,6 +326,7 @@ export default defineConfig({
             },
             {
               label: 'Data grid', translations: { ja: 'データグリッド' },
+              collapsed: true,
               items: [
                 'recipes/datagrid-pager',
                 'recipes/datagrid-sort',
@@ -329,6 +345,7 @@ export default defineConfig({
             },
             {
               label: 'Search & filter', translations: { ja: '検索とフィルタ' },
+              collapsed: true,
               items: [
                 'recipes/live-search',
                 'recipes/result-cap',
@@ -338,6 +355,7 @@ export default defineConfig({
             },
             {
               label: 'Loading & regions', translations: { ja: '読み込みと領域' },
+              collapsed: true,
               items: [
                 'recipes/lazy-panel',
                 'recipes/lazy-tree',
@@ -346,6 +364,7 @@ export default defineConfig({
             },
             {
               label: 'Server push & chat', translations: { ja: 'サーバプッシュとチャット' },
+              collapsed: true,
               items: [
                 'recipes/sse-updates',
                 'recipes/sse-toast',
@@ -355,6 +374,7 @@ export default defineConfig({
             },
             {
               label: 'Overlays & notifications', translations: { ja: 'オーバーレイと通知' },
+              collapsed: true,
               items: [
                 'recipes/remote-dialog',
                 'recipes/toast',
@@ -363,6 +383,7 @@ export default defineConfig({
             },
             {
               label: 'Data visualization', translations: { ja: 'データ可視化' },
+              collapsed: true,
               items: ['recipes/chart'],
             },
           ],
@@ -372,15 +393,35 @@ export default defineConfig({
           // package, so its docs sit outside the core Reference group.
           // Explicit reading order: overview → API → inspector demo.
           label: 'Editor kit', translations: { ja: 'エディタキット' },
+          collapsed: true,
           items: [
             { label: 'Overview', translations: { ja: '概要' }, slug: 'editor-kit' },
             'editor-kit/api',
             'editor-kit/inspector',
           ],
         },
-        { label: 'Tokens', translations: { ja: 'トークン' }, items: [{ autogenerate: { directory: 'tokens' } }] },
-        { label: 'Integrations', translations: { ja: 'インテグレーション' }, items: [{ autogenerate: { directory: 'integrations' } }] },
-        { label: 'Reference', translations: { ja: 'リファレンス' }, items: [{ autogenerate: { directory: 'reference' } }] },
+        { label: 'Tokens', translations: { ja: 'トークン' }, collapsed: true, items: [{ autogenerate: { directory: 'tokens' } }] },
+        {
+          // Journey order, not autogenerate's alphabetical one: the
+          // shared htmx foundation page every guide references first,
+          // the no-tooling setup next, then the framework guides, then
+          // the two opt-in extras.
+          label: 'Integrations', translations: { ja: 'インテグレーション' },
+          collapsed: true,
+          items: [
+            { label: 'Overview', translations: { ja: '概要' }, slug: 'integrations' },
+            'integrations/htmx',
+            'integrations/plain-html',
+            'integrations/django',
+            'integrations/go',
+            'integrations/rails',
+            'integrations/razor',
+            'integrations/thymeleaf',
+            'integrations/hyperscript',
+            'integrations/html-email',
+          ],
+        },
+        { label: 'Reference', translations: { ja: 'リファレンス' }, collapsed: true, items: [{ autogenerate: { directory: 'reference' } }] },
       ],
       customCss: [
         '@hypermedia-components/core/css',
