@@ -31,6 +31,7 @@ documentation pages.
 | [`async-job/`](async-job/)                | Work that outlives a request — 202 + a job card that polls itself to a terminal state. |
 | [`field-errors/`](field-errors/)          | Render server-side validation errors next to the fields they belong to. |
 | [`inline-edit/`](inline-edit/)            | Display ↔ edit toggle that swaps the same DOM node each way.            |
+| [`line-items/`](line-items/)              | Order/quote detail rows — add/remove/recalc as whole-form round trips; the server owns arithmetic. |
 | [`lazy-panel/`](lazy-panel/)              | Panel whose content loads on first reveal (intersect / details / tab).  |
 | [`lazy-tree/`](lazy-tree/)                | Tree branches that load their children on first expand (`hc:treeexpand once`). |
 | [`datagrid-pager/`](datagrid-pager/)      | Paginate an `hc-datagrid` from the server with htmx.                    |

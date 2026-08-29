@@ -1,0 +1,56 @@
+{
+  "detect": "form[data-hc-line-items]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "has-add",
+      "level": "error",
+      "message": "The form needs an add button (name=\"add\") wired with data-hx-post — structural changes are server round trips.",
+      "exists": {
+        "selector": "button[name=\"add\"][data-hx-post]"
+      }
+    },
+    {
+      "id": "mutations-post",
+      "level": "error",
+      "message": "Add/remove buttons must POST (data-hx-post) — a GET pager-style link cannot carry the rows.",
+      "attr": {
+        "on": "button[name=\"add\"], button[name=\"remove\"]",
+        "name": "data-hx-post",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "whole-form-swap",
+      "level": "error",
+      "message": "Controls swap the whole form back (data-hx-swap=\"outerHTML\") — the response is the only calculator, so partial swaps must be the documented narrowed variant, not the default.",
+      "attr": {
+        "on": "[data-hx-post][data-hx-swap]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
+    },
+    {
+      "id": "no-js-action",
+      "level": "error",
+      "message": "The form needs method=\"post\" and an action so the mutation buttons work without JavaScript.",
+      "attr": {
+        "on": "form[data-hc-line-items]",
+        "name": "action",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "method-post",
+      "level": "error",
+      "message": "The no-JS fallback must POST — the rows travel in the body.",
+      "attr": {
+        "on": "form[data-hc-line-items]",
+        "name": "method",
+        "assert": "present",
+        "value": "post"
+      }
+    }
+  ]
+}

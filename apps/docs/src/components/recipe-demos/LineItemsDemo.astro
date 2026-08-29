@@ -1,0 +1,27 @@
+---
+/*
+ * Live demo for the line-items recipe. The whole form is
+ * server-rendered on load and after every mutation: change a
+ * quantity or price (blur to fire `change`), add or remove rows —
+ * each is the same POST of the whole form, and the totals only ever
+ * come back computed by the server (tax is floored server-side:
+ * rounding is business truth). Type a non-number to see the 422
+ * shape: raw value echoed, aria-invalid, totals dashed. Server
+ * side: apps/docs/demo-api/recipes/line-items.mjs (stateless — the
+ * rows ARE the request).
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/line-items`;
+---
+
+<DemoFrame class="hc-preview--col" label="Line items demo">
+  <div
+    style="inline-size: 100%;"
+    data-hx-get={`${api}/quote`}
+    data-hx-trigger="load"
+    data-hx-target="this"
+    data-hx-swap="innerHTML">
+    <p class="hc-field__hint" style="margin:0;">Loading quote…</p>
+  </div>
+</DemoFrame>

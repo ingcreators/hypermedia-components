@@ -1,0 +1,148 @@
+---
+title: 明細行
+description: 受注・見積・請求の明細テーブルを編集 — 1 フォームに N 行、計算はすべてサーバが所有し、行追加・削除・再計算は同じフォーム全体の往復。
+---
+
+import LineItemsDemo from '../../../../components/recipe-demos/LineItemsDemo.astro';
+
+受注フォーム、見積書、請求書: ヘッダ+明細 N 行、それぞれに数量・
+単価・行合計、フッタに小計/税/合計。このレシピはそのテーブルを
+ハイパーメディア契約にしたものです — **1 エンドポイント、1 つの形**:
+フォーム全体を POST し、フォーム全体が再描画されて返る。クライアントは
+数値を一切計算しません。丸めは業務の真実であり、実装はサーバに
+ただ 1 つです。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add line-items` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/line-items/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/line-items/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+数量や単価を変えて(フィールドを離れると `change` が発火)、行を追加・
+削除してみてください — どの操作も同じ「フォーム全体の POST」で、
+合計は常にサーバ計算で返ってきます(10% の税はサーバ側で切り捨て)。
+数量に `3..5` と入れると 422 の形が見えます: 生の値がそのまま
+エコーバックされ、入力がマークされ、合計はダッシュに。エンドポイントは
+`api/recipes/line-items/` 配下の契約のデモ実装です。
+
+<LineItemsDemo />
+
+## マークアップ
+
+```html
+<form method="post" action="/quotes/42/recalc" id="quote" data-hc-line-items>
+  <table class="hc-table">
+    <thead>…品目 / 数量 / 単価 / 行合計 / (削除)…</thead>
+    <tbody>
+      <tr>
+        <td><input class="hc-input" name="item" value="Widget" aria-label="Item"></td>
+        <td><input class="hc-input" name="qty" value="3" inputmode="numeric" aria-label="Quantity"
+                   data-hx-post="/quotes/42/recalc" data-hx-trigger="change"
+                   data-hx-target="#quote" data-hx-swap="outerHTML"></td>
+        <td><input class="hc-input" name="price" value="1200" inputmode="numeric" aria-label="Unit price"
+                   data-hx-post="/quotes/42/recalc" data-hx-trigger="change"
+                   data-hx-target="#quote" data-hx-swap="outerHTML"></td>
+        <td data-cell="line-total">¥3,600</td>
+        <td><button class="hc-button" data-variant="ghost" type="submit" name="remove" value="1"
+                    data-hx-post="/quotes/42/recalc"
+                    data-hx-target="#quote" data-hx-swap="outerHTML">Remove</button></td>
+      </tr>
+    </tbody>
+    <tfoot>…小計 / 税 / 合計、すべてサーバレンダリング…</tfoot>
+  </table>
+  <button class="hc-button" type="submit" name="add" value="1"
+          data-hx-post="/quotes/42/recalc"
+          data-hx-target="#quote" data-hx-swap="outerHTML">Add row</button>
+</form>
+```
+
+それぞれがこの形である理由:
+
+- **行は同名フィールドの繰り返しで位置的に整列。** 各行が `item`・
+  `qty`・`price` を 1 つずつ供出し、ツリー順直列化が 3 つ組の対応を
+  保ちます —
+  [並べ替えリスト](/hypermedia-components/ja/recipes/sortable/)や
+  [データグリッドのスナップショットページャー](/hypermedia-components/ja/recipes/datagrid-snapshot-pager/)と
+  同じ仕様保証です。`items[0].qty` 式の添字管理がないので、行の増減で
+  番号を振り直すものが何もありません。
+- **どの操作も同じリクエスト。** `qty`/`price` は `change` で発火。
+  Add と Remove は name/value が動詞の submit ボタン。エンドポイントは
+  押されたボタンで分岐し、JS オフでもネイティブ submit が同じことを
+  します。
+- **フォーム全体を `outerHTML` でスワップ。** レスポンスが唯一の
+  計算機です — 行合計・小計・税・合計はすべて描画済みで届きます。
+  それ以外のスワップは `hc validate` がエラーにします。
+- `data-hc-line-items` は契約マーカーで、ビヘイビアは何もアタッチ
+  しません。
+
+## バリデーション(422)
+
+数値はフィールド単位で検証し、レスポンスは同じ再描画フォームです:
+不正な**生の値をそのままエコーバック**(黙って矯正しない — ユーザーは
+サーバが見たものを見るべき)、入力に `aria-invalid="true"`、メッセージは
+行の中、そしてどこかの行が不正な間、合計は**「—」** — 古い数字や
+部分的な数字は決して出しません。ステータスは `422`
+([ミューテーションフォーム](/hypermedia-components/ja/recipes/mutating-form/)の
+1 行 `beforeSwap` 許可を併用)。
+
+## フォーカス — 唯一の実トレードオフ
+
+`change` 後のフォーム全体スワップは、ユーザーがいま離れた入力を
+再描画します。キーボードでテーブルを渡っていると、スワップ時点で
+フォーカスを失います。契約の基本姿勢: **受け入れる** — `change` は
+blur で発火し、たいていの入力画面では「真実は一つ」がフォーカス保持に
+勝ちます。文書化された絞り込み変種は、同じレスポンスのまま派生セル
+だけをスワップします(`data-hx-select-oob="#totals"` + 行合計セルの
+id)— フォーカスは生き残り、代償はすべての派生セルへの id 付与。
+キーボード中心の画面なら
+[データグリッドの編集エラー](/hypermedia-components/ja/recipes/datagrid-edit-errors/)の
+グリッドも検討を。
+
+## サーバレスポンス契約
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `POST /quotes/42/recalc`(行 ± `add` / `remove=N`) | `200` + フォーム全体の再描画 |
+| `POST /quotes/42/recalc`(不正な数値) | `422` + 同じフォーム、生の値エコー、合計は「—」 |
+| `POST /quotes/42`(保存 — ボタンの `formaction`) | recalc と同じ検証。成功は[ミューテーションフォーム](/hypermedia-components/ja/recipes/mutating-form/)の流儀で |
+
+## プログレッシブエンハンスメント
+
+すべての操作コントロールは name/value 付きのネイティブ submit です。
+htmx なしではフォームが `action` へ POST し、サーバが同じ再描画
+フォームのフルページを返します。保存ボタンの `formaction` が JS オフ
+でも 2 つのエンドポイントを正直に保ちます。
+
+## アクセシビリティ
+
+- 入力には `aria-label` を(列ヘッダは列のラベルであって、コントロールの
+  ラベルではありません)。
+- エラーメッセージは行の中、対象入力の隣に。入力には `aria-invalid`。
+- 行に同一性があるなら削除ボタンに行名を(「Widget を削除」)。
+
+## ノート
+
+- **ドラフト**は[自動保存](/hypermedia-components/ja/recipes/autosave/)と、
+  ダーティガードは[未保存ガード](/hypermedia-components/ja/recipes/unsaved-changes/)と
+  合成できます。
+- **行の並べ替え**は `<tbody>` に
+  [並べ替えリスト](/hypermedia-components/ja/recipes/sortable/)を適用する
+  だけ — 行を動かせば入力も動き、位置的契約が新しい順序をそのまま
+  拾います。
+- **同時編集**: 1 つの見積を 2 人で編集するなら、
+  [編集競合](/hypermedia-components/ja/recipes/edit-conflict/)の hidden
+  `version` をこの同じフォームに同乗させます。
+
+## 関連
+
+- [トランスファー](/hypermedia-components/ja/recipes/transfer/) —
+  デュアルリストボックスでの同じ「フォーム全体スワップ」の形。
+- [データグリッドの編集エラー](/hypermedia-components/ja/recipes/datagrid-edit-errors/) —
+  テーブルがフォームの器を超えたときの、グリッドでのセル単位編集。
+- [フィールドエラー](/hypermedia-components/ja/recipes/field-errors/) —
+  このレシピが行単位で再利用するエラーマーキングの語彙。

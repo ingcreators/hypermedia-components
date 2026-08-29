@@ -1,0 +1,148 @@
+---
+title: Line items
+description: Edit an order/quote/invoice detail table — N rows in one form, where the server owns all arithmetic and add, remove, and recalculate are the same whole-form round trip.
+---
+
+import LineItemsDemo from '../../../components/recipe-demos/LineItemsDemo.astro';
+
+The order form, the quote, the invoice: a header plus N detail rows,
+each with a quantity, a price, and a line total, footed by subtotal /
+tax / total. This recipe is that table as a hypermedia contract —
+**one endpoint, one shape**: POST the whole form, get the whole form
+back re-rendered. The client never computes a number; rounding is
+business truth and has exactly one implementation, on the server.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add line-items` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/line-items/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/line-items/contract.md).
+:::
+
+## Live demo
+
+Change a quantity or price (leave the field to fire `change`), add and
+remove rows — every mutation is the same POST of the whole form, and
+the totals only ever come back computed by the server (the 10% tax is
+floored server-side). Type `3..5` into a quantity to see the 422
+shape: the raw value echoed back, the input marked, the totals dashed.
+The endpoint is a namespaced demo implementation of the contract under
+`api/recipes/line-items/`.
+
+<LineItemsDemo />
+
+## The markup
+
+```html
+<form method="post" action="/quotes/42/recalc" id="quote" data-hc-line-items>
+  <table class="hc-table">
+    <thead>…Item / Qty / Unit price / Line total / (remove)…</thead>
+    <tbody>
+      <tr>
+        <td><input class="hc-input" name="item" value="Widget" aria-label="Item"></td>
+        <td><input class="hc-input" name="qty" value="3" inputmode="numeric" aria-label="Quantity"
+                   data-hx-post="/quotes/42/recalc" data-hx-trigger="change"
+                   data-hx-target="#quote" data-hx-swap="outerHTML"></td>
+        <td><input class="hc-input" name="price" value="1200" inputmode="numeric" aria-label="Unit price"
+                   data-hx-post="/quotes/42/recalc" data-hx-trigger="change"
+                   data-hx-target="#quote" data-hx-swap="outerHTML"></td>
+        <td data-cell="line-total">¥3,600</td>
+        <td><button class="hc-button" data-variant="ghost" type="submit" name="remove" value="1"
+                    data-hx-post="/quotes/42/recalc"
+                    data-hx-target="#quote" data-hx-swap="outerHTML">Remove</button></td>
+      </tr>
+    </tbody>
+    <tfoot>…Subtotal / Tax / Total, all server-rendered…</tfoot>
+  </table>
+  <button class="hc-button" type="submit" name="add" value="1"
+          data-hx-post="/quotes/42/recalc"
+          data-hx-target="#quote" data-hx-swap="outerHTML">Add row</button>
+</form>
+```
+
+Why each piece is the way it is:
+
+- **Rows align positionally by repeated names.** Each row contributes
+  one `item`, one `qty`, one `price`; tree-order serialization keeps
+  the triples aligned — the same spec guarantee the
+  [sortable list](/hypermedia-components/recipes/sortable/) and the
+  [datagrid snapshot pager](/hypermedia-components/recipes/datagrid-snapshot-pager/)
+  rest on. No `items[0].qty` indexing, so adding and removing rows
+  never renumbers anything.
+- **Every mutation is the same request.** `qty`/`price` fire on
+  `change`; Add and Remove are submit buttons whose name/value is the
+  verb. One endpoint branches on the pressed button; the native
+  submit does the same with JavaScript off.
+- **The whole form swaps back (`outerHTML`).** The response is the
+  only calculator — line totals, subtotal, tax, total all arrive
+  rendered. `hc validate` errors on any other swap.
+- `data-hc-line-items` is a contract marker only — no behavior
+  attaches.
+
+## Validation (422)
+
+Numbers validate per field; the response is the same re-rendered form
+with the bad **raw value echoed back** (never silently coerced — the
+user must see what the server saw), `aria-invalid="true"` on the
+input, the message in the row, and the totals rendered as **"—"**
+while any row is invalid — never a stale or partial number. Status
+`422`, with the standard one-line `beforeSwap` allowance from
+[mutating form](/hypermedia-components/recipes/mutating-form/).
+
+## Focus — the one real trade-off
+
+A whole-form swap after `change` re-renders the input the user just
+left; a keyboard user tabbing through the table loses focus at swap
+time. The contract's base position: **accept it** — `change` fires on
+blur and one source of truth beats focus preservation in most entry
+screens. The documented narrowed variant keeps the same response but
+swaps only the derived cells (`data-hx-select-oob="#totals"` plus
+per-row line-total ids) — focus survives, at the cost of ids on every
+derived cell. For keyboard-heavy screens consider the
+[datagrid edit errors](/hypermedia-components/recipes/datagrid-edit-errors/)
+grid instead.
+
+## Server response contract
+
+| Request | Response |
+| --- | --- |
+| `POST /quotes/42/recalc` (rows ± `add` / `remove=N`) | `200` + the whole form re-rendered |
+| `POST /quotes/42/recalc` (invalid numbers) | `422` + the same form, raw values echoed, totals "—" |
+| `POST /quotes/42` (Save — the button's `formaction`) | validates like recalc; success per [mutating form](/hypermedia-components/recipes/mutating-form/) |
+
+## Progressive enhancement
+
+All mutation controls are native submits with name/value; without
+htmx the form POSTs to `action` and the server renders the full page
+with the same re-rendered form. Save's `formaction` keeps the two
+endpoints honest with JS off.
+
+## Accessibility
+
+- Inputs carry `aria-label`s — the column headers label columns, not
+  controls.
+- Error messages live in the row, next to the input they name, with
+  `aria-invalid` on the input.
+- Name the remove button's row when rows have identity ("Remove
+  Widget").
+
+## Notes
+
+- **Drafts** compose with [autosave](/hypermedia-components/recipes/autosave/);
+  the dirty guard with [unsaved changes](/hypermedia-components/recipes/unsaved-changes/).
+- **Reordering rows** is the [sortable list](/hypermedia-components/recipes/sortable/)
+  applied to the `<tbody>` — moving a row moves its inputs, and the
+  positional contract picks up the new order for free.
+- **Concurrency**: two people editing one quote wants
+  [edit conflict](/hypermedia-components/recipes/edit-conflict/)'s
+  hidden `version` riding this same form.
+
+## Related
+
+- [Transfer](/hypermedia-components/recipes/transfer/) — the same
+  whole-form-swap shape for a dual listbox.
+- [Datagrid edit errors](/hypermedia-components/recipes/datagrid-edit-errors/) —
+  cell-level editing in a grid, when the table outgrows a form.
+- [Field errors](/hypermedia-components/recipes/field-errors/) — the
+  error-marking vocabulary this recipe reuses per row.
