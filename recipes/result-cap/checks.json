@@ -1,0 +1,36 @@
+{
+  "detect": "[data-hc-result-cap]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "status-not-alert",
+      "level": "error",
+      "message": "The cap banner is role=\"status\", not role=\"alert\" — truncation is a persistent condition, announced politely, never an interruption.",
+      "attr": {
+        "on": "[data-hc-result-cap]",
+        "name": "role",
+        "assert": "present",
+        "value": "status"
+      }
+    },
+    {
+      "id": "known-block",
+      "level": "error",
+      "message": "The cap marker goes on an hc-alert (truncated mode) or hc-empty (hard-reject mode) block.",
+      "exists": {
+        "selector": ".hc-alert[data-hc-result-cap], .hc-empty[data-hc-result-cap]"
+      }
+    },
+    {
+      "id": "alert-is-warning",
+      "level": "warn",
+      "message": "A truncated-mode banner should be the warning variant (data-variant=\"warning\").",
+      "attr": {
+        "on": ".hc-alert[data-hc-result-cap]",
+        "name": "data-variant",
+        "assert": "present",
+        "value": "warning"
+      }
+    }
+  ]
+}

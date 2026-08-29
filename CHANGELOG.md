@@ -20,6 +20,15 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- `result-cap` recipe — bound what one search may return: `LIMIT cap+1`
+  detection, "cap+" counts, and a persistent truncation banner
+  (`hc-alert` warning, `role="status"`, marked `data-hc-result-cap`) or
+  a documented hard-reject mode for process-everything work queues.
+  Zero new JS/CSS; live demo + demo API included.
+  ([plan](plans/hc-result-cap-snapshot-plan-en.md))
+
 ## [0.3.0] - 2026-08-29
 
 The data-grid release: the operations a business grid is actually used
