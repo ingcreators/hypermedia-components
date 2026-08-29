@@ -58,6 +58,7 @@ export { installRowLink } from './row-link.js';
 export { installMask } from './mask.js';
 export { installDirtyGuard } from './dirty-guard.js';
 export { installSessionExpiry } from './session-expiry.js';
+export { installNetworkRetry } from './network-retry.js';
 export { installTime } from './time.js';
 
 // registerCodeLanguage — plug a tokenizer into installCodeEditor()'s live

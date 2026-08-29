@@ -45,6 +45,8 @@ const ja = Object.freeze({
   'shell.toggleNav': 'ナビゲーションを開閉',
   'shell.collapseNav': 'サイドバーを折りたたむ',
   'splitter.resize': 'パネルの幅を変更',
+  'networkRetry.failed': 'リクエストがサーバに届きませんでした — 接続を確認して再試行してください。',
+  'networkRetry.retry': '再試行',
   'themeToggle.label': 'カラーテーマを切り替え',
   'toast.dismiss': '閉じる',
   'toast.label': '通知',

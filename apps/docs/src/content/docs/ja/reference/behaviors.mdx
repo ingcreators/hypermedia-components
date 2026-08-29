@@ -3,7 +3,7 @@ title: ビヘイビア
 description: すべての installXxx() ビヘイビア — 何を担い、ゼロ設定バンドルが自動インストールするかの一覧。
 ---
 
-キットは 57 個の小さなビヘイビアを出荷しています。すべて冪等で
+キットは 58 個の小さなビヘイビアを出荷しています。すべて冪等で
 アンインストーラを返し、`installChart()` ただ 1 つの例外を除いて、
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリが
 **自動インストール**します(htmx でスワップされた内容も拾います)。
@@ -43,6 +43,7 @@ installToast();
 | `installRowLink()` | Enter で行が指すレコードを開く — 同一性の列のリンク([row-detail](/hypermedia-components/ja/recipes/row-detail/))。 | `data-hc-row-link` | — | ✓ |
 | `installDirtyGuard()` | 未保存変更ガード — [unsaved-changes レシピ](/hypermedia-components/ja/recipes/unsaved-changes/)。 | `data-hc-dirty-guard`(状態: `data-dirty`) | `hc:dirtychange` | ✓ |
 | `installSessionExpiry()` | 401 → ログインダイアログ → リクエスト再実行 — [session-expiry レシピ](/hypermedia-components/ja/recipes/session-expiry/)。 | `data-hc-session-expiry` | `hc:sessionrenewed` を消費 | ✓ |
+| `installNetworkRetry()` | 応答が来ない失敗(オフライン / タイムアウト)→ 動く再試行ボタン付きアラート — [network-retry レシピ](/hypermedia-components/ja/recipes/network-retry/)。 | `data-hc-network-retry`(+ `-message` / `-label` 上書き) | `htmx:sendError` / `htmx:timeout` を購読 | ✓ |
 | `installTime()` | クライアント側の `<time>` ローカライズ(相対 / 絶対) — [i18n](/hypermedia-components/ja/fundamentals/i18n/#ローカライズされたタイムスタンプ)。 | `data-hc-time`、`data-hc-time-style` | — | ✓ |
 | `installSortable()` | ポインタ + キーボードのリスト並べ替え — [sortable レシピ](/hypermedia-components/ja/recipes/sortable/)。 | `data-hc-sortable`、`data-hc-sortable-handle`、`data-hc-sortable-id` | `hc:sortchange` | ✓ |
 | `installCombobox()` | [コンボボックス](/hypermedia-components/ja/components/combobox/)のキーボード・フィルタ・ARIA。 | `data-remote`、`data-allow-create`、`data-value`、… | `hc:comboboxselect` | ✓ |

@@ -49,6 +49,7 @@ import * as lineItems from './recipes/line-items.mjs';
 import * as liveSearch from './recipes/live-search.mjs';
 import * as multiStepForm from './recipes/multi-step-form.mjs';
 import * as mutatingForm from './recipes/mutating-form.mjs';
+import * as networkRetry from './recipes/network-retry.mjs';
 import * as postalAddress from './recipes/postal-address.mjs';
 import * as datagridSnapshotPager from './recipes/datagrid-snapshot-pager.mjs';
 import * as datagridSort from './recipes/datagrid-sort.mjs';
@@ -99,6 +100,7 @@ const RECIPES = new Map([
   ['live-search', liveSearch],
   ['multi-step-form', multiStepForm],
   ['mutating-form', mutatingForm],
+  ['network-retry', networkRetry],
   ['postal-address', postalAddress],
   ['datagrid-snapshot-pager', datagridSnapshotPager],
   ['datagrid-sort', datagridSort],

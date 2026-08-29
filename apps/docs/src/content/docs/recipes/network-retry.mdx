@@ -1,0 +1,116 @@
+---
+title: Network retry
+description: The request that got no answer at all — offline, dropped socket, declared timeout — surfaced as a retry alert whose Retry actually re-issues the request.
+---
+
+import NetworkRetryDemo from '../../../components/recipe-demos/NetworkRetryDemo.astro';
+
+Every other error contract in the kit assumes a response arrived —
+the [errors map](/hypermedia-components/fundamentals/errors/) routes
+by status code. This recipe owns the case where there is no status at
+all: airplane mode, a dropped socket, a timeout you declared. htmx
+surfaces it as `htmx:sendError` / `htmx:timeout`, and without this
+recipe the page swallows it silently — the user pressed Save and
+nothing happened.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add network-retry` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/network-retry/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/network-retry/contract.md).
+:::
+
+## Live demo
+
+The form declares a 1.5-second timeout; with **Simulate offline**
+checked the endpoint sleeps past it, so the request times out and the
+retry alert appears. Uncheck the box and press **Retry**: the request
+re-collects its *current* values, succeeds, and the alert clears
+itself. The endpoint is a namespaced demo implementation under
+`api/recipes/network-retry/` — the "down" flavour just outlasts the
+declared timeout, because a real network failure is the one thing a
+server cannot send you.
+
+<NetworkRetryDemo />
+
+## The markup
+
+```html
+<!-- One host per page, client-owned, empty in source -->
+<div data-hc-network-retry></div>
+
+<form data-hx-post="/orders" data-hx-request='{"timeout": 10000}'
+      data-hx-target="#order-result" data-hx-swap="innerHTML"
+      data-hx-disabled-elt="find button[type=submit]">
+  <input type="hidden" name="idempotency_key" value="ik_7d1f9c2e">
+  <!-- …fields… -->
+  <button class="hc-button" data-variant="primary" type="submit">Place order</button>
+</form>
+```
+
+`installNetworkRetry()` is auto-installed by the behaviors bundle.
+Place the host outside your swap targets — a swap that replaces it
+wipes the banner.
+
+## The contract
+
+- **Why this one has JavaScript**: "the server is the validator and
+  the narrator" has exactly one exception — a network failure has no
+  server response to narrate with. The client speaks this once,
+  through the i18n catalog (`networkRetry.failed` /
+  `networkRetry.retry`; override per host with
+  `data-hc-network-retry-message` / `-label`).
+- **Timeouts are declared, not defaulted**:
+  `data-hx-request='{"timeout": 10000}'` per element, or
+  `htmx.config.timeout` globally. Without one, only hard send
+  failures fire — htmx's stance, kept.
+- **On failure**: the behavior remembers the failed request (one
+  slot, latest wins — the
+  [session expiry](/hypermedia-components/recipes/session-expiry/)
+  stance) and renders one `hc-alert` (`role="status"`) into the host,
+  re-rendered in place on repeat failures, never stacked.
+- **Retry is a fresh attempt, not a byte replay**: it re-issues via
+  `htmx.ajax(verb, path, { source })` with no values override, so the
+  request re-collects its inputs at click time. The full pipeline
+  re-runs — CSRF header, indicators, target resolution.
+- **Any real response clears it**: success *or* error on the failed
+  element — an error **with** a status belongs to the errors map,
+  not to this banner. The failure's own `status: 0` never clears.
+- **Never auto-retries.** Retrying is the user's verb; auto-retrying
+  a POST without asking is how double orders happen. Pollers
+  (`every …`) self-heal by their next tick anyway.
+
+## Retry × idempotency key
+
+The marquee composition. "Did my first click get through before the
+network died?" — with an
+[idempotency key](/hypermedia-components/recipes/idempotency-key/)
+hidden in the form, the answer is safe either way: the retried POST
+re-collects the **same key**, so if the original request committed
+and only the response was lost, the retry gets the original response
+replayed. Without the key, a retried POST is a genuine double-submit
+risk — pair them.
+
+## Progressive enhancement
+
+JS-off means htmx-off means full-page navigations — the browser's
+own network-error page is the handler, with its own reload button.
+The host stays empty and invisible.
+
+## Accessibility
+
+The rendered alert is `role="status"` (polite): the user just acted
+and is looking at the page. The Retry button is a real `<button>` in
+normal tab order; repeat failures re-render the same alert instead of
+stacking announcements. Don't add `aria-live` to the host yourself —
+the behavior's alert already carries the role.
+
+## Related
+
+- [Idempotency key](/hypermedia-components/recipes/idempotency-key/) —
+  what makes retrying a POST safe server-side.
+- [Session expiry](/hypermedia-components/recipes/session-expiry/) —
+  the same remember-and-replay mechanism, driven by a 401.
+- [Errors & recovery](/hypermedia-components/fundamentals/errors/) —
+  the status-code map this recipe completes with its no-status row.

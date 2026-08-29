@@ -1,0 +1,45 @@
+{
+  "detect": "[data-hc-network-retry]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "host-empty",
+      "level": "error",
+      "message": "The host ships empty — installNetworkRetry() renders into it; the server never does (there is no server response to render from).",
+      "exists": {
+        "selector": "[data-hc-network-retry] > *",
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": "no-live-on-host",
+      "level": "error",
+      "message": "Do not put aria-live on the host — the behavior gives the rendered alert role=\"status\" itself; doubling up causes double announcements.",
+      "exists": {
+        "selector": "[data-hc-network-retry][aria-live]",
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": "declared-timeout",
+      "level": "warn",
+      "message": "No declared timeout found (data-hx-request '{\"timeout\": …}') — without one (or htmx.config.timeout) only hard send failures fire; slow-network hangs go unsurfaced.",
+      "exists": {
+        "selector": "[data-hx-request*=\"timeout\"]",
+        "min": 1
+      }
+    },
+    {
+      "id": "pair-idempotency",
+      "level": "warn",
+      "message": "A retried POST is a double-submit risk without a server-side key — pair mutating forms with the idempotency-key recipe (the retry re-collects the same hidden key).",
+      "exists": {
+        "selector": "form[data-hx-post]:not(:has(input[name=\"idempotency_key\"]))",
+        "min": 0,
+        "max": 0
+      }
+    }
+  ]
+}

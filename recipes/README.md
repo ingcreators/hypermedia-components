@@ -30,6 +30,7 @@ documentation pages.
 | [`filter-popover/`](filter-popover/)      | Native `popover` element used as a filter sheet.                        |
 | [`data-region/`](data-region/)            | Container that re-fetches itself in response to application events.     |
 | [`async-job/`](async-job/)                | Work that outlives a request — 202 + a job card that polls itself to a terminal state. |
+| [`network-retry/`](network-retry/)        | The request that got no answer — offline / timeout surfaced with a working Retry. |
 | [`field-errors/`](field-errors/)          | Render server-side validation errors next to the fields they belong to. |
 | [`reference-lookup/`](reference-lookup/)  | Master-reference field — code entry + search dialog; hidden id, unresolved code clears it. |
 | [`inline-edit/`](inline-edit/)            | Display ↔ edit toggle that swaps the same DOM node each way.            |

@@ -3,7 +3,7 @@ title: Behaviors
 description: Every installXxx() behavior — what it powers and whether the zero-config bundle auto-installs it.
 ---
 
-The kit ships 57 small behaviors. All of them are idempotent, return an
+The kit ships 58 small behaviors. All of them are idempotent, return an
 uninstaller, and — with the single exception of `installChart()` — are
 **auto-installed** by the zero-config
 `@hypermedia-components/core/behaviors` entry, which also picks up
@@ -44,6 +44,7 @@ the behavior dispatches; "—" means none.
 | `installRowLink()` | Enter opens the record a row is about — the identity cell's link ([row-detail](/hypermedia-components/recipes/row-detail/)). | `data-hc-row-link` | — | ✓ |
 | `installDirtyGuard()` | Unsaved-changes guard — the [unsaved-changes recipe](/hypermedia-components/recipes/unsaved-changes/). | `data-hc-dirty-guard` (state: `data-dirty`) | `hc:dirtychange` | ✓ |
 | `installSessionExpiry()` | 401 → login dialog → request replay — the [session-expiry recipe](/hypermedia-components/recipes/session-expiry/). | `data-hc-session-expiry` | consumes `hc:sessionrenewed` | ✓ |
+| `installNetworkRetry()` | No-answer failures (offline / timeout) → a retry alert with a working Retry — the [network-retry recipe](/hypermedia-components/recipes/network-retry/). | `data-hc-network-retry` (+ `-message` / `-label` overrides) | listens to `htmx:sendError` / `htmx:timeout` | ✓ |
 | `installTime()` | Client-side `<time>` localization (relative / absolute) — [i18n](/hypermedia-components/fundamentals/i18n/#localized-timestamps). | `data-hc-time`, `data-hc-time-style` | — | ✓ |
 | `installSortable()` | Pointer + keyboard list reordering — the [sortable recipe](/hypermedia-components/recipes/sortable/). | `data-hc-sortable`, `data-hc-sortable-handle`, `data-hc-sortable-id` | `hc:sortchange` | ✓ |
 | `installCombobox()` | [Combobox](/hypermedia-components/components/combobox/) keyboard, filtering, ARIA. | `data-remote`, `data-allow-create`, `data-value`, … | `hc:comboboxselect` | ✓ |

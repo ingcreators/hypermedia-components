@@ -61,6 +61,7 @@ import { installSortList } from './sort-list.js';
 import { installRowLink } from './row-link.js';
 import { installDirtyGuard } from './dirty-guard.js';
 import { installSessionExpiry } from './session-expiry.js';
+import { installNetworkRetry } from './network-retry.js';
 import { installTime } from './time.js';
 
 function init() {
@@ -119,6 +120,7 @@ function init() {
   installRowLink();
   installDirtyGuard();
   installSessionExpiry();
+  installNetworkRetry();
   installTime();
 }
 
@@ -186,6 +188,7 @@ export {
   installMask,
   installDirtyGuard,
   installSessionExpiry,
+  installNetworkRetry,
   installTime,
 };
 
