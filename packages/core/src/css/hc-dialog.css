@@ -121,9 +121,20 @@
     border-block-start: 1px solid var(--hc-dialog-border);
   }
 
+  /* The enter transition is declared on `.hc-dialog[open]` (and its
+   * backdrop), so a guard written against the bare `.hc-dialog` is
+   * outranked by it and never applies: the dialog kept fading in for
+   * 200ms even for a reader who asked for no motion. List the [open]
+   * states too so the guard matches that specificity and wins on
+   * source order. This is also what keeps axe honest — it samples
+   * rendered pixels, and mid-fade the primary button's blue scores
+   * ~3.5:1 against white instead of the 5.31:1 it resolves to at
+   * rest (#342 chased the same race through reducedMotion). */
   @media (prefers-reduced-motion: reduce) {
     .hc-dialog,
-    .hc-dialog::backdrop {
+    .hc-dialog[open],
+    .hc-dialog::backdrop,
+    .hc-dialog[open]::backdrop {
       transition-duration: 0ms;
     }
   }

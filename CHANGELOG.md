@@ -658,6 +658,22 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **dialog**: `prefers-reduced-motion: reduce` **did not actually stop
+  the dialog from animating in**. The guard was written against the
+  bare `.hc-dialog`, but the enter transition is declared on
+  `.hc-dialog[open]` — one attribute more specific, so the guard was
+  outranked and never applied. A reader who asked for no motion still
+  got the 200ms fade-and-scale; only the exit was ever zeroed. The
+  guard now lists the `[open]` states (and their backdrops) so it
+  matches that specificity and wins on source order. This was also the
+  root of an intermittent CI failure: axe samples rendered pixels, and
+  mid-fade the primary button's blue composites toward the page behind
+  it and scores ~3.5:1 against white instead of the 5.31:1 it resolves
+  to at rest — Chromium and WebKit usually settled before the scan,
+  Firefox did not. Pinned by a spec that opens a dialog under reduced
+  motion and asserts it is fully opaque on the first visible frame.
+
+
 - **print**: a fixed-height datagrid **printed only the rows that
   happened to be visible**. The print sheet reset the wrapper, but the
   cap lives on the scrollport (`.hc-datagrid__scroll`), and

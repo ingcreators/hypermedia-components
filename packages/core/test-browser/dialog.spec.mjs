@@ -53,4 +53,33 @@ test.describe('<dialog>.showModal()', () => {
     });
     expect(backdropBg).toBe(true);
   });
+
+  // The enter transition is declared on `.hc-dialog[open]`, so a
+  // reduced-motion guard written against the bare `.hc-dialog` is
+  // outranked and silently does nothing — the dialog still faded in
+  // over 200ms for a reader who asked for no motion. It also made the
+  // axe suites flaky: mid-fade the primary button's blue composites
+  // toward the page behind it and scores ~3.5:1 against white instead
+  // of the 5.31:1 it resolves to at rest.
+  test('reduced motion settles the open dialog immediately', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.reload();
+
+    const dialog = page.getByTestId('demo-dialog');
+    await page.getByTestId('open-dialog').click();
+    await expect(dialog).toBeVisible();
+
+    // Read the first frame the dialog is visible — no settle wait, the
+    // way axe samples it.
+    const state = await page.evaluate(() => {
+      const d = document.querySelector('[data-testid="demo-dialog"]');
+      const cs = getComputedStyle(d);
+      return {
+        durations: [...new Set(cs.transitionDuration.split(',').map((v) => v.trim()))],
+        opacity: cs.opacity,
+      };
+    });
+    expect(state.durations).toEqual(['0s']);
+    expect(Number(state.opacity)).toBe(1);
+  });
 });
