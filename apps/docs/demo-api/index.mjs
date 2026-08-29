@@ -54,6 +54,7 @@ import * as savedViews from './recipes/saved-views.mjs';
 import * as sessionExpiry from './recipes/session-expiry.mjs';
 import * as remoteDialog from './recipes/remote-dialog.mjs';
 import * as requestAction from './recipes/request-action.mjs';
+import * as resultCap from './recipes/result-cap.mjs';
 import * as sseToast from './recipes/sse-toast.mjs';
 import * as sseUpdates from './recipes/sse-updates.mjs';
 import * as toast from './recipes/toast.mjs';
@@ -96,6 +97,7 @@ const RECIPES = new Map([
   ['session-expiry', sessionExpiry],
   ['remote-dialog', remoteDialog],
   ['request-action', requestAction],
+  ['result-cap', resultCap],
   ['sse-toast', sseToast],
   ['sse-updates', sseUpdates],
   ['toast', toast],

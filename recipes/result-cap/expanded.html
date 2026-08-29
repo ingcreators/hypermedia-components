@@ -1,0 +1,53 @@
+<!-- Fully expanded HTML — both server-rendered modes.
+
+  The client markup is an ordinary search form (see live-search).
+  Everything below #results is what the SERVER returns; the two modes
+  are the two branches of its cap+1 check. -->
+<form action="/orders" method="get" role="search">
+  <input class="hc-input" type="search" name="q" placeholder="Search orders"
+         data-hx-get="/orders"
+         data-hx-trigger="input changed delay:300ms, search"
+         data-hx-target="#results" data-hx-swap="innerHTML"
+         data-hx-sync="closest form:replace">
+  <button class="hc-button" type="submit">Search</button>
+</form>
+
+<div id="results">
+  <!-- ============================================================
+       Mode A — truncated (general lookup screens).
+       The query ran LIMIT 1001 and returned 1001 rows: render the
+       first 1,000, the banner, and a "1,000+" count. The banner
+       names the sort order — "the first 1,000" is meaningless
+       otherwise — and offers the escape hatches (narrow, export).
+       ============================================================ -->
+  <div class="hc-alert" data-variant="warning" role="status" data-hc-result-cap>
+    <p class="hc-alert__title">Showing the first 1,000 results.</p>
+    <p class="hc-alert__body">More than 1,000 orders match, sorted by
+      order date (oldest first). Narrow the filters to see the rest,
+      or export the full set to CSV.</p>
+  </div>
+  <p aria-live="polite">1,000+ results</p>
+  <!-- …the first 1,000 rows, paged as usual (see datagrid-pager)… -->
+</div>
+
+<div id="results-hard-reject-variant">
+  <!-- ============================================================
+       Mode B — hard reject (process-everything work queues).
+       Same cap+1 check, but over the cap the server renders NO
+       rows: a truncated queue silently hides work items past the
+       cap from every operator. Still HTTP 200 — over-cap is a user
+       state, not an error (and htmx ≥ 2 would not swap a non-2xx).
+       ============================================================ -->
+  <div class="hc-empty" data-hc-result-cap role="status">
+    <div class="hc-empty__media" aria-hidden="true">🔍</div>
+    <p class="hc-empty__title">More than 1,000 items match.</p>
+    <p class="hc-empty__description">Narrow the search — by team,
+      status, or date range — to at most 1,000 items, then work the
+      list. Nothing is shown so that no item can be silently cut off.</p>
+  </div>
+</div>
+
+<!-- At ≤ cap hits, either mode renders rows + the exact count:
+  <p aria-live="polite">312 results</p>
+  …312 rows…
+-->

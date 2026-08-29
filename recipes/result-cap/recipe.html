@@ -1,0 +1,30 @@
+<!-- Short recommended usage.
+
+  result-cap: bound what one search may return. The server queries
+  LIMIT cap+1: at ≤ cap hits it renders the rows plus the exact
+  count; at cap+1 it renders only the first cap rows, a "cap+"
+  count, and this persistent warning banner. Truncation is a state,
+  not an event — a banner that stays, never a toast, never a dialog.
+  data-hc-result-cap is a contract marker only; no behavior attaches.
+  See contract.md for the hard-reject mode (render no rows, ask the
+  user to narrow) recommended for process-everything work queues. -->
+<form action="/orders" method="get" role="search">
+  <input class="hc-input" type="search" name="q" placeholder="Search orders"
+         data-hx-get="/orders"
+         data-hx-trigger="input changed delay:300ms, search"
+         data-hx-target="#results" data-hx-swap="innerHTML"
+         data-hx-sync="closest form:replace">
+  <button class="hc-button" type="submit">Search</button>
+</form>
+
+<div id="results">
+  <!-- Server response, truncated mode (the query hit cap+1 rows): -->
+  <div class="hc-alert" data-variant="warning" role="status" data-hc-result-cap>
+    <p class="hc-alert__title">Showing the first 1,000 results.</p>
+    <p class="hc-alert__body">More than 1,000 orders match, sorted by
+      order date (oldest first). Narrow the filters to see the rest,
+      or export the full set to CSV.</p>
+  </div>
+  <p aria-live="polite">1,000+ results</p>
+  <!-- …the first 1,000 rows, paged as usual… -->
+</div>

@@ -1,0 +1,139 @@
+---
+title: Result cap
+description: Bound what one search may return — LIMIT cap+1 detection, "cap+" counts, and a persistent truncation banner (or a hard reject) instead of an unbounded result set.
+---
+
+import ResultCapDemo from '../../../components/recipe-demos/ResultCapDemo.astro';
+
+Every business-app search needs a ceiling: a query that can return
+50,000 rows will eventually be asked to. This recipe is the server
+contract for that ceiling — how to **detect** the overflow cheaply,
+how to **tell the user** without a toast or a dialog, and the two
+standard ways to respond. It is zero-JS: an ordinary search form (the
+[live search](/hypermedia-components/recipes/live-search/) shape) plus
+server-rendered fragments.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add result-cap` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/result-cap/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/result-cap/contract.md).
+:::
+
+## Live demo
+
+Ninety fake orders behind a deliberately tiny cap of 25: the empty
+search is over the cap, so the banner shows immediately; type to
+narrow under the cap and the banner leaves with the truncation it
+described. The mode select switches the endpoint between the two
+over-cap branches. The endpoint is a namespaced demo implementation of
+the contract under `api/recipes/result-cap/`.
+
+<ResultCapDemo />
+
+## The cap+1 check
+
+Query with `LIMIT cap + 1` — one row more than the cap:
+
+- **≤ cap rows come back** — render them all with the exact count.
+- **cap+1 rows come back** — the search is over the cap. Don't run
+  `COUNT(*)` to learn the real total (that's the query the cap exists
+  to avoid); render the count as "**cap+**" and branch:
+
+## Mode A — truncated (lookup screens)
+
+Render the **first cap rows** (paged as usual — compose with the
+[datagrid pager](/hypermedia-components/recipes/datagrid-pager/)) and a
+persistent warning banner at the top of the results region:
+
+```html
+<div class="hc-alert" data-variant="warning" role="status" data-hc-result-cap>
+  <p class="hc-alert__title">Showing the first 1,000 results.</p>
+  <p class="hc-alert__body">More than 1,000 orders match, sorted by
+    order date (oldest first). Narrow the filters to see the rest,
+    or export the full set to CSV.</p>
+</div>
+<p aria-live="polite">1,000+ results</p>
+```
+
+Two rules make the banner honest:
+
+- **Name the sort order.** "The first 1,000" is meaningless until the
+  user knows first *by what*.
+- **Offer the escape hatches** — narrow the filters, or export the
+  full set (exports run under their own much larger, usually
+  asynchronous, limit).
+
+`data-hc-result-cap` is a contract marker only — no behavior attaches
+to it; `hc validate` uses it to find the banner.
+
+## Mode B — hard reject (work queues)
+
+Same check; over the cap, render **no rows**:
+
+```html
+<div class="hc-empty" data-hc-result-cap role="status">
+  <div class="hc-empty__media" aria-hidden="true">🔍</div>
+  <p class="hc-empty__title">More than 1,000 items match.</p>
+  <p class="hc-empty__description">Narrow the search to at most 1,000
+    items, then work the list.</p>
+</div>
+```
+
+Prefer this mode when the screen's premise is *every item gets
+processed* (approval queues, triage inboxes): a truncated queue
+silently hides the items past the cap from every operator. Truncated
+mode fits lookup screens where the user is hunting for *one* record.
+
+## Server response contract
+
+| Request | Response |
+| --- | --- |
+| search, ≤ cap hits | `200` — rows + exact count, no banner |
+| search, over the cap (mode A) | `200` — first cap rows + warning banner + "cap+" count |
+| search, over the cap (mode B) | `200` — no rows + `hc-empty` reject block |
+| search, 0 hits | `200` — the normal empty state |
+
+Over-cap is **always `200`** — it is a user state, not an error, and
+the same branch renders the no-JS full page. (htmx ≥ 2 wouldn't swap a
+non-2xx anyway, which would strand the *previous* results on screen —
+exactly wrong for a banner describing the current ones.)
+
+## Progressive enhancement
+
+The form's `action` performs a full-page GET without JavaScript; the
+server branches on `HX-Request` (fragment vs. full page) and renders
+the same banner / reject markup in both. No behavior is involved
+anywhere in this recipe.
+
+## Accessibility
+
+- The banner is **`role="status"`, not `role="alert"`** — truncation
+  is a persistent condition to be noticed, not an interruption;
+  `status` announces politely and the banner stays for re-reading.
+- Keep the count line's `aria-live="polite"` outside the banner so
+  page changes announce independently.
+- Never a toast (it disappears while the condition persists) and never
+  a modal dialog (it blocks, then vanishes without leaving the state
+  visible).
+
+## Notes
+
+- **Choosing the cap.** Interactive search screens commonly cap at
+  500–2,000, with a page size of 20–50 (user-selectable 20/50/100).
+  Screens that feed a snapshot pager should cap lower (500–1,000) —
+  the cap bounds the snapshot's key list.
+- The count element pairs naturally with the datagrid pager's
+  out-of-band `#rows-status` — over the cap its text stays "1,000+"
+  on every page (`1–100 of 1,000+`).
+
+## Related
+
+- [Live search](/hypermedia-components/recipes/live-search/) — the
+  search form this contract sits behind.
+- [Datagrid pager](/hypermedia-components/recipes/datagrid-pager/) —
+  paging the capped result set.
+- [Alert](/hypermedia-components/components/alert/) and
+  [Empty](/hypermedia-components/components/empty/) — the two blocks
+  the server renders.

@@ -23,6 +23,7 @@ documentation pages.
 | [`confirm-action/`](confirm-action/)      | Confirm with the user before sending an htmx request.                   |
 | [`copy/`](copy/)                          | Copy a read-only value (URL, token, snippet) to the clipboard.          |
 | [`live-search/`](live-search/)            | Input that streams results as the user types.                           |
+| [`result-cap/`](result-cap/)              | Bound what one search may return — cap+1 detection, "cap+" counts, truncation banner or hard reject. |
 | [`toast/`](toast/)                        | Transient notification region driven by `hc:toast` events / HX-Trigger. |
 | [`remote-dialog/`](remote-dialog/)        | Server-rendered `<dialog>` shown via htmx swap.                         |
 | [`filter-popover/`](filter-popover/)      | Native `popover` element used as a filter sheet.                        |
