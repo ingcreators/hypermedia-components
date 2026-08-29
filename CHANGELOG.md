@@ -20,83 +20,29 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
-### Changed
+## [0.3.0] - 2026-08-29
 
-- **docs / base**: two stale claims went with it — `hc.base.css`'s
-  `::selection` comment still described a "12 % (18 % for amber)" tint, but
-  amber stopped being an accent axis in 0.2.0 and the ladder work removed
-  its soft-tint special case, so all five axes have been a flat 12 % for a
-  while; and the theming guide told you to mirror `color.indigo.tokens.json`,
-  a file the same release deleted when the accents became the five-hue
-  pentagon.
+The data-grid release: the operations a business grid is actually used
+for, PRs #487–#577. Eight new recipes (44 total) — `datagrid-sort`,
+`datagrid-filter`, `datagrid-prefs`, `datagrid-tree`, `datagrid-edit-errors`,
+`datagrid-edit-conflict`, `datagrid-bulk-errors`, `row-detail` — a fourth
+page template (*Data grid page*, 4 total), the `hc-filterbar` component
+(67 stylesheets), four new behaviors (`installRangeValue()`,
+`installMultiValue()`, `installRowLink()`, `installSortList()` — 57 total),
+the `.hc-fill` layout utility, row ordinals, and collapsible splitter
+rails.
 
+Minor rather than patch because of one behaviour-default change: bare
+`<a>` now takes the theme's link colour (see *Changed*). Everything else
+is strictly additive. The CLI ships 0.4.2 to re-bundle the eight new
+recipes; `@hypermedia-components/editor-kit` is unchanged and stays at
+0.2.0.
 
-- **docs**: in the working template, **a row click is now a real
-  navigation**. The record has its own prerendered URL
-  (`/templates/data-grid-page-record/<id>/`), built from the same data
-  the demo API serves, so a click behaves the way business software
-  does — Gmail replaces the screen, Fiori splits it, Salesforce gives
-  the record a page. *Back to list* carries the list query **and** the
-  row anchor, and the preview seeds its first request from that query,
-  so the list really does come back as it was with the row under the
-  cursor. The peek dialog stays as the enhancement layered on the same
-  href, with a link to the page inside it. The previous excuse — that a
-  documentation page is a single route — was only true until a second
-  route was written.
-
-
-- **docs**: `row-detail` ranks the three renderings the way business
-  software actually does, and says why. Opening a record **replaces the
-  screen** in Gmail, **splits it into columns** in SAP Fiori, and is a
-  **page** in Salesforce and ServiceNow; modals in those products are
-  for short, self-contained tasks — create one thing, confirm, edit a
-  field — not for the record, because a record is where the work
-  happens and work needs room, a URL and its own error surfaces. The
-  failure mode is named too: **a modal with no URL**, where Back closes
-  something the user never opened, the link they send a colleague is
-  the wrong screen, and a refresh loses their place. The template says
-  plainly that it peeks because a documentation page is a single route
-  — the row's `href` beside it is the real page.
-
-
-- **recipes**: `row-detail` states **where a detail screen's navigation
-  goes**, since the list template's "navigation under the data" rule
-  reads as "put a pager at the bottom" if left unqualified. Prev / next
-  belong in the record's **header**: the decision to move on is usually
-  made before reading to the bottom, a bottom control on a scrolling
-  body either scrolls away or buys a second fixed strip, and the `303`
-  after a save lands the user at the top anyway. A long detail may
-  repeat them below as a secondary copy — same links, no state. And a
-  **grid inside a detail pages itself**, directly under itself: a
-  page-level pager on a screen with three grids cannot say which grid
-  it pages. The bottom of a detail carries its **actions**, not
-  navigation. Within the header the arrangement is the one every mail
-  client already taught users — **the exit at the start, the walk
-  (`1 / 15,129 ‹ ›`) at the end** — the same rule the list's navigation
-  strip follows.
-
-- **docs**: in the data-grid template's navigation strip, *where you
-  are* stays at the start and *where you go* moves to the **end**. Two
-  reasons about hands rather than taste: after scrolling the grid the
-  pointer is already at the trailing edge, where the scrollbar lives,
-  and **Next** is pressed far more often than anything else on the
-  strip. The count keeps the start because it is a read-out and the
-  frozen identity column it refers to is on that side. Logical
-  properties, so RTL swaps both without a second rule.
-
-- **docs**: the data-grid page template **groups its controls by what
-  they change**, because one strip holding four kinds of control reads
-  as clutter however tidy each one is. Filters, Sort and Columns now
-  sit together beside the title — they answer the same question, *what
-  am I looking at*, and splitting them made the screen look busier than
-  it was. The toolbar keeps only actions on the **data** (Refresh,
-  Import, Export). **Selection-scoped actions moved to their own bar**,
-  revealed by `installDatagridActions()` when rows are ticked: Approve
-  and Reject apply for the minutes a selection exists and were being
-  read all day for the rest of the time — and a bar that appears is a
-  better cue than a button that greys out, because a disabled button
-  explains nothing. Navigation (the pager, *Go to row*) moved **under
-  the grid**, where the movement happens.
+The link work reached the **email** render target too, where it turned up
+a defect of its own: the dark flavor had been leaving links and tables on
+their light colours — 2.77:1 and 1.21:1 against the dark container — because
+a fragment can only be re-coloured by the dark media query if it carries an
+`hc-em-*` class, and neither had one (see *Fixed*).
 
 ### Added
 
@@ -691,6 +637,93 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **base**: bare `<a>` **now takes the theme's link colour** instead of the
+  UA's `-webkit-link` blue and `:visited` purple. This is the one
+  behaviour-default change in the release, and the reason it is a minor
+  rather than a patch: an app that relied on the UA defaults for anchors
+  outside a component will see them re-coloured on upgrade. The rules land
+  in `@layer hc.base`, so any unlayered app rule still wins, and every
+  component anchor (`hc-button`, `hc-breadcrumb__link`, `hc-toc__link`,
+  `hc-pagination__item`) is unaffected — `hc.components` is the later layer.
+  To keep the old look, set the tokens to the UA colours or override `a`
+  outside the `hc` layers.
+
+- **docs / base**: two stale claims went with it — `hc.base.css`'s
+  `::selection` comment still described a "12 % (18 % for amber)" tint, but
+  amber stopped being an accent axis in 0.2.0 and the ladder work removed
+  its soft-tint special case, so all five axes have been a flat 12 % for a
+  while; and the theming guide told you to mirror `color.indigo.tokens.json`,
+  a file the same release deleted when the accents became the five-hue
+  pentagon.
+
+
+- **docs**: in the working template, **a row click is now a real
+  navigation**. The record has its own prerendered URL
+  (`/templates/data-grid-page-record/<id>/`), built from the same data
+  the demo API serves, so a click behaves the way business software
+  does — Gmail replaces the screen, Fiori splits it, Salesforce gives
+  the record a page. *Back to list* carries the list query **and** the
+  row anchor, and the preview seeds its first request from that query,
+  so the list really does come back as it was with the row under the
+  cursor. The peek dialog stays as the enhancement layered on the same
+  href, with a link to the page inside it. The previous excuse — that a
+  documentation page is a single route — was only true until a second
+  route was written.
+
+
+- **docs**: `row-detail` ranks the three renderings the way business
+  software actually does, and says why. Opening a record **replaces the
+  screen** in Gmail, **splits it into columns** in SAP Fiori, and is a
+  **page** in Salesforce and ServiceNow; modals in those products are
+  for short, self-contained tasks — create one thing, confirm, edit a
+  field — not for the record, because a record is where the work
+  happens and work needs room, a URL and its own error surfaces. The
+  failure mode is named too: **a modal with no URL**, where Back closes
+  something the user never opened, the link they send a colleague is
+  the wrong screen, and a refresh loses their place. The template says
+  plainly that it peeks because a documentation page is a single route
+  — the row's `href` beside it is the real page.
+
+
+- **recipes**: `row-detail` states **where a detail screen's navigation
+  goes**, since the list template's "navigation under the data" rule
+  reads as "put a pager at the bottom" if left unqualified. Prev / next
+  belong in the record's **header**: the decision to move on is usually
+  made before reading to the bottom, a bottom control on a scrolling
+  body either scrolls away or buys a second fixed strip, and the `303`
+  after a save lands the user at the top anyway. A long detail may
+  repeat them below as a secondary copy — same links, no state. And a
+  **grid inside a detail pages itself**, directly under itself: a
+  page-level pager on a screen with three grids cannot say which grid
+  it pages. The bottom of a detail carries its **actions**, not
+  navigation. Within the header the arrangement is the one every mail
+  client already taught users — **the exit at the start, the walk
+  (`1 / 15,129 ‹ ›`) at the end** — the same rule the list's navigation
+  strip follows.
+
+- **docs**: in the data-grid template's navigation strip, *where you
+  are* stays at the start and *where you go* moves to the **end**. Two
+  reasons about hands rather than taste: after scrolling the grid the
+  pointer is already at the trailing edge, where the scrollbar lives,
+  and **Next** is pressed far more often than anything else on the
+  strip. The count keeps the start because it is a read-out and the
+  frozen identity column it refers to is on that side. Logical
+  properties, so RTL swaps both without a second rule.
+
+- **docs**: the data-grid page template **groups its controls by what
+  they change**, because one strip holding four kinds of control reads
+  as clutter however tidy each one is. Filters, Sort and Columns now
+  sit together beside the title — they answer the same question, *what
+  am I looking at*, and splitting them made the screen look busier than
+  it was. The toolbar keeps only actions on the **data** (Refresh,
+  Import, Export). **Selection-scoped actions moved to their own bar**,
+  revealed by `installDatagridActions()` when rows are ticked: Approve
+  and Reject apply for the minutes a selection exists and were being
+  read all day for the rest of the time — and a bar that appears is a
+  better cue than a button that greys out, because a disabled button
+  explains nothing. Navigation (the pager, *Go to row*) moved **under
+  the grid**, where the movement happens.
+
 - **recipes**: the `datagrid-bulk-actions` contract's "the selection
   clears by construction" is now scoped to the branch where the action
   actually ran, with a carve-out for refusals — an all-or-nothing
@@ -1177,6 +1210,7 @@ Security    — security-relevant changes
   `compositionstart` listener covers engines that fire it before any
   usable keydown — CJK input is no longer swallowed by the cell or
   corrupted into a raw latin seed character.
+
 
 ## [0.2.1] - 2026-08-08
 
@@ -6018,7 +6052,9 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/editor-kit-v0.2.0...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.2.1...v0.3.0
+[0.2.1]: https://github.com/ingcreators/hypermedia-components/compare/v0.2.0...v0.2.1
 [editor-kit-0.2.0]: https://github.com/ingcreators/hypermedia-components/compare/editor-kit-v0.1.0...editor-kit-v0.2.0
 [0.2.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.15...v0.2.0
 [0.1.15]: https://github.com/ingcreators/hypermedia-components/compare/v0.1.14...v0.1.15
