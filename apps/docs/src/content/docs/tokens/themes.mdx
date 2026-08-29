@@ -230,6 +230,9 @@ These tokens are overridden per `data-color` value (under
 
 ```text
 --hc-color-focus-ring
+--hc-color-link
+--hc-color-link-hover
+--hc-color-link-visited
 --hc-color-action-primary-bg
 --hc-color-action-primary-fg
 --hc-color-action-primary-border
@@ -274,6 +277,57 @@ Components and tokens deliberately **not** affected:
   stay legible on dark surfaces. A full custom theme can override the
   five steps like any other token.
 - Container padding / gap — owned by `data-density`.
+
+
+### Links are the one accent value that is also theme-dependent
+
+Every other accent token holds the same value in light and dark: step `600`
+of the ramp is white-text-safe on any hue, so a primary button does not care
+which theme it is on. A link is different, because it is *text* on the page
+surface rather than a surface of its own — and no single rung clears 4.5:1
+against both backgrounds. `blue.500` scores 3.61:1 on the light surface;
+`blue.600` scores 3.33:1 on the dark one. So links read `600` / `700` / `800`
+in light and `400` / `300` / `200` in dark, and each non-default accent ships
+a `color.{name}.dark.tokens.json` beside its light file, emitted under the
+compound `[data-theme="dark"][data-color="{name}"]` selector.
+
+`:visited` cannot use a custom property. Engines refuse to resolve `var()` in
+a visited-dependent declaration on purpose — resolving it would let a page
+read the history bit back out through the cascade — so the colour has to be a
+literal:
+
+```css
+/* what you would like to write, and cannot */
+a:visited { color: var(--hc-color-link-visited); }
+```
+
+Every one of the fifteen colours clears 4.5:1 against `--hc-color-bg` and
+`--hc-color-surface`, pinned by a spec so a future re-ladder cannot quietly
+drop one below AA. `--hc-color-muted-bg` is deliberately outside that
+guarantee: it is a component tint — button hover, disabled fields, the
+datagrid head, skeletons, avatars — and a component owns the foreground on
+its own surface. The resting link is the only step that would miss there
+(light `600` scores 4.40:1, dark `400` scores 3.85:1 worst-accent), and
+moving it off `600` would decouple links from `action.primary`, which is
+what makes a link read as *the accent* rather than an arbitrary blue.
+
+The token build bakes that literal for you, one rule per theme, into
+`@layer hc.base`. This is the one part of the theme a consumer cannot express
+by hand, which is why it ships here rather than as advice. Bare anchors are
+styled by default: `hc.base.css` already owned the document's background and
+text, and stopping short of `<a>` left every anchor outside a component on
+the UA's `-webkit-link` blue and `:visited` purple — two colours that follow
+none of `data-theme`, `data-color`, or `data-neutral`.
+
+To unify visited with unvisited — a console is a tool, not a browsing history
+— override the **rule**, not the token. Setting `--hc-color-link-visited`
+changes nothing on its own, because the baked rule never reads it; that is
+the whole reason it is baked:
+
+```css
+/* unlayered, so it beats everything in hc.base */
+a:visited { color: var(--hc-color-link); }
+```
 
 ## Authoring your own theme
 
@@ -349,7 +403,7 @@ To make the theme a first-class axis that ships in `hc.tokens.css`
 source and register it with the transformer.
 
 1. Create `packages/core/src/tokens/color.brand.tokens.json`, mirroring
-   the shape of [`color.indigo.tokens.json`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/src/tokens/color.indigo.tokens.json).
+   the shape of [`color.teal.tokens.json`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/src/tokens/color.teal.tokens.json).
    Reference primitive shades where they exist, or inline a raw hex:
 
    ```json
@@ -357,6 +411,9 @@ source and register it with the transformer.
      "$description": "Brand color theme. Emitted under [data-color=\"brand\"].",
      "color": {
        "focus-ring": { "$type": "color", "$value": "{primitive.color.violet.500}" },
+       "link":         { "$type": "color", "$value": "{primitive.color.violet.600}" },
+       "link-hover":   { "$type": "color", "$value": "{primitive.color.violet.700}" },
+       "link-visited": { "$type": "color", "$value": "{primitive.color.violet.800}" },
        "action": {
          "primary":       { "bg": { "$type": "color", "$value": "{primitive.color.violet.600}" },
                             "fg": { "$type": "color", "$value": "{primitive.color.white}" },
@@ -369,19 +426,43 @@ source and register it with the transformer.
    }
    ```
 
-2. Register it in [`scripts/build-tokens.mjs`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/scripts/build-tokens.mjs)
-   by adding one entry to `DEFAULT_SOURCES` and the namespace to
-   `AXIS_NAMESPACES`:
+2. Create `color.brand.dark.tokens.json` alongside it, carrying the dark
+   link steps. Only links need it — every other accent token is the same in
+   both themes (see [above](#links-are-the-one-accent-value-that-is-also-theme-dependent)):
+
+   ```json
+   {
+     "$description": "Brand links on the dark surface.",
+     "color": {
+       "link":         { "$type": "color", "$value": "{primitive.color.violet.400}" },
+       "link-hover":   { "$type": "color", "$value": "{primitive.color.violet.300}" },
+       "link-visited": { "$type": "color", "$value": "{primitive.color.violet.200}" }
+     }
+   }
+   ```
+
+3. Register both in [`scripts/token-transform.mjs`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/scripts/token-transform.mjs)
+   by adding entries to `DEFAULT_SOURCES` and the namespace to
+   `AXIS_NAMESPACES` / `COLOR_RAMPS_WITH_DARK`:
 
    ```js
    // in DEFAULT_SOURCES, next to the other color.* lines
    { namespace: 'color.brand', file: 'color.brand.tokens.json', selector: '[data-color="brand"]' },
 
+   // and after them, the compound dark block — both selector forms, because
+   // data-theme and data-color need not sit on the same element
+   { namespace: 'color.brand.dark', file: 'color.brand.dark.tokens.json',
+     selector: '[data-theme="dark"] [data-color="brand"], [data-theme="dark"][data-color="brand"]',
+     overlay: ['theme.dark', 'color.brand.dark'] },
+
    // in AXIS_NAMESPACES, so it also ships as a standalone axis file
    const AXIS_NAMESPACES = [..., 'color.brand'];
+
+   // in COLOR_RAMPS_WITH_DARK, so that file carries both halves
+   const COLOR_RAMPS_WITH_DARK = [..., 'brand'];
    ```
 
-3. Rebuild: `pnpm --filter @hypermedia-components/core build`. The
+4. Rebuild: `pnpm --filter @hypermedia-components/core build`. The
    transformer resolves your references, classifies which component
    leaves are theme-dependent, and re-emits them under
    `[data-color="brand"]` automatically — the same machinery the

@@ -2,6 +2,9 @@
   "$description": "Fuchsia color theme. Emitted under [data-color=\"fuchsia\"]. Every axis is the same shape: `600` for the resting action surface, `700` for hover, `500` for the focus ring, and white text. The five axes sit 72° apart on the hue wheel (the accent pentagon, anchored at blue), so no two accents read as shades of each other and none collides with the status hues.",
   "color": {
     "focus-ring": { "$type": "color", "$value": "{primitive.color.fuchsia.500}" },
+    "link":       { "$type": "color", "$value": "{primitive.color.fuchsia.600}" },
+    "link-hover": { "$type": "color", "$value": "{primitive.color.fuchsia.700}" },
+    "link-visited": { "$type": "color", "$value": "{primitive.color.fuchsia.800}" },
     "action": {
       "primary": {
         "bg":     { "$type": "color", "$value": "{primitive.color.fuchsia.600}" },

@@ -7,6 +7,9 @@
     "text-muted": { "$type": "color", "$value": "{primitive.color.gray.350}" },
     "border":     { "$type": "color", "$value": "{primitive.color.gray.700}" },
     "muted-bg":   { "$type": "color", "$value": "{primitive.color.gray.700}" },
+    "link":       { "$type": "color", "$value": "{primitive.color.blue.400}" },
+    "link-hover": { "$type": "color", "$value": "{primitive.color.blue.300}" },
+    "link-visited": { "$type": "color", "$value": "{primitive.color.blue.200}" },
     "error":      { "$type": "color", "$value": "{primitive.color.red.400}" },
     "action": {
       "secondary": {

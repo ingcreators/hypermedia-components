@@ -1,0 +1,8 @@
+{
+  "$description": "Orange links on the dark surface. Emitted under the compound [data-theme=\"dark\"][data-color=\"orange\"] selector, because the link colour is the one accent value that cannot be theme-independent: no single ramp step clears 4.5:1 against both surfaces (orange.600 scores 5.12:1 on the light background but 3.31:1 on the dark one). The light block’s 600/700/800 becomes 400/300/200 here — the same direction dark mode already takes for status.info.fg.",
+  "color": {
+    "link":       { "$type": "color", "$value": "{primitive.color.orange.400}" },
+    "link-hover": { "$type": "color", "$value": "{primitive.color.orange.300}" },
+    "link-visited": { "$type": "color", "$value": "{primitive.color.orange.200}" }
+  }
+}

@@ -234,6 +234,9 @@ indigo が blue から 12.6° でした)。そしてどのアクセントもス�
 
 ```text
 --hc-color-focus-ring
+--hc-color-link
+--hc-color-link-hover
+--hc-color-link-visited
 --hc-color-action-primary-bg
 --hc-color-action-primary-fg
 --hc-color-action-primary-border
@@ -276,6 +279,57 @@ indigo が blue から 12.6° でした)。そしてどのアクセントもス�
   ダークの面でも読めるようにしています。フルカスタムテーマは他の
   トークン同様に 5 段を上書きできます。
 - コンテナのパディング / ギャップ — `data-density` の所有物。
+
+
+### リンクだけはアクセントかつテーマ依存
+
+他のアクセントトークンはライトとダークで同じ値を持ちます。ランプの `600`
+はどの色相でも白文字が乗るので、primary ボタンはテーマを気にしません。
+リンクだけは違います。リンクは自前のサーフェスではなく**ページ面の上に
+乗るテキスト**であり、両方の背景に対して 4.5:1 を満たす単一の段が存在し
+ないためです(`blue.500` はライト面で 3.61:1、`blue.600` はダーク面で
+3.33:1)。そのためリンクはライトで `600` / `700` / `800`、ダークで `400` /
+`300` / `200` を読み、default 以外の各アクセントはライト用ファイルの隣に
+`color.{name}.dark.tokens.json` を持ち、複合セレクタ
+`[data-theme="dark"][data-color="{name}"]` の下に出力されます。
+
+`:visited` はカスタムプロパティを使えません。visited 依存の宣言で
+`var()` を解決するとページがカスケード経由で履歴ビットを読み出せてしまう
+ため、エンジンは意図的に解決を拒否します。つまり色はリテラルである必要が
+あります:
+
+```css
+/* 書きたいけれど書けないもの */
+a:visited { color: var(--hc-color-link-visited); }
+```
+
+15 色すべてが `--hc-color-bg` と `--hc-color-surface` に対して 4.5:1 を
+満たし、将来の再ラダー化で静かに AA を割らないようスペックで固定しています。
+`--hc-color-muted-bg` は意図的にこの保証の外です。あれはコンポーネントの
+ティント(ボタンの hover、無効フィールド、datagrid ヘッダ、skeleton、
+avatar)であり、自分のサーフェス上の前景色はコンポーネントが持ちます。
+外れるのは resting のリンク段だけで(ライト `600` が 4.40:1、ダーク `400` が
+3.85:1、最悪アクセント)、これを `600` から動かすとリンクが
+`action.primary` から切り離され、「そのテーマのアクセント」ではなく単なる
+任意の青になってしまいます。
+
+トークンビルドがこのリテラルをテーマごとに 1 ルールずつ `@layer hc.base`
+へ焼き込みます。**消費者側が手では表現できない唯一の部分**なので、助言では
+なくキット本体として同梱しています。裸のアンカーは既定でスタイルされます。
+`hc.base.css` はすでにドキュメントの背景と文字色を持っていたのに `<a>` の
+手前で止まっており、コンポーネント外のアンカーはすべて UA の
+`-webkit-link` の青と `:visited` の紫のままでした。この 2 色は
+`data-theme` / `data-color` / `data-neutral` のいずれにも追従しません。
+
+visited を unvisited と統一したい場合(コンソールは閲覧履歴ではなく道具
+です)、**トークンではなくルール**を上書きします。`--hc-color-link-visited`
+を設定しても単体では何も変わりません。焼き込まれたルールはそれを読まない
+からであり、それこそが焼き込んでいる理由です:
+
+```css
+/* レイヤー外なので hc.base のすべてに勝つ */
+a:visited { color: var(--hc-color-link); }
+```
 
 ## 独自テーマの作成
 
@@ -349,7 +403,7 @@ indigo が blue から 12.6° でした)。そしてどのアクセントもス�
 `hc.tokens.color-brand.css`)に同梱される第一級の軸にするには、DTCG
 ソースを追加してトランスフォーマーに登録します。
 
-1. [`color.indigo.tokens.json`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/src/tokens/color.indigo.tokens.json)
+1. [`color.teal.tokens.json`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/src/tokens/color.teal.tokens.json)
    の形をなぞって `packages/core/src/tokens/color.brand.tokens.json` を
    作ります。primitive のシェードがあればそれを参照し、なければ生の hex
    をインラインで:
@@ -359,6 +413,9 @@ indigo が blue から 12.6° でした)。そしてどのアクセントもス�
      "$description": "Brand color theme. Emitted under [data-color=\"brand\"].",
      "color": {
        "focus-ring": { "$type": "color", "$value": "{primitive.color.violet.500}" },
+       "link":         { "$type": "color", "$value": "{primitive.color.violet.600}" },
+       "link-hover":   { "$type": "color", "$value": "{primitive.color.violet.700}" },
+       "link-visited": { "$type": "color", "$value": "{primitive.color.violet.800}" },
        "action": {
          "primary":       { "bg": { "$type": "color", "$value": "{primitive.color.violet.600}" },
                             "fg": { "$type": "color", "$value": "{primitive.color.white}" },
@@ -371,19 +428,43 @@ indigo が blue から 12.6° でした)。そしてどのアクセントもス�
    }
    ```
 
-2. [`scripts/build-tokens.mjs`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/scripts/build-tokens.mjs)
-   に登録します。`DEFAULT_SOURCES` に 1 エントリ、`AXIS_NAMESPACES` に
-   名前空間を足します:
+2. 隣に `color.brand.dark.tokens.json` を作り、ダーク用のリンク段を
+   持たせます。これが要るのはリンクだけです — 他のアクセントトークンは
+   両テーマで同じ値です([上記](#リンクだけはアクセントかつテーマ依存)):
+
+   ```json
+   {
+     "$description": "Brand links on the dark surface.",
+     "color": {
+       "link":         { "$type": "color", "$value": "{primitive.color.violet.400}" },
+       "link-hover":   { "$type": "color", "$value": "{primitive.color.violet.300}" },
+       "link-visited": { "$type": "color", "$value": "{primitive.color.violet.200}" }
+     }
+   }
+   ```
+
+3. [`scripts/token-transform.mjs`](https://github.com/ingcreators/hypermedia-components/blob/main/packages/core/scripts/token-transform.mjs)
+   に両方を登録します。`DEFAULT_SOURCES` にエントリを、`AXIS_NAMESPACES` /
+   `COLOR_RAMPS_WITH_DARK` に名前空間を足します:
 
    ```js
    // in DEFAULT_SOURCES, next to the other color.* lines
    { namespace: 'color.brand', file: 'color.brand.tokens.json', selector: '[data-color="brand"]' },
 
+   // and after them, the compound dark block — both selector forms, because
+   // data-theme and data-color need not sit on the same element
+   { namespace: 'color.brand.dark', file: 'color.brand.dark.tokens.json',
+     selector: '[data-theme="dark"] [data-color="brand"], [data-theme="dark"][data-color="brand"]',
+     overlay: ['theme.dark', 'color.brand.dark'] },
+
    // in AXIS_NAMESPACES, so it also ships as a standalone axis file
    const AXIS_NAMESPACES = [..., 'color.brand'];
+
+   // in COLOR_RAMPS_WITH_DARK, so that file carries both halves
+   const COLOR_RAMPS_WITH_DARK = [..., 'brand'];
    ```
 
-3. リビルド: `pnpm --filter @hypermedia-components/core build`。
+4. リビルド: `pnpm --filter @hypermedia-components/core build`。
    トランスフォーマーが参照を解決し、どのコンポーネント末端がテーマ
    依存かを分類し、`[data-color="brand"]` の下へ自動で再出力します —
    組み込みテーマと同じ機構です。

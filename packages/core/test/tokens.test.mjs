@@ -621,4 +621,89 @@ describe('resolveTokens', () => {
     // The combination actually themes: dark surfaces differ from light.
     expect(dark.get('color-bg')).not.toBe(light.get('color-bg'));
   });
+
+});
+
+describe('bare-anchor link rules', () => {
+  // `:visited` cannot read a custom property — engines refuse to resolve
+  // var() in a visited-dependent declaration, because resolving it would let
+  // a page read the history bit back out of the cascade. So the colour has
+  // to be a literal, baked per theme. These tests pin the two things that
+  // can silently rot: the literal drifting away from the token it mirrors,
+  // and the cascade order that decides which literal a page actually gets.
+  const linkLayer = (css) => css.slice(css.indexOf('@layer hc.base {'));
+
+  /** [{ selector, color }] for every `a:visited` rule, in emission order. */
+  function visitedRules(css) {
+    return [...linkLayer(css).matchAll(/^ {2}(\S.*a:visited[^{]*)\{\n\s*color: ([^;]+);/gm)]
+      .map((m) => ({ selector: m[1].trim(), color: m[2].trim() }));
+  }
+
+  it('bakes a literal that matches the block it was emitted from', () => {
+    const { css } = buildRealTokens();
+    // Pair every `--hc-color-link-visited` declaration with the `a:visited`
+    // rule generated from the same block, and require them to agree. A
+    // hand-maintained rule is exactly what this issue set out to remove, so
+    // a drift here means the generator stopped being the single source.
+    const declared = [...css.matchAll(/^ {2}(\S[^{]*)\{([^}]*)\}/gm)]
+      .map(([, selector, body]) => ({
+        selector: selector.trim(),
+        value: body.match(/--hc-color-link-visited:\s*([^;]+);/)?.[1]?.trim(),
+      }))
+      .filter((b) => b.value);
+
+    const rules = visitedRules(css);
+    expect(declared.length).toBe(rules.length);
+    expect(declared.length).toBeGreaterThan(0);
+    for (const [i, block] of declared.entries()) {
+      expect(rules[i].color, block.selector).toBe(block.value);
+      // The rule is that block's selector, scoped to a descendant anchor.
+      const scoped = block.selector.split(',').map((p) => `${p.trim()} a:visited`).join(', ');
+      expect(rules[i].selector).toBe(scoped);
+    }
+  });
+
+  it('covers every theme x accent combination', () => {
+    const selectors = visitedRules(buildRealTokens().css).map((r) => r.selector);
+    // Light: the semantic default plus the four non-default accents.
+    expect(selectors[0]).toBe(':root a:visited, [data-theme="light"] a:visited');
+    for (const accent of ['teal', 'lime', 'orange', 'fuchsia']) {
+      expect(selectors).toContain(`[data-color="${accent}"] a:visited`);
+      // Dark: the compound block, in both the descendant and same-element
+      // form, because data-theme and data-color need not share a node.
+      expect(selectors).toContain(
+        `[data-theme="dark"] [data-color="${accent}"] a:visited, ` +
+        `[data-theme="dark"][data-color="${accent}"] a:visited`,
+      );
+    }
+    expect(selectors).toContain('[data-theme="dark"] a:visited');
+  });
+
+  it('pins hover at the same specificity as visited, and after it', () => {
+    // Without this pair the compound dark blocks (0,2,1) would outrank the
+    // plain `a:hover` in hc.base.css (0,1,1), and hovering a visited link on
+    // a dark themed page would leave it stuck on its visited colour.
+    const layer = linkLayer(buildRealTokens().css);
+    for (const { selector } of visitedRules(buildRealTokens().css)) {
+      const hover = selector.replaceAll('a:visited', 'a:hover');
+      expect(layer).toContain(hover);
+      expect(layer.indexOf(hover)).toBeGreaterThan(layer.indexOf(selector));
+    }
+  });
+
+  it('emits the rules into hc.base, never hc.tokens', () => {
+    const { css } = buildRealTokens();
+    // hc.base is the later layer, so these still lose to anything the app
+    // writes outside the hc layers — and they must not sit in hc.tokens,
+    // where hc.base.css's own `a { color: … }` would beat them wholesale.
+    const tokensLayer = css.slice(css.indexOf('@layer hc.tokens {'), css.indexOf('@layer hc.base {'));
+    expect(tokensLayer).not.toContain('a:visited');
+    expect(linkLayer(css)).toContain('a:visited');
+  });
+
+  it('leaves the link rules out when no source defines them', () => {
+    // The synthetic fixture has no link tokens, so no stray empty layer.
+    const { css } = buildTokensCss({ sources: SOURCES, trees: TREES });
+    expect(css).not.toContain('@layer hc.base');
+  });
 });
