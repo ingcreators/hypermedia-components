@@ -1,6 +1,6 @@
 # Docs information-architecture overhaul — plan
 
-**Status: in progress** (2026-08-29)
+**Status: implemented** (2026-08-29, all three phases on this branch)
 
 The docs grew to 68 components, 53 recipes, and 5 templates while the
 navigation kept the shape it had at a fraction of that size. A
