@@ -1,0 +1,136 @@
+---
+title: 非同期ジョブ
+description: リクエストより長生きする処理 — CSV エクスポート、PDF 生成、バッチ取込 — を 1 つのポーリング契約に。202 + 終端状態まで自分自身をポーリングするジョブカード。
+---
+
+import AsyncJobDemo from '../../../../components/recipe-demos/AsyncJobDemo.astro';
+
+リクエストの中に収まらない処理があります:
+[検索結果の上限](/hypermedia-components/ja/recipes/result-cap/)の
+バナーが指す CSV エクスポート、PDF 生成、バッチ取込。このレシピは
+それらすべてに共通の 1 契約 — **202 + 自分自身をポーリングする
+ジョブカード** — で、ライフサイクル全体をサーバレンダリングの
+フラグメントで表現します。JS のライフサイクル管理はゼロです。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add async-job` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/async-job/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/async-job/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+エクスポートを開始すると、カードが毎秒ポーリングし、約 8 秒で完了して
+本物の CSV ダウンロードになります。2 つ目のボタンは 60% で失敗する
+フレーバーで、Retry つきの終端 failed カードに至ります。実行中に
+Cancel すると cancelled カードに。エンドポイントは
+`api/recipes/async-job/` 配下の契約のデモ実装です(ステートレス:
+ジョブ id が自分の開始時刻を符号化しており、進捗は時計の関数です)。
+
+<AsyncJobDemo />
+
+## ポーリングの形
+
+開始 POST は**202**で実行中カードを返し、カードは**自分自身**を
+ポーリングします:
+
+```html
+<div class="hc-card" data-hc-job
+     data-hx-get="/exports/j_8f3k" data-hx-trigger="every 2s"
+     data-hx-target="this" data-hx-swap="outerHTML">
+  <progress class="hc-progress" value="40" max="100" aria-label="Export progress"></progress>
+  <p aria-live="polite">Exporting — 12,000 / 30,000 rows</p>
+  <button class="hc-button" type="button"
+          data-hx-post="/exports/j_8f3k/cancel"
+          data-hx-target="closest [data-hc-job]"
+          data-hx-swap="outerHTML">Cancel</button>
+</div>
+```
+
+この設計のすべてである 3 つの帰結:
+
+1. **ポーリング属性はフラグメントと一緒に運ばれます。** 終端カード
+   (done / failed / cancelled / expired)は単にトリガーを持たず、
+   それだけでポーリングは止まります — 解除するものも、クリアする
+   タイマーもありません。
+2. **サーバがポーリング周期を所有します。** 各レスポンスが、返す
+   フラグメントの中に望む `every` 間隔を書き込みます — 長いジョブは
+   間隔を空け、終盤は詰める。クライアント側のバックオフ設定は
+   ありません。
+3. **スワップは `data-hx-target="this"` + `outerHTML` 必須。**
+   `innerHTML` だと生き残った要素に古いトリガーが残り、終端状態でも
+   カードが永遠にポーリングし続けます。(`hc validate` がまさに
+   これを検査します。)
+
+`data-hc-job` は契約マーカーであり、ビヘイビアは何もアタッチ
+しません。
+
+## カードの一覧
+
+| 状態 | カード |
+| --- | --- |
+| Running | `hc-progress` + polite な進捗行 + Cancel(`data-hx-target="closest [data-hc-job]"`) |
+| Done | 成果物への素の `<a href download>` — 冪等な GET |
+| Failed | 理由(`hc-alert`、`role="status"`)+ Retry — **開始 POST** をもう一度 = *新しい*ジョブ |
+| Cancelled | 素の確認文 |
+| Expired / 不明 id | トゥームストーン(「このジョブは期限切れです — 最初からやり直してください」)、**HTTP 200** — 陳腐化はエラーではなく状態 |
+
+failed カードには部分的な書き込みの有無を明記します(「何も書き込まれて
+いません」)。完了済みジョブへの Cancel は**no-op の 200**で、実際の
+終端カードを返します — この競合は起きて当然で、エラーではありません。
+
+## サーバレスポンス契約
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `POST /exports` | `202` + 実行中カード(ジョブ id は不透明トークン) |
+| `GET /exports/<id>` | `200` + 現在のカード |
+| `POST /exports/<id>/cancel` | `200` + cancelled カード(完了済みには no-op) |
+| `GET /exports/<id>/result` | 成果物、`Content-Disposition: attachment` |
+
+## プログレッシブエンハンスメント
+
+開始フォームは JavaScript なしでも普通に POST します。サーバは
+ジョブカード+「状態を確認」リンク(または
+`<meta http-equiv="refresh">`)のフルページを描画します — ポーリングは
+手動リロードに退化し、どの状態もその URL で到達できます。
+
+## アクセシビリティ
+
+- 進捗テキストは独立した `aria-live="polite"` 要素に —
+  カード自体に `aria-live` を付けると、毎ポーリングでボタン込みの
+  カード全体が読み上げられてしまいます。
+- `<progress>` はネイティブの `progressbar` ロールを保ちます。
+  `aria-label` を付けること。
+- 終端状態は一度だけ読み上げられます — 最後のスワップで polite 行の
+  テキストが変わる、それだけです。追加の配線は不要。
+
+## ノート
+
+- **htmx の 286。** *固定*要素をポーリングする場合(コンテナに
+  `every` + `innerHTML` スワップ)、レスポンスのステータス 286 で
+  htmx はポーリングを停止します — カードを置換できないレイアウト
+  向けの、文書化された代替手段です。
+- **SSE 変種。** サーバプッシュが既にあるなら、`every` の代わりに
+  カードを [SSE 更新](/hypermedia-components/ja/recipes/sse-updates/)の
+  ストリームに向けます — カードは同じ、ポーリングがプッシュに
+  変わるだけ。
+- **ジョブ受信箱**(自分の最近のジョブ一覧)は、このレシピを行ごとに
+  適用+一覧自体は
+  [データ領域](/hypermedia-components/ja/recipes/data-region/)。
+- ダブルクリックされた開始 POST はジョブを **1 つ**にすべきです —
+  idempotency-key 契約(本プラン最後のレシピ)が、リプレイされた 202 で
+  両クリックを同じカードに向けます。
+
+## 関連
+
+- [検索結果の上限](/hypermedia-components/ja/recipes/result-cap/) —
+  このレシピが実装する「CSV へエクスポート」の逃げ道の出どころ。
+- [ファイルアップロード](/hypermedia-components/ja/recipes/file-upload/) —
+  アップロード進捗(リクエスト自体)。サーバがファイルを受け取った
+  後はこのレシピの出番です。
+- [SSE 更新](/hypermedia-components/ja/recipes/sse-updates/) —
+  プッシュ輸送の変種。

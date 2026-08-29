@@ -1,0 +1,70 @@
+<!-- Fully expanded HTML — the kick-off and every card the server can
+  answer with. Everything below #job is SERVER-RENDERED; the states
+  are the branches of GET /exports/<id>. A card polls only while it
+  carries a trigger, so the running card is the only one that does. -->
+<form method="post" action="/exports">
+  <button class="hc-button" type="submit"
+          data-hx-post="/exports"
+          data-hx-target="#job" data-hx-swap="innerHTML"
+          data-hx-disabled-elt="this">Export CSV</button>
+</form>
+
+<div id="job">
+  <!-- ============================================================
+       Running (the 202 response, and every poll until terminal).
+       Self-replacing: target=this, swap=outerHTML. The server picks
+       the next poll interval by writing it into the trigger.
+       ============================================================ -->
+  <div class="hc-card" data-hc-job
+       data-hx-get="/exports/j_8f3k" data-hx-trigger="every 2s"
+       data-hx-target="this" data-hx-swap="outerHTML">
+    <progress class="hc-progress" value="40" max="100" aria-label="Export progress"></progress>
+    <p aria-live="polite">Preparing export — 12,000 / 30,000 rows</p>
+    <button class="hc-button" type="button"
+            data-hx-post="/exports/j_8f3k/cancel"
+            data-hx-target="closest [data-hc-job]"
+            data-hx-swap="outerHTML">Cancel</button>
+  </div>
+
+  <!-- ============================================================
+       Done — no trigger, polling has stopped. The artifact link is
+       a plain idempotent GET (download it twice, same file).
+       ============================================================ -->
+  <div class="hc-card" data-hc-job data-state="done">
+    <p aria-live="polite">Export ready — 30,000 rows.</p>
+    <a class="hc-button" data-variant="primary"
+       href="/exports/j_8f3k/result" download>Download CSV</a>
+  </div>
+
+  <!-- ============================================================
+       Failed — reason + a retry that POSTs the kick-off again
+       (a NEW job; the failed one stays queryable).
+       ============================================================ -->
+  <div class="hc-card" data-hc-job data-state="failed">
+    <div class="hc-alert" data-variant="error" role="status">
+      <p class="hc-alert__title">Export failed.</p>
+      <p class="hc-alert__body">Row 18,204: invalid date. Fix the data
+        or retry — nothing was written.</p>
+    </div>
+    <button class="hc-button" type="submit"
+            data-hx-post="/exports"
+            data-hx-target="closest [data-hc-job]"
+            data-hx-swap="outerHTML">Retry</button>
+  </div>
+
+  <!-- ============================================================
+       Cancelled — the cancel POST's response (also what later polls
+       of a cancelled job return).
+       ============================================================ -->
+  <div class="hc-card" data-hc-job data-state="cancelled">
+    <p aria-live="polite">Export cancelled.</p>
+  </div>
+
+  <!-- ============================================================
+       Expired / unknown job id — a tombstone, HTTP 200: staleness
+       is a state, not an error (the datagrid-snapshot-pager stance).
+       ============================================================ -->
+  <div class="hc-card" data-hc-job data-state="expired">
+    <p aria-live="polite">This job has expired — start again.</p>
+  </div>
+</div>

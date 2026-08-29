@@ -1,0 +1,30 @@
+<!-- Short recommended usage.
+
+  async-job: one contract for anything that outlives a request — CSV
+  exports, PDF rendering, batch imports. The kick-off POST answers
+  202 with a job card; the card POLLS ITSELF (data-hx-target="this",
+  outerHTML) so the polling attributes travel with the fragment, and
+  a terminal card stops polling simply by not carrying a trigger.
+  The server also controls the cadence: it writes the `every`
+  interval it wants into each fragment it returns.
+  data-hc-job is a contract marker only; no behavior attaches. -->
+<form method="post" action="/exports">
+  <button class="hc-button" type="submit"
+          data-hx-post="/exports"
+          data-hx-target="#job" data-hx-swap="innerHTML"
+          data-hx-disabled-elt="this">Export CSV</button>
+</form>
+
+<div id="job">
+  <!-- The 202 response — a running job card, polling itself: -->
+  <div class="hc-card" data-hc-job
+       data-hx-get="/exports/j_8f3k" data-hx-trigger="every 2s"
+       data-hx-target="this" data-hx-swap="outerHTML">
+    <progress class="hc-progress" value="40" max="100" aria-label="Export progress"></progress>
+    <p aria-live="polite">Preparing export — 12,000 / 30,000 rows</p>
+    <button class="hc-button" type="button"
+            data-hx-post="/exports/j_8f3k/cancel"
+            data-hx-target="closest [data-hc-job]"
+            data-hx-swap="outerHTML">Cancel</button>
+  </div>
+</div>

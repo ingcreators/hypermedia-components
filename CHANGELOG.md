@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Added
 
+- `async-job` recipe — one contract for work that outlives a request
+  (CSV exports, PDF rendering, batch imports): the kick-off answers
+  `202` with a job card that polls itself (`data-hx-target="this"` +
+  `outerHTML`, so terminal cards stop polling by carrying no trigger
+  and the server owns the poll cadence), with enumerated terminal
+  states (done / failed / cancelled / expired-as-tombstone) and
+  no-op-200 cancel. Zero new JS/CSS; live demo + demo API included.
+  ([plan](plans/hc-business-flow-contracts-plan-en.md))
+
 - `result-cap` recipe — bound what one search may return: `LIMIT cap+1`
   detection, "cap+" counts, and a persistent truncation banner
   (`hc-alert` warning, `role="status"`, marked `data-hc-result-cap`) or
