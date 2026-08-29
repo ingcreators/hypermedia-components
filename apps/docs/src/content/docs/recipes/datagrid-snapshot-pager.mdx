@@ -1,0 +1,201 @@
+---
+title: Datagrid snapshot pager
+description: Freeze a work queue's membership at search time — the form carries every hit's row key, paging re-fetches those rows in that order, and processed rows stay visible as processed instead of shifting page boundaries.
+---
+
+import DatagridSnapshotPagerDemo from '../../../components/recipe-demos/DatagridSnapshotPagerDemo.astro';
+
+With a live re-query pager
+([datagrid pager](/hypermedia-components/recipes/datagrid-pager/)) a
+"pending approval" search of 56 items pages honestly — until the user
+approves 10 on page 1. The pending set is now 46; page 2 is sliced from
+the *new* set, so ten formerly-page-2 rows slide up onto page 1, which
+the user has already left. In a work queue that's a missed-item bug,
+not a UI nicety.
+
+This recipe freezes the queue's **membership** at search time while
+each row's **state** stays live: the form carries every hit's row key,
+paging re-fetches exactly those rows in exactly that order, approved
+rows render approved, and nothing moves until a new search. Zero new
+JS — the DOM is the snapshot store, native form serialization is the
+wire format.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add datagrid-snapshot-pager` copies this
+recipe's scaffold (`recipe.html`, `expanded.html`, `contract.md`,
+`checks.json`); `npx @hypermedia-components/cli validate` machine-checks
+your copy. The full contract lives in
+[`recipes/datagrid-snapshot-pager/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-snapshot-pager/contract.md).
+:::
+
+## Live demo
+
+A 56-item approval queue, 20 per page. Select a few rows on page 1 and
+**Approve** them — the count stays "of 56 (as of search)", the rows
+stay put, and paging away and back shows them still approved.
+**Withdraw** simulates rows vanishing from the queue (deleted or
+reassigned elsewhere): they page back in as tombstones. The endpoint
+is a namespaced demo implementation of the contract under
+`api/recipes/datagrid-snapshot-pager/` (a real server keeps row state
+in its database; the stateless demo threads it through the opaque key
+tokens).
+
+<DatagridSnapshotPagerDemo />
+
+## The markup
+
+One `<form method="post">` wraps everything:
+
+```html
+<form method="post" action="/approvals/page">
+  <!-- The snapshot: one hidden input per hit, in display order,
+       minted by the server at search time. OUTSIDE the swap target. -->
+  <input type="hidden" name="keys" value="tok_a1">
+  <input type="hidden" name="keys" value="tok_b2">
+  <!-- …one per hit… -->
+  <!-- The current page, updated out-of-band by each page response: -->
+  <input type="hidden" name="page" value="1" id="page-field">
+
+  <div class="hc-datagrid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">…</thead>
+        <tbody class="hc-datagrid__body" id="rows"><!-- page 1, server-rendered --></tbody>
+      </table>
+    </div>
+  </div>
+
+  <p id="rows-status" aria-live="polite">1–20 of 56 (as of search)</p>
+
+  <nav class="hc-pagination" id="pager" aria-label="Pagination">
+    <button class="hc-pagination__item" type="submit" name="page" value="1"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML" aria-current="page">1</button>
+    <button class="hc-pagination__item" type="submit" name="page" value="2"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML">2</button>
+    <button class="hc-pagination__item" type="submit" name="page" value="3"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML">3</button>
+  </nav>
+</form>
+```
+
+Why each piece is the way it is:
+
+- **The keys are hidden inputs, in display order.** Form serialization
+  walks submittable elements in tree order (the HTML entry-list
+  algorithm — the [sortable](/hypermedia-components/recipes/sortable/)
+  recipe rests on the same guarantee), so the wire order *is* the
+  display order. No client JS assembles anything.
+- **Keys are opaque, server-minted tokens.** A composite primary key
+  folds into one token (`base64url(JSON)` of the key columns, or a
+  surrogate id); the client echoes tokens verbatim and never composes,
+  parses, or delimits them.
+- **`keys` vs `ids`.** `keys` is the snapshot membership — hidden
+  inputs. `ids` (from
+  [datagrid bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/))
+  is the rows *selected for an action* — checkboxes. They coexist in
+  this form and must never share a name.
+- **Pager buttons, not links** — the snapshot travels in the POST body.
+  Buttons swap `innerHTML` of the tbody, per the
+  [datagrid pager](/hypermedia-components/recipes/datagrid-pager/)
+  swap rules.
+- **The hidden `page` field** is updated out-of-band by every page
+  response, so *action* requests (not triggered by a pager button)
+  know which page to re-render. On a pager click both serialize — the
+  button is the later entry, so the server reads the **last** `page`
+  value.
+
+## Server response contract
+
+`POST /approvals/page` receives every key (in order) plus `page`. The
+server must:
+
+1. **Validate the count** — a `keys` list over the search cap (see
+   [result cap](/hypermedia-components/recipes/result-cap/)) is a
+   broken client: `422`, never a truncated page.
+2. **Re-check authorization for every key, every time** — keys arrive
+   from the client; membership in a past search result proves nothing.
+3. **Slice the page server-side** — the client never slices.
+4. **Return rows in received-`keys` order.** `WHERE key IN (…)`
+   guarantees nothing: join an ordinal (`VALUES … ORDER BY ord`,
+   `unnest WITH ORDINALITY`, `ORDER BY FIELD(…)`) or reorder in the
+   app via a key→row map — whose misses are exactly the tombstones.
+5. **Render vanished rows as tombstones** ("No longer in this queue"),
+   keeping the page arithmetic and the user's mental count intact.
+6. **Render current state** — approved rows render approved
+   (badge, checkbox `disabled`), not pending-as-of-search.
+
+The response is the page's `<tr>` rows plus out-of-band fragments:
+
+```html
+<tr class="hc-datagrid__row">…</tr>
+<!-- …one per key in the page slice, in order, tombstones included… -->
+
+<nav class="hc-pagination" id="pager" data-hx-swap-oob="true" aria-label="Pagination">
+  …buttons, aria-current="page" moved…
+</nav>
+<p id="rows-status" data-hx-swap-oob="true" aria-live="polite">21–40 of 56 (as of search) — 10 approved</p>
+<input type="hidden" name="page" value="2" id="page-field" data-hx-swap-oob="true">
+```
+
+| Request | Response |
+| --- | --- |
+| `POST /approvals/page` (`keys[]` + `page`) | `200` + that page's rows in keys order + OOB pager / status / page-field |
+| `POST /approvals/approve` (`ids[]` + `action`; `keys` + `page` ride along) | `200` + the current page re-rendered, processed rows in their new state, `keys` untouched |
+| `keys[]` over the cap | `422` — broken client, never a truncated page |
+
+## Composing with bulk actions
+
+Wrap the selection bar, the grid, and the pager in the same form (see
+`expanded.html`): the action button POSTs `ids` + `action`, and `keys`
+plus the hidden `page` ride along by native serialization. The
+response re-renders the current page's rows and **leaves the `keys`
+inputs alone** — the queue still shows 56 items on 3 pages afterwards.
+Only the current page's rows exist in the DOM, so `ids` can only name
+current-page rows.
+
+## Progressive enhancement
+
+The pager buttons are native submits: without htmx the form POSTs and
+the server (no `HX-Request`) renders the full page. Page 1 and the
+snapshot are server-rendered at search time, so the queue is complete
+before any JavaScript runs.
+
+## Accessibility
+
+- Pager semantics follow the datagrid pager:
+  `<nav aria-label="Pagination">`, `aria-current="page"` on the active
+  button.
+- The status line is `aria-live="polite"` and announces page changes
+  and processing progress ("… — 10 approved").
+- Tombstone rows keep their identity cell — the user can still see
+  *which* item left — and state the reason in text.
+
+## Notes
+
+- **Scope: work queues.** Cap the search at 500–1,000 keys
+  ([result cap](/hypermedia-components/recipes/result-cap/)'s
+  hard-reject mode) and the keys payload stays tens of KB. For
+  unbounded lookup screens use the live re-query
+  [datagrid pager](/hypermedia-components/recipes/datagrid-pager/);
+  if you need snapshot semantics without a key list, an `as_of`
+  timestamp threaded through the query
+  (`pending OR processed_after(as_of)`) is the stateless alternative.
+- **Reload = new search.** The snapshot lives in the DOM — there is no
+  URL for "page 2 of this snapshot". Bookmarking and sharing are
+  deliberately out; document it, don't fight it.
+- **Sort or filter change = new snapshot** (a fresh search response
+  with fresh keys). A `size` change (optional field) resets to page 1.
+
+## Related
+
+- [Datagrid pager](/hypermedia-components/recipes/datagrid-pager/) —
+  the live re-query pager this one deliberately isn't.
+- [Result cap](/hypermedia-components/recipes/result-cap/) — bounds
+  the snapshot before it exists.
+- [Datagrid bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/) —
+  the action half of the composed form.
+- [Sortable list](/hypermedia-components/recipes/sortable/) — the same
+  tree-order serialization guarantee, used for reordering.

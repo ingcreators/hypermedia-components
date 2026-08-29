@@ -1,0 +1,93 @@
+<!-- Fully expanded HTML — the snapshot pager composed with
+  datagrid-bulk-actions (the reason the recipe exists: process items
+  page by page while the membership stays frozen).
+
+  One form carries BOTH lists — they must never share a name:
+    keys  the snapshot: every hit's opaque row key, in display order
+          (membership — hidden inputs, outside the swap target)
+    ids   the selection: the rows checked for the next action
+          (checkboxes inside #rows; unchecked ones never serialize)
+  The action response swaps the current page's rows (approved rows
+  render approved, checkboxes disabled) and leaves the keys untouched,
+  so the queue still shows 56 items on 3 pages afterwards. -->
+<form method="post" action="/approvals/page">
+  <!-- The snapshot, server-rendered at search time (≤ the cap — see
+       the result-cap recipe; over the cap, make no snapshot). -->
+  <input type="hidden" name="keys" value="tok_a1">
+  <input type="hidden" name="keys" value="tok_b2">
+  <input type="hidden" name="keys" value="tok_c3">
+  <!-- …one per hit, in display order… -->
+  <input type="hidden" name="page" value="1" id="page-field">
+
+  <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+       data-hc-datagrid-actions="#grid" hidden>
+    <span data-hc-datagrid-count></span>
+    <button class="hc-button" type="submit" name="action" value="approve"
+            data-hx-post="/approvals/approve"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Approve</button>
+  </div>
+
+  <div class="hc-datagrid" id="grid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">
+              <!-- Select-all: NO name, so it never serializes. -->
+              <input type="checkbox" class="hc-checkbox" aria-label="Select all">
+            </th>
+            <th class="hc-datagrid__headcell" scope="col">ID</th>
+            <th class="hc-datagrid__headcell" scope="col">Title</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="rows">
+          <!-- Page 1, server-rendered. A pending row: -->
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox" name="ids" value="4021"
+                     aria-label="Select Expense report — March">
+            </td>
+            <th class="hc-datagrid__cell" scope="row">4021</th>
+            <td class="hc-datagrid__cell">Expense report — March</td>
+            <td class="hc-datagrid__cell">Pending</td>
+          </tr>
+          <!-- An already-processed row — stays in the snapshot,
+               renders processed, can't be re-selected: -->
+          <tr class="hc-datagrid__row">
+            <td class="hc-datagrid__cell">
+              <input type="checkbox" class="hc-checkbox" disabled
+                     aria-label="Approved — cannot select">
+            </td>
+            <th class="hc-datagrid__cell" scope="row">4022</th>
+            <td class="hc-datagrid__cell">Travel request — Osaka</td>
+            <td class="hc-datagrid__cell"><span class="hc-badge" data-variant="success">Approved</span></td>
+          </tr>
+          <!-- A vanished row — deleted or reassigned since the
+               search; the tombstone keeps the page arithmetic and
+               the user's mental count intact: -->
+          <tr class="hc-datagrid__row" data-tombstone>
+            <td class="hc-datagrid__cell"></td>
+            <th class="hc-datagrid__cell" scope="row">4023</th>
+            <td class="hc-datagrid__cell" colspan="2">No longer in this queue.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p id="rows-status" aria-live="polite">1–20 of 56 (as of search) — 1 approved</p>
+
+  <nav class="hc-pagination" id="pager" aria-label="Pagination">
+    <button class="hc-pagination__item" type="submit" name="page" value="1"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML" aria-current="page">1</button>
+    <button class="hc-pagination__item" type="submit" name="page" value="2"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML">2</button>
+    <button class="hc-pagination__item" type="submit" name="page" value="3"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML">3</button>
+  </nav>
+</form>

@@ -1,0 +1,208 @@
+---
+title: データグリッドのスナップショットページャー
+description: ワークキューの母集合を検索時点で凍結 — フォームが全ヒットの行キーを運び、ページングはその行をその順で再取得。処理済みの行はページ境界をずらさず、処理済みのまま見え続けます。
+---
+
+import DatagridSnapshotPagerDemo from '../../../../components/recipe-demos/DatagridSnapshotPagerDemo.astro';
+
+生きた再クエリのページャー
+([データグリッドのページネーション](/hypermedia-components/ja/recipes/datagrid-pager/))では、
+「承認待ち」56 件の検索は正直にページングされます — ユーザーが
+1 ページ目で 10 件承認するまでは。承認待ちはもう 46 件になり、
+2 ページ目は*新しい*集合から切り出されるので、元 2 ページ目の 10 行が
+ユーザーがもう離れた 1 ページ目へ繰り上がります。ワークキューでは
+これは見た目の問題ではなく、**案件の見落としバグ**です。
+
+このレシピはキューの**母集合**を検索時点で凍結し、各行の**状態**は
+生きたままにします: フォームが全ヒットの行キーを運び、ページングは
+まさにその行をまさにその順で再取得し、承認済みの行は承認済みとして
+描画され、新しい検索まで何も動きません。新規 JS ゼロ — DOM が
+スナップショットの置き場で、ネイティブのフォーム直列化がワイヤ
+フォーマットです。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add datagrid-snapshot-pager` がこの
+レシピのスキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/datagrid-snapshot-pager/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/datagrid-snapshot-pager/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+56 件・20 件/ページの承認キュー。1 ページ目で数行選んで
+**Approve** すると — 件数は「of 56 (as of search)」のまま、行は
+動かず、ページを離れて戻ってもまだ承認済みのままです。
+**Withdraw** は行がキューから消えること(削除や他所での再割り当て)を
+シミュレートします: 戻ってくるとトゥームストーンとして描画されます。
+エンドポイントは `api/recipes/datagrid-snapshot-pager/` 配下の契約の
+デモ実装です(実サーバは行状態を DB に持ちます。ステートレスなデモは
+不透明なキートークンに織り込んで運びます)。
+
+<DatagridSnapshotPagerDemo />
+
+## マークアップ
+
+1 つの `<form method="post">` がすべてを包みます:
+
+```html
+<form method="post" action="/approvals/page">
+  <!-- スナップショット: ヒット 1 件につき hidden 1 個、表示順、
+       検索時点でサーバが鋳造。スワップ対象の外側に置く。 -->
+  <input type="hidden" name="keys" value="tok_a1">
+  <input type="hidden" name="keys" value="tok_b2">
+  <!-- …ヒット分だけ… -->
+  <!-- 現在ページ。ページレスポンスが out-of-band で更新: -->
+  <input type="hidden" name="page" value="1" id="page-field">
+
+  <div class="hc-datagrid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">…</thead>
+        <tbody class="hc-datagrid__body" id="rows"><!-- 1 ページ目はサーバレンダリング --></tbody>
+      </table>
+    </div>
+  </div>
+
+  <p id="rows-status" aria-live="polite">1–20 of 56 (as of search)</p>
+
+  <nav class="hc-pagination" id="pager" aria-label="Pagination">
+    <button class="hc-pagination__item" type="submit" name="page" value="1"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML" aria-current="page">1</button>
+    <button class="hc-pagination__item" type="submit" name="page" value="2"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML">2</button>
+    <button class="hc-pagination__item" type="submit" name="page" value="3"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML">3</button>
+  </nav>
+</form>
+```
+
+それぞれがこの形である理由:
+
+- **キーは hidden input、表示順。** フォーム直列化は送信可能要素を
+  ツリー順に走査します(HTML の entry list アルゴリズム —
+  [並べ替えリスト](/hypermedia-components/ja/recipes/sortable/)レシピも
+  同じ保証の上に立っています)。だからワイヤ上の順序が*そのまま*
+  表示順です。クライアント JS は何も組み立てません。
+- **キーはサーバ鋳造の不透明トークン。** 複合主キーは 1 トークンに
+  畳みます(キー列の `base64url(JSON)`、またはサロゲート id)。
+  クライアントはトークンをそのままエコーバックするだけで、組み立ても
+  分解も区切りも発明しません。
+- **`keys` と `ids`。** `keys` はスナップショットの母集合 — hidden
+  input。`ids`
+  ([データグリッド一括操作](/hypermedia-components/ja/recipes/datagrid-bulk-actions/)由来)は
+  *アクション対象に選択された*行 — チェックボックス。同じフォームに
+  同居するので、名前を共有してはいけません。
+- **ページャーはリンクではなくボタン** — スナップショットは POST
+  ボディで運ばれるからです。ボタンは tbody の `innerHTML` をスワップ
+  します
+  ([データグリッドのページネーション](/hypermedia-components/ja/recipes/datagrid-pager/)の
+  スワップ規則のとおり)。
+- **hidden の `page` フィールド**は毎ページレスポンスが out-of-band で
+  更新します。これで(ページャーボタン起点でない)*アクション*
+  リクエストも、どのページを再描画すべきか分かります。ページャー
+  クリック時は両方直列化されます — ボタンの方が後のエントリなので、
+  サーバは**最後の** `page` 値を読みます。
+
+## サーバレスポンス契約
+
+`POST /approvals/page` は全キー(順序どおり)+ `page` を受け取ります。
+サーバがすべきこと:
+
+1. **件数の検証** — 検索上限
+   ([検索結果の上限](/hypermedia-components/ja/recipes/result-cap/)参照)を
+   超える `keys` リストは壊れたクライアント: `422`。切り詰めた
+   ページを返してはいけません。
+2. **毎回、全キーの認可を再チェック** — キーはクライアント経由です。
+   過去の検索結果に含まれていたことは何の証明にもなりません。
+3. **ページの切り出しはサーバ側で** — クライアントは決して
+   切り出しません。
+4. **受信した `keys` の順で行を返す。** `WHERE key IN (…)` は何も
+   保証しません: 順序番号を JOIN する(`VALUES … ORDER BY ord`、
+   `unnest WITH ORDINALITY`、`ORDER BY FIELD(…)`)か、無順序で取得して
+   アプリ側で key→row マップで並べ直します — マップのミスが
+   そのままトゥームストーンです。
+5. **消えた行はトゥームストーンとして描画**(「このキューには
+   もうありません」)。ページの算術とユーザーの頭の中の件数を
+   守ります。
+6. **現在の状態で描画** — 承認済みの行は承認済みとして(バッジ、
+   チェックボックス `disabled`)。検索時点の pending のままでは
+   ありません。
+
+レスポンスは、そのページの `<tr>` 行+out-of-band フラグメント:
+
+```html
+<tr class="hc-datagrid__row">…</tr>
+<!-- …ページスライス内のキーごとに 1 行、順序どおり、トゥームストーン込み… -->
+
+<nav class="hc-pagination" id="pager" data-hx-swap-oob="true" aria-label="Pagination">
+  …ボタン、aria-current="page" は移動済み…
+</nav>
+<p id="rows-status" data-hx-swap-oob="true" aria-live="polite">21–40 of 56 (as of search) — 10 approved</p>
+<input type="hidden" name="page" value="2" id="page-field" data-hx-swap-oob="true">
+```
+
+| リクエスト | レスポンス |
+| --- | --- |
+| `POST /approvals/page`(`keys[]` + `page`) | `200` + そのページの行(keys 順)+ OOB ページャー / ステータス / page フィールド |
+| `POST /approvals/approve`(`ids[]` + `action`。`keys` と `page` も同乗) | `200` + 現在ページの再描画。処理済み行は新しい状態で、`keys` は無傷 |
+| `keys[]` が上限超過 | `422` — 壊れたクライアント。切り詰めたページは返さない |
+
+## 一括操作との合成
+
+選択バー・グリッド・ページャーを同じフォームに包みます
+(`expanded.html` 参照): アクションボタンは `ids` + `action` を POST
+し、`keys` と hidden の `page` はネイティブ直列化で同乗します。
+レスポンスは現在ページの行を再描画し、**`keys` input には触れません**
+— その後もキューは 56 件・3 ページのままです。DOM には現在ページの
+行しか存在しないので、`ids` が指せるのは現在ページの行だけです。
+
+## プログレッシブエンハンスメント
+
+ページャーボタンはネイティブの submit です: htmx なしではフォームが
+POST され、サーバは(`HX-Request` なしなので)フルページを描画します。
+1 ページ目とスナップショットは検索時点でサーバレンダリングされる
+ため、JavaScript が動く前からキューは完全です。
+
+## アクセシビリティ
+
+- ページャーのセマンティクスはデータグリッドのページネーションと
+  同じ: `<nav aria-label="Pagination">`、アクティブなボタンに
+  `aria-current="page"`。
+- ステータス行は `aria-live="polite"` で、ページ変更と処理の進捗
+  (「… — 10 approved」)を読み上げます。
+- トゥームストーン行は同一性のセルを保ち(*どの*案件が消えたか
+  見える)、理由をテキストで述べます。
+
+## ノート
+
+- **適用範囲: ワークキュー。** 検索を 500〜1,000 キーで上限
+  ([検索結果の上限](/hypermedia-components/ja/recipes/result-cap/)の
+  ハードリジェクトモード)すれば、keys のペイロードは数十 KB に
+  収まります。無制限の照会画面には生きた再クエリの
+  [データグリッドのページネーション](/hypermedia-components/ja/recipes/datagrid-pager/)を。
+  キーリストなしでスナップショット意味論が要るなら、クエリに
+  `as_of` タイムスタンプを織り込む
+  (`pending OR processed_after(as_of)`)のがステートレスな代替です。
+- **リロード = 新しい検索。** スナップショットは DOM の中にしか
+  ないので、「このスナップショットの 2 ページ目」の URL は存在
+  しません。ブックマークと共有は意図的に対象外 — 契約に明記して、
+  抗わないこと。
+- **ソート・フィルタ変更 = 新しいスナップショット**(新しいキーを
+  持つ新しい検索レスポンス)。`size`(任意フィールド)の変更は
+  1 ページ目に戻します。
+
+## 関連
+
+- [データグリッドのページネーション](/hypermedia-components/ja/recipes/datagrid-pager/) —
+  これが意図的にそうでない、生きた再クエリのページャー。
+- [検索結果の上限](/hypermedia-components/ja/recipes/result-cap/) —
+  スナップショットが生まれる前に境界を引く。
+- [データグリッド一括操作](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) —
+  合成フォームのアクション側。
+- [並べ替えリスト](/hypermedia-components/ja/recipes/sortable/) —
+  同じツリー順直列化の保証を並べ替えに使うレシピ。

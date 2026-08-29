@@ -1,0 +1,91 @@
+---
+/*
+ * Live demo for the datagrid-snapshot-pager recipe. The tbody's
+ * `load` trigger fetches a fresh 56-key snapshot; the keys, hidden
+ * page field, status, and pager arrive out-of-band into this static
+ * shell. Approve a few rows on page 1, then page — the count stays
+ * "of 56 (as of search)" and the approved rows stay visible as
+ * approved; Withdraw simulates rows vanishing from the queue, which
+ * page back in as tombstones. A real server keeps row state in its
+ * database; this stateless demo threads it through the opaque key
+ * tokens and re-renders the keys block out-of-band (same trick as
+ * the datagrid-bulk-actions demo). Markup mirrors
+ * recipes/datagrid-snapshot-pager/expanded.html.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid-snapshot-pager`;
+---
+
+<DemoFrame class="hc-preview--col" label="Datagrid snapshot pager demo">
+  <form method="post" action={`${api}/page`}>
+    <!-- The snapshot: the server re-renders this block out-of-band;
+         the form serializes it back on every request. -->
+    <div id="snapshot-pager-demo-keys" hidden></div>
+    <input type="hidden" name="page" value="1" id="snapshot-pager-demo-page" />
+
+    <div
+      class="hc-toolbar"
+      role="toolbar"
+      aria-label="Bulk actions"
+      data-hc-datagrid-actions="#snapshot-pager-demo-grid"
+      hidden>
+      <span data-hc-datagrid-count></span>
+      <button
+        class="hc-button"
+        type="submit"
+        name="action"
+        value="approve"
+        data-hx-post={`${api}/act`}
+        data-hx-target="#snapshot-pager-demo-rows"
+        data-hx-swap="innerHTML"
+        data-hx-disabled-elt="this">
+        Approve selected
+      </button>
+      <button
+        class="hc-button"
+        data-variant="secondary"
+        type="submit"
+        name="action"
+        value="withdraw"
+        data-hx-post={`${api}/act`}
+        data-hx-target="#snapshot-pager-demo-rows"
+        data-hx-swap="innerHTML"
+        data-hx-disabled-elt="this">
+        Withdraw (simulate vanishing)
+      </button>
+    </div>
+
+    <div class="hc-datagrid" id="snapshot-pager-demo-grid" style="--hc-datagrid-max-height: 24rem;">
+      <div class="hc-datagrid__scroll">
+        <table class="hc-datagrid__table">
+          <thead class="hc-datagrid__head">
+            <tr>
+              <th class="hc-datagrid__headcell">
+                <!-- Select-all: no name attribute — must never serialize. -->
+                <input type="checkbox" class="hc-checkbox" aria-label="Select all" />
+              </th>
+              <th class="hc-datagrid__headcell" scope="col">ID</th>
+              <th class="hc-datagrid__headcell" scope="col">Request</th>
+              <th class="hc-datagrid__headcell" scope="col">Submitted</th>
+              <th class="hc-datagrid__headcell" scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody
+            class="hc-datagrid__body"
+            id="snapshot-pager-demo-rows"
+            data-hx-get={`${api}/search`}
+            data-hx-trigger="load"
+            data-hx-target="#snapshot-pager-demo-rows"
+            data-hx-swap="innerHTML">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="hc-cluster" style="justify-content: space-between; inline-size: 100%;">
+      <p id="snapshot-pager-demo-status" aria-live="polite" style="margin:0;">Loading…</p>
+      <nav class="hc-pagination" id="snapshot-pager-demo-pager" aria-label="Pagination"></nav>
+    </div>
+  </form>
+</DemoFrame>
