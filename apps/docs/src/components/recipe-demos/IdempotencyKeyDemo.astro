@@ -1,0 +1,31 @@
+---
+/*
+ * Live demo for the idempotency-key recipe. The form loads with a
+ * freshly minted key; Place order commits and shows the receipt.
+ * Press it AGAIN without touching anything: the original response is
+ * replayed — same order number, no second order (replay ≠ error).
+ * Change the amount and resubmit to see the real conflict: 422,
+ * "already submitted with different values". A real server stores
+ * key → response; the stateless demo writes the spent key back into
+ * the form out-of-band (the bulk-actions demo trick) so the form
+ * itself carries the "already seen" bit. Server side:
+ * apps/docs/demo-api/recipes/idempotency-key.mjs.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/idempotency-key`;
+---
+
+<DemoFrame class="hc-preview--col" label="Idempotency key demo">
+  <div
+    id="idempotency-key-demo-form"
+    style="inline-size: 100%; max-inline-size: 28rem;"
+    data-hx-get={`${api}/form`}
+    data-hx-trigger="load"
+    data-hx-target="this"
+    data-hx-swap="innerHTML">
+    <p class="hc-field__hint" style="margin:0;">Loading form…</p>
+  </div>
+
+  <div id="idempotency-key-demo-result" aria-live="polite" style="inline-size: 100%; max-inline-size: 28rem;"></div>
+</DemoFrame>

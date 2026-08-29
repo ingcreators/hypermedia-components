@@ -56,6 +56,15 @@ Security    — security-relevant changes
   `409` with the region re-rendered from current truth. Zero new
   JS/CSS; live demo + demo API included.
   ([plan](plans/hc-business-flow-contracts-plan-en.md))
+- `idempotency-key` recipe — server-side duplicate-submit defence:
+  one fresh opaque key per rendered form, first commit stores
+  `key → (request-hash, response)`, a replayed key gets the original
+  response back (never an error), same-key-different-payload is a
+  real `422` conflict, and validation failures leave the key live so
+  the corrected resubmit can commit. Composes with PRG, async-job
+  kick-offs, workflow transitions, and session-expiry replays. Zero
+  new JS/CSS; live demo + demo API included.
+  ([plan](plans/hc-business-flow-contracts-plan-en.md))
 
 - `result-cap` recipe — bound what one search may return: `LIMIT cap+1`
   detection, "cap+" counts, and a persistent truncation banner

@@ -1,0 +1,21 @@
+<!-- Short recommended usage.
+
+  idempotency-key: server-side duplicate-submit defence. The
+  client-side guard (data-hx-disabled-elt, mutating-form) is a
+  courtesy; the wire contract is a token — every rendered form
+  carries a fresh, opaque, unguessable key, the server stores
+  key → response on first commit, and a replayed key gets THE
+  ORIGINAL RESPONSE BACK, not an error. A retry after a timeout, a
+  double-click that slipped the guard, and a session-expiry replay
+  all become safe by the same mechanism. Same key with a DIFFERENT
+  payload is a real conflict (422) — that's a bug, not a retry. -->
+<form method="post" action="/orders">
+  <input type="hidden" name="idempotency_key" value="ik_7d1f9c2e">
+  <!-- …fields… -->
+  <button class="hc-button" data-variant="primary" type="submit"
+          data-hx-post="/orders"
+          data-hx-target="#order-result" data-hx-swap="innerHTML"
+          data-hx-disabled-elt="this">Place order</button>
+</form>
+
+<div id="order-result" aria-live="polite"></div>

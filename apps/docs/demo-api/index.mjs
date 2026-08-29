@@ -41,6 +41,7 @@ import * as editConflict from './recipes/edit-conflict.mjs';
 import * as fieldErrors from './recipes/field-errors.mjs';
 import * as fileUpload from './recipes/file-upload.mjs';
 import * as filterPopover from './recipes/filter-popover.mjs';
+import * as idempotencyKey from './recipes/idempotency-key.mjs';
 import * as inlineEdit from './recipes/inline-edit.mjs';
 import * as lazyPanel from './recipes/lazy-panel.mjs';
 import * as lazyTree from './recipes/lazy-tree.mjs';
@@ -89,6 +90,7 @@ const RECIPES = new Map([
   ['field-errors', fieldErrors],
   ['file-upload', fileUpload],
   ['filter-popover', filterPopover],
+  ['idempotency-key', idempotencyKey],
   ['inline-edit', inlineEdit],
   ['lazy-panel', lazyPanel],
   ['lazy-tree', lazyTree],

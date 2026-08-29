@@ -1,0 +1,42 @@
+<!-- Fully expanded HTML — the form plus what the two commit
+  responses look like. The key is minted fresh on every FORM RENDER
+  (not per submit): as long as this form instance is on screen, every
+  submit it makes claims the same intent. -->
+<form method="post" action="/orders">
+  <input type="hidden" name="idempotency_key" value="ik_7d1f9c2e">
+
+  <div class="hc-field">
+    <label class="hc-field__label" for="amount">Amount</label>
+    <input class="hc-input" id="amount" name="amount" value="1200" inputmode="numeric">
+  </div>
+
+  <button class="hc-button" data-variant="primary" type="submit"
+          data-hx-post="/orders"
+          data-hx-target="#order-result" data-hx-swap="innerHTML"
+          data-hx-disabled-elt="this">Place order</button>
+</form>
+
+<div id="order-result" aria-live="polite">
+  <!-- First commit (200): the receipt. -->
+  <div class="hc-card">
+    <p>Order <strong>ORD-58214</strong> placed — ¥1,200.</p>
+  </div>
+
+  <!-- Replayed commit (the SAME response, marked so the demo of the
+       mechanism is honest — a real app may replay byte-identically):
+  <div class="hc-card">
+    <p>Order <strong>ORD-58214</strong> placed — ¥1,200.</p>
+    <p class="hc-field__hint">Duplicate submit detected — the original
+      response was replayed; no second order exists.</p>
+  </div>
+  -->
+
+  <!-- Same key, DIFFERENT payload (422): a real conflict.
+  <div class="hc-alert" data-variant="error" role="status">
+    <p class="hc-alert__title">This form was already submitted with
+      different values.</p>
+    <p class="hc-alert__body">Reload to start a new order — order
+      ORD-58214 (¥1,200) already exists.</p>
+  </div>
+  -->
+</div>

@@ -1,0 +1,116 @@
+---
+title: 冪等キー
+description: サーバ側の二重送信防御 — 描画されるフォームごとにワンタイムキーを 1 つ。リプレイされたキーには元のレスポンスを返し、決してエラーにしません。
+---
+
+import IdempotencyKeyDemo from '../../../../components/recipe-demos/IdempotencyKeyDemo.astro';
+
+[ミューテーションフォーム](/hypermedia-components/ja/recipes/mutating-form/)の
+`data-hx-disabled-elt` はクライアント側の親切にすぎません: タイムアウト
+後のリトライ、リクエストを再送する不安定なネットワーク、
+[セッション切れ再認証](/hypermedia-components/ja/recipes/session-expiry/)の
+リプレイ、disable が効くより速い 2 度の Enter — どれにも無力です。
+送信を単発にできるのはサーバだけで、その仕組みがトークンです:
+**描画されるフォームごとにキーを 1 つ。リプレイされたキーには元の
+レスポンスを返す。**
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add idempotency-key` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/idempotency-key/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/idempotency-key/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+注文を確定したら、何も触らずにもう一度ボタンを押してみてください:
+元のレスポンスがリプレイされます — 同じ注文番号、二重注文なし、同じ
+トースト。金額を変えて再送信すると本物の競合(`422`、「別の値で送信
+済み」)、数字以外を入れるとキーが生きたままのバリデーション失敗が
+見られます。エンドポイントは `api/recipes/idempotency-key/` 配下の
+デモ実装です(実サーバは key → response を保存します。ステートレスな
+デモは消費済みキーを out-of-band でフォームに書き戻し、「見たことが
+ある」ビットをフォーム自身に運ばせています)。
+
+<IdempotencyKeyDemo />
+
+## マークアップ
+
+```html
+<form method="post" action="/orders">
+  <input type="hidden" name="idempotency_key" value="ik_7d1f9c2e">
+  <!-- …フィールド… -->
+  <button class="hc-button" data-variant="primary" type="submit"
+          data-hx-post="/orders"
+          data-hx-target="#order-result" data-hx-swap="innerHTML"
+          data-hx-disabled-elt="this">Place order</button>
+</form>
+
+<div id="order-result" aria-live="polite"></div>
+```
+
+クライアント側はこれで全部 — hidden が 1 個。保証はサーバ側に
+あります:
+
+## 契約
+
+- **描画されるフォームごとにキー 1 つ** — フォームを描画するたびに
+  新しく鋳造(CSPRNG。UUID v4 で十分)。submit ごとではありません:
+  このフォームインスタンスからのどの submit も同じ意図を主張します。
+- **初回コミット**: 処理し、`key → (リクエストハッシュ, レスポンス)` を
+  保存し、普通に応答。
+- **リプレイされたキー+同じペイロード**: **保存済みレスポンスを
+  リプレイ** — ステータス、意味のあるヘッダ(`HX-Trigger`、
+  `Location`)、ボディ。二重送信は初回成功と見分けがつかないのが
+  正解です。409 を返すのはネットワークの罪でユーザーを罰すること。
+- **リプレイされたキー+違うペイロード**: 本物の競合 — 既存レコードを
+  名指しする `422`。同じ意図トークン+違う内容は、リトライではなく
+  バグか古いタブです。
+- **キーはコミットでだけ消費。** `422` のバリデーション失敗はキーを
+  生かしたままにします — 修正後の再送信(同じフォーム、同じキー)が
+  コミットできるように。ここを逆にすると、ユーザーは永遠に
+  バリデーションエラーを直せません。
+- **スコープと TTL は宣言されたポリシー** — ユーザー×フォーム単位、
+  無期限ではなく数時間(`key, user, request_hash, response,
+  created_at`)。期限切れ後は業務レベルの一意性制約がバックストップ。
+
+| リクエスト | レスポンス |
+| --- | --- |
+| 新しいキー | 通常の結果 — 200 フラグメント、303 リダイレクト、または 422 バリデーション |
+| 既知のキー+同じペイロード | **保存済みレスポンスのリプレイ** |
+| 既知のキー+違うペイロード | `422` — 既存レコードを名指し |
+
+## 合成
+
+- **PRG**: リダイレクトフローの保存レスポンスは `303` そのもの —
+  リプレイは同じ受付ページに着地します。「注文は通ったのか?」への
+  正しい答えです。
+- **[非同期ジョブ](/hypermedia-components/ja/recipes/async-job/)**:
+  開始 POST の保存レスポンスは `202` + ジョブカード — 2 回のクリックは
+  同じジョブを見つめます。
+- **[ワークフローアクション](/hypermedia-components/ja/recipes/workflow-actions/)**:
+  あちらの 409 は*他人に負けた*とき。このキーは*自分と競走した*とき。
+- **[セッション切れ再認証](/hypermedia-components/ja/recipes/session-expiry/)**の
+  リプレイは同じキーを運びます — それこそが狙いです。
+
+## プログレッシブエンハンスメント
+
+ここに JavaScript は 1 行もありません: キーは hidden フィールドで、
+保証はサーバ側です。no-JS のフルページ POST も同じ 3 分岐に従います。
+
+## アクセシビリティ
+
+結果リージョンは `aria-live="polite"`。リプレイされたレスポンスは
+元と同じに読めるべきです(デモは仕組みが見えるようヒント行を追加して
+います)。競合は `role="status"` の `hc-alert` です。
+
+## 関連
+
+- [ミューテーションフォーム](/hypermedia-components/ja/recipes/mutating-form/) —
+  このレシピがサーバ保証で裏打ちするクライアント側ガード。
+- [編集競合](/hypermedia-components/ja/recipes/edit-conflict/) —
+  *更新*のためのバージョニング。このキーは*作成*のため。
+- [セッション切れ再認証](/hypermedia-components/ja/recipes/session-expiry/) —
+  このレシピが安全性を完成させるリプレイ機構。
