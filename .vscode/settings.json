@@ -1,4 +1,19 @@
 {
+  // Claude Code session worktrees (.claude/worktrees/<name>) are private
+  // working copies of this repo owned by parallel agent sessions. Keep the
+  // main window from indexing them: without the excludes, every worktree's
+  // tsconfig/eslint projects surface duplicate (and mid-install, spurious)
+  // Problems entries, and search returns every file N times.
+  "files.exclude": {
+    "**/.claude/worktrees": true
+  },
+  "search.exclude": {
+    "**/.claude/worktrees": true
+  },
+  "files.watcherExclude": {
+    "**/.claude/worktrees/**": true
+  },
+
   // Match .editorconfig / devcontainer (files.eol) and CI expectations.
   "files.eol": "\n",
   "files.insertFinalNewline": true,
