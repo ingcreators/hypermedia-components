@@ -1,0 +1,53 @@
+---
+// "Used in recipes" for a component page, generated at build time by
+// inverting the recipe pages' links to /components/<slug>/. The
+// hand-picked alternative had rotted (24 of 66 component pages
+// mentioned any recipe); a generated list gains every future recipe
+// that links the component, per locale. index.mdx and the data-grid
+// guide are excluded — they link components without *using* them.
+const rawEn = import.meta.glob('../content/docs/recipes/*.mdx', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+const rawJa = import.meta.glob('../content/docs/ja/recipes/*.mdx', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+const { slug, locale = '' } = Astro.props;
+const ja = locale === 'ja';
+const pages = ja ? rawJa : rawEn;
+const componentHref = `/hypermedia-components/${ja ? 'ja/' : ''}components/${slug}/`;
+
+const recipes = Object.entries(pages)
+  .map(([path, text]) => ({
+    name: path.replace(/^.*\//, '').replace(/\.mdx$/, ''),
+    text,
+  }))
+  .filter(
+    ({ name, text }) =>
+      name !== 'index' && name !== 'datagrid' && text.includes(componentHref),
+  )
+  .map(({ name, text }) => ({
+    name,
+    title: text.match(/^title:\s*(.+)$/m)?.[1] ?? name,
+    href: `/hypermedia-components/${ja ? 'ja/' : ''}recipes/${name}/`,
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+---
+
+{
+  recipes.length > 0 && (
+    <p>
+      <strong>{ja ? 'レシピでの利用:' : 'Used in recipes:'}</strong>{' '}
+      {recipes.map((r, i) => (
+        <>
+          {i > 0 && ' · '}
+          <a href={r.href}>{r.title}</a>
+        </>
+      ))}
+    </p>
+  )
+}
