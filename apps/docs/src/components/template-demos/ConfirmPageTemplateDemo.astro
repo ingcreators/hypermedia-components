@@ -1,0 +1,32 @@
+---
+/*
+ * Live preview for the confirm-page template — 入力 → 確認 → 完了 as
+ * one region with whole-region swaps, against its own demo-API
+ * namespace (api/recipes/confirm-page):
+ *
+ *   - input step  → POST /confirm; 422 re-renders with field errors
+ *   - review step → the server renders what it PARSED; values ride
+ *                   as hidden fields; the idempotency key is minted
+ *                   at this render
+ *   - done step   → the receipt derives from the key, so pressing
+ *                   Place order twice shows the same receipt (the
+ *                   idempotency-key replay contract)
+ *
+ * Id policy: the demo API's fragments carry confirm-page-demo-flow;
+ * this template renders once per page.
+ */
+import DemoFrame from '../recipe-demos/DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/confirm-page`;
+---
+
+<DemoFrame label="Confirm page template">
+  <div
+    style="inline-size: 100%; max-inline-size: 30rem;"
+    data-hx-get={`${api}/flow`}
+    data-hx-trigger="load"
+    data-hx-target="this"
+    data-hx-swap="innerHTML">
+    <p class="hc-field__hint" style="margin:0;">Loading flow…</p>
+  </div>
+</DemoFrame>

@@ -1,0 +1,127 @@
+---
+title: Confirm page
+description: The 入力 → 確認 → 完了 flow — review-before-commit rendered by the server, values as hidden fields, an idempotency key minted at the confirm render, and a named-button Back.
+---
+
+import ConfirmPageTemplateDemo from '../../../components/template-demos/ConfirmPageTemplateDemo.astro';
+
+The three-step confirm flow every Japanese business app ships — and
+plenty elsewhere call review-before-commit. This template is the
+[multi-step form](/hypermedia-components/recipes/multi-step-form/)
+machinery specialised to its most common shape: an input step
+([field errors](/hypermedia-components/recipes/field-errors/) on 422),
+a **review step the server renders from what it parsed**, and a done
+step that is safe to double-submit because the confirm render minted
+an [idempotency key](/hypermedia-components/recipes/idempotency-key/).
+One region, whole-region swaps, an
+[`hc-stepper`](/hypermedia-components/components/stepper/) re-rendered
+as part of the same truth. Zero new JS.
+
+## Live template
+
+Submit the form to reach **Review** — the amount you typed comes back
+*formatted*, because the review shows the server's parse, not an echo.
+**Back** returns to the input step with your values intact (a named
+submit, not `history.back()`). **Place order** lands on **Done**;
+press it twice and you get the *same* receipt number — the response
+derives from the idempotency key, which is the replay contract. Typing
+a non-numeric amount shows the 422 path.
+
+<ConfirmPageTemplateDemo />
+
+## Page skeleton
+
+The complete flow, with real-app-shaped URLs. Every step is the same
+region (`#flow`) swapped `outerHTML`; the stepper rides in each
+response so state and presentation can never disagree.
+
+```html
+<!-- Step 1: input -->
+<section id="flow">
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">1</span>
+      <span class="hc-stepper__label">Input</span>
+    </li>
+    <li class="hc-stepper__step">…Review…</li>
+    <li class="hc-stepper__step">…Done…</li>
+  </ol>
+  <form method="post" action="/orders/confirm"
+        data-hx-post="/orders/confirm"
+        data-hx-target="#flow" data-hx-swap="outerHTML"
+        data-hx-disabled-elt="find button[type=submit]">
+    <!-- …hc-field inputs… 422 re-renders this step with field errors -->
+    <button class="hc-button" data-variant="primary" type="submit">Review</button>
+  </form>
+</section>
+
+<!-- Step 2: review (a /confirm response) -->
+<section id="flow">
+  <ol class="hc-stepper">…Input ✓ → <b aria-current="step">Review</b> → Done…</ol>
+  <form method="post" action="/orders/place"
+        data-hx-post="/orders/place"
+        data-hx-target="#flow" data-hx-swap="outerHTML"
+        data-hx-disabled-elt="find button[type=submit]">
+    <input type="hidden" name="idempotency_key" value="ik_7d1f9c2e">
+    <input type="hidden" name="item" value="Ergonomic chair">
+    <input type="hidden" name="amount" value="48000">
+    <dl class="hc-stack">
+      <div><dt>Item</dt><dd>Ergonomic chair</dd></div>
+      <div><dt>Amount</dt><dd>¥48,000</dd></div>
+    </dl>
+    <div class="hc-toolbar" role="toolbar" aria-label="Review actions">
+      <button class="hc-button" type="submit" name="nav" value="back"
+              formnovalidate>Back</button>
+      <button class="hc-button" data-variant="primary" type="submit"
+              name="nav" value="place">Place order</button>
+    </div>
+  </form>
+</section>
+
+<!-- Step 3: done (a /place response; PRG in the full-page flow) -->
+<section id="flow">
+  <ol class="hc-stepper">…Input ✓ → Review ✓ → <b aria-current="step">Done</b>…</ol>
+  <div class="hc-card" role="status">
+    <p>Order <strong>REQ-58214</strong> placed — ¥48,000.</p>
+  </div>
+</section>
+```
+
+## Wiring map
+
+| Region | Component / block | Recipe | Contract |
+| --- | --- | --- | --- |
+| The whole flow | one `#flow` region, `outerHTML` swaps | [multi-step-form](/hypermedia-components/recipes/multi-step-form/) | [contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/multi-step-form/contract.md) |
+| Stepper | `hc-stepper`, `aria-current="step"`, complete markers server-drawn | — | rendered per step in the same swap |
+| Input step 422 | `hc-field` + `aria-invalid` + error hints | [field-errors](/hypermedia-components/recipes/field-errors/) | [contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md) |
+| Review step | `<dl class="hc-stack">` read-back + hidden fields | — | **the server renders what it parsed** — the read-back is the point |
+| Back | a named submit (`name="nav" value="back"`, `formnovalidate`) | [multi-step-form](/hypermedia-components/recipes/multi-step-form/) | never `history.back()` — the server owns the truth |
+| Done / double-submit | key minted **at the review render** | [idempotency-key](/hypermedia-components/recipes/idempotency-key/) | [contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/idempotency-key/contract.md) |
+
+Three rules carry the design:
+
+- **The review is the server's read-back.** What the user confirms is
+  what the server understood — parsed, formatted, normalized. An
+  echo of the client's strings would confirm nothing.
+- **The values ride as hidden fields** in the review form: stateless,
+  inspectable, and exactly what `/place` will re-validate (it must —
+  hidden fields are still client-supplied).
+- **The key is minted at the review render**: going Back and forward
+  again mints a fresh one (a new intent), while double-clicking
+  Place order replays the same one (the same intent).
+
+## Adapt it
+
+- Rename `/orders/confirm` / `/orders/place` to your resource; in the
+  full-page (no-JS) flow, `/place` answers with a `303` redirect to
+  the receipt page (PRG) — the stored response for a replayed key is
+  that same redirect.
+- The review step is the natural home for terms-of-service checkboxes
+  and `hc.print.css` — people print confirm pages.
+- Long forms: compose the input step with
+  [autosave](/hypermedia-components/recipes/autosave/) and
+  [unsaved changes](/hypermedia-components/recipes/unsaved-changes/);
+  the review + done steps are read-only and need neither.
+- Multi-page inputs: chain more input steps exactly as
+  [multi-step form](/hypermedia-components/recipes/multi-step-form/)
+  documents; keep the review as the second-to-last step.

@@ -22,6 +22,17 @@ Security    — security-relevant changes
 
 ### Added
 
+- `templates/confirm-page` — the 入力 → 確認 → 完了 flow as a full-page
+  template: one `#flow` region with whole-region `outerHTML` swaps
+  (the multi-step-form shape), an input step that 422s into field
+  errors, a **review step the server renders from what it parsed**
+  (the read-back is the point) with the values as hidden fields and
+  an idempotency key **minted at the review render**, a named-button
+  Back (`formnovalidate`, never `history.back()`), and a done step
+  whose double submit replays the same receipt. Zero new JS/CSS;
+  live demo + dedicated demo API + tests. The templates index also
+  gains its missing `data-entry` row (docs drift).
+  ([plan](plans/hc-gap-followups-plan-en.md))
 - `network-retry` recipe + **`installNetworkRetry()`** — surface the
   request that got no answer at all (offline / dropped socket /
   declared `data-hx-request` timeout), the one error with no server

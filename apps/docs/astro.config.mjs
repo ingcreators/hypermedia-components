@@ -250,6 +250,7 @@ export default defineConfig({
             'templates/crud',
             'templates/data-grid-page',
             'templates/data-entry',
+    'templates/confirm-page',
           ],
         },
         { label: 'Recipes', translations: { ja: 'レシピ' }, items: [{ autogenerate: { directory: 'recipes' } }] },

@@ -1,0 +1,130 @@
+---
+title: 確認画面
+description: 入力 → 確認 → 完了フロー — サーバが描画するコミット前レビュー、hidden フィールドで運ぶ値、確認描画時に発行する冪等キー、名前付きボタンの「戻る」。
+---
+
+import ConfirmPageTemplateDemo from '../../../../components/template-demos/ConfirmPageTemplateDemo.astro';
+
+日本の業務アプリが必ず出荷する 3 ステップの確認フロー — 海外でも
+review-before-commit と呼ばれるものです。このテンプレートは
+[マルチステップフォーム](/hypermedia-components/ja/recipes/multi-step-form/)の
+機構をその最頻出形に特化させたものです: 入力ステップ(422 は
+[フィールドエラー](/hypermedia-components/ja/recipes/field-errors/))、
+**サーバが自分のパース結果から描画するレビューステップ**、そして
+確認描画時に発行した
+[冪等キー](/hypermedia-components/ja/recipes/idempotency-key/)の
+おかげで二重送信しても安全な完了ステップ。1 つの領域、領域全体の
+スワップ、同じ真実の一部として再描画される
+[`hc-stepper`](/hypermedia-components/ja/components/stepper/)。
+新規 JS はゼロです。
+
+## ライブテンプレート
+
+フォームを送信すると **Review** に進みます — 入力した金額が
+*フォーマットされて*返ってくるのは、レビューがエコーではなく
+サーバのパース結果を見せているからです。**Back** は入力ステップに
+値を保ったまま戻ります(名前付きサブミットであって
+`history.back()` ではありません)。**Place order** で **Done** に
+到達します。2 回押しても*同じ*受付番号が出ます — レスポンスが
+冪等キーから導出される、それがリプレイ契約です。金額に数字以外を
+入れると 422 経路が見られます。
+
+<ConfirmPageTemplateDemo />
+
+## ページスケルトン
+
+実アプリ形の URL での完全なフロー。どのステップも同じ領域
+(`#flow`)を `outerHTML` でスワップし、ステッパーは各レスポンスに
+同乗するので状態と見た目が食い違うことはありません。
+
+```html
+<!-- Step 1: input -->
+<section id="flow">
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">1</span>
+      <span class="hc-stepper__label">Input</span>
+    </li>
+    <li class="hc-stepper__step">…Review…</li>
+    <li class="hc-stepper__step">…Done…</li>
+  </ol>
+  <form method="post" action="/orders/confirm"
+        data-hx-post="/orders/confirm"
+        data-hx-target="#flow" data-hx-swap="outerHTML"
+        data-hx-disabled-elt="find button[type=submit]">
+    <!-- …hc-field の入力… 422 はフィールドエラー付きでこのステップを再描画 -->
+    <button class="hc-button" data-variant="primary" type="submit">Review</button>
+  </form>
+</section>
+
+<!-- Step 2: review (/confirm のレスポンス) -->
+<section id="flow">
+  <ol class="hc-stepper">…Input ✓ → <b aria-current="step">Review</b> → Done…</ol>
+  <form method="post" action="/orders/place"
+        data-hx-post="/orders/place"
+        data-hx-target="#flow" data-hx-swap="outerHTML"
+        data-hx-disabled-elt="find button[type=submit]">
+    <input type="hidden" name="idempotency_key" value="ik_7d1f9c2e">
+    <input type="hidden" name="item" value="Ergonomic chair">
+    <input type="hidden" name="amount" value="48000">
+    <dl class="hc-stack">
+      <div><dt>Item</dt><dd>Ergonomic chair</dd></div>
+      <div><dt>Amount</dt><dd>¥48,000</dd></div>
+    </dl>
+    <div class="hc-toolbar" role="toolbar" aria-label="Review actions">
+      <button class="hc-button" type="submit" name="nav" value="back"
+              formnovalidate>Back</button>
+      <button class="hc-button" data-variant="primary" type="submit"
+              name="nav" value="place">Place order</button>
+    </div>
+  </form>
+</section>
+
+<!-- Step 3: done (/place のレスポンス。フルページフローでは PRG) -->
+<section id="flow">
+  <ol class="hc-stepper">…Input ✓ → Review ✓ → <b aria-current="step">Done</b>…</ol>
+  <div class="hc-card" role="status">
+    <p>Order <strong>REQ-58214</strong> placed — ¥48,000.</p>
+  </div>
+</section>
+```
+
+## 配線マップ
+
+| 領域 | コンポーネント / ブロック | レシピ | 契約 |
+| --- | --- | --- | --- |
+| フロー全体 | 1 つの `#flow` 領域、`outerHTML` スワップ | [multi-step-form](/hypermedia-components/ja/recipes/multi-step-form/) | [contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/multi-step-form/contract.md) |
+| ステッパー | `hc-stepper`、`aria-current="step"`、完了マーカーはサーバ描画 | — | 各ステップのスワップに同乗 |
+| 入力ステップの 422 | `hc-field` + `aria-invalid` + エラーヒント | [field-errors](/hypermedia-components/ja/recipes/field-errors/) | [contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/field-errors/contract.md) |
+| レビューステップ | `<dl class="hc-stack">` の読み戻し + hidden フィールド | — | **サーバはパース結果を描画する** — 読み戻しこそが要点 |
+| 戻る | 名前付きサブミット(`name="nav" value="back"`、`formnovalidate`) | [multi-step-form](/hypermedia-components/ja/recipes/multi-step-form/) | `history.back()` は使わない — 真実はサーバが所有 |
+| 完了 / 二重送信 | キーは**レビュー描画時**に発行 | [idempotency-key](/hypermedia-components/ja/recipes/idempotency-key/) | [contract](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/idempotency-key/contract.md) |
+
+設計を支える 3 つの規則:
+
+- **レビューはサーバの読み戻し。** ユーザーが確認するのはサーバが
+  理解した内容 — パース済み・フォーマット済み・正規化済み。
+  クライアントの文字列のエコーでは何も確認したことになりません。
+- **値は hidden フィールドでレビューフォームに同乗**: ステートレスで
+  検査可能、そして `/place` が再検証するものそのもの(必須です —
+  hidden フィールドもクライアント供給値です)。
+- **キーはレビュー描画時に発行**: 戻ってまた進めば新しいキー
+  (新しい意図)、Place order のダブルクリックは同じキーのリプレイ
+  (同じ意図)。
+
+## 応用
+
+- `/orders/confirm` / `/orders/place` を自分のリソース名に。
+  フルページ(no-JS)フローの `/place` は受付ページへの `303`
+  リダイレクト(PRG)で応答します — リプレイされたキーの保存済み
+  レスポンスはその同じリダイレクトです。
+- レビューステップは利用規約チェックボックスと `hc.print.css` の
+  自然な置き場所です — 確認画面は印刷されます。
+- 長いフォーム: 入力ステップに
+  [自動保存](/hypermedia-components/ja/recipes/autosave/)と
+  [未保存ガード](/hypermedia-components/ja/recipes/unsaved-changes/)を
+  合成。レビューと完了は読み取り専用なのでどちらも不要です。
+- 入力が複数ページの場合:
+  [マルチステップフォーム](/hypermedia-components/ja/recipes/multi-step-form/)の
+  ドキュメントどおりに入力ステップを連鎖させ、レビューを最後から
+  2 番目のステップに保ちます。

@@ -25,6 +25,7 @@ import * as cascadingSelect from './recipes/cascading-select.mjs';
 import * as chart from './recipes/chart.mjs';
 import * as chatMessages from './recipes/chat-messages.mjs';
 import * as confirmAction from './recipes/confirm-action.mjs';
+import * as confirmPage from './recipes/confirm-page.mjs';
 import * as csvImport from './recipes/csv-import.mjs';
 import * as dataRegion from './recipes/data-region.mjs';
 import * as datagridBulkActions from './recipes/datagrid-bulk-actions.mjs';
@@ -76,6 +77,7 @@ const RECIPES = new Map([
   ['chart', chart],
   ['chat-messages', chatMessages],
   ['confirm-action', confirmAction],
+  ['confirm-page', confirmPage],
   ['csv-import', csvImport],
   ['data-region', dataRegion],
   ['datagrid-bulk-actions', datagridBulkActions],
