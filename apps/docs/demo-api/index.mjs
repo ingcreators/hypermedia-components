@@ -65,6 +65,7 @@ import * as sseUpdates from './recipes/sse-updates.mjs';
 import * as toast from './recipes/toast.mjs';
 import * as transfer from './recipes/transfer.mjs';
 import * as undoDelete from './recipes/undo-delete.mjs';
+import * as unreadBadge from './recipes/unread-badge.mjs';
 import * as workflowActions from './recipes/workflow-actions.mjs';
 
 const RECIPES = new Map([
@@ -114,6 +115,7 @@ const RECIPES = new Map([
   ['toast', toast],
   ['transfer', transfer],
   ['undo-delete', undoDelete],
+  ['unread-badge', unreadBadge],
   ['workflow-actions', workflowActions],
 ]);
 

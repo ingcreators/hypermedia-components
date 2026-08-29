@@ -1,0 +1,116 @@
+---
+title: 未読バッジ
+description: アプリクロームの通知カウント — サーバが所有し、ポーリングで新鮮に保ち、自分の操作は帯域外で即時反映。ゼロのときは正直に消えます。
+---
+
+import UnreadBadgeDemo from '../../../../components/recipe-demos/UnreadBadgeDemo.astro';
+
+ベルの上の小さな数字は、些細に見えて常にずれます: 全部読んだのに
+次のポーリングまでバッジは 3 のまま。ゼロが灰色の「0」として残る。
+スクリーンリーダーが毎回の更新を読み上げる。このレシピはその 3 つを
+防ぐ契約です — **フラグメントはバッジではなくナビ項目**であり、
+自分自身をポーリングし、未読状態を変えるレスポンスはすべて帯域外
+(OOB)でバッジを補正します。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add unread-badge` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/unread-badge/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/unread-badge/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+フラグメントは未読 3 件で読み込まれ、3 秒ごとにポーリングします。
+デモの「新着」は 4 秒に 1 件届くので、カウントは少しずつ増えます。
+**Mark all read** はゼロ化したフラグメントを帯域外で返します — その後
+新着が届くたびに、バッジは正直に戻ってきます。キャップ表示ボタンは
+デモの上限(9)を超えた状態にジャンプし、`9+` とそれに一致する
+アクセシブルネームを見せます。エンドポイントは
+`api/recipes/unread-badge/` 配下の名前空間化されたデモ実装です
+(実サーバは `read_at IS NULL` を数えます。ステートレスなデモは
+アンカーとなるタイムスタンプをポーリング URL に通しています)。
+
+<UnreadBadgeDemo />
+
+## マークアップ
+
+```html
+<a class="hc-button" data-variant="ghost" href="/notifications"
+   id="unread-nav" data-hc-unread aria-label="Notifications, 3 unread"
+   data-hx-get="/notifications/badge" data-hx-trigger="every 60s"
+   data-hx-target="this" data-hx-swap="outerHTML">
+  Notifications
+  <span class="hc-badge" data-variant="info" aria-hidden="true">3</span>
+</a>
+```
+
+スワップ単位は、バッジとアクセシブルネームの**両方**を持つ要素です。
+だから両者は決して食い違いません。`data-hc-unread` は契約マーカー
+のみで、behavior は付きません。
+
+## 契約
+
+- **フラグメントは自分自身をポーリングする** —
+  [非同期ジョブ](/hypermedia-components/ja/recipes/async-job/)の
+  自己スワップ規則: `data-hx-target="this"` + `outerHTML`。
+  ポーリング属性はフラグメントとともに移動するので、サーバが
+  周期を所有します(負荷時は `every 300s` を書き込んで間引く。
+  トリガーを省略すれば停止)。`innerHTML` スワップは古いトリガーを
+  生き残った要素に置き去りにします — 典型的な「永遠にポーリング」
+  欠陥です。
+- **ゼロはバッジを描画しない。** 灰色の「0」ではなく沈黙。
+  アクセシブルネームからもカウントが消えます。
+- **表示もネームもキャップする**: 宣言した上限を超えたら `99+` を
+  表示し、「more than 99 unread」と言う — 表示とアクセシブルネームは
+  同じ真実を語ります。
+- **決してライブリージョンにしない。** `aria-live` も
+  `role="status"` もなし — クロームのカウントがポーリングのたびに
+  読み上げられたら、スクリーンリーダーの利用者の作業を中断します。
+  読み上げに値する新着はそのイベント自身のトースト
+  ([SSE トースト](/hypermedia-components/ja/recipes/sse-toast/))の
+  仕事です。
+- **自分の操作は帯域外でバッジを補正する**: 未読状態を変える
+  レスポンス(項目を開く、1 件既読、全部既読)は、再描画した
+  ナビフラグメントを `data-hx-swap-oob="outerHTML"` として通常の
+  ペイロードに同乗させます。次のポーリングはそれを確認するだけです。
+
+| メソッド | URL | 返すもの |
+| --- | --- | --- |
+| GET | `/notifications/badge` | 現在のナビフラグメント — 3 状態(カウント / ゼロ / キャップ超え)のいずれか |
+| POST | `/notifications/read-all` | 再描画したリスト、**プラス帯域外のゼロ化ナビフラグメント** |
+
+## SSE バリアント
+
+[SSE 更新](/hypermedia-components/ja/recipes/sse-updates/)スコープの
+あるページでは、同じ OOB フラグメントを任意のイベントの `data:`
+ペイロードに同乗させられます — あのページ自身の例がまさにバッジ
+です。拡張が要らないため、基本形はポーリングのまま。フラグメント
+契約はどちらでも同一です。
+
+## プログレッシブエンハンスメント
+
+フラグメントは本物の `<a href="/notifications">` です: JS オフでも
+バッジは最後のフルページ描画時点の新しさを保ち、リンクは普通に
+遷移します。
+
+## アクセシビリティ
+
+アクセシブルネーム(カウント入りの `aria-label`)はインタラクティブ
+要素側に置き、バッジは `aria-hidden` のプレゼンテーションです —
+[バッジコンポーネント](/hypermedia-components/ja/components/badge/)の
+方針どおり。`hc-badge` は `tabular-nums` を設定しているので、
+その場でカウントが変わってもレイアウトはずれません。バリアントの
+色が唯一のシグナルになることはありません — カウントの文字が
+すぐそこにあります。
+
+## 関連
+
+- [非同期ジョブ](/hypermedia-components/ja/recipes/async-job/) —
+  このフラグメントが再利用する自己スワップ・ポーリング規則。
+- [SSE 更新](/hypermedia-components/ja/recipes/sse-updates/) —
+  ポーリングの代わりにプッシュ。同じフラグメント、同じ OOB 補正。
+- [バッジコンポーネント](/hypermedia-components/ja/components/badge/) —
+  見た目の部品とそのアクセシビリティ方針。

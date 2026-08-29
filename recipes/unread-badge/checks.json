@@ -1,0 +1,71 @@
+{
+  "detect": "[data-hc-unread]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "poll-self-target",
+      "level": "error",
+      "message": "A polling nav fragment must target itself (data-hx-target=\"this\") — the polling attributes travel with the fragment, so the server owns the cadence.",
+      "attr": {
+        "on": "[data-hc-unread][data-hx-trigger]",
+        "name": "data-hx-target",
+        "assert": "present",
+        "value": "this"
+      }
+    },
+    {
+      "id": "poll-outer-swap",
+      "level": "error",
+      "message": "A polling nav fragment must swap outerHTML — innerHTML strands the old trigger on the surviving element and it polls forever.",
+      "attr": {
+        "on": "[data-hc-unread][data-hx-trigger]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
+    },
+    {
+      "id": "oob-anchor",
+      "level": "error",
+      "message": "The fragment needs an id — it is the anchor every out-of-band correction (mark-read responses) swaps against.",
+      "attr": {
+        "on": "[data-hc-unread]",
+        "name": "id",
+        "assert": "present",
+        "matches": "."
+      }
+    },
+    {
+      "id": "name-on-nav-item",
+      "level": "error",
+      "message": "The accessible name (aria-label with the count) belongs on the nav item — the badge is presentation, and name + count must change in the same swap.",
+      "attr": {
+        "on": "[data-hc-unread]",
+        "name": "aria-label",
+        "assert": "present",
+        "matches": "."
+      }
+    },
+    {
+      "id": "badge-hidden",
+      "level": "warn",
+      "message": "Mark the badge aria-hidden=\"true\" — the count a screen reader gets is the nav item's accessible name, not the badge text.",
+      "attr": {
+        "on": "[data-hc-unread] .hc-badge",
+        "name": "aria-hidden",
+        "assert": "present",
+        "value": "true"
+      }
+    },
+    {
+      "id": "never-live",
+      "level": "warn",
+      "message": "The fragment must not be a live region — a chrome count announcing every poll interrupts screen-reader users mid-task. Arrivals that deserve announcement are the event's own toast.",
+      "exists": {
+        "selector": "[data-hc-unread][aria-live], [data-hc-unread] [aria-live], [data-hc-unread][role=\"status\"], [data-hc-unread] [role=\"status\"]",
+        "min": 0,
+        "max": 0
+      }
+    }
+  ]
+}
