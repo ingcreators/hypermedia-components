@@ -1,0 +1,45 @@
+<!-- Fully expanded HTML — the three states of the nav fragment.
+  Exactly one of these is on the page at a time; the server picks
+  which one to render, and every response that changes unread state
+  ships the current one out-of-band. -->
+
+<!-- Some unread: badge + count in the accessible name. -->
+<a class="hc-button" data-variant="ghost" href="/notifications"
+   id="unread-nav" data-hc-unread aria-label="Notifications, 3 unread"
+   data-hx-get="/notifications/badge" data-hx-trigger="every 60s"
+   data-hx-target="this" data-hx-swap="outerHTML">
+  Notifications
+  <span class="hc-badge" data-variant="info" aria-hidden="true">3</span>
+</a>
+
+<!-- Zero: NO badge — silence, not a grey "0". Same polling wiring.
+<a class="hc-button" data-variant="ghost" href="/notifications"
+   id="unread-nav" data-hc-unread aria-label="Notifications"
+   data-hx-get="/notifications/badge" data-hx-trigger="every 60s"
+   data-hx-target="this" data-hx-swap="outerHTML">
+  Notifications
+</a>
+-->
+
+<!-- Past the cap: display and accessible name tell the same truth.
+<a class="hc-button" data-variant="ghost" href="/notifications"
+   id="unread-nav" data-hc-unread
+   aria-label="Notifications, more than 99 unread"
+   data-hx-get="/notifications/badge" data-hx-trigger="every 60s"
+   data-hx-target="this" data-hx-swap="outerHTML">
+  Notifications
+  <span class="hc-badge" data-variant="info" aria-hidden="true">99+</span>
+</a>
+-->
+
+<!-- A mark-all-read response corrects the badge OUT-OF-BAND: the
+  list re-renders in the normal target, and the zeroed nav fragment
+  rides along —
+<a class="hc-button" data-variant="ghost" href="/notifications"
+   id="unread-nav" data-hc-unread aria-label="Notifications"
+   data-hx-swap-oob="outerHTML"
+   data-hx-get="/notifications/badge" data-hx-trigger="every 60s"
+   data-hx-target="this" data-hx-swap="outerHTML">
+  Notifications
+</a>
+-->

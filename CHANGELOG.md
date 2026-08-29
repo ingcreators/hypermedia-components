@@ -22,6 +22,16 @@ Security    — security-relevant changes
 
 ### Added
 
+- `unread-badge` recipe — the notification count in app chrome as a
+  wire contract: the fragment is the nav item (badge + accessible
+  name change in the same swap; the `hc-badge` is `aria-hidden`
+  presentation), it polls itself (the async-job self-swap rule, so
+  the server owns the cadence), zero renders no badge, past the cap
+  display and name both say "more than N", the fragment is never a
+  live region, and every response that changes unread state ships
+  the corrected fragment out-of-band. `data-hc-unread` is a contract
+  marker only. Zero new JS/CSS; live demo + demo API included.
+  ([plan](plans/hc-gap-followups-plan-en.md))
 - `async-job` recipe — one contract for work that outlives a request
   (CSV exports, PDF rendering, batch imports): the kick-off answers
   `202` with a job card that polls itself (`data-hx-target="this"` +

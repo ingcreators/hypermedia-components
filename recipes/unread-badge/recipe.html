@@ -1,0 +1,17 @@
+<!-- Short recommended usage.
+
+  unread-badge: the notification count in app chrome — server-owned,
+  poll-freshened, corrected out-of-band by the user's own actions,
+  and honest at zero. The fragment is the NAV ITEM, not the badge:
+  the count and the accessible name must change together, so the swap
+  unit is the element that carries both. The badge itself is
+  aria-hidden presentation; it is never a live region — a count
+  ticking up in chrome must not interrupt a screen-reader user.
+  data-hc-unread is a contract marker only; no behavior attaches. -->
+<a class="hc-button" data-variant="ghost" href="/notifications"
+   id="unread-nav" data-hc-unread aria-label="Notifications, 3 unread"
+   data-hx-get="/notifications/badge" data-hx-trigger="every 60s"
+   data-hx-target="this" data-hx-swap="outerHTML">
+  Notifications
+  <span class="hc-badge" data-variant="info" aria-hidden="true">3</span>
+</a>

@@ -42,6 +42,7 @@ documentation pages.
 | [`workflow-actions/`](workflow-actions/)  | Lifecycle transitions as a server-rendered actions region — the action set is the state; stale actions 409. |
 | [`sse-updates/`](sse-updates/)            | Server-pushed fragment updates over Server-Sent Events.                 |
 | [`sse-toast/`](sse-toast/)                | Server-pushed notifications / domain events via the SSE dispatch bridge. |
+| [`unread-badge/`](unread-badge/)          | The notification count in app chrome — self-polling, OOB-corrected, honest at zero. |
 | [`undo-delete/`](undo-delete/)            | Undo instead of confirm — soft delete + grace period + tombstone restore. |
 | [`file-upload/`](file-upload/)            | Multipart upload with a live progress bar and an out-of-band form reset. |
 | [`multi-step-form/`](multi-step-form/)    | The hypermedia wizard — server-owned steps, drafts, and a stepper.       |

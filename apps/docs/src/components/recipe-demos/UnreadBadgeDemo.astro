@@ -1,0 +1,42 @@
+---
+/*
+ * Live demo for the unread-badge recipe. The nav fragment loads with
+ * 3 unread and polls itself every 3s; a demo "arrival" lands every
+ * 4s, so the count creeps up. Mark all read answers with the zeroed
+ * fragment OUT-OF-BAND (the anti-drift rule) — and the badge then
+ * honestly comes back as new arrivals land. The capped-state button
+ * jumps past the demo cap (9) to show "9+" with the matching
+ * accessible name. A real server counts read_at IS NULL; the
+ * stateless demo threads an anchor timestamp through the poll URL.
+ * Server side: apps/docs/demo-api/recipes/unread-badge.mjs.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/unread-badge`;
+---
+
+<DemoFrame class="hc-preview--col" label="Unread badge demo">
+  <div class="hc-toolbar" role="toolbar" aria-label="Demo app chrome" style="inline-size: 100%; max-inline-size: 32rem;">
+    <span
+      data-hx-get={`${api}/nav`}
+      data-hx-trigger="load"
+      data-hx-target="this"
+      data-hx-swap="outerHTML">Loading…</span>
+    <span class="hc-fill"></span>
+    <button
+      class="hc-button"
+      type="button"
+      data-hx-post={`${api}/read-all`}
+      data-hx-target="#unread-badge-demo-panel"
+      data-hx-swap="innerHTML">Mark all read</button>
+    <button
+      class="hc-button"
+      data-variant="ghost"
+      type="button"
+      data-hx-get={`${api}/nav?flood=1`}
+      data-hx-target="#unread-badge-demo-nav"
+      data-hx-swap="outerHTML">See the capped state</button>
+  </div>
+
+  <div id="unread-badge-demo-panel" style="inline-size: 100%; max-inline-size: 32rem;"></div>
+</DemoFrame>

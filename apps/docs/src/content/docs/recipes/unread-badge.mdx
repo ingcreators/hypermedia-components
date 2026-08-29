@@ -1,0 +1,112 @@
+---
+title: Unread badge
+description: The notification count in app chrome — server-owned, poll-freshened, corrected out-of-band by your own actions, and honest at zero.
+---
+
+import UnreadBadgeDemo from '../../../components/recipe-demos/UnreadBadgeDemo.astro';
+
+The little number on the bell looks trivial and drifts constantly:
+the user reads everything and the badge says 3 until the next poll;
+zero renders as a grey "0"; the screen reader announces every tick.
+This recipe is the contract that prevents all three — **the fragment
+is the nav item, not the badge**, it polls itself, and every response
+that changes unread state corrects it out-of-band.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add unread-badge` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/unread-badge/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/unread-badge/contract.md).
+:::
+
+## Live demo
+
+The fragment loads with 3 unread and polls every 3 seconds; a demo
+"arrival" lands every 4 seconds, so the count creeps up. **Mark all
+read** answers with the zeroed fragment out-of-band — and the badge
+then honestly comes back as new arrivals land. The capped-state
+button jumps past the demo cap (9) to show `9+` with the matching
+accessible name. The endpoint is a namespaced demo implementation
+under `api/recipes/unread-badge/` (a real server counts
+`read_at IS NULL`; the stateless demo threads an anchor timestamp
+through the poll URL).
+
+<UnreadBadgeDemo />
+
+## The markup
+
+```html
+<a class="hc-button" data-variant="ghost" href="/notifications"
+   id="unread-nav" data-hc-unread aria-label="Notifications, 3 unread"
+   data-hx-get="/notifications/badge" data-hx-trigger="every 60s"
+   data-hx-target="this" data-hx-swap="outerHTML">
+  Notifications
+  <span class="hc-badge" data-variant="info" aria-hidden="true">3</span>
+</a>
+```
+
+The swap unit is the element that carries **both** the badge and the
+accessible name, so they can never disagree. `data-hc-unread` is a
+contract marker only — no behavior attaches.
+
+## The contract
+
+- **The fragment polls itself** — the
+  [async job](/hypermedia-components/recipes/async-job/) self-swap
+  rule: `data-hx-target="this"` + `outerHTML`, so the polling
+  attributes travel with the fragment and the server owns the cadence
+  (back off by writing `every 300s` under load; stop by omitting the
+  trigger). An `innerHTML` swap strands the old trigger — the classic
+  poll-forever defect.
+- **Zero renders no badge.** Silence, not a grey "0"; the accessible
+  name drops the count too.
+- **Cap for display, cap for the name**: past the declared cap,
+  render `99+` and say "more than 99 unread" — display and
+  accessible name tell the same truth.
+- **Never a live region.** No `aria-live`, no `role="status"` — a
+  chrome count announcing every poll interrupts screen-reader users
+  mid-task. Arrivals that deserve announcement are the event's own
+  toast ([SSE toast](/hypermedia-components/recipes/sse-toast/)).
+- **Your own actions correct the badge out-of-band**: any response
+  that changes unread state (open an item, mark-one-read,
+  mark-all-read) ships the re-rendered nav fragment as
+  `data-hx-swap-oob="outerHTML"` alongside its normal payload. The
+  next poll merely confirms it.
+
+| Method | URL | Returns |
+| --- | --- | --- |
+| GET | `/notifications/badge` | the current nav fragment — one of three states (count / zero / capped) |
+| POST | `/notifications/read-all` | the list re-rendered, **plus the zeroed nav fragment out-of-band** |
+
+## SSE variant
+
+On a page with an
+[SSE updates](/hypermedia-components/recipes/sse-updates/) scope, the
+same OOB fragment rides any event's `data:` payload — that page's
+own example is a badge. Polling stays the base shape because it
+needs no extension; the fragment contract is identical either way.
+
+## Progressive enhancement
+
+The fragment is a real `<a href="/notifications">`: JS-off means the
+badge is as fresh as the last full page render, and the link still
+navigates.
+
+## Accessibility
+
+The accessible name (`aria-label`, with the count) lives on the
+interactive element; the badge is `aria-hidden` presentation — the
+[badge component](/hypermedia-components/components/badge/) stance.
+`hc-badge` sets `tabular-nums`, so in-place count changes don't
+shift the layout. The variant colour is never the only signal — the
+count text is right there.
+
+## Related
+
+- [Async job](/hypermedia-components/recipes/async-job/) — the
+  self-swap polling rule this fragment reuses.
+- [SSE updates](/hypermedia-components/recipes/sse-updates/) — push
+  instead of poll; same fragment, same OOB correction.
+- [Badge component](/hypermedia-components/components/badge/) — the
+  visual piece and its accessibility stance.
