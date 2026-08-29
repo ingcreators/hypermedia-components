@@ -32,6 +32,7 @@ hero:
       icon: external
 ---
 
+import Count from '../../../components/Count.astro';
 import Demo from '../../../components/Demo.astro';
 import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astro';
 
@@ -80,7 +81,7 @@ import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astr
 
 {/* The evaluator's scale-and-risk signals, in one scannable line. */}
 
-<div class="not-content" style="text-align: center; color: var(--sl-color-gray-2); margin-block: .75rem 2rem;">64 コンポーネント · 25 レシピ(すべてライブデモ付き)· 2 ページテンプレート · ランタイム依存 0 · MIT</div>
+<div class="not-content" style="text-align: center; color: var(--sl-color-gray-2); margin-block: .75rem 2rem;"><Count of="components" /> コンポーネント · <Count of="recipes" /> レシピ(すべてライブデモ付き)· <Count of="templates" /> ページテンプレート · ランタイム依存 0 · MIT</div>
 
 {/* Principles — each card links to the page that explains it. */}
 
@@ -166,7 +167,7 @@ import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astr
   <LiveSearchDemo />
 </section>
 
-<a href="/hypermedia-components/ja/recipes/">25 のレシピ</a>はすべて
+<a href="/hypermedia-components/ja/recipes/"><Count of="recipes" /> のレシピ</a>はすべて
 この方式で動きます — 各ページがサーバ契約をドキュメント化し、この
 サイトの Worker 上でライブ実行されます。
 <a href="/hypermedia-components/ja/templates/">ページテンプレート</a>は
