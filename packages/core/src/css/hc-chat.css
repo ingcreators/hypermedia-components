@@ -87,6 +87,30 @@
     margin-block-end: 0;
   }
 
+  /* A bubble is a tinted surface, so it re-pins its own link colours one
+   * rung further along the accent's link ramp — reading the semantic
+   * variables straight, the way this sheet already reads
+   * --hc-color-focus-ring. The document's resting step
+   * is picked for the page background and only scores 4.40:1 (light) /
+   * 3.85:1 (dark) against `--hc-color-muted-bg`, which is what an assistant
+   * bubble is painted with.
+   *
+   * There is no `:visited` rule on purpose, and it is not an oversight — the
+   * rule below covers the visited state too, because a layer beats
+   * specificity and hc.components sits after hc.base. Visited is therefore
+   * unified with unvisited inside a bubble. That is partly the argument for
+   * a console over a browser (a transcript is a tool, not a browsing
+   * history) and partly arithmetic: the bubble's surface leaves only two
+   * usable rungs in dark, since the third (`accent.100`) scores 1.08:1
+   * against the bubble's own text and would read as body copy. */
+  .hc-chat__body a {
+    color: var(--hc-color-link-hover);
+  }
+
+  .hc-chat__body a:hover {
+    color: var(--hc-color-link-visited);
+  }
+
   .hc-chat__meta {
     grid-column: 2;
     margin-block-start: var(--hc-space-1, 0.25rem);

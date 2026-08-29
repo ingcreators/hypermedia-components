@@ -131,8 +131,18 @@ Security    — security-relevant changes
   pinned at AA against `--hc-color-bg` and `--hc-color-surface` by a spec, so
   a future re-ladder cannot quietly drop one below 4.5:1;
   `--hc-color-muted-bg` sits outside that guarantee on purpose, being a
-  component tint whose foreground the component owns. The theme builder
-  learned the same trio, so a custom theme re-themes its links too.
+  component tint whose foreground the component owns — and `hc-chat` now
+  does own it: an assistant bubble is painted with `muted-bg` and is prose,
+  so a link genuinely lands there, and the document's resting step would
+  score 4.40:1 (light) / 3.85:1 (dark) on it. A bubble re-pins its links one
+  rung further along the same ramp. It carries no `:visited` rule, which is
+  not an oversight: a layer beats specificity and `hc.components` sits after
+  `hc.base`, so the resting rule covers the visited state too. Visited is
+  unified with unvisited inside a bubble — partly the console-not-a-browser
+  argument, partly arithmetic, since the bubble's surface leaves only two
+  usable rungs in dark (the third, `accent.100`, scores 1.08:1 against the
+  bubble's own text and would read as body copy). The theme builder learned
+  the same trio, so a custom theme re-themes its links too.
   ([#569](https://github.com/ingcreators/hypermedia-components/issues/569))
 
 

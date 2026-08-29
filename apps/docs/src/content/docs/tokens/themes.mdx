@@ -306,7 +306,12 @@ Every one of the fifteen colours clears 4.5:1 against `--hc-color-bg` and
 drop one below AA. `--hc-color-muted-bg` is deliberately outside that
 guarantee: it is a component tint — button hover, disabled fields, the
 datagrid head, skeletons, avatars — and a component owns the foreground on
-its own surface. The resting link is the only step that would miss there
+its own surface. `hc-chat` is the one that has to: an assistant bubble is
+painted with `muted-bg` and is prose, so a link genuinely lands there. A
+bubble re-pins its links one rung further along the same ramp, and carries
+no `:visited` rule — a layer beats specificity and `hc.components` sits
+after `hc.base`, so the resting rule covers the visited state too, and
+visited is unified with unvisited inside a bubble. The resting link is the only step that would miss there
 (light `600` scores 4.40:1, dark `400` scores 3.85:1 worst-accent), and
 moving it off `600` would decouple links from `action.primary`, which is
 what makes a link read as *the accent* rather than an arbitrary blue.

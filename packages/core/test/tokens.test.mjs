@@ -701,6 +701,31 @@ describe('bare-anchor link rules', () => {
     expect(linkLayer(css)).toContain('a:visited');
   });
 
+  it('never defines a variable only under a non-default selector', () => {
+    // A component leaf that depends on a key the runtime colour axes
+    // redefine is lifted OUT of the static `:root` block and re-emitted per
+    // axis — so it silently has no value on the light default path unless
+    // `color.default` redefines that key too. Adding `--hc-chat-link-fg` as
+    // `{semantic.color.link-hover}` hit exactly this: it appeared in the
+    // dark and the four accent blocks, and nowhere a plain `<html>` could
+    // reach it. Every variable must be reachable with no attributes set.
+    const { css } = buildRealTokens();
+    const defaults = new Set();
+    const all = new Set();
+    for (const [, selector, body] of css.matchAll(/^ {2}(\S[^{]*)\{([^}]*)\}/gm)) {
+      // The blocks a bare `<html>` matches: `:root` on its own, or a
+      // selector list with a `:root` arm.
+      const isDefault = selector.split(',').some((s) => s.trim() === ':root');
+      for (const [, name] of body.matchAll(/^\s*(--hc-[\w-]+):/gm)) {
+        all.add(name);
+        if (isDefault) defaults.add(name);
+      }
+    }
+    expect(all.size).toBeGreaterThan(0);
+    const unreachable = [...all].filter((n) => !defaults.has(n));
+    expect(unreachable).toEqual([]);
+  });
+
   it('leaves the link rules out when no source defines them', () => {
     // The synthetic fixture has no link tokens, so no stray empty layer.
     const { css } = buildTokensCss({ sources: SOURCES, trees: TREES });

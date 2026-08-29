@@ -308,6 +308,12 @@ a:visited { color: var(--hc-color-link-visited); }
 `--hc-color-muted-bg` は意図的にこの保証の外です。あれはコンポーネントの
 ティント(ボタンの hover、無効フィールド、datagrid ヘッダ、skeleton、
 avatar)であり、自分のサーフェス上の前景色はコンポーネントが持ちます。
+実際に持つ必要があるのが `hc-chat` です。アシスタントの吹き出しは
+`muted-bg` で塗られ、かつ散文なのでリンクが実際に置かれます。吹き出しは
+同じランプを 1 段先に進めた色を自前で張り直し、`:visited` ルールは持ちま
+せん — レイヤーは詳細度に勝ち `hc.components` は `hc.base` の後に来るので、
+resting のルールが visited 状態も覆い、吹き出し内では visited は
+unvisited と統一されます。
 外れるのは resting のリンク段だけで(ライト `600` が 4.40:1、ダーク `400` が
 3.85:1、最悪アクセント)、これを `600` から動かすとリンクが
 `action.primary` から切り離され、「そのテーマのアクセント」ではなく単なる

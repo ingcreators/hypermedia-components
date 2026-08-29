@@ -96,6 +96,101 @@ test.describe('document-level link tokens', () => {
     });
   }
 
+  // A chat bubble is a tinted surface, and an assistant message is prose, so
+  // a link genuinely lands there. `--hc-color-muted-bg` (the assistant
+  // bubble) is the one surface the document's resting step misses, which is
+  // why hc-chat re-pins its own — this is the spec that says so.
+  test('links inside a chat bubble clear AA against the bubble', async ({ page }) => {
+    for (const { theme, color } of CASES) {
+      await page.goto('/chat.html');
+      await page.evaluate(([t, c]) => {
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.setAttribute('data-color', c);
+        for (const role of ['assistant', 'user']) {
+          const body = document.querySelector(`[data-testid="m-${role}"] .hc-chat__body`);
+          body.insertAdjacentHTML('beforeend', ` <a href="#x" data-testid="link-${role}">a link</a>`);
+        }
+      }, [theme, color]);
+
+      for (const role of ['assistant', 'user']) {
+        const link = page.getByTestId(`link-${role}`);
+        const ink = await cssColor(link, 'color');
+        // The bubble paints the background; read it off the bubble itself,
+        // composited over the page for the user bubble's translucent tint.
+        const surface = await link.evaluate((el) => {
+          const paint = (raw) => {
+            const cv = document.createElement('canvas');
+            cv.width = cv.height = 1;
+            const ctx = cv.getContext('2d');
+            ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
+            ctx.fillRect(0, 0, 1, 1);
+            ctx.fillStyle = raw;                       // composite the tint over it
+            ctx.fillRect(0, 0, 1, 1);
+            const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+            return `rgb(${r}, ${g}, ${b})`;
+          };
+          return paint(getComputedStyle(el.closest('.hc-chat__body')).backgroundColor);
+        });
+        const lum = (rgb) => {
+          const [r, g, b] = rgb.match(/\d+/g).slice(0, 3).map((n) => {
+            const v = Number(n) / 255;
+            return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        };
+        const [hi, lo] = [lum(ink), lum(surface)].sort((a, b) => b - a);
+        expect((hi + 0.05) / (lo + 0.05),
+          `${theme}/${color} ${role} bubble: ${ink} on ${surface}`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  test('a bubble link keeps its colour when visited', async ({ page }) => {
+    // hc.components sits after hc.base, and a layer beats specificity, so
+    // `.hc-chat__body a` covers the visited state too — visited is unified
+    // with unvisited inside a bubble, deliberately. If a `:visited` rule
+    // ever wins here again, the bubble is back to the document's resting
+    // colour on its own tinted surface.
+    await page.goto('/chat.html');
+    const winner = await page.evaluate(() => {
+      const body = document.querySelector('[data-testid="m-assistant"] .hc-chat__body');
+      body.insertAdjacentHTML('beforeend', ' <a href="#x" id="bubble-link">a link</a>');
+      const a = document.getElementById('bubble-link');
+      let best = null;
+      const walk = (list) => {
+        for (const r of list) {
+          if (r.selectorText && /\ba:visited\b/.test(r.selectorText)) {
+            for (const part of r.selectorText.split(',').map((p) => p.trim())) {
+              if (part.includes('a:visited') && a.matches(part.replace(':visited', ''))) {
+                best = part;
+              }
+            }
+          }
+          if (r.cssRules?.length) walk(r.cssRules);
+        }
+      };
+      for (const sheet of document.styleSheets) {
+        try { walk(sheet.cssRules); } catch { /* cross-origin */ }
+      }
+      return { matchedVisited: best, color: getComputedStyle(a).color };
+    });
+    // A document-level `a:visited` rule still MATCHES the element — it just
+    // loses to hc.components. Assert the resting colour is the bubble's,
+    // which is what proves the layer order holds.
+    const expected = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--hc-color-link-hover').trim());
+    const paint = (raw) => page.evaluate((v) => {
+      const cv = document.createElement('canvas');
+      cv.width = cv.height = 1;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = v;
+      ctx.fillRect(0, 0, 1, 1);
+      const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+      return `rgb(${r}, ${g}, ${b})`;
+    }, raw);
+    await expect(await paint(winner.color)).toBeColor(await paint(expected));
+  });
+
   test('the winning a:visited rule carries that theme’s baked literal', async ({ page }) => {
     // getComputedStyle always reports the UNVISITED colour — that is the
     // privacy guarantee — so the visited colour can only be checked by
