@@ -254,7 +254,119 @@ export default defineConfig({
     'templates/confirm-page',
           ],
         },
-        { label: 'Recipes', translations: { ja: 'レシピ' }, items: [{ autogenerate: { directory: 'recipes' } }] },
+        {
+          // Grouped by goal, mirroring the index page's tables exactly
+          // — autogenerate had grown into a flat, alphabetical 53-entry
+          // list. Every recipe lives under exactly one group; group
+          // order follows the index. `Data visualization` is a
+          // deliberate single-entry group (distinct domain, same
+          // modelling as the index).
+          label: 'Recipes', translations: { ja: 'レシピ' },
+          items: [
+            { label: 'Overview', translations: { ja: '概要' }, slug: 'recipes' },
+            {
+              label: 'Forms', translations: { ja: 'フォーム' },
+              items: [
+                'recipes/mutating-form',
+                'recipes/field-errors',
+                'recipes/conditional-fields',
+                'recipes/multi-step-form',
+                'recipes/inline-edit',
+                'recipes/file-upload',
+                'recipes/postal-address',
+                'recipes/reference-lookup',
+                'recipes/cascading-select',
+                'recipes/transfer',
+              ],
+            },
+            {
+              label: 'Form safety', translations: { ja: 'フォーム保全' },
+              items: [
+                'recipes/unsaved-changes',
+                'recipes/autosave',
+                'recipes/edit-conflict',
+                'recipes/idempotency-key',
+                'recipes/session-expiry',
+                'recipes/network-retry',
+              ],
+            },
+            {
+              label: 'Actions', translations: { ja: 'アクション' },
+              items: [
+                'recipes/request-action',
+                'recipes/confirm-action',
+                'recipes/undo-delete',
+                'recipes/copy',
+                'recipes/sortable',
+              ],
+            },
+            {
+              label: 'Business flows', translations: { ja: '業務フロー' },
+              items: [
+                'recipes/line-items',
+                'recipes/workflow-actions',
+                'recipes/csv-import',
+                'recipes/async-job',
+              ],
+            },
+            {
+              label: 'Data grid', translations: { ja: 'データグリッド' },
+              items: [
+                'recipes/datagrid-pager',
+                'recipes/datagrid-sort',
+                'recipes/datagrid-filter',
+                'recipes/datagrid-columns',
+                'recipes/datagrid-prefs',
+                'recipes/row-detail',
+                'recipes/datagrid-tree',
+                'recipes/datagrid-infinite',
+                'recipes/datagrid-snapshot-pager',
+                'recipes/datagrid-edit-errors',
+                'recipes/datagrid-edit-conflict',
+                'recipes/datagrid-bulk-actions',
+                'recipes/datagrid-bulk-errors',
+              ],
+            },
+            {
+              label: 'Search & filter', translations: { ja: '検索とフィルタ' },
+              items: [
+                'recipes/live-search',
+                'recipes/result-cap',
+                'recipes/filter-popover',
+                'recipes/saved-views',
+              ],
+            },
+            {
+              label: 'Loading & regions', translations: { ja: '読み込みと領域' },
+              items: [
+                'recipes/lazy-panel',
+                'recipes/lazy-tree',
+                'recipes/data-region',
+              ],
+            },
+            {
+              label: 'Server push & chat', translations: { ja: 'サーバプッシュとチャット' },
+              items: [
+                'recipes/sse-updates',
+                'recipes/sse-toast',
+                'recipes/chat-messages',
+                'recipes/streaming-response',
+              ],
+            },
+            {
+              label: 'Overlays & notifications', translations: { ja: 'オーバーレイと通知' },
+              items: [
+                'recipes/remote-dialog',
+                'recipes/toast',
+                'recipes/unread-badge',
+              ],
+            },
+            {
+              label: 'Data visualization', translations: { ja: 'データ可視化' },
+              items: ['recipes/chart'],
+            },
+          ],
+        },
         {
           // The editor engine for visual builders — a separate npm
           // package, so its docs sit outside the core Reference group.

@@ -1,6 +1,6 @@
 ---
 title: Recipes
-description: htmx-friendly patterns — confirm action, live search, remote dialog, inline edit, lazy panel, toast, and more.
+description: htmx-friendly patterns grouped by goal — forms, form safety, actions, business flows, the data grid, search, loading, server push, and overlays.
 ---
 
 Each recipe documents the short form, the expanded HTML, the optional
@@ -22,38 +22,86 @@ and [unsaved changes](/hypermedia-components/recipes/unsaved-changes/)
 are client-only, and [streaming response](/hypermedia-components/recipes/streaming-response/)
 shares the chat-messages endpoint).
 
-## Actions &amp; forms
+## Forms
+
+Build and submit forms — validation, wizards, and the inputs that need
+a server round trip.
 
 | Recipe | You need to… | Needs |
 | --- | --- | --- |
 | [Mutating form](/hypermedia-components/recipes/mutating-form/) | post a form with inline 4xx errors, a success redirect, and a double-submit guard | `installFieldErrors()` |
 | [Field errors](/hypermedia-components/recipes/field-errors/) | distribute a server-sent validation-error fragment to the fields it names | `installFieldErrors()` |
+| [Conditional fields](/hypermedia-components/recipes/conditional-fields/) | hide the fields the chosen mode does not read — declaratively, without a round-trip | `installShowWhen()` |
 | [Multi-step form](/hypermedia-components/recipes/multi-step-form/) | build a wizard — the server owns the step and the draft; whole-step swaps | — |
-| [Confirm action](/hypermedia-components/recipes/confirm-action/) | guard a destructive request behind a confirmation dialog | `installConfirm()` |
-| [Undo delete](/hypermedia-components/recipes/undo-delete/) | delete immediately (optimistic delete) — the toast's Undo restores the row within a grace period | `installToast()` |
-| [Request action](/hypermedia-components/recipes/request-action/) | fire an htmx request from a button with a busy state | — |
 | [Inline edit](/hypermedia-components/recipes/inline-edit/) | swap a value between display and edit modes in place (click-to-edit) | — |
-| [Datagrid edit errors](/hypermedia-components/recipes/datagrid-edit-errors/) | close the grid's optimistic-commit loop — 422 re-renders the record with the marked cell + error row | — |
-| [Datagrid edit conflict](/hypermedia-components/recipes/datagrid-edit-conflict/) | optimistic locking per row — a stale version 409s into a conflict row with overwrite/discard | — |
 | [File upload](/hypermedia-components/recipes/file-upload/) | upload multipart files with a live progress bar and an out-of-band form reset | `installUploadProgress()` |
-| [Datagrid bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/) | select rows with checkboxes and POST one action against all of them | `installDatagridActions()` |
-| [Datagrid bulk errors](/hypermedia-components/recipes/datagrid-bulk-errors/) | bulk failures at scale — best-effort vs atomic, reasons grouped, rows linked from the report | — |
-| [Line items](/hypermedia-components/recipes/line-items/) | edit order/quote detail rows — add, remove, and recalculate as whole-form round trips; the server owns all arithmetic | — |
-| [Transfer](/hypermedia-components/recipes/transfer/) | assign / unassign across a dual listbox as a server round trip — whole-form swaps, zero custom JS | — |
-| [Cascading select](/hypermedia-components/recipes/cascading-select/) | chain dependent selects for hierarchical selection; each change loads the next level | — |
 | [Postal address](/hypermedia-components/recipes/postal-address/) | fill the address from a postal code — masked input, one lookup GET, out-of-band autofill | `installMask()` |
 | [Reference lookup](/hypermedia-components/recipes/reference-lookup/) | reference a master record — direct code entry validated on change, a search-dialog picker, and a hidden id an unresolved code always clears | `installRemoteDialog()` + `installCloseDialog()` |
-| [Copy to clipboard](/hypermedia-components/recipes/copy/) | copy a read-only value (URL, token, snippet) to the clipboard | `installCopy()` |
-| [Conditional fields](/hypermedia-components/recipes/conditional-fields/) | hide the fields the chosen mode does not read — declaratively, without a round-trip | `installShowWhen()` |
-| [Sortable list](/hypermedia-components/recipes/sortable/) | reorder a server-owned list with pointer or keyboard and persist the order in one request | `installSortable()` |
+| [Cascading select](/hypermedia-components/recipes/cascading-select/) | chain dependent selects for hierarchical selection; each change loads the next level | — |
+| [Transfer](/hypermedia-components/recipes/transfer/) | assign / unassign across a dual listbox as a server round trip — whole-form swaps, zero custom JS | — |
+
+## Form safety
+
+Protect work in progress — drafts, dirty state, expired sessions,
+dropped connections, and conflicting or duplicate saves.
+
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
 | [Unsaved changes](/hypermedia-components/recipes/unsaved-changes/) | warn before edits are lost — data-dirty state, tab-close prompt, boosted-nav confirm, clean-on-save | `installDirtyGuard()` |
 | [Autosave](/hypermedia-components/recipes/autosave/) | draft the form as the user types — debounced posts, restore banner, zero new JS | — |
+| [Edit conflict](/hypermedia-components/recipes/edit-conflict/) | optimistic locking — a hidden version rides every save; stale saves get a 409 conflict dialog | — |
+| [Idempotency key](/hypermedia-components/recipes/idempotency-key/) | make duplicate submits safe server-side — one key per rendered form; a replayed key gets the original response, never an error | — |
 | [Session expiry](/hypermedia-components/recipes/session-expiry/) | turn a 401 into a login dialog and replay the interrupted request | `installSessionExpiry()` |
 | [Network retry](/hypermedia-components/recipes/network-retry/) | surface the request that got no answer at all (offline / timeout) with a working Retry | `installNetworkRetry()` |
-| [Idempotency key](/hypermedia-components/recipes/idempotency-key/) | make duplicate submits safe server-side — one key per rendered form; a replayed key gets the original response, never an error | — |
-| [Edit conflict](/hypermedia-components/recipes/edit-conflict/) | optimistic locking — a hidden version rides every save; stale saves get a 409 conflict dialog | — |
+
+## Actions
+
+One element, one request — buttons, guards, and small client-side
+utilities.
+
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [Request action](/hypermedia-components/recipes/request-action/) | fire an htmx request from a button with a busy state | — |
+| [Confirm action](/hypermedia-components/recipes/confirm-action/) | guard a destructive request behind a confirmation dialog | `installConfirm()` |
+| [Undo delete](/hypermedia-components/recipes/undo-delete/) | delete immediately (optimistic delete) — the toast's Undo restores the row within a grace period | `installToast()` |
+| [Copy to clipboard](/hypermedia-components/recipes/copy/) | copy a read-only value (URL, token, snippet) to the clipboard | `installCopy()` |
+| [Sortable list](/hypermedia-components/recipes/sortable/) | reorder a server-owned list with pointer or keyboard and persist the order in one request | `installSortable()` |
+
+## Business flows
+
+The contracts business records move through — line items, lifecycles,
+bulk imports, and long-running work.
+
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [Line items](/hypermedia-components/recipes/line-items/) | edit order/quote detail rows — add, remove, and recalculate as whole-form round trips; the server owns all arithmetic | — |
 | [Workflow actions](/hypermedia-components/recipes/workflow-actions/) | drive a record's lifecycle — the server renders only the legal transitions, comment-required transitions 422, stale ones 409 from current truth | — |
 | [CSV import](/hypermedia-components/recipes/csv-import/) | bulk rows in without surprises — upload, validation report, tokened confirm | — |
+| [Async job](/hypermedia-components/recipes/async-job/) | run work that outlives a request — 202 + a self-polling job card with enumerated terminal states | — |
+
+## Data grid
+
+Everything the [`hc-datagrid`](/hypermedia-components/components/datagrid/)
+component is operated with — paging, the sort/filter/column tooling,
+inline editing's error wires, and the patterns that keep large grids
+honest. The [Data grid page](/hypermedia-components/templates/data-grid-page/)
+template composes the layout they all sit in.
+
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [Datagrid pagination](/hypermedia-components/recipes/datagrid-pager/) | page a datagrid server-side with out-of-band row swaps | `installDatagrid()` |
+| [Datagrid sort](/hypermedia-components/recipes/datagrid-sort/) | say what the sort set IS and let anyone edit it — an ordered, reorderable list of keys, including keys on columns that are not shown | `installSortList()` |
+| [Datagrid filter](/hypermedia-components/recipes/datagrid-filter/) | per-column filter popovers — namespaced f-col params GET the grid and the trigger comes back data-filtered | — |
+| [Datagrid columns](/hypermedia-components/recipes/datagrid-columns/) | let each user choose the grid's columns — a chooser form GETs the grid with repeated cols= params | — |
+| [Datagrid prefs](/hypermedia-components/recipes/datagrid-prefs/) | remember per-user column widths and order — mirrored inputs autosave resizes; the sortable chooser's cols= sequence is the order | — |
+| [Row detail](/hypermedia-components/recipes/row-detail/) | open the record a row is about and come back to the same list — the identity-cell link, `#row-<id>` on return, and walking the result set or the selection | `installRowLink()` |
+| [Datagrid tree](/hypermedia-components/recipes/datagrid-tree/) | hierarchy inside the grid — aria-level rows lazy-load their children right after the parent | — |
+| [Datagrid infinite](/hypermedia-components/recipes/datagrid-infinite/) | endless lists without page numbers — a revealed sentinel row swaps in the next cursor batch | — |
+| [Datagrid snapshot pager](/hypermedia-components/recipes/datagrid-snapshot-pager/) | freeze a work queue's membership at search time — form-carried row keys, processed rows stay visible, vanished rows tombstone | `installDatagrid()` |
+| [Datagrid edit errors](/hypermedia-components/recipes/datagrid-edit-errors/) | close the grid's optimistic-commit loop — 422 re-renders the record with the marked cell + error row | — |
+| [Datagrid edit conflict](/hypermedia-components/recipes/datagrid-edit-conflict/) | optimistic locking per row — a stale version 409s into a conflict row with overwrite/discard | — |
+| [Datagrid bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/) | select rows with checkboxes and POST one action against all of them | `installDatagridActions()` |
+| [Datagrid bulk errors](/hypermedia-components/recipes/datagrid-bulk-errors/) | bulk failures at scale — best-effort vs atomic, reasons grouped, rows linked from the report | — |
 
 ## Search &amp; filter
 
@@ -61,12 +109,8 @@ shares the chat-messages endpoint).
 | --- | --- | --- |
 | [Live search](/hypermedia-components/recipes/live-search/) | search as you type (typeahead) — debounced input swaps the results | — |
 | [Result cap](/hypermedia-components/recipes/result-cap/) | bound what one search may return — cap+1 detection, "cap+" counts, a persistent truncation banner or a hard reject | — |
-| [Datagrid columns](/hypermedia-components/recipes/datagrid-columns/) | let each user choose the grid's columns — a chooser form GETs the grid with repeated cols= params | — |
-| [Datagrid sort](/hypermedia-components/recipes/datagrid-sort/) | say what the sort set IS and let anyone edit it — an ordered, reorderable list of keys, including keys on columns that are not shown | `installSortList()` |
-| [Row detail](/hypermedia-components/recipes/row-detail/) | open the record a row is about and come back to the same list — the identity-cell link, `#row-<id>` on return, and walking the result set or the selection | `installRowLink()` |
-| [Datagrid filter](/hypermedia-components/recipes/datagrid-filter/) | per-column filter popovers — namespaced f-col params GET the grid and the trigger comes back data-filtered | — |
-| [Saved views](/hypermedia-components/recipes/saved-views/) | name the current filters and get them back as plain links — server-stored querystrings | — |
 | [Filter popover](/hypermedia-components/recipes/filter-popover/) | host a filter form in a popover that closes on success | `installClosePopover()` |
+| [Saved views](/hypermedia-components/recipes/saved-views/) | name the current filters and get them back as plain links — server-stored querystrings | — |
 
 ## Loading &amp; regions
 
@@ -74,33 +118,16 @@ shares the chat-messages endpoint).
 | --- | --- | --- |
 | [Lazy panel](/hypermedia-components/recipes/lazy-panel/) | defer loading a panel until it is revealed | — |
 | [Lazy tree](/hypermedia-components/recipes/lazy-tree/) | load a tree branch's children on first expand | `installTree()` |
-| [Datagrid infinite](/hypermedia-components/recipes/datagrid-infinite/) | endless lists without page numbers — a revealed sentinel row swaps in the next cursor batch | — |
-| [Datagrid prefs](/hypermedia-components/recipes/datagrid-prefs/) | remember per-user column widths and order — mirrored inputs autosave resizes; the sortable chooser's cols= sequence is the order | — |
-| [Datagrid tree](/hypermedia-components/recipes/datagrid-tree/) | hierarchy inside the grid — aria-level rows lazy-load their children right after the parent | — |
 | [Data region](/hypermedia-components/recipes/data-region/) | refresh a region on `HX-Trigger` invalidations (self-refreshing region) | — |
-| [Async job](/hypermedia-components/recipes/async-job/) | run work that outlives a request — 202 + a self-polling job card with enumerated terminal states | — |
-| [Datagrid pagination](/hypermedia-components/recipes/datagrid-pager/) | page a datagrid server-side with out-of-band row swaps | `installDatagrid()` |
-| [Datagrid snapshot pager](/hypermedia-components/recipes/datagrid-snapshot-pager/) | freeze a work queue's membership at search time — form-carried row keys, processed rows stay visible, vanished rows tombstone | `installDatagrid()` |
 
-## Server push
+## Server push &amp; chat
 
 | Recipe | You need to… | Needs |
 | --- | --- | --- |
 | [SSE updates](/hypermedia-components/recipes/sse-updates/) | push fragment updates from the server over Server-Sent Events — named events and out-of-band pushes | — |
 | [SSE toast](/hypermedia-components/recipes/sse-toast/) | turn SSE events with JSON payloads into allow-listed DOM events; toasts work unchanged | `installSseDispatch()` |
-
-## Chat & streaming
-
-| Recipe | You need to… | Needs |
-| --- | --- | --- |
 | [Chat messages](/hypermedia-components/recipes/chat-messages/) | append a chat exchange — user message + aria-busy assistant placeholder — from one composer POST, with a 422 path that never pollutes the transcript | `installChatScroll()` |
 | [Streaming response](/hypermedia-components/recipes/streaming-response/) | fill the assistant placeholder over SSE — chunks append while aria-busy defers the announcement; done swaps in the final message and closes the stream | — |
-
-## Data visualization
-
-| Recipe | You need to… | Needs |
-| --- | --- | --- |
-| [Chart](/hypermedia-components/recipes/chart/) | upgrade a server-sent data table into an Observable Plot SVG chart | `installChart()` + Plot |
 
 ## Overlays &amp; notifications
 
@@ -109,3 +136,9 @@ shares the chat-messages endpoint).
 | [Remote dialog](/hypermedia-components/recipes/remote-dialog/) | load a dialog's (modal's) contents from the server on open | `installRemoteDialog()` + `installCloseDialog()` |
 | [Toast](/hypermedia-components/recipes/toast/) | fire toast notifications (snackbars) from the client or an `HX-Trigger` header | `installToast()` |
 | [Unread badge](/hypermedia-components/recipes/unread-badge/) | keep the notification count in app chrome fresh, honest at zero, and corrected by your own actions | — |
+
+## Data visualization
+
+| Recipe | You need to… | Needs |
+| --- | --- | --- |
+| [Chart](/hypermedia-components/recipes/chart/) | upgrade a server-sent data table into an Observable Plot SVG chart | `installChart()` + Plot |
