@@ -344,18 +344,15 @@ test.describe('hc-datagrid — fragment navigation', () => {
     await page.evaluate(() => {
       window.location.hash = '#row-9';
     });
-    const active = await page.evaluate(
-      () =>
-        document
-          .querySelector('.hc-datagrid__cell[data-active]')
-          ?.closest('.hc-datagrid__row')
-          ?.getAttribute('data-testid') ?? null,
-    );
-    expect(active).toBe('row-9');
-    const focused = await page.evaluate(
-      () => document.activeElement?.closest?.('.hc-datagrid__row')?.getAttribute('data-testid') ?? null,
-    );
-    expect(focused).toBe('row-9');
+    // `hashchange` is queued as its own task, so focusHashRow() has not
+    // necessarily run by the time the evaluate above returns — assert both
+    // halves with retrying locators rather than reading the DOM once.
+    await expect(
+      page.locator('[data-testid="row-9"] .hc-datagrid__cell[data-active]'),
+    ).toHaveCount(1);
+    await expect(
+      page.locator('[data-testid="row-9"] .hc-datagrid__cell').first(),
+    ).toBeFocused();
   });
 
   test('the landing row is emphasised and clears the sticky header', async ({ page }) => {

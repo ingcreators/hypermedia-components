@@ -658,6 +658,19 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **tests**: the two specs that follow a `#row` fragment link **read the
+  focus a task too early**, and one of them failed roughly two full-suite
+  runs in three while passing every time in isolation. Following the link is
+  a same-document navigation: the browser blurs the anchor on the way
+  through — the active element becomes `<body>` — and queues `hashchange` as
+  its own task, so `focusHashRow()` has not run when `click()` resolves.
+  Measured, the active element is still `<body>` through the next microtask
+  and animation frame. Both specs now use retrying locator assertions
+  (`toBeFocused()`, `toHaveCount()`) instead of a one-shot
+  `page.evaluate(() => document.activeElement)`. Nothing in the product
+  changed: the cell was always focused, just after the assertion looked.
+
+
 - **dialog**: `prefers-reduced-motion: reduce` **did not actually stop
   the dialog from animating in**. The guard was written against the
   bare `.hc-dialog`, but the enter transition is declared on
