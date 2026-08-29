@@ -1,0 +1,109 @@
+---
+title: Audit trail
+description: Who changed what, when — the append-only write-side contract the other recipes imply, and the hc-timeline read side that shows it.
+---
+
+Every mutating contract in this kit — a
+[workflow transition](/hypermedia-components/recipes/workflow-actions/),
+an [inline edit](/hypermedia-components/recipes/inline-edit/), a
+[bulk action](/hypermedia-components/recipes/datagrid-bulk-actions/) —
+answers a question the moment it commits. The audit trail is the
+record that the question was ever asked. It is not a component
+([`hc-timeline`](/hypermedia-components/components/timeline/) ships)
+and not one endpoint (no recipe could pretend it is): it is a
+doctrine, so it lives here.
+
+## The row
+
+One appended row per committed change:
+
+| Column | Rule |
+| --- | --- |
+| `actor` | **from the session, never the form** — the browser's claim of who acted is not evidence |
+| `verb` | the domain verb (`approve`, `price-change`, `import`) — not the HTTP method |
+| `entity`, `entity_id` | what changed |
+| `at` | the server clock — client clocks are presentation ([localized timestamps](/hypermedia-components/fundamentals/i18n/#localized-timestamps)), never record |
+| `request_id` | correlates the entry with your logs |
+| `summary` | one server-rendered sentence — the trail is read by humans |
+| `before` → `after` | the changed fields only; big payloads as structured data, rendered as a diff on demand |
+
+## When to write — mapped to the shipped contracts
+
+The write points are exactly the commit points the recipes already
+define, which yields the rule that matters: **the trail is
+exactly-once because commits are.**
+
+- A [workflow transition](/hypermedia-components/recipes/workflow-actions/)
+  writes one entry; the `409` loser writes **nothing** — it changed
+  nothing.
+- An [inline-edit](/hypermedia-components/recipes/inline-edit/) or
+  [datagrid edit](/hypermedia-components/recipes/datagrid-edit-errors/)
+  commit writes one entry; a `422` writes nothing.
+- A [bulk action](/hypermedia-components/recipes/datagrid-bulk-errors/)
+  writes one entry per changed row **plus one for the batch** (the
+  batch entry carries the counts, like the
+  [CSV import](/hypermedia-components/recipes/csv-import/) report).
+- [Undo delete](/hypermedia-components/recipes/undo-delete/) writes
+  both the delete **and** the restore — undo is a second change, not
+  an erasure of the first.
+- An [idempotency-key](/hypermedia-components/recipes/idempotency-key/)
+  **replay writes no second entry** — the replayed response came from
+  storage; nothing committed twice.
+
+## Append-only
+
+No `UPDATE`, no `DELETE`. A correction is a new entry whose summary
+says it corrects; the wrong entry stays, because "we once believed X"
+is part of the record. Retention is declared policy (the
+idempotency-key TTL stance, at archive timescales) — expiry is a
+policy sweep, never an edit.
+
+## The read side
+
+[`hc-timeline`](/hypermedia-components/components/timeline/) is the
+display contract — server-rendered, newest first, `data-variant` on
+the items that represent warnings (`return`, `reject`) or failures:
+
+```html
+<ol class="hc-timeline">
+  <li class="hc-timeline__item" data-variant="success">
+    <span class="hc-timeline__marker" aria-hidden="true"></span>
+    <div class="hc-timeline__content">
+      <time class="hc-timeline__time" datetime="2026-08-29T09:14:00Z"
+            data-hc-time>2026-08-29 09:14</time>
+      <p class="hc-timeline__title">Tanaka approved purchase request REQ-58214</p>
+      <p class="hc-timeline__description">Amount ¥48,000 · request j_8f3k2</p>
+    </div>
+  </li>
+  …
+</ol>
+```
+
+- `<time datetime>` + `data-hc-time` gets localized relative dates
+  ([`installTime()`](/hypermedia-components/fundamentals/i18n/#localized-timestamps))
+  while the wire stays ISO.
+- Load the trail with a
+  [lazy panel](/hypermedia-components/recipes/lazy-panel/) on the
+  record page — most visits never open it; don't pay for it.
+- Page it with `data-hx-swap="beforeend"` load-more (the
+  [timeline component's htmx section](/hypermedia-components/components/timeline/#htmx-usage)).
+- In a grid, the trail is
+  [row-detail](/hypermedia-components/recipes/row-detail/) material —
+  the record's page owns its history.
+- Large `before` → `after` payloads render as an
+  [`hc-code` unified diff](/hypermedia-components/components/code/#unified-diff)
+  on demand — the timeline entry links it, never inlines it.
+
+## What it deliberately does not do
+
+- **No client-side event capture.** The server writes the trail from
+  what it *committed*, not from what the browser *claims* happened —
+  a trail assembled from client events is a wish, not a record.
+- **No undo.** [Undo delete](/hypermedia-components/recipes/undo-delete/)
+  is a contract; the trail is a record. Reading the trail to rebuild
+  state is event sourcing — a different architecture, deliberately
+  out of scope.
+- **No PII advice beyond the obvious**: the trail is data. Retention
+  policy applies to it like any other table; "append-only" is not an
+  exemption from deletion law, it is a reason to design the row so
+  the personal data lives in the entity, and the trail references it.

@@ -22,6 +22,19 @@ Security    — security-relevant changes
 
 ### Added
 
+- `fundamentals/audit-trail` guide — who changed what, when, as
+  doctrine: the appended row (`actor` from the session never the
+  form, domain verb, server clock, `request_id`, one-sentence
+  summary, changed-fields before → after), write points mapped to
+  the shipped contracts (409 losers and 422s write nothing; bulk
+  writes per-row + batch; undo-delete writes delete *and* restore;
+  **idempotency-key replays write no second entry** — the trail is
+  exactly-once because commits are), append-only with corrections as
+  new entries, and the hc-timeline read side (`data-hc-time` dates,
+  lazy-panel loading, `beforeend` load-more, hc-code diffs on
+  demand). Docs-only, EN + ja; the fundamentals reading-order list
+  also regains its missing `print` and `errors` bullets (docs drift).
+  ([plan](plans/hc-gap-followups-plan-en.md))
 - `templates/confirm-page` — the 入力 → 確認 → 完了 flow as a full-page
   template: one `#flow` region with whole-region `outerHTML` swaps
   (the multi-step-form shape), an input step that 422s into field
