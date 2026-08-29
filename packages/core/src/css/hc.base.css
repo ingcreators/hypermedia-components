@@ -23,11 +23,30 @@
     line-height: 1.5;
   }
 
-  /* Text selection follows the active color theme. `primary-soft-bg`
-   * is a 12 % (18 % for amber) tint of the theme's primary color
-   * via color-mix; the transparency means it blends correctly on
-   * both light and dark surfaces and inherits the underlying text
-   * color for readability. */
+  /* Bare anchors — the ones outside any component: a description field, a
+   * rendered markdown cell, an error page body. Without these they fall to
+   * the UA's `-webkit-link` blue and `:visited` purple, which follow none of
+   * `data-theme`, `data-color` or `data-neutral`; on a dark surface the
+   * visited purple is close to illegible.
+   *
+   * `:visited` is missing here on purpose. It cannot read a custom property
+   * — engines drop var() in visited-dependent declarations so a page cannot
+   * read the history bit back out — so its colour has to be a literal, one
+   * per theme. build-tokens.mjs bakes those into this same layer, ahead of
+   * this file: `a:visited` (0,1,1) beats the `a` below (0,0,1), and the
+   * `a:hover` below wins the tie against it in turn. */
+  a {
+    color: var(--hc-color-link);
+  }
+
+  a:hover {
+    color: var(--hc-color-link-hover);
+  }
+
+  /* Text selection follows the active color theme. `primary-soft-bg` is a
+   * 12 % tint of the theme's primary color via color-mix; the transparency
+   * means it blends correctly on both light and dark surfaces and inherits
+   * the underlying text color for readability. */
   ::selection {
     background-color: var(--hc-color-action-primary-soft-bg);
   }

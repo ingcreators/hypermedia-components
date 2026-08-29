@@ -54,6 +54,18 @@
       "$type": "color",
       "$value": "{primitive.color.gray.100}"
     },
+    "link": {
+      "$type": "color",
+      "$value": "{primitive.color.blue.600}"
+    },
+    "link-hover": {
+      "$type": "color",
+      "$value": "{primitive.color.blue.700}"
+    },
+    "link-visited": {
+      "$type": "color",
+      "$value": "{primitive.color.blue.800}"
+    },
     "action": {
       "primary": {
         "bg": {

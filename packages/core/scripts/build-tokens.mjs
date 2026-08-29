@@ -18,11 +18,12 @@ import {
   CORE_NAMESPACES,
   AXIS_NAMESPACES,
   NEUTRAL_RAMPS,
+  COLOR_RAMPS_WITH_DARK,
   emitOnly,
 } from './token-transform.mjs';
 
 // Re-export so existing importers (tests, tooling) keep working unchanged.
-export { buildTokensCss, resolveTokens, DEFAULT_SOURCES, CORE_NAMESPACES, AXIS_NAMESPACES, NEUTRAL_RAMPS, emitOnly };
+export { buildTokensCss, resolveTokens, DEFAULT_SOURCES, CORE_NAMESPACES, AXIS_NAMESPACES, NEUTRAL_RAMPS, COLOR_RAMPS_WITH_DARK, emitOnly };
 
 async function main() {
   const here = dirname(fileURLToPath(import.meta.url));
@@ -49,7 +50,12 @@ async function main() {
   // One file per non-default runtime axis: hc.tokens.color-indigo.css etc.
   const axisFiles = [];
   for (const ns of AXIS_NAMESPACES) {
-    const out = buildTokensCss({ sources: emitOnly([ns]), trees });
+    // An accent ships its light and dark blocks in one file, the way a
+    // neutral ramp does: a consumer who opts into `teal` wants teal links in
+    // both themes, not a dark mode that silently falls back to blue.
+    const ramp = ns.startsWith('color.') ? ns.slice('color.'.length) : null;
+    const namespaces = COLOR_RAMPS_WITH_DARK.includes(ramp) ? [ns, `${ns}.dark`] : [ns];
+    const out = buildTokensCss({ sources: emitOnly(namespaces), trees });
     const file = `hc.tokens.${ns.replace('.', '-')}.css`;
     await writeFile(join(distDir, file), out.css, 'utf8');
     axisFiles.push(file);

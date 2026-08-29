@@ -342,6 +342,13 @@ import corePkg from '../../../../packages/core/package.json';
   import colorLime from '@hypermedia-components/core/tokens/color.lime.tokens.json';
   import colorOrange from '@hypermedia-components/core/tokens/color.orange.tokens.json';
   import colorFuchsia from '@hypermedia-components/core/tokens/color.fuchsia.tokens.json';
+  // Dark halves of the stock accents. They carry link colours only, but
+  // without them an exported theme would style `[data-color="teal"]` links
+  // and then lose them again the moment the page went dark.
+  import colorTealDark from '@hypermedia-components/core/tokens/color.teal.dark.tokens.json';
+  import colorLimeDark from '@hypermedia-components/core/tokens/color.lime.dark.tokens.json';
+  import colorOrangeDark from '@hypermedia-components/core/tokens/color.orange.dark.tokens.json';
+  import colorFuchsiaDark from '@hypermedia-components/core/tokens/color.fuchsia.dark.tokens.json';
 
   const BASE_TREES = {
     primitive, semantic, component,
@@ -354,6 +361,10 @@ import corePkg from '../../../../packages/core/package.json';
     'color.lime': colorLime,
     'color.orange': colorOrange,
     'color.fuchsia': colorFuchsia,
+    'color.teal.dark': colorTealDark,
+    'color.lime.dark': colorLimeDark,
+    'color.orange.dark': colorOrangeDark,
+    'color.fuchsia.dark': colorFuchsiaDark,
   };
 
   // Neutral ramps live in the primitive tokens (slate/zinc/neutral/stone +
@@ -406,6 +417,23 @@ import corePkg from '../../../../packages/core/package.json';
 
   const c = (v) => ({ $type: 'color', $value: v });
 
+  /**
+   * Link colours for a theme, taken off the accent's own ladder rungs.
+   *
+   * Light reads 600/700/800 and dark reads 400/300/200 — the split is
+   * forced rather than stylistic: no single rung clears 4.5:1 against both
+   * the light and the dark surface, so a link is the one accent value that
+   * cannot be theme-independent. Skipping this would leave a custom theme's
+   * prose links on the stock blue, which is the exact gap #569 closed.
+   */
+  function linkTrio(accentValue, steps) {
+    const hue = (parseOklch(accentValue) || hexToOklch(accentValue)).H;
+    const [link, hover, visited] = steps.map((step) => c(formatOklch(rampStep(hue, step))));
+    return { link, 'link-hover': hover, 'link-visited': visited };
+  }
+  const lightLinks = (m) => linkTrio(m.bg, [600, 700, 800]);
+  const darkLinks  = (m) => linkTrio(m.bg, [400, 300, 200]);
+
   // ---- CSS block parse / diff helpers ----
   function parseBlocks(css){
     const inner = css.replace(/^[\s\S]*?@layer hc\.tokens\s*\{/, '').replace(/\}\s*$/, '');
@@ -449,6 +477,7 @@ import corePkg from '../../../../packages/core/package.json';
       $description: `${m.name} color theme. Emitted under [data-color="${m.name}"].`,
       color: {
         'focus-ring': c(m.ring),
+        ...lightLinks(m),
         action: {
           primary: { bg: c(m.bg), fg: c(m.fg), border: c(m.bg) },
           'primary-hover': { bg: c(m.hover), border: c(m.hover) },
@@ -463,6 +492,7 @@ import corePkg from '../../../../packages/core/package.json';
       color: {
         bg: r(50), text: r(900), 'text-muted': r(600), border: r(300), 'border-strong': r(500), 'muted-bg': r(100),
         'focus-ring': c(m.ring),
+        ...lightLinks(m),
         action: {
           primary: { bg: c(m.bg), fg: c(m.fg), border: c(m.bg) },
           'primary-hover': { bg: c(m.hover), border: c(m.hover) },
@@ -485,6 +515,7 @@ import corePkg from '../../../../packages/core/package.json';
     return {
       color: {
         bg: r(900), surface: r(800), text: r(100), 'text-muted': r(350), border: r(700), 'muted-bg': r(700),
+        ...darkLinks(m),
         action: {
           secondary: { bg: r(700), fg: r(100), border: r(700) },
           'secondary-hover': { bg: r(600), border: r(600) },
@@ -494,7 +525,7 @@ import corePkg from '../../../../packages/core/package.json';
     };
   }
   function accentDefaultPatch(m){
-    return { color: { 'focus-ring': c(m.ring), action: {
+    return { color: { 'focus-ring': c(m.ring), ...lightLinks(m), action: {
       primary: { bg: c(m.bg), fg: c(m.fg), border: c(m.bg) },
       'primary-hover': { bg: c(m.hover), border: c(m.hover) },
       'primary-soft': { bg: c(m.soft) },

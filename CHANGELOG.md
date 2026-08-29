@@ -22,6 +22,15 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **docs / base**: two stale claims went with it — `hc.base.css`'s
+  `::selection` comment still described a "12 % (18 % for amber)" tint, but
+  amber stopped being an accent axis in 0.2.0 and the ladder work removed
+  its soft-tint special case, so all five axes have been a flat 12 % for a
+  while; and the theming guide told you to mirror `color.indigo.tokens.json`,
+  a file the same release deleted when the accents became the five-hue
+  pentagon.
+
+
 - **docs**: in the working template, **a row click is now a real
   navigation**. The record has its own prerendered URL
   (`/templates/data-grid-page-record/<id>/`), built from the same data
@@ -90,6 +99,52 @@ Security    — security-relevant changes
   the grid**, where the movement happens.
 
 ### Added
+
+- **tokens / base**: **document-level link colours** —
+  `--hc-color-link`, `--hc-color-link-hover` and `--hc-color-link-visited`,
+  generated per theme like every other token, plus bare-anchor rules in
+  `@layer hc.base`. `hc.base.css` already owned the document's background
+  and text but stopped short of `<a>`, so every anchor outside a component
+  fell to the UA's `-webkit-link` blue and `:visited` purple — two colours
+  that follow neither `data-theme`, `data-color` nor `data-neutral`, and on
+  a dark surface the visited purple is close to illegible. This is what an
+  app hits wherever it renders prose rather than components: a description
+  field, a rendered markdown cell, an error page body.
+
+  The `:visited` half is the part a consumer **cannot** write. Engines
+  refuse to resolve `var()` in a visited-dependent declaration on purpose —
+  resolving it would let a page read the history bit back out through the
+  cascade — so the colour has to be a literal, which means it cannot be a
+  token. The build bakes one literal per theme instead, straight off the
+  same declaration it emits `--hc-color-link-visited` from, so the rule and
+  the token cannot drift.
+
+  Links are also the one accent value that is theme-dependent. Every other
+  accent token holds one value in both themes, because ramp step `600` is
+  white-text-safe on any hue; a link is text on the page surface instead,
+  and no single rung clears 4.5:1 against both backgrounds (`blue.500` is
+  3.61:1 on light, `blue.600` is 3.33:1 on dark). Light reads
+  `600`/`700`/`800`, dark reads `400`/`300`/`200`, and each non-default
+  accent gained a `color.<name>.dark.tokens.json` emitted under the
+  compound `[data-theme="dark"][data-color="<name>"]` selector — the same
+  two-form selector the neutral ramps already use. All fifteen colours are
+  pinned at AA against `--hc-color-bg` and `--hc-color-surface` by a spec, so
+  a future re-ladder cannot quietly drop one below 4.5:1;
+  `--hc-color-muted-bg` sits outside that guarantee on purpose, being a
+  component tint whose foreground the component owns — and `hc-chat` now
+  does own it: an assistant bubble is painted with `muted-bg` and is prose,
+  so a link genuinely lands there, and the document's resting step would
+  score 4.40:1 (light) / 3.85:1 (dark) on it. A bubble re-pins its links one
+  rung further along the same ramp. It carries no `:visited` rule, which is
+  not an oversight: a layer beats specificity and `hc.components` sits after
+  `hc.base`, so the resting rule covers the visited state too. Visited is
+  unified with unvisited inside a bubble — partly the console-not-a-browser
+  argument, partly arithmetic, since the bubble's surface leaves only two
+  usable rungs in dark (the third, `accent.100`, scores 1.08:1 against the
+  bubble's own text and would read as body copy). The theme builder learned
+  the same trio, so a custom theme re-themes its links too.
+  ([#569](https://github.com/ingcreators/hypermedia-components/issues/569))
+
 
 - **docs**: the template says **when a fixed-height grid is the right
   shape** — and when letting the page scroll is. It is the operational
