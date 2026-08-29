@@ -1,0 +1,48 @@
+---
+/*
+ * Live demo for the network-retry recipe. The form declares a 1.5s
+ * timeout; with "Simulate offline" checked the demo endpoint sleeps
+ * past it, so htmx fires htmx:timeout and installNetworkRetry()
+ * renders the retry alert into the host. Uncheck the box and press
+ * Retry: the request re-collects its CURRENT values (a retry is a
+ * fresh attempt, not a byte replay), succeeds, and the banner clears
+ * itself — any real response on the failed element clears it.
+ * Server side: apps/docs/demo-api/recipes/network-retry.mjs.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/network-retry`;
+---
+
+<DemoFrame class="hc-preview--col" label="Network retry demo">
+  <div data-hc-network-retry style="inline-size: 100%; max-inline-size: 28rem;"></div>
+
+  <form
+    method="post"
+    action={`${api}/save`}
+    data-hx-post={`${api}/save`}
+    data-hx-request='{"timeout": 1500}'
+    data-hx-target="#network-retry-demo-result"
+    data-hx-swap="innerHTML"
+    data-hx-disabled-elt="find button[type=submit]"
+    style="inline-size: 100%; max-inline-size: 28rem;">
+    <input type="hidden" name="idempotency_key" value="ik_demo" />
+    <div class="hc-field">
+      <label class="hc-field__label" for="network-retry-demo-amount">Amount</label>
+      <input
+        class="hc-input"
+        id="network-retry-demo-amount"
+        name="amount"
+        value="1200"
+        inputmode="numeric"
+      />
+    </div>
+    <label class="hc-field__label" style="display: flex; gap: var(--hc-space-2); align-items: center;">
+      <input type="checkbox" name="down" value="1" checked />
+      Simulate offline (the endpoint outlasts the 1.5s timeout)
+    </label>
+    <button class="hc-button" data-variant="primary" type="submit">Save</button>
+  </form>
+
+  <div id="network-retry-demo-result" aria-live="polite" style="inline-size: 100%; max-inline-size: 28rem;"></div>
+</DemoFrame>

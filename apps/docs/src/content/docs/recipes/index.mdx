@@ -49,6 +49,7 @@ shares the chat-messages endpoint).
 | [Unsaved changes](/hypermedia-components/recipes/unsaved-changes/) | warn before edits are lost — data-dirty state, tab-close prompt, boosted-nav confirm, clean-on-save | `installDirtyGuard()` |
 | [Autosave](/hypermedia-components/recipes/autosave/) | draft the form as the user types — debounced posts, restore banner, zero new JS | — |
 | [Session expiry](/hypermedia-components/recipes/session-expiry/) | turn a 401 into a login dialog and replay the interrupted request | `installSessionExpiry()` |
+| [Network retry](/hypermedia-components/recipes/network-retry/) | surface the request that got no answer at all (offline / timeout) with a working Retry | `installNetworkRetry()` |
 | [Idempotency key](/hypermedia-components/recipes/idempotency-key/) | make duplicate submits safe server-side — one key per rendered form; a replayed key gets the original response, never an error | — |
 | [Edit conflict](/hypermedia-components/recipes/edit-conflict/) | optimistic locking — a hidden version rides every save; stale saves get a 409 conflict dialog | — |
 | [Workflow actions](/hypermedia-components/recipes/workflow-actions/) | drive a record's lifecycle — the server renders only the legal transitions, comment-required transitions 422, stale ones 409 from current truth | — |

@@ -49,6 +49,8 @@ export const DEFAULT_MESSAGES = Object.freeze({
   'shell.toggleNav': 'Toggle navigation',
   'shell.collapseNav': 'Collapse sidebar',
   'splitter.resize': 'Resize panels',
+  'networkRetry.failed': "The request didn't reach the server — check your connection and retry.",
+  'networkRetry.retry': 'Retry',
   'themeToggle.label': 'Switch color theme',
   'toast.label': 'Notifications',
   'toast.dismiss': 'Dismiss',

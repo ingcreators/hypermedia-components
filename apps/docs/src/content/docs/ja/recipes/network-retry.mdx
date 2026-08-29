@@ -1,0 +1,121 @@
+---
+title: ネットワーク再試行
+description: 応答がまったく来なかったリクエスト — オフライン、切断、宣言済みタイムアウト — を、実際に再送できる Retry ボタン付きアラートとして表面化します。
+---
+
+import NetworkRetryDemo from '../../../../components/recipe-demos/NetworkRetryDemo.astro';
+
+このキットの他のエラー契約はすべて、レスポンスが届いたことを前提に
+しています —
+[エラーマップ](/hypermedia-components/ja/fundamentals/errors/)は
+ステータスコードでルーティングします。このレシピはステータスが
+そもそも存在しないケースを所有します: 機内モード、切断された
+ソケット、宣言したタイムアウト。htmx はこれを `htmx:sendError` /
+`htmx:timeout` として通知しますが、このレシピがなければページは
+黙って飲み込みます — 保存を押したのに何も起きない、あれです。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add network-retry` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/network-retry/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/network-retry/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+フォームは 1.5 秒のタイムアウトを宣言しています。**Simulate
+offline** にチェックが入っているとエンドポイントはそれより長く
+眠るので、リクエストはタイムアウトし、再試行アラートが現れます。
+チェックを外して **Retry** を押してください: リクエストは*現在の*
+入力値を集め直して成功し、アラートは自分で消えます。
+エンドポイントは `api/recipes/network-retry/` 配下の名前空間化された
+デモ実装です — 「down」フレーバーは宣言済みタイムアウトより長く
+待つだけです。本物のネットワーク障害だけは、サーバから送ることが
+できないからです。
+
+<NetworkRetryDemo />
+
+## マークアップ
+
+```html
+<!-- One host per page, client-owned, empty in source -->
+<div data-hc-network-retry></div>
+
+<form data-hx-post="/orders" data-hx-request='{"timeout": 10000}'
+      data-hx-target="#order-result" data-hx-swap="innerHTML"
+      data-hx-disabled-elt="find button[type=submit]">
+  <input type="hidden" name="idempotency_key" value="ik_7d1f9c2e">
+  <!-- …フィールド… -->
+  <button class="hc-button" data-variant="primary" type="submit">Place order</button>
+</form>
+```
+
+`installNetworkRetry()` は behaviors バンドルが自動インストール
+します。ホストはスワップターゲットの外に置いてください — ホストを
+置き換えるスワップはバナーを消してしまいます。
+
+## 契約
+
+- **なぜこれだけ JavaScript か**: 「サーバがバリデータであり
+  語り手である」の唯一の例外 — ネットワーク障害には語りの元になる
+  サーバレスポンスがありません。クライアントがここだけは i18n
+  カタログ(`networkRetry.failed` / `networkRetry.retry`。ホストの
+  `data-hc-network-retry-message` / `-label` で上書き可)を通じて
+  語ります。
+- **タイムアウトはデフォルトではなく宣言**:
+  要素ごとに `data-hx-request='{"timeout": 10000}'`、または
+  グローバルに `htmx.config.timeout`。宣言がなければハードな送信
+  失敗だけが発火します — htmx の方針をそのまま維持。
+- **失敗時**: behavior は失敗したリクエストを記憶し(1 スロット、
+  最新勝ち —
+  [セッション切れ再認証](/hypermedia-components/ja/recipes/session-expiry/)
+  と同じ方針)、ホストに `hc-alert`(`role="status"`)を 1 つ描画
+  します。失敗が繰り返されてもその場で再描画 — 積み上げません。
+- **Retry はバイト単位のリプレイではなく新しい試行**:
+  `htmx.ajax(verb, path, { source })` を values 上書きなしで発行
+  するので、クリック時点の入力値を集め直します。パイプライン全体が
+  再実行されます — CSRF ヘッダー、インジケーター、ターゲット解決。
+- **本物のレスポンスが来たらクリア**: 失敗した要素上の成功*または*
+  エラー — ステータスの**ある**エラーはエラーマップの管轄で、
+  このバナーの管轄ではありません。失敗自身の `status: 0` では
+  決してクリアしません。
+- **決して自動再試行しない。** 再試行はユーザーの動詞です。確認なしの
+  POST 自動再試行は二重注文の作り方そのものです。ポーラー
+  (`every …`)はどのみち次のティックで自己回復します。
+
+## Retry × 冪等キー
+
+看板の組み合わせです。「ネットワークが死ぬ前に、最初のクリックは
+届いていたのか?」 —
+[冪等キー](/hypermedia-components/ja/recipes/idempotency-key/)が
+フォームに隠れていれば、答えはどちらでも安全です: 再試行された
+POST は**同じキー**を集め直すので、元のリクエストがコミット済みで
+レスポンスだけが失われていた場合、再試行には元のレスポンスが
+リプレイされます。キーなしの再試行 POST は正真正銘の二重送信
+リスクです — 必ずペアで。
+
+## プログレッシブエンハンスメント
+
+JS オフは htmx オフ、つまりフルページ遷移です — ブラウザ自身の
+ネットワークエラーページがハンドラで、リロードボタンも付いて
+います。ホストは空のまま見えません。
+
+## アクセシビリティ
+
+描画されるアラートは `role="status"`(polite)です: ユーザーは
+たった今操作してページを見ています。Retry ボタンは通常のタブ順に
+入る本物の `<button>`。失敗が繰り返されても同じアラートを再描画し、
+読み上げを積み上げません。ホストに自分で `aria-live` を付けないで
+ください — behavior のアラートが既にロールを持っています。
+
+## 関連
+
+- [冪等キー](/hypermedia-components/ja/recipes/idempotency-key/) —
+  POST の再試行をサーバ側で安全にするもの。
+- [セッション切れ再認証](/hypermedia-components/ja/recipes/session-expiry/) —
+  同じ記憶して再実行の機構。こちらは 401 起点。
+- [エラーと復旧](/hypermedia-components/ja/fundamentals/errors/) —
+  このレシピが「ステータスなし」行で完成させるステータスコード
+  マップ。

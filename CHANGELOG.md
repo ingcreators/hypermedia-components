@@ -22,6 +22,22 @@ Security    — security-relevant changes
 
 ### Added
 
+- `network-retry` recipe + **`installNetworkRetry()`** — surface the
+  request that got no answer at all (offline / dropped socket /
+  declared `data-hx-request` timeout), the one error with no server
+  response to narrate with: `htmx:sendError` / `htmx:timeout` render
+  a retry `hc-alert` (`role="status"`, i18n keys `networkRetry.failed`
+  / `networkRetry.retry`, per-host `data-hc-network-retry-message` /
+  `-label` overrides) into the client-owned `[data-hc-network-retry]`
+  host — one slot latest-wins, re-rendered never stacked. Retry
+  re-issues through `htmx.ajax(verb, path, { source })` with no
+  values override (a fresh attempt re-collecting current inputs, so
+  an idempotency-key field rides along unchanged — the marquee
+  pairing); any real response on the failed element clears the
+  banner, the failure's own status 0 never does; never auto-retries.
+  The fundamentals/errors map gains its "(no response)" row. Live
+  demo + demo API included.
+  ([plan](plans/hc-gap-followups-plan-en.md))
 - `unread-badge` recipe — the notification count in app chrome as a
   wire contract: the fragment is the nav item (badge + accessible
   name change in the same swap; the `hc-badge` is `aria-hidden`

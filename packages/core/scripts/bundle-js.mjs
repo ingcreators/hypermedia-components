@@ -83,6 +83,7 @@ const FILES = [
   ['src/js/row-link.js',      'row-link.js'],
   ['src/js/dirty-guard.js',   'dirty-guard.js'],
   ['src/js/session-expiry.js', 'session-expiry.js'],
+  ['src/js/network-retry.js', 'network-retry.js'],
   ['src/js/time.js',          'time.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
 
