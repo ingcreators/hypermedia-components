@@ -486,6 +486,22 @@ import corePkg from '../../../../packages/core/package.json';
       },
     };
   }
+  /**
+   * The custom accent's dark half — the counterpart the stock accents ship
+   * as `color.<name>.dark.tokens.json`. Only links need it: they are the one
+   * accent value that cannot be theme-independent. Without it `theme.dark`
+   * overlays the custom accent's link and a teal theme emails a blue link.
+   */
+  function accentDarkTree(m){
+    return {
+      $description: `${m.name} links on the dark surface. Emitted under [data-theme="dark"][data-color="${m.name}"].`,
+      color: darkLinks(m),
+    };
+  }
+  /** Selector for that block — both forms, as data-theme and data-color need not share a node. */
+  const accentDarkSelector = (m) =>
+    `[data-theme="dark"] [data-color="${m.name}"], [data-theme="dark"][data-color="${m.name}"]`;
+
   function semanticLightPatch(m){
     const r = (shade) => c(nref(m.neutral, shade));
     return {
@@ -641,14 +657,23 @@ import corePkg from '../../../../packages/core/package.json';
           { namespace: 'semantic', selector: ':root', emit: false },
           { namespace: 'component', selector: ':root', emit: false },
           { namespace: 'color.custom', selector: `[data-color="${m.name}"]`, emit: true },
+          { namespace: 'color.custom.dark', selector: accentDarkSelector(m), emit: true },
         ],
-        trees: { primitive, semantic, component, 'color.custom': accentTree(m) },
+        trees: {
+          primitive, semantic, component,
+          'color.custom': accentTree(m),
+          'color.custom.dark': accentDarkTree(m),
+        },
       }).css;
     }
     function accentFull(m){
       return buildTokensCss({
-        sources: [...DEFAULT_SOURCES, { namespace: 'color.custom', file: '', selector: `[data-color="${m.name}"]`, emit: true }],
-        trees: { ...BASE_TREES, 'color.custom': accentTree(m) },
+        sources: [
+          ...DEFAULT_SOURCES,
+          { namespace: 'color.custom', file: '', selector: `[data-color="${m.name}"]`, emit: true },
+          { namespace: 'color.custom.dark', file: '', selector: accentDarkSelector(m), emit: true },
+        ],
+        trees: { ...BASE_TREES, 'color.custom': accentTree(m), 'color.custom.dark': accentDarkTree(m) },
       }).css;
     }
 
@@ -671,10 +696,16 @@ import corePkg from '../../../../packages/core/package.json';
     // accent tree the same way a built-in color axis would.
     function emailMaps(m){
       const full = m.mode === 'full';
-      const trees = full ? fullThemedTrees(m) : { ...BASE_TREES, 'color.custom': accentTree(m) };
+      const trees = full
+        ? fullThemedTrees(m)
+        : { ...BASE_TREES, 'color.custom': accentTree(m), 'color.custom.dark': accentDarkTree(m) };
       const light = ['primitive', 'semantic', 'component', 'density.comfortable', 'color.default'];
       if (!full) light.push('color.custom');
-      const dark = [...light, 'theme.dark'];
+      // `theme.dark` overlays the accent, so in accent mode the custom link
+      // has to come back on top of it — otherwise a teal theme emails a blue
+      // dark-mode link. Full mode already carries darkLinks() inside its
+      // merged theme.dark, so it needs nothing extra.
+      const dark = full ? [...light, 'theme.dark'] : [...light, 'theme.dark', 'color.custom.dark'];
       const toSources = (list) => list.map((namespace) => ({ namespace }));
       return {
         tokens: resolveTokens({ sources: toSources(light), trees }),
