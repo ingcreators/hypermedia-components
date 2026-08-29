@@ -1,0 +1,83 @@
+---
+title: Data grid guide
+description: The map of the data-grid subsystem — one component, one page template, and thirteen recipes, in the order a business grid actually grows.
+---
+
+The data grid is the largest subsystem in the kit: the
+[`hc-datagrid`](/hypermedia-components/components/datagrid/) component,
+the [Data grid page](/hypermedia-components/templates/data-grid-page/)
+template, and thirteen recipes that each add one operation a business
+grid is used for. Each of those pages documents its own markup and
+server contract in full — this page is the map: what exists, what
+depends on what, and the order a real grid grows in.
+
+## Start here
+
+1. **[The component](/hypermedia-components/components/datagrid/)** —
+   the markup: sticky multi-level headers, frozen columns, numeric
+   columns, states, and `installDatagrid()`'s keyboard model. Render
+   your data with it before adding any operation.
+2. **[The page template](/hypermedia-components/templates/data-grid-page/)**
+   — the layout the grid sits in: an app shell where *only the grid
+   scrolls*, the filter panel, and the chrome placement rules. Copy it
+   rather than rediscovering its height rule.
+3. **Add operations as recipes** — each stage below is independent;
+   take only what the screen needs.
+
+## Stage 1 — display
+
+No recipes yet: everything here is the component and the template.
+
+| You need to… | Where it lives |
+| --- | --- |
+| sticky headers, frozen columns, multi-level headers | [Structure](/hypermedia-components/components/datagrid/#structure) · [Trailing frozen columns](/hypermedia-components/components/datagrid/#trailing-frozen-columns) |
+| right-aligned amounts, conditional formatting, row ordinals | [Numeric columns](/hypermedia-components/components/datagrid/#numeric-columns) · [Conditional formatting](/hypermedia-components/components/datagrid/#conditional-formatting) · [Row ordinals](/hypermedia-components/components/datagrid/#row-ordinals--data-row-no) |
+| the page layout where only the grid scrolls | [Data grid page template](/hypermedia-components/templates/data-grid-page/) |
+
+## Stage 2 — operate (the read path)
+
+Every read operation is the same wire: a form GETs the grid URL with
+namespaced params, and the server re-renders the grid (and the
+control's own state) from them.
+
+| You need to… | Recipe |
+| --- | --- |
+| page from the server | [Datagrid pagination](/hypermedia-components/recipes/datagrid-pager/) |
+| an editable, ordered sort set | [Datagrid sort](/hypermedia-components/recipes/datagrid-sort/) |
+| per-column filters | [Datagrid filter](/hypermedia-components/recipes/datagrid-filter/) |
+| per-user column choice | [Datagrid columns](/hypermedia-components/recipes/datagrid-columns/) |
+| remembered widths and order | [Datagrid prefs](/hypermedia-components/recipes/datagrid-prefs/) |
+| open a row's record and come back to the same list | [Row detail](/hypermedia-components/recipes/row-detail/) |
+| name the current filters and recall them as links | [Saved views](/hypermedia-components/recipes/saved-views/) |
+| bound what one search may return | [Result cap](/hypermedia-components/recipes/result-cap/) |
+
+## Stage 3 — edit (the write path)
+
+Inline editing's markup and keyboard model live on the
+[component page](/hypermedia-components/components/datagrid/#inline-editing);
+the two recipes are its error wires — each row is its own record
+`tbody`, so both re-render one record atomically.
+
+| You need to… | Recipe |
+| --- | --- |
+| reject a bad commit — 422 re-renders the record with the marked cell | [Datagrid edit errors](/hypermedia-components/recipes/datagrid-edit-errors/) |
+| optimistic locking per row — a stale save 409s into a conflict row | [Datagrid edit conflict](/hypermedia-components/recipes/datagrid-edit-conflict/) |
+
+## Stage 4 — bulk &amp; scale
+
+| You need to… | Recipe |
+| --- | --- |
+| select rows and POST one action against all of them | [Datagrid bulk actions](/hypermedia-components/recipes/datagrid-bulk-actions/) |
+| bulk failures grouped by reason, rows linked from the report | [Datagrid bulk errors](/hypermedia-components/recipes/datagrid-bulk-errors/) |
+| endless lists without page numbers | [Datagrid infinite](/hypermedia-components/recipes/datagrid-infinite/) — requires `--hc-datagrid-max-height: none`; see the recipe |
+| a work queue frozen at search time | [Datagrid snapshot pager](/hypermedia-components/recipes/datagrid-snapshot-pager/) |
+| hierarchy inside the grid | [Datagrid tree](/hypermedia-components/recipes/datagrid-tree/) |
+
+## Related
+
+- [Errors &amp; recovery](/hypermedia-components/fundamentals/errors/) —
+  the status-code map (422 / 409 / 401) the edit and bulk wires build on.
+- [Filterbar](/hypermedia-components/components/filterbar/) — the
+  condition read-out strip the template composes above the grid.
+- [Table](/hypermedia-components/components/table/) — the static
+  semantic table, for when you don't need a grid at all.

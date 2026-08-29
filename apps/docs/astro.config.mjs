@@ -328,6 +328,7 @@ export default defineConfig({
               label: 'Data grid', translations: { ja: 'データグリッド' },
               collapsed: true,
               items: [
+                { label: 'Guide', translations: { ja: 'ガイド' }, slug: 'recipes/datagrid' },
                 'recipes/datagrid-pager',
                 'recipes/datagrid-sort',
                 'recipes/datagrid-filter',
