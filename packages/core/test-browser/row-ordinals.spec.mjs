@@ -56,14 +56,16 @@ test.describe('row ordinals', () => {
     // and no client state is involved.
     await page.getByTestId('prev-error').click();
     await expect(page).toHaveURL(/#row-4901$/);
-    const landed = await page.evaluate(() => {
-      const active = document.activeElement;
-      return {
-        row: active?.closest('.hc-datagrid__row')?.id,
-        isCell: active?.classList.contains('hc-datagrid__cell'),
-      };
-    });
-    expect(landed).toEqual({ row: 'row-4901', isCell: true });
+    // The focus arrives a task late, and reading it once races that task.
+    // Following the link is a same-document navigation: the browser blurs
+    // the anchor on the way through (active element becomes <body>) and
+    // queues `hashchange` as its own task, and only then does
+    // focusHashRow() run and focus the cell. Measured right after click()
+    // resolves, the active element is still <body> through the next
+    // microtask and animation frame. `toBeFocused()` retries until it
+    // lands; the one-shot evaluate this replaces failed roughly two runs in
+    // three under a full-suite load and passed every time in isolation.
+    await expect(page.locator('#row-4901 .hc-datagrid__cell').first()).toBeFocused();
   });
 
   test('the failing rows say so themselves', async ({ page }) => {
