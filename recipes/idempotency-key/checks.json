@@ -1,0 +1,37 @@
+{
+  "detect": "form:has(input[name=\"idempotency_key\"])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "key-hidden",
+      "level": "error",
+      "message": "The idempotency key is a hidden input — users never see or edit intent tokens.",
+      "exists": {
+        "selector": "input[name=\"idempotency_key\"]:not([type=\"hidden\"])",
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": "key-value",
+      "level": "error",
+      "message": "Render the key server-side — an empty key defends nothing (mint a fresh one on every form render).",
+      "attr": {
+        "on": "input[name=\"idempotency_key\"]",
+        "name": "value",
+        "assert": "present",
+        "matches": "."
+      }
+    },
+    {
+      "id": "client-guard-too",
+      "level": "warn",
+      "message": "Keep the client courtesy as well: data-hx-disabled-elt on the submit button (the key makes duplicates safe; the guard makes them rare).",
+      "attr": {
+        "on": "button[type=\"submit\"][data-hx-post]",
+        "name": "data-hx-disabled-elt",
+        "assert": "present"
+      }
+    }
+  ]
+}

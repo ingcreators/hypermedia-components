@@ -20,6 +20,7 @@ documentation pages.
 | ----------------------------------------- | ----------------------------------------------------------------------- |
 | [`request-action/`](request-action/)      | Button that sends an htmx request with a spinner.                       |
 | [`mutating-form/`](mutating-form/)        | Post a form: inline 4xx field errors, success redirect, double-submit guard. |
+| [`idempotency-key/`](idempotency-key/)    | Server-side duplicate-submit defence — one key per rendered form; replays get the original response. |
 | [`confirm-action/`](confirm-action/)      | Confirm with the user before sending an htmx request.                   |
 | [`copy/`](copy/)                          | Copy a read-only value (URL, token, snippet) to the clipboard.          |
 | [`live-search/`](live-search/)            | Input that streams results as the user types.                           |

@@ -1,0 +1,119 @@
+---
+title: Idempotency key
+description: Server-side duplicate-submit defence — every rendered form carries a one-time key, and the server answers a replayed key with the original response, never with an error.
+---
+
+import IdempotencyKeyDemo from '../../../components/recipe-demos/IdempotencyKeyDemo.astro';
+
+The [mutating form](/hypermedia-components/recipes/mutating-form/)'s
+`data-hx-disabled-elt` is a client courtesy: it cannot help against a
+timeout retry, a flaky network resending the request, a
+[session expiry](/hypermedia-components/recipes/session-expiry/)
+replay, or an Enter pressed twice faster than the disable lands. Only
+the server can make a submission single-shot, and the mechanism is a
+token: **one key per rendered form, and a replayed key gets the
+original response back**.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add idempotency-key` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/idempotency-key/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/idempotency-key/contract.md).
+:::
+
+## Live demo
+
+Place the order, then press the button **again** without touching
+anything: the original response is replayed — same order number, no
+second order, same toast. Change the amount and resubmit to see the
+real conflict (`422`, "already submitted with different values"), and
+type a non-number to see a validation failure that leaves the key
+live. The endpoint is a namespaced demo implementation under
+`api/recipes/idempotency-key/` (a real server stores key → response;
+the stateless demo writes the spent key back into the form
+out-of-band so the form itself carries the "already seen" bit).
+
+<IdempotencyKeyDemo />
+
+## The markup
+
+```html
+<form method="post" action="/orders">
+  <input type="hidden" name="idempotency_key" value="ik_7d1f9c2e">
+  <!-- …fields… -->
+  <button class="hc-button" data-variant="primary" type="submit"
+          data-hx-post="/orders"
+          data-hx-target="#order-result" data-hx-swap="innerHTML"
+          data-hx-disabled-elt="this">Place order</button>
+</form>
+
+<div id="order-result" aria-live="polite"></div>
+```
+
+That's the whole client side — a hidden field. The guarantees are
+server-side:
+
+## The contract
+
+- **One key per rendered form** — minted fresh (CSPRNG; UUID v4 is
+  fine) every time the form renders, not per submit: every submit of
+  this form instance claims the same intent.
+- **First commit**: process, store `key → (request-hash, response)`,
+  answer normally.
+- **Replayed key, same payload**: **replay the stored response** —
+  status, the headers that matter (`HX-Trigger`, `Location`), body. A
+  duplicate is indistinguishable from the first success; answering
+  409 would punish the user for the network.
+- **Replayed key, different payload**: a real conflict — `422` naming
+  what already exists. Same intent token + different content is a bug
+  or a stale tab, not a retry.
+- **Spend the key on commit only.** A `422` validation failure leaves
+  the key live, so the corrected resubmit (same form, same key) can
+  commit. Get this backwards and users can never fix a validation
+  error.
+- **Scope + TTL are declared policy** — per user × per form, hours
+  not forever (`key, user, request_hash, response, created_at`).
+  After expiry, business-level uniqueness rules are the backstop.
+
+| Request | Response |
+| --- | --- |
+| fresh key | the normal outcome — 200 fragment, 303 redirect, or 422 validation |
+| seen key, same payload | **the stored response, replayed** |
+| seen key, different payload | `422` — names the existing record |
+
+## Composition
+
+- **PRG**: the stored response for a redirect flow is the `303` — a
+  replay lands on the same receipt page, which is the right answer to
+  "did my order go through?".
+- **[Async job](/hypermedia-components/recipes/async-job/)**: the
+  stored response for a kick-off is the `202` + job card — both
+  clicks watch the same job.
+- **[Workflow actions](/hypermedia-components/recipes/workflow-actions/)**:
+  its 409 covers *losing to someone else*; this key covers *racing
+  yourself*.
+- **[Session expiry](/hypermedia-components/recipes/session-expiry/)**'s
+  replayed request carries the same key — that's the point.
+
+## Progressive enhancement
+
+Nothing here is JavaScript at all: the key is a hidden field and the
+guarantees are server-side. The no-JS full-page POST follows the same
+three branches.
+
+## Accessibility
+
+The result region is `aria-live="polite"`; the replayed response
+should read like the original (the demo adds a hint line so the
+mechanism is visible). The conflict is an `hc-alert` with
+`role="status"`.
+
+## Related
+
+- [Mutating form](/hypermedia-components/recipes/mutating-form/) — the
+  client-side guard this recipe backs with a server guarantee.
+- [Edit conflict](/hypermedia-components/recipes/edit-conflict/) —
+  versioning for *updates*; this key is for *creations*.
+- [Session expiry](/hypermedia-components/recipes/session-expiry/) —
+  the replay machinery whose safety this recipe completes.

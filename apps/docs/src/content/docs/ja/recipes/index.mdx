@@ -48,6 +48,7 @@ chat-messages のエンドポイントを共有)。
 | [未保存ガード](/hypermedia-components/ja/recipes/unsaved-changes/) | 編集が失われる前に警告したい — data-dirty 状態、タブを閉じる際のプロンプト、boosted ナビの確認、保存でクリーン | `installDirtyGuard()` |
 | [自動保存](/hypermedia-components/ja/recipes/autosave/) | 入力と同時にフォームをドラフトしたい — デバウンス送信、復元バナー、新規 JS ゼロ | — |
 | [セッション切れ再認証](/hypermedia-components/ja/recipes/session-expiry/) | 401 をログインダイアログにして、中断されたリクエストを再実行したい | `installSessionExpiry()` |
+| [冪等キー](/hypermedia-components/ja/recipes/idempotency-key/) | 二重送信をサーバ側で無害化する — 描画フォームごとにキー 1 つ。リプレイには元のレスポンスを返し、エラーにしない | — |
 | [編集競合](/hypermedia-components/ja/recipes/edit-conflict/) | 楽観ロックにしたい — 隠し version が毎回の保存に同乗し、古い保存は 409 の競合ダイアログに | — |
 | [ワークフローアクション](/hypermedia-components/ja/recipes/workflow-actions/) | レコードのライフサイクルを駆動する — サーバは合法な遷移だけを描画。コメント必須の遷移は 422、陳腐化した操作は現在の真実で 409 | — |
 | [CSV インポート](/hypermedia-components/ja/recipes/csv-import/) | 驚きなしの一括投入 — アップロード、検証レポート、トークン付き確定 | — |
