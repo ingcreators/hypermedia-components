@@ -1,0 +1,47 @@
+{
+  "detect": "[data-hc-lookup]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "hidden-id",
+      "level": "error",
+      "message": "The field needs a hidden identity input — the visible code is presentation; the hidden id is what the form submits.",
+      "exists": {
+        "selector": "input[type=\"hidden\"]"
+      }
+    },
+    {
+      "id": "resolve-on-change",
+      "level": "error",
+      "message": "The code input validates on change (data-hx-get + data-hx-trigger=\"change\") — a code the server never saw must not sit under a filled id.",
+      "attr": {
+        "on": "[data-hc-lookup] input[data-hx-get]",
+        "name": "data-hx-trigger",
+        "assert": "present",
+        "matches": "change"
+      }
+    },
+    {
+      "id": "field-swap",
+      "level": "error",
+      "message": "Resolve responses re-render the WHOLE field (data-hx-swap=\"outerHTML\") — code, hint, and hidden id must change together or they drift apart.",
+      "attr": {
+        "on": "[data-hc-lookup] input[data-hx-get]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
+    },
+    {
+      "id": "dialog-affordance",
+      "level": "warn",
+      "message": "The search button should declare aria-haspopup=\"dialog\" and be type=\"button\" so it never submits the surrounding form.",
+      "attr": {
+        "on": "[data-hc-lookup] button[data-hx-get]",
+        "name": "aria-haspopup",
+        "assert": "present",
+        "value": "dialog"
+      }
+    }
+  ]
+}

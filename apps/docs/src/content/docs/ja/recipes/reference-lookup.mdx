@@ -1,0 +1,143 @@
+---
+title: マスタ参照
+description: マスタ参照フィールド — コード直接入力+検索ダイアログのピッカー。hidden の id と可視のコードの二人一組で、未解決のコードは必ず id をクリアします。
+---
+
+import ReferenceLookupDemo from '../../../../components/recipe-demos/ReferenceLookupDemo.astro';
+
+業務フォームはマスタを参照します: 受注の取引先、明細の品目、経費の
+原価センタ。コードを覚えているパワーユーザーは直接入力し、それ以外の
+人には検索ダイアログが要ります(SAP でいう F4 ヘルプ)。このレシピは
+そのフィールドを契約にしたものです — **2 つの入力、1 つの真実**:
+人間向けの可視の `*_code`、同一性を運ぶ hidden の `*_id`、そして
+両者を決して食い違わせないサーバ。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add reference-lookup` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/reference-lookup/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/reference-lookup/contract.md)
+にあります。
+:::
+
+:::note[セットアップ]
+ダイアログの配線には auto-init バンドル
+(`import '@hypermedia-components/core/behaviors';`)の
+`installRemoteDialog()` と `installCloseDialog()` を使います。
+フィールド自体は純粋な htmx です。
+[インストール](/hypermedia-components/ja/start/installation/)を参照。
+:::
+
+## ライブデモ
+
+コードを編集してフィールドを離れてみてください: `C-1043` は解決し、
+`C-9999` は 422 の形(メッセージ+ **id クリア**)、空にすれば
+クリア状態に。🔍 ボタンで検索ダイアログが開き、行を選ぶとフィールドが
+再描画されてダイアログが閉じます — 非アクティブの取引先は「見えるが
+選べない」形で並びます。
+
+<ReferenceLookupDemo />
+
+## マークアップ
+
+```html
+<div class="hc-field" id="customer-field" data-hc-lookup>
+  <label class="hc-field__label" for="customer-code">Customer</label>
+  <div class="hc-input-group">
+    <input class="hc-input" id="customer-code" name="customer_code" value="C-1041"
+           data-hx-get="/customers/resolve" data-hx-trigger="change"
+           data-hx-target="#customer-field" data-hx-swap="outerHTML">
+    <button class="hc-button" type="button" aria-haspopup="dialog"
+            aria-label="Search customers"
+            data-hx-get="/customers/lookup"
+            data-hx-target="#lookup-root" data-hx-swap="innerHTML">🔍</button>
+  </div>
+  <p class="hc-field__hint">Acme Trading K.K.</p>
+  <input type="hidden" name="customer_id" value="cus_9f2">
+</div>
+
+<div id="lookup-root" data-hc-remote-dialog-root></div>
+```
+
+これを健全にしているルール:
+
+- **2 フィールド、1 つの真実。** コードはユーザーが見るもの。hidden の
+  id(不透明トークン — 複合キーはこの中に畳む、
+  [スナップショットページャー](/hypermedia-components/ja/recipes/datagrid-snapshot-pager/)の
+  キー規則)が送信されるもの。表示名はプレゼンテーションで、決して
+  送信されません。
+- **未解決のコード = 空の id。** 古典的な欠陥は、修正されたコードの
+  下に古い id が残ること — 未解決レスポンスは必ず hidden をクリアし、
+  `hc validate` はフィールド全体が一体でスワップされること
+  (`outerHTML`)を要求します。コード・ヒント・id は別々に動けません。
+- **送信先エンドポイントはどのみち再検証します。** id はクライアント
+  経由の値で、それ自体は何の証明でもありません。
+
+## 解決(直接入力)
+
+`change` で `/resolve?customer_code=…` を GET し、フィールド全体が
+返ります:
+
+| 入力 | レスポンス |
+| --- | --- |
+| 既知のコード | `200` — ヒント=名称、id 充填、コードは正規形(大小・全半角)に整えて返す |
+| 未知のコード | `422` — `aria-invalid`、ヒントの位置にメッセージ、**id は空**、生のコードをエコー |
+| 空のコード | `200` — クリア状態。必須かどうかは送信エンドポイントの仕事 |
+
+`422` には
+[ミューテーションフォーム](/hypermedia-components/ja/recipes/mutating-form/)の
+1 行 `beforeSwap` 許可を併用します。
+
+## ダイアログ
+
+[リモートダイアログ](/hypermedia-components/ja/recipes/remote-dialog/)に
+[ライブ検索](/hypermedia-components/ja/recipes/live-search/)と結果
+リストを載せたもの。選択可能な行は **`#customer-field` を `outerHTML`
+で**ターゲットするボタンで、選ぶとフィールドが直接再描画され、成功
+リクエストがダイアログを閉じます(`data-hc-close-dialog-on-success`)。
+真似する価値のある 2 つの姿勢:
+
+- **非アクティブなマスタは「見えるが選べない」** —
+  `aria-disabled="true"`、配線なし、理由は行のテキストに(「2026-04
+  から取引停止」)。黙って消すより見えて拒否される方が良い、
+  [検索結果の上限](/hypermedia-components/ja/recipes/result-cap/)の
+  バナーと同じ姿勢です。
+- **認可は行単位** — 参照してはいけないマスタは一覧に出さない。
+
+## プログレッシブエンハンスメント
+
+JavaScript なしでは、これはただのコード入力フィールドです: 🔍 は
+`type="button"` なので不活性、検証は送信時に行われます — それは
+送信先エンドポイントがどのみちやることです。行き止まりなし、便利が
+1 つ減るだけ。
+
+## アクセシビリティ
+
+- 🔍 ボタンには `aria-haspopup="dialog"` と `aria-label` を —
+  アイコンは名前ではありません。
+- 未解決 = `aria-invalid` + 入力に隣接するテキストメッセージ。
+  解決 = フィールド自身のヒント行に名称。
+- ダイアログは自分でタイトルを持ち、結果はリスト内の素のボタンです。
+
+## ノート
+
+- **自由入力+参照**の混在フィールドは、id を nullable にした同じ
+  レシピです — 契約が求めるのは「コードと id が食い違わない」こと
+  だけ。
+- **複数選択の参照**は
+  [トランスファー](/hypermedia-components/ja/recipes/transfer/)の
+  領分です。
+- 小さくローカルなリストなら `hc-combobox` のタイプアヘッドが軽量。
+  マスタが大きい・複数列で探す・眺めて選ぶ、のときにこのレシピの
+  ダイアログが割に合います。
+
+## 関連
+
+- [郵便番号住所補完](/hypermedia-components/ja/recipes/postal-address/) —
+  一方向ルックアップ(コード→フィールド、ダイアログなし)。
+- [リモートダイアログ](/hypermedia-components/ja/recipes/remote-dialog/)と
+  [ライブ検索](/hypermedia-components/ja/recipes/live-search/) — この
+  レシピが合成する 2 部品。
+- [フィールドエラー](/hypermedia-components/ja/recipes/field-errors/) —
+  422 が再利用するエラーマーキングの語彙。
