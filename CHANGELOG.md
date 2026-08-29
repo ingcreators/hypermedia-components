@@ -46,6 +46,16 @@ Security    — security-relevant changes
   `installRemoteDialog()`/`installCloseDialog()`); live demo +
   demo API included.
   ([plan](plans/hc-business-flow-contracts-plan-en.md))
+- `workflow-actions` recipe — a record's lifecycle as a
+  server-rendered actions region: the server renders only the legal
+  transitions (can-never = not rendered; could-but-not-now =
+  `aria-disabled` + reason), the verb is the button and the version
+  rides along, whole-region `outerHTML` swaps keep state / version /
+  stepper / buttons in lockstep, comment-required transitions `422`
+  with the field rendered only then, and stale or illegal transitions
+  `409` with the region re-rendered from current truth. Zero new
+  JS/CSS; live demo + demo API included.
+  ([plan](plans/hc-business-flow-contracts-plan-en.md))
 
 - `result-cap` recipe — bound what one search may return: `LIMIT cap+1`
   detection, "cap+" counts, and a persistent truncation banner

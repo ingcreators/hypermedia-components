@@ -1,0 +1,132 @@
+---
+title: ワークフローアクション
+description: レコードのライフサイクルをサーバレンダリングのアクション領域で駆動 — アクションの集合こそが状態。遷移は version を同乗させ、古い操作は「現在の真実」で描画された 409 と大きな音を立てて衝突します。
+---
+
+import WorkflowActionsDemo from '../../../../components/recipe-demos/WorkflowActionsDemo.astro';
+
+[データグリッドのスナップショットページャー](/hypermedia-components/ja/recipes/datagrid-snapshot-pager/)が
+承認ワークフローの**キュー側**なら、このレシピはそこから開く**伝票
+詳細側**です。ライフサイクルを持つレコード
+(draft → submitted → approved / returned)に、サーバレンダリングの
+アクション領域を 1 つ — **アクションの集合こそが状態**であり、
+クライアント側のステートマシンも、JS のロール判定も、隠したり出したり
+するボタンもありません。
+
+:::tip[スキャフォールド]
+`npx @hypermedia-components/cli add workflow-actions` がこのレシピの
+スキャフォールド(`recipe.html`、`expanded.html`、`contract.md`、
+`checks.json`)をコピーし、`npx @hypermedia-components/cli validate` が
+コピーを機械検証します。完全な契約は
+[`recipes/workflow-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/workflow-actions/contract.md)
+にあります。
+:::
+
+## ライブデモ
+
+伝票はレビュー中の状態で読み込まれます。**Approve** で Done へ。
+**Return** はまずコメントを要求します — 422 の形で、コメント欄は
+必要になったときだけサーバが描画します。**Approve (lose the race)** は
+別のレビュアーが先に承認した状況をシミュレートします: 409 の
+レスポンスは*相手の*真実で再描画された領域+誰が勝ったかのトースト。
+あなたの操作は決して適用されません。
+
+<WorkflowActionsDemo />
+
+## マークアップ
+
+```html
+<form method="post" action="/docs/42/transition" id="doc-actions" data-hc-workflow>
+  <input type="hidden" name="version" value="7">
+
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">…Draft ✓…</li>
+    <li class="hc-stepper__step" aria-current="step">…Review…</li>
+    <li class="hc-stepper__step">…Done…</li>
+  </ol>
+
+  <div class="hc-toolbar" role="toolbar" aria-label="Document actions">
+    <button class="hc-button" data-variant="primary" type="submit"
+            name="transition" value="approve"
+            data-hx-post="/docs/42/transition"
+            data-hx-target="#doc-actions" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Approve</button>
+    <button class="hc-button" type="submit" name="transition" value="return"
+            data-hx-post="/docs/42/transition"
+            data-hx-target="#doc-actions" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Return for revision</button>
+  </div>
+</form>
+```
+
+これを健全にしているルール:
+
+- **サーバは、このユーザー・この version に合法な遷移だけを描画
+  します。** 2 種類の「ない」は描き分けます: *決してできないこと*
+  (ロール違い)はそもそも描画しない。*今はできないこと*は
+  `aria-disabled="true"` + **理由つき**で描画する — 見える拒否は
+  ライフサイクルを教え、消えたボタンは何も教えません。
+- **動詞はボタン**(`name="transition" value="approve"`)で、
+  **version が同乗**します —
+  [編集競合](/hypermedia-components/ja/recipes/edit-conflict/)の
+  楽観ロックを状態に適用した形です。
+- **領域全体を `outerHTML` でスワップ** — 状態・version・ステッパー・
+  ボタンは常に一緒に変わります。ステッパーは同じ真実の絵で、同じ
+  スワップで更新されます。
+- 読み取り専用のビューアにはフォームなしのステッパーを — 遷移を
+  提供しない領域はワークフロー面ではありません。
+- `data-hc-workflow` は契約マーカーです。
+
+## サーバレスポンス契約
+
+| レスポンス | 意味 |
+| --- | --- |
+| `200` | 適用 — 新しい状態の領域: version 加算、ステッパー前進、*次の*合法アクション集合(+任意のトースト) |
+| `422` | コメント必須 — 同じ領域+コメント欄(**このときだけ描画**、`required` + `aria-invalid`)。version は不変 |
+| `409` | 陳腐化(誰かが先に動かした)または不正(ダブルクリックが自分と競走した) — **現在の真実**で再描画した領域+誰が勝ったかの説明(`hc-alert`、`role="status"`)。古い操作は決して適用しない |
+
+409/422 フラグメントには
+[ミューテーションフォーム](/hypermedia-components/ja/recipes/mutating-form/)の
+1 行 `beforeSwap` 許可を使います。
+
+## プログレッシブエンハンスメント
+
+ボタンはネイティブ submit です: htmx なしではフォームが POST し、
+サーバは同じ再描画領域を含む伝票のフルページを返します — 409 も 422
+もページです。ライフサイクルの何ひとつ JavaScript に住んでいません。
+
+## アクセシビリティ
+
+- ツールバーは `role="toolbar"` + `aria-label`。ステッパーは
+  `aria-current="step"` で現在地を伝え、「(completed)」は
+  `hc-sr-only` に。
+- 409 の説明は `role="status"` — 丁寧に読み上げられる持続的状態、
+  [検索結果の上限](/hypermedia-components/ja/recipes/result-cap/)の
+  バナーと同じ姿勢です。
+- 理由つき disabled は理由を知覚可能に — 理由が重要なとき、隣接
+  テキストは `title` 単独に勝ります。
+
+## ノート
+
+- **キュー側**は
+  [データグリッドのスナップショットページャー](/hypermedia-components/ja/recipes/datagrid-snapshot-pager/)。
+  キューの一括承認とこの領域の単体承認は、同じ遷移エンドポイントを
+  共有すべきです。
+- **危険な遷移**(取り下げ、最終却下)は
+  [確認アクション](/hypermedia-components/ja/recipes/confirm-action/)と
+  合成します。
+- 409 を超える**ダブルクリック安全性**は idempotency-key 契約
+  (本プラン最後のレシピ)から — 同じ送信のリプレイには競合ではなく
+  元のレスポンスを返します。
+- 誰が何を遷移できるかは、サーバが既に所有しているポリシーです。
+  この契約が固定するのは、*それがどこでマークアップになるか*(描画)と
+  *違反が何を返すか*(409、現在の真実)だけです。
+
+## 関連
+
+- [編集競合](/hypermedia-components/ja/recipes/edit-conflict/) — この
+  レシピが状態に適用する version ロック。
+- [データグリッドのスナップショットページャー](/hypermedia-components/ja/recipes/datagrid-snapshot-pager/) —
+  この詳細を開く元のキュー。
+- [マルチステップフォーム](/hypermedia-components/ja/recipes/multi-step-form/) —
+  ライフサイクルではなく*データ入力*を駆動するステッパー。

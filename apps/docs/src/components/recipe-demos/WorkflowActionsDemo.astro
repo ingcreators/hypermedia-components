@@ -1,0 +1,27 @@
+---
+/*
+ * Live demo for the workflow-actions recipe. The region loads in the
+ * submitted state; Approve moves it to Done, Return demands a comment
+ * first (the 422 shape — the comment field is server-rendered only
+ * when needed), and "Approve (lose the race)" simulates another user
+ * having approved first: a 409 whose response is the region
+ * re-rendered from THEIR truth, plus a who-won toast. A real server
+ * reads state and version from its database; the stateless demo
+ * threads them through hidden inputs (the bulk-actions demo trick).
+ * Server side: apps/docs/demo-api/recipes/workflow-actions.mjs.
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/workflow-actions`;
+---
+
+<DemoFrame class="hc-preview--col" label="Workflow actions demo">
+  <div
+    style="inline-size: 100%;"
+    data-hx-get={`${api}/region?state=submitted&version=7`}
+    data-hx-trigger="load"
+    data-hx-target="this"
+    data-hx-swap="innerHTML">
+    <p class="hc-field__hint" style="margin:0;">Loading document…</p>
+  </div>
+</DemoFrame>
