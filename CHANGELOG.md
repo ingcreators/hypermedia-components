@@ -30,6 +30,13 @@ Security    — security-relevant changes
   states (done / failed / cancelled / expired-as-tombstone) and
   no-op-200 cancel. Zero new JS/CSS; live demo + demo API included.
   ([plan](plans/hc-business-flow-contracts-plan-en.md))
+- `line-items` recipe — the order/quote/invoice detail table as a
+  hypermedia contract: rows align positionally by repeated names
+  (tree-order serialization), add/remove/recalculate are the same
+  whole-form POST + `outerHTML` swap, the server owns all arithmetic
+  (totals render "—" while any row is invalid), and 422 echoes the
+  bad raw value back. Zero new JS/CSS; live demo + demo API included.
+  ([plan](plans/hc-business-flow-contracts-plan-en.md))
 
 - `result-cap` recipe — bound what one search may return: `LIMIT cap+1`
   detection, "cap+" counts, and a persistent truncation banner

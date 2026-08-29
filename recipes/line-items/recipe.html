@@ -1,0 +1,44 @@
+<!-- Short recommended usage.
+
+  line-items: the order/quote/invoice detail table — N editable rows
+  in one form, where THE SERVER OWNS ALL ARITHMETIC (rounding is
+  business truth) and every structural change is the same round trip.
+  One endpoint, one shape: POST the whole form, get the whole form
+  back re-rendered (add/remove arrive as the pressed button's
+  name/value; a change event presses no button and just
+  recalculates). Rows align positionally: item/qty/price repeat per
+  row and tree-order serialization keeps them aligned — no index
+  bookkeeping, no renumbering. data-hc-line-items is a contract
+  marker only; no behavior attaches. -->
+<form method="post" action="/quotes/42/recalc" id="quote" data-hc-line-items>
+  <table class="hc-table">
+    <thead>
+      <tr><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Unit price</th>
+          <th scope="col">Line total</th><th scope="col"><span aria-hidden="true"></span></th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input class="hc-input" name="item" value="Widget" aria-label="Item"></td>
+        <td><input class="hc-input" name="qty" value="3" inputmode="numeric" aria-label="Quantity"
+                   data-hx-post="/quotes/42/recalc" data-hx-trigger="change"
+                   data-hx-target="#quote" data-hx-swap="outerHTML"></td>
+        <td><input class="hc-input" name="price" value="1200" inputmode="numeric" aria-label="Unit price"
+                   data-hx-post="/quotes/42/recalc" data-hx-trigger="change"
+                   data-hx-target="#quote" data-hx-swap="outerHTML"></td>
+        <td data-cell="line-total">¥3,600</td>
+        <td><button class="hc-button" data-variant="ghost" type="submit" name="remove" value="1"
+                    data-hx-post="/quotes/42/recalc"
+                    data-hx-target="#quote" data-hx-swap="outerHTML">Remove</button></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr><th scope="row" colspan="3">Subtotal</th><td>¥3,600</td><td></td></tr>
+      <tr><th scope="row" colspan="3">Tax (10%)</th><td>¥360</td><td></td></tr>
+      <tr><th scope="row" colspan="3">Total</th><td>¥3,960</td><td></td></tr>
+    </tfoot>
+  </table>
+
+  <button class="hc-button" type="submit" name="add" value="1"
+          data-hx-post="/quotes/42/recalc"
+          data-hx-target="#quote" data-hx-swap="outerHTML">Add row</button>
+</form>

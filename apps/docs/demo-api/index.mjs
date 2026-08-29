@@ -44,6 +44,7 @@ import * as filterPopover from './recipes/filter-popover.mjs';
 import * as inlineEdit from './recipes/inline-edit.mjs';
 import * as lazyPanel from './recipes/lazy-panel.mjs';
 import * as lazyTree from './recipes/lazy-tree.mjs';
+import * as lineItems from './recipes/line-items.mjs';
 import * as liveSearch from './recipes/live-search.mjs';
 import * as multiStepForm from './recipes/multi-step-form.mjs';
 import * as mutatingForm from './recipes/mutating-form.mjs';
@@ -89,6 +90,7 @@ const RECIPES = new Map([
   ['inline-edit', inlineEdit],
   ['lazy-panel', lazyPanel],
   ['lazy-tree', lazyTree],
+  ['line-items', lineItems],
   ['live-search', liveSearch],
   ['multi-step-form', multiStepForm],
   ['mutating-form', mutatingForm],
