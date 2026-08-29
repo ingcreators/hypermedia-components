@@ -1,0 +1,47 @@
+{
+  "detect": "[data-hc-job]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "poll-self-target",
+      "level": "error",
+      "message": "A polling job card must target itself (data-hx-target=\"this\") — the polling attributes travel with the fragment, so replacing the card is what stops the poll.",
+      "attr": {
+        "on": "[data-hc-job][data-hx-trigger]",
+        "name": "data-hx-target",
+        "assert": "present",
+        "value": "this"
+      }
+    },
+    {
+      "id": "poll-outer-swap",
+      "level": "error",
+      "message": "A polling job card must swap outerHTML — innerHTML leaves the old trigger on the surviving element and the card polls forever, terminal states included.",
+      "attr": {
+        "on": "[data-hc-job][data-hx-trigger]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
+    },
+    {
+      "id": "polite-line",
+      "level": "warn",
+      "message": "Give each card a polite live line (progress / outcome text — aria-live=\"polite\" or role=\"status\") — and put it on that line, never on the card itself.",
+      "exists": {
+        "selector": "[aria-live=\"polite\"], [role=\"status\"]"
+      }
+    },
+    {
+      "id": "cancel-targets-card",
+      "level": "warn",
+      "message": "The cancel button should replace the card it lives in (data-hx-target=\"closest [data-hc-job]\").",
+      "attr": {
+        "on": "[data-hc-job] [data-hx-post*=\"cancel\"]",
+        "name": "data-hx-target",
+        "assert": "present",
+        "matches": "closest"
+      }
+    }
+  ]
+}

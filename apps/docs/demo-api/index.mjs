@@ -19,6 +19,7 @@
 //     headers follow recipes/<name>/contract.md.
 
 import { notFound } from './html.mjs';
+import * as asyncJob from './recipes/async-job.mjs';
 import * as autosave from './recipes/autosave.mjs';
 import * as cascadingSelect from './recipes/cascading-select.mjs';
 import * as chart from './recipes/chart.mjs';
@@ -63,6 +64,7 @@ import * as transfer from './recipes/transfer.mjs';
 import * as undoDelete from './recipes/undo-delete.mjs';
 
 const RECIPES = new Map([
+  ['async-job', asyncJob],
   ['autosave', autosave],
   ['cascading-select', cascadingSelect],
   ['chart', chart],

@@ -1,0 +1,134 @@
+---
+title: Async job
+description: Run work that outlives a request — CSV exports, PDF rendering, batch imports — behind one polling contract, 202 plus a job card that polls itself until a terminal state.
+---
+
+import AsyncJobDemo from '../../../components/recipe-demos/AsyncJobDemo.astro';
+
+Some requests are jobs: the CSV export the
+[result cap](/hypermedia-components/recipes/result-cap/) banner points
+to, the PDF render, the batch import. This recipe is one contract for
+all of them — **202 + a job card that polls itself** — with the whole
+lifecycle expressed in server-rendered fragments and zero JS lifecycle
+management.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add async-job` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/async-job/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/async-job/contract.md).
+:::
+
+## Live demo
+
+Kick off an export — the card polls every second and finishes in about
+eight seconds with a real CSV download. The second button starts the
+flavour that fails at 60%, ending in the terminal failed card with its
+Retry. Cancel mid-flight to see the cancelled card. The endpoint is a
+namespaced demo implementation of the contract under
+`api/recipes/async-job/` (stateless: the job id encodes its own start
+time, so progress is a function of the clock).
+
+<AsyncJobDemo />
+
+## The polling shape
+
+The kick-off POST answers **202** with the running card, and the card
+polls **itself**:
+
+```html
+<div class="hc-card" data-hc-job
+     data-hx-get="/exports/j_8f3k" data-hx-trigger="every 2s"
+     data-hx-target="this" data-hx-swap="outerHTML">
+  <progress class="hc-progress" value="40" max="100" aria-label="Export progress"></progress>
+  <p aria-live="polite">Exporting — 12,000 / 30,000 rows</p>
+  <button class="hc-button" type="button"
+          data-hx-post="/exports/j_8f3k/cancel"
+          data-hx-target="closest [data-hc-job]"
+          data-hx-swap="outerHTML">Cancel</button>
+</div>
+```
+
+Three consequences, which are the whole design:
+
+1. **The polling attributes travel with the fragment.** A terminal
+   card (done / failed / cancelled / expired) simply carries no
+   trigger, and polling stops — nothing to unregister, no timers to
+   clear.
+2. **The server owns the cadence.** Each response writes the `every`
+   interval it wants into the fragment it returns — back off for a
+   long job, tighten near the end. No client backoff configuration.
+3. **The swap must be `outerHTML` with `data-hx-target="this"`.** An
+   `innerHTML` swap would leave the old trigger on the surviving
+   element and the card would poll forever — terminal states
+   included. (`hc validate` checks exactly this.)
+
+`data-hc-job` is a contract marker only — no behavior attaches.
+
+## The cards
+
+| State | Card |
+| --- | --- |
+| Running | `hc-progress` + a polite progress line + Cancel (`data-hx-target="closest [data-hc-job]"`) |
+| Done | the artifact as a plain `<a href download>` — an idempotent GET |
+| Failed | the reason (`hc-alert`, `role="status"`) + Retry, which POSTs the **kick-off** again — a *new* job |
+| Cancelled | a plain confirmation |
+| Expired / unknown id | a tombstone ("This job has expired — start again"), **HTTP 200** — staleness is a state, not an error |
+
+The failed card should state whether partial work was written
+("nothing was written"). Cancelling a job that already finished is a
+**no-op 200** answering with the actual terminal card — the race is
+expected, never an error.
+
+## Server response contract
+
+| Request | Response |
+| --- | --- |
+| `POST /exports` | `202` + the running card (the job id is an opaque token) |
+| `GET /exports/<id>` | `200` + the current card |
+| `POST /exports/<id>/cancel` | `200` + the cancelled card (no-op on finished jobs) |
+| `GET /exports/<id>/result` | the artifact, `Content-Disposition: attachment` |
+
+## Progressive enhancement
+
+The kick-off form POSTs normally without JavaScript; the server
+renders a full page whose body is the job card plus a "check status"
+link (or a `<meta http-equiv="refresh">`) — polling degrades to
+manual refresh, and every state stays reachable by its URL.
+
+## Accessibility
+
+- The progress text is its own `aria-live="polite"` element — never
+  put `aria-live` on the card, or every poll re-announces the whole
+  card, buttons included.
+- `<progress>` keeps its native `progressbar` role; give it an
+  `aria-label`.
+- Terminal states announce themselves once — the polite line's text
+  changes with the final swap; no extra wiring.
+
+## Notes
+
+- **htmx 286.** When polling a *stable* element (`every` on a
+  container with `innerHTML` swaps), htmx stops polling on a
+  response with status 286 — the documented alternative for layouts
+  where the card must not be replaced.
+- **SSE variant.** With server push in place, point the card at an
+  [SSE updates](/hypermedia-components/recipes/sse-updates/) stream
+  instead of `every` — same cards, push instead of poll.
+- **A job inbox** (my recent jobs) is this recipe per row plus a
+  [data region](/hypermedia-components/recipes/data-region/) for the
+  list.
+- A double-clicked kick-off should yield **one** job — the
+  idempotency-key contract (this plan's final recipe) makes the
+  replayed 202 point both clicks at the same card.
+
+## Related
+
+- [Result cap](/hypermedia-components/recipes/result-cap/) — whose
+  "export to CSV" escape hatch this recipe implements.
+- [File upload](/hypermedia-components/recipes/file-upload/) — upload
+  progress (the request itself); this recipe takes over after the
+  server has the file.
+- [SSE updates](/hypermedia-components/recipes/sse-updates/) — the
+  push transport variant.

@@ -1,0 +1,46 @@
+---
+/*
+ * Live demo for the async-job recipe. The kick-off POST answers 202
+ * with a job card that polls itself every second (target=this,
+ * outerHTML — the polling attributes travel with the fragment); the
+ * demo job finishes in ~8 s and serves a real CSV. The second button
+ * starts the flavour that fails at 60%, showing the terminal failed
+ * card with its Retry. Server side:
+ * apps/docs/demo-api/recipes/async-job.mjs (stateless — the job id
+ * encodes its own start time).
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/async-job`;
+---
+
+<DemoFrame class="hc-preview--col" label="Async job demo">
+  <form class="hc-cluster" method="post" action={`${api}/exports`}>
+    <button
+      class="hc-button"
+      data-variant="primary"
+      type="submit"
+      data-hx-post={`${api}/exports`}
+      data-hx-target="#async-job-demo-job"
+      data-hx-swap="innerHTML"
+      data-hx-disabled-elt="this">
+      Export CSV
+    </button>
+    <button
+      class="hc-button"
+      data-variant="secondary"
+      type="submit"
+      name="fail"
+      value="1"
+      data-hx-post={`${api}/exports`}
+      data-hx-target="#async-job-demo-job"
+      data-hx-swap="innerHTML"
+      data-hx-disabled-elt="this">
+      Export that fails
+    </button>
+  </form>
+
+  <div id="async-job-demo-job" style="inline-size: 100%;">
+    <p class="hc-field__hint" style="margin:0;">No job running — kick one off.</p>
+  </div>
+</DemoFrame>
