@@ -46,16 +46,16 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.2.1` (2026-08-08): 67 component stylesheets ·
-53 behaviors (52 auto-init + opt-in chart) · 2 macros · 36 recipes ·
-8 integration guides · 3 full-page templates · opt-in `hc.print.css`
+As of `0.3.0` (2026-08-29): 67 component stylesheets ·
+57 behaviors (56 auto-init + opt-in chart) · 2 macros · 44 recipes ·
+8 integration guides · 4 full-page templates · opt-in `hc.print.css`
 (`./css/print`) · docs **fully mirrored in Japanese (`/ja/`)** ·
 runtime axes
 `data-theme` / `data-color` / `data-neutral` / `data-density` / `dir` ·
 i18n message catalog (`setMessages()`) · examples for plain-html +
 htmx · Vitest suites (core + CLI + demo-api) · Playwright suites (incl.
 axe scans and the VRT screenshot sheets) · `hc validate` machine-checked
-recipe contracts (`@hypermedia-components/cli@0.4.1`).
+recipe contracts (`@hypermedia-components/cli@0.4.2`).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -124,8 +124,39 @@ the local branch after its PR merges.
 
 ## Current focus
 
-Core `0.2.1` + CLI `0.4.1` shipped (2026-08-08, `v0.2.1` /
-`cli-v0.4.1` tags) — the **business-app release**: seven themes from
+Core `0.3.0` + CLI `0.4.2` shipped (2026-08-29, `v0.3.0` /
+`cli-v0.4.2` tags) — the **data-grid release**, PRs #487–#577: the
+operations a business grid is actually used for. Eight new recipes
+(`datagrid-sort` / `-filter` / `-prefs` / `-tree` / `-edit-errors` /
+`-edit-conflict` / `-bulk-errors`, plus `row-detail`), the *Data grid
+page* template, the `hc-filterbar` component, four new behaviors
+(`installRangeValue` / `installMultiValue` / `installRowLink` /
+`installSortList`), `.hc-fill`, and row ordinals.
+
+**Minor, not patch**, for exactly one reason: `--hc-color-link` /
+`-hover` / `-visited` and the bare-anchor rules in `@layer hc.base`
+(#569, PR #574) re-colour every `<a>` outside a component, which had
+been falling to the UA's `-webkit-link` blue and `:visited` purple. The
+`:visited` half is baked per theme by the token build, because engines
+refuse to resolve `var()` in a visited-dependent declaration — that is
+the one part of a theme a consumer cannot express by hand. Links are
+also the only accent value that is theme-dependent (no ramp step clears
+4.5:1 on both surfaces), so each non-default accent gained a
+`color.<name>.dark.tokens.json` under a compound selector.
+
+The link work reached the **email** render target too (#577), and turned up
+a defect there: the dark flavor had been leaving links and tables on their
+light colours (2.77:1 and 1.21:1 on the dark container), because a fragment
+is only reachable by the layout's dark media query if it carries an
+`hc-em-*` class — and neither had one. It also caught a regression the link
+tokens introduced in the theme builder, where `theme.dark` overlays the
+custom accent and so began winning its link colour.
+
+Everything else in the release is strictly additive.
+`@hypermedia-components/editor-kit` is unchanged at `0.2.0`.
+
+The previous release — Core `0.2.1` + CLI `0.4.1` (2026-08-08, `v0.2.1` /
+`cli-v0.4.1` tags) — was the **business-app release**: seven themes from
 the 2026-08-08 line-of-business gap analysis, 19 feature PRs
 (#467–#485), each theme plan-first:
 
