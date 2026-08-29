@@ -1,0 +1,28 @@
+---
+/*
+ * Live demo for the reference-lookup recipe. The field loads
+ * resolved; edit the code (blur to fire `change`) to see resolve —
+ * try C-1043 (resolves), C-9999 (422: message + CLEARED id), or
+ * clear it. The 🔍 button opens the remote-dialog searcher; picking
+ * a row re-renders the field and closes the dialog; the inactive
+ * row is visible but refused. Server side:
+ * apps/docs/demo-api/recipes/reference-lookup.mjs (fixed master
+ * list, stateless).
+ */
+import DemoFrame from './DemoFrame.astro';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/reference-lookup`;
+---
+
+<DemoFrame class="hc-preview--col" label="Reference lookup demo">
+  <div
+    style="inline-size: 100%; max-inline-size: 28rem;"
+    data-hx-get={`${api}/field`}
+    data-hx-trigger="load"
+    data-hx-target="this"
+    data-hx-swap="innerHTML">
+    <p class="hc-field__hint" style="margin:0;">Loading field…</p>
+  </div>
+
+  <div id="reference-lookup-demo-root" data-hc-remote-dialog-root></div>
+</DemoFrame>

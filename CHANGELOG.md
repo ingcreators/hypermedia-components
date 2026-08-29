@@ -37,6 +37,15 @@ Security    — security-relevant changes
   (totals render "—" while any row is invalid), and 422 echoes the
   bad raw value back. Zero new JS/CSS; live demo + demo API included.
   ([plan](plans/hc-business-flow-contracts-plan-en.md))
+- `reference-lookup` recipe — the master-reference field (F4-style):
+  a visible `*_code` input validated on `change`, a hidden `*_id`
+  (opaque token) as the submitted identity, a remote-dialog +
+  live-search picker whose rows re-render the whole field, inactive
+  masters rendered visible-but-refused, and the rule that an
+  unresolved code always clears the id. Zero new JS/CSS (composes
+  `installRemoteDialog()`/`installCloseDialog()`); live demo +
+  demo API included.
+  ([plan](plans/hc-business-flow-contracts-plan-en.md))
 
 - `result-cap` recipe — bound what one search may return: `LIMIT cap+1`
   detection, "cap+" counts, and a persistent truncation banner

@@ -1,0 +1,140 @@
+---
+title: Reference lookup
+description: The master-reference field — direct code entry plus a search-dialog picker, a hidden id plus a visible code, and an unresolved code that always clears the id.
+---
+
+import ReferenceLookupDemo from '../../../components/recipe-demos/ReferenceLookupDemo.astro';
+
+Business forms reference masters: the customer on the order, the item
+on the line, the cost centre on the expense. Power users type the code;
+everyone else needs a searchable dialog (SAP calls it F4 help). This
+recipe is that field as a contract — **two inputs, one truth**: the
+visible `*_code` for humans, a hidden `*_id` for identity, and a
+server that never lets them disagree.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add reference-lookup` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/reference-lookup/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/reference-lookup/contract.md).
+:::
+
+:::note[Setup]
+The dialog plumbing uses `installRemoteDialog()` and
+`installCloseDialog()` from the auto-init bundle
+(`import '@hypermedia-components/core/behaviors';`). The field itself
+is pure htmx. See
+[Installation](/hypermedia-components/start/installation/).
+:::
+
+## Live demo
+
+Edit the code and leave the field: `C-1043` resolves, `C-9999` shows
+the 422 shape (message, **cleared** id), an empty code clears. The 🔍
+button opens the searcher; picking a row re-renders the field and
+closes the dialog — and the inactive customer is visible but refused.
+
+<ReferenceLookupDemo />
+
+## The markup
+
+```html
+<div class="hc-field" id="customer-field" data-hc-lookup>
+  <label class="hc-field__label" for="customer-code">Customer</label>
+  <div class="hc-input-group">
+    <input class="hc-input" id="customer-code" name="customer_code" value="C-1041"
+           data-hx-get="/customers/resolve" data-hx-trigger="change"
+           data-hx-target="#customer-field" data-hx-swap="outerHTML">
+    <button class="hc-button" type="button" aria-haspopup="dialog"
+            aria-label="Search customers"
+            data-hx-get="/customers/lookup"
+            data-hx-target="#lookup-root" data-hx-swap="innerHTML">🔍</button>
+  </div>
+  <p class="hc-field__hint">Acme Trading K.K.</p>
+  <input type="hidden" name="customer_id" value="cus_9f2">
+</div>
+
+<div id="lookup-root" data-hc-remote-dialog-root></div>
+```
+
+The rules that make it sound:
+
+- **Two fields, one truth.** The code is what users see; the hidden id
+  (an opaque token — composite keys fold into it, per the
+  [snapshot pager](/hypermedia-components/recipes/datagrid-snapshot-pager/)
+  key rule) is what submits; the display name is presentation and
+  never submits.
+- **An unresolved code means an empty id.** The classic defect is a
+  stale id riding under a corrected code — every unresolved response
+  clears the hidden input, and `hc validate` insists the whole field
+  swaps as one (`outerHTML`) so code, hint, and id can never drift.
+- **The consuming endpoint re-validates on submit anyway.** The id is
+  client-supplied; it means nothing by itself.
+
+## Resolve (direct entry)
+
+`change` GETs `/resolve?customer_code=…` and the whole field comes
+back:
+
+| Input | Response |
+| --- | --- |
+| known code | `200` — hint = name, id filled, code normalised (case/width) to its canonical form |
+| unknown code | `422` — `aria-invalid`, message replaces the hint, **id empty**, raw code echoed |
+| empty code | `200` — cleared; required-ness is the submit endpoint's business |
+
+The `422` needs the standard one-line `beforeSwap` allowance from
+[mutating form](/hypermedia-components/recipes/mutating-form/).
+
+## The dialog
+
+A [remote dialog](/hypermedia-components/recipes/remote-dialog/)
+carrying a [live search](/hypermedia-components/recipes/live-search/)
+and a result list. Each selectable row is a button targeting
+**`#customer-field` with `outerHTML`** — picking re-renders the field
+directly, and the successful request closes the dialog
+(`data-hc-close-dialog-on-success`). Two stances worth copying:
+
+- **Inactive masters render visible but refused** —
+  `aria-disabled="true"`, no wiring, the reason in the row ("inactive
+  since 2026-04"). Visible-but-refused beats silently missing, the
+  same stance as the [result cap](/hypermedia-components/recipes/result-cap/)
+  banner.
+- **Authorization is per row** — never list masters the user may not
+  reference.
+
+## Progressive enhancement
+
+Without JavaScript the field is a plain code input: the 🔍 button is
+`type="button"` and inert, and validation happens at submit time —
+which the consuming endpoint performs regardless. No dead ends, one
+fewer convenience.
+
+## Accessibility
+
+- The 🔍 button needs `aria-haspopup="dialog"` and an `aria-label` —
+  an icon is not a name.
+- Unresolved = `aria-invalid` + an adjacent text message; resolved =
+  the name in the field's own hint line.
+- The dialog titles itself; the results are plain buttons in a list.
+
+## Notes
+
+- **Free text + reference** in one field is this recipe with a
+  nullable id — the contract only insists the code and id never
+  disagree.
+- **Multi-select references** are
+  [transfer](/hypermedia-components/recipes/transfer/) territory.
+- For a small, local list, `hc-combobox` typeahead is lighter; this
+  recipe earns its dialog when the master is large or browsed by
+  several columns.
+
+## Related
+
+- [Postal address](/hypermedia-components/recipes/postal-address/) —
+  the one-way lookup (code → fields, no dialog).
+- [Remote dialog](/hypermedia-components/recipes/remote-dialog/) and
+  [Live search](/hypermedia-components/recipes/live-search/) — the two
+  parts this composes.
+- [Field errors](/hypermedia-components/recipes/field-errors/) — the
+  error-marking vocabulary the 422 reuses.

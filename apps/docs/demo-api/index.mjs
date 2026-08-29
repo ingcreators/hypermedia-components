@@ -55,6 +55,7 @@ import * as dataGridPage from './recipes/data-grid-page.mjs';
 import * as rowDetail from './recipes/row-detail.mjs';
 import * as savedViews from './recipes/saved-views.mjs';
 import * as sessionExpiry from './recipes/session-expiry.mjs';
+import * as referenceLookup from './recipes/reference-lookup.mjs';
 import * as remoteDialog from './recipes/remote-dialog.mjs';
 import * as requestAction from './recipes/request-action.mjs';
 import * as resultCap from './recipes/result-cap.mjs';
@@ -101,6 +102,7 @@ const RECIPES = new Map([
   ['row-detail', rowDetail],
   ['saved-views', savedViews],
   ['session-expiry', sessionExpiry],
+  ['reference-lookup', referenceLookup],
   ['remote-dialog', remoteDialog],
   ['request-action', requestAction],
   ['result-cap', resultCap],

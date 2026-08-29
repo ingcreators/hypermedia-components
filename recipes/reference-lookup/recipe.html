@@ -1,0 +1,29 @@
+<!-- Short recommended usage.
+
+  reference-lookup: the master-reference field (customer, item, cost
+  centre — SAP's F4 help). Two truths, one field: the visible *_code
+  input is what users type and see; the hidden *_id is what the form
+  submits as identity (an opaque token). Direct code entry validates
+  on change — the whole field swaps back resolved (name in the hint,
+  id filled) or unresolved (422, aria-invalid, AND AN EMPTY ID: a
+  stale id under a corrected code is the classic defect). The 🔍
+  button opens a remote-dialog searcher; picking a row re-renders
+  this same field and closes the dialog. data-hc-lookup is a
+  contract marker only; the dialog plumbing is installRemoteDialog()
+  + installCloseDialog(). -->
+<div class="hc-field" id="customer-field" data-hc-lookup>
+  <label class="hc-field__label" for="customer-code">Customer</label>
+  <div class="hc-input-group">
+    <input class="hc-input" id="customer-code" name="customer_code" value="C-1041"
+           data-hx-get="/customers/resolve" data-hx-trigger="change"
+           data-hx-target="#customer-field" data-hx-swap="outerHTML">
+    <button class="hc-button" type="button" aria-haspopup="dialog"
+            aria-label="Search customers"
+            data-hx-get="/customers/lookup"
+            data-hx-target="#lookup-root" data-hx-swap="innerHTML">🔍</button>
+  </div>
+  <p class="hc-field__hint">Acme Trading K.K.</p>
+  <input type="hidden" name="customer_id" value="cus_9f2">
+</div>
+
+<div id="lookup-root" data-hc-remote-dialog-root></div>
