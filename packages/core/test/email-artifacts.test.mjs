@@ -4,6 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -107,6 +108,84 @@ describe('dist/email/contract.json', () => {
     expect(again.get('default-slate/plain/hc-email.html')).toBe(
       artifacts.get('default-slate/plain/hc-email.html'),
     );
+  });
+
+  // Email cannot use a custom property, so every colour is baked. Anything
+  // that is *text on the themed surface* — rather than a box carrying its own
+  // background/foreground pair — needs a rule in the dark media query, or the
+  // inline light value survives the flip. Before this was pinned, a link
+  // scored 2.77:1 on the dark container and table copy 1.21:1, which is dark
+  // text on a dark surface.
+  const relL = (hex) => {
+    const ch = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const [r, g, b] = ch.map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const ratio = (a, b) => {
+    const [hi, lo] = [relL(a), relL(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  /** The `@media (prefers-color-scheme: dark)` body of a baked layout. */
+  const darkBlock = (theme) => {
+    const css = artifacts.get(`${theme}/plain/hc-email-layout.html`);
+    const at = css.indexOf('@media (prefers-color-scheme: dark)');
+    expect(at, theme).toBeGreaterThan(-1);
+    const open = css.indexOf('{', at);
+    let depth = 0, i = open;
+    do { if (css[i] === '{') depth++; else if (css[i] === '}') depth--; i++; } while (depth);
+    return css.slice(open + 1, i - 1);
+  };
+
+  /**
+   * The value of one property in the rule for `selector`. Parsed rather
+   * than regexed off the raw text, because `color` is a suffix of both
+   * `background-color` and `border-color`.
+   */
+  const declared = (block, selector, property) => {
+    // Strip comments first — the ones in this block contain commas, which
+    // would otherwise survive into the selector list below.
+    for (const rule of block.replace(/\/\*[\s\S]*?\*\//g, '').split('}')) {
+      const [head, body] = rule.split('{');
+      if (!body) continue;
+      if (!head.split(',').some((s2) => s2.trim() === selector)) continue;
+      for (const decl of body.split(';')) {
+        const [prop, ...rest] = decl.split(':');
+        if (prop.trim() === property) return rest.join(':').replace('!important', '').trim();
+      }
+    }
+    return null;
+  };
+
+  it('the dark flip re-colours every text-on-surface element', () => {
+    for (const theme of EMAIL_NEUTRALS.map((n) => `default-${n}`)) {
+      const tokens = JSON.parse(artifacts.get(`${theme}/email-tokens.json`)).dark;
+      const block = darkBlock(theme);
+      // Text painted straight onto the themed container.
+      for (const selector of ['.hc-em-link', '.hc-em-td', '.hc-em-text', '.hc-em-muted']) {
+        const ink = declared(block, selector, 'color');
+        expect(ink, `${theme}: ${selector} has no dark colour`).toBeTruthy();
+        expect(
+          ratio(ink, tokens['color-surface']),
+          `${theme} ${selector} ${ink} on ${tokens['color-surface']}`,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+      // The header cell brings its own background, so measure against that.
+      const th = declared(block, '.hc-em-th', 'color');
+      const thBg = declared(block, '.hc-em-th', 'background-color');
+      expect(th, `${theme}: .hc-em-th has no dark colour`).toBeTruthy();
+      expect(thBg, `${theme}: .hc-em-th has no dark background`).toBeTruthy();
+      expect(ratio(th, thBg), `${theme} .hc-em-th ${th} on ${thBg}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('the link fragment reads the link token, not the accent', () => {
+    // `color-action-primary-bg` is the same value in both flavors — it is the
+    // colour a button sits ON, with white text over it, not a colour text is
+    // painted IN. A link built from it cannot survive the dark flip.
+    const src = readFileSync(join(CORE, 'src/email/link/fragment.html'), 'utf8');
+    expect(src).toContain('color:{color-link}');
+    expect(src).toContain('class="hc-em-link"');
+    expect(src).not.toContain('color-action-primary-bg');
   });
 
   it('is exported from the package', async () => {

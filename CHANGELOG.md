@@ -713,6 +713,33 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- **email**: the dark flavor **left links and tables on their light
+  colours**. The layout's `@media (prefers-color-scheme: dark)` block flips
+  the background, the container, headings, body copy, muted copy and the
+  separator — but a fragment can only be reached by that block if it carries
+  an `hc-em-*` class, and `link` and `table` had none. Email bakes every
+  colour inline, so what survived the flip was a link at **2.77:1** against
+  the dark container and table copy at **1.21:1**, which is dark text on a
+  dark surface. Both now carry classes (`hc-em-link`, `hc-em-table` /
+  `hc-em-th` / `hc-em-td`) with matching dark rules, reaching 5.85:1 and
+  13.34:1. Alerts, badges and buttons are untouched: each brings its own
+  background and foreground, so it is legible either way.
+
+  The link fragment also read `color-action-primary-bg`, which is the colour
+  a button sits **on** with white text over it, not a colour text is painted
+  **in** — and it holds the same value in both flavors, so no dark rule could
+  have saved it. It reads `color-link` now (#569).
+
+- **theme builder**: a custom theme built in **accent mode emailed a stock
+  blue dark-mode link** instead of its own accent. `theme.dark` is overlaid
+  after the custom accent, and it now carries link tokens, so it won the
+  resolution — a regression from adding them (#569). The builder's custom
+  accent gained the dark counterpart the stock accents ship as
+  `color.<name>.dark.tokens.json`, wired into all three outputs (the
+  paste-ready block, the full token CSS, and the email maps), so a teal theme
+  stays teal in dark.
+
+
 - **tests**: the two specs that follow a `#row` fragment link **read the
   focus a task too early**, and one of them failed roughly two full-suite
   runs in three while passing every time in isolation. Following the link is

@@ -13,5 +13,19 @@
     .hc-em-heading, .hc-em-text { color: {color-text.dark} !important; }
     .hc-em-muted { color: {color-text-muted.dark} !important; }
     .hc-em-separator { border-color: {separator-color.dark} !important; }
+    /* Text that sits on the themed surface rather than on a colour of its
+       own. Without these the inline light values survive the dark flip:
+       a link scores 2.77:1 on the dark container and table copy 1.21:1,
+       which is dark text on a dark surface. Alerts, badges and buttons
+       carry their own background/foreground pair, so they are legible as
+       they are and stay put. */
+    .hc-em-link { color: {color-link.dark} !important; }
+    .hc-em-table { border-color: {table-border.dark} !important; }
+    .hc-em-th {
+      background-color: {table-header-bg.dark} !important;
+      color: {table-header-fg.dark} !important;
+      border-color: {table-border.dark} !important;
+    }
+    .hc-em-td { color: {table-fg.dark} !important; border-color: {table-border.dark} !important; }
   }
 </style>

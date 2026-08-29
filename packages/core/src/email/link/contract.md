@@ -1,8 +1,7 @@
 # email/link — inline text link
 
-Underlined link in the brand accent (`color-action-primary-bg` — the
-primary action color doubles as the link accent; there is no separate
-link token). Use inside `hcText`-style copy or standalone.
+Underlined link in the theme's link colour (`color-link`). Use inside
+`hcText`-style copy or standalone.
 
 ## Fragment
 
@@ -10,7 +9,7 @@ link token). Use inside `hcText`-style copy or standalone.
 
 ## Tokens
 
-`color-action-primary-bg`.
+`color-link`.
 
 ## Notes
 
@@ -18,5 +17,12 @@ link token). Use inside `hcText`-style copy or standalone.
   several clients recolor links anyway.
 - Use absolute URLs. `label` is escaped by `th:text` (plain flavor:
   escape yourself).
-- No dark override: the accent is designed to hold on both surfaces,
-  and Gmail's auto-invert leaves link colors alone.
+- Carries `class="hc-em-link"` so the layout's
+  `@media (prefers-color-scheme: dark)` block can re-colour it. The inline
+  colour is the light value; without that class the dark flip leaves it
+  behind. The accent holds on both surfaces as a *background* with white
+  text on it — that is what `color-action-primary-bg` is for — but as
+  *text* on the dark email surface the same value scores 2.77:1.
+  `color-link` reads the ramp a few rungs lighter in dark and scores
+  5.85:1. Pinned by a spec, since nothing about the markup would show the
+  difference.

@@ -20,6 +20,13 @@ iterable of key/value pairs works:
 
 ## Notes
 
+- Cells carry `hc-em-th` / `hc-em-td` (and the table `hc-em-table`) so the
+  layout's `@media (prefers-color-scheme: dark)` block can re-colour them.
+  Body copy is painted straight onto the themed container, so without those
+  classes the inline light value survives the dark flip and scores 1.21:1 —
+  dark text on a dark surface.
+
+
 - This is a data table — no `role="presentation"`, unlike the layout
   skeletons, so screen readers announce it as tabular data.
 - Values are escaped by `th:text`. Plain flavor: the `th:each` strips
