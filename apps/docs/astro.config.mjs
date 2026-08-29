@@ -401,7 +401,10 @@ export default defineConfig({
             'editor-kit/inspector',
           ],
         },
-        { label: 'Tokens', translations: { ja: 'トークン' }, collapsed: true, items: [{ autogenerate: { directory: 'tokens' } }] },
+        // Renamed from "Tokens" (URLs unchanged): this section is the
+        // practical theming surface, and the old label collided with
+        // Fundamentals → Tokens, which owns the pipeline concept.
+        { label: 'Theming', translations: { ja: 'テーマ' }, collapsed: true, items: [{ autogenerate: { directory: 'tokens' } }] },
         {
           // Journey order, not autogenerate's alphabetical one: the
           // shared htmx foundation page every guide references first,
