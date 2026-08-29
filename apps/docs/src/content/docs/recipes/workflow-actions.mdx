@@ -1,0 +1,131 @@
+---
+title: Workflow actions
+description: Drive a record's lifecycle from a server-rendered actions region — the action set IS the state, transitions carry the version, and stale actions collide loudly with a 409 rendered from current truth.
+---
+
+import WorkflowActionsDemo from '../../../components/recipe-demos/WorkflowActionsDemo.astro';
+
+The [datagrid snapshot pager](/hypermedia-components/recipes/datagrid-snapshot-pager/)
+is the queue side of an approval workflow; this recipe is the document
+detail it opens into. A record with a lifecycle
+(draft → submitted → approved / returned) gets one server-rendered
+actions region where **the action set IS the state** — no client-side
+state machine, no role check in JS, no hidden-then-shown buttons.
+
+:::tip[Scaffold]
+`npx @hypermedia-components/cli add workflow-actions` copies this recipe's scaffold
+(`recipe.html`, `expanded.html`, `contract.md`, `checks.json`);
+`npx @hypermedia-components/cli validate` machine-checks your copy. The
+full contract lives in
+[`recipes/workflow-actions/contract.md`](https://github.com/ingcreators/hypermedia-components/blob/main/recipes/workflow-actions/contract.md).
+:::
+
+## Live demo
+
+The document loads in review. **Approve** moves it to Done; **Return**
+demands a comment first — the 422 shape, with the comment field
+server-rendered only when needed; **Approve (lose the race)**
+simulates another reviewer winning: a 409 whose response is the region
+re-rendered from *their* truth plus a who-won toast. Your action is
+never applied.
+
+<WorkflowActionsDemo />
+
+## The markup
+
+```html
+<form method="post" action="/docs/42/transition" id="doc-actions" data-hc-workflow>
+  <input type="hidden" name="version" value="7">
+
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">…Draft ✓…</li>
+    <li class="hc-stepper__step" aria-current="step">…Review…</li>
+    <li class="hc-stepper__step">…Done…</li>
+  </ol>
+
+  <div class="hc-toolbar" role="toolbar" aria-label="Document actions">
+    <button class="hc-button" data-variant="primary" type="submit"
+            name="transition" value="approve"
+            data-hx-post="/docs/42/transition"
+            data-hx-target="#doc-actions" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Approve</button>
+    <button class="hc-button" type="submit" name="transition" value="return"
+            data-hx-post="/docs/42/transition"
+            data-hx-target="#doc-actions" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Return for revision</button>
+  </div>
+</form>
+```
+
+The rules that make it sound:
+
+- **The server renders only the legal transitions** for this user on
+  this version. Two absences, rendered differently: what the user
+  *can never do* (wrong role) is not rendered at all; what they
+  *could do but not now* renders `aria-disabled="true"` **with the
+  reason** — a visible refusal teaches the lifecycle, a missing
+  button teaches nothing.
+- **The verb is the button** (`name="transition" value="approve"`) and
+  **the version rides along** — the
+  [edit conflict](/hypermedia-components/recipes/edit-conflict/)
+  optimistic lock applied to state.
+- **The whole region swaps (`outerHTML`)** — state, version, stepper,
+  and buttons always change together; the stepper is the same truth
+  in picture form, updated in the same swap.
+- A read-only viewer gets the stepper without the form —
+  a region offering no transitions is not a workflow surface.
+- `data-hc-workflow` is a contract marker only.
+
+## Server response contract
+
+| Response | Meaning |
+| --- | --- |
+| `200` | applied — the region in the new state: bumped version, moved stepper, the *next* legal action set (+ optional toast) |
+| `422` | comment required — the same region plus the comment field, **rendered only now**, `required` + `aria-invalid`; version untouched |
+| `409` | stale (someone else moved it first) or illegal (a double-click racing itself) — the region re-rendered **from current truth** + a who-won explanation (`hc-alert`, `role="status"`); the stale action is never applied |
+
+The 409/422 fragments use the standard one-line `beforeSwap`
+allowance from [mutating form](/hypermedia-components/recipes/mutating-form/).
+
+## Progressive enhancement
+
+The buttons are native submits: without htmx the form POSTs and the
+server renders the full document page with the same re-rendered
+region — the 409 and 422 are pages too. Nothing about the lifecycle
+lives in JavaScript.
+
+## Accessibility
+
+- The toolbar is `role="toolbar"` with an `aria-label`; the stepper
+  announces position via `aria-current="step"` and hides "(completed)"
+  text in `hc-sr-only`.
+- The 409 explanation is `role="status"` — a persistent state read
+  politely, the [result cap](/hypermedia-components/recipes/result-cap/)
+  banner stance.
+- Disabled-with-reason keeps the reason perceivable — adjacent text
+  beats `title` alone when the reason matters.
+
+## Notes
+
+- **The queue side** is the
+  [datagrid snapshot pager](/hypermedia-components/recipes/datagrid-snapshot-pager/);
+  its bulk approve and this region's single approve should share the
+  transition endpoint.
+- **Dangerous transitions** (withdraw, final reject) compose with
+  [confirm action](/hypermedia-components/recipes/confirm-action/).
+- **Double-click safety** beyond the 409 comes from the
+  idempotency-key contract (this plan's final recipe) — replaying the
+  same submission returns the original response instead of a
+  conflict.
+- Who may transition what is policy the server already owns; this
+  contract fixes *where it becomes markup* and *what a violation
+  returns*.
+
+## Related
+
+- [Edit conflict](/hypermedia-components/recipes/edit-conflict/) — the
+  version lock this recipe applies to state.
+- [Datagrid snapshot pager](/hypermedia-components/recipes/datagrid-snapshot-pager/) —
+  the queue this detail opens from.
+- [Multi-step form](/hypermedia-components/recipes/multi-step-form/) —
+  the stepper driving *data entry* rather than lifecycle.

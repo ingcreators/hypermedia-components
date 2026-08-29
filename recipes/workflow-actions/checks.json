@@ -1,0 +1,56 @@
+{
+  "detect": "form[data-hc-workflow]",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "version-rides",
+      "level": "error",
+      "message": "Every transition carries the version — a hidden input[name=\"version\"] in the region (the edit-conflict lock applied to state).",
+      "exists": {
+        "selector": "input[type=\"hidden\"][name=\"version\"]"
+      }
+    },
+    {
+      "id": "version-value",
+      "level": "warn",
+      "message": "Render the version value server-side — an empty version can never match and every transition conflicts.",
+      "attr": {
+        "on": "input[name=\"version\"]",
+        "name": "value",
+        "assert": "present",
+        "matches": "."
+      }
+    },
+    {
+      "id": "region-swap",
+      "level": "error",
+      "message": "Transition buttons swap the whole region back (data-hx-swap=\"outerHTML\") — state, version, stepper, and buttons must change together.",
+      "attr": {
+        "on": "[data-hx-post][data-hx-swap]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "outerHTML"
+      }
+    },
+    {
+      "id": "transitions-post",
+      "level": "error",
+      "message": "Transition buttons POST (data-hx-post) with name=\"transition\" — the verb travels as the button's value.",
+      "attr": {
+        "on": "button[name=\"transition\"]",
+        "name": "data-hx-post",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "toolbar-labelled",
+      "level": "warn",
+      "message": "Label the actions toolbar (role=\"toolbar\" + aria-label).",
+      "attr": {
+        "on": "[role=\"toolbar\"]",
+        "name": "aria-label",
+        "assert": "present"
+      }
+    }
+  ]
+}

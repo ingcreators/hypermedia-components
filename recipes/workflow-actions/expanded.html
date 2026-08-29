@@ -1,0 +1,83 @@
+<!-- Fully expanded HTML — the actions region in its notable states.
+  Every variant is a full server-rendered replacement of the same
+  region: state, version, stepper, and buttons always change
+  together. -->
+
+<!-- In review: the approver's view — two legal transitions. -->
+<form method="post" action="/docs/42/transition" id="doc-actions" data-hc-workflow>
+  <input type="hidden" name="version" value="7">
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Draft<span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Done</span>
+    </li>
+  </ol>
+  <div class="hc-toolbar" role="toolbar" aria-label="Document actions">
+    <button class="hc-button" data-variant="primary" type="submit"
+            name="transition" value="approve"
+            data-hx-post="/docs/42/transition"
+            data-hx-target="#doc-actions" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Approve</button>
+    <button class="hc-button" type="submit"
+            name="transition" value="return"
+            data-hx-post="/docs/42/transition"
+            data-hx-target="#doc-actions" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Return for revision</button>
+    <!-- Could-but-not-now renders disabled WITH the reason; what the
+         user can never do is simply not rendered at all. -->
+    <button class="hc-button" type="button" aria-disabled="true"
+            title="Available after approval">Export approved PDF</button>
+  </div>
+</form>
+
+<!-- The 422 shape: a comment-required transition (return) was tried
+     without a comment — same region, the comment field rendered
+     required, the version untouched. -->
+<form method="post" action="/docs/42/transition" id="doc-actions-comment-variant" data-hc-workflow>
+  <input type="hidden" name="version" value="7">
+  <ol class="hc-stepper"><!-- …unchanged stepper… --></ol>
+  <div class="hc-field">
+    <label class="hc-field__label" for="return-comment">Reason for returning</label>
+    <textarea class="hc-input" id="return-comment" name="comment" required
+              aria-invalid="true"></textarea>
+    <p class="hc-field__message" data-variant="error">A returned document
+      needs a reason the author can act on.</p>
+  </div>
+  <div class="hc-toolbar" role="toolbar" aria-label="Document actions">
+    <button class="hc-button" type="submit"
+            name="transition" value="return"
+            data-hx-post="/docs/42/transition"
+            data-hx-target="#doc-actions-comment-variant" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Return for revision</button>
+  </div>
+</form>
+
+<!-- The 409 shape: someone else moved the document first. The region
+     re-renders from CURRENT truth (their state, the new version, the
+     legal actions that remain) plus the who-won explanation — the
+     stale action was never applied. -->
+<form method="post" action="/docs/42/transition" id="doc-actions-conflict-variant" data-hc-workflow>
+  <input type="hidden" name="version" value="9">
+  <div class="hc-alert" data-variant="warning" role="status">
+    <p class="hc-alert__title">Already approved.</p>
+    <p class="hc-alert__body">Suzuki approved this document while you
+      were reviewing it. Your action was not applied.</p>
+  </div>
+  <ol class="hc-stepper"><!-- …all steps complete… --></ol>
+  <!-- No toolbar: nothing legal remains for this user. -->
+</form>
+
+<!-- The viewer's render of the same document: presentation without
+     the marker — a region with no form is not a workflow surface. -->
+<div id="doc-actions-viewer-variant">
+  <ol class="hc-stepper"><!-- …read-only stepper… --></ol>
+  <p class="hc-field__hint">In review since 2026-08-28.</p>
+</div>

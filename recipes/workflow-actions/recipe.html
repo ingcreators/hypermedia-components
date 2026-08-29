@@ -1,0 +1,42 @@
+<!-- Short recommended usage.
+
+  workflow-actions: the document-detail twin of the approval queue.
+  A record with a lifecycle (draft → submitted → approved / returned)
+  where THE ACTION SET IS THE STATE, server-rendered: the server
+  renders only the legal transitions for this user on this version,
+  every transition POSTs the verb + the version, and a stale or
+  illegal transition answers 409 with the region re-rendered from
+  current truth — never applied, never silently refreshed. The
+  stepper is presentation of the same truth, updated in the same
+  swap. data-hc-workflow is a contract marker only. -->
+<form method="post" action="/docs/42/transition" id="doc-actions" data-hc-workflow>
+  <input type="hidden" name="version" value="7">
+
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Draft<span class="hc-sr-only">(completed)</span></span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">
+      <span class="hc-stepper__marker" aria-hidden="true">2</span>
+      <span class="hc-stepper__label">Review</span>
+    </li>
+    <li class="hc-stepper__step">
+      <span class="hc-stepper__marker" aria-hidden="true">3</span>
+      <span class="hc-stepper__label">Done</span>
+    </li>
+  </ol>
+
+  <div class="hc-toolbar" role="toolbar" aria-label="Document actions">
+    <button class="hc-button" data-variant="primary" type="submit"
+            name="transition" value="approve"
+            data-hx-post="/docs/42/transition"
+            data-hx-target="#doc-actions" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Approve</button>
+    <button class="hc-button" type="submit"
+            name="transition" value="return"
+            data-hx-post="/docs/42/transition"
+            data-hx-target="#doc-actions" data-hx-swap="outerHTML"
+            data-hx-disabled-elt="this">Return for revision</button>
+  </div>
+</form>
