@@ -3,6 +3,8 @@ title: Item
 description: A generic list / option row primitive — media, content, and actions.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-item` is a generic **row** primitive: a media slot (icon / avatar), a
@@ -10,6 +12,8 @@ content column (title + description), and trailing actions. Use it for plain
 lists, option rows, and as the shared building block that command and menu
 items can adopt for a consistent look. It is pure CSS — render it as a
 `<div>`, `<li>`, `<a>`, or `<button>`.
+
+*Also known as: list item, media object.*
 
 ## Basic HTML
 
@@ -192,3 +196,5 @@ ad-hoc list rows in app code.
 - [Command](/hypermedia-components/components/command/) — command palette
   rows (a future adopter).
 - [Avatar](/hypermedia-components/components/avatar/) — a common media slot.
+
+<UsedInRecipes slug="item" />

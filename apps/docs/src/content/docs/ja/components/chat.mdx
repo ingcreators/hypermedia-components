@@ -3,6 +3,8 @@ title: チャット
 description: 会話のトランスクリプト — 時系列の role="log" リージョンに、ロールで色分けされたバブル、CSS のみのストリーミングキャレット、最下部への追従スクロールビヘイビア。
 ---
 
+import UsedInRecipes from '../../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../../components/Demo.astro';
 
 `hc-chat` は会話のトランスクリプトを、**時系列の DOM 順のままの素の
@@ -15,6 +17,8 @@ import Demo from '../../../../components/Demo.astro';
 最終スワップが属性を外したときに完成したメッセージを聞きます。
 最新メッセージへの追従も CSS の仕事ではありません —
 それは [`installChatScroll()`](#最下部への追従) が担います。
+
+*別名: 会話 UI、メッセージスレッド。*
 
 ## 基本の HTML
 
@@ -249,3 +253,5 @@ component トークン(`component.tokens.json`):
   トランスクリプトに属さない一時的な通知。
 - [スクロールエリア](/hypermedia-components/ja/components/scroll-area/) —
   チャット以外の領域にも同じ細いテーマ付きスクロールバーを。
+
+<UsedInRecipes slug="chat" locale="ja" />

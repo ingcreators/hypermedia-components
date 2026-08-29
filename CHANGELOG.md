@@ -22,6 +22,32 @@ Security    — security-relevant changes
 
 ### Added
 
+- Docs information-architecture overhaul
+  ([plan](plans/hc-docs-ia-plan-en.md)) — findability work at the
+  68-component / 53-recipe scale, no URL moves:
+  - the Recipes sidebar and index share nine goal groups (Forms /
+    Form safety / Actions / Business flows / Data grid / Search &
+    filter / Loading & regions / Server push & chat / Overlays &
+    notifications) instead of a flat alphabetical 53-entry list;
+  - `recipes/datagrid` — the **Data grid guide**, mapping the
+    component, the page template, and the thirteen grid recipes in
+    build order (display → operate → edit → bulk & scale);
+  - landing-page counts are generated from `manifest.json` at build
+    time (`Count.astro`), replacing hand-typed numbers that had
+    rotted to "25 recipes";
+  - component pages gain a generated **Used in recipes** list
+    (`UsedInRecipes.astro` inverts the recipe pages' component links
+    per locale — 28 pages today, self-updating);
+  - the Tokens section is relabelled **Theming** (ja: テーマ) — URLs
+    unchanged — ending the collision with Fundamentals → Tokens;
+  - Fundamentals splits into **Core concepts** (six must-reads) and
+    **Deep dives**; Integrations is ordered by journey (htmx →
+    plain-html → frameworks); sidebar groups are collapsed at rest;
+  - a search-synonym sweep adds a uniform *Also known as* / 別名 line
+    to 86 component and recipe pages (both locales), so Pagefind
+    matches modal / snackbar / typeahead / 楽観ロック / 二重送信防止
+    and the rest of the names users actually type.
+
 - `fundamentals/audit-trail` guide — who changed what, when, as
   doctrine: the appended row (`actor` from the session never the
   form, domain verb, server clock, `request_id`, one-sentence

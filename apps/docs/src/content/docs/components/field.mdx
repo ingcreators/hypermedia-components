@@ -3,6 +3,8 @@ title: Field
 description: Wraps a label, control, and help/error message into a single, validation-aware unit.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-field` is a thin composition class that groups a label, a control,
@@ -10,6 +12,8 @@ and an optional help or error message. Validity is expressed with the
 standard `aria-invalid` attribute on the input, plus
 `data-invalid="true"` on the wrapper so the message and border colors
 update together.
+
+*Also known as: form field, form group.*
 
 ## Basic HTML
 
@@ -367,3 +371,5 @@ Component tokens (in `component.tokens.json`):
   the field.
 - [Button](/hypermedia-components/components/button/) — submits the form
   that the field belongs to.
+
+<UsedInRecipes slug="field" />

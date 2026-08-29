@@ -1,0 +1,23 @@
+---
+// Build-time kit counts for the landing pages, read from the same
+// CI-verified core build artifact that /api/manifest.json serves.
+// Hand-typed numbers rot (the landing page said "25 recipes" when the
+// kit had 53); `docs:build` chains the core build first, so the
+// manifest always exists and matches the sources this site documents.
+// Templates have no manifest entry — count their docs pages instead.
+import manifest from '../../../../packages/core/dist/manifest.json';
+
+const templates = Object.keys(
+  import.meta.glob('../content/docs/templates/*.mdx'),
+).filter((p) => !p.endsWith('/index.mdx')).length;
+
+const counts = {
+  components: manifest.components.length,
+  behaviors: manifest.behaviors.length,
+  recipes: manifest.recipes.length,
+  templates,
+};
+
+const { of } = Astro.props;
+if (!(of in counts)) throw new Error(`<Count of="${of}"> — unknown kind`);
+---<Fragment>{counts[of]}</Fragment>

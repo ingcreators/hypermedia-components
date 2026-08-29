@@ -3,12 +3,16 @@ title: スピナー
 description: ビジー / 保留状態のための最小限の CSS のみのローディングインジケーター。
 ---
 
+import UsedInRecipes from '../../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../../components/Demo.astro';
 
 `hc-spinner` は、「ビジー」/ 保留状態のための純 CSS の回転リング
 です。JavaScript はありません: CSS でアニメーションし、デフォルトで
 `currentColor` に従い、リクエスト駆動の表示のために htmx の
 `.htmx-indicator` クラスと組み合います。
+
+*別名: ローダー、ローディングインジケーター。*
 
 ## 基本の HTML
 
@@ -164,3 +168,5 @@ import Demo from '../../../../components/Demo.astro';
   読み込み中のコンテンツのプレースホルダー形状。
 - [ボタン](/hypermedia-components/ja/components/button/) — インラインの
   `htmx-indicator` スピナーの定番ホスト。
+
+<UsedInRecipes slug="spinner" locale="ja" />

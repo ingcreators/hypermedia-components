@@ -3,12 +3,16 @@ title: プログレス
 description: ブラウザ間で一貫したクロームにスタイルされたネイティブの <progress> 要素。確定 / 不確定の両状態をサポート。純 CSS、JavaScript なし。
 ---
 
+import UsedInRecipes from '../../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../../components/Demo.astro';
 
 `hc-progress` は標準の `<progress>` 要素に適用します。ネイティブの
 要素は ARIA の `role="progressbar"` セマンティクスと
 `value` / `max` の属性ペアを保ちます。`appearance: none` とベンダー別
 疑似要素で置き換わるのは見た目のクロームだけです。
+
+*別名: プログレスバー、進捗バー。*
 
 ## 確定(determinate)
 
@@ -171,3 +175,5 @@ component トークン(`component.tokens.json`):
 - [アラート](/hypermedia-components/ja/components/alert/) —
   「インポート中… 60%」のステータス行でプログレスバーとよく組み合い
   ます。
+
+<UsedInRecipes slug="progress" locale="ja" />

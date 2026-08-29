@@ -3,6 +3,8 @@ title: Stepper
 description: A zero-JavaScript step indicator — the server renders every state, including the markers; navigation belongs to the step's form.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-stepper` shows progress through a multi-step flow. It ships **no
@@ -11,6 +13,8 @@ step — including the marker content (the step number, or `✓` once a
 step completes) — so every state change arrives as markup. The
 indicator displays; navigation is the job of the step's form (see the
 [multi-step form recipe](/hypermedia-components/recipes/multi-step-form/)).
+
+*Also known as: wizard steps, progress steps.*
 
 ## Basic HTML
 
@@ -208,3 +212,5 @@ themes, accents and dark mode apply automatically:
 - [Multi-step form recipe](/hypermedia-components/recipes/multi-step-form/) — the wizard this indicates.
 - [Breadcrumb](/hypermedia-components/components/breadcrumb/) — location in a hierarchy, not progress in a flow.
 - [Progress](/hypermedia-components/components/progress/) — continuous progress, not discrete steps.
+
+<UsedInRecipes slug="stepper" />

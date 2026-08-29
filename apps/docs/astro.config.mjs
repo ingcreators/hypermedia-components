@@ -112,21 +112,35 @@ export default defineConfig({
           // Explicit reading order (the index's suggested path), not the
           // alphabetical order autogenerate would produce.
           label: 'Fundamentals', translations: { ja: '基礎' },
+          collapsed: true,
           items: [
             { slug: 'fundamentals' },
-            { slug: 'fundamentals/naming' },
-            { slug: 'fundamentals/tokens' },
-            { slug: 'fundamentals/layout' },
-            { slug: 'fundamentals/responsive' },
-            { slug: 'fundamentals/i18n' },
-            { slug: 'fundamentals/accessibility' },
-            { slug: 'fundamentals/print' },
-            { slug: 'fundamentals/errors' },
-          { slug: 'fundamentals/audit-trail' },
-            { slug: 'fundamentals/writing' },
-            { slug: 'fundamentals/motion' },
-            { slug: 'fundamentals/icons' },
-            { slug: 'fundamentals/anchored' },
+            {
+              // The must-reads: what every page of the docs assumes.
+              label: 'Core concepts', translations: { ja: 'コア概念' },
+              items: [
+                { slug: 'fundamentals/naming' },
+                { slug: 'fundamentals/tokens' },
+                { slug: 'fundamentals/layout' },
+                { slug: 'fundamentals/responsive' },
+                { slug: 'fundamentals/i18n' },
+                { slug: 'fundamentals/accessibility' },
+              ],
+            },
+            {
+              // Read when the topic comes up — print, the error map,
+              // copywriting, internals.
+              label: 'Deep dives', translations: { ja: '掘り下げ' },
+              items: [
+                { slug: 'fundamentals/print' },
+                { slug: 'fundamentals/errors' },
+                { slug: 'fundamentals/audit-trail' },
+                { slug: 'fundamentals/writing' },
+                { slug: 'fundamentals/motion' },
+                { slug: 'fundamentals/icons' },
+                { slug: 'fundamentals/anchored' },
+              ],
+            },
           ],
         },
         { label: 'Kitchen sink', translations: { ja: 'キッチンシンク' }, slug: 'kitchen-sink' },
@@ -135,10 +149,12 @@ export default defineConfig({
           // list, so the sidebar is scannable. Every component lives under
           // exactly one category; `Overview` links the gallery index.
           label: 'Components', translations: { ja: 'コンポーネント' },
+          collapsed: true,
           items: [
             { label: 'Overview', translations: { ja: '概要' }, slug: 'components' },
             {
               label: 'Actions', translations: { ja: 'アクション' },
+              collapsed: true,
               items: [
                 'components/button',
                 'components/button-group',
@@ -150,6 +166,7 @@ export default defineConfig({
             },
             {
               label: 'Forms', translations: { ja: 'フォーム' },
+              collapsed: true,
               items: [
                 'components/field',
                 'components/input',
@@ -172,6 +189,7 @@ export default defineConfig({
             },
             {
               label: 'Navigation', translations: { ja: 'ナビゲーション' },
+              collapsed: true,
               items: [
                 'components/breadcrumb',
                 'components/toc',
@@ -187,6 +205,7 @@ export default defineConfig({
             },
             {
               label: 'Overlays', translations: { ja: 'オーバーレイ' },
+              collapsed: true,
               items: [
                 'components/dialog',
                 'components/drawer',
@@ -197,6 +216,7 @@ export default defineConfig({
             },
             {
               label: 'Data display', translations: { ja: 'データ表示' },
+              collapsed: true,
               items: [
                 'components/table',
                 'components/code',
@@ -217,6 +237,7 @@ export default defineConfig({
             },
             {
               label: 'Feedback', translations: { ja: 'フィードバック' },
+              collapsed: true,
               items: [
                 'components/alert',
                 'components/toast',
@@ -229,6 +250,7 @@ export default defineConfig({
             },
             {
               label: 'Layout', translations: { ja: 'レイアウト' },
+              collapsed: true,
               items: [
                 'components/aspect',
                 'components/scroll-area',
@@ -245,6 +267,7 @@ export default defineConfig({
           // order (overview → the two templates), Components-style
           // `Overview` entry for the index.
           label: 'Templates', translations: { ja: 'テンプレート' },
+          collapsed: true,
           items: [
             { label: 'Overview', translations: { ja: '概要' }, slug: 'templates' },
             'templates/settings',
@@ -254,21 +277,168 @@ export default defineConfig({
     'templates/confirm-page',
           ],
         },
-        { label: 'Recipes', translations: { ja: 'レシピ' }, items: [{ autogenerate: { directory: 'recipes' } }] },
+        {
+          // Grouped by goal, mirroring the index page's tables exactly
+          // — autogenerate had grown into a flat, alphabetical 53-entry
+          // list. Every recipe lives under exactly one group; group
+          // order follows the index. `Data visualization` is a
+          // deliberate single-entry group (distinct domain, same
+          // modelling as the index).
+          label: 'Recipes', translations: { ja: 'レシピ' },
+          collapsed: true,
+          items: [
+            { label: 'Overview', translations: { ja: '概要' }, slug: 'recipes' },
+            {
+              label: 'Forms', translations: { ja: 'フォーム' },
+              collapsed: true,
+              items: [
+                'recipes/mutating-form',
+                'recipes/field-errors',
+                'recipes/conditional-fields',
+                'recipes/multi-step-form',
+                'recipes/inline-edit',
+                'recipes/file-upload',
+                'recipes/postal-address',
+                'recipes/reference-lookup',
+                'recipes/cascading-select',
+                'recipes/transfer',
+              ],
+            },
+            {
+              label: 'Form safety', translations: { ja: 'フォーム保全' },
+              collapsed: true,
+              items: [
+                'recipes/unsaved-changes',
+                'recipes/autosave',
+                'recipes/edit-conflict',
+                'recipes/idempotency-key',
+                'recipes/session-expiry',
+                'recipes/network-retry',
+              ],
+            },
+            {
+              label: 'Actions', translations: { ja: 'アクション' },
+              collapsed: true,
+              items: [
+                'recipes/request-action',
+                'recipes/confirm-action',
+                'recipes/undo-delete',
+                'recipes/copy',
+                'recipes/sortable',
+              ],
+            },
+            {
+              label: 'Business flows', translations: { ja: '業務フロー' },
+              collapsed: true,
+              items: [
+                'recipes/line-items',
+                'recipes/workflow-actions',
+                'recipes/csv-import',
+                'recipes/async-job',
+              ],
+            },
+            {
+              label: 'Data grid', translations: { ja: 'データグリッド' },
+              collapsed: true,
+              items: [
+                { label: 'Guide', translations: { ja: 'ガイド' }, slug: 'recipes/datagrid' },
+                'recipes/datagrid-pager',
+                'recipes/datagrid-sort',
+                'recipes/datagrid-filter',
+                'recipes/datagrid-columns',
+                'recipes/datagrid-prefs',
+                'recipes/row-detail',
+                'recipes/datagrid-tree',
+                'recipes/datagrid-infinite',
+                'recipes/datagrid-snapshot-pager',
+                'recipes/datagrid-edit-errors',
+                'recipes/datagrid-edit-conflict',
+                'recipes/datagrid-bulk-actions',
+                'recipes/datagrid-bulk-errors',
+              ],
+            },
+            {
+              label: 'Search & filter', translations: { ja: '検索とフィルタ' },
+              collapsed: true,
+              items: [
+                'recipes/live-search',
+                'recipes/result-cap',
+                'recipes/filter-popover',
+                'recipes/saved-views',
+              ],
+            },
+            {
+              label: 'Loading & regions', translations: { ja: '読み込みと領域' },
+              collapsed: true,
+              items: [
+                'recipes/lazy-panel',
+                'recipes/lazy-tree',
+                'recipes/data-region',
+              ],
+            },
+            {
+              label: 'Server push & chat', translations: { ja: 'サーバプッシュとチャット' },
+              collapsed: true,
+              items: [
+                'recipes/sse-updates',
+                'recipes/sse-toast',
+                'recipes/chat-messages',
+                'recipes/streaming-response',
+              ],
+            },
+            {
+              label: 'Overlays & notifications', translations: { ja: 'オーバーレイと通知' },
+              collapsed: true,
+              items: [
+                'recipes/remote-dialog',
+                'recipes/toast',
+                'recipes/unread-badge',
+              ],
+            },
+            {
+              label: 'Data visualization', translations: { ja: 'データ可視化' },
+              collapsed: true,
+              items: ['recipes/chart'],
+            },
+          ],
+        },
         {
           // The editor engine for visual builders — a separate npm
           // package, so its docs sit outside the core Reference group.
           // Explicit reading order: overview → API → inspector demo.
           label: 'Editor kit', translations: { ja: 'エディタキット' },
+          collapsed: true,
           items: [
             { label: 'Overview', translations: { ja: '概要' }, slug: 'editor-kit' },
             'editor-kit/api',
             'editor-kit/inspector',
           ],
         },
-        { label: 'Tokens', translations: { ja: 'トークン' }, items: [{ autogenerate: { directory: 'tokens' } }] },
-        { label: 'Integrations', translations: { ja: 'インテグレーション' }, items: [{ autogenerate: { directory: 'integrations' } }] },
-        { label: 'Reference', translations: { ja: 'リファレンス' }, items: [{ autogenerate: { directory: 'reference' } }] },
+        // Renamed from "Tokens" (URLs unchanged): this section is the
+        // practical theming surface, and the old label collided with
+        // Fundamentals → Tokens, which owns the pipeline concept.
+        { label: 'Theming', translations: { ja: 'テーマ' }, collapsed: true, items: [{ autogenerate: { directory: 'tokens' } }] },
+        {
+          // Journey order, not autogenerate's alphabetical one: the
+          // shared htmx foundation page every guide references first,
+          // the no-tooling setup next, then the framework guides, then
+          // the two opt-in extras.
+          label: 'Integrations', translations: { ja: 'インテグレーション' },
+          collapsed: true,
+          items: [
+            { label: 'Overview', translations: { ja: '概要' }, slug: 'integrations' },
+            'integrations/htmx',
+            'integrations/plain-html',
+            'integrations/django',
+            'integrations/go',
+            'integrations/rails',
+            'integrations/razor',
+            'integrations/thymeleaf',
+            'integrations/hyperscript',
+            'integrations/html-email',
+          ],
+        },
+        { label: 'Reference', translations: { ja: 'リファレンス' }, collapsed: true, items: [{ autogenerate: { directory: 'reference' } }] },
       ],
       customCss: [
         '@hypermedia-components/core/css',

@@ -3,6 +3,8 @@ title: Empty state
 description: A centered block for "no results" and "nothing here yet" states.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-empty` is a centered empty-state block: a media slot (icon or
@@ -10,6 +12,8 @@ illustration), a title, a description, and optional actions. Use it for
 "no results", "nothing here yet", and first-run states. Token-driven
 spacing, no JavaScript — and it pairs naturally with htmx "no results"
 partial swaps.
+
+*Also known as: empty state, zero state.*
 
 ## Basic HTML
 
@@ -139,3 +143,5 @@ The behaviour stays with htmx — `hc-empty` is just the presentation of the
   shapes while content loads.
 - [Card](/hypermedia-components/components/card/) — a common container for
   an empty state inside a panel.
+
+<UsedInRecipes slug="empty" />

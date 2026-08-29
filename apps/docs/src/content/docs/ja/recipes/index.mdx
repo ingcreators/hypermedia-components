@@ -1,6 +1,6 @@
 ---
 title: レシピ
-description: htmx フレンドリーなパターン集 — 確認アクション、ライブ検索、リモートダイアログ、インライン編集、レイジーパネル、トーストなど。
+description: 目的別にグループ化した htmx フレンドリーなパターン集 — フォーム、フォーム保全、アクション、業務フロー、データグリッド、検索、読み込み、サーバプッシュ、オーバーレイ。
 ---
 
 各レシピは、短縮形・展開後の HTML・任意のマクロ・サーバレスポンス契約を
@@ -21,38 +21,89 @@ description: htmx フレンドリーなパターン集 — 確認アクション
 クライアントのみ、[ストリーミング応答](/hypermedia-components/ja/recipes/streaming-response/)は
 chat-messages のエンドポイントを共有)。
 
-## アクションとフォーム
+## フォーム
+
+フォームの構築と送信 — バリデーション、ウィザード、サーバ往復を
+必要とする入力たち。
 
 | レシピ | やりたいこと | 必要なもの |
 | --- | --- | --- |
 | [ミューテーションフォーム](/hypermedia-components/ja/recipes/mutating-form/) | インライン 4xx エラー・成功時リダイレクト・二重送信ガードつきでフォームを送信する | `installFieldErrors()` |
 | [フィールドエラー](/hypermedia-components/ja/recipes/field-errors/) | サーバが送るバリデーションエラーフラグメントを、名前の一致するフィールドへ振り分ける | `installFieldErrors()` |
+| [条件付きフィールド](/hypermedia-components/ja/recipes/conditional-fields/) | 選択中のモードが読まないフィールドを、往復なしで宣言的に隠す | `installShowWhen()` |
 | [マルチステップフォーム](/hypermedia-components/ja/recipes/multi-step-form/) | ウィザードを作る — ステップとドラフトはサーバが所有し、ステップ全体をスワップ | — |
-| [確認アクション](/hypermedia-components/ja/recipes/confirm-action/) | 破壊的リクエストを確認ダイアログでガードする | `installConfirm()` |
-| [削除の取り消し](/hypermedia-components/ja/recipes/undo-delete/) | 即座に削除する(楽観的削除)— 猶予期間内ならトーストの Undo で行を復元 | `installToast()` |
-| [リクエストアクション](/hypermedia-components/ja/recipes/request-action/) | ビジー状態つきのボタンから htmx リクエストを発行する | — |
 | [インライン編集](/hypermedia-components/ja/recipes/inline-edit/) | 値を表示モードと編集モードの間でその場でスワップする(クリックして編集) | — |
-| [データグリッドの編集エラー](/hypermedia-components/ja/recipes/datagrid-edit-errors/) | グリッドの楽観的コミットのループを閉じる — 422 がマーク付きセル＋エラー行つきでレコードを再描画 | — |
-| [データグリッドの編集競合](/hypermedia-components/ja/recipes/datagrid-edit-conflict/) | 行単位の楽観的ロック — 古いバージョンは 409 で上書き/破棄つきの競合行へ | — |
 | [ファイルアップロード](/hypermedia-components/ja/recipes/file-upload/) | ライブ進捗バーと out-of-band フォームリセットつきでマルチパートアップロードする | `installUploadProgress()` |
-| [データグリッド一括操作](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) | チェックボックスで行を選択し、1 つのアクションを全行に POST する | `installDatagridActions()` |
-| [データグリッドの一括操作エラー](/hypermedia-components/ja/recipes/datagrid-bulk-errors/) | 大量エラーの一括操作 — best-effort と atomic、理由別集約、レポートから行へのリンク | — |
-| [明細行](/hypermedia-components/ja/recipes/line-items/) | 受注・見積の明細行を編集する — 追加・削除・再計算はフォーム全体の往復。計算はすべてサーバが所有 | — |
-| [トランスファー](/hypermedia-components/ja/recipes/transfer/) | デュアルリストボックスの割り当て / 解除をサーバ往復で行う — フォーム全体のスワップ、カスタム JS ゼロ | — |
-| [カスケードセレクト](/hypermedia-components/ja/recipes/cascading-select/) | 階層選択を連鎖する(依存)select で行う — change のたびに次のレベルを読み込み | — |
 | [郵便番号住所補完](/hypermedia-components/ja/recipes/postal-address/) | 郵便番号から住所を補完したい — マスク付き入力、1 回のルックアップ GET、アウトオブバンドの自動入力 | `installMask()` |
 | [マスタ参照](/hypermedia-components/ja/recipes/reference-lookup/) | マスタを参照する — change で検証されるコード直接入力+検索ダイアログのピッカー。未解決コードは hidden の id を必ずクリア | `installRemoteDialog()` + `installCloseDialog()` |
-| [クリップボードにコピー](/hypermedia-components/ja/recipes/copy/) | 読み取り専用の値(URL、トークン、スニペット)をクリップボードへコピーする | `installCopy()` |
-| [条件付きフィールド](/hypermedia-components/ja/recipes/conditional-fields/) | 選択中のモードが読まないフィールドを、往復なしで宣言的に隠す | `installShowWhen()` |
-| [並べ替えリスト](/hypermedia-components/ja/recipes/sortable/) | サーバが順序を所有するリストをポインタ/キーボードで並べ替え、リクエスト 1 本で永続化する | `installSortable()` |
+| [カスケードセレクト](/hypermedia-components/ja/recipes/cascading-select/) | 階層選択を連鎖する(依存)select で行う — change のたびに次のレベルを読み込み | — |
+| [トランスファー](/hypermedia-components/ja/recipes/transfer/) | デュアルリストボックスの割り当て / 解除をサーバ往復で行う — フォーム全体のスワップ、カスタム JS ゼロ | — |
+
+## フォーム保全
+
+作業中の内容を守る — ドラフト、ダーティ状態、セッション切れ、
+落ちた接続、そして競合・重複する保存。
+
+| レシピ | やりたいこと | 必要なもの |
+| --- | --- | --- |
 | [未保存ガード](/hypermedia-components/ja/recipes/unsaved-changes/) | 編集が失われる前に警告したい — data-dirty 状態、タブを閉じる際のプロンプト、boosted ナビの確認、保存でクリーン | `installDirtyGuard()` |
 | [自動保存](/hypermedia-components/ja/recipes/autosave/) | 入力と同時にフォームをドラフトしたい — デバウンス送信、復元バナー、新規 JS ゼロ | — |
+| [編集競合](/hypermedia-components/ja/recipes/edit-conflict/) | 楽観ロックにしたい — 隠し version が毎回の保存に同乗し、古い保存は 409 の競合ダイアログに | — |
+| [冪等キー](/hypermedia-components/ja/recipes/idempotency-key/) | 二重送信をサーバ側で無害化する — 描画フォームごとにキー 1 つ。リプレイには元のレスポンスを返し、エラーにしない | — |
 | [セッション切れ再認証](/hypermedia-components/ja/recipes/session-expiry/) | 401 をログインダイアログにして、中断されたリクエストを再実行したい | `installSessionExpiry()` |
 | [ネットワーク再試行](/hypermedia-components/ja/recipes/network-retry/) | 応答がまったく来なかったリクエスト(オフライン / タイムアウト)を、動く Retry 付きで表面化する | `installNetworkRetry()` |
-| [冪等キー](/hypermedia-components/ja/recipes/idempotency-key/) | 二重送信をサーバ側で無害化する — 描画フォームごとにキー 1 つ。リプレイには元のレスポンスを返し、エラーにしない | — |
-| [編集競合](/hypermedia-components/ja/recipes/edit-conflict/) | 楽観ロックにしたい — 隠し version が毎回の保存に同乗し、古い保存は 409 の競合ダイアログに | — |
+
+## アクション
+
+要素ひとつ、リクエストひとつ — ボタン、ガード、小さな
+クライアントサイドユーティリティ。
+
+| レシピ | やりたいこと | 必要なもの |
+| --- | --- | --- |
+| [リクエストアクション](/hypermedia-components/ja/recipes/request-action/) | ビジー状態つきのボタンから htmx リクエストを発行する | — |
+| [確認アクション](/hypermedia-components/ja/recipes/confirm-action/) | 破壊的リクエストを確認ダイアログでガードする | `installConfirm()` |
+| [削除の取り消し](/hypermedia-components/ja/recipes/undo-delete/) | 即座に削除する(楽観的削除)— 猶予期間内ならトーストの Undo で行を復元 | `installToast()` |
+| [クリップボードにコピー](/hypermedia-components/ja/recipes/copy/) | 読み取り専用の値(URL、トークン、スニペット)をクリップボードへコピーする | `installCopy()` |
+| [並べ替えリスト](/hypermedia-components/ja/recipes/sortable/) | サーバが順序を所有するリストをポインタ/キーボードで並べ替え、リクエスト 1 本で永続化する | `installSortable()` |
+
+## 業務フロー
+
+業務レコードが通る契約 — 明細行、ライフサイクル、一括投入、
+長時間処理。
+
+| レシピ | やりたいこと | 必要なもの |
+| --- | --- | --- |
+| [明細行](/hypermedia-components/ja/recipes/line-items/) | 受注・見積の明細行を編集する — 追加・削除・再計算はフォーム全体の往復。計算はすべてサーバが所有 | — |
 | [ワークフローアクション](/hypermedia-components/ja/recipes/workflow-actions/) | レコードのライフサイクルを駆動する — サーバは合法な遷移だけを描画。コメント必須の遷移は 422、陳腐化した操作は現在の真実で 409 | — |
 | [CSV インポート](/hypermedia-components/ja/recipes/csv-import/) | 驚きなしの一括投入 — アップロード、検証レポート、トークン付き確定 | — |
+| [非同期ジョブ](/hypermedia-components/ja/recipes/async-job/) | リクエストより長生きする処理を回す — 202 + 終端状態を列挙した自己ポーリングのジョブカード | — |
+
+## データグリッド
+
+[`hc-datagrid`](/hypermedia-components/ja/components/datagrid/)
+コンポーネントを運用するためのすべて — ページング、ソート / フィルタ /
+列のツーリング、インライン編集のエラーワイヤ、そして大きなグリッドを
+正直に保つパターン。[データグリッドページ](/hypermedia-components/ja/templates/data-grid-page/)
+テンプレートが、これらすべてが載るレイアウトを組み立てます。
+初めてなら、全体を構築順で地図化した
+[データグリッドガイド](/hypermedia-components/ja/recipes/datagrid/)から
+始めてください。
+
+| レシピ | やりたいこと | 必要なもの |
+| --- | --- | --- |
+| [データグリッドのページネーション](/hypermedia-components/ja/recipes/datagrid-pager/) | データグリッドをサーバ駆動でページングする — out-of-band の行スワップつき | `installDatagrid()` |
+| [データグリッドの並び替え](/hypermedia-components/ja/recipes/datagrid-sort/) | 適用中のソート集合を述べ、その場で編集させたい — 並べ替え可能な順序付きリスト。表示していない列のキーも扱える | `installSortList()` |
+| [データグリッドの列フィルタ](/hypermedia-components/ja/recipes/datagrid-filter/) | 列ごとのフィルタポップオーバー — 名前空間付き f-col パラメータでグリッドを GET し、トリガーが data-filtered で戻る | — |
+| [データグリッドの列選択](/hypermedia-components/ja/recipes/datagrid-columns/) | ユーザーごとにグリッドの列を選ばせたい — チューザーフォームが cols= の繰り返しパラメータ付きでグリッドを GET | — |
+| [データグリッドの列プリファレンス](/hypermedia-components/ja/recipes/datagrid-prefs/) | ユーザーごとの列幅・列順を記憶 — ミラー入力がリサイズをオートセーブ。ソータブルなチューザーの cols= 順が列順 | — |
+| [行から詳細へ](/hypermedia-components/ja/recipes/row-detail/) | 行が指すレコードを開いて同じ一覧に戻る — 同一性の列のリンク、戻りの `#row-<id>`、結果セットや選択を辿る | `installRowLink()` |
+| [データグリッドのツリー](/hypermedia-components/ja/recipes/datagrid-tree/) | グリッド内の階層 — aria-level の行が子を親の直後に遅延ロード | — |
+| [データグリッド無限スクロール](/hypermedia-components/ja/recipes/datagrid-infinite/) | ページ番号なしの無限リスト — revealed の番兵行が次のカーソルバッチをスワップ | — |
+| [データグリッドのスナップショットページャー](/hypermedia-components/ja/recipes/datagrid-snapshot-pager/) | ワークキューの母集合を検索時点で凍結する — フォームが行キーを運び、処理済み行は見え続け、消えた行はトゥームストーンに | `installDatagrid()` |
+| [データグリッドの編集エラー](/hypermedia-components/ja/recipes/datagrid-edit-errors/) | グリッドの楽観的コミットのループを閉じる — 422 がマーク付きセル＋エラー行つきでレコードを再描画 | — |
+| [データグリッドの編集競合](/hypermedia-components/ja/recipes/datagrid-edit-conflict/) | 行単位の楽観的ロック — 古いバージョンは 409 で上書き/破棄つきの競合行へ | — |
+| [データグリッド一括操作](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) | チェックボックスで行を選択し、1 つのアクションを全行に POST する | `installDatagridActions()` |
+| [データグリッドの一括操作エラー](/hypermedia-components/ja/recipes/datagrid-bulk-errors/) | 大量エラーの一括操作 — best-effort と atomic、理由別集約、レポートから行へのリンク | — |
 
 ## 検索とフィルタ
 
@@ -60,12 +111,8 @@ chat-messages のエンドポイントを共有)。
 | --- | --- | --- |
 | [ライブ検索](/hypermedia-components/ja/recipes/live-search/) | 入力に応じて検索する(タイプアヘッド)— デバウンスされた入力で結果をスワップ | — |
 | [検索結果の上限](/hypermedia-components/ja/recipes/result-cap/) | 1 回の検索が返せる件数を制限する — cap+1 検出、「cap+」件数、残り続ける切り詰めバナーまたはハードリジェクト | — |
-| [データグリッドの列選択](/hypermedia-components/ja/recipes/datagrid-columns/) | ユーザーごとにグリッドの列を選ばせたい — チューザーフォームが cols= の繰り返しパラメータ付きでグリッドを GET | — |
-| [データグリッドの並び替え](/hypermedia-components/ja/recipes/datagrid-sort/) | 適用中のソート集合を述べ、その場で編集させたい — 並べ替え可能な順序付きリスト。表示していない列のキーも扱える | `installSortList()` |
-| [行から詳細へ](/hypermedia-components/ja/recipes/row-detail/) | 行が指すレコードを開いて同じ一覧に戻る — 同一性の列のリンク、戻りの `#row-<id>`、結果セットや選択を辿る | `installRowLink()` |
-| [データグリッドの列フィルタ](/hypermedia-components/ja/recipes/datagrid-filter/) | 列ごとのフィルタポップオーバー — 名前空間付き f-col パラメータでグリッドを GET し、トリガーが data-filtered で戻る | — |
-| [保存ビュー](/hypermedia-components/ja/recipes/saved-views/) | 現在のフィルタに名前を付けて、ただのリンクとして呼び戻したい — サーバー保存のクエリ文字列 | — |
 | [フィルタポップオーバー](/hypermedia-components/ja/recipes/filter-popover/) | フィルタフォームをポップオーバーに載せ、成功時に閉じる | `installClosePopover()` |
+| [保存ビュー](/hypermedia-components/ja/recipes/saved-views/) | 現在のフィルタに名前を付けて、ただのリンクとして呼び戻したい — サーバー保存のクエリ文字列 | — |
 
 ## 読み込みと領域
 
@@ -73,33 +120,16 @@ chat-messages のエンドポイントを共有)。
 | --- | --- | --- |
 | [レイジーパネル](/hypermedia-components/ja/recipes/lazy-panel/) | パネルの読み込みを、初めて表示されるまで遅延する | — |
 | [レイジーツリー](/hypermedia-components/ja/recipes/lazy-tree/) | ツリーの枝の子を初回展開時に読み込む | `installTree()` |
-| [データグリッド無限スクロール](/hypermedia-components/ja/recipes/datagrid-infinite/) | ページ番号なしの無限リスト — revealed の番兵行が次のカーソルバッチをスワップ | — |
-| [データグリッドの列プリファレンス](/hypermedia-components/ja/recipes/datagrid-prefs/) | ユーザーごとの列幅・列順を記憶 — ミラー入力がリサイズをオートセーブ。ソータブルなチューザーの cols= 順が列順 | — |
-| [データグリッドのツリー](/hypermedia-components/ja/recipes/datagrid-tree/) | グリッド内の階層 — aria-level の行が子を親の直後に遅延ロード | — |
 | [データ領域](/hypermedia-components/ja/recipes/data-region/) | `HX-Trigger` の無効化を起点に領域を自己更新する | — |
-| [非同期ジョブ](/hypermedia-components/ja/recipes/async-job/) | リクエストより長生きする処理を回す — 202 + 終端状態を列挙した自己ポーリングのジョブカード | — |
-| [データグリッドのページネーション](/hypermedia-components/ja/recipes/datagrid-pager/) | データグリッドをサーバ駆動でページングする — out-of-band の行スワップつき | `installDatagrid()` |
-| [データグリッドのスナップショットページャー](/hypermedia-components/ja/recipes/datagrid-snapshot-pager/) | ワークキューの母集合を検索時点で凍結する — フォームが行キーを運び、処理済み行は見え続け、消えた行はトゥームストーンに | `installDatagrid()` |
 
-## サーバプッシュ
+## サーバプッシュとチャット
 
 | レシピ | やりたいこと | 必要なもの |
 | --- | --- | --- |
 | [SSE 更新](/hypermedia-components/ja/recipes/sse-updates/) | Server-Sent Events でサーバからフラグメント更新をプッシュする — 名前付きイベントと out-of-band プッシュ | — |
 | [SSE トースト](/hypermedia-components/ja/recipes/sse-toast/) | JSON ペイロードつき SSE イベントを許可リスト方式の DOM イベントへ変換する — トーストはそのまま動作 | `installSseDispatch()` |
-
-## チャットとストリーミング
-
-| レシピ | やりたいこと | 必要なもの |
-| --- | --- | --- |
 | [チャットメッセージ](/hypermedia-components/ja/recipes/chat-messages/) | コンポーザーの 1 POST でチャットのやり取り(ユーザーメッセージ + aria-busy のアシスタントプレースホルダー)を追記。422 経路はトランスクリプトを汚しません | `installChatScroll()` |
 | [ストリーミングレスポンス](/hypermedia-components/ja/recipes/streaming-response/) | アシスタントのプレースホルダーを SSE で埋める — aria-busy が読み上げを保留する間チャンクを追記し、done が最終メッセージに置換してストリームを閉じます | — |
-
-## データ可視化
-
-| レシピ | やりたいこと | 必要なもの |
-| --- | --- | --- |
-| [チャート](/hypermedia-components/ja/recipes/chart/) | サーバが送るデータテーブルを Observable Plot の SVG チャートへ昇格する | `installChart()` + Plot |
 
 ## オーバーレイと通知
 
@@ -108,3 +138,9 @@ chat-messages のエンドポイントを共有)。
 | [リモートダイアログ](/hypermedia-components/ja/recipes/remote-dialog/) | ダイアログ(モーダル)の中身を、開くときにサーバから読み込む | `installRemoteDialog()` + `installCloseDialog()` |
 | [トースト](/hypermedia-components/ja/recipes/toast/) | クライアントまたは `HX-Trigger` ヘッダーからトースト通知(スナックバー)を発火する | `installToast()` |
 | [未読バッジ](/hypermedia-components/ja/recipes/unread-badge/) | アプリクロームの通知カウントを新鮮に保ち、ゼロでは正直に消し、自分の操作で即時補正する | — |
+
+## データ可視化
+
+| レシピ | やりたいこと | 必要なもの |
+| --- | --- | --- |
+| [チャート](/hypermedia-components/ja/recipes/chart/) | サーバが送るデータテーブルを Observable Plot の SVG チャートへ昇格する | `installChart()` + Plot |

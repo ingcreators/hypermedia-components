@@ -3,12 +3,16 @@ title: フィールド
 description: ラベル・コントロール・ヘルプ/エラーメッセージを、バリデーションを認識する 1 つの単位にまとめます。
 ---
 
+import UsedInRecipes from '../../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../../components/Demo.astro';
 
 `hc-field` は、ラベル・コントロール・任意のヘルプまたはエラーメッセージを
 まとめる薄い合成クラスです。妥当性は、入力側の標準 `aria-invalid` 属性と、
 ラッパー側の `data-invalid="true"` で表現します。これによりメッセージの
 色と枠線の色が一緒に更新されます。
+
+*別名: フォームフィールド、フォームグループ。*
 
 ## 基本の HTML
 
@@ -374,3 +378,5 @@ component トークン(`component.tokens.json`):
   中のコントロール。
 - [ボタン](/hypermedia-components/ja/components/button/) — フィールドが属する
   フォームを送信します。
+
+<UsedInRecipes slug="field" locale="ja" />

@@ -1,0 +1,85 @@
+---
+title: データグリッドガイド
+description: データグリッドサブシステムの地図 — 1 コンポーネント、1 ページテンプレート、13 レシピを、業務グリッドが実際に成長する順で。
+---
+
+データグリッドはこのキット最大のサブシステムです。
+[`hc-datagrid`](/hypermedia-components/ja/components/datagrid/)
+コンポーネント、[データグリッドページ](/hypermedia-components/ja/templates/data-grid-page/)
+テンプレート、そして業務グリッドで使う操作を 1 つずつ足していく
+13 のレシピ。それぞれのページがマークアップとサーバ契約を完全に
+ドキュメント化しているので、このページは**地図**に徹します —
+何があるか、何が何に依存するか、実際のグリッドがどの順で育つか。
+
+## まずここから
+
+1. **[コンポーネント](/hypermedia-components/ja/components/datagrid/)** —
+   マークアップ: 粘着するマルチレベルヘッダー、固定列、数値列、
+   状態、そして `installDatagrid()` のキーボードモデル。操作を
+   足す前に、まず自分のデータをこれで描画します。
+2. **[ページテンプレート](/hypermedia-components/ja/templates/data-grid-page/)**
+   — グリッドが載るレイアウト: *グリッドだけがスクロールする*
+   アプリシェル、フィルタパネル、クロームの配置ルール。高さの
+   ルールを再発見するより、コピーしてください。
+3. **操作はレシピとして追加** — 下の各ステージは独立しています。
+   画面に必要なものだけを取り込みます。
+
+## ステージ 1 — 表示
+
+まだレシピは不要です。ここにあるものはすべてコンポーネントと
+テンプレートが持っています。
+
+| やりたいこと | 場所 |
+| --- | --- |
+| 粘着ヘッダー、固定列、マルチレベルヘッダー | [構造](/hypermedia-components/ja/components/datagrid/#構造) · [末尾側の固定列](/hypermedia-components/ja/components/datagrid/#末尾側の固定列) |
+| 右揃えの金額、条件付き書式、行の序数 | [数値列](/hypermedia-components/ja/components/datagrid/#数値列) · [条件付き書式](/hypermedia-components/ja/components/datagrid/#条件付き書式) · [行の序数](/hypermedia-components/ja/components/datagrid/#行の序数--data-row-no) |
+| グリッドだけがスクロールするページレイアウト | [データグリッドページテンプレート](/hypermedia-components/ja/templates/data-grid-page/) |
+
+## ステージ 2 — 運用(読み取り側)
+
+読み取り操作のワイヤはすべて同じです: フォームが名前空間付き
+パラメータでグリッド URL を GET し、サーバがそこからグリッド
+(とコントロール自身の状態)を再描画します。
+
+| やりたいこと | レシピ |
+| --- | --- |
+| サーバでページングする | [データグリッドのページネーション](/hypermedia-components/ja/recipes/datagrid-pager/) |
+| 編集可能な順序付きソート集合 | [データグリッドの並び替え](/hypermedia-components/ja/recipes/datagrid-sort/) |
+| 列ごとのフィルタ | [データグリッドの列フィルタ](/hypermedia-components/ja/recipes/datagrid-filter/) |
+| ユーザーごとの列選択 | [データグリッドの列選択](/hypermedia-components/ja/recipes/datagrid-columns/) |
+| 列幅・列順の記憶 | [データグリッドの列プリファレンス](/hypermedia-components/ja/recipes/datagrid-prefs/) |
+| 行のレコードを開いて同じ一覧に戻る | [行から詳細へ](/hypermedia-components/ja/recipes/row-detail/) |
+| 現在のフィルタに名前を付けてリンクとして呼び戻す | [保存ビュー](/hypermedia-components/ja/recipes/saved-views/) |
+| 1 回の検索が返せる件数を制限する | [検索結果の上限](/hypermedia-components/ja/recipes/result-cap/) |
+
+## ステージ 3 — 編集(書き込み側)
+
+インライン編集のマークアップとキーボードモデルは
+[コンポーネントページ](/hypermedia-components/ja/components/datagrid/#インライン編集)
+にあります。2 つのレシピはそのエラーワイヤです — 各行は自分の
+レコード `tbody` なので、どちらもレコード 1 件をアトミックに
+再描画します。
+
+| やりたいこと | レシピ |
+| --- | --- |
+| 不正なコミットを拒否する — 422 がマーク付きセルつきでレコードを再描画 | [データグリッドの編集エラー](/hypermedia-components/ja/recipes/datagrid-edit-errors/) |
+| 行単位の楽観ロック — 古い保存は 409 で競合行に | [データグリッドの編集競合](/hypermedia-components/ja/recipes/datagrid-edit-conflict/) |
+
+## ステージ 4 — 一括とスケール
+
+| やりたいこと | レシピ |
+| --- | --- |
+| 行を選択して 1 つのアクションを全行に POST | [データグリッド一括操作](/hypermedia-components/ja/recipes/datagrid-bulk-actions/) |
+| 一括の失敗を理由別に集約し、レポートから行へリンク | [データグリッドの一括操作エラー](/hypermedia-components/ja/recipes/datagrid-bulk-errors/) |
+| ページ番号なしの無限リスト | [データグリッド無限スクロール](/hypermedia-components/ja/recipes/datagrid-infinite/) — `--hc-datagrid-max-height: none` が必要。レシピ参照 |
+| 検索時点で凍結されたワークキュー | [データグリッドのスナップショットページャー](/hypermedia-components/ja/recipes/datagrid-snapshot-pager/) |
+| グリッド内の階層 | [データグリッドのツリー](/hypermedia-components/ja/recipes/datagrid-tree/) |
+
+## 関連
+
+- [エラーと回復](/hypermedia-components/ja/fundamentals/errors/) —
+  編集・一括のワイヤが立脚するステータスコードの地図(422 / 409 / 401)。
+- [フィルターバー](/hypermedia-components/ja/components/filterbar/) —
+  テンプレートがグリッドの上に合成する、条件の読み出しストリップ。
+- [テーブル](/hypermedia-components/ja/components/table/) —
+  グリッドが不要なときの、静的でセマンティックなテーブル。

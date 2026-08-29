@@ -3,11 +3,15 @@ title: Pagination
 description: Semantic page links with current-page emphasis and disabled prev/next.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-pagination` is a `<nav>` containing a flat list of page links. The
 current page is marked with `aria-current="page"` — that single
 attribute drives both the visual state and the assistive-tech signal.
+
+*Also known as: pager, page navigation.*
 
 ## Basic HTML
 
@@ -124,3 +128,5 @@ pins the full contract.
 
 - [Table](/hypermedia-components/components/table/) — the usual host
   for pagination.
+
+<UsedInRecipes slug="pagination" />

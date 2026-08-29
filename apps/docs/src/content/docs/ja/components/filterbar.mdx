@@ -3,6 +3,8 @@ title: フィルタバー
 description: 一覧の上に出る「適用中の条件」バー — 1行で横スクロールし、チップは自分の条件のエディタを開き、削除はその条件を除いた URL への実リンク。
 ---
 
+import UsedInRecipes from '../../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../../components/Demo.astro';
 
 `hc-filterbar` は**いま一覧が何で絞り込まれているか**を示し、その場で
@@ -13,6 +15,8 @@ import Demo from '../../../../components/Demo.astro';
 兄弟で、`hc-chip` の方は装飾用のままです。分けているのは意図的で、
 どのピルが*レコードについての事実*で、どれが*クエリを操作するコント
 ロール*なのかを一目で区別できるようにするためです。
+
+*別名: 適用中フィルター表示、絞り込み条件バー。*
 
 ## 基本の HTML
 
@@ -166,3 +170,5 @@ href は no-JS 経路として残ります。
 - [datagrid-filter レシピ](/hypermedia-components/ja/recipes/datagrid-filter/) — バーが編集する `f-<col>` のワイヤ。
 - [filter-popover レシピ](/hypermedia-components/ja/recipes/filter-popover/) — 各チップが開くエディタの器。
 - [saved-views レシピ](/hypermedia-components/ja/recipes/saved-views/) — 条件セットに名前を付ける。
+
+<UsedInRecipes slug="filterbar" locale="ja" />

@@ -3,12 +3,16 @@ title: Menu
 description: Accessible dropdown menu following the WAI-ARIA APG menu pattern, built on the native popover attribute and CSS Anchor Positioning.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-menu` styles a native `popover` as a WAI-ARIA action menu. The
 trigger is a normal button; the `popovertarget` attribute connects
 the two without any JS, and `installMenu()` adds the
 keyboard pattern, ARIA wiring, and a `hc:menuselect` event.
+
+*Also known as: dropdown, dropdown menu.*
 
 ## Browser baseline
 
@@ -349,3 +353,5 @@ Component tokens (in `component.tokens.json`):
 - [Popover](/hypermedia-components/components/popover/) — bare popover surface without the menu pattern.
 - [Dialog](/hypermedia-components/components/dialog/) — modal alternative for richer flows.
 - [Toolbar](/hypermedia-components/components/toolbar/) — horizontal action cluster often paired with a menu trigger.
+
+<UsedInRecipes slug="menu" />

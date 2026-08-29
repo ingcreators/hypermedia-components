@@ -3,6 +3,8 @@ title: Filter bar
 description: The applied-conditions bar above a list — one scrolling line whose chips open their own editor and whose remove controls are real links to the URL without that condition.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-filterbar` shows **what the list is currently filtered by**, and lets
@@ -13,6 +15,8 @@ It is the interactive sibling of [`hc-chip`](/hypermedia-components/components/c
 which stays presentational. Keeping them apart is deliberate — a reader
 should be able to tell at a glance which pills are *facts about a
 record* and which are *controls on a query*.
+
+*Also known as: applied-filters strip, filter chips.*
 
 ## Basic HTML
 
@@ -167,3 +171,5 @@ without a remove control; the chip keeps both ends round.
 - [Datagrid filter recipe](/hypermedia-components/recipes/datagrid-filter/) — the `f-<col>` wire the bar edits.
 - [Filter popover recipe](/hypermedia-components/recipes/filter-popover/) — the editor shell each chip opens.
 - [Saved views recipe](/hypermedia-components/recipes/saved-views/) — naming a set of conditions.
+
+<UsedInRecipes slug="filterbar" />

@@ -3,6 +3,8 @@ title: Chat
 description: A conversation transcript — a chronological role="log" region with role-tinted bubbles, a CSS-only streaming caret, and a stick-to-bottom scroll behavior.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-chat` renders a conversation transcript as a **plain `<ol>` in
@@ -14,6 +16,8 @@ announced once. A message that is still streaming carries
 users don't hear token-by-token noise, they hear the finished message
 when the final swap removes the attribute. Following the newest message
 is not CSS's job either — that's [`installChatScroll()`](#stick-to-bottom).
+
+*Also known as: message thread, conversation UI.*
 
 ## Basic HTML
 
@@ -246,3 +250,5 @@ Component tokens (in `component.tokens.json`):
   notifications that don't belong in the transcript.
 - [Scroll area](/hypermedia-components/components/scroll-area/) — the
   same thin themed scrollbars for non-chat regions.
+
+<UsedInRecipes slug="chat" />

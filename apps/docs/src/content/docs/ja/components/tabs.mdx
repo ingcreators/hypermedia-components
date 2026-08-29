@@ -3,6 +3,8 @@ title: タブ
 description: WAI-ARIA APG パターンに従うアクセシブルなタブパネル。ブラウザのページ内検索へのプログレッシブエンハンスメントと、任意の URL ルーティング変種つき。
 ---
 
+import UsedInRecipes from '../../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../../components/Demo.astro';
 
 `hc-tabs` は、同じクラス名と見た目のもとに 2 つのマークアップ
@@ -18,6 +20,8 @@ import Demo from '../../../../components/Demo.astro';
 従い、デフォルトで**手動アクティベーション**を使います — パネルが
 htmx で遅延読み込みされるとき、矢印キーのたびにリクエストが飛ばない
 ようにするためです。
+
+*別名: タブ切り替え、タブバー。*
 
 ## アプリ状態タブ
 
@@ -371,3 +375,5 @@ component トークン(`component.tokens.json`):
 - [ダイアログ](/hypermedia-components/ja/components/dialog/) — 表示され続けるべきでないコンテンツのグルーピングのためのモーダルな代替。
 - [ポップオーバー](/hypermedia-components/ja/components/popover/) — 一時的な兄弟。
 - [ツールバー](/hypermedia-components/ja/components/toolbar/) — 水平のアクションクラスター(タブとよく組み合う)。
+
+<UsedInRecipes slug="tabs" locale="ja" />

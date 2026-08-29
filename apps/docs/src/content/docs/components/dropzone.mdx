@@ -3,6 +3,8 @@ title: Dropzone
 description: A drag-and-drop surface over a native file input — click and keyboard stay 100% native, drops assign the files and fire a normal change event.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-dropzone` decorates a **native `<input type="file">`** with a
@@ -15,6 +17,8 @@ input and fires a normal bubbling `change`, so everything downstream
 (form serialization, the
 [file-upload recipe](/hypermedia-components/recipes/file-upload/),
 validation) cannot tell the file wasn't browsed.
+
+*Also known as: file drop area, drag-and-drop upload.*
 
 ## Basic HTML
 
@@ -145,3 +149,5 @@ automatically:
 - [File upload recipe](/hypermedia-components/recipes/file-upload/) — the multipart + progress contract this drops into unchanged.
 - [Field errors recipe](/hypermedia-components/recipes/field-errors/) — validation wiring on the input.
 - [Input](/hypermedia-components/components/input/) — the plain control this decorates.
+
+<UsedInRecipes slug="dropzone" />

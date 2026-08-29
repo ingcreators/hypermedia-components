@@ -3,6 +3,8 @@ title: Select
 description: Native <select> with full styling on the closed state and the OS / browser picker for the dropdown — pure CSS, no JavaScript.
 ---
 
+import UsedInRecipes from '../../../components/UsedInRecipes.astro';
+
 import Demo from '../../../components/Demo.astro';
 
 `hc-select` styles a native `<select>` element. The underlying
@@ -10,6 +12,8 @@ element keeps every native behaviour — keyboard navigation, form
 submission, the OS native picker on mobile, screen-reader semantics
 — while the closed state is fully restyled to match the rest of the
 HC form-control family.
+
+*Also known as: dropdown list, select box, pulldown.*
 
 ## Browser baseline
 
@@ -256,3 +260,5 @@ reason to reach for `hc-combobox`.
 - [Field](/hypermedia-components/components/field/) — label + helper text wrapper.
 - [Combobox](/hypermedia-components/components/combobox/) — JS-backed listbox when you need to style the open dropdown today.
 - [Checkbox](/hypermedia-components/components/checkbox/) / [Radio](/hypermedia-components/components/radio/) — boolean / single-pick form controls.
+
+<UsedInRecipes slug="select" />
