@@ -28,6 +28,15 @@ Security    — security-relevant changes
   a documented hard-reject mode for process-everything work queues.
   Zero new JS/CSS; live demo + demo API included.
   ([plan](plans/hc-result-cap-snapshot-plan-en.md))
+- `datagrid-snapshot-pager` recipe — freeze a work queue's membership
+  at search time: the form carries every hit's opaque row key
+  (`name="keys"`, tree-order serialization), paging POSTs the whole
+  ordered list and the server slices; processed rows stay visible as
+  processed, vanished rows render as tombstones, and page boundaries
+  never shift under the user. Composes with `datagrid-bulk-actions`
+  (`keys` vs `ids` naming rule) and `result-cap` (the cap bounds the
+  snapshot). Zero new JS/CSS; live demo + demo API included.
+  ([plan](plans/hc-result-cap-snapshot-plan-en.md))
 
 ## [0.3.0] - 2026-08-29
 

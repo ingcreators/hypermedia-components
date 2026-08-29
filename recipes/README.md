@@ -33,6 +33,7 @@ documentation pages.
 | [`lazy-panel/`](lazy-panel/)              | Panel whose content loads on first reveal (intersect / details / tab).  |
 | [`lazy-tree/`](lazy-tree/)                | Tree branches that load their children on first expand (`hc:treeexpand once`). |
 | [`datagrid-pager/`](datagrid-pager/)      | Paginate an `hc-datagrid` from the server with htmx.                    |
+| [`datagrid-snapshot-pager/`](datagrid-snapshot-pager/) | Freeze a work queue's membership at search time — form-carried row keys, tombstones, processed rows stay visible. |
 | [`datagrid-bulk-actions/`](datagrid-bulk-actions/) | Select datagrid rows and POST one action against all of them.  |
 | [`sse-updates/`](sse-updates/)            | Server-pushed fragment updates over Server-Sent Events.                 |
 | [`sse-toast/`](sse-toast/)                | Server-pushed notifications / domain events via the SSE dispatch bridge. |

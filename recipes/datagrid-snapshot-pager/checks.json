@@ -1,0 +1,74 @@
+{
+  "detect": "form:has(input[type=\"hidden\"][name=\"keys\"])",
+  "contract": "contract.md",
+  "rules": [
+    {
+      "id": "keys-outside-swap",
+      "level": "error",
+      "message": "The snapshot keys must live outside the swap target — a page swap inside .hc-datagrid__body would destroy the snapshot.",
+      "exists": {
+        "selector": ".hc-datagrid__body input[name=\"keys\"]",
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": "keys-are-hidden",
+      "level": "error",
+      "message": "keys is the snapshot membership and is always hidden inputs — row selection is a different list (name=\"ids\", checkboxes).",
+      "exists": {
+        "selector": "input[name=\"keys\"]:not([type=\"hidden\"])",
+        "min": 0,
+        "max": 0
+      }
+    },
+    {
+      "id": "pager-posts",
+      "level": "error",
+      "message": "Pager entries are submit buttons with name=\"page\" and data-hx-post — the snapshot travels in the POST body, so links can't carry it.",
+      "exists": {
+        "selector": ".hc-pagination button[name=\"page\"][data-hx-post]"
+      }
+    },
+    {
+      "id": "keeps-tbody",
+      "level": "error",
+      "message": "Pager buttons must swap innerHTML — replacing the tbody itself (outerHTML) detaches the element the grid observes.",
+      "attr": {
+        "on": "button[name=\"page\"][data-hx-swap]",
+        "name": "data-hx-swap",
+        "assert": "present",
+        "value": "innerHTML"
+      }
+    },
+    {
+      "id": "no-js-post",
+      "level": "error",
+      "message": "The form needs method=\"post\" and an action so the pager buttons work without JavaScript.",
+      "attr": {
+        "on": "form:has(input[name=\"keys\"])",
+        "name": "action",
+        "assert": "present"
+      }
+    },
+    {
+      "id": "method-post",
+      "level": "error",
+      "message": "The no-JS fallback must POST — a GET pager would put the whole snapshot in the URL.",
+      "attr": {
+        "on": "form:has(input[name=\"keys\"])",
+        "name": "method",
+        "assert": "present",
+        "value": "post"
+      }
+    },
+    {
+      "id": "status-live",
+      "level": "warn",
+      "message": "Give the status line aria-live=\"polite\" so page changes and processing progress announce.",
+      "exists": {
+        "selector": "[aria-live=\"polite\"]"
+      }
+    }
+  ]
+}

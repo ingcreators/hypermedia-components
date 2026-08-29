@@ -1,0 +1,61 @@
+<!-- Short recommended usage.
+
+  datagrid-snapshot-pager: freeze a work queue's MEMBERSHIP at search
+  time while its row STATE stays live. The form is the snapshot store:
+  one hidden name="keys" input per hit, in display order, minted by
+  the server at search time (opaque tokens — composite primary keys
+  fold into e.g. base64url(JSON); the client echoes them verbatim).
+  Every pager button POSTs the whole ordered list plus its own
+  name="page"; the server slices out that page and returns those rows
+  in that order, in their CURRENT state — processed rows render
+  processed, vanished rows render as tombstones. Approving 10 of 56
+  can therefore never shift page boundaries or hide unseen rows.
+  The keys live OUTSIDE the swap target (#rows) so paging and row
+  updates never disturb the snapshot. Reload = new search (page URLs
+  don't exist); sort/filter change = new snapshot. -->
+<form method="post" action="/approvals/page">
+  <!-- The snapshot (server-rendered at search time, ≤ the search cap): -->
+  <input type="hidden" name="keys" value="tok_a1">
+  <input type="hidden" name="keys" value="tok_b2">
+  <!-- …one per hit, in display order… -->
+  <!-- The current page, updated out-of-band by every page response
+       (the pager button's own value overrides it — read the LAST
+       "page" parameter): -->
+  <input type="hidden" name="page" value="1" id="page-field">
+
+  <div class="hc-datagrid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">ID</th>
+            <th class="hc-datagrid__headcell" scope="col">Title</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+          </tr>
+        </thead>
+        <!-- Page 1's rows are server-rendered here at search time. -->
+        <tbody class="hc-datagrid__body" id="rows">
+          <tr class="hc-datagrid__row">
+            <th class="hc-datagrid__cell" scope="row">4021</th>
+            <td class="hc-datagrid__cell">Expense report — March</td>
+            <td class="hc-datagrid__cell">Pending</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p id="rows-status" aria-live="polite">1–20 of 56 (as of search)</p>
+
+  <nav class="hc-pagination" id="pager" aria-label="Pagination">
+    <button class="hc-pagination__item" type="submit" name="page" value="1"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML" aria-current="page">1</button>
+    <button class="hc-pagination__item" type="submit" name="page" value="2"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML">2</button>
+    <button class="hc-pagination__item" type="submit" name="page" value="3"
+            data-hx-post="/approvals/page" data-hx-target="#rows"
+            data-hx-swap="innerHTML">3</button>
+  </nav>
+</form>
