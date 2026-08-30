@@ -26,17 +26,17 @@ import Demo from '../../../../components/Demo.astro';
       <tr>
         <td>Order #123</td>
         <td><span class="hc-badge" data-variant="success">Active</span></td>
-        <td><button class="hc-button" data-size="sm">View</button></td>
+        <td><button class="hc-button" type="button" data-size="sm">View</button></td>
       </tr>
       <tr>
         <td>Order #124</td>
         <td><span class="hc-badge" data-variant="warning">Pending</span></td>
-        <td><button class="hc-button" data-size="sm">View</button></td>
+        <td><button class="hc-button" type="button" data-size="sm">View</button></td>
       </tr>
       <tr>
         <td>Order #125</td>
         <td><span class="hc-badge">Draft</span></td>
-        <td><button class="hc-button" data-size="sm">View</button></td>
+        <td><button class="hc-button" type="button" data-size="sm">View</button></td>
       </tr>
     </tbody>
   </table>
@@ -56,7 +56,17 @@ import Demo from '../../../../components/Demo.astro';
       <tr>
         <td>Order #123</td>
         <td><span class="hc-badge" data-variant="success">Active</span></td>
-        <td><button class="hc-button" data-size="sm">View</button></td>
+        <td><button class="hc-button" type="button" data-size="sm">View</button></td>
+      </tr>
+      <tr>
+        <td>Order #124</td>
+        <td><span class="hc-badge" data-variant="warning">Pending</span></td>
+        <td><button class="hc-button" type="button" data-size="sm">View</button></td>
+      </tr>
+      <tr>
+        <td>Order #125</td>
+        <td><span class="hc-badge">Draft</span></td>
+        <td><button class="hc-button" type="button" data-size="sm">View</button></td>
       </tr>
     </tbody>
   </table>
@@ -240,6 +250,7 @@ import Demo from '../../../../components/Demo.astro';
   <td>
     <button
       class="hc-button"
+      type="button"
       data-variant="error"
       data-hc-confirm="Delete this item?"
       data-hx-delete="/items/123"

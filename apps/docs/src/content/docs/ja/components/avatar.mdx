@@ -79,6 +79,8 @@ installAvatar(); // idempotent; returns an uninstaller
   <Fragment slot="code">
 
   ```html
+  <!-- installAvatar() writes data-state; the preview above forces
+       data-state="error" to show the fallback. -->
   <span class="hc-avatar" role="img" aria-label="Ada Lovelace">
     <img class="hc-avatar__image" src="/users/ada.jpg" alt="">
     <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
@@ -221,7 +223,7 @@ component トークン(`component.tokens.json`):
 | --- | --- |
 | `avatar.size` | デフォルトの寸法。 |
 | `avatar.radius` / `square-radius` | 円と正方形の角丸。 |
-| `avatar.bg` / `fg` / `border` | フォールバックの面の色。 |
+| `avatar.bg` / `fg` | フォールバックの面の色。 |
 | `avatar.font-size` / `font-weight` | イニシャルのテキストスタイル。 |
 | `avatar.xs.*` / `sm.*` / `lg.*` / `xl.*` | 専用のサイズ上書き。 |
 
@@ -232,7 +234,7 @@ component トークン(`component.tokens.json`):
 
 ```text
 --hc-avatar-size | -radius | -square-radius
---hc-avatar-bg | -fg | -border
+--hc-avatar-bg | -fg
 --hc-avatar-font-size | -font-weight
 --hc-avatar-xs-size | -xs-font-size
 --hc-avatar-sm-size | -sm-font-size

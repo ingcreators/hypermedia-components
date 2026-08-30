@@ -53,7 +53,7 @@ flow while the sidebar lifts out as an overlay, so the order matters:
   ```html
   <div class="hc-shell">
     <header class="hc-shell__header">
-      <button class="hc-button" data-variant="ghost"
+      <button class="hc-button hc-shell__toggle" data-variant="ghost"
               data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
       <strong>Acme Admin</strong>
     </header>
@@ -142,9 +142,9 @@ the matching route):
 
 <Demo>
   <nav aria-label="Demo navigation" style="max-inline-size:14rem;display:grid;gap:2px;">
-    <a class="hc-item" href="#ops"><span class="hc-item__media" aria-hidden="true">⚙</span><span class="hc-item__title">Operations</span></a>
-    <a class="hc-item" href="#studio" aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><span class="hc-item__title">Studio</span></a>
-    <a class="hc-item" href="#iam"><span class="hc-item__media" aria-hidden="true">⛨</span><span class="hc-item__title">IAM Admin</span></a>
+    <a class="hc-item" href="#ops"><span class="hc-item__media" aria-hidden="true">⚙</span><span class="hc-item__title hc-shell__label">Operations</span></a>
+    <a class="hc-item" href="#studio" aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><span class="hc-item__title hc-shell__label">Studio</span></a>
+    <a class="hc-item" href="#iam"><span class="hc-item__media" aria-hidden="true">⛨</span><span class="hc-item__title hc-shell__label">IAM Admin</span></a>
   </nav>
 
   <Fragment slot="code">
@@ -158,6 +158,10 @@ the matching route):
     <a class="hc-item" href="/studio" aria-current="page">
       <span class="hc-item__media" aria-hidden="true">▦</span>
       <span class="hc-item__title hc-shell__label">Studio</span>
+    </a>
+    <a class="hc-item" href="/iam">
+      <span class="hc-item__media" aria-hidden="true">⛨</span>
+      <span class="hc-item__title hc-shell__label">IAM Admin</span>
     </a>
   </nav>
   ```
@@ -237,7 +241,7 @@ the inline end:
 
   ```html
   <header class="hc-shell__header">
-    <button class="hc-button" data-variant="ghost"
+    <button class="hc-button hc-shell__toggle" data-variant="ghost"
             data-hc-shell-toggle aria-label="Open navigation" type="button">≡</button>
     <strong>Outbox events</strong>
     <span class="hc-badge" data-variant="warning">3 pending</span>
@@ -348,7 +352,8 @@ with `data-collapsible` on the `.hc-shell__sidebar`, add a
   ```html
   <div class="hc-shell">
     <header class="hc-shell__header">
-      <button data-hc-shell-collapse type="button" aria-label="Collapse sidebar">⇔</button>
+      <button class="hc-button" data-variant="ghost"
+              data-hc-shell-collapse type="button" aria-label="Collapse sidebar">⇔</button>
     </header>
 
     <nav class="hc-shell__sidebar" aria-label="Primary"

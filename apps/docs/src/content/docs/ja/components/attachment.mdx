@@ -83,23 +83,25 @@ htmx がフォームをアップロードする間、その `value` を
   <Fragment slot="code">
 
   ```html
-  <li class="hc-attachment" data-state="uploading">
-    <span class="hc-attachment__icon" aria-hidden="true">📄</span>
-    <span class="hc-attachment__name">report.pdf</span>
-    <span class="hc-attachment__size">1.2 MB</span>
-    <progress class="hc-progress hc-attachment__progress"
-              max="100" value="40" aria-label="Uploading report.pdf"></progress>
-    <button class="hc-attachment__remove" type="button"
-            aria-label="Remove report.pdf">×</button>
-  </li>
+  <ul class="hc-attachments" aria-label="Attachments">
+    <li class="hc-attachment" data-state="uploading">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">report.pdf</span>
+      <span class="hc-attachment__size">1.2 MB</span>
+      <progress class="hc-progress hc-attachment__progress"
+                max="100" value="40" aria-label="Uploading report.pdf"></progress>
+      <button class="hc-attachment__remove" type="button"
+              aria-label="Remove report.pdf">×</button>
+    </li>
 
-  <li class="hc-attachment" data-state="error">
-    <span class="hc-attachment__icon" aria-hidden="true">📄</span>
-    <span class="hc-attachment__name">huge.iso</span>
-    <span class="hc-attachment__size">9.8 GB</span>
-    <button class="hc-attachment__remove" type="button"
-            aria-label="Remove huge.iso">×</button>
-  </li>
+    <li class="hc-attachment" data-state="error">
+      <span class="hc-attachment__icon" aria-hidden="true">📄</span>
+      <span class="hc-attachment__name">huge.iso</span>
+      <span class="hc-attachment__size">9.8 GB</span>
+      <button class="hc-attachment__remove" type="button"
+              aria-label="Remove huge.iso">×</button>
+    </li>
+  </ul>
   ```
 
   </Fragment>

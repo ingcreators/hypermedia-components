@@ -23,7 +23,7 @@ inline.
   <button type="button" class="hc-button" onclick="this.nextElementSibling.showModal()">
     Open command palette
   </button>
-  <dialog class="hc-command-dialog">
+  <dialog class="hc-command-dialog" data-hotkey="k">
     <div class="hc-command">
       <input class="hc-command__input" type="text" role="combobox" autofocus
              aria-label="Command menu" placeholder="Type a command…" />
@@ -64,6 +64,17 @@ inline.
           </div>
           <div class="hc-command__item" role="option" data-value="profile">
             <span>Open profile</span>
+            <kbd class="hc-command__shortcut">G P</kbd>
+          </div>
+        </div>
+        <div class="hc-command__group" role="group" aria-labelledby="g-act">
+          <div class="hc-command__group-heading" id="g-act">Actions</div>
+          <div class="hc-command__item" role="option" data-value="new">
+            <span>New document</span>
+            <kbd class="hc-command__shortcut">⌘ N</kbd>
+          </div>
+          <div class="hc-command__item" role="option" data-value="search">
+            <span>Search files</span>
           </div>
         </div>
       </div>

@@ -356,6 +356,8 @@ component トークン(`component.tokens.json`):
 | `field.message-color`                 | ヘルプテキストの色。          |
 | `field.message-font-size`             | ヘルプテキストのフォントサイズ。 |
 | `field.invalid-message-color`         | エラーメッセージの色。        |
+| `field.applied-marker-color`          | `data-applied` ドットの色。   |
+| `field.applied-marker-size`           | `data-applied` ドットのサイズ。 |
 
 ## CSS 変数
 
@@ -364,9 +366,10 @@ component トークン(`component.tokens.json`):
 
 ```text
 --hc-field-gap
---hc-field-label-color | -weight | -font-size
---hc-field-message-color | -font-size
+--hc-field-label-color | -label-weight | -label-font-size
+--hc-field-message-color | -message-font-size
 --hc-field-invalid-message-color
+--hc-field-applied-marker-color | -applied-marker-size
 --hc-field-required-color   /* the required asterisk; defaults to --hc-color-error */
 ```
 

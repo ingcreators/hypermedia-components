@@ -78,6 +78,8 @@ automatically.
   <Fragment slot="code">
 
   ```html
+  <!-- installAvatar() writes data-state; the preview above forces
+       data-state="error" to show the fallback. -->
   <span class="hc-avatar" role="img" aria-label="Ada Lovelace">
     <img class="hc-avatar__image" src="/users/ada.jpg" alt="">
     <span class="hc-avatar__fallback" aria-hidden="true">AL</span>
@@ -216,7 +218,7 @@ Component tokens (in `component.tokens.json`):
 | --- | --- |
 | `avatar.size` | Default dimension. |
 | `avatar.radius` / `square-radius` | Circle vs square corner radius. |
-| `avatar.bg` / `fg` / `border` | Fallback surface colors. |
+| `avatar.bg` / `fg` | Fallback surface colors. |
 | `avatar.font-size` / `font-weight` | Initials text styling. |
 | `avatar.xs.*` / `sm.*` / `lg.*` / `xl.*` | Dedicated size overrides. |
 
@@ -227,7 +229,7 @@ Component tokens (in `component.tokens.json`):
 
 ```text
 --hc-avatar-size | -radius | -square-radius
---hc-avatar-bg | -fg | -border
+--hc-avatar-bg | -fg
 --hc-avatar-font-size | -font-weight
 --hc-avatar-xs-size | -xs-font-size
 --hc-avatar-sm-size | -sm-font-size

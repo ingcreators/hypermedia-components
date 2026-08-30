@@ -82,10 +82,22 @@ input を視覚的にまとめたいのでない限り、`role="radiogroup"` や
 
   ```html
   <!-- Separate `name`s here only so each variant can render as checked. -->
-  <input class="hc-radio" type="radio" name="v-default" checked>
-  <input class="hc-radio" type="radio" name="v-success" data-variant="success" checked>
-  <input class="hc-radio" type="radio" name="v-warning" data-variant="warning" checked>
-  <input class="hc-radio" type="radio" name="v-error"   data-variant="error" checked>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="v-default" checked>
+    Default (themed)
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="v-success" data-variant="success" checked>
+    Success
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="v-warning" data-variant="warning" checked>
+    Warning
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="v-error" data-variant="error" checked>
+    Error
+  </label>
   ```
 
   </Fragment>
@@ -114,9 +126,18 @@ input を視覚的にまとめたいのでない限り、`role="radiogroup"` や
   <Fragment slot="code">
 
   ```html
-  <input class="hc-radio" type="radio" name="x" data-size="sm" checked>
-  <input class="hc-radio" type="radio" name="y" checked>
-  <input class="hc-radio" type="radio" name="z" data-size="lg" checked>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="x" data-size="sm" checked>
+    Small
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="y" checked>
+    Default
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="z" data-size="lg" checked>
+    Large
+  </label>
   ```
 
   </Fragment>
@@ -151,10 +172,19 @@ input を視覚的にまとめたいのでない限り、`role="radiogroup"` や
   <Fragment slot="code">
 
   ```html
-  <input class="hc-radio" type="radio" name="notify" aria-invalid="true">
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="notify" aria-invalid="true">
+    Required field (aria-invalid)
+  </label>
   <!-- A disabled group with one option pre-selected. -->
-  <input class="hc-radio" type="radio" name="plan" disabled>
-  <input class="hc-radio" type="radio" name="plan" disabled checked>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan" disabled>
+    Disabled (unchecked)
+  </label>
+  <label class="hc-radio-label">
+    <input class="hc-radio" type="radio" name="plan" disabled checked>
+    Disabled (checked)
+  </label>
   ```
 
   </Fragment>

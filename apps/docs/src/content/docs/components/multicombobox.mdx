@@ -22,7 +22,7 @@ while DOM focus stays on the input.
 ## Basic HTML
 
 <Demo>
-  <div class="hc-multicombobox" style="max-inline-size:22rem;">
+  <div class="hc-multicombobox" data-name="languages" style="max-inline-size:22rem;">
     <div class="hc-multicombobox__control hc-input">
       <span class="hc-multicombobox__tags"></span>
       <input class="hc-multicombobox__input"
@@ -217,7 +217,7 @@ filter haystack (aliases/keywords), so the rich markup's text doesn't pollute
 either:
 
 <Demo>
-  <div class="hc-multicombobox" style="max-inline-size:22rem;">
+  <div class="hc-multicombobox" data-name="languages" style="max-inline-size:22rem;">
     <div class="hc-multicombobox__control hc-input">
       <span class="hc-multicombobox__tags"></span>
       <input class="hc-multicombobox__input"
@@ -301,7 +301,7 @@ Component tokens (in `component.tokens.json`):
 | `multicombobox.tag.bg` / `fg` / `border` / `padding-x` / `padding-y` / `radius` / `font-size` / `gap` | Tag chip. |
 | `multicombobox.tag.remove-fg` / `remove-hover-fg` | × button. |
 | `multicombobox.listbox.*` | Mirror of the combobox listbox tokens. |
-| `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, check-color, disabled-fg, indicator-size}` | Option layout + check mark. |
+| `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, disabled-fg, indicator-size}` | Option layout + check mark. |
 | `multicombobox.empty-fg` | "No matches" placeholder color. |
 
 ## CSS variables
@@ -318,7 +318,7 @@ Component tokens (in `component.tokens.json`):
 --hc-multicombobox-listbox-bg | -listbox-fg | -listbox-border | -listbox-radius
 --hc-multicombobox-listbox-max-height | -listbox-padding-block | -listbox-min-width | -listbox-offset
 --hc-multicombobox-option-padding-x | -option-padding-y | -option-font-size | -option-fg
---hc-multicombobox-option-hover-bg | -option-active-bg | -option-check-color
+--hc-multicombobox-option-hover-bg | -option-active-bg
 --hc-multicombobox-option-disabled-fg | -option-indicator-size
 --hc-multicombobox-empty-fg
 ```

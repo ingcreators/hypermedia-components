@@ -112,9 +112,12 @@ import Demo from '../../../../components/Demo.astro';
   <Fragment slot="code">
 
   ```html
-  <fieldset class="hc-rating" data-size="sm">…</fieldset>
-  <fieldset class="hc-rating">…</fieldset>
-  <fieldset class="hc-rating" data-size="lg">…</fieldset>
+  <span class="hc-rating" data-readonly data-size="sm"
+        role="img" aria-label="3 of 5 stars">…</span>
+  <span class="hc-rating" data-readonly
+        role="img" aria-label="3 of 5 stars">…</span>
+  <span class="hc-rating" data-readonly data-size="lg"
+        role="img" aria-label="3 of 5 stars">…</span>
   ```
 
   </Fragment>

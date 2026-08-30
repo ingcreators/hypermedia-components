@@ -349,6 +349,8 @@ Component tokens (in `component.tokens.json`):
 | `field.message-color`                 | Help text color.              |
 | `field.message-font-size`             | Help text font size.          |
 | `field.invalid-message-color`         | Error message color.          |
+| `field.applied-marker-color`          | `data-applied` dot color.     |
+| `field.applied-marker-size`           | `data-applied` dot size.      |
 
 ## CSS variables
 
@@ -357,9 +359,10 @@ Component tokens (in `component.tokens.json`):
 
 ```text
 --hc-field-gap
---hc-field-label-color | -weight | -font-size
---hc-field-message-color | -font-size
+--hc-field-label-color | -label-weight | -label-font-size
+--hc-field-message-color | -message-font-size
 --hc-field-invalid-message-color
+--hc-field-applied-marker-color | -applied-marker-size
 --hc-field-required-color   /* the required asterisk; defaults to --hc-color-error */
 ```
 

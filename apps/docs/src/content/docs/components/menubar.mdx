@@ -31,18 +31,18 @@ everywhere `popover` is supported.
 <Demo>
   <div class="hc-menubar" role="menubar" aria-label="Application">
     <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-file" id="doc-mb-file-t">File</button>
-    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-edit" id="doc-mb-edit-t">Edit</button>
-    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-view" id="doc-mb-view-t">View</button>
     <div class="hc-menu" id="doc-mb-file" popover role="menu" aria-labelledby="doc-mb-file-t">
       <button class="hc-menu__item" role="menuitem" type="button">New</button>
       <button class="hc-menu__item" role="menuitem" type="button">Open…</button>
       <hr class="hc-menu__separator" />
       <button class="hc-menu__item" role="menuitem" type="button">Save</button>
     </div>
+    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-edit" id="doc-mb-edit-t">Edit</button>
     <div class="hc-menu" id="doc-mb-edit" popover role="menu" aria-labelledby="doc-mb-edit-t">
       <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
       <button class="hc-menu__item" role="menuitem" type="button">Redo</button>
     </div>
+    <button class="hc-menubar__item" role="menuitem" type="button" popovertarget="doc-mb-view" id="doc-mb-view-t">View</button>
     <div class="hc-menu" id="doc-mb-view" popover role="menu" aria-labelledby="doc-mb-view-t">
       <button class="hc-menu__item" role="menuitem" type="button">Zoom in</button>
       <button class="hc-menu__item" role="menuitem" type="button">Zoom out</button>
@@ -58,13 +58,18 @@ everywhere `popover` is supported.
     <div class="hc-menu" id="mb-file" popover role="menu" aria-labelledby="mb-file-t">
       <button class="hc-menu__item" role="menuitem" type="button">New</button>
       <button class="hc-menu__item" role="menuitem" type="button">Open…</button>
+      <hr class="hc-menu__separator">
+      <button class="hc-menu__item" role="menuitem" type="button">Save</button>
     </div>
   
     <button class="hc-menubar__item" role="menuitem" type="button"
             popovertarget="mb-edit" id="mb-edit-t">Edit</button>
     <div class="hc-menu" id="mb-edit" popover role="menu" aria-labelledby="mb-edit-t">
       <button class="hc-menu__item" role="menuitem" type="button">Undo</button>
+      <button class="hc-menu__item" role="menuitem" type="button">Redo</button>
     </div>
+  
+    <!-- … a View pair follows the same button + menu shape … -->
   </div>
   ```
 

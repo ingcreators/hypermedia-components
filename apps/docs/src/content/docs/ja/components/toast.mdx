@@ -34,7 +34,7 @@ installToast(); // idempotent; returns an uninstaller
 このマークアップはビヘイビアが描画します — 手で書くことはありません。
 
 <Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
-  <div class="hc-toast" role="status">
+  <div class="hc-toast" data-variant="info" role="status">
     <div class="hc-toast__title">Saved</div>
     <div class="hc-toast__body">Your changes were saved.</div>
     <button class="hc-toast__close" type="button" aria-label="Dismiss"><span aria-hidden="true">×</span></button>
@@ -52,8 +52,11 @@ installToast(); // idempotent; returns an uninstaller
   <Fragment slot="code">
 
   ```html
-  <!-- Rendered by installToast() into the .hc-toast-region -->
-  <div class="hc-toast" data-variant="success" role="status">
+  <!-- installToast() が .hc-toast-region に描画します。
+       data-variant のデフォルトは "info"。error は代わりに
+       role="alert" / aria-live="assertive" を使います。 -->
+  <div class="hc-toast" data-variant="success" role="status"
+       aria-live="polite" aria-atomic="true">
     <div class="hc-toast__title">Saved</div>
     <div class="hc-toast__body">Your changes were saved.</div>
     <button class="hc-toast__close" type="button" aria-label="Dismiss">

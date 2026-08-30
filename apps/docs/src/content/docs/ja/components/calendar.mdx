@@ -142,7 +142,7 @@ calendar.addEventListener('hc:calendarchange', (e) => {
 選べます:
 
 <Demo>
-  <div class="hc-calendar" data-mode="range" data-value="2026-05-10/2026-05-14" data-locale="en-US" aria-label="Pick a date range"></div>
+  <div class="hc-calendar" data-mode="range" data-value="2026-05-10/2026-05-14" data-name="stay" data-locale="en-US" aria-label="Pick a date range"></div>
 
   <Fragment slot="code">
 
@@ -229,13 +229,13 @@ JavaScript なし**なので、日付フィールドの多いページも純粋�
   <div class="hc-field" style="max-inline-size:18rem;">
     <label class="hc-field__label" for="datefield-demo-input">Due date</label>
     <div class="hc-input-group">
-      <input class="hc-input" id="datefield-demo-input" name="due" type="text" readonly value="2026-05-15" placeholder="Pick a date" />
+      <input class="hc-input" id="datefield-demo-input" name="due" type="text" readonly value="2026-05-15" placeholder="Pick a date" aria-describedby="datefield-demo-hint" />
       <button class="hc-button" type="button" popovertarget="datefield-cal" aria-label="Choose date">📅</button>
     </div>
     <div id="datefield-cal" class="hc-popover" popover data-side="bottom" data-align="end">
       <div class="hc-calendar" data-target="#datefield-demo-input" data-locale="en-US" aria-label="Choose date"></div>
     </div>
-    <p class="hc-field__message">Format: YYYY-MM-DD</p>
+    <p class="hc-field__message" id="datefield-demo-hint">Format: YYYY-MM-DD</p>
   </div>
 
   <Fragment slot="code">
@@ -247,7 +247,8 @@ JavaScript なし**なので、日付フィールドの多いページも純粋�
     <div class="hc-input-group">
       <!-- The value lives here, once — and this input carries the form name. -->
       <input class="hc-input" id="due" name="due" type="text" readonly
-             value="2026-05-15" placeholder="Pick a date">
+             value="2026-05-15" placeholder="Pick a date"
+             aria-describedby="due-hint">
       <button class="hc-button" type="button" popovertarget="due-cal"
               aria-label="Choose date">📅</button>
     </div>
@@ -257,7 +258,7 @@ JavaScript なし**なので、日付フィールドの多いページも純粋�
       <div class="hc-calendar" data-target="#due" aria-label="Choose date"></div>
     </div>
 
-    <p class="hc-field__message">Format: YYYY-MM-DD</p>
+    <p class="hc-field__message" id="due-hint">Format: YYYY-MM-DD</p>
   </div>
   ```
 
@@ -376,6 +377,7 @@ name が `hc-field` 内の本物の input に住んでいるため、
 | `calendar.day-size` / `day-radius` / `day-font-size` / `day-fg` | 日セル。 |
 | `calendar.day-hover-bg` | 日のホバー。 |
 | `calendar.day-selected-bg` / `day-selected-fg` | 選択された日(`data-color` に追従)。 |
+| `calendar.day-range-bg` / `day-range-preview-bg` | 範囲モードの両端間のバンド / 選択中の仮プレビューバンド。 |
 | `calendar.day-today-border` | 今日のリング。 |
 | `calendar.day-outside-fg` / `day-disabled-fg` | 隣接月 / 範囲外の日。 |
 
@@ -391,6 +393,7 @@ name が `hc-field` 内の本物の input に住んでいるため、
 --hc-calendar-weekday-fg | -weekday-font-size | -weekday-font-weight
 --hc-calendar-day-size | -day-radius | -day-font-size | -day-fg
 --hc-calendar-day-hover-bg | -day-selected-bg | -day-selected-fg
+--hc-calendar-day-range-bg | -day-range-preview-bg
 --hc-calendar-day-today-border | -day-outside-fg | -day-disabled-fg
 ```
 

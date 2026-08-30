@@ -30,7 +30,8 @@ import Demo from '../../../../components/Demo.astro';
   <Fragment slot="code">
 
   ```html
-  <div class="hc-splitter" data-orientation="horizontal" style="block-size:10rem">
+  <div class="hc-splitter" data-orientation="horizontal" data-value="40"
+       style="block-size:10rem">
     <div class="hc-splitter__panel">Primary pane</div>
     <div class="hc-splitter__handle" role="separator" tabindex="0"
          aria-label="Resize panels"></div>
@@ -133,7 +134,7 @@ splitter.addEventListener('hc:splitterchange', (e) => {
   <Fragment slot="code">
 
   ```html
-  <div class="hc-splitter" data-orientation="horizontal" data-collapsible
+  <div class="hc-splitter" data-orientation="horizontal" data-value="40" data-collapsible
        style="block-size:10rem">
     <div class="hc-splitter__panel">Primary pane</div>
     <div class="hc-splitter__handle" role="separator" tabindex="0"

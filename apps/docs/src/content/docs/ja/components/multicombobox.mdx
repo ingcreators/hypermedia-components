@@ -20,7 +20,7 @@ import Demo from '../../../../components/Demo.astro';
 ## 基本の HTML
 
 <Demo>
-  <div class="hc-multicombobox" style="max-inline-size:22rem;">
+  <div class="hc-multicombobox" data-name="languages" style="max-inline-size:22rem;">
     <div class="hc-multicombobox__control hc-input">
       <span class="hc-multicombobox__tags"></span>
       <input class="hc-multicombobox__input"
@@ -223,7 +223,7 @@ input が追加されます。オプションのラベルは
 マークアップのテキストがどちらも汚さないようにします:
 
 <Demo>
-  <div class="hc-multicombobox" style="max-inline-size:22rem;">
+  <div class="hc-multicombobox" data-name="languages" style="max-inline-size:22rem;">
     <div class="hc-multicombobox__control hc-input">
       <span class="hc-multicombobox__tags"></span>
       <input class="hc-multicombobox__input"
@@ -310,7 +310,7 @@ component トークン(`component.tokens.json`):
 | `multicombobox.tag.bg` / `fg` / `border` / `padding-x` / `padding-y` / `radius` / `font-size` / `gap` | タグチップ。 |
 | `multicombobox.tag.remove-fg` / `remove-hover-fg` | × ボタン。 |
 | `multicombobox.listbox.*` | コンボボックスのリストボックストークンのミラー。 |
-| `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, check-color, disabled-fg, indicator-size}` | オプションのレイアウト + チェックマーク。 |
+| `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, disabled-fg, indicator-size}` | オプションのレイアウト + チェックマーク。 |
 | `multicombobox.empty-fg` | 「No matches」プレースホルダーの色。 |
 
 ## CSS 変数
@@ -327,7 +327,7 @@ component トークン(`component.tokens.json`):
 --hc-multicombobox-listbox-bg | -listbox-fg | -listbox-border | -listbox-radius
 --hc-multicombobox-listbox-max-height | -listbox-padding-block | -listbox-min-width | -listbox-offset
 --hc-multicombobox-option-padding-x | -option-padding-y | -option-font-size | -option-fg
---hc-multicombobox-option-hover-bg | -option-active-bg | -option-check-color
+--hc-multicombobox-option-hover-bg | -option-active-bg
 --hc-multicombobox-option-disabled-fg | -option-indicator-size
 --hc-multicombobox-empty-fg
 ```

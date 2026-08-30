@@ -29,7 +29,7 @@ record* and which are *controls on a query*.
           <span class="hc-filterbar__op">is</span>
           <span class="hc-filterbar__value">3 values</span>
         </button>
-        <a class="hc-filterbar__remove" href="#fb-demo" aria-label="Remove Buyer code filter">×</a>
+        <a class="hc-filterbar__remove" href="#" aria-label="Remove Buyer code filter">×</a>
       </li>
       <li class="hc-filterbar__item">
         <button class="hc-filterbar__chip" type="button" popovertarget="fb-demo-ship">
@@ -37,7 +37,7 @@ record* and which are *controls on a query*.
           <span class="hc-filterbar__op">from</span>
           <span class="hc-filterbar__value">2026-08-01</span>
         </button>
-        <a class="hc-filterbar__remove" href="#fb-demo" aria-label="Remove Ship date filter">×</a>
+        <a class="hc-filterbar__remove" href="#" aria-label="Remove Ship date filter">×</a>
       </li>
       <li class="hc-filterbar__item">
         <button class="hc-filterbar__chip" type="button" popovertarget="fb-demo-status">
@@ -45,10 +45,10 @@ record* and which are *controls on a query*.
           <span class="hc-filterbar__op">is</span>
           <span class="hc-filterbar__value">Open</span>
         </button>
-        <a class="hc-filterbar__remove" href="#fb-demo" aria-label="Remove Status filter">×</a>
+        <a class="hc-filterbar__remove" href="#" aria-label="Remove Status filter">×</a>
       </li>
     </ul>
-    <a class="hc-filterbar__clear" href="#fb-demo">Clear all</a>
+    <a class="hc-filterbar__clear" href="#">Clear all</a>
   </div>
 
   <div class="hc-popover" popover id="fb-demo-buyer">
@@ -78,8 +78,14 @@ record* and which are *controls on a query*.
            href="/orders?f-ship-from=2026-08-01"
            aria-label="Remove Buyer code filter">×</a>
       </li>
+      <!-- …more conditions… -->
     </ul>
     <a class="hc-filterbar__clear" href="/orders">Clear all</a>
+  </div>
+
+  <!-- The editor the chip's popovertarget points at -->
+  <div class="hc-popover" popover id="edit-buyer">
+    <p>The editor for this one condition.</p>
   </div>
   ```
 

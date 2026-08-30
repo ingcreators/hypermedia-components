@@ -148,6 +148,13 @@ surrounding `<div role="group">`.
   <Fragment slot="code">
 
   ```html
+  <button class="hc-button"
+          type="button"
+          popovertarget="view-menu"
+          id="view-menu-trigger">
+    View
+  </button>
+
   <div class="hc-menu" id="view-menu" popover role="menu"
        aria-labelledby="view-menu-trigger">
     <button class="hc-menu__item" role="menuitem" type="button">Refresh</button>
@@ -282,14 +289,24 @@ The behavior closes the menu after dispatching, so subsequent network
 work happens with focus restored to the trigger (popover's default).
 
 ```html
-<div class="hc-menu" id="row-menu" popover role="menu"
-     aria-labelledby="row-menu-trigger"
-     data-hx-target="closest tr"
-     data-hx-trigger="hc:menuselect"
-     data-hx-include="this">
-  <button class="hc-menu__item" role="menuitem" type="button"
-          data-hx-delete="/items/42">Delete row</button>
-</div>
+<tr>
+  <td>Item 42</td>
+  <td>
+    <button class="hc-button" type="button"
+            popovertarget="row-menu" id="row-menu-trigger">
+      Actions
+    </button>
+
+    <div class="hc-menu" id="row-menu" popover role="menu"
+         aria-labelledby="row-menu-trigger"
+         data-hx-target="closest tr"
+         data-hx-trigger="hc:menuselect"
+         data-hx-include="this">
+      <button class="hc-menu__item" role="menuitem" type="button"
+              data-hx-delete="/items/42">Delete row</button>
+    </div>
+  </td>
+</tr>
 ```
 
 For a richer pattern (a confirm dialog before the actual request), pair
