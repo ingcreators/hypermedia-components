@@ -45,6 +45,13 @@ real server would persist:
 ## The markup — widths
 
 ```html
+<!-- In the grid: resizable headers must name their column —
+     installDatagrid() skips a data-resizable header without data-col. -->
+<th class="hc-datagrid__headcell" data-resizable data-col="name"
+    scope="col">Name</th>
+<th class="hc-datagrid__headcell" data-resizable data-col="status"
+    scope="col">Status</th>
+
 <form action="/prefs/columns" method="post"
       data-hx-post="/prefs/columns"
       data-hx-trigger="hc:datagridcolumnresize from:body delay:500ms"
@@ -64,17 +71,23 @@ inputs are found in the grid's closest `<form>`, else document-wide.
 
 ```html
 <fieldset class="hc-popover__body" id="cols-fields" data-hc-sortable>
-  <label class="hc-checkbox-label">
+  <div class="hc-item">
     <button type="button" class="hc-button" data-variant="ghost"
-            data-hc-sortable-handle>⠿</button>
-    <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
-    Name
-  </label>
-  <!-- …one sortable label per column… -->
+            data-hc-sortable-handle aria-label="Reorder Name">⠿</button>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+      Name
+    </label>
+  </div>
+  <!-- …one sortable row per column… -->
 </fieldset>
 ```
 
-Drag (or grab with the keyboard) to reorder — Apply serializes the
+Each row is a direct child of the sortable fieldset, and the handle
+sits **beside** the label, never inside it — interactive content
+inside a `<label>` is invalid HTML, and clicking the handle would
+toggle the checkbox. Drag (or grab with the keyboard) to reorder —
+Apply serializes the
 checkboxes in DOM order, and the upgraded
 [datagrid-columns contract](/hypermedia-components/recipes/datagrid-columns/)
 renders the columns in that sequence.

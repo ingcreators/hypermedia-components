@@ -111,7 +111,8 @@ current 印付きでストリップに入ります。チップをクリックす
 <li class="hc-chip" data-modified>
   <a href="…" aria-current="true">Overdue shipments</a>
   <span class="hc-badge" data-variant="warning">Modified</span>
-  <button data-hx-put="/views/Overdue%20shipments" data-hx-include="#filters">更新</button>
+  <button type="button" data-hx-put="/views/Overdue%20shipments"
+          data-hx-include="#filters" data-hx-target="#views">更新</button>
   <a href="/items?view=Overdue%20shipments">元に戻す</a>
 </li>
 ```

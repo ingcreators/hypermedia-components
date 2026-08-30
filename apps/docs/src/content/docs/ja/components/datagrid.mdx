@@ -99,10 +99,10 @@ import Demo from '../../../../components/Demo.astro';
           </tr>
         </thead>
         <tbody class="hc-datagrid__body">
-          <tr class="hc-datagrid__row">
+          <tr class="hc-datagrid__row" aria-selected="true">
             <td class="hc-datagrid__cell" data-frozen>…</td>
             <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">1</th>
-            <td class="hc-datagrid__cell">…</td>
+            <td class="hc-datagrid__cell" data-highlight>…</td>
           </tr>
         </tbody>
       </table>
@@ -634,16 +634,18 @@ severity は**行が何を必要としているか**で選びます。いつ判�
 ていない間バーは `hidden` です:
 
 ```html
-<div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
-     data-hc-datagrid-actions="#grid" hidden>
-  <span data-hc-datagrid-count></span>
-  <button class="hc-button" type="submit" name="action" value="archive"
-          data-hx-post="/products/bulk"
-          data-hx-target="#rows" data-hx-swap="innerHTML"
-          data-hx-disabled-elt="this">Archive</button>
-</div>
+<form method="post" action="/products/bulk">
+  <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+       data-hc-datagrid-actions="#grid" hidden>
+    <span data-hc-datagrid-count></span>
+    <button class="hc-button" type="submit" name="action" value="archive"
+            data-hx-post="/products/bulk"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Archive</button>
+  </div>
 
-<div class="hc-datagrid" id="grid">…</div>
+  <div class="hc-datagrid" id="grid">…</div>
+</form>
 ```
 
 バーはグリッドの `hc:datagridselectionchange` イベントをリッスンします
@@ -741,7 +743,7 @@ severity は**行が何を必要としているか**で選びます。いつ判�
         </thead>
         <tbody class="hc-datagrid__record">
           <tr class="hc-datagrid__row">
-            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;">1</td>
+            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;"><input type="checkbox" class="hc-checkbox" aria-label="Select record 1" /> 1</td>
             <td class="hc-datagrid__cell">D0006</td>
             <td class="hc-datagrid__cell">Better Roast Ham</td>
           </tr>
@@ -752,7 +754,7 @@ severity は**行が何を必要としているか**で選びます。いつ判�
         </tbody>
         <tbody class="hc-datagrid__record">
           <tr class="hc-datagrid__row">
-            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;">2</td>
+            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;"><input type="checkbox" class="hc-checkbox" aria-label="Select record 2" /> 2</td>
             <td class="hc-datagrid__cell">D0004</td>
             <td class="hc-datagrid__cell">Tasty Base</td>
           </tr>
@@ -1240,9 +1242,11 @@ component トークン(`component.tokens.json`)。共有のセマンティック
 | `datagrid.head-bg` / `head-fg` | ヘッダー帯の色。 |
 | `datagrid.frozen-bg` | 固定(スティッキー)列の背景。 |
 | `datagrid.row-hover-bg` | ホバー行の色味。 |
+| `datagrid.row-alt-bg` | `data-alt` 行のゼブラストライプの色味。 |
 | `datagrid.selected-bg` / `highlight-bg` | 選択行 / ハイライト行の色味。 |
 | `datagrid.current-bg` / `current-fg` | アクティブレコードの先頭セルのアクセント。 |
 | `datagrid.tone-<tone>-bg` / `-fg` | 条件付き書式のティント(`info` / `success` / `warning` / `error`)。セマンティックステータスカラーを参照。 |
+| `datagrid.attention-error-bg` / `attention-warning-bg` | `data-attention` エッジバーのレベル別の色。 |
 | `datagrid.subrow-border` | レコード内サブ行の間の線。 |
 | `datagrid.cell-padding-x` / `cell-padding-y` | セルのパディング。 |
 | `datagrid.head-1-h` / `head-2-h` | 非リーフのヘッダー段の固定高さ(下の段がスティッキーの `top` をオフセットできるように)。 |
@@ -1259,11 +1263,12 @@ component トークン(`component.tokens.json`)。共有のセマンティック
 ```text
 --hc-datagrid-bg | -fg | -border
 --hc-datagrid-head-bg | -head-fg | -frozen-bg
---hc-datagrid-row-hover-bg | -selected-bg | -highlight-bg
+--hc-datagrid-row-hover-bg | -row-alt-bg | -selected-bg | -highlight-bg
 --hc-datagrid-current-bg | -current-fg | -subrow-border
 --hc-datagrid-cell-padding-x | -cell-padding-y
 --hc-datagrid-head-1-h | -head-2-h
 --hc-datagrid-tone-info-bg | … (per-tone -bg / -fg: info, success, warning, error)
+--hc-datagrid-attention-error-bg | -attention-warning-bg
 ```
 
 いくつかのノブはトークン非対応です — 直接設定してください:
@@ -1274,6 +1279,8 @@ component トークン(`component.tokens.json`)。共有のセマンティック
 --hc-datagrid-freeze-shadow      (frozen-column edge shadow; its direction flips per edge)
 --hc-datagrid-freeze-end-shadow  (the frozen-end mirror of the freeze shadow)
 --hc-datagrid-foot-shadow        (upward shadow cast by the sticky footer)
+--hc-datagrid-attention-color    (the data-attention accent — set per level from the -attention-*-bg tokens)
+--hc-datagrid-attention-bar      (the inset edge-bar shadow painted on data-attention rows)
 ```
 
 </details>

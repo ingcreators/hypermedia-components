@@ -31,26 +31,34 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
       data-hx-target="#datagrid-columns-demo-grid"
       data-hc-close-popover-on-success>
       <fieldset class="hc-popover__body" id="datagrid-columns-demo-fields" data-hc-sortable>
-      <label class="hc-checkbox-label">
-        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button>
-        <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked />
-        Name
-      </label>
-      <label class="hc-checkbox-label">
-        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button>
-        <input class="hc-checkbox" type="checkbox" name="cols" value="status" checked />
-        Status
-      </label>
-      <label class="hc-checkbox-label">
-        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button>
-        <input class="hc-checkbox" type="checkbox" name="cols" value="owner" checked />
-        Owner
-      </label>
-      <label class="hc-checkbox-label">
-        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button>
-        <input class="hc-checkbox" type="checkbox" name="cols" value="updated" checked />
-        Updated
-      </label>
+      <div class="hc-item">
+        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle aria-label="Reorder Name">⠿</button>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked />
+          Name
+        </label>
+      </div>
+      <div class="hc-item">
+        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle aria-label="Reorder Status">⠿</button>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="status" checked />
+          Status
+        </label>
+      </div>
+      <div class="hc-item">
+        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle aria-label="Reorder Owner">⠿</button>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="owner" checked />
+          Owner
+        </label>
+      </div>
+      <div class="hc-item">
+        <button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle aria-label="Reorder Updated">⠿</button>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="updated" checked />
+          Updated
+        </label>
+      </div>
       </fieldset>
       <footer class="hc-popover__footer">
         <button class="hc-button" type="submit" data-variant="primary">Apply</button>

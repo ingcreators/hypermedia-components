@@ -8,7 +8,7 @@ describe('filter-popover demo API', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('content-type')).toContain('text/html');
     const body = await response.text();
-    expect(body).toContain('<ul class="hc-list">');
+    expect(body).toContain('<ul>');
     expect(body.match(/<li>/g)).toHaveLength(8);
     expect(body).toContain('Ingest pipeline <span class="hc-badge" data-variant="success">Active</span>');
     expect(body).toContain('<span class="hc-badge" data-variant="warning">Pending</span>');

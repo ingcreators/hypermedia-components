@@ -29,10 +29,13 @@ neighbours by re-running the list query, so Next crosses the page
 boundary between rows 3 and 4 without the client knowing pages exist.
 
 Now tick a few rows and press **Open selected**: the same shape, a
-different sequence. Include **SO-4999** — a record that no longer
-exists — to see the tombstone step that keeps Next working, and edit
-the `seq=` token in the record's links to see an unreadable snapshot
-fail closed instead of quietly walking everything.
+different sequence. A record that disappears mid-walk renders as a
+**tombstone step** with Next still working — this demo's snapshot
+token spells out its ids, so you can provoke it by splicing a missing
+id such as `4999` into the `seq=` token in a record link's URL. Mangle
+the token beyond recognition instead and the snapshot **fails
+closed**: a `410` alert with a way back to the list, never a silent
+fallback to walking everything.
 
 <RowDetailDemo />
 
@@ -47,6 +50,8 @@ fail closed instead of quietly walking everything.
   <th class="hc-datagrid__cell" scope="row">
     <a href="/orders/4903" data-hc-row-link>SO-4903</a>
   </th>
+  <!-- …the data cells… -->
+</tr>
 ```
 
 The **identity** column carries it — the thing the row *is*, not a verb
@@ -70,17 +75,23 @@ For pointer users on wide rows, add a trailing chevron link in a narrow
 last column — same href, an `aria-label` naming the record.
 :::
 
-:::danger[One anchor cannot be both]
+:::danger[Do not let `data-hx-get` swallow the navigation]
 ```html
 <!-- Looks right, behaves as a modal-only row: -->
-<a href="/orders/4903" data-hx-get="/orders/4903?peek=1" …>SO-4903</a>
+<a href="/orders/4903" data-hx-get="/orders/4903" …>SO-4903</a>
 ```
-htmx takes the click, so the `href` is only reachable by middle-click —
-"the canonical URL is right there" becomes a claim nobody can act on,
-and the screen teaches *records live in modals* after all.
+htmx takes the click, so an `hx-get` aimed at the record page itself
+turns the identity link into a modal-only row: no plain click ever
+reaches the page rendering, the `href` is only actionable by
+middle-click, and the screen teaches *records live in modals* after
+all.
 
-Give the peek **its own control** (a small button in a trailing
-column), and leave the record's name a plain link.
+Layering on the identity link is legitimate only as the deliberate
+[peek](#peek-or-page-one-url-two-renderings) below — the `hx-get` is an
+explicit peek variant (`?peek=1`), the `href` stays the canonical
+record page, and the peek links to that page. If clicking should mean
+*open the record*, give the peek **its own control** (a small button in
+a trailing column) and leave the record's name a plain link.
 :::
 
 ## Coming back is the part everyone drops
@@ -124,7 +135,7 @@ guaranteed to notice — and the pager totals go with it.
 :::caution[Boosted links reintroduce the staleness]
 htmx restores a boosted page from its history snapshot. Either leave
 row links unboosted (a real navigation, and Back is perfect), or set
-`hx-history="false"` on the list so a restore re-fetches.
+`data-hx-history="false"` on the list so a restore re-fetches.
 :::
 
 ## Peek or page: one URL, two renderings

@@ -1,10 +1,11 @@
 ---
 title: Kitchen sink
-description: Every Hypermedia Components component on one page — a live gallery you can scan at a glance, with links to each component's full documentation.
+description: (Nearly) every Hypermedia Components component on one page — a live gallery you can scan at a glance, with links to each component's full documentation.
 ---
 
-Every component, live, on one page, grouped the same way as the
-**Components** sidebar. Use it to scan the whole library at a glance,
+(Nearly) every component, live, on one page, grouped the same way as
+the **Components** sidebar — the few with heavier setups (chart, code,
+filterbar, sparkline, TOC, transfer) live on their component pages. Use it to scan the whole library at a glance,
 sanity-check theming (try the color / density / dark switchers in the
 header), or jump to a component's full docs via its heading link.
 Note that the density switcher's `compact` / `dense` tiers are
@@ -28,14 +29,14 @@ splitter, type in the OTP field — it all works.
 ### [Button](/hypermedia-components/components/button/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" data-variant="primary">Primary</button>
-  <button class="hc-button" data-variant="secondary">Secondary</button>
-  <button class="hc-button">Default</button>
-  <button class="hc-button" data-variant="ghost">Ghost</button>
-  <button class="hc-button" data-variant="error">Error</button>
-  <button class="hc-button" data-size="sm">Small</button>
-  <button class="hc-button" data-size="lg">Large</button>
-  <button class="hc-button" disabled>Disabled</button>
+  <button class="hc-button" data-variant="primary" type="button">Primary</button>
+  <button class="hc-button" data-variant="secondary" type="button">Secondary</button>
+  <button class="hc-button" type="button">Default</button>
+  <button class="hc-button" data-variant="ghost" type="button">Ghost</button>
+  <button class="hc-button" data-variant="error" type="button">Error</button>
+  <button class="hc-button" data-size="sm" type="button">Small</button>
+  <button class="hc-button" data-size="lg" type="button">Large</button>
+  <button class="hc-button" type="button" disabled>Disabled</button>
 </div>
 
 ### [Button group](/hypermedia-components/components/button-group/) · [Kbd](/hypermedia-components/components/kbd/)
@@ -46,10 +47,10 @@ splitter, type in the OTP field — it all works.
     <button class="hc-button" type="button">Italic</button>
     <button class="hc-button" type="button">Underline</button>
   </div>
-  <span class="hc-kbd-group">
+  <kbd class="hc-kbd-group">
     <kbd class="hc-kbd">⌘</kbd>
     <kbd class="hc-kbd">K</kbd>
-  </span>
+  </kbd>
 </div>
 
 ### [Toggle group](/hypermedia-components/components/toggle-group/)
@@ -71,17 +72,17 @@ splitter, type in the OTP field — it all works.
 
 <div class="hc-preview not-content hc-preview--start">
   <div class="hc-toolbar" role="toolbar" aria-label="Format">
-    <button class="hc-button" data-size="sm">Cut</button>
-    <button class="hc-button" data-size="sm">Copy</button>
-    <span class="hc-toolbar__separator"></span>
-    <button class="hc-button" data-size="sm">Paste</button>
+    <button class="hc-button" data-size="sm" type="button">Cut</button>
+    <button class="hc-button" data-size="sm" type="button">Copy</button>
+    <hr aria-orientation="vertical" />
+    <button class="hc-button" data-size="sm" type="button">Paste</button>
   </div>
 </div>
 
 ### [Command](/hypermedia-components/components/command/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" onclick="this.nextElementSibling.showModal()">Open command palette</button>
+  <button class="hc-button" type="button" onclick="this.nextElementSibling.showModal()">Open command palette</button>
   <dialog class="hc-command-dialog">
     <div class="hc-command">
       <input class="hc-command__input" type="text" role="combobox" autofocus aria-label="Command" placeholder="Type a command…" />
@@ -379,18 +380,18 @@ splitter, type in the OTP field — it all works.
 ### [Dialog](/hypermedia-components/components/dialog/) · [Drawer](/hypermedia-components/components/drawer/) · [Popover](/hypermedia-components/components/popover/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" onclick="document.getElementById('ks-dialog').showModal()">Open dialog</button>
+  <button class="hc-button" type="button" onclick="document.getElementById('ks-dialog').showModal()">Open dialog</button>
   <dialog class="hc-dialog" id="ks-dialog">
     <header class="hc-dialog__header"><h3 class="hc-dialog__title">Dialog</h3></header>
     <div class="hc-dialog__body"><p>A native modal dialog.</p></div>
-    <footer class="hc-dialog__footer"><button class="hc-button" onclick="this.closest('dialog').close()">Close</button></footer>
+    <footer class="hc-dialog__footer"><button class="hc-button" type="button" onclick="this.closest('dialog').close()">Close</button></footer>
   </dialog>
 
-  <button class="hc-button" onclick="document.getElementById('ks-drawer').showModal()">Open drawer</button>
+  <button class="hc-button" type="button" onclick="document.getElementById('ks-drawer').showModal()">Open drawer</button>
   <dialog class="hc-drawer" data-side="right" id="ks-drawer">
     <header class="hc-dialog__header"><h3 class="hc-dialog__title">Drawer</h3></header>
     <div class="hc-dialog__body"><p>Slides in from the edge.</p></div>
-    <footer class="hc-dialog__footer"><button class="hc-button" onclick="this.closest('dialog').close()">Close</button></footer>
+    <footer class="hc-dialog__footer"><button class="hc-button" type="button" onclick="this.closest('dialog').close()">Close</button></footer>
   </dialog>
 
   <button class="hc-button" type="button" popovertarget="ks-pop">Open popover</button>
@@ -400,7 +401,7 @@ splitter, type in the OTP field — it all works.
 ### [Tooltip](/hypermedia-components/components/tooltip/) · [Hovercard](/hypermedia-components/components/hovercard/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" aria-describedby="ks-tip">Hover / focus me</button>
+  <button class="hc-button" type="button" aria-describedby="ks-tip">Hover / focus me</button>
   <span class="hc-tooltip" id="ks-tip" role="tooltip">A short tooltip.</span>
 
   <a href="#" aria-describedby="ks-hover">@ada</a>
@@ -466,7 +467,7 @@ splitter, type in the OTP field — it all works.
   <div class="hc-card" style="max-inline-size:18rem;">
     <div class="hc-card__header"><strong>Card title</strong></div>
     <div class="hc-card__body">A generic surface for grouped content.</div>
-    <div class="hc-card__footer"><button class="hc-button" data-size="sm" data-variant="primary">Action</button></div>
+    <div class="hc-card__footer"><button class="hc-button" data-size="sm" data-variant="primary" type="button">Action</button></div>
   </div>
   <div class="hc-avatar-group">
     <span class="hc-avatar" aria-label="Ada">A</span>
@@ -608,8 +609,8 @@ splitter, type in the OTP field — it all works.
 
 <div class="hc-preview not-content hc-preview--col" style="max-inline-size:28rem;">
   <div style="display:flex;gap:.5rem;align-items:center;">
-    <button class="hc-button" onclick="document.body.dispatchEvent(new CustomEvent('hc:toast',{bubbles:true,detail:{title:'Saved',message:'Changes saved.',variant:'success'}}))">Fire toast</button>
-    <span class="hc-spinner" aria-label="Loading"></span>
+    <button class="hc-button" type="button" onclick="document.body.dispatchEvent(new CustomEvent('hc:toast',{bubbles:true,detail:{title:'Saved',message:'Changes saved.',variant:'success'}}))">Fire toast</button>
+    <span class="hc-spinner" role="status" aria-label="Loading"></span>
   </div>
   <progress class="hc-progress" value="60" max="100" aria-label="Upload progress"></progress>
   <progress class="hc-progress" aria-label="Loading"></progress>
@@ -703,8 +704,8 @@ the viewport and the sidebar collapses to an off-canvas overlay on mobile.
       <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 2</div>
       <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 3</div>
     </div>
-    <button class="hc-carousel__prev" data-hc-carousel-prev aria-label="Previous slide">‹</button>
-    <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide">›</button>
+    <button class="hc-carousel__prev" type="button" data-hc-carousel-prev aria-label="Previous slide">‹</button>
+    <button class="hc-carousel__next" type="button" data-hc-carousel-next aria-label="Next slide">›</button>
     <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"></div>
   </div>
 </div>

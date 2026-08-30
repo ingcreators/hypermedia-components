@@ -36,10 +36,15 @@ eats all three. For pointer users on wide rows, add a trailing chevron
 link in a narrow last column — same href, an `aria-label` naming the
 record.
 
-**One anchor cannot be both.** An `<a href>` carrying `data-hx-get`
-never navigates — htmx takes the click — so a row whose name links to
-the page *and* peeks is a peek-only row with a decorative href. Give
-the peek its own control and leave the name a plain link.
+**Do not let `data-hx-get` swallow the navigation.** htmx takes the
+click, so an `hx-get` aimed at the record page itself turns the
+identity link into a peek-only row with a decorative href — no plain
+click ever reaches the page rendering. Layering on the identity link
+is legitimate only as the deliberate peek below: the `hx-get` is an
+explicit peek variant (`?peek=1`), the `href` stays the canonical
+record page, and the peek links to that page. If clicking should mean
+*open the record*, give the peek its own control and leave the name a
+plain link.
 
 ## Coming back
 
@@ -78,7 +83,7 @@ guaranteed to notice, and the pager totals go with it.
 If row links are **boosted**, htmx restores the list from its history
 snapshot and reintroduces exactly that staleness. Either leave row
 links unboosted — a real navigation, and Back is perfect — or set
-`hx-history="false"` on the list so a restore re-fetches.
+`data-hx-history="false"` on the list so a restore re-fetches.
 
 ## Peek or page: one URL, two renderings
 

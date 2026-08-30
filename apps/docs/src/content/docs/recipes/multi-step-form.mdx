@@ -32,6 +32,10 @@ field-errors fragment), **Back** never validates even with a blank
 field, and the final step redirects to a plain confirmation page with a
 link back here. The endpoint is a namespaced demo implementation of the
 [server response contract](#server-response-contract) under `api/recipes/multi-step-form/`.
+One demo-only liberty: the stateless docs endpoint threads the draft
+through hidden inputs on each step — a real server keeps the draft
+server-side (a session, a draft row, a signed cookie), which is what
+the "no hidden fields accumulating across steps" rule is about.
 
 <MultiStepFormDemo />
 
@@ -91,6 +95,9 @@ only "next" validates), and a back-then-next round-trip is lossless.
 | `nav=back` | `200` — the previous step's fragment; the posted fields were merged into the draft **without validation** |
 | `nav=next`, invalid | `422` + `HX-Retarget: #wizard-errors` + `HX-Reswap: innerHTML` with the [field-errors](/hypermedia-components/recipes/field-errors/) fragment — **the step is not re-rendered**, the user's in-progress values stay untouched |
 | final `nav=next` | the [mutating-form](/hypermedia-components/recipes/mutating-form/) completion: `204` + `HX-Redirect` (htmx) / `303 Location` (no-JS) |
+
+The `422` needs the standard one-line `beforeSwap` allowance from
+[mutating form](/hypermedia-components/recipes/mutating-form/).
 
 Step URLs are real (`/signup/1`, `/signup/2`, …): refresh and deep
 links land on the server's idea of the current step, and without

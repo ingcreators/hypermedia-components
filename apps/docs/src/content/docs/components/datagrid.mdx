@@ -98,10 +98,10 @@ columns stay pinned:
           </tr>
         </thead>
         <tbody class="hc-datagrid__body">
-          <tr class="hc-datagrid__row">
+          <tr class="hc-datagrid__row" aria-selected="true">
             <td class="hc-datagrid__cell" data-frozen>…</td>
             <th class="hc-datagrid__cell" data-frozen data-frozen-edge scope="row">1</th>
-            <td class="hc-datagrid__cell">…</td>
+            <td class="hc-datagrid__cell" data-highlight>…</td>
           </tr>
         </tbody>
       </table>
@@ -636,16 +636,18 @@ child shows the translated count and the bar is `hidden` while nothing
 is selected:
 
 ```html
-<div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
-     data-hc-datagrid-actions="#grid" hidden>
-  <span data-hc-datagrid-count></span>
-  <button class="hc-button" type="submit" name="action" value="archive"
-          data-hx-post="/products/bulk"
-          data-hx-target="#rows" data-hx-swap="innerHTML"
-          data-hx-disabled-elt="this">Archive</button>
-</div>
+<form method="post" action="/products/bulk">
+  <div class="hc-toolbar" role="toolbar" aria-label="Bulk actions"
+       data-hc-datagrid-actions="#grid" hidden>
+    <span data-hc-datagrid-count></span>
+    <button class="hc-button" type="submit" name="action" value="archive"
+            data-hx-post="/products/bulk"
+            data-hx-target="#rows" data-hx-swap="innerHTML"
+            data-hx-disabled-elt="this">Archive</button>
+  </div>
 
-<div class="hc-datagrid" id="grid">…</div>
+  <div class="hc-datagrid" id="grid">…</div>
+</form>
 ```
 
 The bar listens to the grid's `hc:datagridselectionchange` events — the
@@ -741,7 +743,7 @@ multi-level `<thead>`, one header row per sub-row.
         </thead>
         <tbody class="hc-datagrid__record">
           <tr class="hc-datagrid__row">
-            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;">1</td>
+            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;"><input type="checkbox" class="hc-checkbox" aria-label="Select record 1" /> 1</td>
             <td class="hc-datagrid__cell">D0006</td>
             <td class="hc-datagrid__cell">Better Roast Ham</td>
           </tr>
@@ -752,7 +754,7 @@ multi-level `<thead>`, one header row per sub-row.
         </tbody>
         <tbody class="hc-datagrid__record">
           <tr class="hc-datagrid__row">
-            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;">2</td>
+            <td class="hc-datagrid__cell" rowspan="2" style="text-align:center;"><input type="checkbox" class="hc-checkbox" aria-label="Select record 2" /> 2</td>
             <td class="hc-datagrid__cell">D0004</td>
             <td class="hc-datagrid__cell">Tasty Base</td>
           </tr>
@@ -1238,9 +1240,11 @@ theme automatically.
 | `datagrid.head-bg` / `head-fg` | Header band colors. |
 | `datagrid.frozen-bg` | Background of frozen (sticky) columns. |
 | `datagrid.row-hover-bg` | Hovered-row tint. |
+| `datagrid.row-alt-bg` | Zebra-stripe tint of `data-alt` rows. |
 | `datagrid.selected-bg` / `highlight-bg` | Selected-row / highlighted-row tint. |
 | `datagrid.current-bg` / `current-fg` | Accent for the active record's lead cell. |
 | `datagrid.tone-<tone>-bg` / `-fg` | Conditional-formatting tints (`info` / `success` / `warning` / `error`), referencing the semantic status colors. |
+| `datagrid.attention-error-bg` / `attention-warning-bg` | Color of the `data-attention` edge bar per level. |
 | `datagrid.subrow-border` | Line between a record's sub-rows. |
 | `datagrid.cell-padding-x` / `cell-padding-y` | Cell padding. |
 | `datagrid.head-1-h` / `head-2-h` | Fixed heights of the non-leaf header levels (so the level below can offset its sticky `top`). |
@@ -1257,11 +1261,12 @@ seen in admin apps are just overrides):
 ```text
 --hc-datagrid-bg | -fg | -border
 --hc-datagrid-head-bg | -head-fg | -frozen-bg
---hc-datagrid-row-hover-bg | -selected-bg | -highlight-bg
+--hc-datagrid-row-hover-bg | -row-alt-bg | -selected-bg | -highlight-bg
 --hc-datagrid-current-bg | -current-fg | -subrow-border
 --hc-datagrid-cell-padding-x | -cell-padding-y
 --hc-datagrid-head-1-h | -head-2-h
 --hc-datagrid-tone-info-bg | … (per-tone -bg / -fg: info, success, warning, error)
+--hc-datagrid-attention-error-bg | -attention-warning-bg
 ```
 
 A few knobs are **not** token-backed — set them directly:
@@ -1272,6 +1277,8 @@ A few knobs are **not** token-backed — set them directly:
 --hc-datagrid-freeze-shadow      (frozen-column edge shadow; its direction flips per edge)
 --hc-datagrid-freeze-end-shadow  (the frozen-end mirror of the freeze shadow)
 --hc-datagrid-foot-shadow        (upward shadow cast by the sticky footer)
+--hc-datagrid-attention-color    (the data-attention accent — set per level from the -attention-*-bg tokens)
+--hc-datagrid-attention-bar      (the inset edge-bar shadow painted on data-attention rows)
 ```
 
 </details>

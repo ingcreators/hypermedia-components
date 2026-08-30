@@ -34,7 +34,9 @@ root:…`, see the carve-out below): a 15-row demo with the default
 window-viewport `revealed` would chain-load the whole list before you
 could scroll, because on a tall screen every fresh sentinel is already
 in view. A real page-scrolled feed — the shape the markup below shows
-— keeps `revealed`.
+— keeps `revealed`. The initial rows are a static-docs-site carve-out
+too: the demo fetches its first batch with a `load` trigger, where a
+real server renders page 1 inline.
 
 <DatagridInfiniteDemo />
 
@@ -50,26 +52,33 @@ below instead.
 
 
 ```html
-<tbody class="hc-datagrid__body">
-  <!-- Page 1 server-rendered — the grid is full without JS. -->
-  <tr class="hc-datagrid__row">
-    <th class="hc-datagrid__cell" scope="row">item-1</th>
-    <td class="hc-datagrid__cell">Compact Anvil</td>
-    <td class="hc-datagrid__cell">$107</td>
-    <td class="hc-datagrid__cell">12</td>
-  </tr>
-  <!-- …rows item-2 … item-5… -->
+<div class="hc-datagrid" style="--hc-datagrid-max-height: none">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">…</thead>
+      <tbody class="hc-datagrid__body">
+        <!-- Page 1 server-rendered — the grid is full without JS. -->
+        <tr class="hc-datagrid__row">
+          <th class="hc-datagrid__cell" scope="row">item-1</th>
+          <td class="hc-datagrid__cell">Compact Anvil</td>
+          <td class="hc-datagrid__cell">$107</td>
+          <td class="hc-datagrid__cell">12</td>
+        </tr>
+        <!-- …rows item-2 … item-5… -->
 
-  <!-- The sentinel: the last row, carrying the cursor. -->
-  <tr class="hc-datagrid__row"
-      data-hx-get="/items?after=item-5"
-      data-hx-trigger="revealed"
-      data-hx-swap="outerHTML">
-    <td class="hc-datagrid__cell" colspan="4" aria-live="polite">
-      <span class="hc-spinner" aria-hidden="true"></span> Loading…
-    </td>
-  </tr>
-</tbody>
+        <!-- The sentinel: the last row, carrying the cursor. -->
+        <tr class="hc-datagrid__row"
+            data-hx-get="/items?after=item-5"
+            data-hx-trigger="revealed"
+            data-hx-swap="outerHTML">
+          <td class="hc-datagrid__cell" colspan="4" aria-live="polite">
+            <span class="hc-spinner" aria-hidden="true"></span> Loading…
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 ```
 
 The `outerHTML` swap is the whole trick: each response either renews
@@ -99,8 +108,8 @@ instead — everything else in the contract is unchanged:
 usually — give it an id); `once` retires the observer with the sentinel
 it belongs to, and `threshold:` decides how much of the row must show
 before the next batch loads. **The server must echo the same trigger on
-every renewed sentinel** — thread the root through the cursor URL (the
-docs demo passes `?root=…`) or template it in.
+every renewed sentinel** — thread the root through the cursor URL or
+template it in (the docs demo templates it in).
 
 Two failure modes this avoids:
 

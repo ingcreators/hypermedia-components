@@ -55,7 +55,7 @@ installCopy();
 <Demo previewClass="hc-preview--start">
   <div class="hc-cluster">
     <input id="share-url" class="hc-input" type="text" readonly value="https://app.example.com/s/abc123" aria-label="Share URL" />
-    <button class="hc-button" data-variant="ghost" data-hc-copy="#share-url" data-hc-copy-ok="Copied">Copy</button>
+    <button class="hc-button" data-variant="ghost" type="button" data-hc-copy="#share-url" data-hc-copy-ok="Copied">Copy</button>
   </div>
 
   <Fragment slot="code">
@@ -64,7 +64,7 @@ installCopy();
   <div class="hc-cluster">
     <input id="share-url" class="hc-input" type="text" readonly
            value="https://app.example.com/s/abc123" aria-label="Share URL">
-    <button class="hc-button" data-variant="ghost"
+    <button class="hc-button" data-variant="ghost" type="button"
             data-hc-copy="#share-url" data-hc-copy-ok="Copied">
       Copy
     </button>
@@ -78,14 +78,14 @@ installCopy();
 使います:
 
 <Demo previewClass="hc-preview--start">
-  <button class="hc-button" data-hc-copy-text="npm i @hypermedia-components/core" data-hc-copy-ok="Copied">
+  <button class="hc-button" type="button" data-hc-copy-text="npm i @hypermedia-components/core" data-hc-copy-ok="Copied">
     Copy install command
   </button>
 
   <Fragment slot="code">
 
   ```html
-  <button class="hc-button"
+  <button class="hc-button" type="button"
           data-hc-copy-text="npm i @hypermedia-components/core"
           data-hc-copy-ok="Copied">
     Copy install command

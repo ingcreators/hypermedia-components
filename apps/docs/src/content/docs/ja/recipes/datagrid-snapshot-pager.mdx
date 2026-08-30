@@ -38,7 +38,9 @@ import DatagridSnapshotPagerDemo from '../../../../components/recipe-demos/Datag
 シミュレートします: 戻ってくるとトゥームストーンとして描画されます。
 エンドポイントは `api/recipes/datagrid-snapshot-pager/` 配下の契約の
 デモ実装です(実サーバは行状態を DB に持ちます。ステートレスなデモは
-不透明なキートークンに織り込んで運びます)。
+不透明なキートークンに織り込んで運ぶため、アクションのたびに変異した
+トークンで keys ブロックをアウトオブバンドで再描画します — 状態を
+持つサーバには決して要らない処理です)。
 
 <DatagridSnapshotPagerDemo />
 
@@ -166,7 +168,9 @@ import DatagridSnapshotPagerDemo from '../../../../components/recipe-demos/Datag
 ページャーボタンはネイティブの submit です: htmx なしではフォームが
 POST され、サーバは(`HX-Request` なしなので)フルページを描画します。
 1 ページ目とスナップショットは検索時点でサーバレンダリングされる
-ため、JavaScript が動く前からキューは完全です。
+ため、JavaScript が動く前からキューは完全です。(静的な docs サイトの
+制約として、デモはスナップショットを `load` トリガーで取得します。
+実サーバは検索レスポンスをインラインで描画します。)
 
 ## アクセシビリティ
 

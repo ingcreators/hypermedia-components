@@ -218,9 +218,11 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 });
 ```
 
-代わりにフラグメントを `200` で返すか、`HX-Retarget: #form-errors` +
-`HX-Reswap: innerHTML` で任意のレスポンスをエラーコンテナへ誘導しても
-構いません。
+代わりにフラグメントを `200` で返しても構いません — クライアント側の
+設定が一切要らない唯一の選択肢です。`HX-Retarget: #form-errors` +
+`HX-Reswap: innerHTML` はフラグメントの*行き先と方法*を操縦するだけで、
+htmx ≥ 2 ではスワップを許可しません。これらを付けた `422` にも上の許可
+(もしくは `htmx.config.responseHandling` のルール)が必要です。
 
 ## クライアントサイドバリデーションとの関係
 

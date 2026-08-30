@@ -98,7 +98,11 @@ import ReferenceLookupDemo from '../../../../components/recipe-demos/ReferenceLo
 リストを載せたもの。選択可能な行は **`#customer-field` を `outerHTML`
 で**ターゲットするボタンで、選ぶとフィールドが直接再描画され、成功
 リクエストがダイアログを閉じます(`data-hc-close-dialog-on-success`)。
-真似する価値のある 2 つの姿勢:
+ダイアログ内の検索フォームは
+`data-hc-close-dialog-on-success="false"` で**オプトアウト**が必須です
+— 最も近いキャリアが勝つため、オプトアウトなしではデバウンスされた
+最初のキーストロークの 200 が、行を選ぶ前にダイアログを閉じて
+しまいます。真似する価値のある 2 つの姿勢:
 
 - **非アクティブなマスタは「見えるが選べない」** —
   `aria-disabled="true"`、配線なし、理由は行のテキストに(「2026-04

@@ -6,14 +6,6 @@
  * the grid scrolls, under sticky multi-level headers and frozen
  * columns, with a filter panel in a dialog.
  *
- * Deliberately server-free: this preview is about the LAYOUT (what
- * scrolls, what stays), so the rows are static and the filter panel
- * does not round-trip. The wiring map on the page names the recipe
- * contracts each region's endpoint would implement.
- *
- * Ids are prefixed template-grid- because nothing here is a demo-API
- * fragment target.
- *
  * The kit ships no icon set (fundamentals/icons says why), so the
  * toolbar controls draw their own inline SVG in the Lucide idiom —
  * 24px grid, currentColor, 2px stroke. The POLICY is the point: icon +
@@ -46,29 +38,6 @@ const frameProps = standalone
 const shellStyle = standalone
   ? 'block-size: 100dvh; --hc-shell-sidebar-width: 12rem; --hc-shell-pad: var(--hc-space-3);'
   : 'block-size: 40rem; --hc-shell-sidebar-width: 9rem; --hc-shell-pad: var(--hc-space-3);';
-
-const COLUMNS = [
-  { key: 'ordered', label: 'Ordered on', group: 'Order' },
-  { key: 'customer', label: 'Customer', group: 'Order' },
-  { key: 'item', label: 'Item', group: 'Order' },
-  { key: 'ship', label: 'Ship date', group: 'Shipment' },
-  { key: 'carrier', label: 'Carrier', group: 'Shipment' },
-  { key: 'qty', label: 'Quantity', group: 'Shipment', numeric: true },
-  { key: 'amount', label: 'Amount', group: 'Shipment', numeric: true },
-];
-
-const CUSTOMERS = ['Northwind', 'Contoso', 'Fabrikam', 'Adventure Works'];
-const CARRIERS = ['Road', 'Air', 'Sea'];
-const ROWS = Array.from({ length: 40 }, (_, i) => ({
-  id: 4901 + i,
-  ordered: `2026-07-${String((i % 28) + 1).padStart(2, '0')}`,
-  customer: CUSTOMERS[i % CUSTOMERS.length],
-  item: `Bearing assembly ${1000 + i}`,
-  ship: `2026-08-${String((i % 28) + 1).padStart(2, '0')}`,
-  carrier: CARRIERS[i % CARRIERS.length],
-  qty: (i % 9) * 12 + 6,
-  amount: ((i % 9) * 12 + 6) * 145,
-}));
 
 const FILTERS = [
   { name: 'order', label: 'Order number' },
@@ -250,27 +219,36 @@ const FILTERS = [
             <form action="#template-grid" method="get">
               <fieldset class="hc-popover__body" data-hc-sortable>
                 <legend class="hc-field__label">Shown columns</legend>
-                <label class="hc-checkbox-label">
+                {/* The handle sits BESIDE the label, never inside it — a
+                    button is not valid label content, and a click on it
+                    would toggle the checkbox. */}
+                <div class="hc-cluster" style="--hc-cluster-gap: var(--hc-space-1);">
                   <button class="hc-button" data-variant="ghost" data-size="sm"
                           type="button" data-hc-sortable-handle
                           aria-label="Reorder Ordered on">⠿</button>
-                  <input class="hc-checkbox" type="checkbox" name="cols" value="ordered" checked />
-                  Ordered on
-                </label>
-                <label class="hc-checkbox-label">
+                  <label class="hc-checkbox-label">
+                    <input class="hc-checkbox" type="checkbox" name="cols" value="ordered" checked />
+                    Ordered on
+                  </label>
+                </div>
+                <div class="hc-cluster" style="--hc-cluster-gap: var(--hc-space-1);">
                   <button class="hc-button" data-variant="ghost" data-size="sm"
                           type="button" data-hc-sortable-handle
                           aria-label="Reorder Customer">⠿</button>
-                  <input class="hc-checkbox" type="checkbox" name="cols" value="customer" checked />
-                  Customer
-                </label>
-                <label class="hc-checkbox-label">
+                  <label class="hc-checkbox-label">
+                    <input class="hc-checkbox" type="checkbox" name="cols" value="customer" checked />
+                    Customer
+                  </label>
+                </div>
+                <div class="hc-cluster" style="--hc-cluster-gap: var(--hc-space-1);">
                   <button class="hc-button" data-variant="ghost" data-size="sm"
                           type="button" data-hc-sortable-handle
                           aria-label="Reorder Warehouse">⠿</button>
-                  <input class="hc-checkbox" type="checkbox" name="cols" value="warehouse" />
-                  Warehouse
-                </label>
+                  <label class="hc-checkbox-label">
+                    <input class="hc-checkbox" type="checkbox" name="cols" value="warehouse" />
+                    Warehouse
+                  </label>
+                </div>
                 <!-- …one row per column, the order serializing with it… -->
               </fieldset>
               <footer class="hc-popover__footer">
@@ -354,6 +332,14 @@ const FILTERS = [
                           style="--hc-datagrid-left: 2.5rem; inline-size: 6rem;">Order</th>
                       <th class="hc-datagrid__headcell" colspan="3">Order</th>
                       <th class="hc-datagrid__headcell" colspan="3">Shipment</th>
+                      {/* The peek has a control of its own: the record's
+                          NAME is a link, and a link carrying
+                          data-hx-get would never navigate. rowspan="2" so
+                          the two header rows cover the same 9 columns the
+                          body rows have. */}
+                      <th class="hc-datagrid__headcell" rowspan="2" scope="col">
+                        <span class="hc-sr-only">Peek</span>
+                      </th>
                     </tr>
                     <tr>
                       <th class="hc-datagrid__headcell" data-sortable data-col="ordered" scope="col">Ordered on</th>
@@ -364,12 +350,6 @@ const FILTERS = [
                       <th class="hc-datagrid__headcell" scope="col"
                           data-orientation="vertical">Carrier service level</th>
                       <th class="hc-datagrid__headcell" data-sortable data-col="amount" scope="col" data-numeric>Amount</th>
-                      {/* The peek has a control of its own: the record's
-                          NAME is a link, and a link carrying
-                          data-hx-get would never navigate. */}
-                      <th class="hc-datagrid__headcell" scope="col">
-                        <span class="hc-sr-only">Peek</span>
-                      </th>
                     </tr>
                   </thead>
                   {/* One request on load fills the rows and, out of band,
@@ -399,19 +379,30 @@ const FILTERS = [
 
         {/* Navigation sits under the data it moves through — still
             fixed chrome, and out of the way of the actions. */}
-        <div class="hc-toolbar" role="toolbar" aria-label="Rows" id="template-grid-pager">
-          {/* Where you ARE goes at the start — it is a read-out, and
-              the frozen identity column it refers to is on that side.
-              Where you GO goes at the end: after scrolling the grid the
-              pointer is already at the trailing edge (the scrollbar
-              lives there), and "Next" is pressed far more often than
-              anything else on this strip. Logical properties, so RTL
-              swaps both for free. */}
-          <span aria-live="polite">4,901–4,940 of 5,000</span>
-          <span data-hc-spacer="true"></span>
+        <div class="hc-cluster" style="align-items: center; --hc-cluster-gap: var(--hc-space-2);">
+          {/* The server replaces this whole toolbar out of band with
+              every answer (including the initial load), so only what
+              the fragment re-renders may live inside it. */}
+          <div class="hc-toolbar" role="toolbar" aria-label="Rows"
+               id="template-grid-pager" style="flex: 1;">
+            {/* Where you ARE goes at the start — it is a read-out, and
+                the frozen identity column it refers to is on that side.
+                Where you GO goes at the end: after scrolling the grid the
+                pointer is already at the trailing edge (the scrollbar
+                lives there), and "Next" is pressed far more often than
+                anything else on this strip. Logical properties, so RTL
+                swaps both for free. */}
+            <span aria-live="polite">4,901–4,940 of 5,000</span>
+            <span data-hc-spacer="true"></span>
+            <nav class="hc-pagination" aria-label="Pages">
+              <a class="hc-pagination__item" data-hc-rel="prev" href="#template-grid">Previous</a>
+              <a class="hc-pagination__item" data-hc-rel="next" href="#template-grid">Next</a>
+            </nav>
+          </div>
           {/* Somebody read a number out loud. The server resolves the
               ordinal to the page that contains it and the row anchor,
-              because only it knows where row 137 currently is. */}
+              because only it knows where row 137 currently is. A sibling
+              of the pager, not a child — the OOB swap must not take it. */}
           <form class="hc-cluster" action="#template-grid" method="get"
                 style="--hc-cluster-gap: var(--hc-space-1);">
             <label class="hc-field__label" for="template-grid-goto">Go to row</label>
@@ -419,10 +410,6 @@ const FILTERS = [
                    id="template-grid-goto" name="goto" inputmode="numeric"
                    style="inline-size: 6rem;" />
           </form>
-          <nav class="hc-pagination" aria-label="Pages">
-            <a class="hc-pagination__item" data-hc-rel="prev" href="#template-grid">Previous</a>
-            <a class="hc-pagination__item" data-hc-rel="next" href="#template-grid">Next</a>
-          </nav>
         </div>
       </div>
     </main>

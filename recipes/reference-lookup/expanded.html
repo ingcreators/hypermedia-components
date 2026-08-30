@@ -42,7 +42,11 @@
   <dialog class="hc-dialog" data-hc-close-dialog-on-success
           aria-labelledby="lookup-title">
     <h2 id="lookup-title">Select a customer</h2>
-    <form role="search" action="/customers/lookup" method="get">
+    <!-- The search form opts OUT of close-on-success: its own 200s
+         (each debounced keystroke) must not dismiss the dialog. The
+         nearest carrier wins, so the row picks below still close. -->
+    <form role="search" action="/customers/lookup" method="get"
+          data-hc-close-dialog-on-success="false">
       <input class="hc-input" type="search" name="q" placeholder="Code or name"
              aria-label="Search customers"
              data-hx-get="/customers/lookup/results"

@@ -66,6 +66,9 @@ htmx で遅延読み込みされるとき、矢印キーのたびにリクエス
       <button type="button" class="hc-tabs__tab" role="tab"
               id="tab-billing" aria-controls="panel-billing"
               aria-selected="false" tabindex="-1">Billing</button>
+      <button type="button" class="hc-tabs__tab" role="tab"
+              id="tab-team" aria-controls="panel-team"
+              aria-selected="false" tabindex="-1">Team</button>
     </div>
   
     <div class="hc-tabs__panel" role="tabpanel"
@@ -77,6 +80,11 @@ htmx で遅延読み込みされるとき、矢印キーのたびにリクエス
          id="panel-billing" aria-labelledby="tab-billing"
          tabindex="0" hidden="until-found">
       Billing details panel.
+    </div>
+    <div class="hc-tabs__panel" role="tabpanel"
+         id="panel-team" aria-labelledby="tab-team"
+         tabindex="0" hidden="until-found">
+      Team members panel.
     </div>
   </div>
   ```
@@ -173,7 +181,7 @@ IntersectionObserver)場合、フォーカスだけではリクエストが発�
 ```html
 <div class="hc-tabs" data-overflow="scroll">
   <div class="hc-tabs__list" role="tablist" aria-label="Sections">
-    <button class="hc-tabs__tab" role="tab" …>Overview</button>
+    <button type="button" class="hc-tabs__tab" role="tab" …>Overview</button>
     <!-- …many tabs… -->
   </div>
   <!-- panels -->
@@ -236,7 +244,7 @@ RTL で反転します)。
   ```html
   <div class="hc-tabs" data-orientation="vertical">
     <div class="hc-tabs__list" role="tablist" aria-orientation="vertical" aria-label="Workspace">
-      <button class="hc-tabs__tab" role="tab" …>Overview</button>
+      <button type="button" class="hc-tabs__tab" role="tab" …>Overview</button>
       <!-- … -->
     </div>
     <!-- panels -->

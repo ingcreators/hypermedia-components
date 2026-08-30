@@ -3,7 +3,7 @@
 // installFormat() — grouped numeric display with a raw wire value:
 //
 //   <div class="hc-input-group">
-//     <span class="hc-input-group__addon">¥</span>
+//     <span class="hc-input-addon">¥</span>
 //     <input class="hc-input" name="amount" type="text" inputmode="numeric"
 //            data-hc-format="number" value="1,234,567">
 //   </div>

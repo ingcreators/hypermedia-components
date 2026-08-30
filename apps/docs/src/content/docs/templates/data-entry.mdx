@@ -25,17 +25,23 @@ clean. Amounts regroup on blur; the wire stays raw.
 ## Page skeleton
 
 ```html
+<!-- method/action keep the no-JS submit working (post/redirect/get). -->
 <form id="report-form" data-hc-dirty-guard
+      method="post" action="/reports/42"
       data-hx-post="/reports/42"
       data-hx-sync="this:abort"
       data-hx-disabled-elt="find button[type=submit]"
-      data-hx-target="#status" data-hx-swap="innerHTML">
+      data-hx-target="#report-errors" data-hx-swap="innerHTML">
+
+  <!-- The 422 field-errors fragment swaps in here; installFieldErrors
+       distributes each item to the field it names. -->
+  <div id="report-errors" aria-live="polite"></div>
 
   <!-- Amount: grouped display, raw wire value -->
   <div class="hc-field">
     <label class="hc-field__label" for="amount">Amount</label>
     <div class="hc-input-group">
-      <span class="hc-input-group__addon">¥</span>
+      <span class="hc-input-addon">¥</span>
       <input class="hc-input" id="amount" name="amount" type="text"
              inputmode="numeric" data-numeric data-hc-format="number"
              value="1,280,000">
@@ -54,6 +60,7 @@ clean. Amounts regroup on blur; the wire stays raw.
     <input class="hc-input" id="postal" name="postal" inputmode="numeric"
            placeholder="123-4567" pattern="\d{3}-\d{4}"
            data-hc-mask="postal-jp"
+           aria-describedby="postal-result"
            data-hx-get="/address-by-postal"
            data-hx-trigger="change[target.value.length==8]"
            data-hx-include="this" data-hx-target="#postal-result">
@@ -72,7 +79,6 @@ clean. Amounts regroup on blur; the wire stays raw.
        data-hx-target="#draft-status" data-hx-swap="innerHTML"></div>
   <p class="hc-field__hint" id="draft-status" aria-live="polite"></p>
 
-  <p class="hc-field__hint" id="status" aria-live="polite"></p>
   <button class="hc-button" data-variant="primary" type="submit">Save</button>
 </form>
 

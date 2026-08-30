@@ -159,7 +159,9 @@
     background: var(--hc-multicombobox-option-active-bg);
   }
 
-  /* Selected check — only visible when aria-selected="true". */
+  /* Selected check — only visible when aria-selected="true". The
+   * glyph is a mask, so its color is a paintable custom property
+   * (a data-URI background-image cannot resolve var()). */
   .hc-multicombobox__option::before {
     content: "";
     position: absolute;
@@ -167,9 +169,9 @@
     inset-inline-start: var(--hc-multicombobox-option-padding-x);
     inline-size: var(--hc-multicombobox-option-indicator-size);
     block-size: var(--hc-multicombobox-option-indicator-size);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: 100% 100%;
     opacity: 0;
     pointer-events: none;
     translate: 0 -50%;
@@ -177,7 +179,18 @@
 
   .hc-multicombobox__option[aria-selected="true"]::before {
     opacity: 1;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M3.5 8.5 L7 12 L12.5 5'/></svg>");
+    background-color: var(--hc-multicombobox-option-check-color);
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M3.5 8.5 L7 12 L12.5 5'/></svg>");
+  }
+
+  /* Forced colors: backgrounds are stripped, so repaint the mask with
+   * the system selection color (something the old background-image
+   * check could never do). */
+  @media (forced-colors: active) {
+    .hc-multicombobox__option[aria-selected="true"]::before {
+      background-color: SelectedItem;
+      forced-color-adjust: none;
+    }
   }
 
   .hc-multicombobox__option[aria-disabled="true"] {

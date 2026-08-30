@@ -23,7 +23,7 @@ Purpose: a column chooser for hc-datagrid — a popover form of `cols=` checkbox
 
 | Case | Response (200) |
 | --- | --- |
-| any `cols` set | the grid fragment (the wrapper's innerHTML: scroll + table) with **exactly those columns, in the server's canonical order**, plus an OOB `outerHTML` re-render of the chooser **fieldset** with matching checked states (`data-hx-swap-oob="outerHTML"`, same `#cols-fields` id) |
+| any `cols` set | the grid fragment (the wrapper's innerHTML: scroll + table) with **exactly those columns, in the submitted order** (see Column rules), plus an OOB `outerHTML` re-render of the chooser **fieldset** with matching checked states (`data-hx-swap-oob="outerHTML"`, same `#cols-fields` id) |
 | empty/absent `cols` | the server's default column set — note an all-unchecked Apply serializes no `cols` at all, so it lands here |
 | unknown col name | ignored (the server is the schema); if nothing recognized remains, the default set |
 

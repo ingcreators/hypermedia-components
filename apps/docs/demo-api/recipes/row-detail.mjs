@@ -191,10 +191,13 @@ export async function handle({ method, path, url, request }) {
     const token = packSelection(ids);
     const first = ids[0];
     const target = `${API}/items/${first}?seq=${token}&i=1`;
-    // 303 in the no-JS path; htmx follows a client redirect header.
-    if (isHtmx(request)) {
-      return html('', { headers: { 'HX-Location': target } });
-    }
+    // One 303 serves both paths — exactly the contract. No-JS: the
+    // browser navigates to the record page. htmx: XHR follows the
+    // redirect transparently, the followed GET still carries
+    // HX-Request, so the record FRAGMENT lands in the form's target.
+    // (Never HX-Location with a bare path here: with no target in the
+    // header htmx redirects against `document.body` and replaces the
+    // whole page with the API response.)
     return new Response(null, { status: 303, headers: { Location: target } });
   }
 

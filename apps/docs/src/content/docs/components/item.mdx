@@ -52,8 +52,10 @@ title + description.
 
 ## Interactive items
 
-Render the item as an `<a>` or `<button>` (or add `data-selectable`) to get
-the hover highlight and focus ring. Mark selection with `aria-selected` (or
+Render the item as an `<a>` or `<button>` to get the hover highlight and
+focus ring. On a non-interactive element, `data-selectable` adds the hover
+highlight only — a focus ring additionally requires a focusable element
+(`<a>`, `<button>`, or `tabindex`). Mark selection with `aria-selected` (or
 `data-selected`).
 
 <Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">

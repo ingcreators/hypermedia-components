@@ -68,8 +68,8 @@ WHERE active = true</code></pre>
 <Demo previewClass="hc-preview--col hc-preview--start">
   <ol class="hc-code" data-gutter="line-numbers" tabindex="0" aria-label="Coverage of members.sql">
     <li class="hc-code__line">SELECT *</li>
-    <li class="hc-code__line" data-state="covered">FROM orders</li>
-    <li class="hc-code__line" data-state="missed">WHERE total &gt; 0</li>
+    <li class="hc-code__line" data-state="covered">  FROM orders</li>
+    <li class="hc-code__line" data-state="missed"> WHERE total &gt; 0</li>
   </ol>
   <p style="display:flex; gap:1rem; align-items:center; margin:0;">
     <span><span class="hc-code__swatch" data-state="covered"></span> Covered</span>
@@ -85,7 +85,7 @@ WHERE active = true</code></pre>
     <li class="hc-code__line" data-state="missed"> WHERE total &gt; 0</li>
   </ol>
 
-  <p class="hc-code__legend">
+  <p style="display:flex; gap:1rem; align-items:center; margin:0;">
     <span><span class="hc-code__swatch" data-state="covered"></span> Covered</span>
     <span><span class="hc-code__swatch" data-state="missed"></span> Missed</span>
   </p>
@@ -105,9 +105,9 @@ WHERE active = true</code></pre>
 
 <Demo previewClass="hc-preview--col hc-preview--start">
   <ol class="hc-code" data-mode="diff" tabindex="0" aria-label="Draft vs saved members.sql">
-    <li class="hc-code__line" data-state="context" data-old="12" data-new="12">SELECT id</li>
-    <li class="hc-code__line" data-state="removed" data-old="13">FROM users</li>
-    <li class="hc-code__line" data-state="added" data-new="13">FROM app_users</li>
+    <li class="hc-code__line" data-state="context" data-old="12" data-new="12">  SELECT id</li>
+    <li class="hc-code__line" data-state="removed" data-old="13">  FROM users</li>
+    <li class="hc-code__line" data-state="added" data-new="13">  FROM app_users</li>
   </ol>
 
   <Fragment slot="code">

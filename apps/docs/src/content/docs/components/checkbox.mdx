@@ -73,10 +73,22 @@ active color theme's primary fill.
   <Fragment slot="code">
 
   ```html
-  <input class="hc-checkbox" type="checkbox" checked>
-  <input class="hc-checkbox" type="checkbox" data-variant="success" checked>
-  <input class="hc-checkbox" type="checkbox" data-variant="warning" checked>
-  <input class="hc-checkbox" type="checkbox" data-variant="error" checked>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked>
+    Default (themed)
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-variant="success" checked>
+    Success
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-variant="warning" checked>
+    Warning
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-variant="error" checked>
+    Error
+  </label>
   ```
 
   </Fragment>
@@ -107,9 +119,18 @@ density tier.
   <Fragment slot="code">
 
   ```html
-  <input class="hc-checkbox" type="checkbox" data-size="sm" checked>
-  <input class="hc-checkbox" type="checkbox" checked>
-  <input class="hc-checkbox" type="checkbox" data-size="lg" checked>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-size="sm" checked>
+    Small
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" checked>
+    Default
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" data-size="lg" checked>
+    Large
+  </label>
   ```
 
   </Fragment>
@@ -144,9 +165,18 @@ density tier.
   <Fragment slot="code">
 
   ```html
-  <input class="hc-checkbox" type="checkbox" aria-invalid="true">
-  <input class="hc-checkbox" type="checkbox" disabled>
-  <input class="hc-checkbox" type="checkbox" disabled checked>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" aria-invalid="true">
+    Required field (aria-invalid)
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" disabled>
+    Disabled (unchecked)
+  </label>
+  <label class="hc-checkbox-label">
+    <input class="hc-checkbox" type="checkbox" disabled checked>
+    Disabled (checked)
+  </label>
   ```
 
   </Fragment>
@@ -170,8 +200,8 @@ columns, and it is stable under the
   <div class="hc-field" style="max-inline-size:18rem;">
     <label class="hc-field__label" for="boolfield-demo">Active</label>
     <input type="hidden" name="active" value="false" />
-    <input class="hc-checkbox" id="boolfield-demo" name="active" type="checkbox" value="true" checked />
-    <p class="hc-field__message">Deactivated accounts are hidden from search.</p>
+    <input class="hc-checkbox" id="boolfield-demo" name="active" type="checkbox" value="true" checked aria-describedby="boolfield-demo-hint" />
+    <p class="hc-field__message" id="boolfield-demo-hint">Deactivated accounts are hidden from search.</p>
   </div>
 
   <Fragment slot="code">
@@ -184,9 +214,10 @@ columns, and it is stable under the
          `active=false`. It must come first: when the checkbox is
          checked, both submit and the server takes the last value. -->
     <input type="hidden" name="active" value="false">
-    <input class="hc-checkbox" id="active" name="active" type="checkbox" value="true">
+    <input class="hc-checkbox" id="active" name="active" type="checkbox" value="true"
+           aria-describedby="active-hint">
 
-    <p class="hc-field__message">Deactivated accounts are hidden from search.</p>
+    <p class="hc-field__message" id="active-hint">Deactivated accounts are hidden from search.</p>
   </div>
   ```
 

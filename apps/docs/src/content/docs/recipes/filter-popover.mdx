@@ -91,15 +91,24 @@ as `/items`), swaps the list, and because the response is a 2xx the
    the opt-in attribute, the request was successful, and calls
    `hidePopover()` on the closest `[popover]`.
 5. `data-hx-push-url="true"` updates the URL so the filter survives
-   page reloads and is shareable.
+   page reloads and is shareable. (The live demo above omits
+   `data-hx-push-url` on purpose — a docs page must not rewrite its
+   own URL.)
 
 Cancel by simply clicking outside (popover's native light-dismiss)
 or pressing Escape — no JavaScript hook needed.
 
 ## Server response contract
 
-`GET /items?status=active&status=pending` returns the table body
-fragment:
+The form **is** the filter state — every control rides along as a
+query parameter. Checkbox groups repeat their name
+(`?status=active&status=pending`); a single `<select>` (as in the live
+demo) sends one `status` value; a free-text field adds `q=…`. The
+server reads whatever the form declares.
+
+The response is the target's **innerHTML**, so its shape must match
+the container the form targets. For the `<tbody id="items-tbody">`
+above, return the rows:
 
 ```html
 <tr id="item-12">…</tr>
@@ -118,13 +127,17 @@ knows the filter ran:
 </tr>
 ```
 
+If the target is a plain `<div>` instead (as in the scaffold and the
+live demo), return a list or message fragment — the HTML parser drops
+`<tr>`s outside a table.
+
 For toast feedback on the apply itself (rarely needed for filters),
 include an `HX-Trigger: {"hc:toast":{…}}` header.
 
 | Request | Response |
 | --- | --- |
-| `GET /items?status=active&status=pending` (Apply) | `200` + the `#items-tbody` rows fragment — the popover closes |
-| Filter matches nothing | `200` + an explicit empty-state row |
+| `GET /items?status=active&status=pending&q=…` (Apply) | `200` + the target's innerHTML fragment — the popover closes |
+| Filter matches nothing | `200` + an explicit empty-state fragment |
 | Failure | non-2xx — not swapped; the table keeps its rows and the popover stays open |
 
 ### On failure

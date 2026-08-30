@@ -84,6 +84,10 @@ and `data-sort-index` are answering a question nobody can see.
         </li>
         <!-- …one row per key, in order… -->
       </ul>
+      <!-- …the add control: a labelled <select name="add"> of the
+           columns not yet in the set + an Add submit, wired like
+           Remove (formaction="/orders/sort",
+           data-hx-target="#sort-keys")… -->
     </div>
     <footer class="hc-popover__footer">
       <button class="hc-button" data-variant="primary" type="submit">Apply</button>

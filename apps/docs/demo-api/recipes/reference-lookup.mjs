@@ -83,7 +83,8 @@ function resultsHtml(q) {
 function dialogHtml() {
   return `<dialog class="hc-dialog" data-hc-close-dialog-on-success aria-labelledby="${RESULTS_ID}-title">
   <h2 id="${RESULTS_ID}-title">Select a customer</h2>
-  <form role="search" action="${API}/lookup" method="get">
+  <form role="search" action="${API}/lookup" method="get"
+        data-hc-close-dialog-on-success="false">
     <input class="hc-input" type="search" name="q" placeholder="Code or name"
            aria-label="Search customers"
            data-hx-get="${API}/lookup/results"

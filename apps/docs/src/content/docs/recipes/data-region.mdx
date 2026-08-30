@@ -42,9 +42,16 @@ line tick over.
 
 ```html
 <section id="orders-summary"
+         class="hc-data-region"
          data-hx-get="/orders/summary"
          data-hx-trigger="load, every 10s"
-         data-hx-swap="innerHTML">
+         data-hx-swap="outerHTML"
+         data-hx-indicator="closest .hc-data-region"
+         aria-busy="false">
+  <header class="hc-data-region__header">
+    <h2>Orders</h2>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </header>
   <p class="hc-field__message">Loading…</p>
 </section>
 ```
@@ -52,12 +59,44 @@ line tick over.
 Pieces:
 
 - `data-hx-trigger="load, every 10s"` — render once on page load,
-  then again every 10 seconds.
-- `data-hx-swap="innerHTML"` — replace the container's contents only;
-  the container itself (with its triggers) stays put.
+  then again every 10 seconds. The server's re-rendered fragment
+  carries `every 10s` **only**: htmx re-arms the interval on each
+  swap (that restart *is* the poll), and echoing `load` back would
+  refetch forever.
+- `data-hx-swap="outerHTML"` — the region replaces **itself** with
+  the complete `<section>` the server returns (same id, class, and
+  attributes), so every swap is idempotent and the server stays in
+  control of the region's triggers.
+- `data-hx-indicator="closest .hc-data-region"` — a slow poll lights
+  up the header's `.hc-spinner.htmx-indicator` instead of flickering
+  the content.
 
 Always design the polled endpoint to be **cheap** — a fast COUNT
 query or a denormalized read model — and **idempotent**.
+
+### Inner-content fragments (`innerHTML`)
+
+When you are retrofitting an existing fragment endpoint that returns
+**only the inner content** (no wrapper element), keep the triggers on
+a bare container and swap its contents instead:
+
+```html
+<section id="orders-summary"
+         data-hx-get="/orders/summary"
+         data-hx-trigger="load, every 10s"
+         data-hx-swap="innerHTML">
+  <p class="hc-field__message">Loading…</p>
+</section>
+```
+
+- The container itself (with its triggers) stays put; only its
+  contents are replaced, so there is nothing to re-arm and the
+  trigger keeps ticking as written.
+- The trade-off: the server can no longer adjust the region — change
+  the poll interval, stop polling, listen for a new event — because
+  the fragment carries no attributes. Prefer the self-replacing
+  `hc-data-region` form above when you control the server, and
+  reserve this form for retrofits.
 
 ### Whole-region self-replacement (`hx-select`)
 
@@ -79,9 +118,10 @@ that page and swap itself:
 - `data-hx-select="#page-content"` extracts the matching element from
   the response; `data-hx-swap="outerHTML"` replaces the region with it,
   triggers and all.
-- This costs a full page render per tick — prefer the fragment
-  endpoint + `innerHTML` form above when you control the server, and
-  reserve `hx-select` for retrofits.
+- This costs a full page render per tick — prefer a fragment
+  endpoint (the self-replacing `hc-data-region` form, or the
+  `innerHTML` form above) when you control the server, and reserve
+  `hx-select` for retrofits.
 - With `outerHTML` the region's `every 15s` timer restarts on each
   swap; with no `load` in the trigger the first paint is the
   server-rendered HTML, so there is no flash.
@@ -93,9 +133,12 @@ region to refresh immediately:
 
 ```html
 <section id="orders-summary"
+         class="hc-data-region"
          data-hx-get="/orders/summary"
          data-hx-trigger="load, every 30s, orders:refresh from:body"
-         data-hx-swap="innerHTML">
+         data-hx-swap="outerHTML"
+         data-hx-indicator="closest .hc-data-region"
+         aria-busy="false">
   …
 </section>
 ```
@@ -117,9 +160,12 @@ region scrolls into view:
 
 ```html
 <section id="invoices-summary"
+         class="hc-data-region"
          data-hx-get="/invoices/summary"
          data-hx-trigger="intersect once, every 30s"
-         data-hx-swap="innerHTML">
+         data-hx-swap="outerHTML"
+         data-hx-indicator="closest .hc-data-region"
+         aria-busy="false">
   <p class="hc-field__message">Loading when visible…</p>
 </section>
 ```
@@ -130,21 +176,44 @@ region scrolls into view:
 
 ## Server response contract
 
-The server returns **only the inner content** of the region:
+The server returns the **complete `<section>`** — same id, same
+class, same attributes — so the swap is idempotent, with one
+deliberate difference: the re-rendered fragment drops `load` from
+the trigger (htmx fires `load` on every freshly swapped element, so
+echoing it back would refetch forever):
 
 ```html
 <!-- GET /orders/summary -->
-<dl class="hc-stack">
-  <div>
-    <dt>Open orders</dt>
-    <dd>14</dd>
-  </div>
-  <div>
-    <dt>Awaiting payment</dt>
-    <dd>3</dd>
-  </div>
-</dl>
+<section id="orders-summary"
+         class="hc-data-region"
+         data-hx-get="/orders/summary"
+         data-hx-trigger="every 10s"
+         data-hx-swap="outerHTML"
+         data-hx-indicator="closest .hc-data-region"
+         aria-busy="false">
+  <header class="hc-data-region__header">
+    <h2>Orders</h2>
+    <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+  </header>
+  <dl class="hc-stack">
+    <div>
+      <dt>Open orders</dt>
+      <dd>14</dd>
+    </div>
+    <div>
+      <dt>Awaiting payment</dt>
+      <dd>3</dd>
+    </div>
+  </dl>
+</section>
 ```
+
+Because the fragment carries the region's attributes, the server
+stays in control: it can change the poll interval, stop polling once
+the data is final, and render an explicit empty state when there are
+no rows. For the [`innerHTML` retrofit
+form](#inner-content-fragments-innerhtml), return only the inner
+content (the `<dl>` above) instead.
 
 Return the same content for both htmx (`HX-Request: true`) and
 full-page loads. Caching can be tuned with standard `Cache-Control`
@@ -152,7 +221,7 @@ headers; htmx respects them.
 
 | Request | Response |
 | --- | --- |
-| `GET /orders/summary` (poll, event, or reveal) | `200` + the region's inner content fragment |
+| `GET /orders/summary` (poll, event, or reveal) | `200` + the complete `<section>` (`innerHTML` retrofit: the inner content only) |
 | `GET /orders/summary` (no `HX-Request` — full page load) | `200` + the same content, wrapped in the full page |
 | Any write endpoint that should refresh the region | `2xx` + `HX-Trigger: {"orders:refresh":true}` |
 | `GET /orders/summary` (failure) | non-2xx — not swapped; the region keeps its previous rendering |
@@ -168,22 +237,25 @@ never to broken. To tell the user, add an
 ## Indicators
 
 Wrap a spinner in `htmx-indicator` if the polling endpoint is slow
-enough that flickering content matters:
+enough that flickering content matters. The `hc-data-region` form
+above already wires this up with
+`data-hx-indicator="closest .hc-data-region"`. For the `innerHTML`
+form, put the request attributes on an element that **contains** the
+spinner, so the indicator selector can reach it (`closest` walks
+ancestors only; `find` searches descendants):
 
 ```html
-<section id="status">
+<section id="status"
+         data-hx-get="/status"
+         data-hx-trigger="load, every 5s"
+         data-hx-target="#status-body"
+         data-hx-swap="innerHTML"
+         data-hx-indicator="find header .hc-spinner">
   <header>
     <h2>Sync status</h2>
     <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
   </header>
-  <div
-    data-hx-get="/status"
-    data-hx-trigger="load, every 5s"
-    data-hx-target="#status-body"
-    data-hx-swap="innerHTML"
-    data-hx-indicator="closest header .hc-spinner">
-    <div id="status-body">…</div>
-  </div>
+  <div id="status-body">…</div>
 </section>
 ```
 

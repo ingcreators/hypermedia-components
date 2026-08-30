@@ -93,7 +93,7 @@ draws the error border; `disabled` on the input mutes the slots.
 recolors the slot borders with the same validation vocabulary as the
 other form fields.
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <div class="hc-inputotp" data-length="4">
     <input class="hc-inputotp__input" type="text" aria-label="Code" aria-invalid="true" />
   </div>
@@ -103,7 +103,25 @@ other form fields.
   <div class="hc-inputotp" data-length="4">
     <input class="hc-inputotp__input" type="text" aria-label="Code" disabled value="12" />
   </div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-inputotp" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code" aria-invalid="true">
+  </div>
+
+  <div class="hc-inputotp" data-variant="success" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code (valid)">
+  </div>
+
+  <div class="hc-inputotp" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code" disabled value="12">
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## Active slot & caret
 
@@ -183,7 +201,8 @@ More patterns: [Hyperscript → Reacting to component events](/hypermedia-compon
 | `inputotp.radius` / `border` / `bg` / `fg` | Slot chrome. |
 | `inputotp.font-size` / `font-weight` | The digit. |
 | `inputotp.active-border` / `caret-color` | Active slot + caret (track `data-color`). |
-| `inputotp.error-border` | `aria-invalid` border. |
+| `inputotp.error-border` | `aria-invalid` / `data-variant="error"` border. |
+| `inputotp.success-border` / `warning-border` | `data-variant="success"` / `"warning"` borders. |
 | `inputotp.disabled-bg` / `disabled-fg` | Disabled slots. |
 
 ## CSS variables
@@ -195,7 +214,8 @@ More patterns: [Hyperscript → Reacting to component events](/hypermedia-compon
 --hc-inputotp-gap | -slot-size | -radius | -border | -bg | -fg
 --hc-inputotp-font-size | -font-weight
 --hc-inputotp-active-border | -caret-color
---hc-inputotp-error-border | -disabled-bg | -disabled-fg
+--hc-inputotp-error-border | -success-border | -warning-border
+--hc-inputotp-disabled-bg | -disabled-fg
 --hc-inputotp-separator   /* the data-groups separator glyph; default "–" */
 ```
 

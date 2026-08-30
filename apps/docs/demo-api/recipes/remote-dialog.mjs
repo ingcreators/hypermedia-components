@@ -25,6 +25,9 @@ import {
 } from '../html.mjs';
 
 const ITEM_URL = `${DOCS_BASE}/api/recipes/remote-dialog/items/123`;
+// The [data-hc-remote-dialog-root] host in RemoteDialogDemo.astro —
+// the 422 branch retargets here so the behavior re-opens the dialog.
+const ROOT_ID = 'remote-dialog-demo-root';
 
 /**
  * The complete dialog fragment, mirroring
@@ -88,12 +91,25 @@ usable page — see the recipe docs for the full pattern.</p>`,
     const name = String(data.get('name') ?? '').trim();
 
     if (name === '') {
-      // Re-render the whole dialog in its error state. The form
-      // targets `closest dialog` with outerHTML and the docs pages'
-      // one-time 422 allowance lets it swap; installCloseDialog does
-      // not close on a non-2xx, so the dialog stays open.
+      // Re-render the whole dialog in its error state, retargeted at
+      // the dialog ROOT (innerHTML). The form's own `closest dialog`
+      // outerHTML target must not be used for the error: an outerHTML
+      // swap replaces the showModal()-ed node with a fresh closed
+      // <dialog> and fires afterSwap on the new content — not on the
+      // [data-hc-remote-dialog-root] host installRemoteDialog watches
+      // — so the error dialog would land invisible. Swapping the root
+      // re-fires the behavior and the dialog re-opens in error state.
+      // (Still needs the docs pages' one-time 422 allowance to swap.)
       const invalidDialog = dialogHtml({ name: '', invalid: true });
-      if (isHtmx(request)) return html(invalidDialog, { status: 422 });
+      if (isHtmx(request)) {
+        return html(invalidDialog, {
+          status: 422,
+          headers: {
+            'HX-Retarget': `#${ROOT_ID}`,
+            'HX-Reswap': 'innerHTML',
+          },
+        });
+      }
       return page(
         'Item not saved',
         `<p>The submission failed validation — the name is required.</p>`,

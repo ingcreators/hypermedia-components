@@ -213,9 +213,11 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 });
 ```
 
-Alternatively answer `200` with the fragment, or steer any response
-into the error container with `HX-Retarget: #form-errors` +
-`HX-Reswap: innerHTML`.
+Alternatively answer `200` with the fragment — the one option that
+needs no client configuration. `HX-Retarget: #form-errors` +
+`HX-Reswap: innerHTML` steer *where and how* the fragment lands, but
+in htmx ≥ 2 they don't license the swap: a `422` carrying them still
+needs the allowance above (or an `htmx.config.responseHandling` rule).
 
 ## Interplay with client-side validation
 

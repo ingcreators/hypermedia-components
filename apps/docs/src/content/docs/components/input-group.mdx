@@ -63,6 +63,11 @@ The inner `<input>` and `<button>` are ordinary elements, so htmx wiring
 
   ```html
   <div class="hc-input-group">
+    <span class="hc-input-addon">https://</span>
+    <input class="hc-input" type="text" aria-label="Domain" />
+  </div>
+
+  <div class="hc-input-group">
     <span class="hc-input-addon">$</span>
     <input class="hc-input" type="number" aria-label="Amount" />
     <span class="hc-input-addon">USD</span>

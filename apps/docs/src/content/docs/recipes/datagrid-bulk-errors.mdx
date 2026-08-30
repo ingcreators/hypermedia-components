@@ -25,9 +25,10 @@ Ships `recipe.html`, `expanded.html`, and the machine-checked
 
 Archive a selection containing 102 or 105: the chrome keeps **one
 line** — the count, the moves, the failed-only filter — and the grouped
-breakdown opens in the panel **docked beside the grid**, which you can
-drag or resize from the keyboard. Both stay live, which is the point:
-click a reason and the rows behind it are still there.
+breakdown waits behind the **Reasons (N)** rail on the panel **docked
+beside the grid**, which you can drag or resize from the keyboard.
+Both stay live, which is the point: click a reason and the rows behind
+it are still there.
 
 Two actions over one selection. **102 / 105 / 108** are "shipped" and
 **107** is "not yours" — pick one of those together with a normal row:
@@ -210,7 +211,9 @@ is **workspace state**: remember it per user, not in the URL.
 **Show only failed is the important affordance**: it turns the grid
 *into* the report, composing with the conditions bar and saved views,
 after which retrying is the ordinary select-all → action loop. At two
-hundred failures it is the only shape that works.
+hundred failures it is the only shape that works. (In the live demo
+above the link is illustrative — a real app points it at the grid URL
+with the failure filter applied.)
 
 ### The summary is also the navigator
 
@@ -252,7 +255,9 @@ diagnostics.
 ## The report
 
 One `aria-live="polite"` region above the grid, swapped out of band
-with the rows. It reuses the
+with the rows — `<template>`-wrapped like the pre-flight's row
+updates, because a `<div>` riding a tbody-targeted swap is otherwise
+foster-parented out of the table by the parser. It reuses the
 [csv-import](/hypermedia-components/recipes/csv-import/) validation
 report shape and follows three rules:
 
@@ -290,8 +295,9 @@ and touch, print and export have no hover.
 ## Toast
 
 The toast is the headline, not the payload: counts plus a pointer to
-the report, and it **must not auto-dismiss while failures exist**
-(`warning` for best-effort, `error` for a refusal).
+the report, and it **must not auto-dismiss while failures exist** —
+send `duration: 0` in the payload (`warning` for best-effort, `error`
+for a refusal).
 
 ## Progressive enhancement
 

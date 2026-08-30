@@ -115,7 +115,9 @@ read-out of the whole querystring, and its edit surface.
 | `__clear` `href` | the URL with no `f-` params — sort, columns and page size stay |
 
 The bar rides with the grid fragment, so one response updates rows,
-header triggers and bar together.
+header triggers and bar together. Give it a stable id and swap it out
+of band if your layout puts it outside the grid wrapper — as the live
+demo above does.
 
 **Removing is navigation.** `__remove` and `__clear` are real links, so
 dropping a condition works without JavaScript, is shareable, and
@@ -226,7 +228,11 @@ date inputs: one name, one control, always.
 :::caution[An unknown expression is an error]
 Answer `400`, or re-ask. Never fall back to the unfiltered list: a
 silently dropped condition shows the user *more* data than they asked
-for. Same rule, same reason, as an expired condition set.
+for. Same rule, same reason, as an expired condition set. Remember
+htmx ≥ 2 does not swap a `400` by default — the response only renders
+with a one-time `htmx:beforeSwap` allowance for it, like the one the
+docs demos share (see
+[the error map](/hypermedia-components/fundamentals/errors/)).
 :::
 
 ## Date ranges
@@ -258,6 +264,7 @@ Absolute ends belong in two date inputs, and those inputs carry **real
 names** so the no-JS path still submits a usable request:
 
 ```html
+<span class="hc-field__label" id="ship-label">Ship date</span>
 <div class="hc-cluster" role="group" aria-labelledby="ship-label"
      data-hc-range="f-ship">
   <input class="hc-input" type="date" name="f-ship-from" aria-label="Ship date from">
@@ -299,7 +306,7 @@ user just did:
 ```html
 <p role="status">
   No orders match these 4 conditions.
-  <a href="/orders?f-ship-from=2026-08-01&f-status=open">Drop “Buyer code”</a>
+  <a href="/orders?f-ship=2026-08-01..&f-status=open">Drop “Buyer code”</a>
 </p>
 ```
 
@@ -312,7 +319,7 @@ its href:
 
 ```html
 <a class="hc-button"
-   href="/orders.csv?f-status=open&f-ship-from=@week-start&cols=order&cols=customer&sort=-ship">
+   href="/orders.csv?f-status=open&f-ship=@week-start..&cols=order&cols=customer&sort=-ship">
   Export 4,873 rows
 </a>
 ```

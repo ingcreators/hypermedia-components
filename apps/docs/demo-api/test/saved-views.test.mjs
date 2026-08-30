@@ -40,7 +40,7 @@ describe('saved-views demo API', () => {
   it('answers an empty result with a message, not an empty list', async () => {
     const body = await (await call(savedViews, 'GET', '/items?q=zzz')).text();
     expect(body).toContain('No items match the current filters.');
-    expect(body).not.toContain('<ul class="hc-list">');
+    expect(body).not.toContain('<ul>');
   });
 
   it('answers a plain navigation with a full page (no-JS apply link)', async () => {

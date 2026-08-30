@@ -139,7 +139,7 @@ being chosen, the tentative band previews under the pointer or the
 keyboard focus. Try it — pick a new start and end below:
 
 <Demo>
-  <div class="hc-calendar" data-mode="range" data-value="2026-05-10/2026-05-14" data-locale="en-US" aria-label="Pick a date range"></div>
+  <div class="hc-calendar" data-mode="range" data-value="2026-05-10/2026-05-14" data-name="stay" data-locale="en-US" aria-label="Pick a date range"></div>
 
   <Fragment slot="code">
 
@@ -220,13 +220,13 @@ so there is no `data-value` to keep in sync.
   <div class="hc-field" style="max-inline-size:18rem;">
     <label class="hc-field__label" for="datefield-demo-input">Due date</label>
     <div class="hc-input-group">
-      <input class="hc-input" id="datefield-demo-input" name="due" type="text" readonly value="2026-05-15" placeholder="Pick a date" />
+      <input class="hc-input" id="datefield-demo-input" name="due" type="text" readonly value="2026-05-15" placeholder="Pick a date" aria-describedby="datefield-demo-hint" />
       <button class="hc-button" type="button" popovertarget="datefield-cal" aria-label="Choose date">📅</button>
     </div>
     <div id="datefield-cal" class="hc-popover" popover data-side="bottom" data-align="end">
       <div class="hc-calendar" data-target="#datefield-demo-input" data-locale="en-US" aria-label="Choose date"></div>
     </div>
-    <p class="hc-field__message">Format: YYYY-MM-DD</p>
+    <p class="hc-field__message" id="datefield-demo-hint">Format: YYYY-MM-DD</p>
   </div>
 
   <Fragment slot="code">
@@ -238,7 +238,8 @@ so there is no `data-value` to keep in sync.
     <div class="hc-input-group">
       <!-- The value lives here, once — and this input carries the form name. -->
       <input class="hc-input" id="due" name="due" type="text" readonly
-             value="2026-05-15" placeholder="Pick a date">
+             value="2026-05-15" placeholder="Pick a date"
+             aria-describedby="due-hint">
       <button class="hc-button" type="button" popovertarget="due-cal"
               aria-label="Choose date">📅</button>
     </div>
@@ -248,7 +249,7 @@ so there is no `data-value` to keep in sync.
       <div class="hc-calendar" data-target="#due" aria-label="Choose date"></div>
     </div>
 
-    <p class="hc-field__message">Format: YYYY-MM-DD</p>
+    <p class="hc-field__message" id="due-hint">Format: YYYY-MM-DD</p>
   </div>
   ```
 
@@ -362,6 +363,7 @@ More patterns: [Hyperscript → Reacting to component events](/hypermedia-compon
 | `calendar.day-size` / `day-radius` / `day-font-size` / `day-fg` | Day cells. |
 | `calendar.day-hover-bg` | Day hover. |
 | `calendar.day-selected-bg` / `day-selected-fg` | Selected day (tracks `data-color`). |
+| `calendar.day-range-bg` / `day-range-preview-bg` | Range-mode band between the ends / tentative preview band. |
 | `calendar.day-today-border` | Today's ring. |
 | `calendar.day-outside-fg` / `day-disabled-fg` | Adjacent-month / out-of-range days. |
 
@@ -377,6 +379,7 @@ More patterns: [Hyperscript → Reacting to component events](/hypermedia-compon
 --hc-calendar-weekday-fg | -weekday-font-size | -weekday-font-weight
 --hc-calendar-day-size | -day-radius | -day-font-size | -day-fg
 --hc-calendar-day-hover-bg | -day-selected-bg | -day-selected-fg
+--hc-calendar-day-range-bg | -day-range-preview-bg
 --hc-calendar-day-today-border | -day-outside-fg | -day-disabled-fg
 ```
 

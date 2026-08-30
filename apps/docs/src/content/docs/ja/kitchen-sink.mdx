@@ -1,10 +1,13 @@
 ---
 title: キッチンシンク
-description: Hypermedia Components の全コンポーネントを 1 ページに — ひと目で見渡せるライブギャラリー。各コンポーネントの完全なドキュメントへのリンクつき。
+description: Hypermedia Components の（ほぼ）全コンポーネントを 1 ページに — ひと目で見渡せるライブギャラリー。各コンポーネントの完全なドキュメントへのリンクつき。
 ---
 
-すべてのコンポーネントを、ライブで、1 ページに — **コンポーネント**の
-サイドバーと同じグルーピングです。ライブラリ全体をひと目で見渡す、
+（ほぼ）すべてのコンポーネントを、ライブで、1 ページに —
+**コンポーネント**のサイドバーと同じグルーピングです。準備の重い一部
+（チャート、コード、フィルターバー、スパークライン、目次、
+トランスファー）は各コンポーネントページに住んでいます。
+ライブラリ全体をひと目で見渡す、
 テーマの健全性チェック(ヘッダーのカラー / 密度 / ダークの切り替えを
 試してください)、見出しのリンクからコンポーネントの完全なドキュメント
 へ飛ぶ、といった用途に使ってください。なお、密度スイッチャーの
@@ -30,14 +33,14 @@ description: Hypermedia Components の全コンポーネントを 1 ページに
 ### [ボタン](/hypermedia-components/ja/components/button/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" data-variant="primary">Primary</button>
-  <button class="hc-button" data-variant="secondary">Secondary</button>
-  <button class="hc-button">Default</button>
-  <button class="hc-button" data-variant="ghost">Ghost</button>
-  <button class="hc-button" data-variant="error">Error</button>
-  <button class="hc-button" data-size="sm">Small</button>
-  <button class="hc-button" data-size="lg">Large</button>
-  <button class="hc-button" disabled>Disabled</button>
+  <button class="hc-button" data-variant="primary" type="button">Primary</button>
+  <button class="hc-button" data-variant="secondary" type="button">Secondary</button>
+  <button class="hc-button" type="button">Default</button>
+  <button class="hc-button" data-variant="ghost" type="button">Ghost</button>
+  <button class="hc-button" data-variant="error" type="button">Error</button>
+  <button class="hc-button" data-size="sm" type="button">Small</button>
+  <button class="hc-button" data-size="lg" type="button">Large</button>
+  <button class="hc-button" type="button" disabled>Disabled</button>
 </div>
 
 ### [ボタングループ](/hypermedia-components/ja/components/button-group/) · [Kbd](/hypermedia-components/ja/components/kbd/)
@@ -48,10 +51,10 @@ description: Hypermedia Components の全コンポーネントを 1 ページに
     <button class="hc-button" type="button">Italic</button>
     <button class="hc-button" type="button">Underline</button>
   </div>
-  <span class="hc-kbd-group">
+  <kbd class="hc-kbd-group">
     <kbd class="hc-kbd">⌘</kbd>
     <kbd class="hc-kbd">K</kbd>
-  </span>
+  </kbd>
 </div>
 
 ### [トグルグループ](/hypermedia-components/ja/components/toggle-group/)
@@ -73,17 +76,17 @@ description: Hypermedia Components の全コンポーネントを 1 ページに
 
 <div class="hc-preview not-content hc-preview--start">
   <div class="hc-toolbar" role="toolbar" aria-label="Format">
-    <button class="hc-button" data-size="sm">Cut</button>
-    <button class="hc-button" data-size="sm">Copy</button>
-    <span class="hc-toolbar__separator"></span>
-    <button class="hc-button" data-size="sm">Paste</button>
+    <button class="hc-button" data-size="sm" type="button">Cut</button>
+    <button class="hc-button" data-size="sm" type="button">Copy</button>
+    <hr aria-orientation="vertical" />
+    <button class="hc-button" data-size="sm" type="button">Paste</button>
   </div>
 </div>
 
 ### [コマンド](/hypermedia-components/ja/components/command/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" onclick="this.nextElementSibling.showModal()">Open command palette</button>
+  <button class="hc-button" type="button" onclick="this.nextElementSibling.showModal()">Open command palette</button>
   <dialog class="hc-command-dialog">
     <div class="hc-command">
       <input class="hc-command__input" type="text" role="combobox" autofocus aria-label="Command" placeholder="Type a command…" />
@@ -381,18 +384,18 @@ description: Hypermedia Components の全コンポーネントを 1 ページに
 ### [ダイアログ](/hypermedia-components/ja/components/dialog/) · [ドロワー](/hypermedia-components/ja/components/drawer/) · [ポップオーバー](/hypermedia-components/ja/components/popover/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" onclick="document.getElementById('ks-dialog').showModal()">Open dialog</button>
+  <button class="hc-button" type="button" onclick="document.getElementById('ks-dialog').showModal()">Open dialog</button>
   <dialog class="hc-dialog" id="ks-dialog">
     <header class="hc-dialog__header"><h3 class="hc-dialog__title">Dialog</h3></header>
     <div class="hc-dialog__body"><p>A native modal dialog.</p></div>
-    <footer class="hc-dialog__footer"><button class="hc-button" onclick="this.closest('dialog').close()">Close</button></footer>
+    <footer class="hc-dialog__footer"><button class="hc-button" type="button" onclick="this.closest('dialog').close()">Close</button></footer>
   </dialog>
 
-  <button class="hc-button" onclick="document.getElementById('ks-drawer').showModal()">Open drawer</button>
+  <button class="hc-button" type="button" onclick="document.getElementById('ks-drawer').showModal()">Open drawer</button>
   <dialog class="hc-drawer" data-side="right" id="ks-drawer">
     <header class="hc-dialog__header"><h3 class="hc-dialog__title">Drawer</h3></header>
     <div class="hc-dialog__body"><p>Slides in from the edge.</p></div>
-    <footer class="hc-dialog__footer"><button class="hc-button" onclick="this.closest('dialog').close()">Close</button></footer>
+    <footer class="hc-dialog__footer"><button class="hc-button" type="button" onclick="this.closest('dialog').close()">Close</button></footer>
   </dialog>
 
   <button class="hc-button" type="button" popovertarget="ks-pop">Open popover</button>
@@ -402,7 +405,7 @@ description: Hypermedia Components の全コンポーネントを 1 ページに
 ### [ツールチップ](/hypermedia-components/ja/components/tooltip/) · [ホバーカード](/hypermedia-components/ja/components/hovercard/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" aria-describedby="ks-tip">Hover / focus me</button>
+  <button class="hc-button" type="button" aria-describedby="ks-tip">Hover / focus me</button>
   <span class="hc-tooltip" id="ks-tip" role="tooltip">A short tooltip.</span>
 
   <a href="#" aria-describedby="ks-hover">@ada</a>
@@ -468,7 +471,7 @@ description: Hypermedia Components の全コンポーネントを 1 ページに
   <div class="hc-card" style="max-inline-size:18rem;">
     <div class="hc-card__header"><strong>Card title</strong></div>
     <div class="hc-card__body">A generic surface for grouped content.</div>
-    <div class="hc-card__footer"><button class="hc-button" data-size="sm" data-variant="primary">Action</button></div>
+    <div class="hc-card__footer"><button class="hc-button" data-size="sm" data-variant="primary" type="button">Action</button></div>
   </div>
   <div class="hc-avatar-group">
     <span class="hc-avatar" aria-label="Ada">A</span>
@@ -610,8 +613,8 @@ description: Hypermedia Components の全コンポーネントを 1 ページに
 
 <div class="hc-preview not-content hc-preview--col" style="max-inline-size:28rem;">
   <div style="display:flex;gap:.5rem;align-items:center;">
-    <button class="hc-button" onclick="document.body.dispatchEvent(new CustomEvent('hc:toast',{bubbles:true,detail:{title:'Saved',message:'Changes saved.',variant:'success'}}))">Fire toast</button>
-    <span class="hc-spinner" aria-label="Loading"></span>
+    <button class="hc-button" type="button" onclick="document.body.dispatchEvent(new CustomEvent('hc:toast',{bubbles:true,detail:{title:'Saved',message:'Changes saved.',variant:'success'}}))">Fire toast</button>
+    <span class="hc-spinner" role="status" aria-label="Loading"></span>
   </div>
   <progress class="hc-progress" value="60" max="100" aria-label="Upload progress"></progress>
   <progress class="hc-progress" aria-label="Loading"></progress>
@@ -706,8 +709,8 @@ description: Hypermedia Components の全コンポーネントを 1 ページに
       <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 2</div>
       <div class="hc-carousel__slide" style="block-size:6rem;display:grid;place-items:center;background:var(--hc-color-muted-bg);">Slide 3</div>
     </div>
-    <button class="hc-carousel__prev" data-hc-carousel-prev aria-label="Previous slide">‹</button>
-    <button class="hc-carousel__next" data-hc-carousel-next aria-label="Next slide">›</button>
+    <button class="hc-carousel__prev" type="button" data-hc-carousel-prev aria-label="Previous slide">‹</button>
+    <button class="hc-carousel__next" type="button" data-hc-carousel-next aria-label="Next slide">›</button>
     <div class="hc-carousel__dots" data-hc-carousel-dots role="group" aria-label="Choose slide"></div>
   </div>
 </div>

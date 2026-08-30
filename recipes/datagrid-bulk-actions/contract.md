@@ -76,7 +76,7 @@ HX-Trigger: {"hc:toast":{"message":"3 archived","variant":"success"}}
   <td class="hc-datagrid__cell">Archived</td>
 </tr>
 <!-- …one <tr> per remaining row… -->
-<p id="rows-status" hx-swap-oob="true" aria-live="polite">42 products</p>
+<p id="rows-status" data-hx-swap-oob="true" aria-live="polite">42 products</p>
 ```
 
 There is **no status-code choreography** — the same `200` shape covers
@@ -149,7 +149,7 @@ stance). When the two recipes compose, keep the current page in the
 form and let the server re-render it out-of-band alongside the pager:
 
 ```html
-<input type="hidden" id="bulk-page" name="page" value="3" hx-swap-oob="true">
+<input type="hidden" id="bulk-page" name="page" value="3" data-hx-swap-oob="true">
 ```
 
 so bulk POSTs carry the page the user is looking at and the server can

@@ -114,12 +114,12 @@ import Demo from '../../../../components/Demo.astro';
 
   ```html
   <!-- default: cropped to fill -->
-  <div class="hc-aspect" data-ratio="16/9">
+  <div class="hc-aspect" data-ratio="16/9" style="background:var(--hc-color-muted-bg);">
     <img src="/logo.png" alt="…" />
   </div>
 
   <!-- letterboxed -->
-  <div class="hc-aspect" data-ratio="16/9" data-fit="contain">
+  <div class="hc-aspect" data-ratio="16/9" data-fit="contain" style="background:var(--hc-color-muted-bg);">
     <img src="/logo.png" alt="…" />
   </div>
   ```

@@ -35,6 +35,12 @@ import MultiStepFormDemo from '../../../../components/recipe-demos/MultiStepForm
 します(戻るリンク付き)。エンドポイントはサーバレスポンス契約を
 実装した名前空間付きデモで、`api/recipes/multi-step-form/` 配下に
 あります。
+デモだけの自由が 1 つあります: ステートレスなドキュメント用
+エンドポイントは、各ステップで hidden input を通じてドラフトを
+引き回します — 実際のサーバはドラフトをサーバ側(セッション、
+ドラフト行、署名付き Cookie)に保持します。冒頭の「hidden
+フィールドがステップをまたいで蓄積しない」ルールが指しているのは
+そちらです。
 
 <MultiStepFormDemo />
 
@@ -94,6 +100,9 @@ import MultiStepFormDemo from '../../../../components/recipe-demos/MultiStepForm
 | `nav=back` | `200` — 前のステップのフラグメント。POST されたフィールドは**バリデーションなしで**ドラフトへマージ済み |
 | `nav=next`、無効 | `422` + `HX-Retarget: #wizard-errors` + `HX-Reswap: innerHTML` に [field-errors](/hypermedia-components/ja/recipes/field-errors/) フラグメント — **ステップは再描画されず**、入力途中の値はそのまま |
 | 最終の `nav=next` | [mutating-form](/hypermedia-components/ja/recipes/mutating-form/) の完了: `204` + `HX-Redirect`(htmx)/ `303 Location`(非 JS) |
+
+`422` には、[mutating form](/hypermedia-components/ja/recipes/mutating-form/)
+の標準の 1 行 `beforeSwap` 許可が必要です。
 
 ステップの URL は本物です(`/signup/1`、`/signup/2`、…): リロードや
 ディープリンクはサーバが考える現在のステップに着地し、JavaScript

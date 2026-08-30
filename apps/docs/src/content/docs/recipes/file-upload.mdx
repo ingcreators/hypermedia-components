@@ -1,13 +1,14 @@
 ---
 title: File upload
-description: Multipart upload with a live progress bar — htmx owns the transport, installUploadProgress drives the native progress element, the response appends the file and resets the form out-of-band.
+description: Multipart upload with a live progress bar — htmx owns the transport, installUploadProgress drives the native progress element, the response prepends the file and resets the form out-of-band.
 ---
 
 import FileUploadDemo from '../../../components/recipe-demos/FileUploadDemo.astro';
 
 `file-upload` is the blessed multipart pattern: selecting a file and
-uploading shows a **live progress bar**, appends the new file's
-fragment to the list, resets the form, and toasts. htmx owns the
+uploading shows a **live progress bar**, prepends the new file's
+fragment to the list (the `afterbegin` swap), resets the form, and
+toasts. htmx owns the
 transport (`data-hx-encoding` + `htmx:xhr:progress` are native); the
 only glue is `installUploadProgress()` driving the native
 [`<progress>`](/hypermedia-components/components/progress/). Stable

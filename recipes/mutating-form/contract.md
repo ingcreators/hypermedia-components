@@ -20,7 +20,7 @@ generator can emit verbatim. Stable under the
 - `installFieldErrors()` (auto-init `@hypermedia-components/core/behaviors`
   bundle). For the confirmed variant, also `installConfirm()`.
 - The one-time `htmx:beforeSwap` allowance for the 4xx swap (see
-  *htmx wiring* below) — unless you answer `200`/use `HX-Retarget`.
+  *htmx wiring* below) — unless you answer `200` with the fragment.
 
 ## Endpoints
 
@@ -124,9 +124,11 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 });
 ```
 
-Alternatives that need no JS: answer `200` with the fragment, or send
-`HX-Retarget: #member-form-errors` + `HX-Reswap: innerHTML` to steer an
-arbitrary response into the error container.
+The one alternative that needs no client configuration is answering
+`200` with the fragment. `HX-Retarget: #member-form-errors` +
+`HX-Reswap: innerHTML` only steer *where and how* a swap lands; in
+htmx ≥ 2 they don't license one, so a `422` carrying them still needs
+the allowance above (or an `htmx.config.responseHandling` rule).
 
 ## Accessibility
 

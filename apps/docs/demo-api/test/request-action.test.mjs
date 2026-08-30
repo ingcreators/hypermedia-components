@@ -33,7 +33,7 @@ describe('request-action demo API', () => {
     const response = await call(mod, 'POST', '/items?count=0');
     expect(response.status).toBe(200);
     const body = await response.text();
-    expect(body).toContain('<ul class="hc-list">');
+    expect(body).toContain('<ul>');
     expect(body.match(/<li>/g)).toHaveLength(1);
     expect(body).toContain('<li>Item 1</li>');
     expect(body).toContain('items?count=1"');

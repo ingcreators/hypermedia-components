@@ -55,6 +55,7 @@ installCloseDialog();
 ```html
 <button
   class="hc-button"
+  type="button"
   data-hx-get="/items/123/edit"
   data-hx-target="#dialog-root"
   data-hx-swap="innerHTML">
@@ -74,9 +75,9 @@ installCloseDialog();
 
 ```html
 <!-- GET /items/123/edit -->
-<dialog class="hc-dialog">
+<dialog class="hc-dialog" aria-labelledby="dialog-title">
   <header class="hc-dialog__header">
-    <h2 class="hc-dialog__title">Edit item</h2>
+    <h2 class="hc-dialog__title" id="dialog-title">Edit item</h2>
   </header>
 
   <form
@@ -136,7 +137,7 @@ JavaScript は不要で、CSP が咎めるものもありません。フォー�
 | ------------------------- | --------------------------------------------------------- |
 | 最初のトリガー(GET)     | 完全な `<dialog class="hc-dialog">…</dialog>` フラグメント。 |
 | 送信成功(POST)          | ダイアログの `data-hx-target` / `data-hx-swap` 経由で、**ページ側ターゲット**(例: 行)の更新後コンテンツ。 |
-| バリデーション失敗(4xx) | 問題のフィールドに `data-invalid="true"` と `aria-invalid="true"` を付けて再描画したフォーム。`installCloseDialog` は 2xx でしか閉じないため、ダイアログは開いたままです。 |
+| バリデーション失敗(422) | エラー状態で再描画したダイアログ全体(問題のフィールドに `data-invalid="true"` / `aria-invalid="true"`)に、**`HX-Retarget: #dialog-root` と `HX-Reswap: innerHTML`** を付けて返し、422 用の一度きりの [`htmx:beforeSwap` 許可](/hypermedia-components/ja/fundamentals/errors/)を使います。ルートへのリターゲットが要点です: 開いているダイアログを `outerHTML` で再スワップすると、新しい**閉じた** `<dialog>` が挿入され、`afterSwap` はその要素で発火します — `installRemoteDialog` が見張るルートではなく — ので、エラー状態は見えないまま着地します。ルートをスワップすればビヘイビアが再実行され、ダイアログはエラーを表示して開き直します。(`installCloseDialog` は 2xx でしか閉じないので、これを消すものはありません。) |
 
 サーバ駆動のトーストフィードバックには、成功レスポンスに
 `HX-Trigger` ヘッダーを含めます:

@@ -95,7 +95,7 @@ installInputOtp(); // idempotent; returns an uninstaller
 フォームフィールドと同じバリデーション語彙でスロットの枠線を塗り替え
 ます。
 
-<div class="hc-preview not-content hc-preview--start">
+<Demo previewClass="hc-preview--start">
   <div class="hc-inputotp" data-length="4">
     <input class="hc-inputotp__input" type="text" aria-label="Code" aria-invalid="true" />
   </div>
@@ -105,7 +105,25 @@ installInputOtp(); // idempotent; returns an uninstaller
   <div class="hc-inputotp" data-length="4">
     <input class="hc-inputotp__input" type="text" aria-label="Code" disabled value="12" />
   </div>
-</div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-inputotp" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code" aria-invalid="true">
+  </div>
+
+  <div class="hc-inputotp" data-variant="success" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code (valid)">
+  </div>
+
+  <div class="hc-inputotp" data-length="4">
+    <input class="hc-inputotp__input" type="text" aria-label="Code" disabled value="12">
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
 
 ## アクティブスロットとキャレット
 
@@ -189,7 +207,8 @@ otp.addEventListener('hc:otpcomplete', (e) => {
 | `inputotp.radius` / `border` / `bg` / `fg` | スロットのクローム。 |
 | `inputotp.font-size` / `font-weight` | 数字。 |
 | `inputotp.active-border` / `caret-color` | アクティブスロット + キャレット(`data-color` に追従)。 |
-| `inputotp.error-border` | `aria-invalid` の枠線。 |
+| `inputotp.error-border` | `aria-invalid` / `data-variant="error"` の枠線。 |
+| `inputotp.success-border` / `warning-border` | `data-variant="success"` / `"warning"` の枠線。 |
 | `inputotp.disabled-bg` / `disabled-fg` | 無効なスロット。 |
 
 ## CSS 変数
@@ -201,7 +220,8 @@ otp.addEventListener('hc:otpcomplete', (e) => {
 --hc-inputotp-gap | -slot-size | -radius | -border | -bg | -fg
 --hc-inputotp-font-size | -font-weight
 --hc-inputotp-active-border | -caret-color
---hc-inputotp-error-border | -disabled-bg | -disabled-fg
+--hc-inputotp-error-border | -success-border | -warning-border
+--hc-inputotp-disabled-bg | -disabled-fg
 --hc-inputotp-separator   /* the data-groups separator glyph; default "–" */
 ```
 

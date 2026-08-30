@@ -58,7 +58,7 @@ itself. **Expire session** re-arms the flow.
 ## The markup
 
 ```html
-<button class="hc-button" data-variant="primary"
+<button class="hc-button" data-variant="primary" type="button"
         data-hx-post="/tickets/7/approve"
         data-hx-target="#status" data-hx-swap="innerHTML">
   Approve
@@ -79,7 +79,7 @@ bridge.
 | --- | --- |
 | protected endpoint, session expired, htmx request | `401` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + the login dialog fragment. **The server must 401 before acting** — replay safety depends on it |
 | login success | `200` + empty body + `HX-Trigger: {"hc:sessionrenewed": {}}` — the bridge closes the dialog and replays |
-| login failure | `422` + the same dialog with [field-errors](/hypermedia-components/recipes/field-errors/) inline |
+| login failure | `422` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + the dialog re-rendered with [field-errors](/hypermedia-components/recipes/field-errors/) inline — the login form posts with `data-hx-target="this"` / `data-hx-swap="none"`, so without the headers the body would be swallowed |
 | non-htmx request, session expired | `303` to the login page with `?next=` |
 
 ## Replay semantics

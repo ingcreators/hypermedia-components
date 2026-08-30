@@ -60,6 +60,10 @@ import LineItemsDemo from '../../../../components/recipe-demos/LineItemsDemo.ast
   <button class="hc-button" type="submit" name="add" value="1"
           data-hx-post="/quotes/42/recalc"
           data-hx-target="#quote" data-hx-swap="outerHTML">Add row</button>
+  <!-- Save is a different endpoint — formaction is the no-JS path -->
+  <button class="hc-button" data-variant="primary" type="submit"
+          formaction="/quotes/42" data-hx-post="/quotes/42"
+          data-hx-target="#quote" data-hx-swap="outerHTML">Save quote</button>
 </form>
 ```
 

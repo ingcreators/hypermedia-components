@@ -58,6 +58,7 @@ so keyboard users can scroll it (see [Accessibility](#accessibility)).
 
   ```html
   <div class="hc-scroll-area" data-orientation="horizontal" tabindex="0"
+       role="region" aria-label="Tags"
        style="max-inline-size:20rem;white-space:nowrap">
     …wide content…
   </div>
@@ -85,7 +86,8 @@ as you scroll away from an edge and out as you reach it.
   <Fragment slot="code">
 
   ```html
-  <div class="hc-scroll-area" data-shadows tabindex="0" style="max-block-size:9rem">
+  <div class="hc-scroll-area" data-shadows tabindex="0"
+       role="region" aria-label="Release notes" style="max-block-size:9rem">
     …long content…
   </div>
   ```

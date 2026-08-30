@@ -22,7 +22,7 @@ function resultsFragment(q) {
     return `<p class="hc-field__message">No items match “${escapeHtml(q)}”.</p>`;
   }
   const lis = hits.map((name) => `  <li>${escapeHtml(name)}</li>`).join('\n');
-  return `<ul class="hc-list">\n${lis}\n</ul>`;
+  return `<ul>\n${lis}\n</ul>`;
 }
 
 export function handle({ method, path, url, request }) {

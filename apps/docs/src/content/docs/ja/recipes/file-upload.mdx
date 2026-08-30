@@ -1,14 +1,14 @@
 ---
 title: ファイルアップロード
-description: ライブ進捗バーつきのマルチパートアップロード — トランスポートは htmx が所有し、installUploadProgress がネイティブの progress 要素を駆動、レスポンスはファイルを追記しフォームを out-of-band でリセットします。
+description: ライブ進捗バーつきのマルチパートアップロード — トランスポートは htmx が所有し、installUploadProgress がネイティブの progress 要素を駆動、レスポンスはファイルをリスト先頭に追加しフォームを out-of-band でリセットします。
 ---
 
 import FileUploadDemo from '../../../../components/recipe-demos/FileUploadDemo.astro';
 
 `file-upload` は公認のマルチパートパターンです: ファイルを選んで
 アップロードすると**ライブ進捗バー**が表示され、新しいファイルの
-フラグメントがリストへ追記され、フォームがリセットされ、トーストが
-出ます。トランスポートは htmx の所有です(`data-hx-encoding` +
+フラグメントがリスト先頭に追加され(`afterbegin` スワップ)、フォームが
+リセットされ、トーストが出ます。トランスポートは htmx の所有です(`data-hx-encoding` +
 `htmx:xhr:progress` はネイティブ機能)。唯一の糊は、ネイティブの
 [`<progress>`](/hypermedia-components/ja/components/progress/) を駆動する
 `installUploadProgress()` です。

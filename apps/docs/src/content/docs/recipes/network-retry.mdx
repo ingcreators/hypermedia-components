@@ -42,13 +42,16 @@ server cannot send you.
 <!-- One host per page, client-owned, empty in source -->
 <div data-hc-network-retry></div>
 
-<form data-hx-post="/orders" data-hx-request='{"timeout": 10000}'
+<form method="post" action="/orders"
+      data-hx-post="/orders" data-hx-request='{"timeout": 10000}'
       data-hx-target="#order-result" data-hx-swap="innerHTML"
       data-hx-disabled-elt="find button[type=submit]">
   <input type="hidden" name="idempotency_key" value="ik_7d1f9c2e">
   <!-- …fields… -->
   <button class="hc-button" data-variant="primary" type="submit">Place order</button>
 </form>
+
+<div id="order-result" aria-live="polite"></div>
 ```
 
 `installNetworkRetry()` is auto-installed by the behaviors bundle.

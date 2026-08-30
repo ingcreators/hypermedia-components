@@ -59,6 +59,7 @@ gate the htmx trigger on `hc:confirmed`:
 <button
   class="hc-button"
   data-variant="error"
+  type="button"
   data-hc-confirm="Delete this item?"
   data-hx-delete="/items/123"
   data-hx-trigger="hc:confirmed"
@@ -88,6 +89,7 @@ htmx request.)
   <button
     class="hc-button"
     data-variant="error"
+    type="button"
     data-hc-confirm="Delete this item?"
     data-hx-delete="/items/123"
     data-hx-trigger="hc:confirmed"
@@ -157,6 +159,7 @@ optional:
 <button
   class="hc-button"
   data-variant="error"
+  type="button"
   data-hc-confirm="Permanently delete invoice #123? This cannot be undone."
   data-hc-confirm-title="Delete invoice"
   data-hc-confirm-label="Delete"
@@ -277,6 +280,7 @@ attribute, write the confirm step inline, and dispatch the same
 <button
   class="hc-button"
   data-variant="error"
+  type="button"
   data-hx-delete="/items/123"
   data-hx-trigger="hc:confirmed"
   data-hx-target="closest tr"

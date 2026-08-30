@@ -38,7 +38,7 @@ import DataGridPageTemplateDemo from '../../../../components/template-demos/Data
 
 グリッドをスクロールしてみてください。ツールバーとヘッダー行はその場に
 留まり、先頭 2 列も留まり、ページ自体は動きません。**Filters…** を開いて
-パネルをスクロールすると、本文だけが動き、Search は押せる位置に残ります。
+パネルをスクロールすると、本文だけが動き、Apply は押せる位置に残ります。
 タイトルの横のメニューが、いま適用されている保存ビューの名前を述べます
 — ビューの切り替えは画面から 1 操作です。
 
@@ -63,7 +63,8 @@ import DataGridPageTemplateDemo from '../../../../components/template-demos/Data
   内訳はドッキングパネルのレールで待ちます。
 
 まだ静的なのは、このデモが実装していないクロームです（ビューメニュー、
-ソートパネル、列チューザー）。
+ソートパネル、列チューザー、そしてツールバー — Refresh と Import は
+動かず、Export の行数はハードコードです）。
 :::
 
 ## 高さ固定か、ページをスクロールさせるか
@@ -200,7 +201,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
 <body>
   <div class="hc-shell">
     <header class="hc-shell__header">
-      <button class="hc-button" data-variant="ghost" type="button"
+      <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button"
               data-hc-shell-toggle aria-label="Open navigation">≡</button>
       <strong>Order desk</strong>
     </header>
@@ -245,7 +246,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
             </div>
           </div>
           <button class="hc-button" data-variant="secondary" type="button"
-                  onclick="document.getElementById('filters').showModal()">Filters…</button>
+                  onclick="document.getElementById('filters').showModal()">Filters (2)</button>
         </div>
 
         <!-- Applied conditions: one chip per condition, each opening the
@@ -262,6 +263,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
               <a class="hc-filterbar__remove" href="/orders?f-carrier=road"
                  aria-label="Remove Ship date filter">×</a>
             </li>
+            <!-- …one chip per applied condition (here: Carrier)… -->
           </ul>
           <a class="hc-filterbar__clear" href="/orders">Clear all</a>
         </div>
@@ -285,7 +287,11 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
           </button>
           <button class="hc-button" data-variant="ghost" type="button"
                   data-hx-get="/orders/rows" data-hx-target="#order-rows">Refresh</button>
-          <a class="hc-button" data-variant="ghost" href="/orders.csv">Export</a>
+          <!-- Export carries the row count in its label and the current
+               conditions in its href — a download means this question,
+               not the rows on screen. -->
+          <a class="hc-button" data-variant="ghost"
+             href="/orders.csv?f-ship-from=@week-start&amp;f-carrier=road&amp;sort=-ship,order">Export 5,000 rows</a>
           <hr role="separator" aria-orientation="vertical">
         </div>
 
@@ -370,7 +376,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
     </main>
   </div>
 
-  <!-- Filter panel. One form around header + body + footer, so Search
+  <!-- Filter panel. One form around header + body + footer, so Apply
        submits the fields and the BODY is what scrolls. -->
   <dialog class="hc-dialog" id="filters" aria-labelledby="filters-title"
           style="--hc-dialog-max-width: 52rem;">
@@ -392,21 +398,31 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
       </div>
 
       <div class="hc-dialog__body">
-        <div class="hc-grid" style="--hc-grid-min: 18rem;">
+        <!-- data-align="start": a three-row textarea must not stretch its
+             neighbour into a tall empty box. -->
+        <div class="hc-grid" data-align="start" style="--hc-grid-min: 18rem;">
           <div class="hc-field">
             <label class="hc-field__label" for="f-order">Order number</label>
-            <!-- Value + operator share one bordered surface and one ring. -->
+            <!-- Value + operator share one bordered surface and one ring;
+                 the operator is secondary, so it renders quiet. -->
             <div class="hc-input-group">
               <input class="hc-input" type="text" id="f-order" name="f-order">
-              <select class="hc-select" name="op-order" aria-label="Order number operator">
+              <select class="hc-select" data-quiet name="op-order" aria-label="Order number operator">
                 <option value="eq">equals</option>
                 <option value="contains">contains</option>
               </select>
             </div>
           </div>
+          <!-- Pasted lists become repeated params — one value per line. -->
+          <div class="hc-field" data-span="full">
+            <label class="hc-field__label" for="f-item">Item codes</label>
+            <textarea class="hc-input" id="f-item" name="f-item" rows="3" data-hc-multi="lines"
+                      placeholder="One per line — paste a column from a spreadsheet"></textarea>
+          </div>
           <!-- …the remaining conditions… -->
 
-          <div class="hc-field">
+          <!-- data-applied marks the fields that are currently set. -->
+          <div class="hc-field" data-applied>
             <span class="hc-field__label" id="ship-label">Ship date</span>
             <div class="hc-cluster" role="group" aria-labelledby="ship-label">
               <input class="hc-input" type="date" name="f-ship-from" aria-label="Ship date from">
@@ -418,9 +434,8 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
       </div>
 
       <div class="hc-dialog__footer">
-        <button class="hc-button" type="button"
-                onclick="this.closest('dialog').close()">Cancel</button>
-        <button class="hc-button" data-variant="primary" type="submit">Search</button>
+        <button class="hc-button" type="submit" formmethod="dialog">Cancel</button>
+        <button class="hc-button" data-variant="primary" type="submit">Apply</button>
       </div>
     </form>
   </dialog>
@@ -550,8 +565,9 @@ URL → ユーザー設定 → アプリ既定
 - **エクスポートがクエリを持ち歩きます。**ボタンは *Export 5,000 rows*
   と件数を述べ、href には同じ条件と列が載ります。ダウンロードは画面の
   行ではなくこの問いを意味します。
-- **ソートはフォームに乗ります**（`<input data-hc-datagrid-sort>`）。
-  Apply でも維持され、保存ビューにも含まれます。
+- **ソートは条件と一緒に運ばれます。**ソートパネルがセット全体を
+  1 つの `sort=-ship,order` パラメータに直列化するので、Apply でも
+  維持され、保存ビューにも含まれます。
 - **調整したビューはそう言います。**ビューメニューのラベルが
   **Modified** バッジを持ちます。ビューを適用してから条件を 1 つ変える
   のは保存ビューで最もよく行われる操作であり、バッジが正直でいられるの

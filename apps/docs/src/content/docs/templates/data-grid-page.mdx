@@ -37,7 +37,7 @@ screen to itself.
 
 Scroll the grid: the toolbar and the header rows stay, the first two
 columns stay, and the page itself never moves. Open **Filters…** and
-scroll the panel: its body scrolls while Search stays reachable. The
+scroll the panel: its body scrolls while Apply stays reachable. The
 menu beside the title names the saved view currently applied — switching
 views is one interaction, from the screen.
 
@@ -65,7 +65,8 @@ API), so the contracts can be seen meeting each other:
   in the docked panel's rail.
 
 What is still static is the chrome this demo does not implement: the
-views menu, the sort panel and the columns chooser.
+views menu, the sort panel, the columns chooser, and the toolbar
+(Refresh and Import are inert, and Export's row count is hardcoded).
 :::
 
 ## Fixed height, or let the page scroll?
@@ -198,7 +199,7 @@ grid is full before any JavaScript runs.
 <body>
   <div class="hc-shell">
     <header class="hc-shell__header">
-      <button class="hc-button" data-variant="ghost" type="button"
+      <button class="hc-button hc-shell__toggle" data-variant="ghost" type="button"
               data-hc-shell-toggle aria-label="Open navigation">≡</button>
       <strong>Order desk</strong>
     </header>
@@ -243,7 +244,7 @@ grid is full before any JavaScript runs.
             </div>
           </div>
           <button class="hc-button" data-variant="secondary" type="button"
-                  onclick="document.getElementById('filters').showModal()">Filters…</button>
+                  onclick="document.getElementById('filters').showModal()">Filters (2)</button>
         </div>
 
         <!-- Applied conditions: one chip per condition, each opening the
@@ -260,6 +261,7 @@ grid is full before any JavaScript runs.
               <a class="hc-filterbar__remove" href="/orders?f-carrier=road"
                  aria-label="Remove Ship date filter">×</a>
             </li>
+            <!-- …one chip per applied condition (here: Carrier)… -->
           </ul>
           <a class="hc-filterbar__clear" href="/orders">Clear all</a>
         </div>
@@ -283,7 +285,11 @@ grid is full before any JavaScript runs.
           </button>
           <button class="hc-button" data-variant="ghost" type="button"
                   data-hx-get="/orders/rows" data-hx-target="#order-rows">Refresh</button>
-          <a class="hc-button" data-variant="ghost" href="/orders.csv">Export</a>
+          <!-- Export carries the row count in its label and the current
+               conditions in its href — a download means this question,
+               not the rows on screen. -->
+          <a class="hc-button" data-variant="ghost"
+             href="/orders.csv?f-ship-from=@week-start&amp;f-carrier=road&amp;sort=-ship,order">Export 5,000 rows</a>
           <hr role="separator" aria-orientation="vertical">
         </div>
 
@@ -368,7 +374,7 @@ grid is full before any JavaScript runs.
     </main>
   </div>
 
-  <!-- Filter panel. One form around header + body + footer, so Search
+  <!-- Filter panel. One form around header + body + footer, so Apply
        submits the fields and the BODY is what scrolls. -->
   <dialog class="hc-dialog" id="filters" aria-labelledby="filters-title"
           style="--hc-dialog-max-width: 52rem;">
@@ -390,21 +396,31 @@ grid is full before any JavaScript runs.
       </div>
 
       <div class="hc-dialog__body">
-        <div class="hc-grid" style="--hc-grid-min: 18rem;">
+        <!-- data-align="start": a three-row textarea must not stretch its
+             neighbour into a tall empty box. -->
+        <div class="hc-grid" data-align="start" style="--hc-grid-min: 18rem;">
           <div class="hc-field">
             <label class="hc-field__label" for="f-order">Order number</label>
-            <!-- Value + operator share one bordered surface and one ring. -->
+            <!-- Value + operator share one bordered surface and one ring;
+                 the operator is secondary, so it renders quiet. -->
             <div class="hc-input-group">
               <input class="hc-input" type="text" id="f-order" name="f-order">
-              <select class="hc-select" name="op-order" aria-label="Order number operator">
+              <select class="hc-select" data-quiet name="op-order" aria-label="Order number operator">
                 <option value="eq">equals</option>
                 <option value="contains">contains</option>
               </select>
             </div>
           </div>
+          <!-- Pasted lists become repeated params — one value per line. -->
+          <div class="hc-field" data-span="full">
+            <label class="hc-field__label" for="f-item">Item codes</label>
+            <textarea class="hc-input" id="f-item" name="f-item" rows="3" data-hc-multi="lines"
+                      placeholder="One per line — paste a column from a spreadsheet"></textarea>
+          </div>
           <!-- …the remaining conditions… -->
 
-          <div class="hc-field">
+          <!-- data-applied marks the fields that are currently set. -->
+          <div class="hc-field" data-applied>
             <span class="hc-field__label" id="ship-label">Ship date</span>
             <div class="hc-cluster" role="group" aria-labelledby="ship-label">
               <input class="hc-input" type="date" name="f-ship-from" aria-label="Ship date from">
@@ -416,9 +432,8 @@ grid is full before any JavaScript runs.
       </div>
 
       <div class="hc-dialog__footer">
-        <button class="hc-button" type="button"
-                onclick="this.closest('dialog').close()">Cancel</button>
-        <button class="hc-button" data-variant="primary" type="submit">Search</button>
+        <button class="hc-button" type="submit" formmethod="dialog">Cancel</button>
+        <button class="hc-button" data-variant="primary" type="submit">Apply</button>
       </div>
     </form>
   </dialog>
@@ -555,8 +570,9 @@ Three consequences the template shows:
 - **Export carries the query.** The button says *Export 5,000 rows* and
   its href holds the same conditions and columns — a download means
   this question, not the rows on screen.
-- **Sort rides in the form** (`<input data-hc-datagrid-sort>`), so it
-  survives an Apply and a saved view captures it.
+- **Sort travels with the conditions.** The sort panel serializes the
+  whole set as one `sort=-ship,order` param, so it survives an Apply
+  and a saved view captures it.
 - **A tweaked view says so.** The view menu's label carries the
   **Modified** badge, because applying a view and changing one condition
   is the commonest thing users do with saved views — and the badge is

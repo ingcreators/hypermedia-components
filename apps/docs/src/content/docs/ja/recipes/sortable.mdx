@@ -47,19 +47,19 @@ installSortable();
 
 <Demo previewClass="hc-preview--start">
   <ul class="hc-stack" data-hc-sortable style="list-style:none;padding:0;margin:0;inline-size:100%;max-inline-size:24rem;">
-    <li class="hc-item">
+    <li class="hc-item" data-hc-sortable-id="notes">
       <button type="button" class="hc-button" data-variant="ghost" data-size="sm" data-hc-sortable-handle>⠿</button>
-      <span class="hc-item__label">リリースノートを公開</span>
+      <span class="hc-item__title">リリースノートを公開</span>
       <input type="hidden" name="order[]" value="notes" />
     </li>
-    <li class="hc-item">
+    <li class="hc-item" data-hc-sortable-id="prs">
       <button type="button" class="hc-button" data-variant="ghost" data-size="sm" data-hc-sortable-handle>⠿</button>
-      <span class="hc-item__label">オープン PR をレビュー</span>
+      <span class="hc-item__title">オープン PR をレビュー</span>
       <input type="hidden" name="order[]" value="prs" />
     </li>
-    <li class="hc-item">
+    <li class="hc-item" data-hc-sortable-id="roadmap">
       <button type="button" class="hc-button" data-variant="ghost" data-size="sm" data-hc-sortable-handle>⠿</button>
-      <span class="hc-item__label">ロードマップを更新</span>
+      <span class="hc-item__title">ロードマップを更新</span>
       <input type="hidden" name="order[]" value="roadmap" />
     </li>
   </ul>
@@ -71,7 +71,7 @@ installSortable();
     <li class="hc-item" data-hc-sortable-id="notes">
       <button type="button" class="hc-button" data-variant="ghost" data-size="sm"
               data-hc-sortable-handle>⠿</button>
-      <span class="hc-item__label">リリースノートを公開</span>
+      <span class="hc-item__title">リリースノートを公開</span>
       <input type="hidden" name="order[]" value="notes">
     </li>
     <!-- … 他のアイテム … -->

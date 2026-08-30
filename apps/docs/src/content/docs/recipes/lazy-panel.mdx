@@ -169,7 +169,7 @@ For an error state, return a 200 with an alert fragment (htmx swaps
 | --- | --- |
 | `GET /reports/revenue` (first reveal) | `200` + the panel's inner HTML (`Cache-Control` as usual) |
 | Failure, keep the placeholder | `4xx`/`5xx` — not swapped; the placeholder stays |
-| Failure, show an error in the slot | non-2xx + `HX-Reswap: innerHTML` + the alert fragment (or `200` + the alert, as above) |
+| Failure, show an error in the slot | `200` + the alert fragment (as above); keeping a non-2xx status + `HX-Reswap: innerHTML` also works, but needs an `htmx:beforeSwap` allowance (or `htmx.config.responseHandling`) for that status — htmx ≥ 2 does not swap non-2xx by default |
 | Non-fatal warning | `200` + content + `HX-Trigger: {"hc:toast":{…}}` |
 
 ## Accessibility

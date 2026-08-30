@@ -15,32 +15,32 @@ import Demo from '../../../../components/Demo.astro';
 
 <Demo>
   <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
-    <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
-    <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
-    <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Bold</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Italic</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Underline</button>
     <hr aria-orientation="vertical" />
-    <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
-    <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Bullet list</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Numbered list</button>
     <span data-hc-spacer="true"></span>
-    <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="primary">Save</button>
   </div>
 
   <Fragment slot="code">
 
   ```html
   <div class="hc-toolbar" role="toolbar" aria-label="Editor toolbar">
-    <button class="hc-button" data-size="sm" data-variant="ghost">Bold</button>
-    <button class="hc-button" data-size="sm" data-variant="ghost">Italic</button>
-    <button class="hc-button" data-size="sm" data-variant="ghost">Underline</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Bold</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Italic</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Underline</button>
   
     <hr aria-orientation="vertical">
   
-    <button class="hc-button" data-size="sm" data-variant="ghost">Bullet list</button>
-    <button class="hc-button" data-size="sm" data-variant="ghost">Numbered list</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Bullet list</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="ghost">Numbered list</button>
   
     <span data-hc-spacer="true"></span>
   
-    <button class="hc-button" data-size="sm" data-variant="primary">Save</button>
+    <button class="hc-button" type="button" data-size="sm" data-variant="primary">Save</button>
   </div>
   ```
 
@@ -101,9 +101,9 @@ installToolbar(); // idempotent; returns an uninstaller
 <!-- Vertical toolbar: arrows become ↑ / ↓ -->
 <div class="hc-toolbar" role="toolbar" aria-orientation="vertical"
      aria-label="Drawing tools">
-  <button class="hc-button" data-variant="ghost">Pen</button>
-  <button class="hc-button" data-variant="ghost">Brush</button>
-  <button class="hc-button" data-variant="ghost">Eraser</button>
+  <button class="hc-button" type="button" data-variant="ghost">Pen</button>
+  <button class="hc-button" type="button" data-variant="ghost">Brush</button>
+  <button class="hc-button" type="button" data-variant="ghost">Eraser</button>
 </div>
 ```
 

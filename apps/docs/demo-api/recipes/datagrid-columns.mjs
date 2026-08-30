@@ -2,9 +2,9 @@
 //
 //   GET /items?cols=name&cols=status&…
 //     → 200 htmx: the grid fragment (scroll + table) with exactly the
-//       requested columns in the server's canonical order, plus an OOB
-//       outerHTML re-render of the chooser form with matching checked
-//       states
+//       requested columns in the submitted order, plus an OOB
+//       outerHTML re-render of the chooser fieldset with matching
+//       checked states
 //     → 200 no-JS: a full page with the same chooser + table (the
 //       chooser is a real GET form, so Apply navigates here)
 //     absent/empty cols → the default set (all four); unknown col
@@ -49,8 +49,8 @@ function selectColumns(requested) {
 }
 
 /**
- * The chooser form — the complete element (outerHTML is the OOB swap),
- * checked states matching the rendered columns.
+ * The chooser fieldset — the complete element (outerHTML is the OOB
+ * swap), checked states matching the rendered columns.
  */
 // The OOB unit is the FIELDSET, never the form: the form carries
 // data-hc-close-popover-on-success, and replacing it mid-request would
@@ -66,9 +66,13 @@ function fieldsHtml(selected, { oob = false } = {}) {
     ...selected,
     ...COLUMNS.filter((col) => !shown.has(col.key)),
   ];
+  // Each row is a sortable item: the handle sits beside the label,
+  // never inside it (interactive content inside <label> is invalid and
+  // clicking the handle would toggle the checkbox). Must match the
+  // DatagridColumnsDemo.astro markup — this outerHTML replaces it OOB.
   const boxes = ordered.map(
     (col) =>
-      `<label class="hc-checkbox-label"><button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle>⠿</button><input class="hc-checkbox" type="checkbox" name="cols" value="${col.key}"${shown.has(col.key) ? ' checked' : ''}> ${escapeHtml(col.label)}</label>`,
+      `<div class="hc-item"><button type="button" class="hc-button" data-variant="ghost" data-hc-sortable-handle aria-label="Reorder ${escapeHtml(col.label)}">⠿</button><label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" name="cols" value="${col.key}"${shown.has(col.key) ? ' checked' : ''}> ${escapeHtml(col.label)}</label></div>`,
   ).join('\n  ');
   const oobAttr = oob ? ' data-hx-swap-oob="outerHTML"' : '';
   return `<fieldset class="hc-popover__body" id="${FIELDS_ID}" data-hc-sortable${oobAttr}>

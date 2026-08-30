@@ -85,6 +85,10 @@ npx @hypermedia-components/cli validate page.html
         </li>
         <!-- …キー 1 つにつき 1 行、順序どおりに… -->
       </ul>
+      <!-- …追加コントロール: まだ集合に無い列を並べたラベル付き
+           <select name="add"> ＋ Add の submit。Remove と同じ配線
+           (formaction="/orders/sort"、
+           data-hx-target="#sort-keys")… -->
     </div>
     <footer class="hc-popover__footer">
       <button class="hc-button" data-variant="primary" type="submit">Apply</button>

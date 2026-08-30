@@ -11,7 +11,8 @@
      server-rendered fact, not client state.
 
   2. ORDER — the datagrid-columns chooser upgraded with
-     installSortable(): each label is a sortable item (checkbox
+     installSortable(): each row is a sortable item — the handle sits
+     beside the label, never inside it (checkbox
      serialization follows DOM order), and the server treats the
      submitted cols= sequence as the column ORDER (the upgraded
      datagrid-columns contract). Zero custom JS; see contract.md. -->
@@ -55,18 +56,22 @@
         data-hx-target="#items-grid"
         data-hc-close-popover-on-success>
     <fieldset class="hc-popover__body" id="cols-fields" data-hc-sortable>
-      <label class="hc-checkbox-label">
+      <div class="hc-item">
         <button type="button" class="hc-button" data-variant="ghost"
-                data-hc-sortable-handle>⠿</button>
-        <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
-        Name
-      </label>
-      <label class="hc-checkbox-label">
+                data-hc-sortable-handle aria-label="Reorder Name">⠿</button>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+          Name
+        </label>
+      </div>
+      <div class="hc-item">
         <button type="button" class="hc-button" data-variant="ghost"
-                data-hc-sortable-handle>⠿</button>
-        <input class="hc-checkbox" type="checkbox" name="cols" value="status" checked>
-        Status
-      </label>
+                data-hc-sortable-handle aria-label="Reorder Status">⠿</button>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="cols" value="status" checked>
+          Status
+        </label>
+      </div>
     </fieldset>
     <footer class="hc-popover__footer">
       <button class="hc-button" type="submit" data-variant="primary">Apply</button>

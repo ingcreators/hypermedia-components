@@ -119,7 +119,9 @@ Status ヘッダーの **Filter** を開き、ステータスをいくつかチ�
 | `__clear` の `href` | `f-` パラメータをすべて除いた URL — ソート・列・ページサイズは残る |
 
 バーはグリッドのフラグメントと一緒に届くので、1 回のレスポンスで行・
-ヘッダーのトリガー・バーが揃って更新されます。
+ヘッダーのトリガー・バーが揃って更新されます。レイアウト上バーが
+グリッドラッパーの外に置かれるなら、安定した id を付けてアウトオブ
+バンドでスワップしてください — 上のライブデモがまさにそうしています。
 
 **削除はナビゲーションです。**`__remove` と `__clear` は実リンクなので、
 条件を外す操作は JavaScript なしでも動き、共有でき、**戻るで条件が
@@ -230,7 +232,12 @@ no-JS 経路として残ります。
 :::caution[知らない式はエラーです]
 `400` を返すか、入力を求め直してください。絞り込みなしの一覧に落とすのは
 禁止です。黙って落とされた条件は、ユーザーが求めた**以上の**データを
-見せます。期限切れの条件セットと同じ規則、同じ理由です。
+見せます。期限切れの条件セットと同じ規則、同じ理由です。なお htmx ≥ 2
+は既定では `400` をスワップしません — レスポンスが描画されるのは、docs
+のデモが共有しているような 1 回限りの `htmx:beforeSwap` の許可がある
+ときだけです
+([エラーとリカバリー](/hypermedia-components/ja/fundamentals/errors/)を
+参照)。
 :::
 
 ## 日付の範囲
@@ -260,6 +267,7 @@ no-JS 経路として残ります。
 そのまま送信できるよう、**実際の name** を持たせます。
 
 ```html
+<span class="hc-field__label" id="ship-label">Ship date</span>
 <div class="hc-cluster" role="group" aria-labelledby="ship-label"
      data-hc-range="f-ship">
   <input class="hc-input" type="date" name="f-ship-from" aria-label="Ship date from">
@@ -300,7 +308,7 @@ no-JS 経路として残ります。
 ```html
 <p role="status">
   この 4 条件に一致する受注はありません。
-  <a href="/orders?f-ship-from=2026-08-01&f-status=open">「発注者コード」を外す</a>
+  <a href="/orders?f-ship=2026-08-01..&f-status=open">「発注者コード」を外す</a>
 </p>
 ```
 
@@ -312,7 +320,7 @@ no-JS 経路として残ります。
 
 ```html
 <a class="hc-button"
-   href="/orders.csv?f-status=open&f-ship-from=@week-start&cols=order&cols=customer&sort=-ship">
+   href="/orders.csv?f-status=open&f-ship=@week-start..&cols=order&cols=customer&sort=-ship">
   4,873 件をエクスポート
 </a>
 ```

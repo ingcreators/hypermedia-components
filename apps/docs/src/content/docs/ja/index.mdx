@@ -6,7 +6,7 @@ hero:
   tagline: セマンティックな HTML コンポーネントと htmx レシピ — markup がそのままワイヤ契約。ビルド不要で、サーバ言語は問いません。
   image:
     html: |
-      <div class="hc-card not-content" style="min-inline-size: min(22rem, 100%); text-align: start;" aria-label="ライブコンポーネントサンプル">
+      <div class="hc-card not-content" style="min-inline-size: min(22rem, 100%); text-align: start;" role="group" aria-label="ライブコンポーネントサンプル">
         <div class="hc-card__header"><strong>本物の HTML が、そのまま動く</strong></div>
         <div class="hc-card__body" style="display: grid; gap: .75rem;">
           <div class="hc-field">
@@ -69,13 +69,13 @@ import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astr
       <span class="hc-rating__star" data-filled aria-hidden="true">★</span>
       <span class="hc-rating__star" aria-hidden="true">★</span>
     </span>
-    <span class="hc-kbd-group" aria-label="Command K">
+    <kbd class="hc-kbd-group" aria-label="Command K">
       <kbd class="hc-kbd">⌘</kbd>
       <kbd class="hc-kbd">K</kbd>
-    </span>
+    </kbd>
     <span class="hc-avatar" role="img" aria-label="Ada Lovelace">A</span>
     <progress class="hc-progress" value="60" max="100" aria-label="進捗のデモ" style="inline-size: 7rem;"></progress>
-    <span class="hc-spinner" aria-label="読み込み中"></span>
+    <span class="hc-spinner" role="status" aria-label="読み込み中"></span>
   </div>
 </section>
 
@@ -144,8 +144,8 @@ import LiveSearchDemo from '../../../components/recipe-demos/LiveSearchDemo.astr
     <p class="hc-field__hint">We never share it.</p>
   </div>
 
-  <button class="hc-button" data-variant="primary">Save</button>
-  <button class="hc-button">Cancel</button>
+  <button class="hc-button" data-variant="primary" type="button">Save</button>
+  <button class="hc-button" type="button">Cancel</button>
   <span class="hc-badge" data-variant="info">Draft</span>
   ```
 

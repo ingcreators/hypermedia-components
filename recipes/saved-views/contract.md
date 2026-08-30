@@ -63,7 +63,8 @@ the current chip as modified and offers all three ways out:
 <li class="hc-chip" aria-current="true" data-modified>
   <a href="…">Overdue shipments</a>
   <span class="hc-badge" data-variant="warning">Modified</span>
-  <button data-hx-put="/views/Overdue%20shipments" data-hx-include="#filters">Update</button>
+  <button type="button" data-hx-put="/views/Overdue%20shipments"
+          data-hx-include="#filters" data-hx-target="#views">Update</button>
   <button …>Save as new…</button>
   <a href="/items?view=Overdue%20shipments">Reset</a>
 </li>

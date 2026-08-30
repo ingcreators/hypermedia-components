@@ -95,7 +95,11 @@ carrying a [live search](/hypermedia-components/recipes/live-search/)
 and a result list. Each selectable row is a button targeting
 **`#customer-field` with `outerHTML`** — picking re-renders the field
 directly, and the successful request closes the dialog
-(`data-hc-close-dialog-on-success`). Two stances worth copying:
+(`data-hc-close-dialog-on-success`). The search form inside the dialog
+must opt **out** with `data-hc-close-dialog-on-success="false"` — the
+nearest carrier wins, and without the opt-out the first debounced
+keystroke's 200 would dismiss the dialog before a row can be picked.
+Two stances worth copying:
 
 - **Inactive masters render visible but refused** —
   `aria-disabled="true"`, no wiring, the reason in the row ("inactive

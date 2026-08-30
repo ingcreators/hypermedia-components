@@ -16,6 +16,7 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/session-
     <button
       class="hc-button"
       data-variant="primary"
+      type="button"
       data-hx-post={`${api}/tickets/7/approve`}
       data-hx-target="#session-expiry-demo-status"
       data-hx-swap="innerHTML">

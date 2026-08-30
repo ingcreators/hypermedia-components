@@ -62,7 +62,7 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 ## マークアップ
 
 ```html
-<button class="hc-button" data-variant="primary"
+<button class="hc-button" data-variant="primary" type="button"
         data-hx-post="/tickets/7/approve"
         data-hx-target="#status" data-hx-swap="innerHTML">
   Approve
@@ -83,7 +83,7 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 | --- | --- |
 | 保護されたエンドポイント、セッション切れ、htmx リクエスト | `401` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + ログインダイアログのフラグメント。**サーバーは処理の前に 401 しなければなりません** — リプレイの安全性はそこに依存します |
 | ログイン成功 | `200` + 空ボディ + `HX-Trigger: {"hc:sessionrenewed": {}}` — ブリッジがダイアログを閉じてリプレイします |
-| ログイン失敗 | `422` + 同じダイアログに [field-errors](/hypermedia-components/ja/recipes/field-errors/) をインラインで |
+| ログイン失敗 | `422` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + [field-errors](/hypermedia-components/ja/recipes/field-errors/) をインラインに再描画したダイアログ — ログインフォームは `data-hx-target="this"` / `data-hx-swap="none"` で POST するため、ヘッダーがなければボディは飲み込まれます |
 | 非 htmx リクエストでのセッション切れ | `?next=` 付きログインページへの `303` |
 
 ## リプレイの意味論

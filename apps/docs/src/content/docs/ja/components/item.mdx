@@ -52,10 +52,12 @@ import Demo from '../../../../components/Demo.astro';
 
 ## インタラクティブなアイテム
 
-アイテムを `<a>` や `<button>` として描画する(または
-`data-selectable` を足す)と、ホバーのハイライトとフォーカスリングが
-付きます。選択は `aria-selected`(または `data-selected`)で印を
-付けます。
+アイテムを `<a>` や `<button>` として描画すると、ホバーのハイライトと
+フォーカスリングが付きます。非インタラクティブな要素では
+`data-selectable` はホバーのハイライトだけを足します — フォーカス
+リングにはさらにフォーカス可能な要素(`<a>`、`<button>`、または
+`tabindex`)が必要です。選択は `aria-selected`(または
+`data-selected`)で印を付けます。
 
 <Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
   <button class="hc-item" type="button">

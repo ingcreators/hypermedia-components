@@ -79,10 +79,15 @@ not retry. Be honest about this limitation:
   error; today the recipe documents the constraint rather than hiding
   it.
 
-The behavior clears `aria-busy` only when children actually arrive; if
-the request fails, clear it server-side by returning an empty 200 body
-plus the error toast — or accept the spinner as the "something went
-wrong here" affordance until the page is refreshed.
+The behavior clears `aria-busy` from a childList mutation, so it
+clears only when children actually arrive — an **empty** 200 body
+performs no mutation and leaves the spinner stuck. If the server
+answers the failure itself (a denied branch), answer a **non-empty**
+200 fragment — e.g. a single "No access" leaf — plus the error toast:
+the fragment clears `aria-busy` and tells the user why. Reserve
+emptiness for genuinely empty branches, and mark those non-expandable
+(no `aria-expanded`) on the next full render instead of shipping an
+empty lazy group.
 
 ## Progressive enhancement
 

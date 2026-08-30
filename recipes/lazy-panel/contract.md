@@ -47,8 +47,12 @@ Cache-Control: private, max-age=60
 
 ## Failure handling
 
-A 4xx/5xx leaves the placeholder in place by default. To show an
-error message in the same slot, return the error body with
+A 4xx/5xx leaves the placeholder in place by default — htmx ≥ 2 does
+not swap non-2xx responses, and `HX-Reswap` alone does not override
+that. The simplest way to show an error message in the same slot is a
+`200` with the alert fragment as the body. To keep the real error
+status, allow it first via an `htmx:beforeSwap` listener (or
+`htmx.config.responseHandling`), then steer the swap with
 `HX-Reswap: innerHTML`:
 
 ```http

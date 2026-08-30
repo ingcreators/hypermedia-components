@@ -54,6 +54,7 @@ A trigger and a host element:
 ```html
 <button
   class="hc-button"
+  type="button"
   data-hx-get="/items/123/edit"
   data-hx-target="#dialog-root"
   data-hx-swap="innerHTML">
@@ -73,9 +74,9 @@ The server returns a complete dialog:
 
 ```html
 <!-- GET /items/123/edit -->
-<dialog class="hc-dialog">
+<dialog class="hc-dialog" aria-labelledby="dialog-title">
   <header class="hc-dialog__header">
-    <h2 class="hc-dialog__title">Edit item</h2>
+    <h2 class="hc-dialog__title" id="dialog-title">Edit item</h2>
   </header>
 
   <form
@@ -135,7 +136,7 @@ already gone.
 | ------------------------- | --------------------------------------------------------- |
 | Initial trigger (GET)     | A full `<dialog class="hc-dialog">…</dialog>` fragment.  |
 | Successful submit (POST)  | The updated content for the **page target** (e.g. the row), via the dialog's `data-hx-target` / `data-hx-swap`. |
-| Validation failure (4xx)  | The form re-rendered with `data-invalid="true"` and `aria-invalid="true"` on the bad fields. The dialog stays open because `installCloseDialog` only closes on 2xx. |
+| Validation failure (422)  | The whole dialog re-rendered in its error state (`data-invalid="true"` / `aria-invalid="true"` on the bad fields) **plus `HX-Retarget: #dialog-root` and `HX-Reswap: innerHTML`**, and the one-time [`htmx:beforeSwap` allowance](/hypermedia-components/fundamentals/errors/) for 422. Retargeting the root matters: re-swapping the open dialog with `outerHTML` would insert a fresh **closed** `<dialog>` and fire `afterSwap` on it — not on the root `installRemoteDialog` watches — so the error state would land invisible. Swapping the root re-runs the behavior and the dialog re-opens showing the errors. (`installCloseDialog` only closes on 2xx, so nothing dismisses it.) |
 
 For server-driven toast feedback include an `HX-Trigger` header on
 the success response:

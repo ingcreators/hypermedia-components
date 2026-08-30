@@ -129,7 +129,6 @@ side と align つきで**トリガーにアンカーする**には、`data-side
 
 ```html
 <form
-  class="hc-form"
   data-hx-get="/items"
   data-hx-target="#results"
   data-hc-close-popover-on-success>
@@ -139,6 +138,36 @@ side と align つきで**トリガーにアンカーする**には、`data-side
 
 ビヘイビアは `htmx:afterRequest` を待ち受けて成功を確認し、
 `closest('[popover]').hidePopover()` を呼びます。
+
+## パネル構造 — body と footer
+
+フォームを載せるポップオーバー(データグリッドの
+[フィルタ](/hypermedia-components/ja/recipes/datagrid-filter/) /
+[ソート](/hypermedia-components/ja/recipes/datagrid-sort/) /
+[列選択](/hypermedia-components/ja/recipes/datagrid-columns/)パネル)は
+2 つの任意パーツを使います。`hc-popover__body` はコントロールを縦に
+積みます(`--hc-popover-body-gap` の `display: grid` — チェックボックス
+群の自然な body 要素である `<fieldset>` のリセットも兼ねます)。
+`hc-popover__footer` は末尾のアクション行(終端寄せ・ギャップ付き)
+です。素のポップオーバーにはどちらも不要です。
+
+```html
+<div id="cols-popover" class="hc-popover" popover>
+  <form data-hx-get="/items" data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <fieldset class="hc-popover__body">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked />
+        Name
+      </label>
+      <!-- …列ごとにチェックボックスを 1 つ… -->
+    </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>
+```
 
 ## アクセシビリティ
 
@@ -162,6 +191,7 @@ side と align つきで**トリガーにアンカーする**には、`data-side
 | `popover.radius`    | 角丸。                   |
 | `popover.padding`   | 内側のパディング。       |
 | `popover.min-width` / `-max-width` | サイズの範囲。 |
+| `popover.body-gap` / `-footer-gap` | `__body` / `__footer` 内のギャップ(body のギャップは footer と body の間隔にも使われます)。 |
 
 ## CSS 変数
 
@@ -172,6 +202,7 @@ side と align つきで**トリガーにアンカーする**には、`data-side
 --hc-popover-bg | -fg | -border
 --hc-popover-radius | -padding
 --hc-popover-min-width | -max-width
+--hc-popover-body-gap | -footer-gap
 ```
 
 </details>
