@@ -30,7 +30,7 @@ const autosaveApi = `${base}/api/recipes/autosave`;
         data-hx-post={`${autosaveApi}/reports/42`}
         data-hx-sync="this:abort"
         data-hx-disabled-elt="find button[type=submit]"
-        data-hx-disinherit="hx-disabled-elt"
+        data-hx-disinherit="hx-disabled-elt hx-sync"
         data-hx-target="#template-entry-status" data-hx-swap="innerHTML">
 
     <div class="hc-field">

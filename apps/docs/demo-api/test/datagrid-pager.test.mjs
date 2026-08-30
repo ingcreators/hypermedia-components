@@ -71,7 +71,7 @@ describe('datagrid-pager demo API', () => {
       expect(body).toContain(`data-hx-get="${URL_FOR(p)}" data-hx-target="#datagrid-pager-demo-rows" data-hx-swap="innerHTML">${p}</a>`);
     }
     expect(body).toContain(`aria-current="page" href="?page=25&size=100"`);
-    expect(body.match(/<span class="hc-pagination__ellipsis">…<\/span>/g)).toHaveLength(2);
+    expect(body.match(/<span aria-hidden="true">…<\/span>/g)).toHaveLength(2);
     expect(body).not.toContain('>22</a>');
   });
 

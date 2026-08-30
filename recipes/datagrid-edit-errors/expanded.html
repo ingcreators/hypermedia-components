@@ -36,7 +36,14 @@
              data-hx-patch="/items/1"
              data-hx-trigger="hc:datagridedit"
              data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+             data-hx-disinherit="hx-vals"
              data-hx-swap="outerHTML">
+        <!-- data-hx-disinherit="hx-vals": the js: expression above is
+             written for the hc:datagridedit CustomEvent. Descendant
+             buttons (the error row's Cancel) would INHERIT it — on a
+             click the values come out undefined today, but any trigger
+             modifier (delay:, hx-confirm) evaluates it with no `event`
+             and throws. Scope it to the record's own requests. -->
         <tr class="hc-datagrid__row">
           <td class="hc-datagrid__cell">Chai</td>
           <td class="hc-datagrid__cell" data-numeric data-editable

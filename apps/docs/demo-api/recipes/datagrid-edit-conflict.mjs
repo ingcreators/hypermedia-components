@@ -42,6 +42,7 @@ function recordHtml(id, { price, version, conflict = null } = {}) {
   data-hx-patch="${API}/items/${id}"
   data-hx-trigger="hc:datagridedit"
   data-hx-vals="js:{ col: event.detail.col, value: event.detail.value, version: event.target.closest('tbody').dataset.version }"
+  data-hx-disinherit="hx-vals"
   data-hx-swap="outerHTML">
   <tr class="hc-datagrid__row"${conflict ? ' data-attention="error"' : ''}>
     <td class="hc-datagrid__cell">${escapeHtml(item.name)}</td>

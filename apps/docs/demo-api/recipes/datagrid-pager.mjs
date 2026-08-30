@@ -92,7 +92,7 @@ function numberedItems(page, last, size) {
   const items = [];
   let prev = 0;
   for (const p of sorted) {
-    if (p - prev > 1) items.push('<span class="hc-pagination__ellipsis">…</span>');
+    if (p - prev > 1) items.push('<span aria-hidden="true">…</span>');
     items.push(itemHtml(p, size, { current: p === page }));
     prev = p;
   }
