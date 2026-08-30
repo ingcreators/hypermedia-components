@@ -56,7 +56,7 @@ describe('line-items demo API', () => {
   });
 
   it('remove drops the addressed row and renumbers implicitly', async () => {
-    const body = await (await recalc([...TWO_ROWS, ['remove', '1']])).text();
+    const body = await (await recalc([...TWO_ROWS, ['remove-row', '1']])).text();
     expect(body.match(/name="item"/g)).toHaveLength(1);
     expect(body).not.toContain('Widget');
     expect(body).toContain('Gasket');

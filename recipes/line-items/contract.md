@@ -20,9 +20,14 @@ Purpose: edit an order/quote/invoice detail table — N rows in one form — whe
   (`data-hx-target="#quote"`, **`outerHTML`**):
   - `qty` / `price` inputs: `data-hx-trigger="change"` — recalculate.
   - Add: `<button type="submit" name="add" value="1">`.
-  - Remove: `<button type="submit" name="remove" value="<1-based row>">`.
+  - Remove: `<button type="submit" name="remove-row" value="<1-based row>">`.
   The pressed button's name/value is the verb; a change event presses
   no button. The native submit does the same with JS off.
+  **Never name the button `remove`** (or any other form DOM API):
+  named controls shadow the form's methods — `form.remove` becomes
+  the button — and htmx calls `target.remove()` when it outerHTML-
+  swaps the form, so the old form throws and stays in the page,
+  duplicating the table on every action.
 - **The client never computes a number.** Line totals, subtotal, tax,
   grand total — all rendered by the server. Rounding is business
   truth and must have exactly one implementation.
@@ -42,7 +47,7 @@ item=Widget&qty=3&price=1200&item=Gasket&qty=5&price=800&add=1
 ```
 
 Server steps: zip `item[i]`/`qty[i]`/`price[i]` positionally → apply
-the verb (`add` appends an empty row; `remove=N` drops the Nth row;
+the verb (`add` appends an empty row; `remove-row=N` drops the Nth row;
 neither = plain recalc) → validate → recompute → render the whole
 form.
 

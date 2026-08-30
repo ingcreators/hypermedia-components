@@ -15,7 +15,7 @@
       "level": "error",
       "message": "Add/remove buttons must POST (data-hx-post) — a GET pager-style link cannot carry the rows.",
       "attr": {
-        "on": "button[name=\"add\"], button[name=\"remove\"]",
+        "on": "button[name=\"add\"], button[name=\"remove-row\"]",
         "name": "data-hx-post",
         "assert": "present"
       }

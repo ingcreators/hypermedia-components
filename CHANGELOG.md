@@ -175,6 +175,21 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- async-job: the job cards put their contents — including the
+  `<progress>` — directly under `.hc-card`, so the card's
+  loose-content padding landed on each child; with `box-sizing:
+  border-box` the 0.5rem-tall progress became a 2rem all-padding bar
+  whose content box (where the fill paints) had zero height — the bar
+  looked inert at any percentage. Card contents now ride in a
+  `hc-card__body` stack (demo, scaffolds, page fences, en + ja).
+- line-items: the remove button was `name="remove"`, and named form
+  controls shadow the form element's DOM API — `form.remove` became
+  the button, htmx's `outerHTML` swap of the form threw on
+  `target.remove()`, and the old form never left the page: every add
+  / remove / recalc **duplicated the whole table**. Renamed to
+  `name="remove-row"` across the demo, scaffold, contract and pages,
+  with a documented caution (the same trap bites `submit`, `action`,
+  `method`, `reset`, `elements`).
 - Demo & code quality audit (every component/recipe/template page's
   live demo and Code tab reviewed against the shipped CSS/JS and the
   demo API, both locales):

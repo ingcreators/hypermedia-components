@@ -50,7 +50,7 @@ import LineItemsDemo from '../../../../components/recipe-demos/LineItemsDemo.ast
                    data-hx-post="/quotes/42/recalc" data-hx-trigger="change"
                    data-hx-target="#quote" data-hx-swap="outerHTML"></td>
         <td data-cell="line-total">¥3,600</td>
-        <td><button class="hc-button" data-variant="ghost" type="submit" name="remove" value="1"
+        <td><button class="hc-button" data-variant="ghost" type="submit" name="remove-row" value="1"
                     data-hx-post="/quotes/42/recalc"
                     data-hx-target="#quote" data-hx-swap="outerHTML">Remove</button></td>
       </tr>
@@ -113,9 +113,20 @@ id)— フォーカスは生き残り、代償はすべての派生セルへの 
 
 | リクエスト | レスポンス |
 | --- | --- |
-| `POST /quotes/42/recalc`(行 ± `add` / `remove=N`) | `200` + フォーム全体の再描画 |
+| `POST /quotes/42/recalc`(行 ± `add` / `remove-row=N`) | `200` + フォーム全体の再描画 |
 | `POST /quotes/42/recalc`(不正な数値) | `422` + 同じフォーム、生の値エコー、合計は「—」 |
 | `POST /quotes/42`(保存 — ボタンの `formaction`) | recalc と同じ検証。成功は[ミューテーションフォーム](/hypermedia-components/ja/recipes/mutating-form/)の流儀で |
+
+:::caution[コントロールにフォーム DOM API の名前を付けない]
+削除ボタンが `name="remove"` ではなく `name="remove-row"` なのは
+意味があります: 名前付きフォームコントロールは form 要素自身の
+プロパティを隠蔽するため、`remove` という名前のコントロールがあると
+`form.remove` は*そのボタン*になります — そして htmx はフォームを
+`outerHTML` スワップする際に `target.remove()` を呼びます。旧フォームは
+例外(`e.remove is not a function`)で削除されずページに残り、操作の
+たびにテーブルが複製されます。同じ罠は `submit`・`action`・`method`・
+`reset`・`elements` にも当てはまります。
+:::
 
 ## プログレッシブエンハンスメント
 
