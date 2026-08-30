@@ -15,7 +15,8 @@
   Sort (3): Ship date ↓, Customer ↑, Order ↑
 </button>
 
-<div class="hc-popover" id="sort-panel" popover aria-labelledby="sort-trigger">
+<div class="hc-popover" id="sort-panel" popover
+     data-side="bottom" data-align="start" aria-labelledby="sort-trigger">
   <form id="sort-form" action="/orders" method="get"
         data-hx-get="/orders"
         data-hx-include="#filters"

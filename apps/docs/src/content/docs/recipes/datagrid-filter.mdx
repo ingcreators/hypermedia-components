@@ -70,6 +70,13 @@ everything to see the absent-params branch bring the full list back.
 </div>
 ```
 
+The panel stays a **bare popover** — the browser centres it in the
+top layer — on purpose: several controls open it (the header trigger
+and the filter-bar chips), so no single anchor is right.
+Single-trigger panels ([sort](/hypermedia-components/recipes/datagrid-sort/),
+[columns](/hypermedia-components/recipes/datagrid-columns/)) anchor at
+their trigger with `data-side="bottom" data-align="start"` instead.
+
 The form is the filter-popover shell —
 `data-hc-close-popover-on-success` (`installClosePopover()`,
 auto-installed) dismisses it on any 2xx. Every control shares the

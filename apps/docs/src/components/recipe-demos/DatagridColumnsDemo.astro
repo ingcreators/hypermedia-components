@@ -22,7 +22,8 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
     Columns
   </button>
 
-  <div id="datagrid-columns-demo-popover" class="hc-popover" popover>
+  <div id="datagrid-columns-demo-popover" class="hc-popover" popover
+       data-side="bottom" data-align="start">
     <form
       id="datagrid-columns-demo-chooser"
       action={`${api}/items`}

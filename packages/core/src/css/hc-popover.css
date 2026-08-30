@@ -6,7 +6,12 @@
  */
 @layer hc.components {
   .hc-popover {
-    margin: 0;
+    /* `auto`, never 0: the UA centres a bare popover in the top layer
+     * with `inset: 0; margin: auto` — zeroing the margin pins it to
+     * the viewport's top-left corner. The anchored paths override
+     * this themselves (hc-anchored.css's [data-side] rules and the
+     * JS fallback both set their own margins). */
+    margin: auto;
     padding: var(--hc-popover-padding);
     border: 1px solid var(--hc-popover-border);
     border-radius: var(--hc-popover-radius);

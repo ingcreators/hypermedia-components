@@ -55,7 +55,8 @@ and `data-sort-index` are answering a question nobody can see.
   Sort (2): Ship date ↓, Order ↑
 </button>
 
-<div class="hc-popover" id="sort-panel" popover aria-labelledby="sort-trigger">
+<div class="hc-popover" id="sort-panel" popover
+     data-side="bottom" data-align="start" aria-labelledby="sort-trigger">
   <form action="/orders" method="get"
         data-hx-get="/orders"
         data-hx-include="#filters"

@@ -44,6 +44,16 @@
   margin: auto;
 }
 
+/* Same story for bare popovers: the UA centres an open popover in the
+ * top layer with `inset: 0; margin: auto`, and the global reset's
+ * `margin: 0` pins it to the viewport's top-left instead. Core sets
+ * `margin: auto` too, but that lives in @layer hc.components and the
+ * unlayered reset still wins — re-assert it unlayered here. Anchored
+ * popovers ([data-side]) place themselves and are excluded. */
+.hc-popover:not([data-side]) {
+  margin: auto;
+}
+
 /* Row of small demos — wraps, left-aligned, vertically centred. */
 .hc-preview--start {
   display: flex;

@@ -175,6 +175,31 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- Popovers no longer pin to the viewport's top-left corner. Three
+  layers, found from a user report on the datagrid-sort panel:
+  - **Core CSS**: `.hc-popover { margin: 0 }` clobbered the UA's
+    top-layer centring (`inset: 0; margin: auto`), so every popover
+    without `data-side` opened at (0,0) — including the popover
+    component page's own demo. The base margin is now `auto`; the
+    anchored paths set their own margins and are unaffected. (The
+    docs site additionally re-asserts it unlayered in preview.css,
+    because Starlight's universal margin reset beats `@layer` rules —
+    the same counter it already carried for modal dialogs.)
+  - **Core behavior**: `installPopover` wired the anchor to the
+    trigger once, at attach time — a server-re-rendered trigger (the
+    sort panel's, which displays the sort state and comes back out of
+    band) lost the inline `anchor-name` and the aria wiring, un-
+    anchoring the panel. The current trigger is now re-resolved and
+    re-wired on every open.
+  - **Recipes/templates**: the single-trigger toolbar panels
+    (datagrid-sort / -columns / -prefs, filter-popover, and the
+    data-grid-page demo's sort/columns panels) now anchor at their
+    trigger with `data-side="bottom" data-align="start"` — demos,
+    scaffolds, and fences (en + ja). datagrid-filter's panel
+    deliberately stays a bare (browser-centred) popover — several
+    controls open it, so no single anchor is right — and the page now
+    says so. The vrt-overlays baselines were regenerated for the
+    centred bare popover.
 - Full interactive QA pass over every live demo (72 pages driven in
   headless Chromium — all 53 recipes, the 5 templates, and the
   overlay components — with generic invariants after every step:
