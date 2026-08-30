@@ -57,7 +57,14 @@ response so state and presentation can never disagree.
 
 <!-- Step 2: review (a /confirm response) -->
 <section id="flow">
-  <ol class="hc-stepper">…Input ✓ → <b aria-current="step">Review</b> → Done…</ol>
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">
+      <span class="hc-stepper__marker" aria-hidden="true">✓</span>
+      <span class="hc-stepper__label">Input</span>
+    </li>
+    <li class="hc-stepper__step" aria-current="step">…Review…</li>
+    <li class="hc-stepper__step">…Done…</li>
+  </ol>
   <form method="post" action="/orders/place"
         data-hx-post="/orders/place"
         data-hx-target="#flow" data-hx-swap="outerHTML"
@@ -80,7 +87,11 @@ response so state and presentation can never disagree.
 
 <!-- Step 3: done (a /place response; PRG in the full-page flow) -->
 <section id="flow">
-  <ol class="hc-stepper">…Input ✓ → Review ✓ → <b aria-current="step">Done</b>…</ol>
+  <ol class="hc-stepper">
+    <li class="hc-stepper__step" data-state="complete">…Input ✓…</li>
+    <li class="hc-stepper__step" data-state="complete">…Review ✓…</li>
+    <li class="hc-stepper__step" aria-current="step">…Done…</li>
+  </ol>
   <div class="hc-card" role="status">
     <p>Order <strong>REQ-58214</strong> placed — ¥48,000.</p>
   </div>
