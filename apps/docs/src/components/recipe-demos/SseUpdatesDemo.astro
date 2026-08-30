@@ -19,7 +19,23 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/sse-upda
 ---
 
 <DemoFrame class="hc-preview--col" label="SSE live updates demo">
+  {/* The scripted stream is one-shot (~23 s) and starts on page load —
+      Replay swaps a fresh scope in (new EventSource, sequence restarts)
+      so the demo still works for a reader who arrives after it ended.
+      The button lives OUTSIDE the swapped scope. */}
+  <div class="hc-cluster" style="align-items: center;">
+    <button
+      class="hc-button"
+      data-size="sm"
+      type="button"
+      data-hx-get={`${api}/scope`}
+      data-hx-target="#sse-updates-demo-scope"
+      data-hx-swap="outerHTML">Replay the stream</button>
+    <span class="hc-field__hint">A scripted ~23 s sequence — activity items, status pushes, an OOB badge, grid rows.</span>
+  </div>
+
   <div
+    id="sse-updates-demo-scope"
     data-hx-ext="sse"
     data-sse-connect={`${api}/events`}
     data-sse-close="stream:done">

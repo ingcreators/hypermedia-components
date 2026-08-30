@@ -90,7 +90,40 @@ ${listHtml()}
 </section>`;
 }
 
+/**
+ * The whole SSE scope, fresh — mirrors SseToastDemo.astro's initial
+ * markup. Swapping it in tears down the old EventSource (the SSE
+ * extension cleans up with its element) and connects a new one, so
+ * the docs demo's Replay button can re-run the scripted stream: the
+ * sequence is ~15 s and one-shot, and a reader who scrolls to the
+ * demo after it finished would otherwise meet a dead demo.
+ */
+function scopeHtml() {
+  return `<div id="sse-toast-demo-scope"
+     data-hx-ext="sse"
+     data-sse-connect="${API}/events"
+     data-sse-close="demo:done">
+  <span hidden data-hc-sse-dispatch data-sse-swap="hc:toast, items:changed"></span>
+  <section id="sse-toast-demo-items" class="hc-data-region"
+           data-hx-get="${API}/items"
+           data-hx-trigger="load, items:changed from:body"
+           data-hx-swap="outerHTML"
+           data-hx-indicator="closest .hc-data-region"
+           aria-busy="false">
+    <header class="hc-data-region__header">
+      <h2>Items</h2>
+      <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
+    </header>
+  </section>
+</div>`;
+}
+
 export function handle({ method, path, request, url }) {
+  if (method === 'GET' && path === '/scope') {
+    if (isHtmx(request)) return html(scopeHtml());
+    return page('SSE toast demo', scopeHtml());
+  }
+
   if (method === 'GET' && path === '/events') {
     // No isHtmx() branch: EventSource requests carry no HX-Request
     // header — the stream is the only shape this endpoint has.

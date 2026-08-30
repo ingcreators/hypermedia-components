@@ -173,8 +173,28 @@ Security    — security-relevant changes
   glyph now follows `data-color` accents (it was sRGB blue-600 under
   every theme) and renders in `SelectedItem` under forced colors.
 
+- `installSortable` drags now *feel* like drags: the item in flight
+  tracks the pointer and gets a default shadow lift (with
+  `grab`/`grabbing` cursors on the handle), displaced siblings
+  FLIP-slide into their new slots (keyboard moves too), and the drop
+  settles the item into place. The motion rides
+  `--hc-motion-duration-fast`, skips entirely under
+  `prefers-reduced-motion`, and never touches the DOM order — reorder
+  decisions use layout geometry with transforms subtracted, so
+  mid-animation rects cannot make the slot math oscillate. The
+  documented `data-dragging` / `data-grabbed` hooks stay open for
+  overrides.
+
 ### Fixed
 
+- The SSE demos (sse-toast, sse-updates) were dead for anyone who
+  reached them late: their scripted streams are one-shot (~15 s /
+  ~23 s), start on page load, and close themselves — scroll down
+  after that and nothing ever happens. Each demo now has a **Replay
+  the stream** button that swaps a fresh SSE scope in (a new
+  `EventSource` via a `/scope` fragment route), with the sequence
+  described beside it; the end-of-stream marker now points at Replay
+  instead of "reload the page".
 - Popovers no longer pin to the viewport's top-left corner. Three
   layers, found from a user report on the datagrid-sort panel:
   - **Core CSS**: `.hc-popover { margin: 0 }` clobbered the UA's

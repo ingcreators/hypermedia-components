@@ -112,10 +112,20 @@ describe('sse-updates demo API', () => {
     const [marker, done] = events.slice(-2);
     expect(marker.event).toBe('status:panel');
     expect(marker.dataLines[0]).toBe(
-      '<p class="hc-field__message">Stream ended — reload to replay.</p>',
+      '<p class="hc-field__message">Stream ended — press Replay to run it again.</p>',
     );
     expect(done.event).toBe('stream:done');
     expect(body.endsWith('event: stream:done\ndata: \n\n')).toBe(true);
+  });
+
+  it('serves a fresh SSE scope for the Replay button', async () => {
+    const response = await call(sseUpdates, 'GET', '/scope');
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    expect(body).toContain('id="sse-updates-demo-scope"');
+    expect(body).toContain('data-sse-connect=');
+    expect(body).toContain('data-sse-close="stream:done"');
+    expect(body).toContain('id="sse-updates-demo-rows"');
   });
 
   it('returns null for unknown routes', async () => {

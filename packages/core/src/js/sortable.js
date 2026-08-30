@@ -70,6 +70,98 @@ function axisOf(container) {
   return Math.max(a.top, b.top) < Math.min(a.bottom, b.bottom) ? 'row' : 'column';
 }
 
+// ---- drag motion -------------------------------------------------------
+// Visual polish only — the DOM order stays the single source of truth
+// and none of this changes it. The dragged item tracks the pointer with
+// a transform, displaced siblings FLIP-slide into their new slots, and
+// the drop settles the item into place. Everything is skipped when the
+// environment cannot animate (no matchMedia — jsdom) or the user
+// prefers reduced motion.
+
+const FLIP_TRANSITION =
+  'transform var(--hc-motion-duration-fast, 120ms) var(--hc-motion-easing-standard, ease)';
+
+function motionOK(doc) {
+  const w = doc.defaultView;
+  if (!w || typeof w.matchMedia !== 'function') return false;
+  return !w.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * The element's LAYOUT rect: its border box with its own translation
+ * removed. Reorder decisions and FLIP deltas must use layout geometry —
+ * mid-animation visual rects would make the slot math oscillate.
+ */
+function layoutRect(el) {
+  const r = el.getBoundingClientRect();
+  const view = el.ownerDocument.defaultView;
+  const t = view ? view.getComputedStyle(el).transform : 'none';
+  const m = t && t !== 'none' ? t.match(/matrix\(([^)]+)\)/) : null;
+  if (!m) return r;
+  const parts = m[1].split(',').map(Number);
+  const tx = parts[4] || 0;
+  const ty = parts[5] || 0;
+  return {
+    top: r.top - ty,
+    bottom: r.bottom - ty,
+    left: r.left - tx,
+    right: r.right - tx,
+    width: r.width,
+    height: r.height,
+  };
+}
+
+const translateBy = (axis, d) =>
+  axis === 'row' ? `translateX(${d}px)` : `translateY(${d}px)`;
+
+/** Jump the element by `delta`, then transition it back to rest. */
+function slideFrom(el, axis, delta) {
+  if (Math.abs(delta) < 0.5) return;
+  el.style.transition = 'none';
+  el.style.transform = translateBy(axis, delta);
+  void el.offsetWidth; // flush, so the next write animates
+  el.style.transition = FLIP_TRANSITION;
+  el.style.transform = '';
+  const done = () => {
+    el.style.transition = '';
+    el.removeEventListener('transitionend', done);
+  };
+  el.addEventListener('transitionend', done);
+}
+
+/**
+ * Move `item` before `ref` inside `container`, FLIP-sliding every
+ * sibling whose slot changes. Returns nothing; safe with motion off.
+ */
+function moveWithFlip(container, item, ref, axis, motion) {
+  const siblings = motion
+    ? itemsOf(container)
+        .filter((el) => el !== item)
+        .map((el) => ({ el, before: layoutRect(el) }))
+    : null;
+  container.insertBefore(item, ref);
+  if (!siblings) return;
+  for (const { el, before } of siblings) {
+    const after = layoutRect(el);
+    slideFrom(el, axis, axis === 'row' ? before.left - after.left : before.top - after.top);
+  }
+}
+
+/** Transition the item from wherever it visually is into its slot. */
+function settleItem(el, axis, motion) {
+  if (!motion) {
+    el.style.transform = '';
+    el.style.transition = '';
+    return;
+  }
+  const visual = el.getBoundingClientRect();
+  el.style.transition = 'none';
+  el.style.transform = '';
+  const layout = el.getBoundingClientRect();
+  const delta = axis === 'row' ? visual.left - layout.left : visual.top - layout.top;
+  slideFrom(el, axis, delta);
+}
+
 /**
  * Install list reordering on the given document.
  *
@@ -172,30 +264,45 @@ export function installSortable(root = (typeof document !== 'undefined' ? docume
       }
       drag.active = true;
       drag.item.setAttribute('data-dragging', 'true');
+      drag.axis = axisOf(drag.container);
+      drag.motion = motionOK(doc);
+      const start = layoutRect(drag.item);
+      drag.grabOffset =
+        (drag.axis === 'row' ? event.clientX : event.clientY) -
+        (drag.axis === 'row' ? start.left : start.top);
     }
-    const { container, item } = drag;
-    const axis = axisOf(container);
+    const { container, item, axis, motion } = drag;
     const pointer = axis === 'row' ? event.clientX : event.clientY;
     for (const sibling of itemsOf(container)) {
       if (sibling === item) continue;
-      const r = sibling.getBoundingClientRect();
+      // Layout geometry, not visual: a sibling mid-slide would make
+      // the midpoint math oscillate.
+      const r = layoutRect(sibling);
       const mid = axis === 'row' ? r.left + r.width / 2 : r.top + r.height / 2;
       const itemBefore =
         item.compareDocumentPosition(sibling) & Node.DOCUMENT_POSITION_PRECEDING;
       if (itemBefore && pointer < mid) {
-        container.insertBefore(item, sibling);
+        moveWithFlip(container, item, sibling, axis, motion);
         break;
       }
       if (!itemBefore && pointer > mid) {
-        container.insertBefore(item, sibling.nextSibling);
+        moveWithFlip(container, item, sibling.nextSibling, axis, motion);
         break;
       }
+    }
+    if (motion) {
+      // The item itself tracks the pointer — its DOM slot snaps, the
+      // visual glides with the hand.
+      const lr = layoutRect(item);
+      const delta = pointer - drag.grabOffset - (axis === 'row' ? lr.left : lr.top);
+      item.style.transition = 'none';
+      item.style.transform = translateBy(axis, delta);
     }
   }
 
   function endPointerDrag(cancelled) {
     if (!drag) return;
-    const { container, item, from, active } = drag;
+    const { container, item, from, active, axis, motion } = drag;
     drag = null;
     if (!active) return;
     item.removeAttribute('data-dragging');
@@ -205,6 +312,8 @@ export function installSortable(root = (typeof document !== 'undefined' ? docume
     } else {
       commit(container, item, from);
     }
+    // From wherever the hand left it, glide into the final slot.
+    settleItem(item, axis, motion);
   }
 
   function onPointerUp() {
@@ -271,7 +380,14 @@ export function installSortable(root = (typeof document !== 'undefined' ? docume
     // Moving the focused handle fires focusout mid-move — guard so the
     // blur-commit below doesn't end the grab we're still using.
     moving = true;
-    container.insertBefore(item, prev ? sibling : sibling.nextSibling);
+    const motion = motionOK(doc);
+    const axis = axisOf(container);
+    const before = motion ? layoutRect(item) : null;
+    moveWithFlip(container, item, prev ? sibling : sibling.nextSibling, axis, motion);
+    if (motion) {
+      const after = layoutRect(item);
+      slideFrom(item, axis, axis === 'row' ? before.left - after.left : before.top - after.top);
+    }
     handle.focus();
     moving = false;
     announce(t('sortable.moved', position(item)));
