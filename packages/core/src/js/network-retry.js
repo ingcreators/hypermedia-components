@@ -125,7 +125,12 @@ export function installNetworkRetry(
     const htmx = root.defaultView?.htmx;
     if (!htmx?.ajax) return;
     button.disabled = true;
-    htmx.ajax(config.verb, config.path, { source });
+    // htmx.ajax returns a promise that REJECTS (with undefined) when
+    // the retried request fails again. That failure path is already
+    // handled — sendError/timeout re-render the alert — so swallow
+    // the rejection instead of surfacing an uncaught "undefined" on
+    // every failed retry.
+    Promise.resolve(htmx.ajax(config.verb, config.path, { source })).catch(() => {});
   }
 
   root.addEventListener('htmx:sendError', onFailure);
