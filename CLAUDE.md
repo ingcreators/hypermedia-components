@@ -46,16 +46,16 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.3.0` (2026-08-29): 67 component stylesheets ·
-57 behaviors (56 auto-init + opt-in chart) · 2 macros · 44 recipes ·
-8 integration guides · 4 full-page templates · opt-in `hc.print.css`
+As of `0.4.0` (2026-08-30): 67 component stylesheets ·
+58 behaviors (57 auto-init + opt-in chart) · 2 macros · 53 recipes ·
+8 integration guides · 5 full-page templates · opt-in `hc.print.css`
 (`./css/print`) · docs **fully mirrored in Japanese (`/ja/`)** ·
 runtime axes
 `data-theme` / `data-color` / `data-neutral` / `data-density` / `dir` ·
 i18n message catalog (`setMessages()`) · examples for plain-html +
 htmx · Vitest suites (core + CLI + demo-api) · Playwright suites (incl.
 axe scans and the VRT screenshot sheets) · `hc validate` machine-checked
-recipe contracts (`@hypermedia-components/cli@0.4.2`).
+recipe contracts (`@hypermedia-components/cli@0.4.3`).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -123,6 +123,41 @@ working-tree operations need isolation. Remove the worktree and delete
 the local branch after its PR merges.
 
 ## Current focus
+
+Core `0.4.0` + CLI `0.4.3` shipped (2026-08-30, `v0.4.0` /
+`cli-v0.4.3` tags) — the **post-data-grid consolidation release**,
+PRs #578–#602. Three strands:
+
+- **Business-flow recipes**: result-cap + snapshot-pager (#578–#580),
+  the contracts five — async-job / line-items / reference-lookup /
+  workflow-actions / idempotency-key (#581–#586) — and the gap
+  follow-ups (#588–#591): unread-badge, network-retry +
+  `installNetworkRetry()` (58th behavior), the confirm-page template,
+  and the audit-trail guide. 53 recipes, 5 templates.
+- **Docs IA overhaul** (#594): grouped recipes nav, the Data grid
+  guide, generated counts + reverse links, Theming rename, the
+  synonym sweep.
+- **QA audits and their hardening** (#595–#602): five browser-verified
+  demo defects + core token fixes (#595); the live-demo rounds (#596–
+  #598: card-padding crush, `name="remove"` shadowing, popover
+  top-left pin + trigger re-wire, sortable drag motion, SSE Replay);
+  and the class-wide remediation (#599–#602): the
+  `formmethod="dialog"`-inside-htmx-forms trap fixed with the
+  footer-outside-form idiom, `installDatagrid` (re)binding when
+  content swaps into a grid + the sort header fast path actually
+  wired, menu/navmenu/tooltip/hovercard trigger re-wiring, htmx
+  inheritance hardening (`hx-sync` mutex, `hx-vals` leakage), the
+  phantom-class purge, and `lifecycle.js` — departed instances are
+  pruned (detachers run) across all 26 Map-keeping behaviors, with
+  stale-rebind for menubar/context-menu/spy/carousel/splitter.
+
+**Minor, not patch**, for two flagged default changes per
+VERSIONING.md: `installSortable` now ships a default drag feel
+(motion-safe), and the multicombobox check mark is mask-painted so the
+documented token applies. CLI `0.4.3` re-bundles the recipe set
+(source unchanged). editor-kit stays `0.2.0`.
+
+Previous milestones follow.
 
 Core `0.3.0` + CLI `0.4.2` shipped (2026-08-29, `v0.3.0` /
 `cli-v0.4.2` tags) — the **data-grid release**, PRs #487–#577: the

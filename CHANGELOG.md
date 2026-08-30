@@ -20,6 +20,30 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-30
+
+The post-data-grid consolidation release, PRs #578–#602: the
+business-flow recipe programmes (result-cap / snapshot-pager, the
+contracts five — async-job / line-items / reference-lookup /
+workflow-actions / idempotency-key — and the gap follow-ups incl.
+`installNetworkRetry()`, the 58th behavior, and the confirm-page
+template), the docs information-architecture overhaul, and the
+demo-quality + class-wide QA audits (#595–#602) with their core
+hardening. 53 recipes · 5 templates · 58 behaviors.
+
+Minor rather than patch for two flagged default changes, per
+VERSIONING.md (both under **Changed** below): `installSortable` now
+ships a default drag feel (pointer-tracking lift, sibling FLIP,
+motion-safe), and the multicombobox check mark is mask-painted so it
+follows the accent instead of a hardcoded blue. Everything else is
+strictly additive or a fix.
+
+The CLI goes to 0.4.3 to re-bundle the recipe set (nine new recipes
+since 0.4.2 plus the audited scaffolds — its own source is unchanged;
+`prepack` syncs the repo-root `recipes/`, so new recipes need a
+republish to reach `hc add`). editor-kit has no shipped change and
+stays at 0.2.0.
+
 ### Added
 
 - Docs information-architecture overhaul
@@ -6449,7 +6473,8 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/ingcreators/hypermedia-components/compare/v0.2.0...v0.2.1
 [editor-kit-0.2.0]: https://github.com/ingcreators/hypermedia-components/compare/editor-kit-v0.1.0...editor-kit-v0.2.0
