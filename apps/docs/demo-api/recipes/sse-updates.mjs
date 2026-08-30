@@ -36,8 +36,10 @@
 // visibly fresh. `?fast=1` divides every sleep by 50 (see sse.mjs) so
 // the vitest suite can `await response.text()` the full body in < 1 s.
 
-import { escapeHtml } from '../html.mjs';
+import { DOCS_BASE, escapeHtml, html, isHtmx, page } from '../html.mjs';
 import { demoSpeed, sseResponse } from '../sse.mjs';
+
+const API = `${DOCS_BASE}/api/recipes/sse-updates`;
 
 const BADGE_ID = 'sse-updates-demo-alert-badge';
 
@@ -90,12 +92,64 @@ const SCRIPT = [
   [
     1500,
     'status:panel',
-    () => '<p class="hc-field__message">Stream ended — reload to replay.</p>',
+    () => '<p class="hc-field__message">Stream ended — press Replay to run it again.</p>',
   ],
   [500, 'stream:done', () => ''],
 ];
 
-export function handle({ method, path, url }) {
+/**
+ * The whole SSE scope, fresh — mirrors SseUpdatesDemo.astro's initial
+ * markup. Swapping it in tears down the old EventSource (the SSE
+ * extension cleans up with its element) and connects a new one, so
+ * the docs demo's Replay button can re-run the ~23 s one-shot stream
+ * for readers who reach the demo after it ended.
+ */
+function scopeHtml() {
+  return `<div id="sse-updates-demo-scope"
+     data-hx-ext="sse"
+     data-sse-connect="${API}/events"
+     data-sse-close="stream:done">
+  <section id="sse-updates-demo-status" aria-live="polite" data-sse-swap="status:panel">
+    <p>Waiting for updates…</p>
+  </section>
+
+  <p>
+    Alerts:
+    <span class="hc-badge" id="sse-updates-demo-alert-badge">0</span>
+  </p>
+
+  <ul id="sse-updates-demo-activity" data-sse-swap="activity:item" data-hx-swap="afterbegin"></ul>
+
+  <div class="hc-datagrid">
+    <div class="hc-datagrid__scroll">
+      <table class="hc-datagrid__table">
+        <thead class="hc-datagrid__head">
+          <tr>
+            <th class="hc-datagrid__headcell" scope="col">ID</th>
+            <th class="hc-datagrid__headcell" scope="col">Status</th>
+            <th class="hc-datagrid__headcell" scope="col">Updated</th>
+          </tr>
+        </thead>
+        <tbody class="hc-datagrid__body" id="sse-updates-demo-rows"
+               data-sse-swap="products:rows" data-hx-swap="innerHTML">
+          <tr class="hc-datagrid__row">
+            <th class="hc-datagrid__cell" scope="row">—</th>
+            <td class="hc-datagrid__cell">Waiting for pushed rows…</td>
+            <td class="hc-datagrid__cell">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>`;
+}
+
+export function handle({ method, path, url, request }) {
+  if (method === 'GET' && path === '/scope') {
+    if (isHtmx(request)) return html(scopeHtml());
+    return page('SSE live updates demo', scopeHtml());
+  }
+
   if (method === 'GET' && path === '/events') {
     // No isHtmx() branch: EventSource requests carry no HX-Request
     // header — the stream is the only shape this endpoint has.

@@ -36,8 +36,9 @@ deliberately with `stream:done`: timestamped activity items prepend
 into the feed, the status panel re-renders, one push also updates
 the alert badge out-of-band in the same event, and two `products:rows`
 pushes swap a full page of rows into the datagrid's tbody (the
-[composition below](#datagrid-composition)). Reload the page to
-replay.
+[composition below](#datagrid-composition)). The sequence starts when
+the page loads — if it already finished, **Replay the stream** swaps
+a fresh scope in (a new `EventSource`) and runs it again.
 
 <SseUpdatesDemo />
 

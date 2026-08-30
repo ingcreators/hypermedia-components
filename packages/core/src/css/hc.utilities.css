@@ -206,4 +206,25 @@
   .hc-status[data-fill] {
     background: var(--hc-status-bg);
   }
+
+  /* installSortable drag states — the default "lift" for the item in
+   * flight. The behavior owns `transform` (pointer tracking + the FLIP
+   * slide of displaced siblings), so these rules must never set it.
+   * Override or extend via the documented hooks:
+   * `[data-dragging="true"]` (pointer) / `[data-grabbed="true"]`
+   * (keyboard). */
+  [data-hc-sortable] > [data-dragging="true"],
+  [data-hc-sortable] > [data-grabbed="true"] {
+    position: relative;
+    z-index: 1;
+    box-shadow: var(--hc-shadow-lg);
+  }
+
+  [data-hc-sortable-handle] {
+    cursor: grab;
+  }
+
+  [data-hc-sortable] > [data-dragging="true"] [data-hc-sortable-handle] {
+    cursor: grabbing;
+  }
 }

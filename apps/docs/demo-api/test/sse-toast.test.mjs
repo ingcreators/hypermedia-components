@@ -124,6 +124,18 @@ describe('sse-toast demo API', () => {
     expect(body).toContain('<li>Export bundle</li>');
   });
 
+  it('serves a fresh SSE scope for the Replay button', async () => {
+    const response = await call(sseToast, 'GET', '/scope');
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    expect(body).toContain('id="sse-toast-demo-scope"');
+    expect(body).toContain('data-sse-connect=');
+    expect(body).toContain('data-sse-close="demo:done"');
+    expect(body).toContain('data-hc-sse-dispatch');
+    // The fresh region must carry `load` so it fetches once on swap-in.
+    expect(body).toContain('data-hx-trigger="load, items:changed from:body"');
+  });
+
   it('returns null for unknown routes', async () => {
     expect(await call(sseToast, 'POST', '/events')).toBeNull();
     expect(await call(sseToast, 'GET', '/nope')).toBeNull();

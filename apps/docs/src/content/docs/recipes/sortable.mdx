@@ -148,10 +148,20 @@ in `locales/ja`).
 
 ## State
 
-State lives in attributes, so styling hooks are selectors — no classes
-to toggle:
+Dragging *feels* like dragging out of the box: the item in flight
+tracks the pointer and gets a shadow lift (plus `grab`/`grabbing`
+cursors on the handle), displaced siblings slide into their new slots,
+and the drop settles the item into place. The motion rides the
+[motion scale](/hypermedia-components/fundamentals/motion/)
+(`--hc-motion-duration-fast`) and is skipped entirely under
+`prefers-reduced-motion`. The DOM order stays the single source of
+truth — the animation layer never changes it.
+
+State lives in attributes, so the default lift is overridable with
+plain selectors — no classes to toggle:
 
 ```css
+/* e.g. dim the item in flight on top of the built-in lift */
 [data-dragging='true'],
 [data-grabbed='true'] {
   opacity: 0.6;

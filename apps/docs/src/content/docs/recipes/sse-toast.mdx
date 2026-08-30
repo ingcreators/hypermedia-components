@@ -36,7 +36,9 @@ with a `demo:done` event (named in `data-sse-close`): a sticky
 *Build #42 started* toast updates in place to *finished* (the
 update-by-`id` pattern), an `items:changed` push makes the region
 below refetch (watch the *Rendered at* time), and a last info toast
-arrives before the close. Reload the page to replay.
+arrives before the close. The sequence starts when the page loads —
+if it already finished, **Replay the stream** swaps a fresh scope in
+(a new `EventSource`) and runs it again.
 
 <SseToastDemo />
 

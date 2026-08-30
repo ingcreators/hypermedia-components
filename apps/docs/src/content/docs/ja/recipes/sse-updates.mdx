@@ -39,8 +39,10 @@ import SseUpdatesDemo from '../../../../components/recipe-demos/SseUpdatesDemo.a
 再描画され、1 つのプッシュが同じイベントの中でアラートバッジも
 out-of-band で更新し、さらに 2 回の `products:rows` プッシュが
 データグリッドの tbody に行 1 ページ分をスワップします
-([下記の合成](#データグリッドとの合成))。ページをリロードすると
-再生し直せます。
+([下記の合成](#データグリッドとの合成))。シーケンスはページ
+読み込み時に始まります — 終わってしまっていたら
+**Replay the stream** が新しいスコープ(新しい `EventSource`)を
+スワップして再実行します。
 
 <SseUpdatesDemo />
 

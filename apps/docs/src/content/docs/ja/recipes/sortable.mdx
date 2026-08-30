@@ -151,10 +151,20 @@ list.addEventListener('hc:sortchange', ({ detail }) => {
 
 ## 状態
 
-状態は属性にあるので、スタイルフックはセレクタです — トグルする
-クラスはありません:
+ドラッグは何もしなくても「ドラッグの手応え」があります: 移動中の
+アイテムはポインタに追従してシャドウで浮き上がり(ハンドルは
+`grab` / `grabbing` カーソル)、押し退けられた兄弟は新しいスロットへ
+スライドし、ドロップで定位置に収まります。モーションは
+[モーションスケール](/hypermedia-components/ja/fundamentals/motion/)
+(`--hc-motion-duration-fast`)に乗り、`prefers-reduced-motion` では
+すべてスキップされます。DOM の順序が唯一の真実で、アニメーション層は
+それを決して変えません。
+
+状態は属性にあるので、既定のリフトは素のセレクタで上書きできます —
+トグルするクラスはありません:
 
 ```css
+/* 例: 組み込みのリフトに加えて移動中のアイテムを減光する */
 [data-dragging='true'],
 [data-grabbed='true'] {
   opacity: 0.6;
