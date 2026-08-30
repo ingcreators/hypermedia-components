@@ -93,6 +93,7 @@ function recordHtml(id, { invalid = null, confirm = null, values = null } = {}) 
   data-hx-patch="${API}/items/${id}"
   data-hx-trigger="hc:datagridedit"
   data-hx-vals="js:{ col: event.detail.col, value: event.detail.value }"
+  data-hx-disinherit="hx-vals"
   data-hx-swap="outerHTML">
   <tr class="hc-datagrid__row">
     <td class="hc-datagrid__cell">${escapeHtml(item.name)}</td>

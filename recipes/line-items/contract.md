@@ -27,7 +27,13 @@ Purpose: edit an order/quote/invoice detail table — N rows in one form — whe
   named controls shadow the form's methods — `form.remove` becomes
   the button — and htmx calls `target.remove()` when it outerHTML-
   swaps the form, so the old form throws and stays in the page,
-  duplicating the table on every action.
+  duplicating the table on every action. What decides whether a
+  shadowed name bites is who reads the property: `remove` (htmx
+  swaps) and `elements` (this kit's format / mask / multi-value
+  behaviors) are fatal; `action` / `method` are read only as content
+  attributes by htmx and this kit (the bulk-action recipes'
+  `name="action"` is safe) but shadow `form.action` for any script
+  of your own.
 - **The client never computes a number.** Line totals, subtotal, tax,
   grand total — all rendered by the server. Rounding is business
   truth and must have exactly one implementation.

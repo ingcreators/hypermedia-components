@@ -29,13 +29,16 @@ import DataEntryTemplateDemo from '../../../../components/template-demos/DataEnt
      disinherit が重要: htmx 属性は継承されるため、下の郵便番号
      フィールドが発行する独自の lookup GET が disabled-elt を継承し、
      自分の子孫にサブミットボタンが見つからず、lookup のたびに htmx が
-     エラーをログしてしまいます。 -->
+     エラーをログしてしまいます。
+     hx-sync も disinherit が必須: 継承されると `this:abort` によって
+     フォーム・郵便番号 lookup・autosave が 1 つの in-flight スロットを
+     共有し、2 秒ごとの下書き送信中に押した Save が無音で落ちます。 -->
 <form id="report-form" data-hc-dirty-guard
       method="post" action="/reports/42"
       data-hx-post="/reports/42"
       data-hx-sync="this:abort"
       data-hx-disabled-elt="find button[type=submit]"
-      data-hx-disinherit="hx-disabled-elt"
+      data-hx-disinherit="hx-disabled-elt hx-sync"
       data-hx-target="#report-errors" data-hx-swap="innerHTML">
 
   <!-- 422 のフィールドエラーフラグメントはここにスワップされ、

@@ -123,8 +123,15 @@ that is load-bearing: named form controls shadow the form element's
 own properties, so a control named `remove` makes `form.remove` the
 *button* — and htmx calls `target.remove()` when it `outerHTML`-swaps
 the form. The old form throws (`e.remove is not a function`), never
-leaves the page, and the table duplicates on every action. The same
-trap applies to `submit`, `action`, `method`, `reset`, and `elements`.
+leaves the page, and the table duplicates on every action. Every form
+property shadows the same way — what decides whether it bites is **who
+reads the property**: htmx swaps call `target.remove()` (so `remove`
+is fatal), this kit's format / mask / multi-value behaviors iterate
+`form.elements` (so `elements` is fatal), while `action` and `method`
+are only ever read as *content attributes* by htmx and this kit —
+which is why the bulk-action recipes' `name="action"` verb buttons
+are safe. Treat any such name as a landmine the moment your own
+script touches that property on the form.
 :::
 
 ## Progressive enhancement

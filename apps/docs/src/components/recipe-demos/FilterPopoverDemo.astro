@@ -22,7 +22,6 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/filter-p
   <div id="filter-popover-demo-popover" class="hc-popover" popover
        data-side="bottom" data-align="start">
     <form
-      class="hc-form"
       data-hx-get={`${api}/items`}
       data-hx-target="#filter-popover-demo-results"
       data-hx-swap="innerHTML"

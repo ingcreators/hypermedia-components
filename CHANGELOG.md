@@ -243,6 +243,46 @@ Security    — security-relevant changes
     `installNetworkRetry` does (#596), and the datagrid's range-copy
     `clipboard.writeText()` failure (permission / focus) is a
     graceful no-op instead of an uncaught rejection.
+- Docs & recipe sweep for the remaining #595/#596-class residue, from
+  a class-wide audit:
+  - **data-entry template: inherited `hx-sync` made the form a
+    single-request mutex.** `data-hx-sync="this:abort"` on the form is
+    inherited by the postal lookup and the autosave region, so all
+    three request sources shared one in-flight slot — a Save clicked
+    during the 2 s draft tick was silently dropped (no request, no
+    error). #596's `data-hx-disinherit` gains `hx-sync` (demo,
+    skeleton fences, en + ja); browser-verified with the draft POST
+    held in flight while Save goes through.
+  - **datagrid-edit-conflict / -edit-errors: the record `tbody`'s
+    `js:` `hx-vals` now carries `data-hx-disinherit="hx-vals"`** —
+    descendant buttons (Overwrite / Discard / Cancel) inherited an
+    expression written for the `hc:datagridedit` CustomEvent; on a
+    click it evaluates against a MouseEvent (stray `version` param
+    today, a `ReferenceError` the moment a trigger modifier such as
+    `delay:` or `hx-confirm` detaches the evaluation from the event).
+    Scaffolds, demo handlers and fences (en + ja).
+  - **Phantom classes removed** (the `hc-list` treatment): the
+    datagrid-prefs scaffolds' SR status region wore `hc-visually-hidden`
+    — a class that does not exist (the utility is `.hc-sr-only`), so
+    the "Saved" announcements rendered visible; also
+    `hc-alert__description` → `hc-alert__body` (editor-kit demo),
+    `hc-form` (dialog/field fences + filter-popover demo), `hc-search`
+    (live-search demo), `hc-stat` (layout fence), `hc-card__title`
+    (density fence), and the pager demo's `hc-pagination__ellipsis`
+    (now a bare `aria-hidden` span). All en + ja.
+  - **blocks stat tiles double-padded**: the dashboard/report tiles put
+    bare children directly under `.hc-card` with an inline
+    `padding:1rem`, so the loose-content rule padded every child again
+    (~2 rem effective, the `.3rem` stack gap drowned). The tiles now
+    use `hc-card__body` — one density-aware padding, working gap.
+  - **line-items' name-shadowing caution refined** (page en + ja and
+    contract): every form property shadows, but what bites is who
+    reads it — `remove` (htmx swaps) and `elements` (format / mask /
+    multi-value iterate `form.elements`) are fatal, while `action` /
+    `method` are read only as content attributes by htmx and this kit,
+    which is why the bulk-action recipes' `name="action"` verb buttons
+    are safe. The old blanket wording contradicted the kit's own
+    canonical markup.
 - The SSE demos (sse-toast, sse-updates) were dead for anyone who
   reached them late: their scripted streams are one-shot (~15 s /
   ~23 s), start on page load, and close themselves — scroll down

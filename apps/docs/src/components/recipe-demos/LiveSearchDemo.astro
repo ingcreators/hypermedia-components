@@ -10,7 +10,7 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/live-sea
 ---
 
 <DemoFrame class="hc-preview--col" label="Live search demo">
-  <form class="hc-search" action={`${api}/items`} method="get" role="search">
+  <form action={`${api}/items`} method="get" role="search">
     <input
       class="hc-input"
       type="search"
