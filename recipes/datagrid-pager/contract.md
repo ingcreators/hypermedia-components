@@ -19,11 +19,14 @@ page of rows; `installDatagrid()` re-initialises the swapped rows.
 
 ## Why `innerHTML` (not `outerHTML`)
 
-`installDatagrid()` watches the **`<tbody>` element** for child changes.
-Swapping the rows *inside* the tbody (`innerHTML`) keeps that element, so
-the observer fires and the grid re-applies its roles, sticky offsets, and
-any resized column widths to the new rows. Replacing the whole `<tbody>`
-(`outerHTML`) would discard the observed node — avoid it.
+Swapping the rows *inside* the tbody (`innerHTML`) keeps the `#rows`
+element itself stable across swaps — its `id` and any attributes it
+carries survive every page load, and each response is nothing but rows.
+Replacing the whole `<tbody>` (`outerHTML`) makes every response
+responsible for reproducing the target's attributes verbatim: one
+fragment that forgets `id="rows"` silently breaks every later page
+load — avoid it. `installDatagrid()` re-applies its roles, sticky
+offsets, and any resized column widths after the swap either way.
 
 ## Server response
 

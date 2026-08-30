@@ -1,7 +1,7 @@
 // filter-popover — recipes/filter-popover/contract.md
 //
 //   GET /items?status=<all|active|pending|failed>&q=<term>
-//     → htmx: 200, HTML for the results region (hc-list or empty state)
+//     → htmx: 200, HTML for the results region (a list or empty state)
 //     → no-JS: 200, a full page with the same list (the popover form
 //       degrades to a normal GET navigation)
 //
@@ -43,7 +43,7 @@ function itemsFragment(status, q) {
       return `  <li>${escapeHtml(name)} <span class="hc-badge" data-variant="${badge.variant}">${badge.label}</span></li>`;
     })
     .join('\n');
-  return `<ul class="hc-list">\n${lis}\n</ul>`;
+  return `<ul>\n${lis}\n</ul>`;
 }
 
 export function handle({ method, path, url, request }) {

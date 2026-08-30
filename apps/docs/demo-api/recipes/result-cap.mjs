@@ -44,7 +44,7 @@ function rowsHtml(orders) {
   const items = orders.map(
     (o) => `  <li>${o.id} — ${escapeHtml(o.customer)} — <time>${o.date}</time></li>`,
   );
-  return `<ul class="hc-list">\n${items.join('\n')}\n</ul>`;
+  return `<ul>\n${items.join('\n')}\n</ul>`;
 }
 
 function bannerHtml() {

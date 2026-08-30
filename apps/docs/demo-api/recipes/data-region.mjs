@@ -47,7 +47,7 @@ function renderedAt() {
 
 function listHtml() {
   const lis = ITEMS.map((name) => `    <li>${escapeHtml(name)}</li>`).join('\n');
-  return `  <ul class="hc-list">\n${lis}\n  </ul>`;
+  return `  <ul>\n${lis}\n  </ul>`;
 }
 
 /** The complete region — the outerHTML swap unit. */

@@ -36,7 +36,10 @@ npx @hypermedia-components/cli validate page.html
 ビューポート基準 `revealed` で動かすと、背の高い画面では新しい
 センチネルが常にすでに見えているため、スクロールする前に全件が
 連鎖ロードされてしまいます。実際のページスクロールのフィード —
-下のマークアップが示す形 — は `revealed` のままです。
+下のマークアップが示す形 — は `revealed` のままです。初期行も静的な
+docs サイトゆえのカーブアウトです: デモは最初のバッチを `load`
+トリガーで取得しますが、実サーバは 1 ページ目をインラインで描画
+します。
 
 <DatagridInfiniteDemo />
 
@@ -53,26 +56,33 @@ npx @hypermedia-components/cli validate page.html
 
 
 ```html
-<tbody class="hc-datagrid__body">
-  <!-- Page 1 server-rendered — the grid is full without JS. -->
-  <tr class="hc-datagrid__row">
-    <th class="hc-datagrid__cell" scope="row">item-1</th>
-    <td class="hc-datagrid__cell">Compact Anvil</td>
-    <td class="hc-datagrid__cell">$107</td>
-    <td class="hc-datagrid__cell">12</td>
-  </tr>
-  <!-- …rows item-2 … item-5… -->
+<div class="hc-datagrid" style="--hc-datagrid-max-height: none">
+  <div class="hc-datagrid__scroll">
+    <table class="hc-datagrid__table">
+      <thead class="hc-datagrid__head">…</thead>
+      <tbody class="hc-datagrid__body">
+        <!-- Page 1 server-rendered — the grid is full without JS. -->
+        <tr class="hc-datagrid__row">
+          <th class="hc-datagrid__cell" scope="row">item-1</th>
+          <td class="hc-datagrid__cell">Compact Anvil</td>
+          <td class="hc-datagrid__cell">$107</td>
+          <td class="hc-datagrid__cell">12</td>
+        </tr>
+        <!-- …rows item-2 … item-5… -->
 
-  <!-- The sentinel: the last row, carrying the cursor. -->
-  <tr class="hc-datagrid__row"
-      data-hx-get="/items?after=item-5"
-      data-hx-trigger="revealed"
-      data-hx-swap="outerHTML">
-    <td class="hc-datagrid__cell" colspan="4" aria-live="polite">
-      <span class="hc-spinner" aria-hidden="true"></span> Loading…
-    </td>
-  </tr>
-</tbody>
+        <!-- The sentinel: the last row, carrying the cursor. -->
+        <tr class="hc-datagrid__row"
+            data-hx-get="/items?after=item-5"
+            data-hx-trigger="revealed"
+            data-hx-swap="outerHTML">
+          <td class="hc-datagrid__cell" colspan="4" aria-live="polite">
+            <span class="hc-spinner" aria-hidden="true"></span> Loading…
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 ```
 
 `outerHTML` スワップがトリック全体です: どの応答もセンチネルを更新
@@ -103,8 +113,8 @@ npx @hypermedia-components/cli validate page.html
 センチネルと一緒にオブザーバーを引退させ、`threshold:` は次のバッチを
 読み込む前にどれだけ行が見えている必要があるかを決めます。
 **サーバーは更新したすべてのセンチネルに同じトリガーを反映する必要が
-あります** — カーソル URL に root を通す(docs のデモは `?root=…` を
-渡します)か、テンプレートに埋め込んでください。
+あります** — カーソル URL に root を通すか、テンプレートに埋め込んで
+ください(docs のデモはテンプレートに埋め込んでいます)。
 
 これが避ける 2 つの失敗モード:
 

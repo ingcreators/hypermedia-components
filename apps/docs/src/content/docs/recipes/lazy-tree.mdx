@@ -28,10 +28,11 @@ missing. The full contract lives in
 Expand a branch (click the row or press <kbd>→</kbd>) — the children
 arrive from a demo endpoint under `api/recipes/lazy-tree/` as
 server-rendered treeitems, and `once` means re-collapsing and
-re-expanding never refetches. **Restricted** shows the contract's error
-mitigation: an empty `200` clears the group's `aria-busy` and an
-`HX-Trigger` header raises the error toast — note the `once` trigger is
-spent, so re-expanding it will not retry.
+re-expanding never refetches. **Restricted** shows the contract's
+denied branch: a small non-empty `200` fragment ("No access") fills
+the group — which clears its `aria-busy` — and an `HX-Trigger` header
+raises the error toast. Note the `once` trigger is spent, so
+re-expanding it will not retry.
 
 <LazyTreeDemo />
 
@@ -92,6 +93,14 @@ retry. Surface failures with an
 server-side reliability; if a subtree fails often, render it eagerly
 instead. The recipe documents this limitation honestly rather than
 hiding it behind retry choreography.
+
+If the server answers the failure itself (say, a permission-denied
+branch), answer a **non-empty** `200` fragment — a single "No access"
+leaf — plus the error toast. The behavior clears the group's
+`aria-busy` when children arrive, so an empty body leaves the spinner
+stuck; the fragment both clears it and tells the user why. Reserve
+emptiness for genuinely empty branches, and mark those non-expandable
+(no `aria-expanded`) on the next full render instead.
 
 ## Accessibility
 

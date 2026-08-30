@@ -23,7 +23,7 @@ function regionHtml(count) {
   const list =
     count === 0
       ? '<p class="hc-field__message">No items yet — click the button.</p>'
-      : `<ul class="hc-list">\n${lis}\n</ul>`;
+      : `<ul>\n${lis}\n</ul>`;
 
   const action =
     count >= MAX_ITEMS

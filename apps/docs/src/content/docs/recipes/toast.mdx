@@ -40,7 +40,8 @@ an `HX-Trigger: {"hc:toast":…}` header — htmx dispatches the event on
 preview further down the page, these toasts round-trip through a real
 endpoint: a namespaced demo implementation of the server contract under
 `api/recipes/toast/`. The **Sticky error** toast has `duration: 0`, so
-it stays until the page reloads.
+it stays until dismissed — every toast renders a close button, and
+Escape dismisses the toast holding focus.
 
 <ToastDemo />
 

@@ -23,9 +23,12 @@ describe('datagrid-bulk-errors demo API — best-effort', () => {
     // Succeeded rows are not.
     expect(body).toContain('id="bulk-errors-demo-row-103"');
     expect(body).not.toContain('id="bulk-errors-demo-row-103" data-attention');
-    // The report rides out of band and offers the failed-only filter.
+    // The report rides out of band and shows the failed-only
+    // affordance (illustrative in this demo — a real app points it at
+    // the grid URL with the failure filter applied).
     expect(body).toContain('data-hx-swap-oob="innerHTML"');
-    expect(body).toContain('f-last-result=failed');
+    expect(body).toContain('Show only failed');
+    expect(body).not.toContain('f-last-result=failed');
   });
 
   it('a non-dismissing warning toast carries the headline', async () => {

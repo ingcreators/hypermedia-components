@@ -42,6 +42,12 @@ npx @hypermedia-components/cli validate page.html
 ## マークアップ
 
 ```html
+<!-- .hc-datagrid ラッパーの中 — このテンプレートがなければ何も
+     編集可能にならず、hc:datagridedit は発火しません: -->
+<template data-datagrid-editor data-col="price">
+  <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+</template>
+
 <tbody class="hc-datagrid__record" id="item-1" data-version="3"
        data-hx-patch="/items/1"
        data-hx-trigger="hc:datagridedit"

@@ -26,7 +26,8 @@ All three return HTML, never JSON. The Cancel button hits
 - Edit fragment: `<form data-hx-put="…">`,
   `data-hx-target="this"`, `data-hx-swap="outerHTML"`. The Cancel
   button targets `closest form` so it swaps the whole form back to the
-  display fragment.
+  display fragment. The fragment has no visible `<label>`, so the
+  input needs an accessible name (`aria-label="Item name"`).
 - A clickable `<span>` display state (`data-hx-trigger="click"` +
   `data-hx-target="this"` on the span itself) is possible but not
   blessed: it needs `role="button"`, `tabindex="0"`, and an

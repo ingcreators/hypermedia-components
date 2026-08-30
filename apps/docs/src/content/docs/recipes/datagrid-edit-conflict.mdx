@@ -40,6 +40,12 @@ version is now fresh) or discard.
 ## The markup
 
 ```html
+<!-- Inside the .hc-datagrid wrapper — without this template nothing
+     is editable and hc:datagridedit never fires: -->
+<template data-datagrid-editor data-col="price">
+  <input class="hc-input" type="text" inputmode="decimal" aria-label="Price">
+</template>
+
 <tbody class="hc-datagrid__record" id="item-1" data-version="3"
        data-hx-patch="/items/1"
        data-hx-trigger="hc:datagridedit"

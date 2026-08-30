@@ -59,7 +59,7 @@ function failedCard() {
     <p class="hc-alert__body">Row 18,204: invalid date. Fix the data or
       retry — nothing was written.</p>
   </div>
-  <button class="hc-button" type="submit"
+  <button class="hc-button" type="button"
           data-hx-post="${API}/exports"
           data-hx-target="closest [data-hc-job]"
           data-hx-swap="outerHTML">Retry</button>

@@ -39,18 +39,25 @@ function wire() {
 }
 
 function rowHtml(row, i) {
-  const qtyInvalid = row.errors.qty ? ' aria-invalid="true"' : '';
-  const priceInvalid = row.errors.price ? ' aria-invalid="true"' : '';
-  const message = row.errors.qty ?? row.errors.price;
-  const totalCell = message
-    ? `<span class="hc-field__message" data-variant="error">${escapeHtml(message)}</span>`
-    : yen(row.total);
+  /**
+   * A numeric cell: the bare input when valid; when invalid, an
+   * `.hc-field[data-invalid]` wrapper (the hook `.hc-field__message`
+   * error styling keys on) with the message linked via
+   * `aria-describedby`.
+   */
+  const numberCell = (name, label, value, error) => {
+    const errorId = `${FORM_ID}-r${i + 1}-${name}-error`;
+    const input = `<input class="hc-input" name="${name}" value="${escapeHtml(String(value))}" inputmode="numeric" aria-label="${label}"${error ? ` aria-invalid="true" aria-describedby="${errorId}"` : ''} data-hx-trigger="change" ${wire()}>`;
+    if (!error) return input;
+    return `<div class="hc-field" data-invalid="true">${input}<p class="hc-field__message" id="${errorId}">${escapeHtml(error)}</p></div>`;
+  };
+  const removeLabel = row.item.trim() ? `Remove ${row.item.trim()}` : `Remove row ${i + 1}`;
   return `<tr>
   <td><input class="hc-input" name="item" value="${escapeHtml(row.item)}" aria-label="Item"></td>
-  <td><input class="hc-input" name="qty" value="${escapeHtml(String(row.qty))}" inputmode="numeric" aria-label="Quantity"${qtyInvalid} data-hx-trigger="change" ${wire()}></td>
-  <td><input class="hc-input" name="price" value="${escapeHtml(String(row.price))}" inputmode="numeric" aria-label="Unit price"${priceInvalid} data-hx-trigger="change" ${wire()}></td>
-  <td data-cell="line-total">${totalCell}</td>
-  <td><button class="hc-button" data-variant="ghost" type="submit" name="remove" value="${i + 1}" ${wire()}>Remove</button></td>
+  <td>${numberCell('qty', 'Quantity', row.qty, row.errors.qty)}</td>
+  <td>${numberCell('price', 'Unit price', row.price, row.errors.price)}</td>
+  <td data-cell="line-total">${row.total == null ? '—' : yen(row.total)}</td>
+  <td><button class="hc-button" data-variant="ghost" type="submit" name="remove" value="${i + 1}" aria-label="${escapeHtml(removeLabel)}" ${wire()}>Remove</button></td>
 </tr>`;
 }
 

@@ -27,7 +27,7 @@ Purpose: session expiry without lost work — a 401 turns any interrupted action
 | --- | --- |
 | any protected endpoint, session expired, htmx request | `401` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + a login `<dialog class="hc-dialog">` fragment (see `expanded.html`). The server must 401 **before acting** — replay safety depends on it |
 | login success | `200` + empty body + `HX-Trigger: {"hc:sessionrenewed": {}}` (\uXXXX-escape non-ASCII if the payload ever carries text) — the bridge closes the dialog and replays the interrupted request |
-| login failure | `422` + the same dialog re-rendered with [field-errors](../field-errors/) inline |
+| login failure | `422` + `HX-Retarget: #error-dialog` + `HX-Reswap: innerHTML` + the same dialog re-rendered with [field-errors](../field-errors/) inline — the login form posts with `data-hx-target="this"` / `data-hx-swap="none"`, so without the headers the body would be swallowed |
 | non-htmx (no-JS) request, session expired | `303` to the login page with `?next=` — the classic full-page fallback |
 
 ## Replay semantics

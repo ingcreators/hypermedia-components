@@ -38,7 +38,9 @@ reassigned elsewhere): they page back in as tombstones. The endpoint
 is a namespaced demo implementation of the contract under
 `api/recipes/datagrid-snapshot-pager/` (a real server keeps row state
 in its database; the stateless demo threads it through the opaque key
-tokens).
+tokens, and so re-renders the keys block out of band with the mutated
+tokens after each action — something a stateful server never needs to
+do).
 
 <DatagridSnapshotPagerDemo />
 
@@ -161,7 +163,9 @@ current-page rows.
 The pager buttons are native submits: without htmx the form POSTs and
 the server (no `HX-Request`) renders the full page. Page 1 and the
 snapshot are server-rendered at search time, so the queue is complete
-before any JavaScript runs.
+before any JavaScript runs. (On this static docs site the demo
+fetches its snapshot with a `load` trigger instead; a real server
+renders the search response inline.)
 
 ## Accessibility
 

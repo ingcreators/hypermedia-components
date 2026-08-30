@@ -76,6 +76,7 @@ htmx の `click` トリガーはキーボードアクティベーションを足
     class="hc-input"
     data-size="sm"
     value="Acme widgets"
+    aria-label="Item name"
     autofocus>
   <button class="hc-button" data-size="sm" data-variant="primary" type="submit">Save</button>
   <button class="hc-button" data-size="sm" type="button"
@@ -121,6 +122,7 @@ Cancel は `closest form` をターゲットするため、編集フォーム全
 <form id="item-42-name" data-hx-put="/items/42/name" data-hx-target="this" data-hx-swap="outerHTML">
   <div class="hc-field" data-invalid="true">
     <input class="hc-input" data-size="sm" name="name" value=""
+           aria-label="Item name"
            aria-invalid="true"
            aria-describedby="item-42-name-error">
     <p id="item-42-name-error" class="hc-field__message">Name is required.</p>
@@ -156,6 +158,10 @@ htmx の response-targets 拡張が必要です。)
 - Edit トリガーは本物の `<button>` です — キーボードで到達でき、支援
   技術に読み上げられ、追加の ARIA は不要です。(クリック可能な
   `<span>` に替える前に、上の注記を確認してください。)
+- 編集フラグメントには見える `<label>` がないので、入力にアクセシブル
+  ネーム(上の `aria-label="Item name"`)を与えてください — ないと
+  スクリーンリーダーのユーザーは名前のないテキストボックスに着地して
+  しまいます。
 - キーボードユーザーがすぐ編集フィールドに着地できるよう、入力に
   `autofocus` を使ってください。
 - Escape でキャンセルするには、Cancel ボタンをクリックする小さな

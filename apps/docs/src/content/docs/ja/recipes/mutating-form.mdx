@@ -145,8 +145,11 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 });
 ```
 
-(あるいはフラグメントを `200` で返す、または `HX-Retarget` +
-`HX-Reswap` を送る —
+(あるいはフラグメントを `200` で返します — クライアント側の設定が
+一切要らない唯一の代替です。`HX-Retarget` + `HX-Reswap` はスワップの
+*行き先と方法*を操縦するだけで、htmx ≥ 2 ではスワップを許可しません。
+これらを付けた `422` にもこの許可 — もしくは
+`htmx.config.responseHandling` のルール — が必要です。
 [field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/#サーバレスポンス契約)を参照。)
 
 ## 確認つき破壊的変種

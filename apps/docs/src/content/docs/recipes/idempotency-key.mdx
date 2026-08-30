@@ -84,6 +84,12 @@ server-side:
 | seen key, same payload | **the stored response, replayed** |
 | seen key, different payload | `422` — names the existing record |
 
+The `422` branches swap into `#order-result`, and htmx ≥ 2 does not
+swap non-2xx responses by default — add the standard one-line
+`htmx:beforeSwap` allowance the
+[field-errors recipe](/hypermedia-components/recipes/field-errors/#server-response-contract)
+documents. (The live demo works because the docs pages install it.)
+
 ## Composition
 
 - **PRG**: the stored response for a redirect flow is the `303` — a

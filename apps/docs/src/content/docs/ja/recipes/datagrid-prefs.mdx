@@ -46,6 +46,13 @@ npx @hypermedia-components/cli validate page.html
 ## マークアップ — 列幅
 
 ```html
+<!-- グリッド側: リサイズ可能なヘッダーは列名を持つ必要があります —
+     data-col のない data-resizable ヘッダーを installDatagrid() はスキップします。 -->
+<th class="hc-datagrid__headcell" data-resizable data-col="name"
+    scope="col">Name</th>
+<th class="hc-datagrid__headcell" data-resizable data-col="status"
+    scope="col">Status</th>
+
 <form action="/prefs/columns" method="post"
       data-hx-post="/prefs/columns"
       data-hx-trigger="hc:datagridcolumnresize from:body delay:500ms"
@@ -66,16 +73,22 @@ npx @hypermedia-components/cli validate page.html
 
 ```html
 <fieldset class="hc-popover__body" id="cols-fields" data-hc-sortable>
-  <label class="hc-checkbox-label">
+  <div class="hc-item">
     <button type="button" class="hc-button" data-variant="ghost"
-            data-hc-sortable-handle>⠿</button>
-    <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
-    Name
-  </label>
-  <!-- …列ごとにソータブルなラベルを 1 つずつ… -->
+            data-hc-sortable-handle aria-label="Reorder Name">⠿</button>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked>
+      Name
+    </label>
+  </div>
+  <!-- …列ごとにソータブルな行を 1 つずつ… -->
 </fieldset>
 ```
 
+各行はソータブルなフィールドセットの直接の子で、ハンドルはラベルの
+**隣**に置き、決して中には入れません — `<label>` の中の
+インタラクティブコンテンツは不正な HTML で、ハンドルのクリックが
+チェックボックスをトグルしてしまいます。
 ドラッグ(またはキーボードでグラブ)して並べ替えると、Apply は DOM 順
 でチェックボックスをシリアライズし、アップグレードされた
 [datagrid-columns 契約](/hypermedia-components/ja/recipes/datagrid-columns/)

@@ -6,12 +6,14 @@
 //                               attributes + an empty group; leaves are
 //                               label-only)
 //   GET /nodes/restricted/children
-//                             → 200, EMPTY body + `HX-Trigger:
-//                               {"hc:toast": …}` error toast — the
-//                               contract's blessed mitigation: the
-//                               empty 2xx swap clears aria-busy on the
-//                               group, the toast says why it is empty,
-//                               and the `once` trigger is spent.
+//                             → 200, a single "No access" leaf +
+//                               `HX-Trigger: {"hc:toast": …}` error
+//                               toast — the contract's blessed denied
+//                               branch. The body must be NON-EMPTY:
+//                               installTree clears aria-busy from a
+//                               childList mutation, so an empty body
+//                               would leave the spinner stuck. The
+//                               `once` trigger is spent either way.
 //   GET /nodes/<unknown>/children
 //                             → 200, a single "Nothing here." leaf.
 //
@@ -66,7 +68,7 @@ export function handle({ method, path }) {
   if (!match) return null;
 
   if (match[1] === 'restricted') {
-    return html('', {
+    return html(leafHtml('No access'), {
       headers: {
         'HX-Trigger': hxTrigger({
           'hc:toast': {

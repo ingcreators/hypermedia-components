@@ -140,8 +140,12 @@ document.body.addEventListener('htmx:beforeSwap', (event) => {
 });
 ```
 
-(Or answer `200` with the fragment, or send `HX-Retarget` +
-`HX-Reswap` — see the [field-errors recipe](/hypermedia-components/recipes/field-errors/#server-response-contract).)
+(Or answer `200` with the fragment — the one alternative that needs no
+client configuration. `HX-Retarget` + `HX-Reswap` only steer *where and
+how* a swap lands; in htmx ≥ 2 they don't license one, so a `422`
+carrying them still needs this allowance — or an
+`htmx.config.responseHandling` rule. See the
+[field-errors recipe](/hypermedia-components/recipes/field-errors/#server-response-contract).)
 
 ## Confirmed destructive variant
 

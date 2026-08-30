@@ -171,7 +171,7 @@ import LazyPanelDemo from '../../../../components/recipe-demos/LazyPanelDemo.ast
 | --- | --- |
 | `GET /reports/revenue`(初回の表示) | `200` + パネルの内側の HTML(`Cache-Control` は通常どおり) |
 | 失敗・プレースホルダーを保つ | `4xx`/`5xx` — スワップされず、プレースホルダーが残ります |
-| 失敗・同じスロットにエラーを表示 | 非 2xx + `HX-Reswap: innerHTML` + アラートフラグメント(または上記のとおり `200` + アラート) |
+| 失敗・同じスロットにエラーを表示 | `200` + アラートフラグメント(上記のとおり)。非 2xx ステータス + `HX-Reswap: innerHTML` でも動きますが、そのステータスへの `htmx:beforeSwap` 許可(または `htmx.config.responseHandling`)が必要です — htmx ≥ 2 はデフォルトで非 2xx をスワップしません |
 | 致命的でない警告 | `200` + コンテンツ + `HX-Trigger: {"hc:toast":{…}}` |
 
 ## アクセシビリティ

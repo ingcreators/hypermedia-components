@@ -47,6 +47,7 @@ function editFragment(v, { value = v, invalid = false } = {}) {
       data-size="sm"
       name="name"
       value="${escapeHtml(value)}"
+      aria-label="Item name"
       aria-invalid="true"
       aria-describedby="${ID}-error"
       autofocus>
@@ -57,6 +58,7 @@ function editFragment(v, { value = v, invalid = false } = {}) {
     class="hc-input"
     data-size="sm"
     value="${escapeHtml(value)}"
+    aria-label="Item name"
     autofocus>`;
   return `<form
   id="${ID}"

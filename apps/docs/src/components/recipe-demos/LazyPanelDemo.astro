@@ -39,6 +39,7 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/lazy-pan
       data-hx-trigger="toggle from:closest details once"
       data-hx-swap="innerHTML"
       data-hx-indicator="this">
+      <p class="hc-field__message">Loading…</p>
       <span class="hc-spinner htmx-indicator" aria-hidden="true"></span>
     </div>
   </details>

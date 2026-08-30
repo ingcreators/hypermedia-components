@@ -28,12 +28,11 @@ submission single-shot, and the mechanism is a token.
   conflict — **422** with a message naming what already exists. Same
   intent token + different content is a bug or a stale tab, not a
   retry.
-- **422 validation failures are stored and replayed too** — the key
-  is spent by the *attempt*, not the success? No: spend the key only
-  on **commit** (2xx/redirect). A validation failure leaves the key
-  live, so the corrected resubmit (same form instance, same key)
-  can commit. This is the one subtlety; get it backwards and users
-  can never fix a validation error.
+- **Spend the key only on commit** (2xx/redirect). A 422 validation
+  failure leaves the key live, so the corrected resubmit (same form
+  instance, same key) can commit. This is the one subtlety — the key
+  is spent by the *commit*, not the attempt: store-and-replay a 422
+  validation failure and users can never fix a validation error.
 - **Scope + TTL are declared policy**: per user × per form, hours not
   forever. The storage row: `key, user, request_hash, response,
   created_at`; expire by TTL. A replay after expiry is a fresh
@@ -47,6 +46,11 @@ submission single-shot, and the mechanism is a token.
 | `POST /orders` (fresh key) | the normal outcome — 200 fragment, 303 redirect, or 422 validation |
 | `POST /orders` (seen key, same payload) | **the stored response, replayed** |
 | `POST /orders` (seen key, different payload) | **422** — "already submitted with different values", naming the existing record |
+
+The 422 branches swap into the result region, and htmx ≥ 2 does not
+swap non-2xx responses by default — add the standard one-line
+`htmx:beforeSwap` allowance the [field-errors](../field-errors/)
+contract documents.
 
 ## Composition
 

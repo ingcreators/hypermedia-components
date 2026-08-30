@@ -77,6 +77,7 @@ activation. The button form above gets all of that for free.
     class="hc-input"
     data-size="sm"
     value="Acme widgets"
+    aria-label="Item name"
     autofocus>
   <button class="hc-button" data-size="sm" data-variant="primary" type="submit">Save</button>
   <button class="hc-button" data-size="sm" type="button"
@@ -123,6 +124,7 @@ outerHTML swap targets the same node:
 <form id="item-42-name" data-hx-put="/items/42/name" data-hx-target="this" data-hx-swap="outerHTML">
   <div class="hc-field" data-invalid="true">
     <input class="hc-input" data-size="sm" name="name" value=""
+           aria-label="Item name"
            aria-invalid="true"
            aria-describedby="item-42-name-error">
     <p id="item-42-name-error" class="hc-field__message">Name is required.</p>
@@ -158,6 +160,9 @@ works, but requires htmx's response-targets extension.)
 - The Edit trigger is a real `<button>` — keyboard reachable, announced
   by assistive tech, no extra ARIA needed. (See the note above before
   swapping it for a clickable `<span>`.)
+- The edit fragment has no visible `<label>`, so give the input an
+  accessible name (`aria-label="Item name"` above) — without one a
+  screen-reader user lands on an unnamed textbox.
 - Use `autofocus` on the input so keyboard users land on the editable
   field immediately.
 - For Escape-to-cancel, add a small `keydown` listener in your own

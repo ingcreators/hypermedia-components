@@ -49,10 +49,13 @@ describe('lazy-tree demo API', () => {
     );
   });
 
-  it('answers restricted with an empty 200 and an error toast header', async () => {
+  it('answers restricted with a non-empty 200 (a no-access leaf) and an error toast header', async () => {
     const response = await call(mod, 'GET', '/nodes/restricted/children');
     expect(response.status).toBe(200);
-    expect(await response.text()).toBe('');
+    // Never an empty body: aria-busy is cleared by a childList
+    // MutationObserver, and an empty→empty swap mutates nothing —
+    // the branch would spin forever.
+    expect(await response.text()).toContain('No access');
     const trigger = response.headers.get('HX-Trigger');
     expect(trigger).toContain('hc:toast');
     expect(trigger).toContain('You do not have access to this folder');

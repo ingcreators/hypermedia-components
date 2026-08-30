@@ -3,8 +3,8 @@
 Purpose: multipart file upload with a live progress bar — htmx owns the
 transport (`data-hx-encoding` + `htmx:xhr:progress`), the
 `installUploadProgress()` bridge drives the native `<progress>`, and
-the response appends the new file's fragment and resets the form via an
-out-of-band swap. Stable under the
+the response prepends the new file's fragment (the `afterbegin` swap)
+and resets the form via an out-of-band swap. Stable under the
 [markup versioning policy](../../VERSIONING.md).
 
 ## Required client markup

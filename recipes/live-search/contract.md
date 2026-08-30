@@ -9,6 +9,8 @@ Purpose: send a search request as the user types and swap the results.
 - `data-hx-trigger="input changed delay:300ms, search"` — debounce typing, also respond to the `search` event.
 - `data-hx-target="#results"` and `data-hx-swap="innerHTML"`.
 - `data-hx-sync="closest form:replace"` — cancel in-flight requests when a newer one starts.
+- An accessible name on the input (`aria-label="Search"` or a visible label) — a placeholder is not a name.
+- `aria-live="polite"` on the `#results` container so swapped-in results are announced.
 
 ## Server response
 

@@ -38,7 +38,9 @@ page's rows into the `<tbody>` (`innerHTML`), while the pager and the
 status line arrive out-of-band in the same response. The endpoint is a
 namespaced demo implementation of the
 [server response contract](#server-response-contract) under
-`api/recipes/datagrid-pager/`.
+`api/recipes/datagrid-pager/`. (On this static docs site the tbody
+fetches page 1 with a `load` trigger; a real server renders page 1
+inline, as below.)
 
 <DatagridPagerDemo />
 
@@ -84,12 +86,16 @@ no-JS path:
 
 ## Why `innerHTML`, not `outerHTML`
 
-`installDatagrid()` watches the **`<tbody>` element** for child changes.
-Swapping the rows *inside* it (`innerHTML`) keeps that element, so the
-observer fires and the grid re-applies its ARIA roles, sticky-offset
-measurement, and any resized column widths to the freshly-loaded rows.
-Replacing the whole `<tbody>` (`outerHTML`) would discard the observed
-node — so target `#rows` and swap `innerHTML`.
+Swapping the rows *inside* the tbody (`innerHTML`) keeps the `#rows`
+element itself stable across swaps — its `id` and any wiring it
+carries survive every page load, and each response is nothing but
+rows. Replacing the whole `<tbody>` (`outerHTML`) makes every
+response responsible for reproducing the target's attributes
+verbatim: one fragment that forgets `id="rows"` silently breaks every
+later page load. So target `#rows` and swap `innerHTML` —
+`installDatagrid()` re-applies its ARIA roles, sticky-offset
+measurement, and any resized column widths to the freshly-loaded rows
+after the swap either way.
 
 You therefore don't recompute layout on the server: render each row with
 the **same column structure** as the header (`data-frozen` /

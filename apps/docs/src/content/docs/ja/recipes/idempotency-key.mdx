@@ -84,6 +84,13 @@ import IdempotencyKeyDemo from '../../../../components/recipe-demos/IdempotencyK
 | 既知のキー+同じペイロード | **保存済みレスポンスのリプレイ** |
 | 既知のキー+違うペイロード | `422` — 既存レコードを名指し |
 
+`422` の分岐は `#order-result` へスワップされますが、htmx ≥ 2 は
+デフォルトで非 2xx レスポンスをスワップしません —
+[field-errors レシピ](/hypermedia-components/ja/recipes/field-errors/#サーバレスポンス契約)が
+ドキュメント化している標準の 1 行 `htmx:beforeSwap` 許可を追加して
+ください。(ライブデモが動くのは、docs のページがこの許可を
+インストールしているためです。)
+
 ## 合成
 
 - **PRG**: リダイレクトフローの保存レスポンスは `303` そのもの —

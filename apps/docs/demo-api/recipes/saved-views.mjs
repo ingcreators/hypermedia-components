@@ -235,7 +235,7 @@ function itemsFragment(q, status) {
       return `  <li>${escapeHtml(name)} <span class="hc-badge" data-variant="${badge.variant}">${badge.label}</span></li>`;
     })
     .join('\n');
-  return `<ul class="hc-list">\n${lis}\n</ul>`;
+  return `<ul>\n${lis}\n</ul>`;
 }
 
 export async function handle({ method, path, url, request }) {

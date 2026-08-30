@@ -41,6 +41,7 @@ htmx 属性は本物の `<form action="/items" method="get">` にぶら下がっ
     type="search"
     name="q"
     placeholder="Search"
+    aria-label="Search"
     data-hx-get="/items"
     data-hx-trigger="input changed delay:300ms, search"
     data-hx-target="#results"
@@ -155,16 +156,13 @@ htmx ≥ 2 はデフォルトで非 2xx レスポンスをスワップしない�
 
 ## ローディングインジケーター
 
-検索の実行中にスピナーを表示するには、結果領域を指す htmx インジケーターを
-追加します:
+検索の実行中にスピナーを表示するには、スピナーを追加して
+`data-hx-indicator` でそれを指します:
 
 ```html
-<div id="results" aria-live="polite">
-  <!-- During a request htmx adds the `.htmx-request` class to the
-       triggering element; the `.htmx-indicator` spinner below reacts to
-       it. Drive a busy state from that class if you want one. -->
-</div>
+<div id="results" aria-live="polite"></div>
 
+<!-- Shown by htmx while the input's request is in flight. -->
 <span class="hc-spinner htmx-indicator" id="search-spinner" aria-hidden="true"></span>
 ```
 

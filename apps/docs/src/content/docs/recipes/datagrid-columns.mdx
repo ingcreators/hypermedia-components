@@ -29,8 +29,12 @@ Ships `recipe.html`, `expanded.html`, and the machine-checked
 
 Open **Columns**, uncheck a few, **Apply** — the server answers the
 grid with exactly those columns (in the submitted order) plus the
-chooser re-rendered out of band with matching checked states. Uncheck
-everything to see the absent-params branch bring the default set back.
+chooser re-rendered out of band with matching checked states. Drag a
+row's ⠿ handle to reorder before applying — the submitted `cols=`
+sequence becomes the column order (the
+[datagrid-prefs](/hypermedia-components/recipes/datagrid-prefs/)
+upgrade). Uncheck everything to see the absent-params branch bring the
+default set back.
 
 <DatagridColumnsDemo />
 
@@ -69,8 +73,9 @@ The chooser is the filter-popover shell —
 auto-installed) dismisses it on any 2xx. Every checkbox shares
 `name="cols"`, so Apply serializes repeated `cols=` params, and the
 form targets the **grid wrapper** (`innerHTML` default): header and
-rows always change together. The chooser's stable id is the
-out-of-band swap anchor for the re-rendered checked states.
+rows always change together. The chooser's fieldset keeps a stable id —
+it is the out-of-band swap anchor for the re-rendered checked states
+(never the form; see the contract below).
 
 ## Server response contract
 

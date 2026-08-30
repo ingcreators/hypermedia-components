@@ -122,9 +122,11 @@ function reasonTableHtml(blocked) {
 }
 
 // Header values are latin-1 — the blessed \uXXXX transform (toast
-// contract) keeps Japanese messages legal on the wire.
-function toastHeader(message, variant) {
-  return { 'HX-Trigger': hxTrigger({ 'hc:toast': { message, variant } }) };
+// contract) keeps any non-latin-1 message legal on the wire.
+function toastHeader(message, variant, extra = {}) {
+  return {
+    'HX-Trigger': hxTrigger({ 'hc:toast': { message, variant, ...extra } }),
+  };
 }
 
 // The main swap target is a <tbody>, so htmx parses the response in a
@@ -349,9 +351,12 @@ ${bulkReport(`<div class="hc-alert" data-variant="error" role="alert">
 </div>`, { oob: true })}`,
         {
           status: 409,
+          // duration: 0 — the toast must not auto-dismiss while
+          // failures exist (recipe rule).
           headers: toastHeader(
             `Nothing was executed (${blockedCount} rows do not qualify)`,
             'error',
+            { duration: 0 },
           ),
         },
       );
@@ -403,14 +408,17 @@ ${bulkReport(`<p role="status">${ok.length} rows archived.</p>`, { oob: true })}
   return html(
     `${rows}
 ${bulkReport(`<div class="hc-alert" data-variant="warning" role="status">
-  <p><strong>${ok.length} succeeded / ${failedCount} failed</strong> (of ${ids.length} selected)${navigatorHtml(ids)} · <a href="${API}/items?f-last-result=failed">Show only failed</a></p>
+  <p><strong>${ok.length} succeeded / ${failedCount} failed</strong> (of ${ids.length} selected)${navigatorHtml(ids)} · <a href="#" aria-disabled="true" title="Not wired in this demo — a real app points this at the grid URL with the failure filter applied">Show only failed</a></p>
   ${retryLine}
 </div>`, { oob: true })}
 ${detailPanel(reasonTableHtml(blocked), { oob: true, count: failedCount })}`,
     {
+      // duration: 0 — the toast must not auto-dismiss while failures
+      // exist (recipe rule).
       headers: toastHeader(
         `${ok.length} succeeded / ${failedCount} failed`,
         'warning',
+        { duration: 0 },
       ),
     },
   );

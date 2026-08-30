@@ -10,12 +10,12 @@ function get(query = '', { htmx = true } = {}) {
 }
 
 describe('live-search demo API', () => {
-  it('returns the full list as an hc-list fragment', async () => {
+  it('returns the full list as a ul fragment', async () => {
     const response = await get();
     expect(response.status).toBe(200);
     expect(response.headers.get('content-type')).toContain('text/html');
     const body = await response.text();
-    expect(body).toContain('<ul class="hc-list">');
+    expect(body).toContain('<ul>');
     expect(body).toContain('<li>Button</li>');
     expect(body).not.toContain('<!doctype');
   });
