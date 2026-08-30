@@ -24,6 +24,8 @@
 // installTree(root = document) returns an uninstaller. Repeated calls
 // on the same root return the same uninstaller (idempotent).
 
+import { hasRemovals, pruneDetachers } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcTreeUninstall';
 
 function ownedBy(tree, selector) {
@@ -274,6 +276,9 @@ export function installTree(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // A batch that removed nodes may have swapped instances away —
+      // run their detachers and let go of them (see lifecycle.js).
+      if (hasRemovals(records)) pruneDetachers(detachers);
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;

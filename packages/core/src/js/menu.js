@@ -33,6 +33,8 @@ import {
 import { wireSubmenus, handleMenuTreeKeydown, isSubmenuParent } from './submenu.js';
 import { supportsAnchorPositioning, trackFloating } from './anchor-fallback.js';
 
+import { hasRemovals, pruneDetachers } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcMenuUninstall';
 
 function escapeAttr(s) {
@@ -216,6 +218,9 @@ export function installMenu(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // A batch that removed nodes may have swapped instances away —
+      // run their detachers and let go of them (see lifecycle.js).
+      if (hasRemovals(records)) pruneDetachers(detachers);
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;

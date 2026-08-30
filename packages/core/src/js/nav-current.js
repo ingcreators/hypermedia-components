@@ -26,6 +26,8 @@
 //
 // installNavCurrent(root = document) returns an idempotent uninstaller.
 
+import { hasRemovals } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcNavCurrentUninstall';
 const SELECTOR = '[data-hc-nav-current]';
 
@@ -134,6 +136,15 @@ export function installNavCurrent(root = (typeof document !== 'undefined' ? docu
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // Containers swapped away must not pin their subtree (or their
+      // last marked link) forever — forget them (see lifecycle.js).
+      if (hasRemovals(records)) {
+        for (const container of containers) {
+          if (container.isConnected) continue;
+          containers.delete(container);
+          marked.delete(container);
+        }
+      }
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;

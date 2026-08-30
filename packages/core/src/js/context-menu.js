@@ -40,6 +40,8 @@ import {
 } from './menu-core.js';
 import { wireSubmenus, handleMenuTreeKeydown, isSubmenuParent } from './submenu.js';
 
+import { hasRemovals, pruneDetachers } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcContextMenuUninstall';
 
 function menuFor(region) {
@@ -65,7 +67,10 @@ function clampToViewport(menu, x, y) {
 }
 
 function openAt(menu, x, y) {
-  if (typeof menu.showPopover !== 'function') return;
+  // A stale attachment can fire in the window between a swap replacing
+  // the menu and the install observer rebinding — showPopover() on a
+  // disconnected node throws InvalidStateError.
+  if (typeof menu.showPopover !== 'function' || !menu.isConnected) return;
   // Pin at the pointer. `position-area: none` neutralises the dropdown
   // anchor rule in hc-menu.css so our fixed coords win even when CSS
   // Anchor Positioning is supported.
@@ -131,13 +136,17 @@ function attach(region, detachers) {
   menu.addEventListener('keydown', onMenuKeydown);
   menu.addEventListener('click', onMenuClick);
 
-  detachers.set(region, () => {
+  const detach = () => {
     region.removeEventListener('contextmenu', onContextmenu);
     region.removeEventListener('keydown', onRegionKeydown);
     menu.removeEventListener('keydown', onMenuKeydown);
     menu.removeEventListener('click', onMenuClick);
     submenuCleanup();
-  });
+  };
+  // Stale when the wired menu was swapped away or the region now points
+  // at a different menu — the install observer rebinds then.
+  detach.stale = () => !menu.isConnected || menuFor(region) !== menu;
+  detachers.set(region, detach);
 }
 
 /**
@@ -163,14 +172,40 @@ export function installContextMenu(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // A batch that removed nodes may have swapped instances away —
+      // run their detachers and let go of them (see lifecycle.js).
+      if (hasRemovals(records)) pruneDetachers(detachers);
+      const affected = new Set();
+      let menuArrived = false;
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;
-          if (node.matches?.('[data-hc-context-menu]')) attach(node, detachers);
+          if (node.matches?.('[data-hc-context-menu]')) affected.add(node);
           node.querySelectorAll?.('[data-hc-context-menu]').forEach((el) =>
-            attach(el, detachers),
+            affected.add(el),
           );
+          if (node.matches?.('.hc-menu') || node.querySelector?.('.hc-menu')) {
+            menuArrived = true;
+          }
         }
+      }
+      // The menu is id-referenced and can live anywhere, so an arriving
+      // menu can complete a region attach() skipped for lack of one, or
+      // stale an attachment whose menu was replaced. Re-consider every
+      // region when menus arrive.
+      if (menuArrived) {
+        for (const el of root.querySelectorAll?.('[data-hc-context-menu]') ?? []) {
+          affected.add(el);
+        }
+      }
+      for (const region of affected) {
+        const detach = detachers.get(region);
+        if (detach) {
+          if (!detach.stale()) continue;
+          detach();
+          detachers.delete(region);
+        }
+        attach(region, detachers);
       }
     });
     observer.observe(root.body ?? root, { childList: true, subtree: true });

@@ -36,6 +36,8 @@
 // installSpy(root = document) returns an idempotent uninstaller. Repeated
 // calls on the same root return the same uninstaller.
 
+import { hasRemovals, pruneDetachers } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcSpyUninstall';
 const SELECTOR = '[data-hc-spy]';
 
@@ -98,10 +100,27 @@ function attach(nav, detachers) {
   const observer = new IntersectionObserver(update, { rootMargin: ROOT_MARGIN, threshold: 0 });
   for (const section of sections) observer.observe(section);
 
-  detachers.set(nav, () => {
+  const detach = () => {
     observer.disconnect();
     setActive(null);
-  });
+  };
+  // Stale when a tracked section or link was swapped away (the
+  // IntersectionObserver keeps watching the detached node and the
+  // detached section's zero rect corrupts the selection), or when a
+  // link now resolves to a section this attachment never observed —
+  // the install observer rebinds then.
+  detach.stale = () => {
+    for (const section of sections) if (!section.isConnected) return true;
+    for (const link of linkFor.values()) if (!link.isConnected) return true;
+    for (const link of nav.querySelectorAll('a[href^="#"]')) {
+      const id = decodeURIComponent((link.hash || '').slice(1));
+      if (!id) continue;
+      const section = doc.getElementById(id);
+      if (section && !linkFor.has(section)) return true;
+    }
+    return false;
+  };
+  detachers.set(nav, detach);
 }
 
 /**
@@ -123,12 +142,36 @@ export function installSpy(root = (typeof document !== 'undefined' ? document : 
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // A batch that removed nodes may have swapped instances away —
+      // run their detachers and let go of them (see lifecycle.js).
+      if (hasRemovals(records)) pruneDetachers(detachers);
+      const affected = new Set();
+      let idArrived = false;
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;
-          if (node.matches?.(SELECTOR)) attach(node, detachers);
-          node.querySelectorAll?.(SELECTOR).forEach((el) => attach(el, detachers));
+          if (node.matches?.(SELECTOR)) affected.add(node);
+          node.querySelectorAll?.(SELECTOR).forEach((el) => affected.add(el));
+          // Links re-rendered inside a surviving nav.
+          const nav = node.closest?.(SELECTOR);
+          if (nav) affected.add(nav);
+          // Sections live anywhere in the page — an arriving element
+          // with an id can replace a tracked section (or complete a nav
+          // attach() skipped for lack of one).
+          if (node.id || node.querySelector?.('[id]')) idArrived = true;
         }
+      }
+      if (idArrived) {
+        for (const el of root.querySelectorAll?.(SELECTOR) ?? []) affected.add(el);
+      }
+      for (const nav of affected) {
+        const detach = detachers.get(nav);
+        if (detach) {
+          if (!detach.stale()) continue;
+          detach();
+          detachers.delete(nav);
+        }
+        attach(nav, detachers);
       }
     });
     observer.observe(root.body ?? root, { childList: true, subtree: true });

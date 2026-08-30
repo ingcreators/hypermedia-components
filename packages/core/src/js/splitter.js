@@ -32,6 +32,8 @@
 
 import { t } from './i18n.js';
 
+import { hasRemovals, pruneDetachers } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcSplitterUninstall';
 
 // localStorage is optional and may throw (privacy mode, disabled). Guard it.
@@ -185,13 +187,21 @@ function attach(root, detachers) {
   doc.addEventListener('pointermove', onPointerMove);
   doc.addEventListener('pointerup', onPointerUp);
 
-  detachers.set(root, () => {
+  const detach = () => {
     handle.removeEventListener('pointerdown', onPointerDown);
     handle.removeEventListener('keydown', onKeydown);
     handle.removeEventListener('dblclick', onDblclick);
     doc.removeEventListener('pointermove', onPointerMove);
     doc.removeEventListener('pointerup', onPointerUp);
-  });
+  };
+  // Stale when the handle or primary panel was swapped away (their
+  // listeners and ARIA wiring died with them) — the install observer
+  // rebinds then.
+  detach.stale = () =>
+    !handle.isConnected ||
+    !primary.isConnected ||
+    root.querySelector(':scope > .hc-splitter__handle') !== handle;
+  detachers.set(root, detach);
 }
 
 /**
@@ -215,12 +225,30 @@ export function installSplitter(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // A batch that removed nodes may have swapped instances away —
+      // run their detachers and let go of them (see lifecycle.js).
+      if (hasRemovals(records)) pruneDetachers(detachers);
+      const affected = new Set();
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;
-          if (node.matches?.('.hc-splitter')) attach(node, detachers);
-          node.querySelectorAll?.('.hc-splitter').forEach((element) => attach(element, detachers));
+          if (node.matches?.('.hc-splitter')) affected.add(node);
+          node.querySelectorAll?.('.hc-splitter').forEach((element) => affected.add(element));
+          // Content swapped INTO a surviving splitter (a re-rendered
+          // panel or handle): the root itself never appears in
+          // addedNodes — resolve it by walking up.
+          const splitter = node.closest?.('.hc-splitter');
+          if (splitter) affected.add(splitter);
         }
+      }
+      for (const splitter of affected) {
+        const detach = detachers.get(splitter);
+        if (detach) {
+          if (!detach.stale()) continue;
+          detach();
+          detachers.delete(splitter);
+        }
+        attach(splitter, detachers);
       }
     });
     observer.observe(root.body ?? root, { childList: true, subtree: true });

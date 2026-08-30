@@ -24,6 +24,8 @@
 // installDatagrid(root = document) returns an uninstaller. Repeated calls
 // on the same root return the same uninstaller (idempotent).
 
+import { hasRemovals, pruneDetachers } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcDatagridUninstall';
 const WIDGETS = 'input, button, select, textarea, a[href]';
 let detailIdSeq = 0;
@@ -1695,6 +1697,9 @@ export function installDatagrid(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // A batch that removed nodes may have swapped instances away —
+      // run their detachers and let go of them (see lifecycle.js).
+      if (hasRemovals(records)) pruneDetachers(detachers);
       const affected = new Set();
       for (const rec of records) {
         for (const node of rec.addedNodes) {
