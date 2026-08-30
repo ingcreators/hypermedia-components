@@ -187,6 +187,32 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- Behavior lifecycle hardening — the two classes the swap-resilience
+  audit (#600) deliberately deferred:
+  - **Departed instances are now detached and forgotten.** Every
+    install observer kept a `Map` of live attachments and only ever
+    handled ADDED nodes: an instance swapped out of the document
+    stayed in the Map forever — its detacher never ran, so listeners
+    on shared targets stayed registered (the datagrid's `window`
+    hashchange listener and its shared overflow-tooltip node, the
+    splitter's document-level pointermove/up) and the Map pinned the
+    whole detached subtree against garbage collection, growing without
+    bound on long-lived pages. A shared `lifecycle.js` helper now
+    prunes disconnected instances (running their detachers) whenever a
+    mutation batch removes nodes, wired into all 26 Map-keeping
+    behaviors plus `installNavCurrent`'s container set. Elements that
+    merely move in the same batch are left alone.
+  - **The remaining once-cached behaviors rebind after inner swaps**
+    (the #600 stale-detection pattern): `installMenubar` re-wires the
+    cross-menu ←/→ switch when a dropdown is replaced or a new top
+    item arrives; `installContextMenu` re-resolves a replaced (or
+    late-arriving) id-referenced menu and no-ops instead of throwing
+    on a disconnected one; `installSpy` rebuilds its
+    IntersectionObserver when a tracked section or link is swapped
+    (a detached section's zero rect was corrupting the active pick);
+    `installCarousel` re-stamps slide ARIA and regenerates its dots
+    when the slide set changes under a surviving viewport;
+    `installSplitter` re-wires a replaced handle.
 - Data-grid page template: the Filters panel's **Cancel button did
   nothing** (user report — the dialog would not close, and the record
   editor's Cancel was dead the same way). Cancel was a

@@ -28,6 +28,8 @@
 import { ITEM_ROLE_SELECTOR, isEnabled, focusFirst, focusLast } from './menu-core.js';
 import { isSubmenuParent } from './submenu.js';
 
+import { hasRemovals, pruneDetachers } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcMenubarUninstall';
 const MENUBAR = '.hc-menubar[role="menubar"]';
 
@@ -160,9 +162,11 @@ function attach(menubar, detachers) {
     openMenuOf(nextItem, 'first');
   }
 
+  const wiredMenus = new Set();
   for (const item of topItems(menubar)) {
     const menu = menuFor(item);
     if (!menu) continue;
+    wiredMenus.add(menu);
     const onMenuKey = (e) => {
       const focusItem = e.target.closest?.(ITEM_ROLE_SELECTOR);
       const owning = (focusItem ?? e.target).closest?.('.hc-menu');
@@ -183,9 +187,21 @@ function attach(menubar, detachers) {
     cleanups.push(() => menu.removeEventListener('keydown', onMenuKey));
   }
 
-  detachers.set(menubar, () => {
+  const detach = () => {
     for (const c of cleanups) c();
-  });
+  };
+  // Stale when a wired dropdown was swapped away (its cross-menu ←/→
+  // listener died with it) or a new top item's menu arrived unwired —
+  // the install observer rebinds then.
+  detach.stale = () => {
+    for (const m of wiredMenus) if (!m.isConnected) return true;
+    for (const item of topItems(menubar)) {
+      const menu = menuFor(item);
+      if (menu && !wiredMenus.has(menu)) return true;
+    }
+    return false;
+  };
+  detachers.set(menubar, detach);
 }
 
 /**
@@ -209,12 +225,30 @@ export function installMenubar(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // A batch that removed nodes may have swapped instances away —
+      // run their detachers and let go of them (see lifecycle.js).
+      if (hasRemovals(records)) pruneDetachers(detachers);
+      const affected = new Set();
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;
-          if (node.matches?.(MENUBAR)) attach(node, detachers);
-          node.querySelectorAll?.(MENUBAR).forEach((el) => attach(el, detachers));
+          if (node.matches?.(MENUBAR)) affected.add(node);
+          node.querySelectorAll?.(MENUBAR).forEach((el) => affected.add(el));
+          // Content swapped INTO a surviving menubar (a re-rendered
+          // dropdown, a new top item): the bar itself never appears in
+          // addedNodes — resolve it by walking up.
+          const bar = node.closest?.(MENUBAR);
+          if (bar) affected.add(bar);
         }
+      }
+      for (const bar of affected) {
+        const detach = detachers.get(bar);
+        if (detach) {
+          if (!detach.stale()) continue;
+          detach();
+          detachers.delete(bar);
+        }
+        attach(bar, detachers);
       }
     });
     observer.observe(root.body ?? root, { childList: true, subtree: true });

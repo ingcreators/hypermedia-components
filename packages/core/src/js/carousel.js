@@ -24,6 +24,8 @@
 // No network — slides are plain HTML (htmx can lazy-load them as partials).
 // installCarousel(root = document) returns an idempotent uninstaller.
 
+import { hasRemovals, pruneDetachers } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcCarouselUninstall';
 
 function prefersReducedMotion() {
@@ -82,6 +84,11 @@ function attach(carousel, detachers) {
         b.setAttribute('aria-label', `Go to slide ${i + 1}`);
         dotsContainer.appendChild(b);
         return b;
+      });
+      // Generated (not author-provided) — remove on detach so a rebind
+      // after the slide set changed regenerates the right count.
+      cleanups.push(() => {
+        for (const d of dots) d.remove();
       });
     }
   }
@@ -191,10 +198,25 @@ function attach(carousel, detachers) {
     });
   }
 
-  detachers.set(carousel, () => {
+  const detach = () => {
     if (observer) observer.disconnect();
     for (const c of cleanups) c();
-  });
+  };
+  // Stale when the viewport, a slide, a control or a dot was swapped
+  // away (listeners and the IntersectionObserver died with them), or
+  // when the slide set changed under a surviving viewport — the
+  // install observer rebinds then.
+  detach.stale = () => {
+    if (!viewport.isConnected) return true;
+    if (prevBtn && !prevBtn.isConnected) return true;
+    if (nextBtn && !nextBtn.isConnected) return true;
+    for (const s of slides) if (!s.isConnected) return true;
+    for (const d of dots) if (!d.isConnected) return true;
+    const now = viewport.querySelectorAll(':scope > .hc-carousel__slide');
+    if (now.length !== slides.length) return true;
+    return false;
+  };
+  detachers.set(carousel, detach);
 }
 
 /**
@@ -215,12 +237,30 @@ export function installCarousel(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // A batch that removed nodes may have swapped instances away —
+      // run their detachers and let go of them (see lifecycle.js).
+      if (hasRemovals(records)) pruneDetachers(detachers);
+      const affected = new Set();
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;
-          if (node.matches?.('.hc-carousel')) attach(node, detachers);
-          node.querySelectorAll?.('.hc-carousel').forEach((el) => attach(el, detachers));
+          if (node.matches?.('.hc-carousel')) affected.add(node);
+          node.querySelectorAll?.('.hc-carousel').forEach((el) => affected.add(el));
+          // Content swapped INTO a surviving carousel (new slides, a
+          // re-rendered viewport): the carousel itself never appears in
+          // addedNodes — resolve it by walking up.
+          const carousel = node.closest?.('.hc-carousel');
+          if (carousel) affected.add(carousel);
         }
+      }
+      for (const carousel of affected) {
+        const detach = detachers.get(carousel);
+        if (detach) {
+          if (!detach.stale()) continue;
+          detach();
+          detachers.delete(carousel);
+        }
+        attach(carousel, detachers);
       }
     });
     observer.observe(root.body ?? root, { childList: true, subtree: true });

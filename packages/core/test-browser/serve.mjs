@@ -45,6 +45,7 @@ const ASSET_ALIASES = new Map([
   ['/close-popover.js', join(coreDist, 'close-popover.js')],
   ['/remote-dialog.js', join(coreDist, 'remote-dialog.js')],
   ['/tabs.js',          join(coreDist, 'tabs.js')],
+  ['/lifecycle.js',     join(coreDist, 'lifecycle.js')],
   ['/menu-core.js',     join(coreDist, 'menu-core.js')],
   ['/submenu.js',       join(coreDist, 'submenu.js')],
   ['/menu.js',          join(coreDist, 'menu.js')],

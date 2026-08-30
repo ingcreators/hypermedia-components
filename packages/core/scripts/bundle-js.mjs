@@ -43,6 +43,7 @@ const FILES = [
   ['src/js/close-popover.js', 'close-popover.js'],
   ['src/js/remote-dialog.js', 'remote-dialog.js'],
   ['src/js/tabs.js',          'tabs.js'],
+  ['src/js/lifecycle.js',     'lifecycle.js'],
   ['src/js/menu-core.js',     'menu-core.js'],
   ['src/js/submenu.js',       'submenu.js'],
   ['src/js/menu.js',          'menu.js'],

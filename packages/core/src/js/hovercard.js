@@ -35,6 +35,8 @@
 
 import { supportsAnchorPositioning, trackFloating, readSideAlign } from './anchor-fallback.js';
 
+import { hasRemovals, pruneDetachers } from './lifecycle.js';
+
 const INSTALL_KEY = '__hcHoverCardUninstall';
 const SHOW_DELAY = 500;
 const HIDE_DELAY = 200;
@@ -251,6 +253,9 @@ export function installHovercard(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      // A batch that removed nodes may have swapped instances away —
+      // run their detachers and let go of them (see lifecycle.js).
+      if (hasRemovals(records)) pruneDetachers(detachers);
       const affected = new Set();
       const considerTrigger = (el) => {
         const ids = el.getAttribute?.('aria-describedby');
