@@ -71,6 +71,28 @@ describe('installHovercard', () => {
     expect(document.getElementById('card').getAttribute('popover')).toBe('manual');
   });
 
+  it('rebinds when the trigger is replaced (OOB swap)', async () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installHovercard();
+    const old = document.getElementById('trigger');
+    const fresh = old.cloneNode(true);
+    old.replaceWith(fresh);
+    // Let the install observer see the new trigger and rebind.
+    await vi.advanceTimersByTimeAsync(0);
+    fire(fresh, 'focus');
+    expect(document.getElementById('card').matches(':popover-open')).toBe(true);
+  });
+
+  it('no-ops instead of throwing when the card was swapped away under a live trigger', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installHovercard();
+    const card = document.getElementById('card');
+    card.remove(); // the swap replaced the card; trigger listeners survive
+    const trigger = document.getElementById('trigger');
+    expect(() => fire(trigger, 'focus')).not.toThrow();
+    expect(card.matches(':popover-open')).toBe(false);
+  });
+
   it('mouseenter on the trigger opens the card after the 500ms delay', () => {
     document.body.innerHTML = SIMPLE;
     uninstall = installHovercard();

@@ -55,11 +55,23 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/api/recipes/datagrid
     </form>
   </div>
 
+  <!-- The header fast path's wire: installDatagrid mirrors a clicked
+       set into this input and dispatches hc:datagridsort on the grid,
+       which asks for the sorted page itself. It sits outside the panel
+       form so it never fights installSortList over the sort param. -->
+  <input
+    type="hidden"
+    id="datagrid-sort-demo-wire"
+    name="sort"
+    value="-ship,order"
+    data-hc-datagrid-sort />
+
   <div
     class="hc-datagrid"
     id="datagrid-sort-demo-grid"
-    data-hx-get={`${api}/items?sort=-ship,order`}
-    data-hx-trigger="load"
+    data-hx-get={`${api}/items`}
+    data-hx-trigger="load, hc:datagridsort"
+    data-hx-include="#datagrid-sort-demo-wire"
     data-hx-swap="innerHTML">
   </div>
 </DemoFrame>

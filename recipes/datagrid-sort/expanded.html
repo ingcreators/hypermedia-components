@@ -107,8 +107,23 @@
 <!-- The grid the sort applies to. The server returns the sorted page —
      the client only ever describes the instruction. Header cells stay
      the fast path (aria-sort + data-sort-index say what is applied);
-     this panel is the read-out and the editor for the whole set. -->
-<div class="hc-datagrid" id="items-grid">
+     this panel is the read-out and the editor for the whole set.
+
+     The fast path's wire: installDatagrid mirrors the clicked set into
+     this input and dispatches hc:datagridsort on the grid, which asks
+     for the sorted page itself (the response also re-renders the
+     trigger and the panel out of band). Without this pair a header
+     click cycles aria-sort and sorts nothing. The input sits OUTSIDE
+     the panel form — inside it, installSortList's formdata value and
+     this one would fight over the same param. -->
+<input type="hidden" id="sort-wire" name="sort" value="-ship,order"
+       data-hc-datagrid-sort>
+
+<div class="hc-datagrid" id="items-grid"
+     data-hx-get="/orders"
+     data-hx-trigger="hc:datagridsort"
+     data-hx-include="#sort-wire, #filters"
+     data-hx-swap="innerHTML">
   <div class="hc-datagrid__scroll">
     <table class="hc-datagrid__table">
       <thead class="hc-datagrid__head">

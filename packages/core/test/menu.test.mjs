@@ -74,6 +74,57 @@ describe('installMenu', () => {
     expect(t.getAttribute('aria-controls')).toBe('m1');
   });
 
+  it('re-wires a replaced trigger on the next open (OOB swap)', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installMenu();
+    const menu = document.getElementById('m1');
+    // The server re-renders the trigger out of band (its label shows
+    // state) — the replacement carries none of the attach-time wiring.
+    const old = document.getElementById('trigger');
+    const fresh = old.cloneNode(true);
+    fresh.removeAttribute('aria-haspopup');
+    fresh.removeAttribute('aria-expanded');
+    fresh.removeAttribute('aria-controls');
+    old.replaceWith(fresh);
+    const evt = new Event('beforetoggle');
+    Object.defineProperty(evt, 'newState', { value: 'open' });
+    menu.dispatchEvent(evt);
+    expect(fresh.getAttribute('aria-haspopup')).toBe('menu');
+    expect(fresh.getAttribute('aria-controls')).toBe('m1');
+  });
+
+  it('re-stamps autofocus after the item list re-renders', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installMenu();
+    const menu = document.getElementById('m1');
+    // The server re-renders the items (saved-views re-ordering) — the
+    // previously stamped [autofocus] item is gone.
+    menu.innerHTML =
+      '<button id="new-a" class="hc-menu__item" role="menuitem" type="button">New</button>';
+    const evt = new Event('beforetoggle');
+    Object.defineProperty(evt, 'newState', { value: 'open' });
+    menu.dispatchEvent(evt);
+    expect(document.getElementById('new-a').hasAttribute('autofocus')).toBe(true);
+  });
+
+  it('re-wires submenus after the item list re-renders', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installMenu();
+    const menu = document.getElementById('m1');
+    menu.innerHTML = `
+      <button id="parent" class="hc-menu__item" role="menuitem" type="button" data-hc-submenu="sub1">More</button>
+      <div id="sub1" class="hc-menu" popover role="menu">
+        <button id="sub-item" class="hc-menu__item" role="menuitem" type="button">Deep</button>
+      </div>
+    `;
+    const evt = new Event('beforetoggle');
+    Object.defineProperty(evt, 'newState', { value: 'open' });
+    menu.dispatchEvent(evt);
+    const parent = document.getElementById('parent');
+    expect(parent.getAttribute('aria-haspopup')).toBe('menu');
+    expect(parent.getAttribute('aria-controls')).toBe('sub1');
+  });
+
   it('updates aria-expanded on toggle', () => {
     document.body.innerHTML = SIMPLE;
     uninstall = installMenu();

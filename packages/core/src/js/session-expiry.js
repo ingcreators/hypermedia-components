@@ -74,7 +74,13 @@ export function installSessionExpiry(
       config.parameters && typeof config.parameters.entries === 'function'
         ? Object.fromEntries(config.parameters.entries())
         : config.parameters;
-    htmx.ajax(config.verb, config.path, { source, values });
+    // htmx.ajax returns a promise that REJECTS (with undefined) when the
+    // replayed request fails. That failure surfaces through htmx's own
+    // sendError/timeout events like any other request — swallow the
+    // rejection instead of leaking an uncaught "undefined".
+    Promise.resolve(htmx.ajax(config.verb, config.path, { source, values })).catch(
+      () => {},
+    );
   }
 
   root.addEventListener('htmx:beforeSwap', onBeforeSwap);

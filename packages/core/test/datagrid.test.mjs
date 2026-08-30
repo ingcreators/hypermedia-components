@@ -3,8 +3,10 @@ import { installDatagrid } from '../src/js/datagrid.js';
 
 let uninstall = () => {};
 
-const FIXTURE = `
-  <div class="hc-datagrid" id="grid">
+// The grid's CONTENT, separate from its shell — reused to simulate the
+// htmx swaps that fill or replace it (hx-trigger="load" / a sort response
+// with hx-swap="innerHTML" on the grid).
+const FIXTURE_INNER = `
     <div class="hc-datagrid__scroll">
       <table class="hc-datagrid__table">
         <thead class="hc-datagrid__head">
@@ -36,7 +38,10 @@ const FIXTURE = `
         </tbody>
       </table>
     </div>
-  </div>
+`;
+
+const FIXTURE = `
+  <div class="hc-datagrid" id="grid">${FIXTURE_INNER}</div>
 `;
 
 function press(el, key, opts = {}) {
@@ -218,6 +223,35 @@ describe('installDatagrid', () => {
     document.body.innerHTML = FIXTURE;
     await new Promise((r) => setTimeout(r, 0));
     expect(document.querySelector('.hc-datagrid__table').getAttribute('role')).toBe('grid');
+  });
+
+  it('attaches when the table arrives inside an existing shell (a load swap)', async () => {
+    // An empty .hc-datagrid filled by hx-trigger="load" + hx-swap="innerHTML":
+    // the grid node itself never re-enters the DOM, only its content does.
+    document.body.innerHTML = '<div class="hc-datagrid" id="grid"></div>';
+    uninstall = installDatagrid();
+    $('grid').innerHTML = FIXTURE_INNER;
+    await new Promise((r) => setTimeout(r, 0));
+    expect(document.querySelector('.hc-datagrid__table').getAttribute('role')).toBe('grid');
+    const first = $('row-1').querySelector('.hc-datagrid__cell');
+    first.focus();
+    press(first, 'ArrowRight');
+    expect($('c-1-id').getAttribute('data-active')).toBe('');
+  });
+
+  it('rebinds when a swap replaces the whole table (a sort response)', async () => {
+    document.body.innerHTML = FIXTURE;
+    uninstall = installDatagrid();
+    // The response replaces the scroll region wholesale — every listener
+    // was bound to the old table.
+    $('grid').innerHTML = FIXTURE_INNER;
+    await new Promise((r) => setTimeout(r, 0));
+    const table = document.querySelector('.hc-datagrid__table');
+    expect(table.getAttribute('role')).toBe('grid');
+    const first = $('row-1').querySelector('.hc-datagrid__cell');
+    first.focus();
+    press(first, 'ArrowRight');
+    expect($('c-1-id').getAttribute('data-active')).toBe('');
   });
 });
 

@@ -79,6 +79,28 @@ describe('installTooltip', () => {
     expect(tip.getAttribute('role')).toBe('status');
   });
 
+  it('rebinds when the trigger is replaced (OOB swap)', async () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installTooltip();
+    const old = document.getElementById('trigger');
+    const fresh = old.cloneNode(true);
+    old.replaceWith(fresh);
+    // Let the install observer see the new trigger and rebind.
+    await vi.advanceTimersByTimeAsync(0);
+    fire(fresh, 'focus');
+    expect(document.getElementById('tip').matches(':popover-open')).toBe(true);
+  });
+
+  it('no-ops instead of throwing when the tooltip was swapped away under a live trigger', () => {
+    document.body.innerHTML = SIMPLE;
+    uninstall = installTooltip();
+    const tip = document.getElementById('tip');
+    tip.remove(); // the swap replaced the tooltip; trigger listeners survive
+    const trigger = document.getElementById('trigger');
+    expect(() => fire(trigger, 'focus')).not.toThrow();
+    expect(tip.matches(':popover-open')).toBe(false);
+  });
+
   it('shows on mouseenter after the 300ms delay and hides on mouseleave after 100ms', () => {
     document.body.innerHTML = SIMPLE;
     uninstall = installTooltip();

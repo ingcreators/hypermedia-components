@@ -201,6 +201,48 @@ Security    — security-relevant changes
   `<form method="dialog">`, and Apply / Save reach the form via the
   `form` attribute (demo, record fragment, page fences and prose,
   en + ja). Escape always worked; Cancel now matches it.
+- Swap-resilience hardening across the behaviors, from a class-wide
+  audit of the #596–#598 defect patterns ("wired once at attach,
+  broken by the next htmx swap"):
+  - **`installDatagrid` never attached** to a grid whose table arrives
+    by swap — an empty `.hc-datagrid` shell filled by
+    `hx-trigger="load"` + `hx-swap="innerHTML"` (the datagrid-sort /
+    -columns / -filter demos' exact shape) bailed at attach time and
+    the install observer only watched for added `.hc-datagrid` nodes,
+    never for content arriving inside one. On those demos keyboard
+    navigation, header sorting, selection events and sticky
+    measurement were all dead. The observer now resolves the owning
+    grid of every added node and (re)binds whenever the grid's table
+    is not the one the attachment bound — which also repairs the
+    wholesale table replacement every sort / filter response performs.
+  - **The datagrid-sort header fast path was never wired**: the
+    contract promises a header click mirrors the wire into
+    `input[data-hc-datagrid-sort]` and returns the sorted page, but
+    neither the scaffolds nor the demo carried that input or any
+    `hc:datagridsort` listener — with the attach fix in place a click
+    would have cycled `aria-sort` while sorting nothing. The scaffolds,
+    demo and contract now ship the pair (a hidden wire input outside
+    the panel form + `data-hx-trigger="hc:datagridsort"` +
+    `data-hx-include` on the grid), and checks.json guards it.
+  - **`installMenu` had the pre-#597 popover defect**: anchor-name and
+    ARIA were written onto the trigger once, at attach — a trigger
+    re-rendered out of band (saved-views' applied-view label) lost
+    them and the menu opened unanchored. The current trigger is now
+    re-resolved and re-wired on every open, and the open also
+    re-stamps `[autofocus]` and re-wires submenus after an item-list
+    re-render (previously: no initial focus, submenus dead).
+  - **`installNavmenu` / `installTooltip` / `installHovercard`**
+    rebind when a swap replaces their triggers (or panels) inside a
+    surviving root — each attachment now knows when it is stale and
+    the install observers watch for re-rendered triggers, not only
+    for added roots. Tooltip and hovercard also no-op instead of
+    throwing `InvalidStateError` when a stale attachment fires
+    `showPopover()` on a node a swap already removed.
+  - **Unhandled promise rejections**: `installSessionExpiry`'s 401
+    replay now swallows the `htmx.ajax` rejection the same way
+    `installNetworkRetry` does (#596), and the datagrid's range-copy
+    `clipboard.writeText()` failure (permission / focus) is a
+    graceful no-op instead of an uncaught rejection.
 - The SSE demos (sse-toast, sse-updates) were dead for anyone who
   reached them late: their scripted streams are one-shot (~15 s /
   ~23 s), start on page load, and close themselves — scroll down

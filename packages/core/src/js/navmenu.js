@@ -288,9 +288,25 @@ function attach(nav, detachers) {
     nav.removeEventListener('keydown', onKeydown);
   });
 
-  detachers.set(nav, () => {
+  const detach = () => {
     for (const c of cleanups) c();
-  });
+  };
+  // Stale when a trigger or panel this attachment wired was swapped away
+  // (its listeners and inline anchor-name died with it), or when a new
+  // unwired trigger arrived inside the surviving nav. The install
+  // observer rebinds then.
+  const wired = new Set(pairs.map((p) => p.trigger));
+  detach.stale = () => {
+    for (const p of pairs) {
+      if (!nav.contains(p.trigger) || !nav.contains(p.panel)) return true;
+    }
+    for (const t of nav.querySelectorAll('[data-hc-navmenu-trigger]')) {
+      if (t.closest('.hc-navmenu') !== nav) continue;
+      if (!wired.has(t)) return true;
+    }
+    return false;
+  };
+  detachers.set(nav, detach);
 }
 
 /**
@@ -313,12 +329,27 @@ export function installNavmenu(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      const affected = new Set();
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;
-          if (node.matches?.('.hc-navmenu')) attach(node, detachers);
-          node.querySelectorAll?.('.hc-navmenu').forEach((el) => attach(el, detachers));
+          if (node.matches?.('.hc-navmenu')) affected.add(node);
+          node.querySelectorAll?.('.hc-navmenu').forEach((el) => affected.add(el));
+          // Content swapped INTO a surviving nav (a re-rendered item list,
+          // a lazy-loaded panel): the nav itself never appears in
+          // addedNodes — resolve it by walking up.
+          const nav = node.closest?.('.hc-navmenu');
+          if (nav) affected.add(nav);
         }
+      }
+      for (const nav of affected) {
+        const detach = detachers.get(nav);
+        if (detach) {
+          if (!detach.stale()) continue;
+          detach();
+          detachers.delete(nav);
+        }
+        attach(nav, detachers);
       }
     });
     observer.observe(root.body ?? root, { childList: true, subtree: true });

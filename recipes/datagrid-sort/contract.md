@@ -89,6 +89,12 @@ Both surfaces render from the same server-side sort set:
 - A header click marks the instruction (`aria-sort` + `data-sort-index`)
   and mirrors the wire into `input[data-hc-datagrid-sort]`, then the
   request returns the sorted page **and** the re-rendered trigger/panel.
+  Concretely: a hidden `input[data-hc-datagrid-sort]` **outside** the
+  panel form (inside it, `installSortList`'s formdata value would fight
+  it over the same param), and the grid itself carrying
+  `data-hx-get` + `data-hx-trigger="hc:datagridsort"` +
+  `data-hx-include` of that input. Without this pair a header click
+  cycles `aria-sort` and sorts nothing.
 - Applying from the panel returns the grid whose headers carry the
   matching `aria-sort` / `data-sort-index`.
 
