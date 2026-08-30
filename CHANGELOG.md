@@ -158,6 +158,47 @@ Security    — security-relevant changes
   snapshot). Zero new JS/CSS; live demo + demo API included.
   ([plan](plans/hc-result-cap-snapshot-plan-en.md))
 
+### Fixed
+
+- Demo & code quality audit (every component/recipe/template page's
+  live demo and Code tab reviewed against the shipped CSS/JS and the
+  demo API, both locales):
+  - **Core**: the tabs overflow chevrons read an undefined
+    `--hc-tabs-tab-color` (now `--hc-tabs-tab-fg`); keyboard focus on
+    menu items now consumes the documented
+    `--hc-menu-item-focus-bg` instead of silently reusing hover;
+    `hc-datagrid`'s error slot gained the missing
+    `data-tone="warning"` rule so a confirmable warning row no longer
+    wears the rejection palette.
+  - **Live demos, browser-verified**: reference-lookup's searcher
+    dialog no longer closes on the first search keystroke (the
+    live-search form opts out of close-on-success); remote-dialog's
+    422 re-opens the dialog in its error state (retargeted at the
+    dialog root — the old closest-dialog outerHTML landed a closed,
+    invisible dialog); row-detail's *Open selected* no longer
+    navigates the whole page to the API URL (one 303 serves both
+    paths, exactly the contract); lazy-tree's restricted branch
+    answers a No-access leaf (an empty 200 could never clear
+    `aria-busy`); bulk-errors' failure toasts are sticky
+    (`duration: 0`) and its dead report link is explicitly
+    illustrative; the docs' mobile display-settings pickers work
+    (per-instance ids — five ids were duplicated on every page).
+  - **Docs**: data-region rewritten around the contract's outerHTML
+    self-replacing shape; HX-Retarget/HX-Reswap no longer presented
+    as an alternative to the 422 `beforeSwap` allowance (they only
+    steer a permitted swap); phantom classes removed everywhere
+    (`hc-list`, `hc-item__label` → `__title`,
+    `hc-input-group__addon` → `hc-input-addon`, `<hc-spinner>`,
+    `hc-code__legend`, `hc-form`, `hc-toolbar__separator`); shell
+    hamburger fences regained `hc-shell__toggle`; token tables
+    reconciled with the CSS (missing calendar-range / switch-warning /
+    inputotp / dialog-duration / datagrid zebra & attention / field
+    applied-marker entries added; never-consumed avatar-border and
+    multicombobox check-color removed; bad `-sm-`/`-label-` shorthand
+    expansions fixed); label wrappers, aria wiring and
+    `type="button"` restored across fences; scaffold contracts
+    normalized to the `data-hx-swap-oob` spelling.
+
 ## [0.3.0] - 2026-08-29
 
 The data-grid release: the operations a business grid is actually used
