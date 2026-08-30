@@ -1,7 +1,7 @@
 /* hc-input-group — compose an input with leading/trailing addons.
  *
  *   <div class="hc-input-group">
- *     <span class="hc-input-group__addon">https://</span>
+ *     <span class="hc-input-addon">https://</span>
  *     <input class="hc-input" type="text">
  *     <button class="hc-button" type="button">Go</button>
  *   </div>

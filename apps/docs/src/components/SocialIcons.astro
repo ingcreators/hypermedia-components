@@ -20,6 +20,14 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
 
 const isJa = Astro.url.pathname.includes('/ja/');
 const settingsLabel = isJa ? '表示設定' : 'Display settings';
+
+// Starlight renders SocialIcons TWICE per page (desktop header +
+// mobile menu), so every id here must be per-instance: fixed ids
+// duplicated on every page, and only the first instance's popover /
+// selects worked — the mobile pickers were dead. The popover id is
+// uniqued per render; the selects need no ids at all (the labels wrap
+// them), and the script binds by class + data-pref instead of ids.
+const uid = 'hc-display-settings-' + Math.random().toString(36).slice(2, 8);
 ---
 
 <Default><slot /></Default>
@@ -29,7 +37,7 @@ const settingsLabel = isJa ? '表示設定' : 'Display settings';
   type="button"
   data-variant="ghost"
   data-size="sm"
-  popovertarget="hc-display-settings"
+  popovertarget={uid}
   aria-label={settingsLabel}
   title={settingsLabel}>
   <!-- "sliders" glyph — decorative; the accessible name is the aria-label. -->
@@ -52,7 +60,7 @@ const settingsLabel = isJa ? '表示設定' : 'Display settings';
 </button>
 
 <div
-  id="hc-display-settings"
+  id={uid}
   class="hc-popover hc-display-settings"
   popover
   data-side="bottom"
@@ -60,9 +68,9 @@ const settingsLabel = isJa ? '表示設定' : 'Display settings';
   aria-label={settingsLabel}>
   <p class="hc-display-settings__title">{settingsLabel}</p>
 
-  <label class="hc-picker" for="hc-color-select">
+  <label class="hc-picker">
     <span class="hc-picker__label">Color</span>
-    <select id="hc-color-select" class="hc-select" data-size="sm">
+    <select class="hc-select" data-size="sm" data-pref="hc-color">
       <option value="default">Default</option>
       <option value="teal">Teal</option>
       <option value="lime">Lime</option>
@@ -71,9 +79,9 @@ const settingsLabel = isJa ? '表示設定' : 'Display settings';
     </select>
   </label>
 
-  <label class="hc-picker" for="hc-neutral-select">
+  <label class="hc-picker">
     <span class="hc-picker__label">Neutral</span>
-    <select id="hc-neutral-select" class="hc-select" data-size="sm">
+    <select class="hc-select" data-size="sm" data-pref="hc-neutral">
       <option value="gray">Gray</option>
       <option value="slate">Slate</option>
       <option value="zinc">Zinc</option>
@@ -82,18 +90,18 @@ const settingsLabel = isJa ? '表示設定' : 'Display settings';
     </select>
   </label>
 
-  <label class="hc-picker" for="hc-density-select">
+  <label class="hc-picker">
     <span class="hc-picker__label">Density</span>
-    <select id="hc-density-select" class="hc-select" data-size="sm">
+    <select class="hc-select" data-size="sm" data-pref="hc-density">
       <option value="comfortable">Comfortable</option>
       <option value="compact">Compact</option>
       <option value="dense">Dense</option>
     </select>
   </label>
 
-  <label class="hc-picker" for="hc-dir-select">
+  <label class="hc-picker">
     <span class="hc-picker__label">Dir</span>
-    <select id="hc-dir-select" class="hc-select" data-size="sm">
+    <select class="hc-select" data-size="sm" data-pref="hc-dir">
       <option value="ltr">LTR</option>
       <option value="rtl">RTL</option>
     </select>
@@ -101,12 +109,16 @@ const settingsLabel = isJa ? '表示設定' : 'Display settings';
 </div>
 
 <script>
-  /** @type {Array<{ key: string, attr: string, values: string[], fallback: string, id: string }>} */
+  // Astro dedupes and runs this module once per page, but the markup
+  // above renders twice (header + mobile menu) — so bind every select
+  // by its data-pref key, and keep the instances in sync: changing a
+  // picker in one place updates its twin in the other.
+  /** @type {Array<{ key: string, attr: string, values: string[], fallback: string }>} */
   const PICKERS = [
-    { key: 'hc-density', attr: 'data-density', values: ['comfortable', 'compact', 'dense'], fallback: 'comfortable', id: 'hc-density-select' },
-    { key: 'hc-color',   attr: 'data-color',   values: ['default', 'teal', 'lime', 'orange', 'fuchsia'], fallback: 'default', id: 'hc-color-select' },
-    { key: 'hc-neutral', attr: 'data-neutral', values: ['gray', 'slate', 'zinc', 'neutral', 'stone'], fallback: 'gray', id: 'hc-neutral-select' },
-    { key: 'hc-dir',     attr: 'dir',          values: ['ltr', 'rtl'], fallback: 'ltr', id: 'hc-dir-select' },
+    { key: 'hc-density', attr: 'data-density', values: ['comfortable', 'compact', 'dense'], fallback: 'comfortable' },
+    { key: 'hc-color',   attr: 'data-color',   values: ['default', 'teal', 'lime', 'orange', 'fuchsia'], fallback: 'default' },
+    { key: 'hc-neutral', attr: 'data-neutral', values: ['gray', 'slate', 'zinc', 'neutral', 'stone'], fallback: 'gray' },
+    { key: 'hc-dir',     attr: 'dir',          values: ['ltr', 'rtl'], fallback: 'ltr' },
   ];
 
   for (const p of PICKERS) {
@@ -126,13 +138,17 @@ const settingsLabel = isJa ? '表示設定' : 'Display settings';
     const init = () => {
       const current = read();
       apply(current);
-      const select = document.getElementById(p.id);
-      if (!(select instanceof HTMLSelectElement)) return;
-      select.value = current;
-      select.addEventListener('change', () => {
-        apply(select.value);
-        try { localStorage.setItem(p.key, select.value); } catch {}
-      });
+      const selects = /** @type {HTMLSelectElement[]} */ ([
+        ...document.querySelectorAll(`.hc-display-settings select[data-pref="${p.key}"]`),
+      ]);
+      for (const select of selects) {
+        select.value = current;
+        select.addEventListener('change', () => {
+          apply(select.value);
+          for (const twin of selects) twin.value = select.value;
+          try { localStorage.setItem(p.key, select.value); } catch {}
+        });
+      }
     };
 
     if (document.readyState === 'loading') {

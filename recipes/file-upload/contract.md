@@ -54,7 +54,7 @@ HX-Trigger: {"hc:toast":{"message":"\"report.pdf\" uploaded","variant":"success"
 ```html
 <li class="hc-item" id="file-317">report.pdf — 1.2 MB</li>
 
-<form id="upload-form" hx-swap-oob="true" …the pristine form markup…>
+<form id="upload-form" data-hx-swap-oob="true" …the pristine form markup…>
   …
 </form>
 ```

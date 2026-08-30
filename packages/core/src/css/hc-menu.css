@@ -177,10 +177,16 @@
       );
   }
 
-  .hc-menu__item:hover:not(:disabled, [aria-disabled="true"]),
+  .hc-menu__item:hover:not(:disabled, [aria-disabled="true"]) {
+    background: var(--hc-menu-item-hover-bg);
+  }
+
+  /* Keyboard focus consumes its own token (same resolved value by
+   * default), so the documented --hc-menu-item-focus-bg override
+   * actually works. */
   .hc-menu__item:focus-visible {
     outline: none;
-    background: var(--hc-menu-item-hover-bg);
+    background: var(--hc-menu-item-focus-bg);
   }
 
   /* Destructive items (sign out, delete, …). Mirrors shadcn's

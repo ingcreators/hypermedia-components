@@ -793,6 +793,14 @@
     border-block-end: 1px solid var(--hc-color-status-error-border);
     background-color: var(--hc-color-status-error-bg);
     color: var(--hc-color-status-error-fg);
+  }
+
+  /* A confirmable warning (edit-errors' data-tone="warning" confirm
+     row) must not wear the rejection palette. */
+  .hc-datagrid__error-row > .hc-datagrid__error[data-tone="warning"] {
+    border-block-end-color: var(--hc-color-status-warning-border);
+    background-color: var(--hc-color-status-warning-bg);
+    color: var(--hc-color-status-warning-fg);
     white-space: normal; /* messages wrap — they are prose, not data */
   }
 

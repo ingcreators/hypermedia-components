@@ -60,13 +60,13 @@ data: <p>All systems normal</p>
 
 ### Out-of-band fragments — one event, several targets
 
-Message data may carry `hx-swap-oob` fragments in addition to the main
+Message data may carry `data-hx-swap-oob` fragments in addition to the main
 fragment; they update their own targets by id, same as the pager and
 bulk-actions responses:
 
 ```text
 event: status:panel
-data: <p>All systems normal</p><span id="alert-badge" hx-swap-oob="true">3</span>
+data: <p>All systems normal</p><span id="alert-badge" data-hx-swap-oob="true">3</span>
 ```
 
 ### Datagrid composition

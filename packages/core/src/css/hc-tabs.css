@@ -218,7 +218,7 @@
     padding: 0;
     border: 0;
     background-color: var(--hc-color-surface);
-    color: var(--hc-tabs-tab-color);
+    color: var(--hc-tabs-tab-fg);
     font-size: 1.125rem;
     line-height: 1;
     cursor: pointer;
