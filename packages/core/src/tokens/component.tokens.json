@@ -2761,6 +2761,14 @@
       "$type": "color",
       "$value": "{semantic.color.surface}"
     },
+    "body-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
+    },
+    "footer-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space.2}"
+    },
     "fg": {
       "$type": "color",
       "$value": "{semantic.color.text}"

@@ -158,6 +158,21 @@ Security    — security-relevant changes
   snapshot). Zero new JS/CSS; live demo + demo API included.
   ([plan](plans/hc-result-cap-snapshot-plan-en.md))
 
+- `hc-popover__body` / `hc-popover__footer` — the structure parts the
+  datagrid filter / sort / column panels already used are now real:
+  a stacked, fieldset-resetting body (`--hc-popover-body-gap`) and an
+  end-aligned action row (`--hc-popover-footer-gap`; separation via
+  padding, so unlayered host margin-resets can't collapse it).
+  Documented on the popover page with the panel pattern.
+
+### Changed
+
+- The multicombobox selected check mark is painted through a CSS mask
+  instead of a hardcoded-color data-URI image, so the documented
+  `--hc-multicombobox-option-check-color` token actually applies: the
+  glyph now follows `data-color` accents (it was sRGB blue-600 under
+  every theme) and renders in `SelectedItem` under forced colors.
+
 ### Fixed
 
 - Demo & code quality audit (every component/recipe/template page's

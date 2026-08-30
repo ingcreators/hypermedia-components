@@ -28,4 +28,30 @@
     /* Nothing — the UA hides it. Hook left intentionally empty so
      * downstream styles can override safely. */
   }
+
+  /* Structure parts for form-bearing popovers (the datagrid filter /
+   * sort / column panels): a stacked body and a trailing action row.
+   * Both optional — a bare popover needs neither. The body doubles as
+   * a fieldset reset, since these panels' natural body element is a
+   * <fieldset> of checkboxes. */
+  .hc-popover__body {
+    display: grid;
+    gap: var(--hc-popover-body-gap);
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .hc-popover__footer {
+    display: flex;
+    gap: var(--hc-popover-footer-gap);
+    align-items: center;
+    justify-content: flex-end;
+
+    /* Padding, not margin: host pages commonly carry an unlayered
+     * universal margin reset (the docs site does), which would win
+     * over this layered rule and glue the footer to the body. */
+    padding-block-start: var(--hc-popover-body-gap);
+  }
 }

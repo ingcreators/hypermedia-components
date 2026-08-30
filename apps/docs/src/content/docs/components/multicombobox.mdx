@@ -302,6 +302,7 @@ Component tokens (in `component.tokens.json`):
 | `multicombobox.tag.remove-fg` / `remove-hover-fg` | × button. |
 | `multicombobox.listbox.*` | Mirror of the combobox listbox tokens. |
 | `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, disabled-fg, indicator-size}` | Option layout + check mark. |
+| `multicombobox.option.check-color` | The selected check mark's color (a mask, so it follows the accent — and `SelectedItem` under forced colors). |
 | `multicombobox.empty-fg` | "No matches" placeholder color. |
 
 ## CSS variables
@@ -319,7 +320,7 @@ Component tokens (in `component.tokens.json`):
 --hc-multicombobox-listbox-max-height | -listbox-padding-block | -listbox-min-width | -listbox-offset
 --hc-multicombobox-option-padding-x | -option-padding-y | -option-font-size | -option-fg
 --hc-multicombobox-option-hover-bg | -option-active-bg
---hc-multicombobox-option-disabled-fg | -option-indicator-size
+--hc-multicombobox-option-disabled-fg | -option-indicator-size | -option-check-color
 --hc-multicombobox-empty-fg
 ```
 

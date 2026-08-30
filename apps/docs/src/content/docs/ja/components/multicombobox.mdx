@@ -311,6 +311,7 @@ component トークン(`component.tokens.json`):
 | `multicombobox.tag.remove-fg` / `remove-hover-fg` | × ボタン。 |
 | `multicombobox.listbox.*` | コンボボックスのリストボックストークンのミラー。 |
 | `multicombobox.option.{padding-x, padding-y, font-size, fg, hover-bg, active-bg, disabled-fg, indicator-size}` | オプションのレイアウト + チェックマーク。 |
+| `multicombobox.option.check-color` | 選択チェックマークの色(マスク描画なのでアクセントに追従 — 強制カラーでは `SelectedItem`)。 |
 | `multicombobox.empty-fg` | 「No matches」プレースホルダーの色。 |
 
 ## CSS 変数
@@ -328,7 +329,7 @@ component トークン(`component.tokens.json`):
 --hc-multicombobox-listbox-max-height | -listbox-padding-block | -listbox-min-width | -listbox-offset
 --hc-multicombobox-option-padding-x | -option-padding-y | -option-font-size | -option-fg
 --hc-multicombobox-option-hover-bg | -option-active-bg
---hc-multicombobox-option-disabled-fg | -option-indicator-size
+--hc-multicombobox-option-disabled-fg | -option-indicator-size | -option-check-color
 --hc-multicombobox-empty-fg
 ```
 

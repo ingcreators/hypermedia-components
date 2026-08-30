@@ -134,6 +134,36 @@ and install the `installClosePopover()` behavior (bundled in
 The behavior listens for `htmx:afterRequest`, checks for success, and
 calls `closest('[popover]').hidePopover()`.
 
+## Panel structure — body and footer
+
+Form-bearing popovers (the datagrid
+[filter](/hypermedia-components/recipes/datagrid-filter/) /
+[sort](/hypermedia-components/recipes/datagrid-sort/) /
+[column](/hypermedia-components/recipes/datagrid-columns/) panels) use
+two optional parts: `hc-popover__body` stacks the controls
+(`display: grid` with `--hc-popover-body-gap` — it also resets a
+`<fieldset>`, the natural body element for a set of checkboxes), and
+`hc-popover__footer` is the trailing action row (end-aligned, gapped).
+A bare popover needs neither.
+
+```html
+<div id="cols-popover" class="hc-popover" popover>
+  <form data-hx-get="/items" data-hx-target="#items-grid"
+        data-hc-close-popover-on-success>
+    <fieldset class="hc-popover__body">
+      <label class="hc-checkbox-label">
+        <input class="hc-checkbox" type="checkbox" name="cols" value="name" checked />
+        Name
+      </label>
+      <!-- …one checkbox per column… -->
+    </fieldset>
+    <footer class="hc-popover__footer">
+      <button class="hc-button" type="submit" data-variant="primary">Apply</button>
+    </footer>
+  </form>
+</div>
+```
+
 ## Accessibility
 
 - A popover is **not** automatically a menu. Setting
@@ -156,6 +186,7 @@ calls `closest('[popover]').hidePopover()`.
 | `popover.radius`    | Border radius.           |
 | `popover.padding`   | Inner padding.           |
 | `popover.min-width` / `-max-width` | Size bounds. |
+| `popover.body-gap` / `-footer-gap` | Gaps inside `__body` / `__footer` (the body gap also separates the footer from the body). |
 
 ## CSS variables
 
@@ -166,6 +197,7 @@ calls `closest('[popover]').hidePopover()`.
 --hc-popover-bg | -fg | -border
 --hc-popover-radius | -padding
 --hc-popover-min-width | -max-width
+--hc-popover-body-gap | -footer-gap
 ```
 
 </details>
