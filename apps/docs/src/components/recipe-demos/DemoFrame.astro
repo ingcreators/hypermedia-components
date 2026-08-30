@@ -48,13 +48,14 @@ const classes = ['hc-preview', 'not-content', extra].filter(Boolean).join(' ');
   // demo tests (and curious readers) can detect readiness.
   window.htmx = htmx;
 
-  // The recipe contracts standardize on 422 responses carrying a
-  // fragment (field errors, invalid wizard steps, …). htmx ≥ 2 does
+  // The recipe contracts standardize on error responses carrying a
+  // fragment (401 login dialog, 409 conflict, 422 field errors, 400
+  // rejected filter expression, 410 expired snapshot). htmx ≥ 2 does
   // not swap non-2xx responses by default; this one-time allowance is
   // the exact hook the contracts document.
   document.body.addEventListener('htmx:beforeSwap', (event) => {
     const detail = (event as CustomEvent).detail;
-    if ([401, 409, 422].includes(detail?.xhr?.status)) {
+    if ([400, 401, 409, 410, 422].includes(detail?.xhr?.status)) {
       detail.shouldSwap = true;
       detail.isError = false;
     }

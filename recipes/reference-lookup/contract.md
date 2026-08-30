@@ -65,6 +65,10 @@ one-line `beforeSwap` allowance (see mutating-form).
   **`#customer-field` with `outerHTML`** — picking re-renders the
   field directly; no OOB needed. The successful request also closes
   the dialog (`data-hc-close-dialog-on-success`).
+- **The search form opts out** with
+  `data-hc-close-dialog-on-success="false"` — the nearest carrier
+  wins, so without the opt-out the first debounced keystroke's 200
+  would close the dialog before a row can be picked.
 - **Inactive / blocked master rows render visible but refused** —
   `aria-disabled="true"`, no htmx wiring, the reason in the row text
   ("inactive since 2026-04"). Visible-but-refused beats silently
