@@ -74,6 +74,13 @@ Status ヘッダーの **Filter** を開き、ステータスをいくつかチ�
 </div>
 ```
 
+このパネルは意図的に**素の popover** のまま(ブラウザがトップレイヤー
+中央に配置)です: ヘッダーのトリガーとフィルターバーのチップという
+複数のコントロールが開くため、単一のアンカーは正しくありません。
+単一トリガーのパネル([ソート](/hypermedia-components/ja/recipes/datagrid-sort/)、
+[列選択](/hypermedia-components/ja/recipes/datagrid-columns/))は
+`data-side="bottom" data-align="start"` でトリガーにアンカーします。
+
 フォームは filter-popover のシェルです —
 `data-hc-close-popover-on-success`(`installClosePopover()`、
 自動インストール)がどの 2xx でも閉じます。コントロールはすべて列の

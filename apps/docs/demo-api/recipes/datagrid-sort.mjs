@@ -133,7 +133,7 @@ function keysHtml(keys, { oob = false } = {}) {
 }
 
 function panelHtml(keys) {
-  return `<div class="hc-popover" id="${PANEL_ID}" popover aria-labelledby="${TRIGGER_ID}">
+  return `<div class="hc-popover" id="${PANEL_ID}" popover data-side="bottom" data-align="start" aria-labelledby="${TRIGGER_ID}">
   <form action="${API}/items" method="get" data-hx-get="${API}/items" data-hx-target="#${GRID_ID}" data-hc-close-popover-on-success>
     ${keysHtml(keys)}
     <footer class="hc-popover__footer">

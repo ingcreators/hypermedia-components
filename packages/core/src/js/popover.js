@@ -39,18 +39,32 @@ function triggerFor(popover) {
 function attach(popover, detachers) {
   if (detachers.has(popover)) return;
   if (!popover.hasAttribute('popover')) return; // not a popover-driven element
-  const trigger = triggerFor(popover);
+  let trigger = triggerFor(popover);
   if (!trigger) return; // no popovertarget binding — skip silently
-
-  trigger.setAttribute('aria-expanded', 'false');
-  trigger.setAttribute('aria-controls', popover.id);
 
   const anchorName = `--hc-popover-${popover.id}`;
   const usingAnchor = supportsAnchorPositioning();
-  if (usingAnchor) {
-    trigger.style.setProperty('anchor-name', anchorName);
-    popover.style.setProperty('position-anchor', anchorName);
-  }
+
+  // The trigger can be REPLACED between opens: a server-rendered
+  // trigger that displays state (datagrid-sort's "Sort (2): …")
+  // comes back out of band, dropping the inline anchor-name and the
+  // aria wiring set at attach time. Re-resolve and re-wire the
+  // current trigger on every open, not just once.
+  const wireTrigger = () => {
+    const current = triggerFor(popover);
+    if (current) {
+      trigger = current;
+      if (!trigger.hasAttribute('aria-expanded')) {
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+      trigger.setAttribute('aria-controls', popover.id);
+      if (usingAnchor) trigger.style.setProperty('anchor-name', anchorName);
+    }
+    return trigger;
+  };
+
+  wireTrigger();
+  if (usingAnchor) popover.style.setProperty('position-anchor', anchorName);
   let fallbackCleanup = null;
 
   function onToggle(event) {
@@ -58,6 +72,7 @@ function attach(popover, detachers) {
   }
 
   function onBeforeToggle(event) {
+    if (event.newState === 'open') wireTrigger();
     if (usingAnchor) return;
     // Mirror the CSS position-area placement in JS for engines without Anchor
     // Positioning: place + track until close.
