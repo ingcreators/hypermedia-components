@@ -425,15 +425,21 @@ const FILTERS = [
       claim nobody can act on. */}
   <div id="template-grid-record" data-hc-remote-dialog-root></div>
 
-  <!-- The filter panel. One form wraps header, body and footer, so the
-       footer's Search button submits the body's fields; the body is what
-       scrolls when the panel outgrows the viewport. -->
+  <!-- The filter panel. One form wraps header and body (the body is what
+       scrolls when the panel outgrows the viewport); the FOOTER sits
+       outside it, because Cancel must be its own <form method="dialog">
+       — the remote-dialog contract's idiom. A `formmethod="dialog"`
+       submit button inside this form would be dead: htmx cancels the
+       native submit of a form it manages, then refuses to issue a
+       request for a non-HTTP formmethod. Apply reaches the form via the
+       `form` attribute. -->
   <dialog
     class="hc-dialog"
     id="template-grid-filters"
     aria-labelledby="template-grid-filters-title"
     style="--hc-dialog-max-width: 52rem;">
     <form method="get" action={`${api}/items`}
+          id="template-grid-filters-form"
           data-hx-get={`${api}/items`}
           data-hx-target="#template-grid-rows"
           data-hx-swap="innerHTML"
@@ -513,15 +519,18 @@ const FILTERS = [
         </div>
       </div>
 
-      <!-- One vocabulary: Apply here and Apply in the sort panel, never
-           Search in one place and Apply in the other. Cancel is a native
-           dialog submit — no inline JS, in a kit that advertises
-           CSP-safety. -->
-      <div class="hc-dialog__footer">
-        <button class="hc-button" type="submit" formmethod="dialog">Cancel</button>
-        <button class="hc-button" data-variant="primary" type="submit">Apply</button>
-      </div>
     </form>
+
+    <!-- One vocabulary: Apply here and Apply in the sort panel, never
+         Search in one place and Apply in the other. Cancel is a native
+         dialog close — no inline JS, in a kit that advertises
+         CSP-safety — and lives in its own <form method="dialog"> so
+         htmx never sees its submit. -->
+    <div class="hc-dialog__footer">
+      <form method="dialog"><button class="hc-button">Cancel</button></form>
+      <button class="hc-button" data-variant="primary" type="submit"
+              form="template-grid-filters-form">Apply</button>
+    </div>
   </dialog>
 
   <!-- Saving asks three things, not one. Scope, because a department
