@@ -57,7 +57,7 @@ function rowHtml(row, i) {
   <td>${numberCell('qty', 'Quantity', row.qty, row.errors.qty)}</td>
   <td>${numberCell('price', 'Unit price', row.price, row.errors.price)}</td>
   <td data-cell="line-total">${row.total == null ? '—' : yen(row.total)}</td>
-  <td><button class="hc-button" data-variant="ghost" type="submit" name="remove" value="${i + 1}" aria-label="${escapeHtml(removeLabel)}" ${wire()}>Remove</button></td>
+  <td><button class="hc-button" data-variant="ghost" type="submit" name="remove-row" value="${i + 1}" aria-label="${escapeHtml(removeLabel)}" ${wire()}>Remove</button></td>
 </tr>`;
 }
 
@@ -105,7 +105,11 @@ export async function handle({ method, path, request }) {
     let rows = items.map((item, i) => parseRow(item, qtys[i], prices[i]));
 
     if (form.get('add') != null) rows.push(parseRow('', '1', '0'));
-    const remove = Number.parseInt(String(form.get('remove') ?? ''), 10);
+    // `remove-row`, never `remove`: a control named after a form DOM
+    // API shadows it (form.remove === the button), and htmx calls
+    // target.remove() when outerHTML-swapping the form — the old form
+    // would throw and never leave the page.
+    const remove = Number.parseInt(String(form.get('remove-row') ?? ''), 10);
     if (!Number.isNaN(remove)) rows = rows.filter((_, i) => i !== remove - 1);
 
     const invalid = rows.some((r) => r.errors.qty || r.errors.price);

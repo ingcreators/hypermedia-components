@@ -25,12 +25,17 @@ clean. Amounts regroup on blur; the wire stays raw.
 ## Page skeleton
 
 ```html
-<!-- method/action keep the no-JS submit working (post/redirect/get). -->
+<!-- method/action keep the no-JS submit working (post/redirect/get).
+     disinherit matters: htmx attributes inherit, and the postal field
+     below issues its own lookup GET — without the disinherit it would
+     inherit disabled-elt, find no submit button among its own
+     descendants, and htmx would log an error on every lookup. -->
 <form id="report-form" data-hc-dirty-guard
       method="post" action="/reports/42"
       data-hx-post="/reports/42"
       data-hx-sync="this:abort"
       data-hx-disabled-elt="find button[type=submit]"
+      data-hx-disinherit="hx-disabled-elt"
       data-hx-target="#report-errors" data-hx-swap="innerHTML">
 
   <!-- The 422 field-errors fragment swaps in here; installFieldErrors

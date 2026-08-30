@@ -175,6 +175,42 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- Full interactive QA pass over every live demo (72 pages driven in
+  headless Chromium — all 53 recipes, the 5 templates, and the
+  overlay components — with generic invariants after every step:
+  console/page errors, 404/5xx, duplicate ids, open dialogs and
+  popovers visible inside the viewport, `data-side` popovers anchored
+  near their triggers, progress/meter content boxes not squashed, and
+  DOM lints for the two bug classes below). Three additional defects
+  found and fixed:
+  - `installNetworkRetry`: a retry that failed again surfaced an
+    uncaught promise rejection (`htmx.ajax` rejects with undefined) —
+    the failure path is already handled by the sendError/timeout
+    re-render, so the rejection is now swallowed.
+  - data-entry template (demo + skeleton, en + ja): the form-level
+    `data-hx-disabled-elt="find button[type=submit]"` was inherited
+    by the postal-lookup input and the autosave div, which have no
+    submit-button descendants — htmx logged an error on every lookup
+    and every draft tick. The form now carries
+    `data-hx-disinherit="hx-disabled-elt"`, with the reason
+    documented in the skeleton comment.
+  - The docs site had no favicon at all — every page load 404ed on
+    `favicon.svg`. Added the mark (accent square, "hc").
+- async-job: the job cards put their contents — including the
+  `<progress>` — directly under `.hc-card`, so the card's
+  loose-content padding landed on each child; with `box-sizing:
+  border-box` the 0.5rem-tall progress became a 2rem all-padding bar
+  whose content box (where the fill paints) had zero height — the bar
+  looked inert at any percentage. Card contents now ride in a
+  `hc-card__body` stack (demo, scaffolds, page fences, en + ja).
+- line-items: the remove button was `name="remove"`, and named form
+  controls shadow the form element's DOM API — `form.remove` became
+  the button, htmx's `outerHTML` swap of the form threw on
+  `target.remove()`, and the old form never left the page: every add
+  / remove / recalc **duplicated the whole table**. Renamed to
+  `name="remove-row"` across the demo, scaffold, contract and pages,
+  with a documented caution (the same trap bites `submit`, `action`,
+  `method`, `reset`, `elements`).
 - Demo & code quality audit (every component/recipe/template page's
   live demo and Code tab reviewed against the shipped CSS/JS and the
   demo API, both locales):

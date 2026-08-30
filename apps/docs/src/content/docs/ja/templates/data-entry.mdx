@@ -25,12 +25,17 @@ import DataEntryTemplateDemo from '../../../../components/template-demos/DataEnt
 ## ページスケルトン
 
 ```html
-<!-- method/action が非 JS のサブミットを生かします(post/redirect/get)。 -->
+<!-- method/action が非 JS のサブミットを生かします(post/redirect/get)。
+     disinherit が重要: htmx 属性は継承されるため、下の郵便番号
+     フィールドが発行する独自の lookup GET が disabled-elt を継承し、
+     自分の子孫にサブミットボタンが見つからず、lookup のたびに htmx が
+     エラーをログしてしまいます。 -->
 <form id="report-form" data-hc-dirty-guard
       method="post" action="/reports/42"
       data-hx-post="/reports/42"
       data-hx-sync="this:abort"
       data-hx-disabled-elt="find button[type=submit]"
+      data-hx-disinherit="hx-disabled-elt"
       data-hx-target="#report-errors" data-hx-swap="innerHTML">
 
   <!-- 422 のフィールドエラーフラグメントはここにスワップされ、

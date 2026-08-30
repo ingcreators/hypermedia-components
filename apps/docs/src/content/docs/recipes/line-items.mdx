@@ -50,7 +50,7 @@ The endpoint is a namespaced demo implementation of the contract under
                    data-hx-post="/quotes/42/recalc" data-hx-trigger="change"
                    data-hx-target="#quote" data-hx-swap="outerHTML"></td>
         <td data-cell="line-total">¥3,600</td>
-        <td><button class="hc-button" data-variant="ghost" type="submit" name="remove" value="1"
+        <td><button class="hc-button" data-variant="ghost" type="submit" name="remove-row" value="1"
                     data-hx-post="/quotes/42/recalc"
                     data-hx-target="#quote" data-hx-swap="outerHTML">Remove</button></td>
       </tr>
@@ -113,9 +113,19 @@ grid instead.
 
 | Request | Response |
 | --- | --- |
-| `POST /quotes/42/recalc` (rows ± `add` / `remove=N`) | `200` + the whole form re-rendered |
+| `POST /quotes/42/recalc` (rows ± `add` / `remove-row=N`) | `200` + the whole form re-rendered |
 | `POST /quotes/42/recalc` (invalid numbers) | `422` + the same form, raw values echoed, totals "—" |
 | `POST /quotes/42` (Save — the button's `formaction`) | validates like recalc; success per [mutating form](/hypermedia-components/recipes/mutating-form/) |
+
+:::caution[Never name a control after a form DOM API]
+The remove button is `name="remove-row"`, not `name="remove"`, and
+that is load-bearing: named form controls shadow the form element's
+own properties, so a control named `remove` makes `form.remove` the
+*button* — and htmx calls `target.remove()` when it `outerHTML`-swaps
+the form. The old form throws (`e.remove is not a function`), never
+leaves the page, and the table duplicates on every action. The same
+trap applies to `submit`, `action`, `method`, `reset`, and `elements`.
+:::
 
 ## Progressive enhancement
 

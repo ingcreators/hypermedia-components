@@ -36,45 +36,55 @@ function runningCard(id, fraction) {
   return `<div class="hc-card" data-hc-job
      data-hx-get="${API}/exports/${id}" data-hx-trigger="every 1s"
      data-hx-target="this" data-hx-swap="outerHTML">
-  <progress class="hc-progress" value="${pct}" max="100" aria-label="Export progress"></progress>
-  <p aria-live="polite">Exporting — ${rows.toLocaleString('en-US')} / ${TOTAL_ROWS.toLocaleString('en-US')} rows (${pct}%)</p>
-  <button class="hc-button" type="button"
-          data-hx-post="${API}/exports/${id}/cancel"
-          data-hx-target="closest [data-hc-job]"
-          data-hx-swap="outerHTML">Cancel</button>
+  <div class="hc-card__body hc-stack" style="--hc-stack-gap: 0.75rem;">
+    <progress class="hc-progress" value="${pct}" max="100" aria-label="Export progress"></progress>
+    <p aria-live="polite">Exporting — ${rows.toLocaleString('en-US')} / ${TOTAL_ROWS.toLocaleString('en-US')} rows (${pct}%)</p>
+    <button class="hc-button" type="button"
+            data-hx-post="${API}/exports/${id}/cancel"
+            data-hx-target="closest [data-hc-job]"
+            data-hx-swap="outerHTML">Cancel</button>
+  </div>
 </div>`;
 }
 
 function doneCard(id) {
   return `<div class="hc-card" data-hc-job data-state="done">
-  <p aria-live="polite">Export ready — ${TOTAL_ROWS.toLocaleString('en-US')} rows.</p>
-  <a class="hc-button" data-variant="primary" href="${API}/exports/${id}/result" download>Download CSV</a>
+  <div class="hc-card__body hc-stack" style="--hc-stack-gap: 0.75rem;">
+    <p aria-live="polite">Export ready — ${TOTAL_ROWS.toLocaleString('en-US')} rows.</p>
+    <a class="hc-button" data-variant="primary" href="${API}/exports/${id}/result" download>Download CSV</a>
+  </div>
 </div>`;
 }
 
 function failedCard() {
   return `<div class="hc-card" data-hc-job data-state="failed">
-  <div class="hc-alert" data-variant="error" role="status">
-    <p class="hc-alert__title">Export failed.</p>
-    <p class="hc-alert__body">Row 18,204: invalid date. Fix the data or
-      retry — nothing was written.</p>
+  <div class="hc-card__body hc-stack" style="--hc-stack-gap: 0.75rem;">
+    <div class="hc-alert" data-variant="error" role="status">
+      <p class="hc-alert__title">Export failed.</p>
+      <p class="hc-alert__body">Row 18,204: invalid date. Fix the data or
+        retry — nothing was written.</p>
+    </div>
+    <button class="hc-button" type="button"
+            data-hx-post="${API}/exports"
+            data-hx-target="closest [data-hc-job]"
+            data-hx-swap="outerHTML">Retry</button>
   </div>
-  <button class="hc-button" type="button"
-          data-hx-post="${API}/exports"
-          data-hx-target="closest [data-hc-job]"
-          data-hx-swap="outerHTML">Retry</button>
 </div>`;
 }
 
 function cancelledCard() {
   return `<div class="hc-card" data-hc-job data-state="cancelled">
-  <p aria-live="polite">Export cancelled.</p>
+  <div class="hc-card__body">
+    <p aria-live="polite">Export cancelled.</p>
+  </div>
 </div>`;
 }
 
 function expiredCard() {
   return `<div class="hc-card" data-hc-job data-state="expired">
-  <p aria-live="polite">This job has expired — start again.</p>
+  <div class="hc-card__body">
+    <p aria-live="polite">This job has expired — start again.</p>
+  </div>
 </div>`;
 }
 
