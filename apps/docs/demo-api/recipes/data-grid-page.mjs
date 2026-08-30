@@ -313,7 +313,7 @@ function recordHtml(order, { q, ordinal }) {
       </div>
     </div>
   </div>
-  <form class="hc-dialog__body" method="post" action="${API}/items/${order.id}" data-hx-post="${API}/items/${order.id}" data-hx-target="#template-grid-row-${order.id}" data-hx-swap="outerHTML" data-hc-close-dialog-on-success>
+  <form class="hc-dialog__body" id="template-grid-record-form" method="post" action="${API}/items/${order.id}" data-hx-post="${API}/items/${order.id}" data-hx-target="#template-grid-row-${order.id}" data-hx-swap="outerHTML" data-hc-close-dialog-on-success>
     <div class="hc-field">
       <span class="hc-field__label">Customer</span>
       <p>${escapeHtml(order.customer)} · ${escapeHtml(order.item)}</p>
@@ -324,11 +324,11 @@ function recordHtml(order, { q, ordinal }) {
     </div>
     <input type="hidden" name="from" value="${escapeHtml(queryString(q))}">
     <input type="hidden" name="i" value="${ordinal}">
-    <footer class="hc-dialog__footer">
-      <button class="hc-button" type="submit" formmethod="dialog">Cancel</button>
-      <button class="hc-button" data-variant="primary" type="submit">Save</button>
-    </footer>
   </form>
+  <footer class="hc-dialog__footer">
+    <form method="dialog"><button class="hc-button">Cancel</button></form>
+    <button class="hc-button" data-variant="primary" type="submit" form="template-grid-record-form">Save</button>
+  </footer>
 </dialog>`;
 }
 

@@ -376,11 +376,16 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
     </main>
   </div>
 
-  <!-- Filter panel. One form around header + body + footer, so Apply
-       submits the fields and the BODY is what scrolls. -->
+  <!-- Filter panel. One form around header + body (the BODY is what
+       scrolls); the footer sits OUTSIDE the form so Cancel can be its
+       own <form method="dialog">, and Apply reaches the form via the
+       `form` attribute. A `formmethod="dialog"` submit button inside
+       the form would die the moment the form is enhanced with
+       `data-hx-get`: htmx cancels the native submit, then refuses a
+       non-HTTP formmethod. -->
   <dialog class="hc-dialog" id="filters" aria-labelledby="filters-title"
           style="--hc-dialog-max-width: 52rem;">
-    <form method="get" action="/orders">
+    <form method="get" action="/orders" id="filters-form">
       <!-- The panel edits conditions and closes the composition by
            naming it. Recall lives on the screen, not in here. -->
       <div class="hc-dialog__header">
@@ -433,11 +438,13 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
         </div>
       </div>
 
-      <div class="hc-dialog__footer">
-        <button class="hc-button" type="submit" formmethod="dialog">Cancel</button>
-        <button class="hc-button" data-variant="primary" type="submit">Apply</button>
-      </div>
     </form>
+
+    <div class="hc-dialog__footer">
+      <form method="dialog"><button class="hc-button">Cancel</button></form>
+      <button class="hc-button" data-variant="primary" type="submit"
+              form="filters-form">Apply</button>
+    </div>
   </dialog>
 </body>
 ```
@@ -595,8 +602,14 @@ URL → ユーザー設定 → アプリ既定
   走査の補助であって、通知はデータの上の条件バーが担います。
 - **語彙は 1 つ、Apply。**ここだけ Search、ソートパネルは Apply、は
   やめます。
-- **Cancel は `formmethod="dialog"`**。ネイティブのダイアログ送信で、
-  インライン JS はありません（CSP 安全を謳うキットとして当然です）。
+- **Cancel は独立した `<form method="dialog">`**。ネイティブで JS 不要の
+  閉じ方で、remote-dialog の契約が定める定石そのものです。フィルタ
+  フォーム内の `formmethod="dialog"` 送信ボタンにはしません — フォームを
+  `data-hx-get` で強化した瞬間に死ぬからです。htmx は管理下フォームの
+  ネイティブ送信を preventDefault したうえ、HTTP 動詞でない
+  `formmethod` のリクエスト発行を拒否するので、何も起きないボタンに
+  なります。そのため footer はフォームの外に置き、Apply は `form`
+  属性でフォームに届きます。
 
 アイコンも画面と同じ規則に従います。普遍でないものは**アイコン＋
 ラベル**、アイコンのみは閉じる・オーバーフロー・ページャの矢印に限り、

@@ -187,6 +187,20 @@ Security    — security-relevant changes
 
 ### Fixed
 
+- Data-grid page template: the Filters panel's **Cancel button did
+  nothing** (user report — the dialog would not close, and the record
+  editor's Cancel was dead the same way). Cancel was a
+  `formmethod="dialog"` submit button inside the htmx-enhanced filter
+  form, and htmx kills that idiom twice over: `shouldCancel` only
+  exempts a form whose **own** `method` is `dialog` (the submitter's
+  `formmethod` is never consulted), so the native close is
+  `preventDefault`ed — and `issueAjaxRequest` then silently refuses a
+  non-HTTP `formmethod`, so no request is issued either. The template
+  now follows the remote-dialog contract's idiom everywhere: the
+  footer sits outside the form, Cancel is its own
+  `<form method="dialog">`, and Apply / Save reach the form via the
+  `form` attribute (demo, record fragment, page fences and prose,
+  en + ja). Escape always worked; Cancel now matches it.
 - The SSE demos (sse-toast, sse-updates) were dead for anyone who
   reached them late: their scripted streams are one-shot (~15 s /
   ~23 s), start on page load, and close themselves — scroll down
