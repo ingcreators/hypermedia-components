@@ -75,6 +75,11 @@ function attach(tooltip, detachers) {
 
   function show(trigger) {
     clearTimers();
+    // A stale attachment can fire after a swap replaced the tooltip (its
+    // listeners live on the surviving trigger): showPopover() on a
+    // disconnected node throws InvalidStateError. No-op instead — the
+    // install observer rebinds the current pair.
+    if (!tooltip.isConnected || !trigger.isConnected) return;
     if (tooltip.matches(':popover-open')) return;
     if (usingAnchor) {
       // Rebind the anchor to the trigger that just gained hover /
@@ -136,9 +141,9 @@ function attach(tooltip, detachers) {
     });
   }
 
-  detachers.set(tooltip, () => {
+  const detach = () => {
     clearTimers();
-    if (tooltip.matches(':popover-open')) tooltip.hidePopover();
+    if (tooltip.isConnected && tooltip.matches(':popover-open')) tooltip.hidePopover();
     for (const [trigger, ls] of triggerListeners) {
       trigger.removeEventListener('mouseenter', ls.onMouseEnter);
       trigger.removeEventListener('mouseleave', ls.onMouseLeave);
@@ -148,7 +153,16 @@ function attach(tooltip, detachers) {
       if (usingAnchor) trigger.style.removeProperty('anchor-name');
     }
     if (usingAnchor) tooltip.style.removeProperty('position-anchor');
-  });
+  };
+  // Stale when a bound trigger was swapped away (its listeners died with
+  // it) or an unwired trigger now references this tooltip — the install
+  // observer rebinds then.
+  detach.stale = () => {
+    for (const t of triggerListeners.keys()) if (!t.isConnected) return true;
+    for (const t of triggersFor(tooltip)) if (!triggerListeners.has(t)) return true;
+    return false;
+  };
+  detachers.set(tooltip, detach);
 }
 
 /**
@@ -172,14 +186,38 @@ export function installTooltip(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      const affected = new Set();
+      const considerTrigger = (el) => {
+        const ids = el.getAttribute?.('aria-describedby');
+        if (!ids) return;
+        for (const id of ids.split(/\s+/)) {
+          const tip = el.ownerDocument.getElementById(id);
+          if (tip?.matches?.('.hc-tooltip')) affected.add(tip);
+        }
+      };
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;
-          if (node.matches?.('.hc-tooltip')) attach(node, detachers);
+          if (node.matches?.('.hc-tooltip')) affected.add(node);
           node.querySelectorAll?.('.hc-tooltip').forEach((el) =>
-            attach(el, detachers),
+            affected.add(el),
           );
+          // A trigger replaced WITHOUT its tooltip (re-rendered out of
+          // band, the tooltip left in place elsewhere): the new node
+          // carries aria-describedby but no listeners. Resolve the
+          // tooltips it references and rebind those.
+          considerTrigger(node);
+          node.querySelectorAll?.('[aria-describedby]').forEach(considerTrigger);
         }
+      }
+      for (const tip of affected) {
+        const detach = detachers.get(tip);
+        if (detach) {
+          if (!detach.stale()) continue;
+          detach();
+          detachers.delete(tip);
+        }
+        attach(tip, detachers);
       }
     });
     observer.observe(root.body ?? root, { childList: true, subtree: true });

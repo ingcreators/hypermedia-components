@@ -681,8 +681,10 @@ function attach(grid, detachers) {
       }),
     );
     // Cancelling the event claims the copy (e.g. to put a richer payload
-    // on the clipboard); otherwise we write the TSV ourselves.
-    if (ok) navigator.clipboard?.writeText?.(text);
+    // on the clipboard); otherwise we write the TSV ourselves. The write
+    // can reject (permission denied, document not focused) — a graceful
+    // no-op, not an uncaught rejection.
+    if (ok) navigator.clipboard?.writeText?.(text)?.catch?.(() => {});
   }
 
   function selectAllUnits() {
@@ -1641,7 +1643,7 @@ function attach(grid, detachers) {
     mo.observe(table, { childList: true });
   }
 
-  detachers.set(grid, () => {
+  const detach = () => {
     table.removeEventListener('keydown', onKeydown);
     table.removeEventListener('mousedown', onMousedown);
     table.removeEventListener('compositionstart', onCompositionstart);
@@ -1663,7 +1665,13 @@ function attach(grid, detachers) {
     for (const cleanup of resizerCleanups) cleanup();
     if (ro) ro.disconnect();
     if (mo) mo.disconnect();
-  });
+  };
+  // The table this attachment bound to. The install observer compares it
+  // with the grid's current table to detect a wholesale swap (a sort or
+  // filter response replacing the scroll region), which orphans every
+  // listener above and needs a rebind.
+  detach.table = table;
+  detachers.set(grid, detach);
 }
 
 /**
@@ -1687,14 +1695,38 @@ export function installDatagrid(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      const affected = new Set();
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;
-          if (node.matches?.('.hc-datagrid')) attach(node, detachers);
+          if (node.matches?.('.hc-datagrid')) affected.add(node);
           node.querySelectorAll?.('.hc-datagrid').forEach((el) =>
-            attach(el, detachers),
+            affected.add(el),
           );
+          // Content swapped INTO an existing grid shell — an empty grid
+          // filled by an hx-trigger="load" innerHTML swap, or a sort /
+          // filter response replacing the whole scroll region. The grid
+          // node itself never appears in addedNodes then; resolve it by
+          // walking up from what did.
+          const grid = node.closest?.('.hc-datagrid');
+          if (grid) affected.add(grid);
         }
+      }
+      for (const grid of affected) {
+        const detach = detachers.get(grid);
+        if (detach) {
+          // The bound table is still in place — listeners are intact
+          // (this is the routine row-swap case; the per-grid observer
+          // owns it).
+          if (detach.table === grid.querySelector('.hc-datagrid__table')) {
+            continue;
+          }
+          // The table was replaced under an attached grid: every
+          // listener and the row observer died with it. Rebind.
+          detach();
+          detachers.delete(grid);
+        }
+        attach(grid, detachers);
       }
     });
     observer.observe(root.body ?? root, { childList: true, subtree: true });

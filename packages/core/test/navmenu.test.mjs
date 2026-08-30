@@ -95,6 +95,22 @@ describe('installNavmenu', () => {
     expect(id('t-a').getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('rebinds when the trigger list is re-rendered inside the surviving nav', async () => {
+    document.body.innerHTML = MARKUP;
+    const list = document.querySelector('.hc-navmenu__list');
+    const pristine = list.innerHTML;
+    uninstall = installNavmenu();
+    // The server re-renders the items (an active-section swap): the nav
+    // survives, every trigger and panel is fresh and unwired.
+    list.innerHTML = pristine;
+    await new Promise((r) => setTimeout(r, 0));
+    const t = id('t-a');
+    expect(t.getAttribute('aria-haspopup')).toBe('true');
+    expect(t.getAttribute('aria-controls')).toBe('nm-a');
+    t.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(open(id('p-a'))).toBe(true);
+  });
+
   it('hover opens after a short delay', () => {
     vi.useFakeTimers();
     document.body.innerHTML = MARKUP;

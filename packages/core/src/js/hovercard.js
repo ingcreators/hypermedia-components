@@ -98,6 +98,11 @@ function attach(card, detachers) {
 
   function show(trigger) {
     clearTimers();
+    // A stale attachment can fire after a swap replaced the card (its
+    // listeners live on the surviving trigger): showPopover() on a
+    // disconnected node throws InvalidStateError. No-op instead — the
+    // install observer rebinds the current pair.
+    if (!card.isConnected || !trigger.isConnected) return;
     currentTrigger = trigger;
     if (card.matches(':popover-open')) return;
     if (usingAnchor) {
@@ -196,9 +201,9 @@ function attach(card, detachers) {
     });
   }
 
-  detachers.set(card, () => {
+  const detach = () => {
     clearTimers();
-    if (card.matches(':popover-open')) card.hidePopover();
+    if (card.isConnected && card.matches(':popover-open')) card.hidePopover();
     card.removeEventListener('mouseenter', onCardEnter);
     card.removeEventListener('mouseleave', onCardLeave);
     card.removeEventListener('keydown', onCardKeydown);
@@ -211,7 +216,16 @@ function attach(card, detachers) {
       if (usingAnchor) trigger.style.removeProperty('anchor-name');
     }
     if (usingAnchor) card.style.removeProperty('position-anchor');
-  });
+  };
+  // Stale when a bound trigger was swapped away (its listeners died with
+  // it) or an unwired trigger now references this card — the install
+  // observer rebinds then.
+  detach.stale = () => {
+    for (const t of triggerListeners.keys()) if (!t.isConnected) return true;
+    for (const t of triggersFor(card)) if (!triggerListeners.has(t)) return true;
+    return false;
+  };
+  detachers.set(card, detach);
 }
 
 /**
@@ -237,14 +251,38 @@ export function installHovercard(
   let observer = null;
   if (typeof MutationObserver !== 'undefined') {
     observer = new MutationObserver((records) => {
+      const affected = new Set();
+      const considerTrigger = (el) => {
+        const ids = el.getAttribute?.('aria-describedby');
+        if (!ids) return;
+        for (const id of ids.split(/\s+/)) {
+          const card = el.ownerDocument.getElementById(id);
+          if (card?.matches?.('.hc-hovercard')) affected.add(card);
+        }
+      };
       for (const rec of records) {
         for (const node of rec.addedNodes) {
           if (node.nodeType !== 1) continue;
-          if (node.matches?.('.hc-hovercard')) attach(node, detachers);
+          if (node.matches?.('.hc-hovercard')) affected.add(node);
           node.querySelectorAll?.('.hc-hovercard').forEach((el) =>
-            attach(el, detachers),
+            affected.add(el),
           );
+          // A trigger replaced WITHOUT its card (re-rendered out of band,
+          // the card left in place elsewhere): the new node carries
+          // aria-describedby but no listeners. Resolve the cards it
+          // references and rebind those.
+          considerTrigger(node);
+          node.querySelectorAll?.('[aria-describedby]').forEach(considerTrigger);
         }
+      }
+      for (const card of affected) {
+        const detach = detachers.get(card);
+        if (detach) {
+          if (!detach.stale()) continue;
+          detach();
+          detachers.delete(card);
+        }
+        attach(card, detachers);
       }
     });
     observer.observe(root.body ?? root, { childList: true, subtree: true });

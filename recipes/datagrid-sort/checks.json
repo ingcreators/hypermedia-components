@@ -55,6 +55,12 @@
       "attr": { "on": "form", "name": "action", "assert": "present" }
     },
     {
+      "id": "header-fast-path",
+      "level": "warn",
+      "message": "Keep header clicks working: a hidden input[data-hc-datagrid-sort] receives the wire and the grid requests on hc:datagridsort (data-hx-trigger) including it — without the pair a header click cycles aria-sort but never sorts.",
+      "exists": { "selector": "input[data-hc-datagrid-sort]" }
+    },
+    {
       "id": "conditions-ride-along",
       "level": "warn",
       "message": "Include the filter form (data-hx-include) so applying a sort keeps the conditions — a sort that silently drops the filters answers a different question.",

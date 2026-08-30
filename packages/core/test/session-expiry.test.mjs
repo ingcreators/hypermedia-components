@@ -50,6 +50,20 @@ describe('installSessionExpiry', () => {
     expect(ajax).toHaveBeenCalledOnce();
   });
 
+  it('swallows the rejection when the replayed request fails again', async () => {
+    uninstall = installSessionExpiry();
+    // htmx.ajax rejects (with undefined) when the request fails; the
+    // failure already surfaces through htmx's own error events, so the
+    // replay must not leak an unhandled rejection (vitest reports one
+    // as a test failure).
+    ajax.mockReturnValue(Promise.reject(undefined));
+    const elt = document.getElementById('action');
+    fire401(elt);
+    renew();
+    expect(ajax).toHaveBeenCalledOnce();
+    await new Promise((r) => setTimeout(r, 0));
+  });
+
   it('converts FormData parameters into plain values', () => {
     uninstall = installSessionExpiry();
     const elt = document.getElementById('action');

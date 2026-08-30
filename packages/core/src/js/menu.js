@@ -55,23 +55,37 @@ function triggerFor(menu) {
 function attach(menu, detachers) {
   if (detachers.has(menu)) return;
   if (!menu.hasAttribute('popover')) return; // Not a popover-driven menu.
-  const trigger = triggerFor(menu);
+  let trigger = triggerFor(menu);
   if (!trigger) return; // No popovertarget binding — skip silently.
-
-  // ARIA wiring on the trigger.
-  trigger.setAttribute('aria-haspopup', 'menu');
-  trigger.setAttribute('aria-expanded', 'false');
-  trigger.setAttribute('aria-controls', menu.id);
 
   // CSS Anchor Positioning binding. Inline-styled so multiple menus
   // on the same page each get a unique anchor name without
   // pre-coordinated CSS.
   const anchorName = `--hc-menu-${menu.id}`;
   const usingAnchor = supportsAnchorPositioning();
-  if (usingAnchor) {
-    trigger.style.setProperty('anchor-name', anchorName);
-    menu.style.setProperty('position-anchor', anchorName);
-  }
+
+  // The trigger can be REPLACED between opens: a server-rendered
+  // trigger that displays state (saved-views' applied-view label)
+  // comes back out of band, dropping the inline anchor-name and the
+  // aria wiring set at attach time. Re-resolve and re-wire the
+  // current trigger on every open, not just once — the same fix
+  // installPopover carries.
+  const wireTrigger = () => {
+    const current = triggerFor(menu);
+    if (current) {
+      trigger = current;
+      trigger.setAttribute('aria-haspopup', 'menu');
+      if (!trigger.hasAttribute('aria-expanded')) {
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+      trigger.setAttribute('aria-controls', menu.id);
+      if (usingAnchor) trigger.style.setProperty('anchor-name', anchorName);
+    }
+    return trigger;
+  };
+
+  wireTrigger();
+  if (usingAnchor) menu.style.setProperty('position-anchor', anchorName);
 
   let fallbackCleanup = null;
 
@@ -83,15 +97,27 @@ function attach(menu, detachers) {
   // APG: focus the first enabled item on open. Doing this via the
   // HTML `autofocus` attribute lets the browser run focus management
   // as part of the popover algorithm — no JS race against the
-  // browser's own focus moves on toggle.
+  // browser's own focus moves on toggle. Re-stamped on every open: a
+  // server that re-renders the item list (saved-views re-ordering its
+  // pinned / recent groups) swaps the stamped item away.
   let autofocused = null;
-  const firstEnabled = itemsOf(menu).find(isEnabled);
-  if (firstEnabled && !menu.querySelector('[autofocus]')) {
-    firstEnabled.setAttribute('autofocus', '');
-    autofocused = firstEnabled;
-  }
+  const stampAutofocus = () => {
+    if (autofocused && !menu.contains(autofocused)) autofocused = null;
+    if (menu.querySelector('[autofocus]')) return;
+    const firstEnabled = itemsOf(menu).find(isEnabled);
+    if (firstEnabled) {
+      firstEnabled.setAttribute('autofocus', '');
+      autofocused = firstEnabled;
+    }
+  };
+  stampAutofocus();
 
   function onBeforeToggle(event) {
+    if (event.newState === 'open') {
+      wireTrigger();
+      stampAutofocus();
+      rewireSubmenus();
+    }
     if (usingAnchor) return;
     // Position before the popover paints (no flash), then keep tracking on
     // scroll / resize until it closes. Mirrors the CSS
@@ -128,7 +154,21 @@ function attach(menu, detachers) {
     }
   }
 
-  const submenuCleanup = wireSubmenus(menu);
+  let submenuCleanup = wireSubmenus(menu);
+
+  // A content re-render (innerHTML into the surviving .hc-menu) keeps the
+  // data-hc-submenu attribute on the new items but not the expando wiring
+  // wireSubmenus stamped on the old ones — the submenu would look like a
+  // parent yet open nothing. Re-wire whenever they disagree.
+  function rewireSubmenus() {
+    for (const item of menu.querySelectorAll(`[data-hc-submenu]`)) {
+      if (!item.__hcSubmenu) {
+        submenuCleanup();
+        submenuCleanup = wireSubmenus(menu);
+        return;
+      }
+    }
+  }
 
   menu.addEventListener('toggle', onToggle);
   menu.addEventListener('beforetoggle', onBeforeToggle);
