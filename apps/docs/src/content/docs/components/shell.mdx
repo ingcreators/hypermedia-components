@@ -130,6 +130,8 @@ aside, and the mobile off-canvas overlay all behave the same.
 | `hc-shell__aside` | `<aside>` | Optional secondary panel (adds a third column). |
 | `hc-shell__footer` | `<footer>` | Optional footer. |
 | `hc-shell__toggle` | `<button>` | Mobile hamburger (use with `data-hc-shell-toggle`). |
+| `hc-shell__group` | `<p>` | Caption between sidebar items (“Workspace”, “Admin”); hidden in the icon rail. |
+| `hc-shell__label` | `<span>` | A nav item's text; hidden in the icon rail, kept in the accessibility tree. |
 
 ## Sidebar navigation items
 
@@ -343,8 +345,10 @@ with `data-collapsible` on the `.hc-shell__sidebar`, add a
     <nav class="hc-shell__sidebar" aria-label="Demo navigation" data-collapsible>
       <a class="hc-item" href="#shell-collapse-dashboard"><span class="hc-item__media" aria-hidden="true">▦</span><span class="hc-item__title hc-shell__label">Dashboard</span></a>
       <a class="hc-item" href="#shell-collapse-orders"><span class="hc-item__media" aria-hidden="true">▤</span><span class="hc-item__title hc-shell__label">Orders</span></a>
+      <p class="hc-shell__group">Admin</p>
+      <a class="hc-item" href="#shell-collapse-users"><span class="hc-item__media" aria-hidden="true">☺</span><span class="hc-item__title hc-shell__label">Users</span></a>
     </nav>
-    <main class="hc-shell__main">Press ⇔ — the labels hide, the icons remain.</main>
+    <main class="hc-shell__main">Press ⇔ — the labels and the caption hide, the icons centre in the rail.</main>
   </div>
 
   <Fragment slot="code">
@@ -366,6 +370,12 @@ with `data-collapsible` on the `.hc-shell__sidebar`, add a
         <span class="hc-item__media" aria-hidden="true">▤</span>
         <span class="hc-item__title hc-shell__label">Orders</span>
       </a>
+
+      <p class="hc-shell__group">Admin</p>
+      <a class="hc-item" href="/users">
+        <span class="hc-item__media" aria-hidden="true">☺</span>
+        <span class="hc-item__title hc-shell__label">Users</span>
+      </a>
     </nav>
 
     <main class="hc-shell__main">…</main>
@@ -381,6 +391,15 @@ narrows the grid column from `--hc-shell-sidebar-width` to
 `aria-expanded` in sync. Wrap each nav item's text in `.hc-shell__label`; in
 the rail it is **visually hidden but kept in the accessibility tree**, so the
 links keep their accessible names while only the icon shows.
+
+The rail finishes the items' layout too, so no app-side rule over `hc-item`
+internals is needed: each `.hc-item` **centres its glyph and drops its inline
+padding**, a `.hc-item__content` wrapper whose text is all labels stops
+growing, and a **`.hc-shell__group`** caption between items (“Admin” above —
+muted small text when expanded) hides the same way the labels do rather
+than leaving an orphaned word in a one-glyph-wide column. Anything that
+should stay visible in the rail (a badge on an icon, say) simply omits
+`.hc-shell__label`.
 
 **Directional collapse icon.** A chevron should point the way it will move —
 `«` (collapse) while expanded, `»` (expand) once collapsed. Wrap the glyph in

@@ -20,6 +20,25 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`hc-shell`: the collapsed icon rail finishes the items' layout**
+  (#612). Hiding `.hc-shell__label` was half the job: an `hc-item` laid
+  out for icon + text kept its inline padding and start-aligned glyph,
+  so in a column with room for exactly one glyph it sat off-centre or
+  clipped, and every consumer wrote the same rule over `hc-item`
+  internals in an unlayered app sheet. Under `[data-sidebar-collapsed]`
+  at the desktop breakpoint the kit now centres each `.hc-item`'s
+  content, zeroes its gap and inline padding, and stops an
+  `.hc-item__content` wrapper whose text is all labels from growing —
+  inside `@layer hc.components`, where it composes with `hc-item`'s own
+  rules. New **`.hc-shell__group`** caption for a heading between
+  sidebar items (“Workspace”, “Admin”): muted small text when expanded,
+  hidden in the rail with the same visually-hidden recipe as the
+  labels, so a one-glyph-wide column shows no orphaned word.
+  Browser-tested (glyph centred within 1px of the rail's centre; caption
+  clipped to a pixel but not `display: none`).
+
 ### Changed
 
 - **Docs site: Starlight 0.41 → 0.42, `starlight-llms-txt` 0.11 → 0.12,
