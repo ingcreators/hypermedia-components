@@ -64,6 +64,7 @@ export { installSubmitOnChange, installSubmitOnEnter } from './submit-on.js';
 export { installPrint } from './print.js';
 export { installCount } from './count.js';
 export { installSelectAll } from './select-all.js';
+export { installInvokerCommands } from './invoker-commands.js';
 
 // registerCodeLanguage — plug a tokenizer into installCodeEditor()'s live
 // highlight overlay (built-in grammars: sql, json, yaml, html).

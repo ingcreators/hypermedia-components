@@ -62,6 +62,7 @@ const EXPLICIT_CLAIMS = {
   installPrint: 'platform', // declarative Print button (print docs)
   installCount: 'platform', // character count next to a bounded field (input docs)
   installSelectAll: 'platform', // master checkbox for a checklist (checkbox docs)
+  installInvokerCommands: 'platform', // commandfor / command fallback below Baseline 2025 (dialog docs)
 };
 
 /** Editor-canvas composition metadata (#447): per block, the parts

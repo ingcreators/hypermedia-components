@@ -52,6 +52,7 @@ describe('manifest.json', () => {
       'installPrint',
       'installCount',
       'installSelectAll',
+      'installInvokerCommands',
     ]);
     const unclaimed = installs.filter((n) => !claimed.has(n));
     expect(unclaimed).toEqual([]);

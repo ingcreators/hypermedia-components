@@ -94,5 +94,8 @@ CSS Anchor Positioning (`position-area` / `position-try-fallbacks`)
 reached [Baseline](https://developer.mozilla.org/docs/Web/CSS/position-area)
 in **2026** (Chrome / Edge 125+, Safari 26, Firefox 147+). On older
 engines the JS fallback positions the surface — functionality is
-identical, only the engine doing the math differs.
+identical, only the engine doing the math differs. The same policy —
+a scripted, feature-detected, self-retiring fallback wherever the loss
+would be functional — covers the dialog opener; see
+[Browser support](/hypermedia-components/fundamentals/browser-support/).
 :::

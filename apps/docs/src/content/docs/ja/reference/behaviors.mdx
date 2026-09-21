@@ -3,7 +3,7 @@ title: ビヘイビア
 description: すべての installXxx() ビヘイビア — 何を担い、ゼロ設定バンドルが自動インストールするかの一覧。
 ---
 
-キットは 63 個の小さなビヘイビアを出荷しています。すべて冪等で
+キットは 64 個の小さなビヘイビアを出荷しています。すべて冪等で
 アンインストーラを返し、`installChart()` ただ 1 つの例外を除いて、
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリが
 **自動インストール**します(htmx でスワップされた内容も拾います)。
@@ -111,6 +111,7 @@ installToast();
 | --- | --- | --- | --- | --- |
 | `installCopy()` | クリップボードボタン(`data-hc-copy`)— [copy レシピ](/hypermedia-components/ja/recipes/copy/)。 | `data-hc-copy`、`data-hc-copy-text`、`data-hc-copy-ok` | `hc:copied` | ✓ |
 | `installPrint()` | インラインスクリプトなしで `window.print()` を呼ぶ Print ボタン — [印刷](/hypermedia-components/ja/fundamentals/print/#印刷を起動する)。 | `data-hc-print` | — | ✓ |
+| `installInvokerCommands()` | Baseline 2025 より下のエンジン向けの、`commandfor` + `command="show-modal"` / `"close"` の feature-detected フォールバック — [ダイアログ](/hypermedia-components/ja/components/dialog/#開閉)、[ブラウザサポート](/hypermedia-components/ja/fundamentals/browser-support/)。ネイティブ対応のエンジンでは何もインストールしない。 | `commandfor`、`command` | — | ✓ |
 | `installThemeToggle()` | ライト / ダーク切替ボタン([テーマ](/hypermedia-components/ja/tokens/themes/))。 | `data-hc-theme-toggle`、`data-persist` | `hc:themechange` | ✓ |
 | `installCsrfHeader()` | `meta[name="csrf-token"]` から全 htmx リクエストへ CSRF ヘッダーを付与([htmx ガイド](/hypermedia-components/ja/integrations/htmx/))。 | `meta[name="csrf-token"]` + `data-header` | — | ✓ |
 | `installSseDispatch()` | SSE メッセージを DOM イベントへ橋渡し — [sse-updates](/hypermedia-components/ja/recipes/sse-updates/) / [sse-toast](/hypermedia-components/ja/recipes/sse-toast/) レシピ。 | `data-hc-sse-dispatch`、`data-sse-swap` | `data-sse-swap` に列挙した名前 | ✓ |

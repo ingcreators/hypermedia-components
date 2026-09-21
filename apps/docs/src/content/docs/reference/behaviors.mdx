@@ -3,7 +3,7 @@ title: Behaviors
 description: Every installXxx() behavior — what it powers and whether the zero-config bundle auto-installs it.
 ---
 
-The kit ships 63 small behaviors. All of them are idempotent, return an
+The kit ships 64 small behaviors. All of them are idempotent, return an
 uninstaller, and — with the single exception of `installChart()` — are
 **auto-installed** by the zero-config
 `@hypermedia-components/core/behaviors` entry, which also picks up
@@ -112,6 +112,7 @@ the behavior dispatches; "—" means none.
 | --- | --- | --- | --- | --- |
 | `installCopy()` | Clipboard buttons (`data-hc-copy`) — the [copy recipe](/hypermedia-components/recipes/copy/). | `data-hc-copy`, `data-hc-copy-text`, `data-hc-copy-ok` | `hc:copied` | ✓ |
 | `installPrint()` | A Print button that calls `window.print()` with no inline script — [print](/hypermedia-components/fundamentals/print/#triggering-print). | `data-hc-print` | — | ✓ |
+| `installInvokerCommands()` | Feature-detected fallback for `commandfor` + `command="show-modal"` / `"close"` on engines below Baseline 2025 — [dialog](/hypermedia-components/components/dialog/#open-and-close), [browser support](/hypermedia-components/fundamentals/browser-support/). Installs nothing on a native engine. | `commandfor`, `command` | — | ✓ |
 | `installThemeToggle()` | The light/dark toggle button ([theming](/hypermedia-components/tokens/themes/)). | `data-hc-theme-toggle`, `data-persist` | `hc:themechange` | ✓ |
 | `installCsrfHeader()` | Adding the CSRF header from `meta[name="csrf-token"]` to every htmx request ([htmx guide](/hypermedia-components/integrations/htmx/)). | `meta[name="csrf-token"]` + `data-header` | — | ✓ |
 | `installSseDispatch()` | Bridging SSE messages into DOM events — the [sse-updates](/hypermedia-components/recipes/sse-updates/) / [sse-toast](/hypermedia-components/recipes/sse-toast/) recipes. | `data-hc-sse-dispatch`, `data-sse-swap` | the names listed in `data-sse-swap` | ✓ |

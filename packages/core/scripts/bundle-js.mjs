@@ -90,6 +90,7 @@ const FILES = [
   ['src/js/print.js',         'print.js'],
   ['src/js/count.js',         'count.js'],
   ['src/js/select-all.js',    'select-all.js'],
+  ['src/js/invoker-commands.js', 'invoker-commands.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
 
   // Macros — kept under dist/macros/ so the entry module's relative

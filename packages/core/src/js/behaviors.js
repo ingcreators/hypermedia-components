@@ -58,6 +58,7 @@ import { installSubmitOnChange, installSubmitOnEnter } from './submit-on.js';
 import { installPrint } from './print.js';
 import { installCount } from './count.js';
 import { installSelectAll } from './select-all.js';
+import { installInvokerCommands } from './invoker-commands.js';
 import { installMask } from './mask.js';
 import { installMultiValue } from './multi-value.js';
 import { installRangeValue } from './range-value.js';
@@ -131,6 +132,7 @@ function init() {
   installPrint();
   installCount();
   installSelectAll();
+  installInvokerCommands();
 }
 
 if (typeof document !== 'undefined') {
@@ -204,6 +206,7 @@ export {
   installPrint,
   installCount,
   installSelectAll,
+  installInvokerCommands,
 };
 
 // registerCodeLanguage — plug a tokenizer into the editable-code highlight

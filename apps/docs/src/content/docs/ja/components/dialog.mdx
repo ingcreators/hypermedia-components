@@ -131,11 +131,22 @@ import Demo from '../../../../components/Demo.astro';
 :::note[Baseline]
 `commandfor` / `command` は **2025 年**に
 [Baseline](https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/button#commandfor)
-入りしました(Chrome / Edge 135+、Firefox 144+、Safari 26+)。kit は
-フォールバックを同梱しません。古いエンジンではボタンは何もしません —
-モーダルを開くことにスクリプトなしの代替はないので、それが正直な
-劣化です。`<form method="dialog">` はどのエンジンでも閉じられるので、
-JS なしの経路が重要な場所では残してください。
+入りしました(Chrome / Edge 135+、Firefox 144+、Safari 26+)。それより
+下 — Safari 18 で止まる iPad、Ventura の Safari 17 の Mac、Firefox ESR
+140 の fleet — では、kit の **`installInvokerCommands()`** フォール
+バックが、委譲された 1 つの click リスナーから上の 2 つのコマンドを
+実行します(インストール時に feature-detect するのでネイティブ対応の
+エンジンでは動かず、`<dialog>` に対する `show-modal` と `close` を
+覆い、disabled / submit ボタンと `defaultPrevented` を尊重し、
+エンジンが追いつけば自ら退役します)。対象外: `command` イベント、
+popover 系コマンド(`popovertarget` を使う)、カスタム `--` コマンド —
+完全な API が必要なら
+[invokers-polyfill](https://github.com/keithamus/invokers-polyfill) を
+読み込んでください。`<form method="dialog">` はどのエンジンでも
+スクリプトなしで閉じられるので、no-JS 経路が重要な場所では残して
+ください。kit の床と、どの機能がフォールバックを持つかは
+[ブラウザサポート](/hypermedia-components/ja/fundamentals/browser-support/)
+を参照。
 :::
 
 非モーダルの `show()` や、戻り値つきで閉じるにはネイティブのメソッドを

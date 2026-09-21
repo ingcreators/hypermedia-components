@@ -724,8 +724,11 @@ summary, an import preview, a "3 filters could not be applied" notice.
   plain links, so the screen filters and pages without JavaScript. The
   grid renders; only inline editing and the roving toolbar need it. The
   **Filters** button and the chips open the panel with
-  `commandfor="filters" command="show-modal"` — native invoker commands,
-  no script and no listener (Baseline 2025; see
+  `commandfor="filters" command="show-modal"` — native invoker commands
+  (Baseline 2025), no script and no listener; on an engine below that
+  floor the kit's `installInvokerCommands()` fallback opens it, because
+  a list page whose only way to compose a filter is this dialog must not
+  lose it (see
   [Dialog → Open and close](/hypermedia-components/components/dialog/#open-and-close)).
 - **Density.** `data-density="compact"` on the shell tightens the whole
   screen; check touch targets if your users are on tablets (see
