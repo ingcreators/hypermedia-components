@@ -21,10 +21,10 @@ import Demo from '../../../../components/Demo.astro';
 ## 基本の HTML
 
 <Demo previewClass="hc-preview--start">
-  <button type="button" class="hc-button" onclick="this.nextElementSibling.showModal()">
+  <button type="button" class="hc-button" commandfor="demo-command" command="show-modal">
     Open command palette
   </button>
-  <dialog class="hc-command-dialog" data-hotkey="k">
+  <dialog class="hc-command-dialog" id="demo-command" data-hotkey="k">
     <div class="hc-command">
       <input class="hc-command__input" type="text" role="combobox" autofocus
              aria-label="Command menu" placeholder="Type a command…" />
@@ -48,11 +48,11 @@ import Demo from '../../../../components/Demo.astro';
 
   ```html
   <button type="button" class="hc-button"
-          onclick="this.nextElementSibling.showModal()">
+          commandfor="command-menu" command="show-modal">
     Open command palette
   </button>
 
-  <dialog class="hc-command-dialog" data-hotkey="k">
+  <dialog class="hc-command-dialog" id="command-menu" data-hotkey="k">
     <div class="hc-command">
       <input class="hc-command__input" type="text" role="combobox" autofocus
              aria-label="Command menu" placeholder="Type a command…">
@@ -139,8 +139,13 @@ installCommand(); // idempotent; returns an uninstaller
 
 ハンドラは `preventDefault()` を呼ぶため、ブラウザ自身の
 <kbd>Ctrl</kbd>+<kbd>K</kbd> ショートカットは同時に発火しません。
-ボタンから `dialog.showModal()` で開くこともできます — 入力の
-`autofocus` がカーソルを検索ボックスに置きます。
+マウスのユーザーにも見えるオープナーを用意してください —
+`commandfor="<dialog の id>" command="show-modal"` を付けたボタンが
+スクリプトなしでパレットをネイティブに開きます(上のデモがそれです。
+Baseline は
+[Dialog → 開閉](/hypermedia-components/ja/components/dialog/#開閉)
+を参照)。どちらの開き方でも、入力の `autofocus` がカーソルを検索
+ボックスに置きます。
 
 :::note
 この docs のデモは ⌘K ではなくボタンから開きます。このサイトの検索が

@@ -16,9 +16,9 @@
   <main class="hc-stack" style="padding:1rem">
     <h1>Tall dialog</h1>
     <button class="hc-button" type="button" data-testid="open"
-            onclick="document.getElementById('filters').showModal()">Filters</button>
+            commandfor="filters" command="show-modal">Filters</button>
     <button class="hc-button" type="button" data-testid="open-plain"
-            onclick="document.getElementById('plain').showModal()">Plain</button>
+            commandfor="plain" command="show-modal">Plain</button>
 
     <!-- No wrapping form: header/body/footer are direct children. -->
     <dialog class="hc-dialog" id="plain" data-testid="plain-dialog"
@@ -43,8 +43,10 @@
           <div class="hc-grid" style="--hc-grid-min: 20rem;" id="rows"></div>
         </div>
         <div class="hc-dialog__footer" data-testid="footer">
+          <!-- command="close" works from inside the form, where a
+               formmethod="dialog" submit button would be captured by htmx. -->
           <button class="hc-button" type="button" data-testid="cancel"
-                  onclick="this.closest('dialog').close()">Cancel</button>
+                  commandfor="filters" command="close">Cancel</button>
           <button class="hc-button" data-variant="primary" type="submit" data-testid="apply">Apply</button>
         </div>
       </form>

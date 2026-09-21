@@ -82,8 +82,8 @@ splitter, type in the OTP field — it all works.
 ### [Command](/hypermedia-components/components/command/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" type="button" onclick="this.nextElementSibling.showModal()">Open command palette</button>
-  <dialog class="hc-command-dialog">
+  <button class="hc-button" type="button" commandfor="ks-command" command="show-modal">Open command palette</button>
+  <dialog class="hc-command-dialog" id="ks-command">
     <div class="hc-command">
       <input class="hc-command__input" type="text" role="combobox" autofocus aria-label="Command" placeholder="Type a command…" />
       <div class="hc-command__list" role="listbox">
@@ -380,18 +380,18 @@ splitter, type in the OTP field — it all works.
 ### [Dialog](/hypermedia-components/components/dialog/) · [Drawer](/hypermedia-components/components/drawer/) · [Popover](/hypermedia-components/components/popover/)
 
 <div class="hc-preview not-content hc-preview--start">
-  <button class="hc-button" type="button" onclick="document.getElementById('ks-dialog').showModal()">Open dialog</button>
+  <button class="hc-button" type="button" commandfor="ks-dialog" command="show-modal">Open dialog</button>
   <dialog class="hc-dialog" id="ks-dialog">
     <header class="hc-dialog__header"><h3 class="hc-dialog__title">Dialog</h3></header>
     <div class="hc-dialog__body"><p>A native modal dialog.</p></div>
-    <footer class="hc-dialog__footer"><button class="hc-button" type="button" onclick="this.closest('dialog').close()">Close</button></footer>
+    <footer class="hc-dialog__footer"><button class="hc-button" type="button" commandfor="ks-dialog" command="close">Close</button></footer>
   </dialog>
 
-  <button class="hc-button" type="button" onclick="document.getElementById('ks-drawer').showModal()">Open drawer</button>
+  <button class="hc-button" type="button" commandfor="ks-drawer" command="show-modal">Open drawer</button>
   <dialog class="hc-drawer" data-side="right" id="ks-drawer">
     <header class="hc-dialog__header"><h3 class="hc-dialog__title">Drawer</h3></header>
     <div class="hc-dialog__body"><p>Slides in from the edge.</p></div>
-    <footer class="hc-dialog__footer"><button class="hc-button" type="button" onclick="this.closest('dialog').close()">Close</button></footer>
+    <footer class="hc-dialog__footer"><button class="hc-button" type="button" commandfor="ks-drawer" command="close">Close</button></footer>
   </dialog>
 
   <button class="hc-button" type="button" popovertarget="ks-pop">Open popover</button>

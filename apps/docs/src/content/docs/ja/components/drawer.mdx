@@ -19,16 +19,20 @@ import Demo from '../../../../components/Demo.astro';
 | プリミティブ | 必要バージョン |
 | --- | --- |
 | HTML `<dialog>` + `showModal()` | すべてのエバーグリーンブラウザ |
+| `commandfor` + `command="show-modal"`(宣言的なオープナー) | Chrome 135+、Firefox 144+、Safari 26+ — [Dialog を参照](/hypermedia-components/ja/components/dialog/#開閉) |
 | CSS `@starting-style` + `transition-behavior: allow-discrete` | Chrome 117+、Firefox 129+、Safari 17.5+ |
 
 スライドアニメーションは穏やかにデグレードします —
 `@starting-style` のない古いブラウザでは入場トランジションなしで
-最終位置にスナップしますが、ドロワーは機能します。
+最終位置にスナップしますが、ドロワーは機能します。以下の例はボタンの
+`commandfor` / `command="show-modal"` でドロワーを開きます —
+ネイティブでスクリプト不要。対応しないエンジンではボタンは何もせず、
+自前スクリプトからの `showModal()` はどこでも動きます。
 
 ## 基本の HTML
 
 <Demo previewClass="hc-preview--start">
-  <button class="hc-button" type="button" onclick="document.getElementById('settings-drawer').showModal()">Open settings</button>
+  <button class="hc-button" type="button" commandfor="settings-drawer" command="show-modal">Open settings</button>
   <dialog class="hc-drawer" data-side="right" id="settings-drawer">
     <header class="hc-drawer__header">
       <h2 class="hc-drawer__title">Settings</h2>
@@ -49,7 +53,7 @@ import Demo from '../../../../components/Demo.astro';
 
   ```html
   <button class="hc-button" type="button"
-          onclick="document.getElementById('settings-drawer').showModal()">
+          commandfor="settings-drawer" command="show-modal">
     Open settings
   </button>
 
@@ -96,9 +100,9 @@ htmx でスワップされた内容も自動で拾います。
 制限します。
 
 <Demo previewClass="hc-preview--start">
-  <button class="hc-button" type="button" onclick="document.getElementById('demo-sides-left').showModal()">Open left</button>
-  <button class="hc-button" type="button" onclick="document.getElementById('demo-sides-top').showModal()">Open top</button>
-  <button class="hc-button" type="button" onclick="document.getElementById('demo-sides-bottom').showModal()">Open bottom</button>
+  <button class="hc-button" type="button" commandfor="demo-sides-left" command="show-modal">Open left</button>
+  <button class="hc-button" type="button" commandfor="demo-sides-top" command="show-modal">Open top</button>
+  <button class="hc-button" type="button" commandfor="demo-sides-bottom" command="show-modal">Open bottom</button>
   <dialog class="hc-drawer" data-side="left" id="demo-sides-left">
     <header class="hc-drawer__header">
       <h2 class="hc-drawer__title">Left drawer</h2>
@@ -137,7 +141,7 @@ htmx でスワップされた内容も自動で拾います。
 
   ```html
   <button class="hc-button" type="button"
-          onclick="document.getElementById('left-drawer').showModal()">
+          commandfor="left-drawer" command="show-modal">
     Open left
   </button>
 
@@ -169,12 +173,25 @@ htmx でスワップされた内容も自動で拾います。
 ### `<form method="dialog">`(JS なし)
 
 `method="dialog"` のフォーム内のボタンは、送信でダイアログを閉じ
-ます。ネイティブ、アクセシブル、宣言的です。
+ます。ネイティブ、アクセシブル、宣言的、どのエンジンでも動きます。
 
 ```html
 <form method="dialog">
   <button class="hc-button" type="submit">Cancel</button>
 </form>
+```
+
+### `command="close"`(JS なし、htmx フォームの内側でも動く)
+
+オープナーの対になる invoker commands。`type="button"` なら何でも、
+`commandfor` が指すダイアログを閉じます — htmx が駆動するフォームの
+内側からでも。そこでは `formmethod="dialog"` の submit ボタンは htmx
+に捕まってしまいます。Baseline は `command="show-modal"` と同じ
+(上の表を参照)。
+
+```html
+<button class="hc-button" type="button"
+        commandfor="settings-drawer" command="close">Cancel</button>
 ```
 
 ### バックドロップクリック(`installDrawer` が追加)
@@ -219,7 +236,7 @@ htmx のレスポンスハンドラから使うのに便利です — htmx 成�
         data-hx-get="/users/42/edit"
         data-hx-target="#user-drawer .hc-drawer__body"
         data-hx-swap="innerHTML"
-        onclick="document.getElementById('user-drawer').showModal()">
+        commandfor="user-drawer" command="show-modal">
   Edit user
 </button>
 

@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: Minimal styling for the standard <dialog> element. Modal flows use showModal(), non-modal use show().
+description: Minimal styling for the standard <dialog> element. Open it from a button with commandfor + command="show-modal" — no script; modal flows use showModal(), non-modal use show().
 ---
 
 import UsedInRecipes from '../../../components/UsedInRecipes.astro';
@@ -17,7 +17,7 @@ component adds only the visual surface.
 ## Basic HTML
 
 <Demo previewClass="hc-preview--start">
-  <button class="hc-button" data-variant="primary" onclick="document.getElementById('basic-dialog').showModal()">Open dialog</button>
+  <button class="hc-button" data-variant="primary" commandfor="basic-dialog" command="show-modal">Open dialog</button>
   <dialog class="hc-dialog" id="basic-dialog" aria-labelledby="basic-dialog-title">
     <header class="hc-dialog__header">
       <h2 class="hc-dialog__title" id="basic-dialog-title">Confirm something</h2>
@@ -34,8 +34,9 @@ component adds only the visual surface.
   <Fragment slot="code">
 
   ```html
-  <button class="hc-button" data-variant="primary"
-          onclick="document.getElementById('my-dialog').showModal()">
+  <!-- commandfor + command open the dialog natively: no script, no listener -->
+  <button class="hc-button" data-variant="primary" type="button"
+          commandfor="my-dialog" command="show-modal">
     Open dialog
   </button>
 
@@ -98,7 +99,46 @@ cap comes from the browser and needs no setting.
 
 ## Open and close
 
-Use the native methods:
+A `<dialog>` has no click-to-open attribute of its own, but HTML's
+**invoker commands** give any button one — declarative, no script, no
+listener, and nothing a `Content-Security-Policy: default-src 'self'`
+can object to:
+
+```html
+<button class="hc-button" type="button"
+        commandfor="my-dialog" command="show-modal">Open</button>
+
+<dialog class="hc-dialog" id="my-dialog">
+  …
+  <button class="hc-button" type="button"
+          commandfor="my-dialog" command="close">Close</button>
+</dialog>
+```
+
+- **`command="show-modal"`** calls `showModal()` on the element
+  `commandfor` names by id — focus trap, `::backdrop`, Escape, and
+  focus returning to the opener on close are all the browser's.
+- **`command="close"`** calls `close()`. It works from anywhere,
+  including **inside an htmx form**, where a `formmethod="dialog"`
+  button is captured by htmx and never reaches the dialog (the
+  [remote-dialog recipe](/hypermedia-components/recipes/remote-dialog/)
+  keeps its Cancel in a separate `<form method="dialog">` for that
+  reason — either idiom is fine).
+- Both need **`type="button"`**: a submit button ignores its command
+  and submits its form instead.
+
+:::note[Baseline]
+`commandfor` / `command` reached
+[Baseline](https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/button#commandfor)
+in **2025** (Chrome / Edge 135+, Firefox 144+, Safari 26+). The kit
+ships no fallback: on an older engine the button does nothing, which is
+the honest degradation for a modal open — there is no scriptless one.
+`<form method="dialog">` closes on every engine, so keep it where the
+no-JS path matters.
+:::
+
+For a non-modal `show()`, or to close with a return value, use the
+native methods:
 
 ```js
 dialog.showModal();   // modal, with focus trap and ::backdrop
@@ -150,7 +190,8 @@ up content swapped in by htmx.
   with a `<div role="dialog">` unless you genuinely cannot use
   `showModal()`.
 - The browser handles focus trap and Escape automatically when the
-  dialog is opened via `showModal()`.
+  dialog is opened via `showModal()` (or `command="show-modal"`), and
+  returns focus to the opener when it closes.
 - Label the dialog. Either:
   - Set `aria-labelledby` on the dialog pointing at the title id, or
   - Place the title before any focusable element so it is read on

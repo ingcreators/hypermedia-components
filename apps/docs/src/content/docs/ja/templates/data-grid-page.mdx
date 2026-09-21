@@ -246,7 +246,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
             </div>
           </div>
           <button class="hc-button" data-variant="secondary" type="button"
-                  onclick="document.getElementById('filters').showModal()">Filters (2)</button>
+                  commandfor="filters" command="show-modal">Filters (2)</button>
         </div>
 
         <!-- Applied conditions: one chip per condition, each opening the
@@ -255,7 +255,7 @@ URL は実アプリの形にしてあります。JavaScript が動く前にグ�
           <ul class="hc-filterbar__list">
             <li class="hc-filterbar__item">
               <button class="hc-filterbar__chip" type="button"
-                      onclick="document.getElementById('filters').showModal()">
+                      commandfor="filters" command="show-modal">
                 <span class="hc-filterbar__label">Ship date</span>
                 <span class="hc-filterbar__op">from</span>
                 <span class="hc-filterbar__value">start of this week (2026-08-10)</span>
@@ -715,7 +715,11 @@ URL → ユーザー設定 → アプリ既定
 - **JavaScript なし。**パネルはただの `<form method="get">`、ページャは
   ただのリンクなので、JavaScript がなくても絞り込みとページ送りは動き
   ます。グリッドも描画されます。必要になるのはインライン編集と
-  ツールバーの矢印キー移動だけです。
+  ツールバーの矢印キー移動だけです。**Filters** ボタンとチップは
+  `commandfor="filters" command="show-modal"` でパネルを開きます —
+  ネイティブの invoker commands で、スクリプトもリスナーも不要です
+  (Baseline 2025。[Dialog → 開く / 閉じる](/hypermedia-components/ja/components/dialog/#開閉)
+  を参照)。
 - **密度。**シェルに `data-density="compact"` を付けると画面全体が
   締まります。タブレット利用があるならタッチターゲットを確認して
   ください（[テーマとランタイム軸](/hypermedia-components/ja/tokens/themes/)）。

@@ -1,6 +1,6 @@
 ---
 title: ダイアログ
-description: 標準の <dialog> 要素への最小限のスタイリング。モーダルフローは showModal()、非モーダルは show() を使います。
+description: 標準の <dialog> 要素への最小限のスタイリング。ボタンから開くには commandfor + command="show-modal" — スクリプト不要。モーダルフローは showModal()、非モーダルは show() を使います。
 ---
 
 import UsedInRecipes from '../../../../components/UsedInRecipes.astro';
@@ -17,7 +17,7 @@ import Demo from '../../../../components/Demo.astro';
 ## 基本の HTML
 
 <Demo previewClass="hc-preview--start">
-  <button class="hc-button" data-variant="primary" onclick="document.getElementById('basic-dialog').showModal()">Open dialog</button>
+  <button class="hc-button" data-variant="primary" commandfor="basic-dialog" command="show-modal">Open dialog</button>
   <dialog class="hc-dialog" id="basic-dialog" aria-labelledby="basic-dialog-title">
     <header class="hc-dialog__header">
       <h2 class="hc-dialog__title" id="basic-dialog-title">Confirm something</h2>
@@ -34,8 +34,9 @@ import Demo from '../../../../components/Demo.astro';
   <Fragment slot="code">
 
   ```html
-  <button class="hc-button" data-variant="primary"
-          onclick="document.getElementById('my-dialog').showModal()">
+  <!-- commandfor + command でネイティブに開く: スクリプトもリスナーも不要 -->
+  <button class="hc-button" data-variant="primary" type="button"
+          commandfor="my-dialog" command="show-modal">
     Open dialog
   </button>
 
@@ -98,7 +99,47 @@ import Demo from '../../../../components/Demo.astro';
 
 ## 開閉
 
-ネイティブのメソッドを使います:
+`<dialog>` にはクリックで開くための属性が自前にはありませんが、HTML の
+**invoker commands** がどのボタンにもそれを与えます — 宣言的で、
+スクリプトもリスナーも不要、`Content-Security-Policy: default-src 'self'`
+が文句を言うものもありません:
+
+```html
+<button class="hc-button" type="button"
+        commandfor="my-dialog" command="show-modal">Open</button>
+
+<dialog class="hc-dialog" id="my-dialog">
+  …
+  <button class="hc-button" type="button"
+          commandfor="my-dialog" command="close">Close</button>
+</dialog>
+```
+
+- **`command="show-modal"`** は `commandfor` が id で指す要素の
+  `showModal()` を呼びます — フォーカストラップ、`::backdrop`、Escape、
+  閉じたときにオープナーへフォーカスが戻ることまで、すべてブラウザの
+  仕事です。
+- **`command="close"`** は `close()` を呼びます。どこからでも効き、
+  **htmx フォームの内側**でも動きます。そこでは `formmethod="dialog"`
+  のボタンは htmx に捕まってダイアログに届きません
+  ([remote-dialog レシピ](/hypermedia-components/ja/recipes/remote-dialog/)
+  が Cancel を別の `<form method="dialog">` に置いているのはそのためです
+  — どちらの書き方でも構いません)。
+- どちらも **`type="button"`** が必要です。submit ボタンは command を
+  無視してフォームを送信します。
+
+:::note[Baseline]
+`commandfor` / `command` は **2025 年**に
+[Baseline](https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/button#commandfor)
+入りしました(Chrome / Edge 135+、Firefox 144+、Safari 26+)。kit は
+フォールバックを同梱しません。古いエンジンではボタンは何もしません —
+モーダルを開くことにスクリプトなしの代替はないので、それが正直な
+劣化です。`<form method="dialog">` はどのエンジンでも閉じられるので、
+JS なしの経路が重要な場所では残してください。
+:::
+
+非モーダルの `show()` や、戻り値つきで閉じるにはネイティブのメソッドを
+使います:
 
 ```js
 dialog.showModal();   // modal, with focus trap and ::backdrop
@@ -150,8 +191,9 @@ htmx でスワップされた内容も自動で拾います。
 - ネイティブの `<dialog>` 要素を使ってください。`showModal()` を
   本当に使えないのでない限り、`<div role="dialog">` でダイアログを
   模倣**しない**でください。
-- `showModal()` で開かれたダイアログでは、フォーカストラップと
-  Escape をブラウザが自動処理します。
+- `showModal()`(または `command="show-modal"`)で開かれたダイアログ
+  では、フォーカストラップと Escape をブラウザが自動処理し、閉じると
+  オープナーにフォーカスを戻します。
 - ダイアログにラベルを付けてください。次のいずれかで:
   - ダイアログにタイトルの id を指す `aria-labelledby` を設定する、
     または

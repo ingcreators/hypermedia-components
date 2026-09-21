@@ -174,10 +174,14 @@ HX-Trigger: {"hc:toast":{"message":"Saved.","variant":"success"}}
   htmx intercepts the click when it is loaded; otherwise the `href`
   navigates to a full-page edit screen.
 - Without `hc.behaviors.js`, the dialog fragment lands in the page
-  but does not auto-open. Add a `<script>` right after the `<dialog>` in
-  the server response that opens it — e.g.
+  but does not auto-open. Render it with the `open` attribute (non-modal,
+  no script at all), add a `<script>` right after the `<dialog>` in the
+  server response that opens it — e.g.
   `<script>document.currentScript.previousElementSibling.showModal()</script>`
-  — or fall back to inline rendering.
+  — or fall back to inline rendering. (A dialog that is already in the
+  page is a different case: open it from a button with
+  `commandfor` / `command="show-modal"`, no behavior needed — see
+  [Dialog → Open and close](/hypermedia-components/components/dialog/#open-and-close).)
 
 ## Related
 
