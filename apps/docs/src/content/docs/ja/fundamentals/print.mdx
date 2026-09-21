@@ -51,6 +51,26 @@ description: オプトインの印刷スタイルシート — 紙にはレコ�
 - **ページのヘッダー/フッターは付けません** — それらは `@page` の
   マージンボックスとアプリ自身の印刷ビューの仕事です。
 
+## 印刷を起動する
+
+Ctrl/Cmd+P は常に効きますが、注文詳細には目に見える **Print** ボタンが
+欲しいものです。HTML に宣言的な印刷はなく、`onclick="window.print()"`
+はインラインスクリプト — 厳格な `Content-Security-Policy` の下では
+死にます。ボタンに `data-hc-print` を付けると、`installPrint()` が
+代わりに `window.print()` を呼びます:
+
+```html
+<button class="hc-button" type="button" data-hc-print>
+  <span class="hc-icon" aria-hidden="true">⎙</span> Print
+</button>
+```
+
+ボタン自体は紙には出ません。このスタイルシートが印刷時に `.hc-button`
+を隠すからです。JavaScript なしではボタンは何もせず、キーボード
+ショートカットが残ります — それが正直な劣化です。対象はページ全体
+のみ: 画面と*違う形*で印刷すべきページは、クライアント側の抜粋ではなく
+サーバが描画する印刷ビューです(上記参照)。
+
 ## 関連
 
 - [テーマ](/hypermedia-components/ja/tokens/themes/) — 紙の上で

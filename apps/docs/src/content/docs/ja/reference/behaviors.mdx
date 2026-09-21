@@ -3,7 +3,7 @@ title: ビヘイビア
 description: すべての installXxx() ビヘイビア — 何を担い、ゼロ設定バンドルが自動インストールするかの一覧。
 ---
 
-キットは 60 個の小さなビヘイビアを出荷しています。すべて冪等で
+キットは 63 個の小さなビヘイビアを出荷しています。すべて冪等で
 アンインストーラを返し、`installChart()` ただ 1 つの例外を除いて、
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリが
 **自動インストール**します(htmx でスワップされた内容も拾います)。
@@ -39,6 +39,8 @@ installToast();
 | `installMask()` | 宣言的な固定形式マスク(`postal-jp`、`#`/`a`/`A`/`*` パターン) — [入力](/hypermedia-components/ja/components/input/#入力マスク)。 | `data-hc-mask`、`data-hc-mask-submit` | — | ✓ |
 | `installSubmitOnChange()` | コントロール自体がアクションであるとき、`change`(または値で指定した event、例: `hc:otpcomplete`)でフォームを送信 — [スイッチ](/hypermedia-components/ja/components/switch/#スイッチ自体がアクション)、[OTP 入力](/hypermedia-components/ja/components/inputotp/#コードが埋まったら送信)。htmx がすでに change でフォームを駆動していれば除外。 | `data-hc-submit-on-change` | — | ✓ |
 | `installSubmitOnEnter()` | Enter で送信、Shift+Enter で改行、IME 確定の Enter は無視 — [chat-messages レシピ](/hypermedia-components/ja/recipes/chat-messages/)のコンポーザ。 | `data-hc-submit-on-enter` | — | ✓ |
+| `installCount()` | 上限つきフィールドの横の文字数カウント — [入力](/hypermedia-components/ja/components/input/#文字数カウント): `maxlength` かソフトリミットからの `used / max`、`near` / `over` 状態、ライブ出力は入力停止後に更新。 | `data-hc-count`、`data-hc-count-max` | — | ✓ |
+| `installSelectAll()` | チェックリストのマスターチェックボックス — [チェックボックス](/hypermedia-components/ja/components/checkbox/#すべて選択): 有効なメンバーをすべて設定し、checked / クリア / indeterminate として鏡写しにする。 | `data-hc-select-all` | — | ✓ |
 | `installMultiValue()` | 1 つのコントロールから複数値をワイヤへ — 貼り付けた識別子の一覧が繰り返しパラメータになる([input](/hypermedia-components/ja/components/input/#複数値の条件))。 | `data-hc-multi`(`lines` / `commas`) | — | ✓ |
 | `installRangeValue()` | コントロール 2 つを 1 つの範囲パラメータへ — 日付の期間が `f-ship=A..B` として送られる([datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/#日付の範囲))。 | `data-hc-range`、`data-hc-range-from`、`data-hc-range-to` | — | ✓ |
 | `installSortList()` | ソートコントロールの順序付きキーを 1 パラメータへ — `sort=-ship,order`([datagrid-sort](/hypermedia-components/ja/recipes/datagrid-sort/))。 | `data-hc-sort-list`、`data-hc-sort-key`、`data-hc-sort-dir-prefix` | — | ✓ |
@@ -108,6 +110,7 @@ installToast();
 | ビヘイビア | 担当 | 属性 | イベント | 自動 |
 | --- | --- | --- | --- | --- |
 | `installCopy()` | クリップボードボタン(`data-hc-copy`)— [copy レシピ](/hypermedia-components/ja/recipes/copy/)。 | `data-hc-copy`、`data-hc-copy-text`、`data-hc-copy-ok` | `hc:copied` | ✓ |
+| `installPrint()` | インラインスクリプトなしで `window.print()` を呼ぶ Print ボタン — [印刷](/hypermedia-components/ja/fundamentals/print/#印刷を起動する)。 | `data-hc-print` | — | ✓ |
 | `installThemeToggle()` | ライト / ダーク切替ボタン([テーマ](/hypermedia-components/ja/tokens/themes/))。 | `data-hc-theme-toggle`、`data-persist` | `hc:themechange` | ✓ |
 | `installCsrfHeader()` | `meta[name="csrf-token"]` から全 htmx リクエストへ CSRF ヘッダーを付与([htmx ガイド](/hypermedia-components/ja/integrations/htmx/))。 | `meta[name="csrf-token"]` + `data-header` | — | ✓ |
 | `installSseDispatch()` | SSE メッセージを DOM イベントへ橋渡し — [sse-updates](/hypermedia-components/ja/recipes/sse-updates/) / [sse-toast](/hypermedia-components/ja/recipes/sse-toast/) レシピ。 | `data-hc-sse-dispatch`、`data-sse-swap` | `data-sse-swap` に列挙した名前 | ✓ |

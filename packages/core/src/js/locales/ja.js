@@ -47,6 +47,8 @@ const ja = Object.freeze({
   'splitter.resize': 'パネルの幅を変更',
   'networkRetry.failed': 'リクエストがサーバに届きませんでした — 接続を確認して再試行してください。',
   'networkRetry.retry': '再試行',
+  'count.of': '{used} / {max}',
+  'count.used': '{used}',
   'themeToggle.label': 'カラーテーマを切り替え',
   'toast.dismiss': '閉じる',
   'toast.label': '通知',

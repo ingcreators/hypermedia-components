@@ -45,6 +45,20 @@
     resize: vertical;
   }
 
+  /* Opt-in auto-grow: `data-autosize` sizes the textarea to its content
+   * (CSS `field-sizing: content`), from the `rows` floor up to
+   * `--hc-input-autosize-max` (default 50vh, then it scrolls). No script;
+   * the resize handle goes, since the box already follows the text. An
+   * engine without `field-sizing` keeps the `rows` height and the handle
+   * — the honest degradation, same shape as the dialog opener. */
+  @supports (field-sizing: content) {
+    textarea.hc-input[data-autosize] {
+      field-sizing: content;
+      max-block-size: var(--hc-input-autosize-max, 50vh);
+      resize: none;
+    }
+  }
+
   .hc-input::placeholder {
     color: var(--hc-input-placeholder);
     opacity: 1;

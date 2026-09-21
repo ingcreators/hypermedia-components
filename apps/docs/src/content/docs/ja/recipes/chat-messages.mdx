@@ -49,7 +49,7 @@ SSE で埋めるハンドルです — そして帯域外でスワップされ�
         data-hx-target="#chat-list" data-hx-swap="beforeend">
     <label class="hc-field__label" for="prompt">Message</label>
     <textarea class="hc-input" id="prompt" name="prompt" rows="2"
-              data-hc-submit-on-enter></textarea>
+              data-autosize data-hc-submit-on-enter></textarea>
     <button class="hc-button" data-variant="primary" type="submit">Send</button>
   </form>
 </div>
@@ -63,6 +63,7 @@ SSE で埋めるハンドルです — そして帯域外でスワップされ�
 | `tabindex="0"`(リスト) | スクロール領域にキーボードで到達できます。 |
 | `data-hx-target="#chat-list"` + `data-hx-swap="beforeend"` | POST はトランスクリプトへ追記します — 全体の再描画はしません。 |
 | `method="post"` + `action` | no-JS の経路: 素のフォーム送信で、`303` が返ります。 |
+| `data-autosize`(textarea) | コンポーザはメッセージに合わせて 2 行から `--hc-input-autosize-max` まで伸びます(CSS の `field-sizing`、スクリプトなし)— [入力 → 自動で伸びる textarea](/hypermedia-components/ja/components/input/#自動で伸びる-textarea) を参照。 |
 | `data-hc-submit-on-enter`(textarea) | **Enter で送信**、Shift+Enter で改行。IME の候補を確定する Enter(日本語・中国語・韓国語入力)には反応しません — `installSubmitOnEnter()` が `form.requestSubmit()` を呼ぶので、リクエストは Send ボタンと同じ経路を通ります。JavaScript なしでは Enter はただの改行で、Send が送信します。 |
 
 ## サーバレスポンス契約

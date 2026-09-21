@@ -55,6 +55,9 @@ import { installShowWhen } from './show-when.js';
 import { installSortable } from './sortable.js';
 import { installFormat, installNormalize } from './format.js';
 import { installSubmitOnChange, installSubmitOnEnter } from './submit-on.js';
+import { installPrint } from './print.js';
+import { installCount } from './count.js';
+import { installSelectAll } from './select-all.js';
 import { installMask } from './mask.js';
 import { installMultiValue } from './multi-value.js';
 import { installRangeValue } from './range-value.js';
@@ -125,6 +128,9 @@ function init() {
   installTime();
   installSubmitOnChange();
   installSubmitOnEnter();
+  installPrint();
+  installCount();
+  installSelectAll();
 }
 
 if (typeof document !== 'undefined') {
@@ -195,6 +201,9 @@ export {
   installTime,
   installSubmitOnChange,
   installSubmitOnEnter,
+  installPrint,
+  installCount,
+  installSelectAll,
 };
 
 // registerCodeLanguage — plug a tokenizer into the editable-code highlight

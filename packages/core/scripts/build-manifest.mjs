@@ -59,6 +59,9 @@ const EXPLICIT_CLAIMS = {
   installTime: 'platform', // client-side <time> localization (i18n docs)
   installSubmitOnChange: 'platform', // control-is-the-action form submit (switch / inputotp docs)
   installSubmitOnEnter: 'platform', // Enter-to-send textarea (chat-messages docs)
+  installPrint: 'platform', // declarative Print button (print docs)
+  installCount: 'platform', // character count next to a bounded field (input docs)
+  installSelectAll: 'platform', // master checkbox for a checklist (checkbox docs)
 };
 
 /** Editor-canvas composition metadata (#447): per block, the parts

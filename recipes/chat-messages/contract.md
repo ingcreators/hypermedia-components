@@ -16,7 +16,8 @@ Purpose: chat as a server round trip — the transcript is server-rendered histo
   `data-hx-swap="beforeend"`. A `<textarea name="prompt">` carries the
   message by native serialization; `data-hc-submit-on-enter` on it makes
   Enter send (Shift+Enter breaks the line, an IME-confirming Enter is
-  ignored) through the same `requestSubmit()` path as the Send button.
+  ignored) through the same `requestSubmit()` path as the Send button,
+  and `data-autosize` lets it grow with the message (CSS only).
 
 ## Endpoints
 
