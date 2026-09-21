@@ -20,6 +20,22 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-09-21
+
+The browser-floor release, PR #625 (closing #624): the first consumer to
+adopt 0.4.1's `commandfor` / `command="show-modal"` markup found that
+"no fallback" was a functional loss on a permanent floor — Safari 17 /
+18 fleets, Firefox ESR 140 — so `installInvokerCommands()` now carries
+the two blessed commands there, feature-detected and self-retiring, the
+same policy the anchor-positioning fallback already followed. The audit
+that decision prompted found no other functional loss above the floor
+and produced the *Browser support* fundamentals page, which states the
+floor (the Popover API) once. 53 recipes · 5 templates · 64 behaviors.
+
+Strictly additive, no markup change anywhere → patch per VERSIONING.md.
+No recipe scaffold changed, so the CLI stays at 0.4.4; editor-kit stays
+at 0.2.0.
+
 ### Added
 
 - **`installInvokerCommands()` — a feature-detected fallback for the
@@ -6696,7 +6712,8 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/ingcreators/hypermedia-components/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/ingcreators/hypermedia-components/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.2.1...v0.3.0
