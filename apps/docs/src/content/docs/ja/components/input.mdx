@@ -289,8 +289,9 @@ fail open してはなりません。
 </Demo>
 
 :::note[Baseline]
-`field-sizing` は Chromium 系ブラウザでは 123 以降、現行の WebKit でも
-対応しています。ユーザーが使うエンジンについては
+`field-sizing` は現行の Chromium(123 以降)、Firefox、WebKit が対応
+しており、kit のブラウザテストは 3 エンジンすべてで伸長を検証して
+います。ユーザーが使う正確なバージョンについては
 [MDN](https://developer.mozilla.org/docs/Web/CSS/field-sizing) を確認して
 ください。未対応の環境では textarea は `rows` の高さとネイティブの
 リサイズハンドルを保ちます — フォールバック用のスクリプトはなく、
