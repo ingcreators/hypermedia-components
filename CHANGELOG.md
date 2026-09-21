@@ -38,6 +38,37 @@ Security    — security-relevant changes
   labels, so a one-glyph-wide column shows no orphaned word.
   Browser-tested (glyph centred within 1px of the rail's centre; caption
   clipped to a pixel but not `display: none`).
+- **`installSubmitOnChange()` / `data-hc-submit-on-change`** (#614) —
+  a control that *is* the action posts its form itself. On `change` the
+  behavior calls `form.requestSubmit()`, so the request takes the form's
+  own submit path — htmx picks it up from the `submit` event, and
+  `hx-sync`, the dirty guard, the CSRF header and
+  `data-hc-close-dialog-on-success` all apply, exactly as if a Save
+  button had been pressed. The attribute may sit on the control or on a
+  container (a `<fieldset>` of switches), and its optional **value
+  names a different event** to submit on — `data-hc-submit-on-change=
+  "hc:otpcomplete"` posts a verification code the moment it fills while
+  keeping the form's visible Verify button and no-JS post working
+  (`hx-trigger="hc:otpcomplete"` would have taken both away). The
+  exemption every consumer used to re-decide alone is decided once:
+  a control carrying its own htmx verb, or a form whose `hx-trigger`
+  already includes `change`, is left to htmx — never a double submit.
+  Documented on the switch page (*The switch is the action*), the input
+  OTP page and the mutating-form recipe; unit tests plus a real-htmx
+  browser test (one request through the submit path; one request, not
+  two, on an already-change-driven form).
+- **`installSubmitOnEnter()` / `data-hc-submit-on-enter`** — Enter in
+  a textarea submits its form, Shift+Enter / Alt+Enter insert the
+  newline, Ctrl/Cmd+Enter submits too, and an Enter that ends an **IME
+  composition** (`isComposing`, legacy keyCode 229 — the one every
+  hand-rolled chat composer forgets, and the one Japanese input trips
+  over) is ignored. The chat-messages recipe's composer carries it now
+  (scaffold, expanded HTML, contract, live demo), so "Enter sends" is
+  no longer glue each consumer writes; without JavaScript Enter breaks
+  the line and Send posts. Browser-tested against the real-htmx chat
+  fixture, including the OOB composer re-render re-attaching the
+  behavior. 60 behaviors (59 auto-init + opt-in chart). The CLI will
+  need a re-bundle for the touched chat-messages scaffold.
 
 ### Changed
 

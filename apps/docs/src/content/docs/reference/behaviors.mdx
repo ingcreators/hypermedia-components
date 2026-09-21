@@ -3,7 +3,7 @@ title: Behaviors
 description: Every installXxx() behavior — what it powers and whether the zero-config bundle auto-installs it.
 ---
 
-The kit ships 58 small behaviors. All of them are idempotent, return an
+The kit ships 60 small behaviors. All of them are idempotent, return an
 uninstaller, and — with the single exception of `installChart()` — are
 **auto-installed** by the zero-config
 `@hypermedia-components/core/behaviors` entry, which also picks up
@@ -38,6 +38,8 @@ the behavior dispatches; "—" means none.
 | `installFormat()` | Grouped numeric display with a raw wire value — [input](/hypermedia-components/components/input/#grouped-amounts). | `data-hc-format`, `data-decimals`, `data-locale` | — | ✓ |
 | `installNormalize()` | IME fullwidth / kana normalization on commit — [input](/hypermedia-components/components/input/#ime-normalization). | `data-hc-normalize` | — | ✓ |
 | `installMask()` | Declarative fixed-format masks (`postal-jp`, `#`/`a`/`A`/`*` patterns) — [input](/hypermedia-components/components/input/#input-masks). | `data-hc-mask`, `data-hc-mask-submit` | — | ✓ |
+| `installSubmitOnChange()` | A control that *is* the action posts its form on `change` (or on the event the value names, e.g. `hc:otpcomplete`) — [switch](/hypermedia-components/components/switch/#the-switch-is-the-action), [input OTP](/hypermedia-components/components/inputotp/#submit-when-the-code-fills). Exempt when htmx already drives the form on change. | `data-hc-submit-on-change` | — | ✓ |
+| `installSubmitOnEnter()` | Enter sends, Shift+Enter breaks the line, an IME-confirming Enter is ignored — the [chat-messages recipe](/hypermedia-components/recipes/chat-messages/)'s composer. | `data-hc-submit-on-enter` | — | ✓ |
 | `installMultiValue()` | One control, many values on the wire — a pasted list of identifiers becomes repeated params ([input](/hypermedia-components/components/input/#multi-value-conditions)). | `data-hc-multi` (`lines` / `commas`) | — | ✓ |
 | `installRangeValue()` | Two controls, one range param on the wire — a date period leaves as `f-ship=A..B` ([datagrid-filter](/hypermedia-components/recipes/datagrid-filter/#date-ranges)). | `data-hc-range`, `data-hc-range-from`, `data-hc-range-to` | — | ✓ |
 | `installSortList()` | The sort control's ordered keys as one param — `sort=-ship,order` ([datagrid-sort](/hypermedia-components/recipes/datagrid-sort/)). | `data-hc-sort-list`, `data-hc-sort-key`, `data-hc-sort-dir-prefix` | — | ✓ |

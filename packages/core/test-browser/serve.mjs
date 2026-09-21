@@ -739,7 +739,8 @@ function chatComposer(error = '', stream = false) {
       data-hx-target="#chat-list" data-hx-swap="beforeend"
       data-hx-swap-oob="outerHTML"${invalid} data-testid="composer">
     <label class="hc-field__label" for="prompt">Message</label>
-    <textarea class="hc-input" id="prompt" name="prompt" rows="2"${aria} data-testid="prompt"></textarea>
+    <textarea class="hc-input" id="prompt" name="prompt" rows="2"${aria} data-testid="prompt"
+              data-hc-submit-on-enter></textarea>
     ${message}
     <button class="hc-button" data-variant="primary" type="submit" data-testid="send">Send</button>
   </form>`;

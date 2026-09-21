@@ -191,6 +191,47 @@ primary の塗りを使います。
 (同じ `name` の下に 隠し `false` + スイッチ `true`)を使います。
 `hc-switch` にそのまま当てはまります。
 
+### スイッチ自体がアクション
+
+フィーチャーフラグ、ユーザーごとの設定 — スイッチ*そのもの*が保存で、
+Save ボタンはありません。スイッチごとに個別のリクエストを持たせる
+代わりに、**フォーム**を単位のまま保ち —
+[mutating-form レシピ](/hypermedia-components/ja/recipes/mutating-form/)
+がすでに持っているもの(target、swap、422 の再描画)です —
+`data-hc-submit-on-change` で、変化した瞬間にスイッチにフォームを
+送信させます:
+
+```html
+<form method="post" action="/flags"
+      data-hx-post="/flags" data-hx-target="closest .hc-card"
+      data-hx-swap="outerHTML" data-hx-sync="this:replace">
+  <label class="hc-switch-label">
+    <input type="hidden" name="beta" value="false">
+    <input class="hc-switch" type="checkbox" role="switch"
+           name="beta" value="true" data-hc-submit-on-change>
+    Beta features
+  </label>
+  <noscript><button class="hc-button" type="submit">Save</button></noscript>
+</form>
+```
+
+`change` でビヘイビアは `form.requestSubmit()` を呼びます。制約検証が
+走り、フォームの `submit` イベントが発火し、そこから htmx がリクエストを
+引き受けます — つまり `hx-sync`、
+[ダーティガード](/hypermedia-components/ja/recipes/unsaved-changes/)、
+[CSRF ヘッダー](/hypermedia-components/ja/integrations/htmx/#csrf-トークン--公認の規約)、
+`data-hc-close-dialog-on-success` がすべて、Save ボタンを押したときと
+まったく同じように効きます。属性は `<fieldset>` に置くこともできます。
+子孫の `change` はそこまでバブルするので、設定グループがひとつの
+フォームとして送信されます。
+
+ビヘイビアが一度だけ代わりに決めることが 2 つあります。**自前の**
+htmx verb を持つコントロール(上の `data-hx-post` の形)はそのまま、
+`hx-trigger` にすでに `change` を含むフォームもそのまま — どちらも
+htmx が駆動しており、2 度目の送信は二重発火になるからです。
+JavaScript なしではスイッチは自動送信しません。`<noscript>` の Save
+ボタンが no-JS 経路を正直に保ちます。
+
 ## アクセシビリティ
 
 - input には常にラベルを対にしてください。両方を

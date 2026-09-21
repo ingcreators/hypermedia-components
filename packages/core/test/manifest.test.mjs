@@ -47,6 +47,8 @@ describe('manifest.json', () => {
       'installNormalize',
       'installRangeValue',
       'installTime',
+      'installSubmitOnChange',
+      'installSubmitOnEnter',
     ]);
     const unclaimed = installs.filter((n) => !claimed.has(n));
     expect(unclaimed).toEqual([]);

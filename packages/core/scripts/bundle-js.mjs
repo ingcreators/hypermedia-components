@@ -86,6 +86,7 @@ const FILES = [
   ['src/js/session-expiry.js', 'session-expiry.js'],
   ['src/js/network-retry.js', 'network-retry.js'],
   ['src/js/time.js',          'time.js'],
+  ['src/js/submit-on.js',     'submit-on.js'],
   ['src/js/behaviors.js',     'hc.behaviors.js'],
 
   // Macros — kept under dist/macros/ so the entry module's relative

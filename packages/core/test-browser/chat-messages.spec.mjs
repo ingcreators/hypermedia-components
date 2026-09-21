@@ -30,6 +30,27 @@ test.describe('chat-messages recipe', () => {
     await expect(page.getByTestId('list').locator('.hc-chat__message')).toHaveCount(3);
   });
 
+  test('Enter sends; Shift+Enter breaks the line (data-hc-submit-on-enter)', async ({ page }) => {
+    const prompt = page.getByTestId('prompt');
+    await prompt.fill('line one');
+    await prompt.press('Shift+Enter');
+    await prompt.type('line two');
+    // Shift+Enter inserted a newline and sent nothing.
+    await expect(prompt).toHaveValue('line one\nline two');
+    await expect(page.getByTestId('list').locator('.hc-chat__message')).toHaveCount(1);
+
+    await prompt.press('Enter');
+    // Enter went through the form's submit path — same request as Send —
+    // and the composer reset out of band (an OOB swap also re-attaches
+    // the behavior to the fresh textarea).
+    await expect(page.getByTestId('user-1')).toHaveText('line one\nline two');
+    await expect(page.getByTestId('prompt')).toHaveValue('');
+
+    await page.getByTestId('prompt').fill('second');
+    await page.getByTestId('prompt').press('Enter');
+    await expect(page.getByTestId('user-2')).toHaveText('second');
+  });
+
   test('the composer resets out of band after a send', async ({ page }) => {
     await page.getByTestId('prompt').fill('First question');
     await page.getByTestId('send').click();

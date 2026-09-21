@@ -180,6 +180,19 @@ create form. The no-JS path still posts through the plain submit —
 without the confirmation step, the safe degradation for a server that
 re-validates server-side anyway.
 
+## Control-is-the-action variant
+
+A feature-flag switch or a preference select that saves the moment it
+changes needs no Save button — only a trigger. Add
+`data-hc-submit-on-change` to the control (or to a `<fieldset>` of
+them) and it calls `form.requestSubmit()` on `change`, so the request
+still travels this recipe's submit path: same target, same swap, same
+422 re-render, and every hook that rides the form's submit (`hx-sync`,
+the dirty guard, the CSRF header). See
+[Switch → The switch is the action](/hypermedia-components/components/switch/#the-switch-is-the-action)
+for the full form; the behavior exempts a form htmx already triggers on
+`change`, so the two never double-submit.
+
 ## No-JS degradation
 
 Because the form keeps `method`/`action`, nothing is lost when the

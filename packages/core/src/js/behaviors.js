@@ -54,6 +54,7 @@ import { installCodeEditor } from './code-editor.js';
 import { installShowWhen } from './show-when.js';
 import { installSortable } from './sortable.js';
 import { installFormat, installNormalize } from './format.js';
+import { installSubmitOnChange, installSubmitOnEnter } from './submit-on.js';
 import { installMask } from './mask.js';
 import { installMultiValue } from './multi-value.js';
 import { installRangeValue } from './range-value.js';
@@ -122,6 +123,8 @@ function init() {
   installSessionExpiry();
   installNetworkRetry();
   installTime();
+  installSubmitOnChange();
+  installSubmitOnEnter();
 }
 
 if (typeof document !== 'undefined') {
@@ -190,6 +193,8 @@ export {
   installSessionExpiry,
   installNetworkRetry,
   installTime,
+  installSubmitOnChange,
+  installSubmitOnEnter,
 };
 
 // registerCodeLanguage — plug a tokenizer into the editable-code highlight

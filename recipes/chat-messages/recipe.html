@@ -25,7 +25,8 @@
         data-hx-post="/chat/messages"
         data-hx-target="#chat-list" data-hx-swap="beforeend">
     <label class="hc-field__label" for="prompt">Message</label>
-    <textarea class="hc-input" id="prompt" name="prompt" rows="2"></textarea>
+    <textarea class="hc-input" id="prompt" name="prompt" rows="2"
+              data-hc-submit-on-enter></textarea>
     <button class="hc-button" data-variant="primary" type="submit">Send</button>
   </form>
 </div>
