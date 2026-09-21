@@ -46,8 +46,8 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.4.1` (2026-09-21): 67 component stylesheets ·
-63 behaviors (62 auto-init + opt-in chart) · 2 macros · 53 recipes ·
+As of `0.4.2` (2026-09-21): 67 component stylesheets ·
+64 behaviors (63 auto-init + opt-in chart) · 2 macros · 53 recipes ·
 8 integration guides · 5 full-page templates · opt-in `hc.print.css`
 (`./css/print`) · docs **fully mirrored in Japanese (`/ja/`)** ·
 runtime axes
@@ -123,6 +123,24 @@ working-tree operations need isolation. Remove the worktree and delete
 the local branch after its PR merges.
 
 ## Current focus
+
+Core `0.4.2` shipped (2026-09-21, `v0.4.2` tag; CLI stays `0.4.4`) —
+the **browser-floor release**, PR #625 closing #624. TesseraQL's first
+adoption of the `commandfor` / `command="show-modal"` markup showed
+0.4.1's "no fallback" was a functional loss on a permanent floor
+(Safari 17 / 18 fleets, Firefox ESR 140), so `installInvokerCommands()`
+now performs `show-modal` / `close` there — feature-detected at install
+(a native engine installs nothing), delegated, self-retiring, proved on
+every CI leg by deleting the API from the page before the bundle loads
+(`invoker-commands-fallback.spec.mjs`). The audit it prompted found no
+other functional loss above the floor and produced
+`fundamentals/browser-support`: the floor is the **Popover API**
+(Chromium 114 / Firefox 125 / Safari 17, no fallback below it); above
+it, "functional loss → scripted fallback (anchor positioning, invoker
+commands); cosmetic → none; `popover=hint` / custom commands avoided".
+64 behaviors.
+
+Previous milestones follow.
 
 Core `0.4.1` + CLI `0.4.4` shipped (2026-09-21, `v0.4.1` /
 `cli-v0.4.4` tags) — the **TesseraQL-audit release**, PRs #617–#622.
