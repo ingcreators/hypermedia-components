@@ -72,6 +72,20 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Docs: the datepicker's range example uses `data-hc-range`, not a
+  page script.** The *Range pickers* section predated
+  `installRangeValue()` (0.3.0) and still shipped a consumer `<script>`
+  that mirrored each end into the other's `min` / `max` — a different
+  policy from the kit's own behavior, which serialises the pair as one
+  `param=A..B` entry and *refuses* `from > to` with a native validity
+  message rather than preventing or swapping it. The section now shows
+  the `data-hc-range` markup, states the wire shape, the refusal rule
+  and the no-JS pair, and links the datagrid-filter recipe for relative
+  ends. The shell page's *Header actions and back link* section also
+  says why the back link is an `<a href>` to a server-known destination
+  and never a `history.back()` button (partial `hx-push-url` entries,
+  the form after a `POST` → `303`, no entry on a deep link). Docs only,
+  en + ja.
 - **Dialogs open declaratively: `commandfor` + `command="show-modal"`**
   (#613). A dialog already in the page (a filter form, a command palette
   for mouse users, a confirmation with authored content) had no kit way

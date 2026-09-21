@@ -258,6 +258,14 @@ the inline end:
   </Fragment>
 </Demo>
 
+The back link is a plain `<a href>` to a destination the **server**
+knows, never a `history.back()` button: after an htmx swap with
+`hx-push-url` the previous history entry can be a partial state, after a
+`POST` → `303` it is the form itself, and on a deep-linked page there is
+no previous entry at all — so the button does nothing precisely when
+the user most needs it. The `href` works in every one of those cases,
+and without JavaScript.
+
 ## Optional aside
 
 Add an `<aside class="hc-shell__aside">` as a direct child and the grid

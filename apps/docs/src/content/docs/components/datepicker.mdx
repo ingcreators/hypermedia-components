@@ -111,27 +111,36 @@ accepting input; the value still submits if you instead use `readonly`.
 
 ## Range pickers
 
-A native `<input type="date">` is single-value. For ranges, place
-two inputs adjacent to each other and link their constraints in
-form validation.
+A native `<input type="date">` is single-value. For a range, place two
+inputs in a group carrying `data-hc-range="<param>"`, named `<param>-from`
+and `<param>-to` — the kit's `installRangeValue()` behavior owns the
+pair from there, with no page script:
 
 ```html
-<fieldset class="hc-field">
-  <legend>Date range</legend>
-  <input class="hc-datepicker" type="date" name="from" aria-label="From"
-         id="range-from" max="2027-12-31">
-  <input class="hc-datepicker" type="date" name="to"   aria-label="To"
-         id="range-to"   min="2026-01-01">
+<fieldset class="hc-field" data-hc-range="ship">
+  <legend>Ship date</legend>
+  <input class="hc-datepicker" type="date" name="ship-from" aria-label="From">
+  <span aria-hidden="true">–</span>
+  <input class="hc-datepicker" type="date" name="ship-to" aria-label="To">
 </fieldset>
-
-<script>
-  // Keep the two ends consistent.
-  const from = document.getElementById('range-from');
-  const to   = document.getElementById('range-to');
-  from.addEventListener('change', () => { if (from.value) to.min = from.value; });
-  to.addEventListener('change',   () => { if (to.value)   from.max = to.value; });
-</script>
 ```
+
+- **One condition on the wire.** The pair serialises as a single
+  `ship=2026-07-01..2026-07-31` entry (open ends stay open: `A..`,
+  `..B`; both empty sends nothing), so a period is one chip to remove
+  and one value a saved view stores. The join happens on the `formdata`
+  event, which htmx and a native submit both fire.
+- **`from > to` is refused, never swapped or clamped.** The behavior sets
+  a native validity message on the *To* control, so the browser blocks
+  the submit and no request is issued — reordering silently would run a
+  different condition from the one written.
+- **No-JS path:** the inputs keep their real names, so without the
+  behavior the form submits `ship-from` / `ship-to`; servers accept
+  both shapes.
+
+Static bounds still belong on the inputs as `min` / `max`. Relative
+ends (`@month-start-1m`) and the applied-conditions bar are covered in
+the [datagrid-filter recipe → Date ranges](/hypermedia-components/recipes/datagrid-filter/#date-ranges).
 
 ## htmx usage
 
