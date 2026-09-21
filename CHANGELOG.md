@@ -20,6 +20,28 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-09-21
+
+The TesseraQL-audit release, PRs #617–#622: the three upstream issues
+filed from TesseraQL's review of 0.4.0 (#612 shell rail, #613 dialog
+opener, #614 submit-on-change) and the class-wide sweep they prompted —
+the kit's own docs, examples and fixtures were carrying the same
+consumer-side glue. Six new behaviors (`installSubmitOnChange` /
+`installSubmitOnEnter`, `installPrint`, `installCount`,
+`installSelectAll`), the `.hc-shell__group` caption and a rail that
+finishes its own layout, `data-autosize` (CSS only), and the docs now
+open every dialog with native `commandfor` / `command="show-modal"`
+instead of inline script. 53 recipes · 5 templates · 63 behaviors.
+
+Strictly additive plus docs, so a patch per VERSIONING.md: no default
+changed, no class or attribute renamed. The `version` export of the main
+entry is `'0.4.1'` again (it had sat at `'0.2.1'` since that release).
+
+The CLI goes to 0.4.4 to re-bundle the recipe set — the chat-messages
+scaffold gained `data-hc-submit-on-enter` and `data-autosize`; its own
+source is unchanged (`prepack` syncs the repo-root `recipes/`).
+editor-kit has no shipped change and stays at 0.2.0.
+
 ### Added
 
 - **The CSP-safe glue batch** (#621 + the three sibling findings of the
@@ -6631,7 +6653,8 @@ delegation, and return an `uninstall` function. Calls are idempotent.
   `dist/macros/index.js` (was `dist/hc.macros.js`); per-macro files
   live next to the entry so relative imports resolve.
 
-[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/ingcreators/hypermedia-components/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/ingcreators/hypermedia-components/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ingcreators/hypermedia-components/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/ingcreators/hypermedia-components/compare/v0.2.0...v0.2.1

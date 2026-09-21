@@ -46,8 +46,8 @@ explicit user approval.
 
 ## Implemented surface
 
-As of `0.4.0` (2026-08-30): 67 component stylesheets ·
-58 behaviors (57 auto-init + opt-in chart) · 2 macros · 53 recipes ·
+As of `0.4.1` (2026-09-21): 67 component stylesheets ·
+63 behaviors (62 auto-init + opt-in chart) · 2 macros · 53 recipes ·
 8 integration guides · 5 full-page templates · opt-in `hc.print.css`
 (`./css/print`) · docs **fully mirrored in Japanese (`/ja/`)** ·
 runtime axes
@@ -55,7 +55,7 @@ runtime axes
 i18n message catalog (`setMessages()`) · examples for plain-html +
 htmx · Vitest suites (core + CLI + demo-api) · Playwright suites (incl.
 axe scans and the VRT screenshot sheets) · `hc validate` machine-checked
-recipe contracts (`@hypermedia-components/cli@0.4.3`).
+recipe contracts (`@hypermedia-components/cli@0.4.4`).
 
 [`CHANGELOG.md`](CHANGELOG.md) is the source of truth for what shipped;
 counts here go stale — verify before relying on them.
@@ -123,6 +123,41 @@ working-tree operations need isolation. Remove the worktree and delete
 the local branch after its PR merges.
 
 ## Current focus
+
+Core `0.4.1` + CLI `0.4.4` shipped (2026-09-21, `v0.4.1` /
+`cli-v0.4.4` tags) — the **TesseraQL-audit release**, PRs #617–#622.
+Three upstream issues filed from TesseraQL's review of 0.4.0
+(`docs/hc-briefs.md` briefs 13–15) and the class-wide sweep they
+prompted:
+
+- **#612 → #617** shell rail: `[data-sidebar-collapsed]` finishes the
+  items' layout itself (`.hc-item` centred, gap / inline padding 0,
+  `__content` non-growing) inside `@layer hc.components`; new
+  `.hc-shell__group` caption, hidden in the rail like the labels.
+- **#613 → #618** dialog opener: answered with the platform, not a kit
+  attribute — docs bless native `commandfor` + `command="show-modal"` /
+  `"close"` (Baseline 2025; `command="close"` works inside an htmx form
+  where `formmethod="dialog"` dies), **no fallback behavior ships**.
+  Every inline `onclick="…showModal()"` in docs / examples / fixtures
+  replaced; `invoker-commands.spec.mjs` pins engine support on all
+  three CI legs.
+- **#614 → #619** `installSubmitOnChange` (`data-hc-submit-on-change[=
+  "<event>"]`, container-capable, exempt when the control has an hx
+  verb or the form's `hx-trigger` has `change`) + `installSubmitOnEnter`
+  (IME `isComposing` / 229 guard); chat-messages composer carries it.
+- **#620** docs: datepicker ranges → `data-hc-range` (refuse, never
+  swap); the back link is an `href`, never `history.back()`.
+- **#621 → #622** the CSP-safe glue batch: `data-hc-print` /
+  `installPrint`, `data-autosize` (CSS `field-sizing`, verified on all
+  three engines), `data-hc-count` / `installCount` (i18n `count.of` /
+  `count.used`; live `<output>` debounced 500 ms), `data-hc-select-all`
+  / `installSelectAll`. 63 behaviors.
+
+Strictly additive → patch. CLI `0.4.4` re-bundles the chat-messages
+scaffold. editor-kit stays `0.2.0`. Deliberately not filed: generic
+`data-hc-hotkey`, `data-hc-enable-when`, confirm-password matching.
+
+Previous milestones follow.
 
 Core `0.4.0` + CLI `0.4.3` shipped (2026-08-30, `v0.4.0` /
 `cli-v0.4.3` tags) — the **post-data-grid consolidation release**,
