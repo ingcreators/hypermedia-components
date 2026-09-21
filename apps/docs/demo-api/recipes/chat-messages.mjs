@@ -97,7 +97,7 @@ function composerHtml({ variant = 'default', invalid = false } = {}) {
   }
       data-hx-swap-oob="outerHTML"${invalid ? ' data-invalid="true"' : ''}>
 ${attach ? '  <input type="hidden" name="demo" value="attach">\n' : ''}  <label class="hc-field__label" for="${prefix}-prompt">Message</label>
-  <textarea class="hc-input" id="${prefix}-prompt" name="prompt" rows="2" data-hc-submit-on-enter${
+  <textarea class="hc-input" id="${prefix}-prompt" name="prompt" rows="2" data-autosize data-hc-submit-on-enter${
     promptInvalid
       ? ` aria-invalid="true" aria-describedby="${prefix}-prompt-error"`
       : ''

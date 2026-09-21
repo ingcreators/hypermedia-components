@@ -61,6 +61,9 @@ export { installSessionExpiry } from './session-expiry.js';
 export { installNetworkRetry } from './network-retry.js';
 export { installTime } from './time.js';
 export { installSubmitOnChange, installSubmitOnEnter } from './submit-on.js';
+export { installPrint } from './print.js';
+export { installCount } from './count.js';
+export { installSelectAll } from './select-all.js';
 
 // registerCodeLanguage — plug a tokenizer into installCodeEditor()'s live
 // highlight overlay (built-in grammars: sql, json, yaml, html).

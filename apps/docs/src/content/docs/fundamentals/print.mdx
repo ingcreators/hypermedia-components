@@ -50,6 +50,26 @@ styling by layer order alone.
 - **No page headers/footers** — those belong to `@page` margin boxes
   and the app's own print view.
 
+## Triggering print
+
+Ctrl/Cmd+P always works, but the order detail wants a visible **Print**
+button. HTML has no declarative print, and `onclick="window.print()"` is
+inline script — dead under a strict `Content-Security-Policy`. Put
+`data-hc-print` on the button and `installPrint()` calls
+`window.print()` for it:
+
+```html
+<button class="hc-button" type="button" data-hc-print>
+  <span class="hc-icon" aria-hidden="true">⎙</span> Print
+</button>
+```
+
+The button itself never reaches paper: this stylesheet hides
+`.hc-button` on print. Without JavaScript it does nothing and the
+keyboard shortcut remains — the honest degradation. Whole-page only: a
+page that should print *differently* from the screen is a print view the
+server renders (see above), not a client-side excerpt.
+
 ## Related
 
 - [Themes](/hypermedia-components/tokens/themes/) — the screen-side

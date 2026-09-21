@@ -22,6 +22,46 @@ Security    — security-relevant changes
 
 ### Added
 
+- **The CSP-safe glue batch** (#621 + the three sibling findings of the
+  2026-09 audit) — four small things every business page used to carry
+  as an inline `onclick` or a page listener, now declarative:
+  - **`data-hc-print` / `installPrint()`** — a Print button that calls
+    `window.print()`; `hc.print.css` already keeps the button off paper.
+    Whole-page only — a page that prints *differently* is a server
+    print view. Documented on the print page (*Triggering print*).
+  - **`data-autosize` on a textarea** — CSS only (`field-sizing:
+    content`): grows from the `rows` floor to `--hc-input-autosize-max`
+    (default `50vh`), then scrolls; the resize handle goes. An engine
+    without `field-sizing` keeps `rows` and the handle — no script to
+    fall back on. The chat-messages composer carries it now (scaffold,
+    expanded HTML, contract, live demo) beside `data-hc-submit-on-enter`.
+  - **`data-hc-count` / `installCount()`** — a character count next to a
+    bounded field: `used / max` from `maxlength` (hard) or
+    `data-hc-count-max` (soft, may overflow), `data-count-state="near"`
+    in the last 10% (warning colour) and `"over"` past a soft limit
+    (error colour), counted in UTF-16 code units exactly as `maxlength`
+    counts. The server renders the initial text; the output is the
+    element the attribute names or, bare, the `<output for=…>` — and a
+    live output (an `<output>`, or anything with `aria-live`) is updated
+    only after a 500 ms typing pause so a screen reader hears the count
+    once per pause. New catalog keys `count.of` / `count.used`
+    (Japanese pack included).
+  - **`data-hc-select-all` / `installSelectAll()`** — a master checkbox
+    for a checklist (a permission matrix, the columns to export): sets
+    every enabled member of the group it names and mirrors them back as
+    checked / clear / `indeterminate`, at install, on change and after
+    an htmx swap inside the group. It never serializes (a `name` is
+    stripped); the master's change bubbles once, so a container-level
+    `data-hc-submit-on-change` sees one event. `hc-datagrid` rows need
+    none of this — the grid's header checkbox is built in.
+
+  63 behaviors (62 auto-init + opt-in chart). Unit tests for each,
+  plus a browser spec that clicks through all four on every CI leg
+  (with `window.print` stubbed, and the autosize assertions branching on
+  `CSS.supports('field-sizing', 'content')` so an engine without it
+  proves the degradation instead). The CLI needs a re-bundle for the
+  touched chat-messages scaffold (already pending from #619).
+
 - **`hc-shell`: the collapsed icon rail finishes the items' layout**
   (#612). Hiding `.hc-shell__label` was half the job: an `hc-item` laid
   out for icon + text kept its inline padding and start-aligned glyph,

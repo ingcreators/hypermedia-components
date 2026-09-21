@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSP-safe glue fixture</title>
+  <!-- The four small pieces that used to be inline script in consumer
+       pages: a Print button, an auto-growing textarea (CSS only), a
+       character count, and a select-all checkbox. No <script> here but
+       the kit's own bundle. -->
+  <link rel="stylesheet" href="/hc.css">
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="padding: 1rem; max-inline-size: 40rem;">
+<main>
+  <h1>CSP-safe glue</h1>
+  <section>
+    <h2>Print</h2>
+    <button class="hc-button" type="button" data-hc-print data-testid="print">Print</button>
+  </section>
+
+  <section>
+    <h2>Auto-growing textarea</h2>
+    <textarea class="hc-input" rows="2" data-autosize data-testid="autosize"
+              aria-label="Notes"></textarea>
+  </section>
+
+  <section>
+    <h2>Character count</h2>
+    <div class="hc-field">
+      <label class="hc-field__label" for="memo">Memo</label>
+      <textarea class="hc-input" id="memo" name="memo" rows="2" maxlength="20"
+                data-hc-count aria-describedby="memo-count" data-testid="memo"></textarea>
+      <output class="hc-field__hint" id="memo-count" for="memo" data-testid="memo-count">0 / 20</output>
+    </div>
+    <div class="hc-field">
+      <label class="hc-field__label" for="soft">Soft limit</label>
+      <input class="hc-input" id="soft" name="soft" data-hc-count-max="5"
+             data-hc-count="soft-count" data-testid="soft">
+      <p class="hc-field__hint" id="soft-count" data-testid="soft-count">0 / 5</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Select all</h2>
+    <form data-testid="perm-form">
+      <fieldset class="hc-field" id="perms">
+        <legend>Permissions</legend>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" data-hc-select-all="perms" data-testid="all"> All
+        </label>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="perm" value="read" data-testid="read"> Read
+        </label>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="perm" value="write" data-testid="write"> Write
+        </label>
+        <label class="hc-checkbox-label">
+          <input class="hc-checkbox" type="checkbox" name="perm" value="admin" disabled data-testid="admin"> Admin (disabled)
+        </label>
+      </fieldset>
+    </form>
+  </section>
+</main>
+</body>
+</html>

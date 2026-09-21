@@ -264,6 +264,63 @@ These claims are pinned by a browser test against this exact markup
 (`test-browser/booleanfield.spec.mjs`), so the pattern stays stable for
 generated code.
 
+## Select all
+
+A checklist — a permission matrix, the columns to export, a batch of
+notifications — wants one box that sets them all. Give the master
+checkbox `data-hc-select-all="<group id>"` and **no `name`**;
+`installSelectAll()` does the rest:
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:20rem;">
+  <fieldset class="hc-field" id="demo-perms">
+    <legend>Permissions</legend>
+    <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" data-hc-select-all="demo-perms" /> All</label>
+    <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" name="perm" value="read" /> Read</label>
+    <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" name="perm" value="write" /> Write</label>
+    <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" name="perm" value="admin" disabled /> Admin</label>
+  </fieldset>
+
+  <Fragment slot="code">
+
+  ```html
+  <fieldset class="hc-field" id="perms">
+    <legend>Permissions</legend>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" data-hc-select-all="perms"> All
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="perm" value="read"> Read
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="perm" value="write"> Write
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="perm" value="admin" disabled> Admin
+    </label>
+  </fieldset>
+  ```
+
+  </Fragment>
+</Demo>
+
+- **Master → members:** checking or unchecking it sets every *enabled*
+  checkbox inside the group (the element with that id; the master may
+  sit inside it or elsewhere).
+- **Members → master:** all checked → checked, none → clear, some →
+  `indeterminate` — at install (from server-rendered `checked`), on
+  every change, and after an htmx swap inside the group, so rows that
+  arrive later count too.
+- **The master never serializes.** It carries no `name` (the behavior
+  strips one if present); the server sees the members by native form
+  serialization, exactly as without the behavior — which is also the
+  no-JS path: the master is then an inert box, the members still work.
+- Setting a member fires no `change` on it (native semantics); the
+  master's own `change` bubbles through the group once, so a
+  `data-hc-submit-on-change` on the fieldset sees one event.
+
+Rows in an [`hc-datagrid`](/hypermedia-components/components/datagrid/)
+need none of this — the grid's header checkbox is built in.
+
 ## htmx usage
 
 `hc-checkbox` participates in form submissions like any native checkbox.

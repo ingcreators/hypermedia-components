@@ -263,6 +263,89 @@ textarea は量の分からない貼り付けを受けるためのもの、
 にあります — id で参照する保存済みの条件セットで、これは決して
 fail open してはなりません。
 
+## 自動で伸びる textarea
+
+コンポーザや備考欄は、2 行の中でスクロールするのではなく、入力に
+合わせて伸びるべきです。`data-autosize` を付けると textarea は内容に
+合わせて自分でサイズを決めます — **CSS のみ**(`field-sizing: content`)、
+スクリプトなし、リサイズハンドルなし。`rows` を下限に
+`--hc-input-autosize-max`(デフォルト `50vh`)まで伸び、そこから先は
+スクロールします:
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <textarea class="hc-input" rows="2" data-autosize placeholder="Type a few lines…" aria-label="Notes"></textarea>
+
+  <Fragment slot="code">
+
+  ```html
+  <textarea class="hc-input" name="notes" rows="2" data-autosize></textarea>
+
+  <!-- デフォルトの 50vh より低く抑える: -->
+  <textarea class="hc-input" name="notes" rows="2" data-autosize
+            style="--hc-input-autosize-max: 12rem"></textarea>
+  ```
+
+  </Fragment>
+</Demo>
+
+:::note[Baseline]
+`field-sizing` は現行の Chromium(123 以降)、Firefox、WebKit が対応
+しており、kit のブラウザテストは 3 エンジンすべてで伸長を検証して
+います。ユーザーが使う正確なバージョンについては
+[MDN](https://developer.mozilla.org/docs/Web/CSS/field-sizing) を確認して
+ください。未対応の環境では textarea は `rows` の高さとネイティブの
+リサイズハンドルを保ちます — フォールバック用のスクリプトはなく、
+それが正直な劣化です。
+:::
+
+## 文字数カウント
+
+上限のあるフィールド — `maxlength` 付きのメモ、ソフトリミットのある
+タイトル — は、いまどこにいるかをユーザーに伝えます。コントロールに
+`data-hc-count` を、その横に `<output for="<コントロールの id>">` を
+置くと、`installCount()` がキー入力のたびに出力を **used / max** に
+保ちます:
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <div class="hc-field">
+    <label class="hc-field__label" for="count-memo">Memo</label>
+    <textarea class="hc-input" id="count-memo" rows="2" maxlength="80" data-hc-count aria-describedby="count-memo-count"></textarea>
+    <output class="hc-field__hint" id="count-memo-count" for="count-memo">0 / 80</output>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field">
+    <label class="hc-field__label" for="memo">Memo</label>
+    <textarea class="hc-input" id="memo" name="memo" maxlength="80"
+              data-hc-count aria-describedby="memo-count"></textarea>
+    <output class="hc-field__hint" id="memo-count" for="memo">0 / 80</output>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+- **初期テキストはサーバが描画します**(`0 / 80`、あるいは編集中の
+  レコードの現在の文字数)。スクリプトが動く前でも、なくても正しい
+  値です。
+- **上限は `maxlength`** — ハード: ブラウザがそれ以上の入力を拒みます
+  — か、ソフトリミットの **`data-hc-count-max="N"`** です。ソフトでは
+  超えて入力でき、出力に `data-count-state="over"`(エラー色)が
+  付きます。どちらの上限でも残り 10% は `"near"`(警告色)です。長さは
+  `maxlength` と同じ数え方(UTF-16 コードユニット — 絵文字は 2)なので、
+  両者が食い違うことはありません。
+- **読み上げ。**`<output>` はライブリージョン(`role="status"`)なので、
+  ビヘイビアは **500 ms の入力停止**の後にだけ更新します — スクリーン
+  リーダーは「12 / 80」をキー入力ごとではなく、停止ごとに 1 回聞きます。
+  即時に更新され、決して読み上げられないカウントには、素の
+  `<p class="hc-field__hint" id="…">` を置き、コントロール側に
+  `data-hc-count="<id>"` を指定します。
+- 文言は [i18n カタログ](/hypermedia-components/ja/fundamentals/i18n/)
+  から来ます(`count.of`: `{used} / {max}`、`{remaining}` も使用可。
+  上限がなければ `count.used`)。
+
 ## htmx での利用
 
 `hc-input` は他の入力と同様に htmx と組み合います。[live-search](/hypermedia-components/ja/recipes/live-search/)

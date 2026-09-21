@@ -740,7 +740,7 @@ function chatComposer(error = '', stream = false) {
       data-hx-swap-oob="outerHTML"${invalid} data-testid="composer">
     <label class="hc-field__label" for="prompt">Message</label>
     <textarea class="hc-input" id="prompt" name="prompt" rows="2"${aria} data-testid="prompt"
-              data-hc-submit-on-enter></textarea>
+              data-autosize data-hc-submit-on-enter></textarea>
     ${message}
     <button class="hc-button" data-variant="primary" type="submit" data-testid="send">Send</button>
   </form>`;

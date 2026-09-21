@@ -267,6 +267,65 @@ value / name はフォーム送信に参加し、スクリーンリーダーは�
 (`test-browser/booleanfield.spec.mjs`)で固定されており、生成コード
 にとってパターンは安定しています。
 
+## すべて選択
+
+チェックリスト — 権限マトリクス、出力する列、通知のまとめ — には、
+全部をまとめて設定する 1 つのボックスが欲しくなります。マスターの
+チェックボックスに `data-hc-select-all="<グループの id>"` を付け、
+**`name` は付けない**でください。あとは `installSelectAll()` が
+やります:
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:20rem;">
+  <fieldset class="hc-field" id="demo-perms">
+    <legend>Permissions</legend>
+    <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" data-hc-select-all="demo-perms" /> All</label>
+    <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" name="perm" value="read" /> Read</label>
+    <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" name="perm" value="write" /> Write</label>
+    <label class="hc-checkbox-label"><input class="hc-checkbox" type="checkbox" name="perm" value="admin" disabled /> Admin</label>
+  </fieldset>
+
+  <Fragment slot="code">
+
+  ```html
+  <fieldset class="hc-field" id="perms">
+    <legend>Permissions</legend>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" data-hc-select-all="perms"> All
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="perm" value="read"> Read
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="perm" value="write"> Write
+    </label>
+    <label class="hc-checkbox-label">
+      <input class="hc-checkbox" type="checkbox" name="perm" value="admin" disabled> Admin
+    </label>
+  </fieldset>
+  ```
+
+  </Fragment>
+</Demo>
+
+- **マスター → メンバー:** チェック / 解除すると、グループ(その id を
+  持つ要素。マスターはその中にあっても外にあってもよい)内の*有効な*
+  チェックボックスすべてを設定します。
+- **メンバー → マスター:** 全部チェック → checked、ゼロ → クリア、
+  一部 → `indeterminate`。インストール時(サーバが描画した `checked`
+  から)、変更のたび、そしてグループ内の htmx スワップの後にも同期
+  するので、後から届いた行も数に入ります。
+- **マスターは決して送信されません。**`name` を持たず(あれば
+  ビヘイビアが取り除きます)、サーバはネイティブのフォーム直列化で
+  メンバーだけを見ます — ビヘイビアなしとまったく同じで、それが
+  no-JS 経路でもあります: マスターはただの箱になり、メンバーは
+  そのまま動きます。
+- メンバーをプログラムで設定しても `change` は発火しません(ネイティブ
+  の意味論)。マスター自身の `change` がグループを 1 回バブルするので、
+  fieldset の `data-hc-submit-on-change` はイベントを 1 つだけ見ます。
+
+[`hc-datagrid`](/hypermedia-components/ja/components/datagrid/) の行には
+これは不要です — グリッドのヘッダーチェックボックスは組み込みです。
+
 ## htmx での利用
 
 `hc-checkbox` はネイティブのチェックボックスと同様にフォーム送信へ

@@ -40,6 +40,8 @@ export const DEFAULT_MESSAGES = Object.freeze({
   'datagrid.selected': '{selected} selected',
   'fieldErrors.unknown': 'Invalid value',
   'copy.ok': 'Copied',
+  'count.of': '{used} / {max}',
+  'count.used': '{used}',
   'dirtyguard.leave': 'You have unsaved changes. Leave this page?',
   'sortable.handle': 'Reorder',
   'sortable.grabbed': 'Grabbed. Position {index} of {count}.',

@@ -258,6 +258,86 @@ The [datagrid-filter recipe](/hypermedia-components/recipes/datagrid-filter/)
 documents what to do when the list outgrows a URL — a stored condition
 set addressed by id, which must never fail open.
 
+## Auto-growing textarea
+
+A composer or a remarks field should grow with what is typed instead of
+scrolling inside two rows. Add `data-autosize` and the textarea sizes
+itself to its content — **CSS only** (`field-sizing: content`), no
+script, no resize handle — from the `rows` floor up to
+`--hc-input-autosize-max` (default `50vh`), after which it scrolls:
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <textarea class="hc-input" rows="2" data-autosize placeholder="Type a few lines…" aria-label="Notes"></textarea>
+
+  <Fragment slot="code">
+
+  ```html
+  <textarea class="hc-input" name="notes" rows="2" data-autosize></textarea>
+
+  <!-- Cap it lower than the default 50vh: -->
+  <textarea class="hc-input" name="notes" rows="2" data-autosize
+            style="--hc-input-autosize-max: 12rem"></textarea>
+  ```
+
+  </Fragment>
+</Demo>
+
+:::note[Baseline]
+`field-sizing` is supported by current Chromium (since 123), Firefox and
+WebKit — the kit's browser suite verifies the growth on all three; check
+[MDN](https://developer.mozilla.org/docs/Web/CSS/field-sizing) for the
+exact versions your users run. Where it is missing the textarea keeps
+its `rows` height and the native resize handle — the honest degradation,
+with no script to fall back on.
+:::
+
+## Character count
+
+A bounded field — a memo with `maxlength`, a title with a soft limit —
+tells the user where they stand. Put `data-hc-count` on the control and
+an `<output for="<control id>">` beside it; `installCount()` keeps the
+output at **used / max** on every keystroke:
+
+<Demo previewClass="hc-preview--col" previewStyle="max-inline-size:24rem;">
+  <div class="hc-field">
+    <label class="hc-field__label" for="count-memo">Memo</label>
+    <textarea class="hc-input" id="count-memo" rows="2" maxlength="80" data-hc-count aria-describedby="count-memo-count"></textarea>
+    <output class="hc-field__hint" id="count-memo-count" for="count-memo">0 / 80</output>
+  </div>
+
+  <Fragment slot="code">
+
+  ```html
+  <div class="hc-field">
+    <label class="hc-field__label" for="memo">Memo</label>
+    <textarea class="hc-input" id="memo" name="memo" maxlength="80"
+              data-hc-count aria-describedby="memo-count"></textarea>
+    <output class="hc-field__hint" id="memo-count" for="memo">0 / 80</output>
+  </div>
+  ```
+
+  </Fragment>
+</Demo>
+
+- **The server renders the initial text** (`0 / 80`, or the current
+  count of an edited record), so it is right before any script runs and
+  without one.
+- **The limit is `maxlength`** — hard: the browser refuses further
+  input — or **`data-hc-count-max="N"`** for a soft limit, where typing
+  past it is allowed and the output is marked `data-count-state="over"`
+  (error colour); the last 10% of either limit is `"near"` (warning
+  colour). Length is counted the way `maxlength` counts it (UTF-16 code
+  units — an emoji is two), so the two never disagree.
+- **Announcing.** An `<output>` is a live region (`role="status"`), so
+  the behavior updates it only after a **500 ms typing pause** — a screen
+  reader hears "12 / 80" once per pause, not once per keystroke. Use a
+  plain `<p class="hc-field__hint" id="…">` with
+  `data-hc-count="<id>"` on the control for a count that updates
+  immediately and is never announced.
+- Wording comes from the [i18n catalog](/hypermedia-components/fundamentals/i18n/)
+  (`count.of`: `{used} / {max}`, with `{remaining}` available; `count.used`
+  when there is no limit).
+
 ## htmx usage
 
 `hc-input` works with htmx like any other input. The [live-search](/hypermedia-components/recipes/live-search/)

@@ -81,6 +81,22 @@
     line-height: 1.4;
   }
 
+  /* A character count (`installCount()` writes it) reads as a hint until
+   * it matters: warning colour in the last 10% of the limit, error colour
+   * past a soft limit. An `<output>` has UA `display: inline`; the field
+   * lays it out like any other line. */
+  .hc-field output.hc-field__hint {
+    display: block;
+  }
+
+  .hc-field [data-count-state="near"] {
+    color: var(--hc-color-status-warning-fg);
+  }
+
+  .hc-field [data-count-state="over"] {
+    color: var(--hc-field-invalid-message-color);
+  }
+
   /* When the field is marked invalid, force the contained input's
    * border to the error color too, even if aria-invalid is missing on
    * the input itself (defensive — the recommended pattern still sets
