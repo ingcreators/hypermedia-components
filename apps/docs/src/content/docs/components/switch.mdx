@@ -190,6 +190,46 @@ use the [blessed boolean-field pattern](/hypermedia-components/components/checkb
 (hidden `false` + switch `true` under one `name`); it applies to
 `hc-switch` verbatim.
 
+### The switch is the action
+
+A feature flag, a per-user preference: the switch *is* the save, there is
+no Save button. Rather than giving each switch its own request, keep the
+**form** as the unit — it is what the
+[mutating-form recipe](/hypermedia-components/recipes/mutating-form/)
+already owns (target, swap, 422 re-render) — and let the switch post it
+the moment it changes with `data-hc-submit-on-change`:
+
+```html
+<form method="post" action="/flags"
+      data-hx-post="/flags" data-hx-target="closest .hc-card"
+      data-hx-swap="outerHTML" data-hx-sync="this:replace">
+  <label class="hc-switch-label">
+    <input type="hidden" name="beta" value="false">
+    <input class="hc-switch" type="checkbox" role="switch"
+           name="beta" value="true" data-hc-submit-on-change>
+    Beta features
+  </label>
+  <noscript><button class="hc-button" type="submit">Save</button></noscript>
+</form>
+```
+
+On `change` the behavior calls `form.requestSubmit()`: constraint
+validation runs, the form's `submit` event fires, and htmx takes the
+request from there — so `hx-sync`, the
+[dirty guard](/hypermedia-components/recipes/unsaved-changes/), the
+[CSRF header](/hypermedia-components/integrations/htmx/#csrf-tokens--the-blessed-convention) and
+`data-hc-close-dialog-on-success` all apply, exactly as if a Save button
+had been pressed. The attribute may also sit on a `<fieldset>`: any
+descendant's `change` bubbles to it, so a settings group submits as one
+form.
+
+Two things the behavior decides for you, once: a control that carries
+its **own** htmx verb (the `data-hx-post` shape above) is left alone, and
+so is a form whose `hx-trigger` already includes `change` — either way
+htmx is driving, and a second submit would double-fire. Without
+JavaScript the switch simply does not auto-submit; the `<noscript>` Save
+button keeps the no-JS path honest.
+
 ## Accessibility
 
 - Always pair the input with a label. Either wrap both in

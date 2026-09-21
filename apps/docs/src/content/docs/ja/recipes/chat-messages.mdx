@@ -48,7 +48,8 @@ SSE で埋めるハンドルです — そして帯域外でスワップされ�
         data-hx-post="/chat/messages"
         data-hx-target="#chat-list" data-hx-swap="beforeend">
     <label class="hc-field__label" for="prompt">Message</label>
-    <textarea class="hc-input" id="prompt" name="prompt" rows="2"></textarea>
+    <textarea class="hc-input" id="prompt" name="prompt" rows="2"
+              data-hc-submit-on-enter></textarea>
     <button class="hc-button" data-variant="primary" type="submit">Send</button>
   </form>
 </div>
@@ -62,6 +63,7 @@ SSE で埋めるハンドルです — そして帯域外でスワップされ�
 | `tabindex="0"`(リスト) | スクロール領域にキーボードで到達できます。 |
 | `data-hx-target="#chat-list"` + `data-hx-swap="beforeend"` | POST はトランスクリプトへ追記します — 全体の再描画はしません。 |
 | `method="post"` + `action` | no-JS の経路: 素のフォーム送信で、`303` が返ります。 |
+| `data-hc-submit-on-enter`(textarea) | **Enter で送信**、Shift+Enter で改行。IME の候補を確定する Enter(日本語・中国語・韓国語入力)には反応しません — `installSubmitOnEnter()` が `form.requestSubmit()` を呼ぶので、リクエストは Send ボタンと同じ経路を通ります。JavaScript なしでは Enter はただの改行で、Send が送信します。 |
 
 ## サーバレスポンス契約
 

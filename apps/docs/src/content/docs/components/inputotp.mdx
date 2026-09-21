@@ -166,20 +166,39 @@ Auto-submit the code the moment it completes:
 Because the value lives in a single named `<input>`, it serialises
 normally — no extra hidden fields.
 
-## Hyperscript
+### Submit when the code fills
 
-Auto-submit the form when the code fills up, with no helper:
+`hx-trigger="hc:otpcomplete"` makes the *event* the trigger, which
+means the form no longer submits on a plain submit — a visible
+**Verify** button or the no-JS post stop working. To keep the form's own
+submit path and still post the moment the code fills, put
+`data-hc-submit-on-change` on the container with the event as its value:
 
 ```html
-<form data-hx-post="/verify">
+<form method="post" action="/verify" data-hx-post="/verify">
   <div class="hc-inputotp" data-length="6"
-       _="on hc:otpcomplete call closest <form/> then call it.requestSubmit()">
-    <input class="hc-inputotp__input" type="text" name="code" aria-label="Code">
+       data-hc-submit-on-change="hc:otpcomplete">
+    <input class="hc-inputotp__input" type="text" name="code"
+           inputmode="numeric" autocomplete="one-time-code"
+           aria-label="Verification code">
   </div>
+  <button class="hc-button" data-variant="primary" type="submit">Verify</button>
 </form>
 ```
 
-More patterns: [Hyperscript → Reacting to component events](/hypermedia-components/integrations/hyperscript/#reacting-to-component-events).
+`installSubmitOnChange()` listens for the named event instead of
+`change` and calls `form.requestSubmit()`, so the request goes through
+the form's `submit` — htmx (and `hx-sync`, the CSRF header, …) take it
+from there, the Verify button still works, and without JavaScript the
+user presses it. The bare attribute (no value) listens for `change`; see
+[Switch → The switch is the action](/hypermedia-components/components/switch/#the-switch-is-the-action).
+
+## Hyperscript
+
+The auto-submit above needs no helper — `data-hc-submit-on-change`
+covers it. For other reactions to `hc:otpchange` / `hc:otpcomplete`
+(showing a hint, enabling a button), _hyperscript's `on hc:…` reads
+well: [Hyperscript → Reacting to component events](/hypermedia-components/integrations/hyperscript/#reacting-to-component-events).
 
 ## Accessibility
 

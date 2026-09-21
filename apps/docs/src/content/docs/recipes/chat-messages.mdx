@@ -48,7 +48,8 @@ root's last child, so the whole exchange is one composition:
         data-hx-post="/chat/messages"
         data-hx-target="#chat-list" data-hx-swap="beforeend">
     <label class="hc-field__label" for="prompt">Message</label>
-    <textarea class="hc-input" id="prompt" name="prompt" rows="2"></textarea>
+    <textarea class="hc-input" id="prompt" name="prompt" rows="2"
+              data-hc-submit-on-enter></textarea>
     <button class="hc-button" data-variant="primary" type="submit">Send</button>
   </form>
 </div>
@@ -62,6 +63,7 @@ Why each attribute is there:
 | `tabindex="0"` (list) | The scrollable region is keyboard-reachable. |
 | `data-hx-target="#chat-list"` + `data-hx-swap="beforeend"` | The POST appends to the transcript — nothing is re-rendered wholesale. |
 | `method="post"` + `action` | The no-JS path: a plain form post, answered with `303`. |
+| `data-hc-submit-on-enter` (textarea) | **Enter sends**, Shift+Enter breaks the line, and an Enter that confirms an IME candidate (Japanese, Chinese, Korean input) is left alone — `installSubmitOnEnter()` calls `form.requestSubmit()`, so the request takes the same path as the Send button. Without JavaScript, Enter just breaks the line and Send posts. |
 
 ## Server response contract
 

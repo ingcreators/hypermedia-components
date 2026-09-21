@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>submit-on-change fixture</title>
+  <!-- A control that IS the action: the switch posts its form on change
+       through form.requestSubmit(), so real htmx picks the request up
+       from the form's submit — no listener, no per-control hx verb. The
+       second form is htmx-driven on change already and must NOT be
+       double-submitted. -->
+  <link rel="stylesheet" href="/hc.css">
+  <script src="/htmx.min.js" defer></script>
+  <script type="module" src="/hc.behaviors.js"></script>
+</head>
+<body style="padding: 1rem;">
+  <form method="post" action="/mock/dirty/save"
+        data-hx-post="/mock/dirty/save" data-hx-target="#status-a" data-hx-swap="innerHTML"
+        data-testid="form-a">
+    <label class="hc-switch-label">
+      <input type="hidden" name="beta" value="false">
+      <input class="hc-switch" type="checkbox" role="switch" name="beta" value="true"
+             data-hc-submit-on-change data-testid="switch-a">
+      Beta features
+    </label>
+    <noscript><button class="hc-button" type="submit">Save</button></noscript>
+  </form>
+  <output id="status-a" data-testid="status-a"></output>
+
+  <form method="post" action="/mock/dirty/save"
+        data-hx-post="/mock/dirty/save" data-hx-trigger="change" data-hx-target="#status-b" data-hx-swap="innerHTML"
+        data-testid="form-b">
+    <label class="hc-switch-label">
+      <input class="hc-switch" type="checkbox" role="switch" name="gamma" value="true"
+             data-hc-submit-on-change data-testid="switch-b">
+      Already htmx-driven on change (exempt)
+    </label>
+  </form>
+  <output id="status-b" data-testid="status-b"></output>
+</body>
+</html>

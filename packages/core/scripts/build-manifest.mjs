@@ -57,6 +57,8 @@ const EXPLICIT_CLAIMS = {
   installThemeToggle: 'platform',
   installNavCurrent: 'platform', // boosted-nav re-marking (shell docs)
   installTime: 'platform', // client-side <time> localization (i18n docs)
+  installSubmitOnChange: 'platform', // control-is-the-action form submit (switch / inputotp docs)
+  installSubmitOnEnter: 'platform', // Enter-to-send textarea (chat-messages docs)
 };
 
 /** Editor-canvas composition metadata (#447): per block, the parts

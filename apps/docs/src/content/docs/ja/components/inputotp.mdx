@@ -170,20 +170,40 @@ otp.addEventListener('hc:otpcomplete', (e) => {
 値は名前つきの単一 `<input>` に住んでいるため、普通にシリアライズ
 されます — 追加の隠しフィールドは不要です。
 
-## Hyperscript
+### コードが埋まったら送信
 
-ヘルパーなしで、コードが埋まったらフォームを自動送信します:
+`hx-trigger="hc:otpcomplete"` は*イベント*をトリガーにするので、
+フォームは素の submit では送信されなくなります — 目に見える
+**Verify** ボタンや no-JS の POST が動かなくなります。フォーム自身の
+送信経路を保ったまま、コードが埋まった瞬間に送信するには、コンテナに
+`data-hc-submit-on-change` を、イベント名を値にして置きます:
 
 ```html
-<form data-hx-post="/verify">
+<form method="post" action="/verify" data-hx-post="/verify">
   <div class="hc-inputotp" data-length="6"
-       _="on hc:otpcomplete call closest <form/> then call it.requestSubmit()">
-    <input class="hc-inputotp__input" type="text" name="code" aria-label="Code">
+       data-hc-submit-on-change="hc:otpcomplete">
+    <input class="hc-inputotp__input" type="text" name="code"
+           inputmode="numeric" autocomplete="one-time-code"
+           aria-label="Verification code">
   </div>
+  <button class="hc-button" data-variant="primary" type="submit">Verify</button>
 </form>
 ```
 
-さらなるパターン:
+`installSubmitOnChange()` は `change` の代わりに指定されたイベントを
+待ち受けて `form.requestSubmit()` を呼ぶので、リクエストはフォームの
+`submit` を通ります — htmx(と `hx-sync`、CSRF ヘッダー、…)がそこから
+引き受け、Verify ボタンも動き、JavaScript なしならユーザーがそれを
+押します。値なしの属性は `change` を待ち受けます。
+[スイッチ → スイッチ自体がアクション](/hypermedia-components/ja/components/switch/#スイッチ自体がアクション)
+を参照。
+
+## Hyperscript
+
+上の自動送信にヘルパーは不要です — `data-hc-submit-on-change` が
+カバーします。`hc:otpchange` / `hc:otpcomplete` へのそれ以外の反応
+(ヒントを表示する、ボタンを有効にする)には _hyperscript の
+`on hc:…` がよく読めます:
 [Hyperscript → コンポーネントイベントへの反応](/hypermedia-components/ja/integrations/hyperscript/#コンポーネントイベントへの反応)。
 
 ## アクセシビリティ

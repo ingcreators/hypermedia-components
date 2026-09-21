@@ -3,7 +3,7 @@ title: ビヘイビア
 description: すべての installXxx() ビヘイビア — 何を担い、ゼロ設定バンドルが自動インストールするかの一覧。
 ---
 
-キットは 58 個の小さなビヘイビアを出荷しています。すべて冪等で
+キットは 60 個の小さなビヘイビアを出荷しています。すべて冪等で
 アンインストーラを返し、`installChart()` ただ 1 つの例外を除いて、
 ゼロ設定の `@hypermedia-components/core/behaviors` エントリが
 **自動インストール**します(htmx でスワップされた内容も拾います)。
@@ -37,6 +37,8 @@ installToast();
 | `installFormat()` | 数値のグループ表示とワイヤ上の生値 — [入力](/hypermedia-components/ja/components/input/#金額のグループ表示)。 | `data-hc-format`、`data-decimals`、`data-locale` | — | ✓ |
 | `installNormalize()` | 確定時の IME 全角/かな正規化 — [入力](/hypermedia-components/ja/components/input/#ime-正規化)。 | `data-hc-normalize` | — | ✓ |
 | `installMask()` | 宣言的な固定形式マスク(`postal-jp`、`#`/`a`/`A`/`*` パターン) — [入力](/hypermedia-components/ja/components/input/#入力マスク)。 | `data-hc-mask`、`data-hc-mask-submit` | — | ✓ |
+| `installSubmitOnChange()` | コントロール自体がアクションであるとき、`change`(または値で指定した event、例: `hc:otpcomplete`)でフォームを送信 — [スイッチ](/hypermedia-components/ja/components/switch/#スイッチ自体がアクション)、[OTP 入力](/hypermedia-components/ja/components/inputotp/#コードが埋まったら送信)。htmx がすでに change でフォームを駆動していれば除外。 | `data-hc-submit-on-change` | — | ✓ |
+| `installSubmitOnEnter()` | Enter で送信、Shift+Enter で改行、IME 確定の Enter は無視 — [chat-messages レシピ](/hypermedia-components/ja/recipes/chat-messages/)のコンポーザ。 | `data-hc-submit-on-enter` | — | ✓ |
 | `installMultiValue()` | 1 つのコントロールから複数値をワイヤへ — 貼り付けた識別子の一覧が繰り返しパラメータになる([input](/hypermedia-components/ja/components/input/#複数値の条件))。 | `data-hc-multi`(`lines` / `commas`) | — | ✓ |
 | `installRangeValue()` | コントロール 2 つを 1 つの範囲パラメータへ — 日付の期間が `f-ship=A..B` として送られる([datagrid-filter](/hypermedia-components/ja/recipes/datagrid-filter/#日付の範囲))。 | `data-hc-range`、`data-hc-range-from`、`data-hc-range-to` | — | ✓ |
 | `installSortList()` | ソートコントロールの順序付きキーを 1 パラメータへ — `sort=-ship,order`([datagrid-sort](/hypermedia-components/ja/recipes/datagrid-sort/))。 | `data-hc-sort-list`、`data-hc-sort-key`、`data-hc-sort-dir-prefix` | — | ✓ |
