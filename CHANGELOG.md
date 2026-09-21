@@ -20,6 +20,24 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Changed
+
+- **Docs site: Starlight 0.41 → 0.42, `starlight-llms-txt` 0.11 → 0.12,
+  Markdown pipeline on Sätteri.** Starlight 0.42 moves to `@astrojs/mdx`
+  8, which no longer ships the legacy `@astrojs/markdown-remark`
+  pipeline, so the two plugins that still pulled it in had to move
+  together (`starlight-llms-txt` 0.12 is the `@astrojs/mdx` 8 build).
+  The docs' `markdown.rehypePlugins` config — which had been silently
+  coercing the whole site back onto the deprecated unified processor —
+  is replaced by `markdown.processor: satteri({ hastPlugins })`, and the
+  `hc-table` dogfooding plugin is ported from rehype to a Sätteri hast
+  visitor (`apps/docs/satteri-hc-tables.mjs`, same wrapper markup,
+  authored JSX tables still untouched). Verified in the built output:
+  all 380 pages structurally identical, all 1,728 rendered code blocks
+  byte-identical; the only content change is Sätteri's smart
+  punctuation getting the opening quote right (`”—”` → `“—”`) on five
+  pages. Docs only.
+
 ## [0.4.0] - 2026-08-30
 
 The post-data-grid consolidation release, PRs #578–#602: the

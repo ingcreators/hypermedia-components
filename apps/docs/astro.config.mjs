@@ -2,7 +2,8 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightLlmsTxt from 'starlight-llms-txt';
-import rehypeHcTables from './rehype-hc-tables.mjs';
+import { satteri } from '@astrojs/markdown-satteri';
+import satteriHcTables from './satteri-hc-tables.mjs';
 import { demoApiDevPlugin } from './demo-api/vite-plugin.mjs';
 
 export default defineConfig({
@@ -10,8 +11,11 @@ export default defineConfig({
   base: '/hypermedia-components',
   // Dogfood: render Markdown reference tables as HC's own hc-table by
   // wrapping each in `.hc-table-scroll.not-content` (see the plugin file).
+  // Sätteri is Astro's default Markdown processor; naming it here is what
+  // lets us hang a hast plugin on it (the legacy `rehypePlugins` option
+  // would silently pull the pipeline back onto `@astrojs/markdown-remark`).
   markdown: {
-    rehypePlugins: [rehypeHcTables],
+    processor: satteri({ hastPlugins: [satteriHcTables()] }),
   },
   integrations: [
     starlight({
