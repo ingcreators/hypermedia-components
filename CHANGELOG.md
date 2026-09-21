@@ -38,6 +38,17 @@ Security    — security-relevant changes
   punctuation getting the opening quote right (`”—”` → `“—”`) on five
   pages. Docs only.
 
+### Fixed
+
+- **Docs: the `hc-code` syntax-highlighting demo showed its SQL comment as
+  a dash.** `-- active only` sits in JSX text inside the Demo preview,
+  where the Markdown processor's smart punctuation turned `--` into an
+  em dash (unified) and now an en dash (Sätteri). The text is an MDX
+  expression (`{"-- active only"}`) now, which smart punctuation leaves
+  alone, so the demo renders the literal `--`. Audited every rendered
+  `<pre>` / `<code>` block on the site for smart characters absent from
+  its source: these two pages (en + ja) were the only ones. Docs only.
+
 ## [0.4.0] - 2026-08-30
 
 The post-data-grid consolidation release, PRs #578–#602: the
