@@ -717,8 +717,11 @@ URL → ユーザー設定 → アプリ既定
   ます。グリッドも描画されます。必要になるのはインライン編集と
   ツールバーの矢印キー移動だけです。**Filters** ボタンとチップは
   `commandfor="filters" command="show-modal"` でパネルを開きます —
-  ネイティブの invoker commands で、スクリプトもリスナーも不要です
-  (Baseline 2025。[Dialog → 開く / 閉じる](/hypermedia-components/ja/components/dialog/#開閉)
+  ネイティブの invoker commands(Baseline 2025)で、スクリプトも
+  リスナーも不要。その床より下のエンジンでは kit の
+  `installInvokerCommands()` フォールバックが開きます。フィルタを組む
+  唯一の手段がこのダイアログである list page が、それを失ってはならない
+  からです([Dialog → 開閉](/hypermedia-components/ja/components/dialog/#開閉)
   を参照)。
 - **密度。**シェルに `data-density="compact"` を付けると画面全体が
   締まります。タブレット利用があるならタッチターゲットを確認して

@@ -1,0 +1,81 @@
+---
+title: ブラウザサポート
+description: kit のブラウザの床(Popover API)を一度だけ明記し、その上にある新しいプラットフォーム機能について、スクリプトによるフォールバックを持つもの、見た目だけが劣化するもの、意図的に避けているものを整理します。
+---
+
+各コンポーネントのページには *ブラウザのベースライン* 表があります。
+このページは、それらの表が従うポリシーを述べます — 次の iPadOS が
+来ない iPad、古い macOS の Mac、Firefox ESR など、どこかで止まっている
+fleet を、一度で判断できるように。
+
+## 床
+
+kit の床は **Popover API** — `popover`、`popovertarget`、`toggle` /
+`beforetoggle` イベント —
+[Baseline 2024](https://developer.mozilla.org/docs/Web/API/Popover_API)
+(**Chromium 114、Firefox 125、Safari 17**)です。メニュー、メニューバー、
+ポップオーバー、ツールチップ、ホバーカード、コンボボックス、フィルタバー
+はこの上に組まれており、これにフォールバックはありません。床の下では
+これらの面は開きません。kit が無条件に依存するそれ以外のもの —
+`<dialog>`、`:has()`、`@layer`、`dvh` 単位、`:user-invalid`、
+`requestSubmit()`、`formdata` イベント — はどれもそれより古い機能です。
+
+fleet が床の下にある消費者は、behaviors バンドルの前に
+[`@oddbird/popover-polyfill`](https://github.com/oddbird/popover-polyfill)
+を読み込めます。kit はこれを同梱しません。
+
+## 床の上
+
+床より新しい機能は 3 つのグループに分かれます。分けるルールは
+**機能の喪失にはスクリプトによる feature-detected で自己退役する
+フォールバックを付け、見た目の喪失には付けない** です。
+
+### スクリプトによるフォールバック
+
+| 機能 | Baseline | フォールバック | 退役の条件 |
+| --- | --- | --- | --- |
+| CSS Anchor Positioning(`position-area`、`position-try-fallbacks`) | 2026 — Chromium 125、Safari 26、Firefox 147 | [`anchor-fallback.js`](/hypermedia-components/ja/fundamentals/anchored/)。8 つの浮遊面ビヘイビアが共有し、スクリプトで面を配置し、はみ出せば反転し、スクロール / リサイズに追従 | `CSS.supports('anchor-name', '--x')` が true |
+| Invoker commands(`commandfor` + `command="show-modal"` / `"close"`) | 2025 — Chromium 135、Firefox 144、Safari 26 | [`installInvokerCommands()`](/hypermedia-components/ja/components/dialog/#開閉)。委譲された 1 つの click リスナーが、kit が bless する 2 つのコマンドを `<dialog>` に対して実行 | `HTMLButtonElement.prototype` に `commandForElement` がある |
+
+どちらも CI の全レグで証明されます: スイートが同梱するエンジンでは
+ネイティブ経路を、フォールバック経路はバンドル読み込み前にページから
+API を取り除く(`invoker-commands-fallback.spec.mjs`)か `CSS.supports`
+をスタブする(anchor の spec)ことで。
+
+### 見た目だけの劣化 — フォールバックなし
+
+| 機能 | Baseline | ない場合 |
+| --- | --- | --- |
+| `@starting-style` + `transition-behavior: allow-discrete`(dialog、drawer) | 2024 | 面はスライドせず、最終位置にスナップします。 |
+| `interpolate-size`(accordion、collapsible) | Chromium のみ | 開閉はアニメーションせず即時になります。 |
+| `field-sizing: content`(`data-autosize` の textarea) | Chromium 123、現行の Firefox と WebKit | textarea は `rows` の高さとリサイズハンドルを保ちます。 |
+| `scrollbar-width` / `scrollbar-color`(scroll area、tabs、chat) | 2025 | デフォルトのスクロールバー。 |
+| `<details name="…">`(accordion) | Chromium 120、Firefox 130、Safari 17.2 | パネルは排他になりません。 |
+| `hidden="until-found"`(tabs) | Chromium 102 | 非アクティブなパネルは素の `hidden`。ページ内検索では開きません。 |
+| `appearance: base-select`(select) | Chromium 135 | ネイティブのピッカー — kit はまだそこに何もスタイルしていません。 |
+
+### 意図的に避けているもの
+
+| 機能 | 理由 |
+| --- | --- |
+| `popover="hint"` | ツールチップとホバーカードは `popover="manual"` + スクリプトです。`hint` は 2026 年時点で Safari に未実装で、未知の値はどのみち `manual` に劣化するため、kit は床にあるどのエンジンも読める値を書きます。 |
+| `CommandEvent`、カスタム `--` コマンド | kit に必要なのは組み込みコマンド 2 つで、フォールバックはちょうどそれを覆います。完全な API が必要なら [invokers-polyfill](https://github.com/keithamus/invokers-polyfill) を読み込んでください。 |
+
+## fleet にとっての意味
+
+- **Safari 17 / 18**(Ventura の Mac、iPadOS 18 で止まる iPad): すべて
+  動きます。ダイアログは invoker フォールバックで開き、浮遊面は anchor
+  フォールバックで配置されます。
+- **Firefox ESR 140**: 同じ 2 つのフォールバックが有効です。ESR 128 も
+  床の上にあります。
+- **Safari 16 以前、Firefox 124 以前**: 床の下です — popover polyfill を
+  読み込むか、それらのユーザーをサーバ描画の経路に留めてください。
+
+正確なバージョンについてはコンポーネントごとの表が正です。このページは
+それらが実装しているポリシーです。
+
+## 関連
+
+- [アンカー配置](/hypermedia-components/ja/fundamentals/anchored/) — anchor フォールバックの詳細。
+- [ダイアログ → 開閉](/hypermedia-components/ja/components/dialog/#開閉) — invoker commands とそのフォールバック。
+- [ビヘイビアリファレンス](/hypermedia-components/ja/reference/behaviors/) — 2 つのフォールバックを含む、すべての `installXxx()`。

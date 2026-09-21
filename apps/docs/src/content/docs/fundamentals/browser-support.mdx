@@ -1,0 +1,81 @@
+---
+title: Browser support
+description: The kit's browser floor stated once — the Popover API — and, above it, which newer platform features carry a scripted fallback, which degrade cosmetically, and which the kit deliberately avoids.
+---
+
+Every component page carries its own *Browser baseline* table. This
+page states the policy those tables follow, so a fleet that is stuck
+somewhere — an iPad that will never see the next iPadOS, a Mac on an
+older macOS, a Firefox ESR — can be judged once.
+
+## The floor
+
+The kit's floor is the **Popover API**: `popover`, `popovertarget` and
+the `toggle` / `beforetoggle` events —
+[Baseline 2024](https://developer.mozilla.org/docs/Web/API/Popover_API)
+(**Chromium 114, Firefox 125, Safari 17**). Menus, menubars, popovers,
+tooltips, hovercards, comboboxes and the filter bar are built on it, and
+there is no fallback for it: below the floor those surfaces do not open.
+Everything else the kit relies on unconditionally — `<dialog>`,
+`:has()`, `@layer`, `dvh` units, `:user-invalid`, `requestSubmit()`,
+the `formdata` event — is older than that.
+
+A consumer whose fleet sits below the floor can load
+[`@oddbird/popover-polyfill`](https://github.com/oddbird/popover-polyfill)
+before the behaviors bundle; the kit does not bundle it.
+
+## Above the floor
+
+Features newer than the floor fall into three groups. The rule that
+sorts them: **a functional loss gets a scripted, feature-detected,
+self-retiring fallback; a cosmetic loss gets none.**
+
+### Scripted fallbacks
+
+| Feature | Baseline | Fallback | Retires when |
+| --- | --- | --- | --- |
+| CSS Anchor Positioning (`position-area`, `position-try-fallbacks`) | 2026 — Chromium 125, Safari 26, Firefox 147 | [`anchor-fallback.js`](/hypermedia-components/fundamentals/anchored/), shared by the eight floating behaviors: places the surface by script, flips on overflow, tracks scroll / resize | `CSS.supports('anchor-name', '--x')` is true |
+| Invoker commands (`commandfor` + `command="show-modal"` / `"close"`) | 2025 — Chromium 135, Firefox 144, Safari 26 | [`installInvokerCommands()`](/hypermedia-components/components/dialog/#open-and-close): one delegated click listener performs the two commands the kit blesses on a `<dialog>` | `commandForElement` exists on `HTMLButtonElement.prototype` |
+
+Both are proved on every CI leg: the native path on the engines the
+suite bundles, and the fallback path by removing the API from the page
+before the bundle loads (`invoker-commands-fallback.spec.mjs`) or
+stubbing `CSS.supports` (the anchor specs).
+
+### Cosmetic degradations — no fallback
+
+| Feature | Baseline | Without it |
+| --- | --- | --- |
+| `@starting-style` + `transition-behavior: allow-discrete` (dialog, drawer) | 2024 | The surface snaps into place instead of sliding. |
+| `interpolate-size` (accordion, collapsible) | Chromium only | Open / close is instant, not animated. |
+| `field-sizing: content` (`data-autosize` textarea) | Chromium 123, current Firefox and WebKit | The textarea keeps its `rows` height and the resize handle. |
+| `scrollbar-width` / `scrollbar-color` (scroll area, tabs, chat) | 2025 | Default scrollbars. |
+| `<details name="…">` (accordion) | Chromium 120, Firefox 130, Safari 17.2 | Panels are not mutually exclusive. |
+| `hidden="until-found"` (tabs) | Chromium 102 | Inactive panels are plain `hidden`; find-in-page does not reveal them. |
+| `appearance: base-select` (select) | Chromium 135 | The native picker — the kit styles nothing there yet. |
+
+### Deliberately avoided
+
+| Feature | Why |
+| --- | --- |
+| `popover="hint"` | Tooltips and hovercards use `popover="manual"` plus script: `hint` was still missing from Safari in 2026 and an unknown value degrades to `manual` anyway, so the kit writes what every engine at the floor reads. |
+| `CommandEvent`, custom `--` commands | The kit needs two built-in commands; the fallback covers exactly those. Load [invokers-polyfill](https://github.com/keithamus/invokers-polyfill) for the full API. |
+
+## What this means for a fleet
+
+- **Safari 17 / 18** (a Mac on Ventura, an iPad that stops at iPadOS 18):
+  everything works; dialogs open through the invoker fallback, floating
+  surfaces are placed by the anchor fallback.
+- **Firefox ESR 140**: the same two fallbacks are active; ESR 128 is at
+  the floor as well.
+- **Safari 16 and older, Firefox 124 and older**: below the floor — load
+  the popover polyfill or keep those users on a server-rendered path.
+
+The per-component tables stay authoritative for exact versions; this
+page is the policy they implement.
+
+## Related
+
+- [Anchored positioning](/hypermedia-components/fundamentals/anchored/) — the anchor fallback in detail.
+- [Dialog → Open and close](/hypermedia-components/components/dialog/#open-and-close) — the invoker commands and their fallback.
+- [Behaviors reference](/hypermedia-components/reference/behaviors/) — every `installXxx()`, including the two fallbacks.

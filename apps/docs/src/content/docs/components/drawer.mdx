@@ -19,15 +19,15 @@ affordance users expect from a slide panel.
 | Primitive | Required version |
 | --- | --- |
 | HTML `<dialog>` + `showModal()` | All evergreen browsers |
-| `commandfor` + `command="show-modal"` (the declarative opener) | Chrome 135+, Firefox 144+, Safari 26+ — [see Dialog](/hypermedia-components/components/dialog/#open-and-close) |
+| `commandfor` + `command="show-modal"` (the declarative opener) | Chrome 135+, Firefox 144+, Safari 26+; below that the kit's `installInvokerCommands()` fallback opens and closes it — [see Dialog](/hypermedia-components/components/dialog/#open-and-close) |
 | CSS `@starting-style` + `transition-behavior: allow-discrete` | Chrome 117+, Firefox 129+, Safari 17.5+ |
 
 The slide animation degrades gracefully — older browsers without
 `@starting-style` snap to the final position without the entry
 transition, but the drawer is still functional. The examples below open
 the drawer with `commandfor` / `command="show-modal"` on the button —
-native, no script; an engine without it leaves the button inert, and
-`showModal()` from your own script still works everywhere.
+native where the engine has it, and the kit's feature-detected fallback
+(`installInvokerCommands()`, in the behaviors bundle) where it does not.
 
 ## Basic HTML
 
@@ -185,7 +185,8 @@ submit. Native, accessible, declarative, every engine.
 The invoker-commands twin of the opener. Any `type="button"` closes the
 dialog `commandfor` names — including from inside an htmx-driven form,
 where a `formmethod="dialog"` submit button would be captured by htmx
-instead. Same Baseline as `command="show-modal"` (see the table above).
+instead. Same Baseline and the same fallback as `command="show-modal"`
+(see the table above).
 
 ```html
 <button class="hc-button" type="button"

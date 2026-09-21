@@ -130,11 +130,20 @@ can object to:
 :::note[Baseline]
 `commandfor` / `command` reached
 [Baseline](https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/button#commandfor)
-in **2025** (Chrome / Edge 135+, Firefox 144+, Safari 26+). The kit
-ships no fallback: on an older engine the button does nothing, which is
-the honest degradation for a modal open — there is no scriptless one.
-`<form method="dialog">` closes on every engine, so keep it where the
-no-JS path matters.
+in **2025** (Chrome / Edge 135+, Firefox 144+, Safari 26+). Below that —
+an iPad that stays on Safari 18, a Mac on Ventura's Safari 17, a Firefox
+ESR 140 fleet — the kit's **`installInvokerCommands()`** fallback
+performs the two commands above from one delegated click listener
+(feature-detected at install, so a native engine never runs it; it
+covers `show-modal` and `close` on a `<dialog>`, honours disabled and
+submit buttons and `defaultPrevented`, and retires itself as engines
+catch up). Not covered: the `command` event, popover commands (use
+`popovertarget`) and custom `--` commands — load
+[invokers-polyfill](https://github.com/keithamus/invokers-polyfill) if
+you need the full API. `<form method="dialog">` closes without any
+script on every engine, so keep it where the no-JS path matters. See
+[Browser support](/hypermedia-components/fundamentals/browser-support/)
+for the kit's floor and which features carry a fallback.
 :::
 
 For a non-modal `show()`, or to close with a return value, use the

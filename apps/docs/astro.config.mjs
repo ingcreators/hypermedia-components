@@ -143,6 +143,7 @@ export default defineConfig({
                 { slug: 'fundamentals/motion' },
                 { slug: 'fundamentals/icons' },
                 { slug: 'fundamentals/anchored' },
+                { slug: 'fundamentals/browser-support' },
               ],
             },
           ],

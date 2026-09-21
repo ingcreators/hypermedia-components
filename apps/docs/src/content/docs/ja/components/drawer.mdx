@@ -19,15 +19,16 @@ import Demo from '../../../../components/Demo.astro';
 | プリミティブ | 必要バージョン |
 | --- | --- |
 | HTML `<dialog>` + `showModal()` | すべてのエバーグリーンブラウザ |
-| `commandfor` + `command="show-modal"`(宣言的なオープナー) | Chrome 135+、Firefox 144+、Safari 26+ — [Dialog を参照](/hypermedia-components/ja/components/dialog/#開閉) |
+| `commandfor` + `command="show-modal"`(宣言的なオープナー) | Chrome 135+、Firefox 144+、Safari 26+。それより下では kit の `installInvokerCommands()` フォールバックが開閉します — [Dialog を参照](/hypermedia-components/ja/components/dialog/#開閉) |
 | CSS `@starting-style` + `transition-behavior: allow-discrete` | Chrome 117+、Firefox 129+、Safari 17.5+ |
 
 スライドアニメーションは穏やかにデグレードします —
 `@starting-style` のない古いブラウザでは入場トランジションなしで
 最終位置にスナップしますが、ドロワーは機能します。以下の例はボタンの
 `commandfor` / `command="show-modal"` でドロワーを開きます —
-ネイティブでスクリプト不要。対応しないエンジンではボタンは何もせず、
-自前スクリプトからの `showModal()` はどこでも動きます。
+エンジンが対応していればネイティブで、していなければ kit の
+feature-detected フォールバック(behaviors バンドルの
+`installInvokerCommands()`)が開きます。
 
 ## 基本の HTML
 
@@ -186,8 +187,8 @@ htmx でスワップされた内容も自動で拾います。
 オープナーの対になる invoker commands。`type="button"` なら何でも、
 `commandfor` が指すダイアログを閉じます — htmx が駆動するフォームの
 内側からでも。そこでは `formmethod="dialog"` の submit ボタンは htmx
-に捕まってしまいます。Baseline は `command="show-modal"` と同じ
-(上の表を参照)。
+に捕まってしまいます。Baseline もフォールバックも
+`command="show-modal"` と同じ(上の表を参照)。
 
 ```html
 <button class="hc-button" type="button"

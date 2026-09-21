@@ -20,6 +20,49 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Added
+
+- **`installInvokerCommands()` — a feature-detected fallback for the
+  `commandfor` / `command="show-modal"` / `"close"` markup the kit
+  blesses** (#624). 0.4.1 shipped the markup with no fallback; the first
+  consumer to adopt it (TesseraQL) found the degradation is a
+  *functional* loss on a *permanent* floor — an iPad that stays on
+  Safari 18, a Mac on Ventura's Safari 17, a Firefox ESR 140 fleet — and
+  that in the data-grid-page shape the Filters dialog is the only way
+  to compose a filter, so a list page below the floor could not be
+  filtered at all. The kit already ships a scripted fallback for CSS
+  Anchor Positioning (Baseline 2026); shipping none for a Baseline 2025
+  feature was inconsistent. So: at install, if
+  `HTMLButtonElement.prototype` has `commandForElement` nothing is
+  installed (the native path is untouched — never a second
+  `showModal()`); otherwise one delegated click listener performs
+  `show-modal` on a `<dialog>` that is not open and `close` on one that
+  is, resolving the target by id from the button's root node, and
+  leaves disabled buttons, submit buttons with a form owner,
+  `defaultPrevented` clicks and unknown commands alone. Out of scope:
+  the `command` event, popover commands (`popovertarget` covers them)
+  and custom `--` commands — invokers-polyfill for the full API. No
+  markup changes anywhere. Unit tests (jsdom has no API, so the
+  fallback path runs; the native branch is tested by defining the
+  properties) plus `invoker-commands-fallback.spec.mjs`, which removes
+  the API from the page before the bundle loads and re-runs the dialog
+  / drawer / palette / tall-dialog scenarios plus the acceptance edge
+  cases on every CI leg; the native spec now also asserts the fallback
+  stays out. 64 behaviors (63 auto-init + opt-in chart).
+- **Docs: a *Browser support* fundamentals page** states the kit's floor
+  once — the Popover API (Chromium 114 / Firefox 125 / Safari 17), which
+  nothing below has a fallback for — and sorts every newer feature the
+  kit uses by the rule the audit behind #624 made explicit: a functional
+  loss gets a scripted, feature-detected, self-retiring fallback (anchor
+  positioning, invoker commands); a cosmetic loss gets none
+  (`@starting-style`, `interpolate-size`, `field-sizing`,
+  `scrollbar-width`, `<details name>`, `hidden="until-found"`,
+  `base-select`); `popover="hint"` and custom commands are deliberately
+  avoided. The dialog, drawer, data-grid-page template and anchored
+  pages point at it. The audit found no other functional loss above the
+  floor — the JS side uses nothing newer than the Popover API's toggle
+  events. en + ja.
+
 ## [0.4.1] - 2026-09-21
 
 The TesseraQL-audit release, PRs #617–#622: the three upstream issues
