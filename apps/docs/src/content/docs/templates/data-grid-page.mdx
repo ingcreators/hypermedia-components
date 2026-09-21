@@ -244,7 +244,7 @@ grid is full before any JavaScript runs.
             </div>
           </div>
           <button class="hc-button" data-variant="secondary" type="button"
-                  onclick="document.getElementById('filters').showModal()">Filters (2)</button>
+                  commandfor="filters" command="show-modal">Filters (2)</button>
         </div>
 
         <!-- Applied conditions: one chip per condition, each opening the
@@ -253,7 +253,7 @@ grid is full before any JavaScript runs.
           <ul class="hc-filterbar__list">
             <li class="hc-filterbar__item">
               <button class="hc-filterbar__chip" type="button"
-                      onclick="document.getElementById('filters').showModal()">
+                      commandfor="filters" command="show-modal">
                 <span class="hc-filterbar__label">Ship date</span>
                 <span class="hc-filterbar__op">from</span>
                 <span class="hc-filterbar__value">start of this week (2026-08-10)</span>
@@ -722,7 +722,11 @@ summary, an import preview, a "3 filters could not be applied" notice.
   fetching.
 - **No-JS.** The panel is a plain `<form method="get">` and the pager is
   plain links, so the screen filters and pages without JavaScript. The
-  grid renders; only inline editing and the roving toolbar need it.
+  grid renders; only inline editing and the roving toolbar need it. The
+  **Filters** button and the chips open the panel with
+  `commandfor="filters" command="show-modal"` — native invoker commands,
+  no script and no listener (Baseline 2025; see
+  [Dialog → Open and close](/hypermedia-components/components/dialog/#open-and-close)).
 - **Density.** `data-density="compact"` on the shell tightens the whole
   screen; check touch targets if your users are on tablets (see
   [themes and runtime axes](/hypermedia-components/tokens/themes/)).

@@ -20,10 +20,10 @@ inline.
 ## Basic HTML
 
 <Demo previewClass="hc-preview--start">
-  <button type="button" class="hc-button" onclick="this.nextElementSibling.showModal()">
+  <button type="button" class="hc-button" commandfor="demo-command" command="show-modal">
     Open command palette
   </button>
-  <dialog class="hc-command-dialog" data-hotkey="k">
+  <dialog class="hc-command-dialog" id="demo-command" data-hotkey="k">
     <div class="hc-command">
       <input class="hc-command__input" type="text" role="combobox" autofocus
              aria-label="Command menu" placeholder="Type a command…" />
@@ -47,11 +47,11 @@ inline.
 
   ```html
   <button type="button" class="hc-button"
-          onclick="this.nextElementSibling.showModal()">
+          commandfor="command-menu" command="show-modal">
     Open command palette
   </button>
 
-  <dialog class="hc-command-dialog" data-hotkey="k">
+  <dialog class="hc-command-dialog" id="command-menu" data-hotkey="k">
     <div class="hc-command">
       <input class="hc-command__input" type="text" role="combobox" autofocus
              aria-label="Command menu" placeholder="Type a command…">
@@ -137,9 +137,13 @@ default `k`) and the behavior toggles it with <kbd>⌘</kbd>/<kbd>Ctrl</kbd>
 ```
 
 The handler calls `preventDefault()` so the browser's own
-<kbd>Ctrl</kbd>+<kbd>K</kbd> shortcut does not also fire. You can still
-open the dialog from a button with `dialog.showModal()` — `autofocus`
-on the input puts the cursor in the search box.
+<kbd>Ctrl</kbd>+<kbd>K</kbd> shortcut does not also fire. Give mouse
+users a visible opener too — a button with `commandfor="<dialog id>"
+command="show-modal"` opens the palette natively, with no script (as in
+the demo above; see
+[Dialog → Open and close](/hypermedia-components/components/dialog/#open-and-close)
+for the Baseline) — and `autofocus` on the input puts the cursor in the
+search box either way.
 
 :::note
 This docs demo opens from a button rather than ⌘K, because this site's

@@ -20,7 +20,11 @@
   <section id="section-dialog" data-testid="section-dialog">
     <h2>Dialog</h2>
     <div class="row">
-      <button class="hc-button" data-variant="primary" id="open-dialog" data-testid="open-dialog">
+      <!-- Native invoker commands: the docs' declarative opener / closer.
+           No script — the dialog + drawer + command specs exercise the
+           engines' support on every CI leg. -->
+      <button class="hc-button" data-variant="primary" type="button" id="open-dialog" data-testid="open-dialog"
+              commandfor="demo-dialog" command="show-modal">
         Open dialog
       </button>
     </div>
@@ -33,14 +37,10 @@
         <input class="hc-input" type="text" placeholder="Focus target" data-testid="dialog-input">
       </div>
       <footer class="hc-dialog__footer">
-        <button class="hc-button" id="close-dialog" data-testid="close-dialog">Close</button>
+        <button class="hc-button" type="button" id="close-dialog" data-testid="close-dialog"
+                commandfor="demo-dialog" command="close">Close</button>
       </footer>
     </dialog>
-    <script type="module">
-      const dialog = document.getElementById('demo-dialog');
-      document.getElementById('open-dialog').addEventListener('click', () => dialog.showModal());
-      document.getElementById('close-dialog').addEventListener('click', () => dialog.close());
-    </script>
   </section>
 
   <section id="section-remote-dialog" data-testid="section-remote-dialog">
@@ -316,10 +316,12 @@
   <section id="section-drawer" data-testid="section-drawer">
     <h2>Drawer</h2>
     <div class="row">
-      <button class="hc-button" id="dr-open-right" data-testid="dr-open-right">
+      <button class="hc-button" type="button" id="dr-open-right" data-testid="dr-open-right"
+              commandfor="dr-right" command="show-modal">
         Open right drawer
       </button>
-      <button class="hc-button" id="dr-open-bottom" data-testid="dr-open-bottom">
+      <button class="hc-button" type="button" id="dr-open-bottom" data-testid="dr-open-bottom"
+              commandfor="dr-bottom" command="show-modal">
         Open bottom drawer
       </button>
     </div>
@@ -356,14 +358,6 @@
       </div>
     </dialog>
 
-    <script type="module">
-      document.getElementById('dr-open-right').addEventListener('click', () => {
-        document.getElementById('dr-right').showModal();
-      });
-      document.getElementById('dr-open-bottom').addEventListener('click', () => {
-        document.getElementById('dr-bottom').showModal();
-      });
-    </script>
   </section>
 
   <section id="section-multicombobox" data-testid="section-multicombobox">
@@ -661,7 +655,7 @@
   <section id="section-command" data-testid="section-command">
     <h2>Command</h2>
     <button type="button" id="cmd-open-btn" data-testid="cmd-open-btn"
-            onclick="document.getElementById('cmd-demo-dialog').showModal()">Open palette</button>
+            commandfor="cmd-demo-dialog" command="show-modal">Open palette</button>
     <dialog id="cmd-demo-dialog" class="hc-command-dialog" data-hotkey="k"
             data-testid="cmd-dialog">
       <div class="hc-command" data-testid="cmd">

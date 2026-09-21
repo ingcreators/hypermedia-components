@@ -41,6 +41,31 @@ Security    — security-relevant changes
 
 ### Changed
 
+- **Dialogs open declaratively: `commandfor` + `command="show-modal"`**
+  (#613). A dialog already in the page (a filter form, a command palette
+  for mouse users, a confirmation with authored content) had no kit way
+  to be opened from a button — every consumer wrote the same click
+  listener, and the docs themselves opened every dialog / drawer /
+  palette demo with an inline `onclick="…showModal()"` while
+  advertising CSP-safety elsewhere. HTML's invoker commands answer the
+  need natively (Baseline 2025: Chrome / Edge 135+, Firefox 144+,
+  Safari 26+), so the docs now bless `<button type="button"
+  commandfor="<id>" command="show-modal">` as the opener and
+  `command="close"` as a close that works from anywhere — including
+  inside an htmx form, where a `formmethod="dialog"` button is captured
+  by htmx. **No fallback behavior ships**: an older engine leaves the
+  button inert, the honest degradation for a modal open, and
+  `<form method="dialog">` stays the every-engine close. Every inline
+  `onclick` opener in the docs (dialog, drawer ×7, command, kitchen
+  sink, the data-grid-page template's Filters button and chips) and in
+  the plain-html example is replaced; the example's hand-rolled theme
+  toggle moves to `data-hc-theme-toggle` while there. The shared
+  browser fixtures open their dialogs the same way, and a new
+  `invoker-commands` spec pins the engines' support on every CI leg
+  (`:modal` after open, focus back on the opener after `close`,
+  `command="close"` from a `type="button"` inside the dialog's form).
+  Docs, examples and tests only — no kit code changes.
+
 - **Docs site: Starlight 0.41 → 0.42, `starlight-llms-txt` 0.11 → 0.12,
   Markdown pipeline on Sätteri.** Starlight 0.42 moves to `@astrojs/mdx`
   8, which no longer ships the legacy `@astrojs/markdown-remark`
