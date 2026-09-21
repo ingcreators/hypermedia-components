@@ -265,6 +265,14 @@ installNavCurrent(); // or the auto-init bundle: @hypermedia-components/core/beh
   </Fragment>
 </Demo>
 
+戻るリンクは、**サーバ**が知っている遷移先への素の `<a href>` であって、
+`history.back()` を呼ぶボタンではありません。`hx-push-url` つきの htmx
+スワップの後では 1 つ前の履歴エントリが部分状態のことがあり、`POST` →
+`303` の後ではフォーム自身で、deep link で開いたページには前のエントリが
+そもそもありません — つまり、ユーザーが最も必要とする場面でボタンが
+何もしなくなります。`href` はそのどの場合でも、JavaScript なしでも
+動きます。
+
 ## 任意の aside
 
 直下の子として `<aside class="hc-shell__aside">` を足すと、グリッドは

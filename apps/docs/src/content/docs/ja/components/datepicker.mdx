@@ -114,26 +114,38 @@ import Demo from '../../../../components/Demo.astro';
 
 ## 範囲ピッカー
 
-ネイティブの `<input type="date">` は単一値です。範囲には、2 つの
-input を隣接して置き、フォームバリデーションで制約を連動させます。
+ネイティブの `<input type="date">` は単一値です。範囲には、
+`data-hc-range="<param>"` を持つグループの中に `<param>-from` /
+`<param>-to` という名前の input を 2 つ置きます — そこから先は kit の
+`installRangeValue()` ビヘイビアがペアを引き受け、ページ側のスクリプトは
+不要です:
 
 ```html
-<fieldset class="hc-field">
-  <legend>Date range</legend>
-  <input class="hc-datepicker" type="date" name="from" aria-label="From"
-         id="range-from" max="2027-12-31">
-  <input class="hc-datepicker" type="date" name="to"   aria-label="To"
-         id="range-to"   min="2026-01-01">
+<fieldset class="hc-field" data-hc-range="ship">
+  <legend>Ship date</legend>
+  <input class="hc-datepicker" type="date" name="ship-from" aria-label="From">
+  <span aria-hidden="true">–</span>
+  <input class="hc-datepicker" type="date" name="ship-to" aria-label="To">
 </fieldset>
-
-<script>
-  // Keep the two ends consistent.
-  const from = document.getElementById('range-from');
-  const to   = document.getElementById('range-to');
-  from.addEventListener('change', () => { if (from.value) to.min = from.value; });
-  to.addEventListener('change',   () => { if (to.value)   from.max = to.value; });
-</script>
 ```
+
+- **ワイヤ上は 1 つの条件。**ペアは `ship=2026-07-01..2026-07-31` という
+  単一エントリに直列化されます(開いた端はそのまま: `A..`、`..B`。
+  両方空なら何も送りません)。期間は削除するチップ 1 つ、保存ビューが
+  持つ値 1 つです。結合は `formdata` イベントで行われ、htmx もネイティブ
+  送信もこのイベントを発火します。
+- **`from > to` は拒否 — 入れ替えも切り詰めもしません。**ビヘイビアは
+  *To* コントロールにネイティブの validity message を立てるので、
+  ブラウザが送信を止め、リクエストは発行されません。黙って並べ替えると
+  書かれたものと違う条件を実行してしまうからです。
+- **no-JS 経路:** input は本物の名前を保つので、ビヘイビアなしでは
+  フォームは `ship-from` / `ship-to` を送ります。サーバは両方の形を
+  受け付けます。
+
+固定の上下限は従来どおり input の `min` / `max` に置きます。相対的な端
+(`@month-start-1m`)と適用済み条件バーは
+[datagrid-filter レシピ → 日付の範囲](/hypermedia-components/ja/recipes/datagrid-filter/#日付の範囲)
+を参照。
 
 ## htmx での利用
 
