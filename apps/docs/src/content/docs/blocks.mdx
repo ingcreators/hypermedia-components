@@ -299,7 +299,9 @@ stat [cards](/hypermedia-components/components/card/) with delta
 [table](/hypermedia-components/components/table/). **Click « to collapse the
 sidebar to an icon rail** — it's live, driven by `installShell()`
 (`data-collapsible` on the nav + a `[data-hc-shell-collapse]` button; each
-label is wrapped in `.hc-shell__label`, kept in the a11y tree). **Narrow the
+label is wrapped in `.hc-shell__label`, kept in the a11y tree, the “Menu” /
+“Workspace” captions are `.hc-shell__group`, and the rail centres the icons
+itself). **Narrow the
 window below 60rem** and the collapse control gives way to a
 `[data-hc-shell-toggle]` hamburger (`☰`) that slides the nav in as an
 off-canvas overlay — the same `installShell()` handles focus, Escape, and
@@ -322,12 +324,12 @@ fill the viewport.
     </header>
     <nav class="hc-shell__sidebar hc-stack" aria-label="Primary" data-collapsible style="--hc-stack-gap:.1rem;">
       <button class="hc-button" data-variant="primary" type="button" style="margin-block-end:.5rem;">+ <span class="hc-shell__label">New order</span></button>
-      <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
+      <p class="hc-shell__group">Menu</p>
       <a class="hc-item" href="#" data-selected aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Dashboard</span></div></a>
       <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">📦</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Orders</span></div></a>
       <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">👤</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Customers</span></div></a>
       <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">🏷️</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Products</span></div></a>
-      <p class="hc-shell__label" style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
+      <p class="hc-shell__group">Workspace</p>
       <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">⚙️</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Settings</span></div></a>
     </nav>
     <main class="hc-shell__main">
@@ -411,7 +413,7 @@ fill the viewport.
          style="--hc-stack-gap:.1rem;">
       <button class="hc-button" data-variant="primary" type="button">+ <span class="hc-shell__label">New order</span></button>
 
-      <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
+      <p class="hc-shell__group">Menu</p>
       <a class="hc-item" href="/dashboard" data-selected aria-current="page">
         <span class="hc-item__media" aria-hidden="true">▦</span>
         <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Dashboard</span></div>
@@ -429,7 +431,7 @@ fill the viewport.
         <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Products</span></div>
       </a>
 
-      <p class="hc-shell__label" style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
+      <p class="hc-shell__group">Workspace</p>
       <a class="hc-item" href="/settings">
         <span class="hc-item__media" aria-hidden="true">⚙️</span>
         <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Settings</span></div>

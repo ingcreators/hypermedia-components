@@ -34,8 +34,18 @@
         <li><a href="#dashboard" data-testid="shell-link-first"><span aria-hidden="true">▦</span> <span class="hc-shell__label">Dashboard</span></a></li>
         <li><a href="#orders"><span aria-hidden="true">▤</span> <span class="hc-shell__label">Orders</span></a></li>
         <li><a href="#customers"><span aria-hidden="true">☺</span> <span class="hc-shell__label">Customers</span></a></li>
-        <li><a href="#settings" data-testid="shell-link-last"><span aria-hidden="true">⚙</span> <span class="hc-shell__label">Settings</span></a></li>
+        <li><a href="#settings"><span aria-hidden="true">⚙</span> <span class="hc-shell__label">Settings</span></a></li>
       </ul>
+      <!-- hc-item rows under a group caption: the rail must centre the
+           glyph, drop the item's inline padding, and hide the caption.
+           This is also the LAST focusable in the sidebar (focus-trap test). -->
+      <p class="hc-shell__group" data-testid="shell-group">Admin</p>
+      <a class="hc-item" href="#users" data-testid="shell-link-last">
+        <span class="hc-item__media" aria-hidden="true" data-testid="shell-item-media">☺</span>
+        <div class="hc-item__content">
+          <span class="hc-item__title hc-shell__label">Users</span>
+        </div>
+      </a>
     </nav>
 
     <main class="hc-shell__main" data-testid="shell-main">

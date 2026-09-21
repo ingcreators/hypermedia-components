@@ -69,16 +69,35 @@
       var(--hc-shell-sidebar-collapsed-width) 1fr var(--hc-shell-aside-width);
   }
 
+  /* Group caption between nav items ("Workspace", "Admin"): a block of
+   * muted small text, padded to line up with the `hc-item`s it heads.
+   * Render it as a <p> or a heading — it carries no role of its own. */
+  .hc-shell__group {
+    display: block;
+    margin-block: var(--hc-space-3) var(--hc-space-1);
+    padding-inline: var(--hc-item-padding-x);
+    color: var(--hc-color-text-muted);
+    font-size: var(--hc-font-size-sm);
+    font-weight: var(--hc-font-weight-medium);
+    line-height: 1.25;
+  }
+
+  .hc-shell__group:first-child {
+    margin-block-start: 0;
+  }
+
   /* Label helper: wrap a nav item's text in `.hc-shell__label` and it is
    * visually hidden in the rail, leaving the icon. The text stays in the
    * accessibility tree (visually-hidden, not `display: none`) so the link
-   * keeps its accessible name.
+   * keeps its accessible name. A `.hc-shell__group` caption hides the
+   * same way — a one-glyph-wide column has no room for an orphaned word.
    *
    * Gated to desktop: the rail only exists there. On mobile the sidebar is
    * the full off-canvas overlay, so a lingering `data-sidebar-collapsed`
    * (e.g. set on desktop, persisted) must not hide the labels there. */
   @media (width >= 60rem) {
-    .hc-shell[data-sidebar-collapsed] .hc-shell__label {
+    .hc-shell[data-sidebar-collapsed] .hc-shell__label,
+    .hc-shell[data-sidebar-collapsed] .hc-shell__group {
       position: absolute;
       inline-size: 1px;
       block-size: 1px;
@@ -88,6 +107,25 @@
       clip-path: inset(50%);
       white-space: nowrap;
       border: 0;
+    }
+
+    /* Hiding the label is half the job. An `hc-item` is laid out for
+     * icon + text — inline padding, glyph at the start — so in a column
+     * with room for exactly one glyph it sits off-centre or clips. Finish
+     * the rail here, inside the layer, rather than leaving every consumer
+     * to write the same rule over hc-item internals in an unlayered app
+     * sheet. */
+    .hc-shell[data-sidebar-collapsed] .hc-item {
+      justify-content: center;
+      gap: 0;
+      padding-inline: 0;
+    }
+
+    /* A content wrapper whose text is all `.hc-shell__label` is empty in
+     * flow; it must not keep growing and push the media aside (and the
+     * gap above is zeroed so the empty box costs no half-gap either). */
+    .hc-shell[data-sidebar-collapsed] .hc-item__content {
+      flex: 0 1 auto;
     }
   }
 

@@ -134,6 +134,8 @@ Salesforce が使う配置で、グローバルなクローム(ブランド、�
 | `hc-shell__aside` | `<aside>` | 任意のセカンダリパネル(第 3 カラムを追加)。 |
 | `hc-shell__footer` | `<footer>` | 任意のフッター。 |
 | `hc-shell__toggle` | `<button>` | モバイルのハンバーガー(`data-hc-shell-toggle` とともに使用)。 |
+| `hc-shell__group` | `<p>` | サイドバー項目の間の見出し(「Workspace」「Admin」)。アイコンレールでは隠れます。 |
+| `hc-shell__label` | `<span>` | ナビ項目のテキスト。アイコンレールでは隠れ、アクセシビリティツリーには残ります。 |
 
 ## サイドバーのナビゲーション項目
 
@@ -354,8 +356,10 @@ installShell(); // or the auto-init bundle: @hypermedia-components/core/behavior
     <nav class="hc-shell__sidebar" aria-label="Demo navigation" data-collapsible>
       <a class="hc-item" href="#shell-collapse-dashboard"><span class="hc-item__media" aria-hidden="true">▦</span><span class="hc-item__title hc-shell__label">Dashboard</span></a>
       <a class="hc-item" href="#shell-collapse-orders"><span class="hc-item__media" aria-hidden="true">▤</span><span class="hc-item__title hc-shell__label">Orders</span></a>
+      <p class="hc-shell__group">Admin</p>
+      <a class="hc-item" href="#shell-collapse-users"><span class="hc-item__media" aria-hidden="true">☺</span><span class="hc-item__title hc-shell__label">Users</span></a>
     </nav>
-    <main class="hc-shell__main">Press ⇔ — the labels hide, the icons remain.</main>
+    <main class="hc-shell__main">⇔ を押すと、ラベルと見出しが隠れ、アイコンがレールの中央に揃います。</main>
   </div>
 
   <Fragment slot="code">
@@ -377,6 +381,12 @@ installShell(); // or the auto-init bundle: @hypermedia-components/core/behavior
         <span class="hc-item__media" aria-hidden="true">▤</span>
         <span class="hc-item__title hc-shell__label">Orders</span>
       </a>
+
+      <p class="hc-shell__group">Admin</p>
+      <a class="hc-item" href="/users">
+        <span class="hc-item__media" aria-hidden="true">☺</span>
+        <span class="hc-item__title hc-shell__label">Users</span>
+      </a>
     </nav>
 
     <main class="hc-shell__main">…</main>
@@ -393,6 +403,15 @@ installShell(); // or the auto-init bundle: @hypermedia-components/core/behavior
 `.hc-shell__label` で包んでください。レールでは**視覚的に隠れつつ
 アクセシビリティツリーには残る**ため、アイコンだけが見えていても
 リンクはアクセシブルな名前を保ちます。
+
+レールは項目のレイアウトも仕上げるので、アプリ側で `hc-item` の内部に
+ルールを書く必要はありません。各 `.hc-item` は**グリフを中央に寄せて
+inline padding を落とし**、テキストがすべてラベルの `.hc-item__content`
+ラッパは伸びなくなり、項目の間の **`.hc-shell__group`** 見出し(上の
+「Admin」— 展開時は小さな muted テキスト)はラベルと同じ方法で隠れ、
+グリフ 1 つ分の幅しかないカラムに単語が取り残されることはありません。
+レールでも見せたいもの(アイコン上のバッジなど)は `.hc-shell__label`
+を付けなければそのまま残ります。
 
 **方向つきの折りたたみアイコン。** シェブロンは動く方向を指すべきです
 — 展開中は `«`(折りたたむ)、折りたたみ後は `»`(展開する)。

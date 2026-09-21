@@ -130,6 +130,38 @@ test.describe('hc-shell — desktop', () => {
     expect(labelWidth).toBeLessThanOrEqual(1);
   });
 
+  test('the rail centres an hc-item glyph and hides the group caption', async ({ page }) => {
+    const sidebar = page.getByTestId('shell-sidebar');
+    const item = page.getByTestId('shell-link-last');
+    const media = page.getByTestId('shell-item-media');
+    const group = page.getByTestId('shell-group');
+
+    // Expanded: the caption reads as a block and the glyph sits at the start.
+    expect(await display(group)).toBe('block');
+    expect((await rect(group)).width).toBeGreaterThan(1);
+    const expandedItem = await rect(item);
+    const expandedMedia = await rect(media);
+    expect(expandedMedia.left - expandedItem.left).toBeGreaterThan(4); // inline padding
+
+    await page.getByTestId('shell-collapse').click();
+    await expect(page.getByTestId('shell')).toHaveAttribute('data-sidebar-collapsed', '');
+
+    // Collapsed: the glyph is centred in the rail and fits inside it — no
+    // consumer rule over hc-item internals needed (issue #612).
+    const rail = await rect(sidebar);
+    const glyph = await rect(media);
+    const railCentre = rail.left + rail.width / 2;
+    const glyphCentre = glyph.left + glyph.width / 2;
+    expect(Math.abs(glyphCentre - railCentre)).toBeLessThanOrEqual(1);
+    expect(glyph.left).toBeGreaterThanOrEqual(rail.left);
+    expect(glyph.right).toBeLessThanOrEqual(rail.right);
+
+    // The caption is visually hidden, not removed: it stays in the tree
+    // (display is not none) and clips to a pixel like the labels do.
+    expect(await display(group)).not.toBe('none');
+    expect((await rect(group)).width).toBeLessThanOrEqual(1);
+  });
+
   test('the directional collapse icon mirrors when the sidebar collapses', async ({ page }) => {
     const icon = page.getByTestId('shell-collapse-icon');
     expect(await icon.evaluate((el) => getComputedStyle(el).transform)).toBe('none');

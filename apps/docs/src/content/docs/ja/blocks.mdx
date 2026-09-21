@@ -308,7 +308,8 @@ import Demo from '../../../components/Demo.astro';
 **« をクリックするとサイドバーがアイコンレールに折りたたまれます** —
 ライブで、`installShell()` が動かしています(ナビの `data-collapsible` +
 `[data-hc-shell-collapse]` ボタン。各ラベルは `.hc-shell__label` で
-包まれ、アクセシビリティツリーに残ります)。**ウィンドウを 60rem 未満に
+包まれてアクセシビリティツリーに残り、「Menu」「Workspace」の見出しは
+`.hc-shell__group`、アイコンの中央寄せはレール自身が行います)。**ウィンドウを 60rem 未満に
 狭める**と、折りたたみコントロールは `[data-hc-shell-toggle]` の
 ハンバーガー(`☰`)に道を譲り、ナビはオフキャンバスオーバーレイとして
 スライドインします — 同じ `installShell()` がフォーカス、Escape、
@@ -331,12 +332,12 @@ import Demo from '../../../components/Demo.astro';
     </header>
     <nav class="hc-shell__sidebar hc-stack" aria-label="Primary" data-collapsible style="--hc-stack-gap:.1rem;">
       <button class="hc-button" data-variant="primary" type="button" style="margin-block-end:.5rem;">+ <span class="hc-shell__label">New order</span></button>
-      <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
+      <p class="hc-shell__group">Menu</p>
       <a class="hc-item" href="#" data-selected aria-current="page"><span class="hc-item__media" aria-hidden="true">▦</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Dashboard</span></div></a>
       <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">📦</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Orders</span></div></a>
       <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">👤</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Customers</span></div></a>
       <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">🏷️</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Products</span></div></a>
-      <p class="hc-shell__label" style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
+      <p class="hc-shell__group">Workspace</p>
       <a class="hc-item" href="#"><span class="hc-item__media" aria-hidden="true">⚙️</span><div class="hc-item__content"><span class="hc-item__title hc-shell__label">Settings</span></div></a>
     </nav>
     <main class="hc-shell__main">
@@ -420,7 +421,7 @@ import Demo from '../../../components/Demo.astro';
          style="--hc-stack-gap:.1rem;">
       <button class="hc-button" data-variant="primary" type="button">+ <span class="hc-shell__label">New order</span></button>
 
-      <p class="hc-shell__label" style="margin:.25rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Menu</p>
+      <p class="hc-shell__group">Menu</p>
       <a class="hc-item" href="/dashboard" data-selected aria-current="page">
         <span class="hc-item__media" aria-hidden="true">▦</span>
         <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Dashboard</span></div>
@@ -438,7 +439,7 @@ import Demo from '../../../components/Demo.astro';
         <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Products</span></div>
       </a>
 
-      <p class="hc-shell__label" style="margin:.6rem .25rem .15rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--hc-color-text-muted);">Workspace</p>
+      <p class="hc-shell__group">Workspace</p>
       <a class="hc-item" href="/settings">
         <span class="hc-item__media" aria-hidden="true">⚙️</span>
         <div class="hc-item__content"><span class="hc-item__title hc-shell__label">Settings</span></div>
