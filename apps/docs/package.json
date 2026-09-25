@@ -25,8 +25,8 @@
   },
   "devDependencies": {
     "htmx-ext-sse": "^2.2.4",
-    "htmx.org": "^2.0.10",
+    "htmx.org": "^4.0.0",
     "starlight-links-validator": "^0.26.0",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.1"
   }
 }
