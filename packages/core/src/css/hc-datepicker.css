@@ -98,7 +98,12 @@
     color: var(--hc-datepicker-fg);
   }
 
-  .hc-datepicker:focus-visible {
+  /* `:focus`, not `:focus-visible`: a date / time input takes keyboard
+   * input, so Chromium and Firefox treat every focus of one as visible
+   * anyway — but WebKit (27) matches `:focus-visible` on none of them,
+   * not even a Tab, which left Safari on the UA outline instead of the
+   * kit's ring. Matching `:focus` is what the other two already do. */
+  .hc-datepicker:focus {
     outline: none;
     border-color: var(--hc-datepicker-focus-border);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--hc-color-focus-ring) 35%, transparent);

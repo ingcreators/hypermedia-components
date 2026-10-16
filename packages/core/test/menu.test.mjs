@@ -1,6 +1,7 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { installMenu } from '../src/js/menu.js';
+import { renderPopover, unrenderPopover } from './popover-stub.mjs';
 
 let uninstall = () => {};
 
@@ -23,10 +24,12 @@ function press(el, key) {
 if (!HTMLElement.prototype.hidePopover) {
   HTMLElement.prototype.hidePopover = function () {
     this.removeAttribute('open');
+    unrenderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
   HTMLElement.prototype.showPopover = function () {
     this.setAttribute('open', '');
+    renderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
 }
@@ -45,6 +48,13 @@ Element.prototype.matches = function (sel) {
   if (sel === ':popover-open') return this.hasAttribute('data-open-stub');
   return ORIG_MATCHES.call(this, sel);
 };
+
+// Put a menu in the open state without going through the trigger: the
+// attribute `:popover-open` reads back, plus the rendering focus() needs.
+function openStub(el) {
+  el.setAttribute('data-open-stub', '');
+  renderPopover(el);
+}
 
 beforeEach(() => {
   document.body.innerHTML = '';
@@ -283,7 +293,7 @@ describe('installMenu', () => {
       document.body.innerHTML = CHECKABLE;
       uninstall = installMenu();
       const menu = document.getElementById('m2');
-      menu.setAttribute('data-open-stub', '');
+      openStub(menu);
 
       document.getElementById('cmd-refresh').focus();
       press(menu, 'ArrowDown');
@@ -391,7 +401,7 @@ describe('installMenu', () => {
     document.body.innerHTML = SIMPLE;
     uninstall = installMenu();
     const m = document.getElementById('m1');
-    m.setAttribute('data-open-stub', '');
+    openStub(m);
 
     document.getElementById('item-a').focus();
     press(m, 'ArrowDown');
@@ -411,7 +421,7 @@ describe('installMenu', () => {
     document.body.innerHTML = SIMPLE;
     uninstall = installMenu();
     const m = document.getElementById('m1');
-    m.setAttribute('data-open-stub', '');
+    openStub(m);
 
     document.getElementById('item-b').focus();
     press(m, 'Home');
@@ -424,7 +434,7 @@ describe('installMenu', () => {
     document.body.innerHTML = SIMPLE;
     uninstall = installMenu();
     const m = document.getElementById('m1');
-    m.setAttribute('data-open-stub', '');
+    openStub(m);
 
     document.getElementById('item-a').focus();
     press(m, 'b');

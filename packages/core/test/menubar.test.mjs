@@ -1,6 +1,7 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { installMenubar } from '../src/js/menubar.js';
+import { renderPopover, unrenderPopover } from './popover-stub.mjs';
 
 let uninstall = () => {};
 
@@ -8,10 +9,12 @@ let uninstall = () => {};
 if (!HTMLElement.prototype.showPopover) {
   HTMLElement.prototype.showPopover = function () {
     this.setAttribute('open', '');
+    renderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
   HTMLElement.prototype.hidePopover = function () {
     this.removeAttribute('open');
+    unrenderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
 }

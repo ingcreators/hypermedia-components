@@ -1,6 +1,7 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { installPopover } from '../src/js/popover.js';
+import { renderPopover, unrenderPopover } from './popover-stub.mjs';
 
 let uninstall = () => {};
 
@@ -22,9 +23,11 @@ const PLAIN = `
 if (!HTMLElement.prototype.showPopover) {
   HTMLElement.prototype.showPopover = function () {
     this.setAttribute('open', '');
+    renderPopover(this);
   };
   HTMLElement.prototype.hidePopover = function () {
     this.removeAttribute('open');
+    unrenderPopover(this);
   };
 }
 if (typeof globalThis.CSS === 'undefined') {

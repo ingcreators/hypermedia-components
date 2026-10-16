@@ -1,12 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { installClosePopover } from '../src/js/close-popover.js';
+import { renderPopover, unrenderPopover } from './popover-stub.mjs';
 
 // jsdom does not implement popover APIs. Polyfill the bits used by
 // the behavior: hidePopover() removes the open state attribute.
 function polyfillPopover(el) {
-  el.showPopover = function () { el.setAttribute('data-popover-open', ''); };
-  el.hidePopover = vi.fn(function () { el.removeAttribute('data-popover-open'); });
+  el.showPopover = function () { el.setAttribute('data-popover-open', ''); renderPopover(el); };
+  el.hidePopover = vi.fn(function () { el.removeAttribute('data-popover-open'); unrenderPopover(el); });
   el.setAttribute('data-popover-open', ''); // start open
+  renderPopover(el);
 }
 
 let uninstall = () => {};

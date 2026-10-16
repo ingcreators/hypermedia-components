@@ -1,6 +1,7 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { installNavmenu } from '../src/js/navmenu.js';
+import { renderPopover, unrenderPopover } from './popover-stub.mjs';
 
 let uninstall = () => {};
 
@@ -8,12 +9,14 @@ let uninstall = () => {};
 if (!HTMLElement.prototype.showPopover) {
   HTMLElement.prototype.showPopover = function () {
     this.setAttribute('open', '');
+    renderPopover(this);
     const ev = new Event('toggle');
     ev.newState = 'open';
     this.dispatchEvent(ev);
   };
   HTMLElement.prototype.hidePopover = function () {
     this.removeAttribute('open');
+    unrenderPopover(this);
     const ev = new Event('toggle');
     ev.newState = 'closed';
     this.dispatchEvent(ev);
