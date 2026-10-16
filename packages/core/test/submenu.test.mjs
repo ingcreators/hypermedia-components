@@ -1,6 +1,7 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { installMenu } from '../src/js/menu.js';
+import { renderPopover, unrenderPopover } from './popover-stub.mjs';
 
 let uninstall = () => {};
 
@@ -42,10 +43,12 @@ function fireToggle(el, state) {
 }
 HTMLElement.prototype.showPopover = function showPopover() {
   this.setAttribute('data-open-stub', '');
+  renderPopover(this);
   fireToggle(this, 'open');
 };
 HTMLElement.prototype.hidePopover = function hidePopover() {
   this.removeAttribute('data-open-stub');
+  unrenderPopover(this);
   fireToggle(this, 'closed');
 };
 const ORIG_MATCHES = Element.prototype.matches;

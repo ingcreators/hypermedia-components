@@ -20,6 +20,18 @@ Security    — security-relevant changes
 
 ## [Unreleased]
 
+### Fixed
+
+- **`hc-datepicker` draws its focus ring in Safari again.** The ring hung
+  off `:focus-visible`, which WebKit 27 matches on no `<input type="date"
+  | "time" | "month" | "datetime-local">` at all — not on a click, not on
+  a Tab — so Safari fell back to the UA outline while Chromium and
+  Firefox showed the kit's. A date input takes keyboard input, which is
+  why the other two treat every focus of one as visible, so the rule now
+  keys on `:focus` and all three agree. Surfaced by the Playwright 1.64
+  dev-dependency bump, whose WebKit build is the first to carry the
+  change.
+
 ## [0.4.2] - 2026-09-21
 
 The browser-floor release, PR #625 (closing #624): the first consumer to

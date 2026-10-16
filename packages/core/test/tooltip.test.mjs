@@ -1,6 +1,7 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { installTooltip } from '../src/js/tooltip.js';
+import { renderPopover, unrenderPopover } from './popover-stub.mjs';
 
 let uninstall = () => {};
 
@@ -16,10 +17,12 @@ const SIMPLE = `
 if (!HTMLElement.prototype.hidePopover) {
   HTMLElement.prototype.hidePopover = function () {
     this.removeAttribute('data-open-stub');
+    unrenderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
   HTMLElement.prototype.showPopover = function () {
     this.setAttribute('data-open-stub', '');
+    renderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
 }

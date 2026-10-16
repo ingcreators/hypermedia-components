@@ -1,6 +1,7 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { installContextMenu } from '../src/js/context-menu.js';
+import { renderPopover, unrenderPopover } from './popover-stub.mjs';
 
 let uninstall = () => {};
 
@@ -20,10 +21,12 @@ const FIXTURE = `
 if (!HTMLElement.prototype.showPopover) {
   HTMLElement.prototype.showPopover = function () {
     this.setAttribute('data-open-stub', '');
+    renderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
   HTMLElement.prototype.hidePopover = function () {
     this.removeAttribute('data-open-stub');
+    unrenderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
 }

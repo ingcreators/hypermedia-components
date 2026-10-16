@@ -1,6 +1,7 @@
 import './dom-setup.mjs';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { hasRemovals, pruneDetachers } from '../src/js/lifecycle.js';
+import { renderPopover, unrenderPopover } from './popover-stub.mjs';
 import { installMenu } from '../src/js/menu.js';
 import { installDatagrid } from '../src/js/datagrid.js';
 import { installMenubar } from '../src/js/menubar.js';
@@ -14,10 +15,12 @@ import { installSplitter } from '../src/js/splitter.js';
 if (!HTMLElement.prototype.hidePopover) {
   HTMLElement.prototype.hidePopover = function () {
     this.removeAttribute('open');
+    unrenderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
   HTMLElement.prototype.showPopover = function () {
     this.setAttribute('open', '');
+    renderPopover(this);
     this.dispatchEvent(new Event('toggle'));
   };
 }
